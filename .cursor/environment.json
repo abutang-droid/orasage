@@ -1,0 +1,4 @@
+{
+  "install": "mkdir -p ~/.ssh && chmod 700 ~/.ssh",
+  "start": "echo 'Cloud Agent ready for bazi deploy'"
+}

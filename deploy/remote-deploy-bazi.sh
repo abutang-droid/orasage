@@ -9,13 +9,20 @@ set -euo pipefail
 
 SSH_USER="${SSH_USER:-ubuntu}"
 SSH_HOST="${SSH_HOST:-34.75.40.67}"
-SSH_KEY="${SSH_KEY:-}"
 SSH_PORT="${SSH_PORT:-22}"
 DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
 ORASAGE_REF="${ORASAGE_REF:-cursor/deploy-bazi-34a4}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=15 -o BatchMode=yes"
 
-if [ -n "$SSH_KEY" ]; then
+# 支持 Cloud Agent Secrets / GitHub Actions 注入的 SSH_PRIVATE_KEY
+if [ -z "${SSH_KEY:-}" ] && [ -n "${SSH_PRIVATE_KEY:-}" ]; then
+  mkdir -p ~/.ssh
+  printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+  chmod 600 ~/.ssh/deploy_key
+  SSH_KEY=~/.ssh/deploy_key
+fi
+
+if [ -n "${SSH_KEY:-}" ]; then
   SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
 fi
 

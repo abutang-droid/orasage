@@ -21,6 +21,18 @@ SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
 
 ## 常见问题
 
+### 0. Cloud Agent Secrets 不生效
+
+在 [Cloud Agents → Secrets](https://cursor.com/dashboard/cloud-agents) 添加 `SSH_PRIVATE_KEY`（类型选 **Runtime Secret**）后，需要 **重新启动 Cloud Agent**（新开一次任务），当前会话不会自动加载新 Secret。
+
+验证（新会话中执行）：
+
+```bash
+DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
+```
+
+若 Cloud Agent 网络有限制，需在 Security → Network 中允许访问 `34.75.40.67:22`。
+
 ### 1. SSH_PRIVATE_KEY 为空
 
 日志出现 `echo ""` 表示 Secret 未正确配置。检查：
