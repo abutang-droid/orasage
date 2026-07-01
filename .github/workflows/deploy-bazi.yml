@@ -1,0 +1,54 @@
+name: Deploy Bazi
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: '部署模式 (proxy=迁移代理, native=自托管)'
+        required: true
+        default: 'proxy'
+        type: choice
+        options:
+          - proxy
+          - native
+  push:
+    branches:
+      - cursor/deploy-bazi-34a4
+    paths:
+      - 'deploy/bazi/**'
+      - '.github/workflows/deploy-bazi.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.SSH_HOST || '34.75.40.67' }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy bazi to VPS
+        env:
+          SSH_KEY: ~/.ssh/deploy_key
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
+          BAZI_REPO_URL: ${{ secrets.BAZI_REPO_URL }}
+          BAZI_UPSTREAM_URL: ${{ secrets.BAZI_UPSTREAM_URL || 'https://api1.lilyfunnlove.com' }}
+          ORASAGE_REF: ${{ github.ref_name }}
+        run: bash deploy/remote-deploy-bazi.sh
+
+      - name: Verify deployment
+        env:
+          SSH_KEY: ~/.ssh/deploy_key
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${{ secrets.SSH_USER || 'ubuntu' }}@${{ secrets.SSH_HOST || '34.75.40.67' }}" \
+            "curl -sf http://127.0.0.1:3110/health && echo && curl -sI https://bazi.orasage.com | head -5"
