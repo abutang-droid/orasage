@@ -82,12 +82,18 @@ systemctl reload nginx
 # ── 6. 验证 ───────────────────────────────────────────────────
 log "验证各子域 HTTP 响应..."
 for sub in auth bazi tarot ziwei; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://${sub}.orasage.com" || echo "000")
-  log "  ${sub}.orasage.com → HTTP $code"
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "https://${sub}.orasage.com" || echo "000")
+  log "  ${sub}.orasage.com → HTTPS $code"
 done
 
-log "完成！下一步：部署各 App 容器到对应端口"
+# ── 7. 部署紫微（迁移阶段：Nginx 代理到现有线上服务）────────
+if [ -f "$DEPLOY_DIR/deploy/ziwei/deploy-ziwei.sh" ]; then
+  log "部署紫微应用..."
+  bash "$DEPLOY_DIR/deploy/ziwei/deploy-ziwei.sh"
+fi
+
+log "完成！各 App 端口："
 log "  auth  → 3101"
 log "  bazi  → 3110"
 log "  tarot → 3112"
-log "  ziwei → 3111"
+log "  ziwei → 代理 api2.lilyfunnlove.com（自托管后改 :3111）"
