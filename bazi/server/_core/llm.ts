@@ -224,7 +224,9 @@ const resolveApiUrl = () => {
 const assertApiKey = () => {
   if (ENV.deepseekApiKey) return;
   if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+    throw new Error(
+      "AI API not configured: set DEEPSEEK_API_KEY or BUILT_IN_FORGE_API_KEY in bazi/.env"
+    );
   }
 };
 
