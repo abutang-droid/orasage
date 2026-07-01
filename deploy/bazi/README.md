@@ -62,9 +62,4 @@ gcloud compute firewall-rules create allow-ssh-ingress-from-iap \
 | `proxy` | 迁移阶段，3110 代理到 `api1.lilyfunnlove.com` |
 | `native` | 自托管，需设置 `BAZI_REPO_URL` |
 
-## 验证
-
-```bash
-curl -s https://bazi.orasage.com/health
-# {"ok":true,"service":"orasage-bazi-proxy",...}
-```
+## 验证: curl -s https://bazi.orasage.com/health
