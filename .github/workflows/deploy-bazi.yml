@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - cursor/deploy-bazi-34a4
+      - main
     paths:
       - 'deploy/bazi/**'
       - '.github/workflows/deploy-bazi.yml'
@@ -26,11 +27,37 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup SSH key
+        env:
+          KEY1: ${{ secrets.SSH_PRIVATE_KEY }}
+          KEY2: ${{ secrets.SSH_KEY }}
+          KEY3: ${{ secrets.VPS_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          SSH_PRIVATE_KEY="${KEY1:-${KEY2:-$KEY3}}"
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::未找到 SSH 私钥。请在 Settings → Secrets → Actions 添加 SSH_PRIVATE_KEY（完整 PEM，含 BEGIN/END 行）"
+            exit 1
+          fi
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          if ! grep -q 'BEGIN.*PRIVATE KEY' ~/.ssh/deploy_key; then
+            echo "::error::SSH_PRIVATE_KEY 格式不正确，需包含 -----BEGIN ... PRIVATE KEY-----"
+            exit 1
+          fi
           ssh-keyscan -H "${{ secrets.SSH_HOST || '34.75.40.67' }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH key loaded ($(wc -c < ~/.ssh/deploy_key) bytes)"
+
+      - name: Test SSH connectivity
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+        run: |
+          if ! timeout 20 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=15 \
+            -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; then
+            echo "::error::无法 SSH 到 ${SSH_HOST}:22"
+            echo "::error::请在 GCP 防火墙开放 22 端口，或配置 GCP IAP（见 deploy/bazi/README.md）"
+            exit 1
+          fi
 
       - name: Deploy bazi to VPS
         env:
@@ -45,10 +72,9 @@ jobs:
 
       - name: Verify deployment
         env:
-          SSH_KEY: ~/.ssh/deploy_key
-          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            "${{ secrets.SSH_USER || 'ubuntu' }}@${{ secrets.SSH_HOST || '34.75.40.67' }}" \
+            "${SSH_USER}@${SSH_HOST}" \
             "curl -sf http://127.0.0.1:3110/health && echo && curl -sI https://bazi.orasage.com | head -5"
