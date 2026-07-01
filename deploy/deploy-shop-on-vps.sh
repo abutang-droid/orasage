@@ -8,7 +8,7 @@
 set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-${ORASAGE_REF:-main}}"
 REPO_URL="${REPO_URL:-https://github.com/abutang-droid/orasage.git}"
 NODE_BIN="${NODE_BIN:-/usr/local/bin}"
 NPM_BIN="${NPM_BIN:-/usr/local/bin/npm}"

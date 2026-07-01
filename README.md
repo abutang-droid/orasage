@@ -68,6 +68,22 @@ cms.orasage.com       → cms     :3120   Payload CMS
 - Nginx 配置（唯一可信源）: 见 [`deploy/nginx/orasage.conf`](deploy/nginx/orasage.conf)
 - 所有 App 进程只监听 `127.0.0.1`，对外统一由 Nginx 反代到对应子域名
 
+### 全部 App 一键部署（推荐）
+
+```bash
+# 在 VPS 本机（GCP 控制台 SSH）执行：
+ORASAGE_REF=main bash /opt/orasage/deploy/bootstrap-all-on-vps.sh
+
+# 从本地/Cloud Agent 远程触发（需 SSH 私钥）：
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-all.sh
+
+# 命理 App 尚无 .env 时先用 proxy 回滚模式：
+FORTUNE_MODE=proxy bash deploy/remote-deploy-all.sh
+```
+
+GitHub Actions：手动触发 **Deploy All Apps** workflow（需配置 `SSH_PRIVATE_KEY`；
+若 GitHub runner 连不上 22 端口，还需配置 `GCP_SA_KEY` + IAP 相关变量）。
+
 ### main + auth + shop + admin（本地自托管，一键脚本）
 
 ```bash
