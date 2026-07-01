@@ -126,9 +126,11 @@ deploy/
 
 ## 已知遗留事项 / 后续优先级（按序执行）
 
-1. **P0** — bazi / ziwei / tarot 的真实应用源码不在本仓库中；三者当前均以反代
-   接入子域名。要实现完全自托管，需先取得各产品线源码仓库地址，再切换到
-   `deploy/<app>/deploy-*.sh` 的 `native` 模式。
+1. **P0** — bazi / ziwei / tarot 的真实应用源码目前只在本机
+   （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
+   VPS/CI 可访问的 git 仓库；三者当前均以反代接入子域名。要实现完全自托管，
+   需先将三个项目推送到 GitHub（或其他可访问的 git 远程），再在
+   `deploy/<app>/.env.example` 中填入真实的 `*_REPO_URL` 并切到 `native` 模式。
 2. **P0** — 在真实 VPS 上跑通 `deploy/deploy-shop-on-vps.sh`，验证 DNS/SSL/
    Nginx/systemd 全链路（当前仅在本地沙箱验证过各 App 单独构建与运行）。
 3. **P1** — 三条命理产品线接入统一 JWT 登录（目前仅完成 auth 侧设计与

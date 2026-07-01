@@ -55,8 +55,10 @@
 
 ## 4. 尚未开始 / 需要外部输入的事项
 
-- bazi / ziwei / tarot 的**实际应用源码**当前不在本仓库中，`deploy/<app>/deploy-*.sh`
-  的 `native` 模式需要显式传入对应仓库地址（`*_REPO_URL`）才能自托管；未提供前
-  这三个 App 只能以反代模式接入子域。
+- bazi / ziwei / tarot 的**实际应用源码**目前只存在于本机
+  （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
+  VPS/CI 可访问的 git 仓库，`deploy/<app>/deploy-*.sh` 的 `native` 模式需要
+  显式传入对应仓库地址（`*_REPO_URL`）才能自托管；推送前这三个 App 只能以
+  反代模式接入子域。
 - admin、cms 目前是最小骨架，尚未接入真实业务逻辑与鉴权后台。
 - c2.pub 旧站下线计划（详见 `docs/domain-setup.md` 第八节）尚未执行。
