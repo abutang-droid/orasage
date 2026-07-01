@@ -1,0 +1,40 @@
+# auth.orasage.com — 认证服务
+# 需要先将 auth-service 代码放到 ./auth-service/ 目录
+# 启动: docker compose up -d
+
+services:
+  auth-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: orasage_auth
+      POSTGRES_USER: orasage
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - auth_pg_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orasage -d orasage_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth:
+    build: ./auth-service
+    restart: unless-stopped
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3101:3101"
+    environment:
+      NODE_ENV: production
+      PORT: 3101
+      DATABASE_URL: postgresql://orasage:${DB_PASSWORD:-changeme}@auth-db:5432/orasage_auth
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_COOKIE_NAME: orasage_token
+      JWT_COOKIE_DOMAIN: .orasage.com
+
+volumes:
+  auth_pg_data:
