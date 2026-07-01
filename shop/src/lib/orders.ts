@@ -32,6 +32,29 @@ export async function syncOrderToAuth(input: SyncOrderInput) {
   return data as { success: boolean; id: number; duplicate?: boolean; updated?: boolean };
 }
 
+export interface AuthOrder {
+  id: number;
+  userId: number;
+  orderNo: string;
+  title: string;
+  amountCents: number;
+  currency: string;
+  status: OrderStatus;
+  appSource: AppSource | null;
+}
+
+export async function getOrderByNo(orderNo: string): Promise<AuthOrder | null> {
+  const res = await fetch(`${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}`, {
+    method: 'GET',
+  });
+  if (res.status === 404) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `查询订单失败 (${res.status})`);
+  }
+  return data.order as AuthOrder;
+}
+
 export async function updateOrderStatus(orderNo: string, status: OrderStatus) {
   const res = await fetch(`${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}`, {
     method: 'PATCH',
