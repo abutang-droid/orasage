@@ -10,8 +10,8 @@ set -euo pipefail
 SSH_USER="${SSH_USER:-ubuntu}"
 SSH_HOST="${SSH_HOST:-34.75.40.67}"
 SSH_PORT="${SSH_PORT:-22}"
-DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
-ORASAGE_REF="${ORASAGE_REF:-cursor/deploy-bazi-34a4}"
+DEPLOY_MODE="${DEPLOY_MODE:-native}"
+ORASAGE_REF="${ORASAGE_REF:-main}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=20 -o BatchMode=yes"
 
 log() { echo "[deploy-bazi] $*"; }
@@ -95,12 +95,13 @@ for attempt in 1 2 3; do
   sleep 5
 done
 
-log "上传 bazi 部署文件..."
-$SCP -r deploy/bazi "${SSH_USER}@${SSH_HOST}:/tmp/orasage-bazi"
-$SCP deploy/nginx/orasage.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage.conf"
+# deploy-bazi.sh 会自行 clone/pull 完整 orasage 仓库到 VPS 上的 $DEPLOY_DIR，
+# 这里只需把脚本本体传上去启动即可（native 模式不再依赖单独打包的 deploy/bazi 目录）。
+log "上传 bazi 部署脚本..."
+$SCP deploy/bazi/deploy-bazi.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-bazi.sh"
 
 log "在 VPS 上执行部署（模式: $DEPLOY_MODE）..."
-$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' BAZI_REPO_URL='${BAZI_REPO_URL:-}' BAZI_UPSTREAM_URL='${BAZI_UPSTREAM_URL:-https://api1.lilyfunnlove.com}' bash /tmp/orasage-bazi/deploy-bazi.sh"
+$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' BAZI_UPSTREAM_URL='${BAZI_UPSTREAM_URL:-https://api1.lilyfunnlove.com}' bash /tmp/deploy-bazi.sh"
 
 log "远程部署完成"
-log "验证: curl -s https://bazi.orasage.com/health"
+log "验证: curl -sI https://bazi.orasage.com"

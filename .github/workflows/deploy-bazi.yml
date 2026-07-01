@@ -1,24 +1,19 @@
 name: Deploy Bazi
 
+# 仅手动触发，不随 push 自动部署：bazi 现已切到 native 自托管模式，且
+# 现有 WooCommerce 支付/OAuth 登录仍在服务真实付费用户，切换部署方式属于
+# 需要人为决策的操作，不应该因为一次代码 push 就自动对生产环境生效。
 on:
   workflow_dispatch:
     inputs:
       deploy_mode:
-        description: '部署模式 (proxy=迁移代理, native=自托管)'
+        description: '部署模式 (native=自托管[默认], proxy=回滚到迁移代理)'
         required: true
-        default: 'proxy'
+        default: 'native'
         type: choice
         options:
-          - proxy
           - native
-  push:
-    branches:
-      - cursor/deploy-bazi-34a4
-      - main
-    paths:
-      - 'deploy/bazi/**'
-      - 'deploy/remote-deploy-bazi.sh'
-      - '.github/workflows/deploy-bazi.yml'
+          - proxy
 
 jobs:
   deploy:
@@ -97,8 +92,7 @@ jobs:
           SSH_KEY: ~/.ssh/deploy_key
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
-          BAZI_REPO_URL: ${{ secrets.BAZI_REPO_URL }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
           BAZI_UPSTREAM_URL: ${{ secrets.BAZI_UPSTREAM_URL || 'https://api1.lilyfunnlove.com' }}
           ORASAGE_REF: ${{ github.ref_name }}
           GCP_IAP_PROXY_COMMAND: ${{ env.GCP_IAP_PROXY_COMMAND }}
@@ -115,4 +109,4 @@ jobs:
             SSH_OPTS="$SSH_OPTS -o ProxyCommand='$GCP_IAP_PROXY_COMMAND'"
           fi
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "curl -sf http://127.0.0.1:3110/health && echo && curl -sI https://bazi.orasage.com | head -5"
+            "curl -sf http://127.0.0.1:3110/ -o /dev/null && echo OK && curl -sI https://bazi.orasage.com | head -5"

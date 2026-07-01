@@ -1,24 +1,17 @@
 name: Deploy Ziwei
 
+# 仅手动触发：切换 ziwei 部署方式属于需要人为确认的操作，不随 push 自动执行。
 on:
   workflow_dispatch:
     inputs:
       deploy_mode:
-        description: '部署模式 (proxy=迁移代理, native=自托管)'
+        description: '部署模式 (native=自托管[默认], proxy=回滚到迁移代理)'
         required: true
-        default: 'proxy'
+        default: 'native'
         type: choice
         options:
-          - proxy
           - native
-  push:
-    branches:
-      - main
-    paths:
-      - 'deploy/ziwei/**'
-      - 'deploy/remote-deploy-ziwei.sh'
-      - 'deploy/nginx/orasage.conf'
-      - '.github/workflows/deploy-ziwei.yml'
+          - proxy
 
 jobs:
   deploy:
@@ -98,8 +91,7 @@ jobs:
           SSH_KEY: ~/.ssh/deploy_key
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
-          ZIWEI_REPO_URL: ${{ secrets.ZIWEI_REPO_URL }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
           ZIWEI_UPSTREAM_URL: ${{ secrets.ZIWEI_UPSTREAM_URL || 'https://api2.lilyfunnlove.com' }}
           ORASAGE_REF: ${{ github.ref_name }}
           GCP_IAP_PROXY_COMMAND: ${{ env.GCP_IAP_PROXY_COMMAND }}
@@ -116,4 +108,4 @@ jobs:
             SSH_OPTS="$SSH_OPTS -o ProxyCommand='$GCP_IAP_PROXY_COMMAND'"
           fi
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "curl -sf http://127.0.0.1:3111/health && echo && curl -sI https://ziwei.orasage.com | head -5"
+            "curl -sf http://127.0.0.1:3111/ -o /dev/null && echo OK && curl -sI https://ziwei.orasage.com | head -5"

@@ -1,11 +1,23 @@
 # bazi 八字应用部署说明
 
+源码已 vendor 进本仓库的 [`bazi/`](../../bazi)（对应
+[abutang-droid/bazi-calculator](https://github.com/abutang-droid/bazi-calculator)），
+默认 `native` 自托管模式，不再需要单独拉取外部仓库。仍保留 `proxy` 模式作为
+回滚手段（反代回迁移前的 `api1.lilyfunnlove.com`）。
+
 ## 快速部署
 
 ```bash
-# 本地（需 VPS SSH 密钥）
+# 本地（需 VPS SSH 密钥），native 自托管（默认）
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-bazi.sh
+
+# 回滚到 proxy 模式
 SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
 ```
+
+native 模式部署前，需在 VPS 上准备 `/opt/orasage/bazi/.env`
+（参考 [`bazi/.env.example`](../../bazi/.env.example)），至少配置
+`DATABASE_URL`（MySQL）与 `JWT_SECRET`（与 auth-service 共用同一个值）。
 
 ## GitHub Actions 配置
 
@@ -71,8 +83,13 @@ gcloud compute firewall-rules create allow-ssh-ingress-from-iap \
 
 | 模式 | 说明 |
 |------|------|
-| `proxy` | 迁移阶段，3110 代理到 `api1.lilyfunnlove.com` |
-| `native` | 自托管，需设置 `BAZI_REPO_URL` |
+| `native`（默认） | 自托管本仓库 `bazi/` 源码，systemd 常驻，3110 端口 |
+| `proxy` | 回滚：3110 反代到迁移前的 `api1.lilyfunnlove.com` |
 
-## 验证: curl -s https://bazi.orasage.com/health
-# GCP 防火墙已开放，GitHub Actions 可直连 VPS:22
+## 验证
+
+```bash
+curl -sI https://bazi.orasage.com
+```
+
+注：GCP 防火墙已开放，GitHub Actions 可直连 VPS:22。

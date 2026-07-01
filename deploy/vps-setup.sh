@@ -28,6 +28,21 @@ log "安装系统依赖..."
 apt-get update -qq
 apt-get install -y -qq nginx certbot python3-certbot-nginx git curl
 
+# Node.js 22（main / auth / shop / admin / cms / ziwei / tarot 均为 Node 应用）
+if ! command -v node >/dev/null 2>&1 || [ "$(node -v | sed 's/^v//' | cut -d. -f1)" -lt 22 ]; then
+  log "安装 Node.js 22..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  apt-get install -y -qq nodejs
+fi
+corepack enable 2>/dev/null || npm install -g pnpm  # bazi 使用 pnpm
+
+# MariaDB（bazi / tarot 使用 MySQL 兼容数据库；ziwei 无状态不需要）
+if ! command -v mysql >/dev/null 2>&1; then
+  log "安装 MariaDB..."
+  apt-get install -y -qq mariadb-server
+  systemctl enable --now mariadb
+fi
+
 # ── 2. 拉取配置仓库 ──────────────────────────────────────────
 log "拉取 orasage 配置..."
 mkdir -p "$DEPLOY_DIR"

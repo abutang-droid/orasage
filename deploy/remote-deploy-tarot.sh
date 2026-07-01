@@ -9,7 +9,7 @@ set -euo pipefail
 SSH_USER="${SSH_USER:-ubuntu}"
 SSH_HOST="${SSH_HOST:-34.75.40.67}"
 SSH_PORT="${SSH_PORT:-22}"
-DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
+DEPLOY_MODE="${DEPLOY_MODE:-native}"
 ORASAGE_REF="${ORASAGE_REF:-main}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=20 -o BatchMode=yes"
 
@@ -98,12 +98,13 @@ for attempt in 1 2 3; do
   sleep 5
 done
 
-log "上传 tarot 部署文件..."
-$SCP -r deploy/tarot "${SSH_USER}@${SSH_HOST}:/tmp/orasage-tarot"
-$SCP deploy/nginx/orasage.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage.conf"
+# deploy-tarot.sh 会自行 clone/pull 完整 orasage 仓库到 VPS 上的 $DEPLOY_DIR，
+# 这里只需把脚本本体传上去启动即可（native 模式不再依赖单独打包的 deploy/tarot 目录）。
+log "上传 tarot 部署脚本..."
+$SCP deploy/tarot/deploy-tarot.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-tarot.sh"
 
 log "在 VPS 上执行部署（模式: $DEPLOY_MODE）..."
-$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' TAROT_REPO_URL='${TAROT_REPO_URL:-}' TAROT_UPSTREAM_URL='${TAROT_UPSTREAM_URL:-}' bash /tmp/orasage-tarot/deploy-tarot.sh"
+$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' TAROT_UPSTREAM_URL='${TAROT_UPSTREAM_URL:-}' bash /tmp/deploy-tarot.sh"
 
 log "远程部署完成"
-log "验证: curl -s https://tarot.orasage.com/health"
+log "验证: curl -sI https://tarot.orasage.com"

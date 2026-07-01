@@ -1,24 +1,17 @@
 name: Deploy Tarot
 
+# 仅手动触发：切换 tarot 部署方式属于需要人为确认的操作，不随 push 自动执行。
 on:
   workflow_dispatch:
     inputs:
       deploy_mode:
-        description: '部署模式 (proxy=迁移代理, native=自托管)'
+        description: '部署模式 (native=自托管[默认], proxy=回滚到迁移代理，需先在 Secrets 配置 TAROT_UPSTREAM_URL)'
         required: true
-        default: 'proxy'
+        default: 'native'
         type: choice
         options:
-          - proxy
           - native
-  push:
-    branches:
-      - main
-    paths:
-      - 'deploy/tarot/**'
-      - 'deploy/remote-deploy-tarot.sh'
-      - 'deploy/nginx/orasage.conf'
-      - '.github/workflows/deploy-tarot.yml'
+          - proxy
 
 jobs:
   deploy:
@@ -108,8 +101,7 @@ jobs:
           SSH_KEY: ~/.ssh/deploy_key
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
-          TAROT_REPO_URL: ${{ secrets.TAROT_REPO_URL }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
           TAROT_UPSTREAM_URL: ${{ secrets.TAROT_UPSTREAM_URL }}
           ORASAGE_REF: ${{ github.ref_name }}
           GCP_IAP_PROXY_COMMAND: ${{ env.GCP_IAP_PROXY_COMMAND }}
@@ -126,4 +118,4 @@ jobs:
             SSH_OPTS="$SSH_OPTS -o ProxyCommand='$GCP_IAP_PROXY_COMMAND'"
           fi
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "curl -sf http://127.0.0.1:3112/health && echo && curl -sI https://tarot.orasage.com | head -5"
+            "curl -sf http://127.0.0.1:3112/ -o /dev/null && echo OK && curl -sI https://tarot.orasage.com | head -5"

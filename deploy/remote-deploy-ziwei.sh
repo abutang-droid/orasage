@@ -10,7 +10,7 @@ set -euo pipefail
 SSH_USER="${SSH_USER:-ubuntu}"
 SSH_HOST="${SSH_HOST:-34.75.40.67}"
 SSH_PORT="${SSH_PORT:-22}"
-DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
+DEPLOY_MODE="${DEPLOY_MODE:-native}"
 ORASAGE_REF="${ORASAGE_REF:-main}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=20 -o BatchMode=yes"
 
@@ -95,12 +95,13 @@ for attempt in 1 2 3; do
   sleep 5
 done
 
-log "上传 ziwei 部署文件..."
-$SCP -r deploy/ziwei "${SSH_USER}@${SSH_HOST}:/tmp/orasage-ziwei"
-$SCP deploy/nginx/orasage.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage.conf"
+# deploy-ziwei.sh 会自行 clone/pull 完整 orasage 仓库到 VPS 上的 $DEPLOY_DIR，
+# 这里只需把脚本本体传上去启动即可（native 模式不再依赖单独打包的 deploy/ziwei 目录）。
+log "上传 ziwei 部署脚本..."
+$SCP deploy/ziwei/deploy-ziwei.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-ziwei.sh"
 
 log "在 VPS 上执行部署（模式: $DEPLOY_MODE）..."
-$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' ZIWEI_REPO_URL='${ZIWEI_REPO_URL:-}' ZIWEI_UPSTREAM_URL='${ZIWEI_UPSTREAM_URL:-https://api2.lilyfunnlove.com}' bash /tmp/orasage-ziwei/deploy-ziwei.sh"
+$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' ZIWEI_UPSTREAM_URL='${ZIWEI_UPSTREAM_URL:-https://api2.lilyfunnlove.com}' bash /tmp/deploy-ziwei.sh"
 
 log "远程部署完成"
-log "验证: curl -s https://ziwei.orasage.com/health"
+log "验证: curl -sI https://ziwei.orasage.com"
