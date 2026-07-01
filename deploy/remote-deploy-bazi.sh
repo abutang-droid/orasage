@@ -97,7 +97,7 @@ done
 
 log "上传 bazi 部署文件..."
 $SCP -r deploy/bazi "${SSH_USER}@${SSH_HOST}:/tmp/orasage-bazi"
-$SCP deploy/nginx/orasage-live.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage-live.conf"
+$SCP deploy/nginx/orasage.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage.conf"
 
 log "在 VPS 上执行部署（模式: $DEPLOY_MODE）..."
 $SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' BAZI_REPO_URL='${BAZI_REPO_URL:-}' BAZI_UPSTREAM_URL='${BAZI_UPSTREAM_URL:-https://api1.lilyfunnlove.com}' bash /tmp/orasage-bazi/deploy-bazi.sh"

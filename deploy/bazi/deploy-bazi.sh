@@ -98,9 +98,7 @@ deploy_native() {
 ensure_nginx() {
   log "确保 Nginx bazi 子域配置..."
   NGINX_CONF="/etc/nginx/sites-available/orasage"
-  if [ -f "$DEPLOY_DIR/deploy/nginx/orasage-live.conf" ]; then
-    cp "$DEPLOY_DIR/deploy/nginx/orasage-live.conf" "$NGINX_CONF"
-  elif [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
+  if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
     cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" "$NGINX_CONF"
   fi
   ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/orasage
