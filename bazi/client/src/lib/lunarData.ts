@@ -28,8 +28,9 @@ export interface LunarRecord {
 }
 
 // ── 数据路径 ──────────────────────────────────
-// 本地开发时可通过 VITE_LUNAR_DATA_DIR 环境变量指定本地 JSON 目录
-const LUNAR_DATA_DIR = import.meta.env.VITE_LUNAR_DATA_DIR ?? '/manus-storage';
+// 本地开发时可通过 VITE_LUNAR_DATA_DIR 环境变量指定 JSON 目录。
+// 默认 /data：对应 client/public/data（构建后在 dist/public/data），native VPS 自托管无需 Manus Storage。
+const LUNAR_DATA_DIR = import.meta.env.VITE_LUNAR_DATA_DIR ?? '/data';
 
 const DECADE_URLS: Record<string, string> = {
   '1900s': `${LUNAR_DATA_DIR}/data_1900s_8987235d.json`,

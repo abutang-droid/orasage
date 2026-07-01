@@ -67,6 +67,7 @@ deploy_native() {
   npx drizzle-kit push --force
 
   export VITE_AUTH_URL="${VITE_AUTH_URL:-https://auth.orasage.com}"
+  export VITE_LUNAR_DATA_DIR="${VITE_LUNAR_DATA_DIR:-/data}"
   # 空字符串会让 Vite 把 OAuth 门户当成已配置，前端应走 orasage auth 回退
   unset VITE_OAUTH_PORTAL_URL VITE_APP_ID 2>/dev/null || true
 

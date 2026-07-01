@@ -1,5 +1,33 @@
 import type { Express } from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { ENV } from "./env";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function localPublicDir(): string {
+  return process.env.NODE_ENV === "development"
+    ? path.resolve(__dirname, "../..", "dist", "public")
+    : path.resolve(__dirname, "public");
+}
+
+function tryServeLocalFile(key: string, res: import("express").Response): boolean {
+  const basename = path.basename(key);
+  const candidates = [
+    path.join(localPublicDir(), "data", basename),
+    path.join(localPublicDir(), basename),
+  ];
+
+  for (const filePath of candidates) {
+    if (fs.existsSync(filePath)) {
+      res.set("Cache-Control", "public, max-age=86400");
+      res.sendFile(filePath);
+      return true;
+    }
+  }
+  return false;
+}
 
 export function registerStorageProxy(app: Express) {
   app.get("/manus-storage/*", async (req, res) => {
@@ -9,8 +37,13 @@ export function registerStorageProxy(app: Express) {
       return;
     }
 
+    // native VPS：农历 JSON 等已 vendor 在 dist/public/data，直接本地返回
+    if (tryServeLocalFile(key, res)) {
+      return;
+    }
+
     if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-      res.status(500).send("Storage proxy not configured");
+      res.status(404).send("Storage object not found");
       return;
     }
 
