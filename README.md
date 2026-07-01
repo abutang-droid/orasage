@@ -26,7 +26,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 | `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | 未建 |
 | `admin.orasage.com` | admin | 3103 | Next.js SPA | — | 未建 |
 | `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC | MySQL | ✅ 已有，需改认证 |
-| `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | 🔄 迁移中（代理 api2.lilyfunnlove.com） |
+| `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | 🔄 Docker proxy → api2.lilyfunnlove.com |
 | `tarot.orasage.com` | tarot | 3112 | Next.js + Prisma | MySQL | ✅ 已有，需统一 JWT |
 | `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 未建 |
 
@@ -69,9 +69,10 @@ docs/
 deploy/
   nginx/orasage.conf     # Nginx 子域名反向代理配置
   ziwei/
-    deploy-ziwei.sh      # 紫微部署脚本（代理 / 自托管）
-    orasage-ziwei.service
-    .env.example
+    deploy-ziwei.sh      # VPS 端部署（proxy / native）
+    remote-deploy-ziwei.sh  # 见 deploy/remote-deploy-ziwei.sh
+    docker-compose.yml   # 迁移代理容器 :3111
+    proxy/               # Node 反向代理 → api2.lilyfunnlove.com
   auth/cookie.example.ts
   .env.example
 auth-service/            # 临时 scaffold（正式版见 abutang-droid/auth-service）

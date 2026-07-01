@@ -1,36 +1,55 @@
 name: Deploy Ziwei
 
 on:
+  workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: '部署模式 (proxy=迁移代理, native=自托管)'
+        required: true
+        default: 'proxy'
+        type: choice
+        options:
+          - proxy
+          - native
   push:
-    branches: [main, cursor/deploy-ziwei-1ddb]
+    branches:
+      - cursor/deploy-ziwei-1ddb
+      - main
     paths:
       - 'deploy/ziwei/**'
-      - 'deploy/nginx/orasage*.conf'
-      - 'deploy/remote-deploy.sh'
-  workflow_dispatch:
+      - '.github/workflows/deploy-ziwei.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: github.repository == 'abutang-droid/orasage'
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.SSH_HOST || '34.75.40.67' }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy ziwei to VPS
         env:
-          SSH_USER: ${{ vars.SSH_USER || 'ubuntu' }}
-          SSH_HOST: ${{ vars.SSH_HOST || '34.75.40.67' }}
-        run: bash deploy/remote-deploy.sh ziwei
+          SSH_KEY: ~/.ssh/deploy_key
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
+          ORASAGE_REF: ${{ github.ref_name }}
+          ZIWEI_UPSTREAM_URL: https://api2.lilyfunnlove.com
+        run: bash deploy/remote-deploy-ziwei.sh
 
       - name: Verify deployment
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://ziwei.orasage.com)
-          echo "ziwei.orasage.com → HTTP $code"
-          if [ "$code" != "200" ] && [ "$code" != "307" ] && [ "$code" != "308" ]; then
-            echo "::warning::ziwei.orasage.com returned HTTP $code"
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://ziwei.orasage.com/health)
+          echo "ziwei.orasage.com/health → HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::ziwei health check returned HTTP $code"
           fi
+          page=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://ziwei.orasage.com)
+          echo "ziwei.orasage.com → HTTP $page"

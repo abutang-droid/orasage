@@ -1,84 +1,144 @@
 #!/usr/bin/env bash
-# 紫微斗数 ziwei.orasage.com 部署脚本
-#
-# 迁移阶段（默认）：Nginx 反向代理到现有线上服务 api2.lilyfunnlove.com
-# 自托管阶段：ZIWEI_MODE=local 时启动本地 :3111 服务
-#
-# 用法:
-#   bash deploy/ziwei/deploy-ziwei.sh              # 在 VPS 上执行（代理模式）
-#   ZIWEI_MODE=local bash deploy/ziwei/deploy-ziwei.sh  # 自托管模式
-#
-# 远程部署:
-#   SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy.sh ziwei
+# VPS 端 ziwei 部署脚本
+# 在 VPS 上执行: sudo bash deploy-ziwei.sh
+# 或从 remote-deploy-ziwei.sh 远程调用
 
 set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
-ZIWEI_MODE="${ZIWEI_MODE:-proxy}"
-ZIWEI_UPSTREAM="${ZIWEI_UPSTREAM:-https://api2.lilyfunnlove.com}"
-ZIWEI_UPSTREAM_HOST="${ZIWEI_UPSTREAM_HOST:-api2.lilyfunnlove.com}"
-ZIWEI_PORT="${ZIWEI_PORT:-3111}"
-NGINX_CONF="/etc/nginx/sites-available/orasage"
+ZIWEI_DIR="$DEPLOY_DIR/ziwei"
+MODE="${DEPLOY_MODE:-proxy}"
+REPO_URL="${ZIWEI_REPO_URL:-}"
+REPO_BRANCH="${ZIWEI_REPO_BRANCH:-main}"
 
-log() { echo "[ziwei-deploy $(date '+%H:%M:%S')] $*"; }
+log() { echo "[$(date '+%H:%M:%S')] [ziwei] $*"; }
 
-# ── 1. 更新 Nginx 配置 ───────────────────────────────────────
-log "部署 Nginx 配置（模式: $ZIWEI_MODE）..."
-if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
-  cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" "$NGINX_CONF"
-  ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/orasage
-else
-  log "警告: 未找到 $DEPLOY_DIR/deploy/nginx/orasage.conf，跳过 Nginx 更新"
-fi
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || { log "缺少命令: $1"; exit 1; }
+}
 
-# ── 2. 自托管模式：启动本地服务 ──────────────────────────────
-if [ "$ZIWEI_MODE" = "local" ]; then
-  ZIWEI_APP_DIR="${ZIWEI_APP_DIR:-$DEPLOY_DIR/ziwei}"
+install_docker() {
+  if command -v docker >/dev/null 2>&1; then
+    return
+  fi
+  log "安装 Docker..."
+  apt-get update -qq
+  apt-get install -y -qq ca-certificates curl
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  chmod a+r /etc/apt/keyrings/docker.asc
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    > /etc/apt/sources.list.d/docker.list
+  apt-get update -qq
+  apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  systemctl enable --now docker
+}
 
-  if [ ! -d "$ZIWEI_APP_DIR" ]; then
-    log "错误: 自托管模式需要 ziwei 应用目录 $ZIWEI_APP_DIR"
-    log "请设置 ZIWEI_REPO 并克隆源码，或手动部署应用到该目录"
+sync_config_repo() {
+  log "同步 orasage 配置仓库..."
+  mkdir -p "$DEPLOY_DIR"
+  if [ -d "$DEPLOY_DIR/.git" ]; then
+    git -C "$DEPLOY_DIR" fetch --all --prune
+    git -C "$DEPLOY_DIR" checkout "${ORASAGE_REF:-main}" 2>/dev/null || git -C "$DEPLOY_DIR" checkout main
+    git -C "$DEPLOY_DIR" pull --ff-only || true
+  else
+    git clone https://github.com/abutang-droid/orasage.git "$DEPLOY_DIR"
+  fi
+}
+
+deploy_proxy() {
+  log "部署 proxy 模式（3111 → ${ZIWEI_UPSTREAM_URL:-https://api2.lilyfunnlove.com}）..."
+  require_cmd docker
+  cd "$ZIWEI_DIR"
+  if [ -f .env ]; then
+    set -a && source .env && set +a
+  elif [ -f .env.example ]; then
+    cp .env.example .env
+    set -a && source .env && set +a
+  fi
+  docker compose build --pull
+  docker compose up -d --remove-orphans
+}
+
+deploy_native() {
+  log "部署 native 模式（自托管 ziwei 应用）..."
+  if [ -z "$REPO_URL" ]; then
+    log "错误: native 模式需要设置 ZIWEI_REPO_URL"
     exit 1
   fi
-
-  log "构建并启动本地 ziwei 服务（端口 $ZIWEI_PORT）..."
-  cd "$ZIWEI_APP_DIR"
-
-  if [ -f docker-compose.yml ] || [ -f compose.yml ]; then
-    docker compose up -d --build
-  elif [ -f package.json ]; then
-    npm ci --production=false
-    npm run build
-  fi
-
-  if [ -f /etc/systemd/system/orasage-ziwei.service ]; then
-    cp "$DEPLOY_DIR/deploy/ziwei/orasage-ziwei.service" /etc/systemd/system/
-    systemctl daemon-reload
-    systemctl enable orasage-ziwei
-    systemctl restart orasage-ziwei
+  require_cmd docker
+  APP_SRC="$ZIWEI_DIR/app"
+  if [ -d "$APP_SRC/.git" ]; then
+    git -C "$APP_SRC" fetch --all --prune
+    git -C "$APP_SRC" checkout "$REPO_BRANCH"
+    git -C "$APP_SRC" pull --ff-only
   else
-    log "提示: 安装 systemd 服务: cp deploy/ziwei/orasage-ziwei.service /etc/systemd/system/"
+    mkdir -p "$APP_SRC"
+    git clone --branch "$REPO_BRANCH" --depth 1 "$REPO_URL" "$APP_SRC"
   fi
-else
-  log "代理模式: ziwei.orasage.com → $ZIWEI_UPSTREAM"
-fi
+  cd "$APP_SRC"
+  if [ -f Dockerfile ]; then
+    docker build -t orasage-ziwei:native .
+    docker rm -f orasage-ziwei-native 2>/dev/null || true
+    docker run -d \
+      --name orasage-ziwei-native \
+      --restart unless-stopped \
+      -p 127.0.0.1:3111:3111 \
+      --env-file "$ZIWEI_DIR/.env" \
+      orasage-ziwei:native
+  elif [ -f docker-compose.yml ] || [ -f compose.yml ]; then
+    COMPOSE_FILE=$(ls docker-compose.yml compose.yml 2>/dev/null | head -1)
+    docker compose -f "$COMPOSE_FILE" up -d --build
+  else
+    log "错误: ziwei 仓库中未找到 Dockerfile 或 docker-compose.yml"
+    exit 1
+  fi
+}
 
-# ── 3. 重载 Nginx ────────────────────────────────────────────
-if command -v nginx &>/dev/null; then
+ensure_nginx() {
+  log "确保 Nginx ziwei 子域配置..."
+  NGINX_CONF="/etc/nginx/sites-available/orasage"
+  if [ -f "$DEPLOY_DIR/deploy/nginx/orasage-live.conf" ]; then
+    cp "$DEPLOY_DIR/deploy/nginx/orasage-live.conf" "$NGINX_CONF"
+  elif [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
+    cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" "$NGINX_CONF"
+  fi
+  ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/orasage
   nginx -t
   systemctl reload nginx
-  log "Nginx 已重载"
-fi
+}
 
-# ── 4. 验证 ──────────────────────────────────────────────────
-log "验证 ziwei.orasage.com ..."
-sleep 2
-code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://ziwei.orasage.com" || echo "000")
-log "  https://ziwei.orasage.com → HTTP $code"
+verify() {
+  log "验证本地 3111 端口..."
+  sleep 2
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:3111/health || echo "000")
+  log "  127.0.0.1:3111/health → HTTP $code"
+  if [ "$code" != "200" ]; then
+    log "警告: 健康检查未通过，请检查 docker logs"
+    docker compose -f "$ZIWEI_DIR/docker-compose.yml" logs --tail 30 2>/dev/null || true
+  fi
+  ext_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://ziwei.orasage.com/health || echo "000")
+  log "  https://ziwei.orasage.com/health → HTTP $ext_code"
+  page_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://ziwei.orasage.com || echo "000")
+  log "  https://ziwei.orasage.com → HTTP $page_code"
+}
 
-if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
-  log "✅ 紫微应用部署成功"
-else
-  log "⚠️  HTTP $code — 请检查 Nginx 配置和上游服务"
-  exit 1
-fi
+# ── main ──────────────────────────────────────────────────────
+log "开始部署 ziwei（模式: $MODE）..."
+require_cmd git
+require_cmd curl
+install_docker
+sync_config_repo
+
+mkdir -p "$ZIWEI_DIR"
+cp -r "$DEPLOY_DIR/deploy/ziwei/"* "$ZIWEI_DIR/" 2>/dev/null || true
+
+case "$MODE" in
+  proxy)  deploy_proxy ;;
+  native) deploy_native ;;
+  *)      log "未知 DEPLOY_MODE=$MODE（支持 proxy | native）"; exit 1 ;;
+esac
+
+ensure_nginx
+verify
+log "ziwei 部署完成 → https://ziwei.orasage.com"

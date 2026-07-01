@@ -35,7 +35,7 @@ $SSH "echo 'SSH OK' && uname -a"
 log "上传部署文件..."
 $SCP deploy/vps-setup.sh "${SSH_USER}@${SSH_HOST}:/tmp/vps-setup.sh"
 $SCP deploy/nginx/orasage.conf "${SSH_USER}@${SSH_HOST}:/tmp/orasage.conf"
-$SCP deploy/ziwei/deploy-ziwei.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-ziwei.sh"
+$SCP -r deploy/ziwei "${SSH_USER}@${SSH_HOST}:/tmp/orasage-ziwei"
 
 log "在 VPS 上拉取最新配置..."
 $SSH "sudo mkdir -p /opt/orasage && \
@@ -44,7 +44,7 @@ $SSH "sudo mkdir -p /opt/orasage && \
 case "$TARGET" in
   ziwei)
     log "部署紫微应用..."
-    $SSH "sudo bash /tmp/deploy-ziwei.sh"
+    $SSH "sudo DEPLOY_MODE=proxy ORASAGE_REF='${ORASAGE_REF:-main}' bash /tmp/orasage-ziwei/deploy-ziwei.sh"
     ;;
   nginx)
     log "仅更新 Nginx 配置..."
@@ -56,7 +56,7 @@ case "$TARGET" in
     log "执行完整 VPS 部署..."
     $SSH "sudo bash /tmp/vps-setup.sh"
     log "部署紫微应用..."
-    $SSH "sudo bash /tmp/deploy-ziwei.sh"
+    $SSH "sudo DEPLOY_MODE=proxy ORASAGE_REF='${ORASAGE_REF:-main}' bash /tmp/orasage-ziwei/deploy-ziwei.sh"
     ;;
 esac
 
