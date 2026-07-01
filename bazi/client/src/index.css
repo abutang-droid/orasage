@@ -1,0 +1,559 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Google Fonts 已在 index.html 中引入 ── */
+
+/* ══════════════════════════════════════════════════════════════
+   OraSage Design System
+   墨金风格 · 墨玉为底 · 鎏金点睛 · 东方命理
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── OraSage 品牌色 ── */
+  --gold:          #C4A04E;   /* 鎏金：品牌金、按钮、链接 */
+  --gold-light:    #D4B86A;   /* 亮金：Hover、渐变 */
+  --gold-bright:   #DBC47A;   /* 灿金：强调高亮 */
+  --gold-faint:    rgba(196, 160, 78, 0.20);
+  --gold-ghost:    rgba(196, 160, 78, 0.07);
+  --gold-glow:     rgba(196, 160, 78, 0.25);
+
+  /* ── 文字色 ── */
+  --heading:       #EDE8D8;   /* 素绢白：H1-H6、重要标题 */
+  --body:          #ADA898;   /* 灰金：正文、表单 */
+  --muted:         #6E6858;   /* 古铜：弱化文字、元信息 */
+
+  /* ── 深色背景（视觉锚点）── */
+  --ink-deep:      #0F0C20;   /* 墨玉深：四柱等需要高对比的区域 */
+  --ink-border:    rgba(196, 160, 78, 0.15);  /* 深色背景上的鎏金边框 */
+
+  /* ── 背景与边框 ── */
+  --bg-page:       #0A0815;   /* 墨玉：页面主背景 */
+  --bg-card:       #15122A;   /* 玄天：卡片背景 */
+  --bg-white:      #1A1732;   /* 代替原 #FFF 的浅墨色 */
+  --border-color:  rgba(196, 160, 78, 0.12);   /* 鎏金边框、分割线 */
+
+  /* ── 字体 ── */
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  --font-sans:  'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /* ── Tailwind / shadcn 兼容变量 ── */
+  --radius: 0.75rem;
+  --background:              #0A0815;
+  --foreground:              #EDE8D8;
+  --card:                    #15122A;
+  --card-foreground:         #EDE8D8;
+  --popover:                 #1A1732;
+  --popover-foreground:      #EDE8D8;
+  --primary:                 #C4A04E;
+  --primary-foreground:      #0A0815;
+  --secondary:               #1A1732;
+  --secondary-foreground:    #EDE8D8;
+  --muted:                   #1A1732;
+  --muted-foreground:        #6E6858;
+  --accent:                  #1A1732;
+  --accent-foreground:       #EDE8D8;
+  --destructive:             oklch(0.577 0.245 27.325);
+  --destructive-foreground:  oklch(0.985 0 0);
+  --border:                  rgba(196, 160, 78, 0.12);
+  --input:                   #1A1732;
+  --ring:                    #C4A04E;
+  --sidebar:                 #0F0C20;
+  --sidebar-foreground:      #EDE8D8;
+  --sidebar-primary:         #C4A04E;
+  --sidebar-primary-foreground: #0A0815;
+  --sidebar-accent:          #1A1732;
+  --sidebar-accent-foreground: #EDE8D8;
+  --sidebar-border:          rgba(196, 160, 78, 0.12);
+  --sidebar-ring:            #C4A04E;
+  --chart-1: #C4A04E;
+  --chart-2: #7F6CB3;
+  --chart-3: #5D9B8C;
+  --chart-4: #C47A5A;
+  --chart-5: #5D7A9B;
+
+  /* ── Tailwind 颜色映射 ── */
+  --color-background:                var(--background);
+  --color-foreground:                var(--foreground);
+  --color-card:                      var(--card);
+  --color-card-foreground:           var(--card-foreground);
+  --color-popover:                   var(--popover);
+  --color-popover-foreground:        var(--popover-foreground);
+  --color-primary:                   var(--primary);
+  --color-primary-foreground:        var(--primary-foreground);
+  --color-secondary:                 var(--secondary);
+  --color-secondary-foreground:      var(--secondary-foreground);
+  --color-muted:                     var(--muted);
+  --color-muted-foreground:          var(--muted-foreground);
+  --color-accent:                    var(--accent);
+  --color-accent-foreground:         var(--accent-foreground);
+  --color-destructive:               var(--destructive);
+  --color-destructive-foreground:    var(--destructive-foreground);
+  --color-border:                    var(--border);
+  --color-input:                     var(--input);
+  --color-ring:                      var(--ring);
+  --color-sidebar:                   var(--sidebar);
+  --color-sidebar-foreground:        var(--sidebar-foreground);
+  --color-sidebar-primary:           var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:            var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:            var(--sidebar-border);
+  --color-sidebar-ring:              var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Base Reset
+   ══════════════════════════════════════════════════════════════ */
+@layer base {
+  * {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    background: var(--bg-page);
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--body);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    color: var(--heading);
+    line-height: 1.25;
+  }
+
+  h5, h6 {
+    font-family: var(--font-sans);
+    color: var(--heading);
+    font-weight: 500;
+  }
+
+  a {
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  a:hover {
+    color: var(--gold-light);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  a[href],
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Components
+   ══════════════════════════════════════════════════════════════ */
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    max-width: 1290px;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* ── OraSage 卡片（墨金版）── */
+  .ora-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ── 金色分隔线 ── */
+  .gold-rule {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-faint), transparent);
+    margin: 1.25rem 0;
+  }
+
+  /* ── 区块标题 ── */
+  .section-label {
+    font-family: var(--font-serif);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── 输入框：深色背景 + 鎏金描边 ── */
+  .ora-input {
+    width: 100%;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--heading);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    caret-color: var(--gold);
+    min-height: 52px;
+  }
+  .ora-input::placeholder {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .ora-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-ghost);
+  }
+
+  /* ── 旧版 ink-input 兼容 ── */
+  .ink-input {
+    width: 100%;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--heading);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    caret-color: var(--gold);
+  }
+  .ink-input::placeholder {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .ink-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-ghost);
+  }
+
+  /* ── 选项按钮 ── */
+  .option-btn {
+    flex: 1;
+    padding: 0.625rem 0;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    color: var(--body);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 44px;
+  }
+  .option-btn.active {
+    background: var(--gold-ghost);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold-faint);
+  }
+  .option-btn:hover:not(.active) {
+    border-color: var(--gold);
+    color: var(--heading);
+  }
+  .option-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* ── 主按钮：鎏金实心 ── */
+  .btn-primary {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: var(--gold);
+    color: #0A0815;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(196, 160, 78, 0.25);
+    transition: all 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 52px;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    box-shadow: 0 6px 20px rgba(196, 160, 78, 0.35);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: scale(0.98) translateY(0);
+    box-shadow: 0 2px 10px rgba(196, 160, 78, 0.20);
+  }
+
+  /* ── 模式标签（公历/农历 切换） ── */
+  .mode-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--gold);
+    transition: all 0.18s ease;
+  }
+  .mode-tag.active {
+    background: var(--gold-ghost);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold-faint);
+  }
+
+  /* ── 动画 ── */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 4s linear infinite;
+  }
+
+  /* ── 滚轮选择器 ── */
+  .wheel-scroll::-webkit-scrollbar { display: none; }
+  .wheel-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── OraSage 页脚（墨金版）── */
+  .orasage-global-footer {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    color: var(--body);
+    border-top: 1px solid var(--border-color);
+    background: linear-gradient(
+      180deg,
+      rgba(15, 12, 32, 0.98) 0%,
+      rgba(10, 8, 21, 0.96) 100%
+    );
+  }
+
+  .orasage-footer-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 5vw 28px;
+  }
+
+  .orasage-footer-main {
+    display: grid;
+    grid-template-columns: 1.35fr 0.75fr 0.75fr 0.75fr 1.45fr;
+    gap: 48px;
+    align-items: flex-start;
+  }
+
+  .orasage-footer-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .orasage-footer-logo img {
+    display: block;
+    width: auto;
+    max-width: 142px;
+    height: auto;
+  }
+
+  .orasage-footer-slogan {
+    max-width: 320px;
+    margin: 0 0 24px;
+    color: var(--body);
+    font-size: 15px;
+    line-height: 1.9;
+    letter-spacing: 0.02em;
+  }
+
+  .orasage-footer-social {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .orasage-footer-social a {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--heading);
+    background: rgba(26, 23, 50, 0.72);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .orasage-footer-social a:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(196, 160, 78, 0.12);
+  }
+
+  .orasage-footer-col h4,
+  .orasage-footer-support h4 {
+    margin: 0 0 18px;
+    color: var(--heading);
+    font-size: 15px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .orasage-footer-col a {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--body);
+    font-size: 14px;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .orasage-footer-col a:hover {
+    color: var(--gold);
+  }
+
+  .orasage-payment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .orasage-payment-list span {
+    min-width: 58px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--heading);
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .orasage-footer-bottom {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .orasage-footer-bottom p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .orasage-footer-legal {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .orasage-footer-legal a {
+    color: var(--body);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .orasage-footer-legal a:hover {
+    color: var(--gold);
+  }
+
+  /* ── 响应式页脚 ── */
+  @media (max-width: 1024px) {
+    .orasage-footer-main {
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 36px 28px;
+    }
+    .orasage-footer-brand,
+    .orasage-footer-support {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .orasage-footer-inner {
+      padding: 38px 22px 24px;
+    }
+    .orasage-footer-main {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px 18px;
+    }
+    .orasage-footer-brand,
+    .orasage-footer-support {
+      grid-column: 1 / -1;
+    }
+    .orasage-footer-col h4 {
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .orasage-footer-col a {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .orasage-footer-bottom {
+      margin-top: 28px;
+      padding-top: 20px;
+    }
+    .orasage-footer-bottom p,
+    .orasage-footer-legal a {
+      font-size: clamp(10px, 2.7vw, 12px);
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "orasage-bazi-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Migration proxy: bazi.orasage.com → upstream bazi app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

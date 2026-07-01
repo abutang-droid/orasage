@@ -1,0 +1,18 @@
+[Unit]
+Description=OraSage Shop (Next.js)
+After=network.target orasage-auth.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/shop
+EnvironmentFile=/opt/orasage/.env
+Environment=NODE_ENV=production
+Environment=PORT=3102
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/local/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

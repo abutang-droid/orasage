@@ -1,0 +1,22 @@
+# bazi.orasage.com — 八字排盘
+# 迁移阶段：proxy 模式将流量转发到现有线上服务
+# 正式阶段：替换为自托管 bazi 镜像（BAZI_IMAGE）
+
+services:
+  bazi:
+    image: ${BAZI_IMAGE:-orasage-bazi-proxy:local}
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3110:3110"
+    environment:
+      PORT: 3110
+      BAZI_UPSTREAM_URL: ${BAZI_UPSTREAM_URL:-https://api1.lilyfunnlove.com}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3110/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

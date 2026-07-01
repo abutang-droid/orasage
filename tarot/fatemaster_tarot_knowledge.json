@@ -1,0 +1,1702 @@
+{
+  "source": "https://www.fatemaster.ai/zh/tarot-cards/",
+  "cards_count": 78,
+  "cards": [
+    {
+      "slug": "the-fool",
+      "name": "The Fool",
+      "arcana": "major",
+      "number": 0,
+      "brief_meaning": "一个新的开始，纯真和自发性",
+      "upright_keywords": [
+        "新的开始",
+        "冒险",
+        "自发性",
+        "纯真",
+        "自由精神"
+      ],
+      "reversed_keywords": [
+        "鲁莽",
+        "冒险",
+        "不负责任",
+        "不成熟"
+      ],
+      "lucky_numbers": [
+        "0",
+        "1",
+        "8"
+      ],
+      "colors": "白色, 黄色, 天蓝色",
+      "element": "风"
+    },
+    {
+      "slug": "the-magician",
+      "name": "The Magician",
+      "arcana": "major",
+      "number": 1,
+      "brief_meaning": "创造力和意志力的结合，代表着将想法转化为现实的能力",
+      "upright_keywords": [
+        "创造力",
+        "意志力",
+        "技能",
+        "行动",
+        "专注"
+      ],
+      "reversed_keywords": [
+        "操纵",
+        "优柔寡断",
+        "缺乏行动力",
+        "才能浪费"
+      ],
+      "lucky_numbers": [
+        "1",
+        "4",
+        "7"
+      ],
+      "colors": "红色, 金色, 紫色",
+      "elements": [
+        "火",
+        "水",
+        "风",
+        "土"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "the-high-priestess",
+      "name": "The High Priestess",
+      "arcana": "major",
+      "number": 2,
+      "brief_meaning": "直觉和内在知识，聆听内心的声音",
+      "upright_keywords": [
+        "直觉",
+        "神秘",
+        "内在知识",
+        "智慧",
+        "潜意识"
+      ],
+      "reversed_keywords": [
+        "隐藏的动机",
+        "表面性",
+        "混乱",
+        "内在声音被忽视"
+      ],
+      "elements": [
+        "水",
+        "风"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "the-empress",
+      "name": "The Empress",
+      "arcana": "major",
+      "number": 3,
+      "brief_meaning": "丰饶、母性和自然，代表大地的丰收和生命的繁衍",
+      "upright_keywords": [
+        "丰饶",
+        "母性",
+        "创造力",
+        "自然",
+        "滋养"
+      ],
+      "reversed_keywords": [
+        "依赖",
+        "过度保护",
+        "创造力受阻",
+        "自我怀疑"
+      ],
+      "elements": [
+        "水",
+        "风",
+        "土"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "the-emperor",
+      "name": "The Emperor",
+      "arcana": "major",
+      "number": 4,
+      "brief_meaning": "权威和稳定，代表着理性的领导和秩序的建立",
+      "upright_keywords": [
+        "权威",
+        "领导力",
+        "稳定",
+        "控制",
+        "父性"
+      ],
+      "reversed_keywords": [
+        "专制",
+        "过度控制",
+        "刚愎自用",
+        "无能"
+      ],
+      "elements": [
+        "火",
+        "水",
+        "风"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "the-lovers",
+      "name": "The Lovers",
+      "arcana": "major",
+      "number": 6,
+      "brief_meaning": "关系和选择，代表着爱情的力量和重要决定的时刻",
+      "upright_keywords": [
+        "爱情",
+        "和谐",
+        "关系",
+        "价值观",
+        "选择"
+      ],
+      "reversed_keywords": [
+        "不和谐",
+        "失衡",
+        "错误选择",
+        "价值观冲突"
+      ],
+      "elements": [
+        "火",
+        "水",
+        "风"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "death",
+      "name": "Death",
+      "arcana": "major",
+      "number": 13,
+      "brief_meaning": "结束、转变和新生，旧形式的结束和新可能性的开始",
+      "upright_keywords": [
+        "结束",
+        "转变",
+        "新生",
+        "改变",
+        "转折"
+      ],
+      "reversed_keywords": [
+        "抗拒改变",
+        "停滞",
+        "衰退",
+        "重复模式"
+      ],
+      "elements": [
+        "火",
+        "水",
+        "风"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "the-tower",
+      "name": "The Tower",
+      "arcana": "major",
+      "number": 16,
+      "brief_meaning": "突然的改变和启示，旧有结构的崩塌和新的认识",
+      "upright_keywords": [
+        "突变",
+        "动荡",
+        "崩塌",
+        "启示",
+        "解放"
+      ],
+      "reversed_keywords": [
+        "避免灾难",
+        "延迟改变",
+        "恐惧改变"
+      ],
+      "elements": [
+        "火",
+        "水",
+        "风"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "the-world",
+      "name": "The World",
+      "arcana": "major",
+      "number": 21,
+      "brief_meaning": "完成和整合，一个周期的圆满结束",
+      "upright_keywords": [
+        "完成",
+        "整合",
+        "成就",
+        "旅程",
+        "和谐"
+      ],
+      "reversed_keywords": [
+        "未完成",
+        "延迟",
+        "缺乏收尾",
+        "停滞"
+      ],
+      "elements": [
+        "火",
+        "水",
+        "风",
+        "土"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "ace-of-wands",
+      "name": "Ace of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 1,
+      "brief_meaning": "新的创造力和灵感的火花，行动和激情的开始",
+      "upright_keywords": [
+        "创造力",
+        "灵感",
+        "新机会",
+        "潜力",
+        "激情"
+      ],
+      "reversed_keywords": [
+        "缺乏方向",
+        "创意枯竭",
+        "延迟",
+        "挫折"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "five-of-wands",
+      "name": "Five of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 5,
+      "brief_meaning": "竞争、冲突和挑战，建设性竞争",
+      "upright_keywords": [
+        "竞争",
+        "冲突",
+        "挑战",
+        "多样性",
+        "辩论"
+      ],
+      "reversed_keywords": [
+        "避免冲突",
+        "内部斗争",
+        "协议"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "king-of-wands",
+      "name": "King of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 14,
+      "brief_meaning": "领导力和远见，充满创业精神的领袖",
+      "upright_keywords": [
+        "领导力",
+        "远见",
+        "创业精神",
+        "荣誉",
+        "大胆"
+      ],
+      "reversed_keywords": [
+        "专制",
+        "傲慢",
+        "脾气暴躁"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "ace-of-cups",
+      "name": "Ace of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 1,
+      "brief_meaning": "新的情感开始和精神觉醒，爱与同情心的流动",
+      "upright_keywords": [
+        "新的感情",
+        "直觉",
+        "精神连接",
+        "创造力",
+        "情感满足"
+      ],
+      "reversed_keywords": [
+        "情感阻塞",
+        "空虚",
+        "压抑的感情",
+        "失去联系"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "five-of-cups",
+      "name": "Five of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 5,
+      "brief_meaning": "失落、遗憾和悲伤，面对损失和哀悼",
+      "upright_keywords": [
+        "失落",
+        "遗憾",
+        "悲伤",
+        "失望",
+        "痛苦"
+      ],
+      "reversed_keywords": [
+        "接受",
+        "前进",
+        "找到平静"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "queen-of-cups",
+      "name": "Queen of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 13,
+      "brief_meaning": "同理心和关怀，富有同情心的指导者",
+      "upright_keywords": [
+        "同理心",
+        "关怀",
+        "同情心",
+        "直觉",
+        "平衡"
+      ],
+      "reversed_keywords": [
+        "情感依赖",
+        "直觉混乱",
+        "情绪化"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "ace-of-swords",
+      "name": "Ace of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 1,
+      "brief_meaning": "思维的清晰和真理的力量，新的理解和精神突破",
+      "upright_keywords": [
+        "清晰",
+        "突破",
+        "新想法",
+        "胜利",
+        "力量"
+      ],
+      "reversed_keywords": [
+        "混乱",
+        "暴力",
+        "缺乏清晰度",
+        "错误信息"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "three-of-swords",
+      "name": "Three of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 3,
+      "brief_meaning": "心碎和悲伤，面对痛苦和真相",
+      "upright_keywords": [
+        "心碎",
+        "悲伤",
+        "痛苦",
+        "释放",
+        "真相"
+      ],
+      "reversed_keywords": [
+        "恢复",
+        "宽恕",
+        "失去方向"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "ten-of-swords",
+      "name": "Ten of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 10,
+      "brief_meaning": "结束和失败，一个痛苦阶段的终结",
+      "upright_keywords": [
+        "结束",
+        "失败",
+        "痛苦",
+        "背叛",
+        "危机"
+      ],
+      "reversed_keywords": [
+        "恢复",
+        "重生",
+        "新的开始"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "ace-of-pentacles",
+      "name": "Ace of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 1,
+      "brief_meaning": "财富、健康和实际成就的开始",
+      "upright_keywords": [
+        "物质机会",
+        "繁荣",
+        "新的开始",
+        "财富",
+        "稳定"
+      ],
+      "reversed_keywords": [
+        "错失机会",
+        "缺乏计划",
+        "财务损失",
+        "贪婪"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "ten-of-pentacles",
+      "name": "Ten of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 10,
+      "brief_meaning": "财富、家族和传承，物质和精神遗产的传承",
+      "upright_keywords": [
+        "财富",
+        "家族",
+        "传承",
+        "安全",
+        "长期成功"
+      ],
+      "reversed_keywords": [
+        "家族问题",
+        "财产损失",
+        "不稳定"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "the-hierophant",
+      "name": "The Hierophant",
+      "arcana": "major",
+      "number": 5,
+      "brief_meaning": "教皇象征着传统和精神指引，代表着知识的传承和信仰的力量。",
+      "upright_keywords": [
+        "传统",
+        "精神指引",
+        "教育",
+        "信仰",
+        "道德"
+      ],
+      "reversed_keywords": [
+        "叛逆",
+        "非传统",
+        "新方法",
+        "个人信仰"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "the-chariot",
+      "name": "The Chariot",
+      "arcana": "major",
+      "number": 7,
+      "brief_meaning": "战车象征着胜利和进步，代表着通过意志力和决心克服障碍。",
+      "upright_keywords": [
+        "胜利",
+        "意志力",
+        "决心",
+        "控制",
+        "进步"
+      ],
+      "reversed_keywords": [
+        "失控",
+        "阻碍",
+        "缺乏方向",
+        "侵略性"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "strength",
+      "name": "Strength",
+      "arcana": "major",
+      "number": 8,
+      "brief_meaning": "力量牌象征着内在的力量和勇气，代表着通过温和和耐心战胜困难。",
+      "upright_keywords": [
+        "力量",
+        "勇气",
+        "耐心",
+        "同情心",
+        "内在力量"
+      ],
+      "reversed_keywords": [
+        "自我怀疑",
+        "软弱",
+        "缺乏信心",
+        "滥用力量"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "the-hermit",
+      "name": "The Hermit",
+      "arcana": "major",
+      "number": 9,
+      "brief_meaning": "隐士象征着独处和内省，代表着寻找内在真理和智慧的旅程。",
+      "upright_keywords": [
+        "内省",
+        "寻找真理",
+        "独处",
+        "指引",
+        "智慧"
+      ],
+      "reversed_keywords": [
+        "孤独",
+        "隔离",
+        "退缩",
+        "拒绝建议"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "wheel-of-fortune",
+      "name": "Wheel of Fortune",
+      "arcana": "major",
+      "number": 10,
+      "brief_meaning": "命运之轮象征着生命的循环和变化，代表着命运的转折点。",
+      "upright_keywords": [
+        "命运",
+        "转折点",
+        "机会",
+        "变化",
+        "循环"
+      ],
+      "reversed_keywords": [
+        "坏运气",
+        "阻力",
+        "不必要的变化",
+        "外部控制"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "justice",
+      "name": "Justice",
+      "arcana": "major",
+      "number": 11,
+      "brief_meaning": "正义牌象征着平衡和公正，代表着因果报应和理性的判断。",
+      "upright_keywords": [
+        "正义",
+        "真理",
+        "公平",
+        "因果",
+        "清晰"
+      ],
+      "reversed_keywords": [
+        "不公",
+        "不诚实",
+        "不平衡",
+        "逃避责任"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "the-hanged-man",
+      "name": "The Hanged Man",
+      "arcana": "major",
+      "number": 12,
+      "brief_meaning": "倒吊人象征着牺牲和暂停，代表着通过改变视角获得新的认识。",
+      "upright_keywords": [
+        "牺牲",
+        "暂停",
+        "放下",
+        "新视角",
+        "智慧"
+      ],
+      "reversed_keywords": [
+        "拖延",
+        "抵抗",
+        "无用功",
+        "固执"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "temperance",
+      "name": "Temperance",
+      "arcana": "major",
+      "number": 14,
+      "brief_meaning": "节制象征着平衡和调和，代表着找到生活中的中庸之道。",
+      "upright_keywords": [
+        "平衡",
+        "节制",
+        "耐心",
+        "调和",
+        "目的"
+      ],
+      "reversed_keywords": [
+        "失衡",
+        "过度",
+        "缺乏远见",
+        "冲突"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "the-devil",
+      "name": "The Devil",
+      "arcana": "major",
+      "number": 15,
+      "brief_meaning": "恶魔象征着束缚和欲望，代表着面对自己的阴影面和限制。",
+      "upright_keywords": [
+        "束缚",
+        "欲望",
+        "执着",
+        "物质主义",
+        "阴影面"
+      ],
+      "reversed_keywords": [
+        "释放",
+        "觉醒",
+        "摆脱束缚",
+        "重获力量"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "the-star",
+      "name": "The Star",
+      "arcana": "major",
+      "number": 17,
+      "brief_meaning": "星星象征着希望和灵感，代表着重新找到信心和方向。",
+      "upright_keywords": [
+        "希望",
+        "灵感",
+        "平静",
+        "更新",
+        "信任"
+      ],
+      "reversed_keywords": [
+        "失望",
+        "丧失信心",
+        "悲观",
+        "缺乏信任"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "the-moon",
+      "name": "The Moon",
+      "arcana": "major",
+      "number": 18,
+      "brief_meaning": "月亮象征着直觉和不确定性，代表着面对内心的恐惧和幻想。",
+      "upright_keywords": [
+        "直觉",
+        "幻想",
+        "不确定性",
+        "恐惧",
+        "潜意识"
+      ],
+      "reversed_keywords": [
+        "克服恐惧",
+        "释放焦虑"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "the-sun",
+      "name": "The Sun",
+      "arcana": "major",
+      "number": 19,
+      "brief_meaning": "太阳象征着快乐和成功，代表着照亮道路的真理和温暖。",
+      "upright_keywords": [
+        "快乐",
+        "活力",
+        "成功",
+        "正面性",
+        "真理"
+      ],
+      "reversed_keywords": [
+        "过度乐观",
+        "暂时的快乐",
+        "虚假的积极"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "judgement",
+      "name": "Judgement",
+      "arcana": "major",
+      "number": 20,
+      "brief_meaning": "审判象征着重生和觉醒，代表着回应内在的召唤和获得解脱。",
+      "upright_keywords": [
+        "重生",
+        "内在召唤",
+        "觉醒",
+        "宽恕",
+        "解脱"
+      ],
+      "reversed_keywords": [
+        "自我怀疑",
+        "拒绝改变",
+        "后悔",
+        "停滞"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "two-of-wands",
+      "name": "Two of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 2,
+      "brief_meaning": "权杖二象征着规划和决策，代表着对未来的展望和选择。",
+      "upright_keywords": [
+        "规划",
+        "决策",
+        "未来展望",
+        "进步",
+        "发现"
+      ],
+      "reversed_keywords": [
+        "恐惧改变",
+        "玩忽职守",
+        "缺乏规划"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "three-of-wands",
+      "name": "Three of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 3,
+      "brief_meaning": "权杖三象征着探索和扩展，代表着寻找新的机会和冒险。",
+      "upright_keywords": [
+        "探索",
+        "扩展",
+        "机会",
+        "贸易",
+        "冒险"
+      ],
+      "reversed_keywords": [
+        "延迟",
+        "失望",
+        "缺乏进展",
+        "阻碍"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "four-of-wands",
+      "name": "Four of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 4,
+      "brief_meaning": "权杖四象征着庆祝和和谐，代表着家庭和社区的稳定。",
+      "upright_keywords": [
+        "庆祝",
+        "和谐",
+        "家庭",
+        "社区",
+        "成就"
+      ],
+      "reversed_keywords": [
+        "缺乏支持",
+        "过渡",
+        "不稳定",
+        "延迟"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "six-of-wands",
+      "name": "Six of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 6,
+      "brief_meaning": "权杖六象征着胜利和成功，代表着得到认可和进步。",
+      "upright_keywords": [
+        "胜利",
+        "成功",
+        "公众认可",
+        "进步",
+        "自信"
+      ],
+      "reversed_keywords": [
+        "自负",
+        "延迟成功",
+        "失去信心"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "seven-of-wands",
+      "name": "Seven of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 7,
+      "brief_meaning": "权杖七象征着挑战和毅力，代表着坚守立场和防御。",
+      "upright_keywords": [
+        "挑战",
+        "竞争",
+        "毅力",
+        "防御",
+        "决心"
+      ],
+      "reversed_keywords": [
+        "屈服",
+        "压力",
+        "失去地位"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "eight-of-wands",
+      "name": "Eight of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 8,
+      "brief_meaning": "权杖八象征着快速行动和进展，代表着事情迅速发展。",
+      "upright_keywords": [
+        "快速行动",
+        "进展",
+        "空中旅行",
+        "消息",
+        "热情"
+      ],
+      "reversed_keywords": [
+        "延迟",
+        "挫折",
+        "内部冲突"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "nine-of-wands",
+      "name": "Nine of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 9,
+      "brief_meaning": "权杖九象征着毅力和持久力，代表着面对最后的挑战。",
+      "upright_keywords": [
+        "毅力",
+        "持久力",
+        "勇气",
+        "准备",
+        "坚持"
+      ],
+      "reversed_keywords": [
+        "疲惫",
+        "放弃",
+        "压力",
+        "软弱"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "ten-of-wands",
+      "name": "Ten of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 10,
+      "brief_meaning": "权杖十象征着负担和责任，代表着承担重任和完成目标。",
+      "upright_keywords": [
+        "负担",
+        "责任",
+        "压力",
+        "完成",
+        "成就"
+      ],
+      "reversed_keywords": [
+        "压力过大",
+        "放下负担",
+        "委托他人"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "page-of-wands",
+      "name": "Page of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 11,
+      "brief_meaning": "权杖侍从象征着探索和热情，代表着新的发现和可能性。",
+      "upright_keywords": [
+        "探索",
+        "热情",
+        "发现",
+        "可能性",
+        "自由精神"
+      ],
+      "reversed_keywords": [
+        "缺乏方向",
+        "挫折",
+        "不稳定"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "knight-of-wands",
+      "name": "Knight of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 12,
+      "brief_meaning": "权杖骑士象征着行动和冒险，代表着充满热情的追求。",
+      "upright_keywords": [
+        "行动",
+        "冒险",
+        "热情",
+        "自信",
+        "魅力"
+      ],
+      "reversed_keywords": [
+        "冲动",
+        "鲁莽",
+        "焦躁",
+        "攻击性"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "queen-of-wands",
+      "name": "Queen of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "number": 13,
+      "brief_meaning": "权杖皇后象征着自信和魅力，代表着充满活力的领导者。",
+      "upright_keywords": [
+        "自信",
+        "魅力",
+        "热情",
+        "决心",
+        "活力"
+      ],
+      "reversed_keywords": [
+        "要求过高",
+        "嫉妒",
+        "不安全感"
+      ],
+      "element": "火"
+    },
+    {
+      "slug": "two-of-cups",
+      "name": "Two of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 2,
+      "brief_meaning": "圣杯二象征着伙伴关系和和谐，代表着两个灵魂的结合。",
+      "upright_keywords": [
+        "伙伴关系",
+        "吸引力",
+        "和谐",
+        "结合",
+        "爱情"
+      ],
+      "reversed_keywords": [
+        "分离",
+        "不和谐",
+        "关系破裂"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "three-of-cups",
+      "name": "Three of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 3,
+      "brief_meaning": "圣杯三象征着庆祝和友谊，代表着社交和欢乐的时光。",
+      "upright_keywords": [
+        "庆祝",
+        "友谊",
+        "社交",
+        "欢乐",
+        "团体"
+      ],
+      "reversed_keywords": [
+        "过度放纵",
+        "八卦",
+        "排外"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "four-of-cups",
+      "name": "Four of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 4,
+      "brief_meaning": "圣杯四象征着沉思和冥想，代表着重新评估和内省的时期。",
+      "upright_keywords": [
+        "沉思",
+        "冥想",
+        "倦怠",
+        "重新评估",
+        "内省"
+      ],
+      "reversed_keywords": [
+        "新机会",
+        "觉醒",
+        "接受"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "six-of-cups",
+      "name": "Six of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 6,
+      "brief_meaning": "圣杯六象征着怀旧和童年，代表着纯真和美好的回忆。",
+      "upright_keywords": [
+        "怀旧",
+        "童年",
+        "纯真",
+        "回忆",
+        "礼物"
+      ],
+      "reversed_keywords": [
+        "停滞不前",
+        "沉溺过去",
+        "天真"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "seven-of-cups",
+      "name": "Seven of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 7,
+      "brief_meaning": "圣杯七象征着选择和幻想，代表着面对多种可能性和机会。",
+      "upright_keywords": [
+        "选择",
+        "幻想",
+        "机会",
+        "愿望",
+        "幻觉"
+      ],
+      "reversed_keywords": [
+        "现实",
+        "明确选择",
+        "专注"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "eight-of-cups",
+      "name": "Eight of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 8,
+      "brief_meaning": "圣杯八象征着放手和转变，代表着寻找更深层次的意义。",
+      "upright_keywords": [
+        "放手",
+        "转变",
+        "离开",
+        "寻找真理",
+        "放弃"
+      ],
+      "reversed_keywords": [
+        "恐惧改变",
+        "停滞",
+        "犹豫"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "nine-of-cups",
+      "name": "Nine of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 9,
+      "brief_meaning": "圣杯九象征着满足和幸福，代表着愿望的实现和成功。",
+      "upright_keywords": [
+        "满足",
+        "幸福",
+        "愿望实现",
+        "满意",
+        "成功"
+      ],
+      "reversed_keywords": [
+        "物质主义",
+        "不满足",
+        "过度放纵"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "ten-of-cups",
+      "name": "Ten of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 10,
+      "brief_meaning": "圣杯十象征着和谐和完美，代表着家庭幸福和爱的圆满。",
+      "upright_keywords": [
+        "和谐",
+        "完美",
+        "家庭幸福",
+        "爱",
+        "和平"
+      ],
+      "reversed_keywords": [
+        "破碎的家庭",
+        "不和谐",
+        "价值观冲突"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "page-of-cups",
+      "name": "Page of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 11,
+      "brief_meaning": "圣杯侍从象征着创造力和直觉，代表着新的感情和灵感的开始。",
+      "upright_keywords": [
+        "创造力",
+        "直觉",
+        "新的感情",
+        "灵感",
+        "天真"
+      ],
+      "reversed_keywords": [
+        "情感封闭",
+        "坏消息",
+        "不成熟"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "knight-of-cups",
+      "name": "Knight of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 12,
+      "brief_meaning": "圣杯骑士象征着浪漫和魅力，代表着充满想象力的追求者。",
+      "upright_keywords": [
+        "浪漫",
+        "魅力",
+        "想象力",
+        "提议",
+        "邀请"
+      ],
+      "reversed_keywords": [
+        "欺骗",
+        "情感操纵",
+        "不切实际"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "king-of-cups",
+      "name": "King of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "number": 14,
+      "brief_meaning": "圣杯国王象征着情感平衡和同情心，代表着富有智慧的指导者。",
+      "upright_keywords": [
+        "情感平衡",
+        "同情心",
+        "外交",
+        "智慧",
+        "建议"
+      ],
+      "reversed_keywords": [
+        "情感操纵",
+        "冷漠",
+        "不诚实"
+      ],
+      "element": "水"
+    },
+    {
+      "slug": "two-of-swords",
+      "name": "Two of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 2,
+      "brief_meaning": "宝剑二象征着决策和平衡，代表着面临选择时的中立状态。",
+      "upright_keywords": [
+        "决策",
+        "平衡",
+        "僵局",
+        "中立",
+        "选择"
+      ],
+      "reversed_keywords": [
+        "优柔寡断",
+        "混乱",
+        "压力",
+        "解除僵局"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "four-of-swords",
+      "name": "Four of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 4,
+      "brief_meaning": "宝剑四象征着休息和恢复，代表着通过冥想和撤退获得疗愈。",
+      "upright_keywords": [
+        "休息",
+        "恢复",
+        "冥想",
+        "撤退",
+        "疗愈"
+      ],
+      "reversed_keywords": [
+        "焦虑",
+        "不安",
+        "精疲力竭"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "five-of-swords",
+      "name": "Five of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 5,
+      "brief_meaning": "宝剑五象征着冲突和失败，代表着胜利可能带来的代价。",
+      "upright_keywords": [
+        "冲突",
+        "失败",
+        "胜利的代价",
+        "背叛",
+        "敌意"
+      ],
+      "reversed_keywords": [
+        "和解",
+        "放下",
+        "重新开始"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "six-of-swords",
+      "name": "Six of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 6,
+      "brief_meaning": "宝剑六象征着过渡和改变，代表着离开困境走向平静。",
+      "upright_keywords": [
+        "过渡",
+        "改变",
+        "离开",
+        "旅程",
+        "前进"
+      ],
+      "reversed_keywords": [
+        "停滞",
+        "无法放下",
+        "阻碍"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "seven-of-swords",
+      "name": "Seven of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 7,
+      "brief_meaning": "宝剑七象征着欺骗和策略，代表着通过狡猾手段逃避责任。",
+      "upright_keywords": [
+        "欺骗",
+        "策略",
+        "逃避",
+        "秘密",
+        "狡猾"
+      ],
+      "reversed_keywords": [
+        "坦白",
+        "面对现实",
+        "后果"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "eight-of-swords",
+      "name": "Eight of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 8,
+      "brief_meaning": "宝剑八象征着束缚和限制，代表着被自己的想法所困。",
+      "upright_keywords": [
+        "束缚",
+        "限制",
+        "受困",
+        "受害者心态",
+        "无助"
+      ],
+      "reversed_keywords": [
+        "释放",
+        "新视角",
+        "自由"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "nine-of-swords",
+      "name": "Nine of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 9,
+      "brief_meaning": "宝剑九象征着焦虑和噩梦，代表着内心的恐惧和担忧。",
+      "upright_keywords": [
+        "焦虑",
+        "噩梦",
+        "恐惧",
+        "抑郁",
+        "担忧"
+      ],
+      "reversed_keywords": [
+        "希望",
+        "释放恐惧",
+        "面对现实"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "page-of-swords",
+      "name": "Page of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 11,
+      "brief_meaning": "宝剑侍从象征着好奇心和新思想，代表着学习和观察的开始。",
+      "upright_keywords": [
+        "好奇心",
+        "新思想",
+        "学习",
+        "观察",
+        "敏锐"
+      ],
+      "reversed_keywords": [
+        "分心",
+        "延迟",
+        "冲动"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "knight-of-swords",
+      "name": "Knight of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 12,
+      "brief_meaning": "宝剑骑士象征着行动和野心，代表着追求真理的决心。",
+      "upright_keywords": [
+        "行动",
+        "野心",
+        "决心",
+        "智慧",
+        "真理"
+      ],
+      "reversed_keywords": [
+        "鲁莽",
+        "冲动",
+        "侵略性"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "queen-of-swords",
+      "name": "Queen of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 13,
+      "brief_meaning": "宝剑皇后象征着独立和清晰的判断，代表着智慧和直接的沟通。",
+      "upright_keywords": [
+        "独立",
+        "清晰",
+        "判断力",
+        "直接",
+        "智慧"
+      ],
+      "reversed_keywords": [
+        "刻薄",
+        "苦涩",
+        "不诚实"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "king-of-swords",
+      "name": "King of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "number": 14,
+      "brief_meaning": "宝剑国王象征着权威和理性，代表着追求真理和正义的领导者。",
+      "upright_keywords": [
+        "权威",
+        "理性",
+        "真理",
+        "智慧",
+        "正义"
+      ],
+      "reversed_keywords": [
+        "残酷",
+        "滥用权力",
+        "操纵"
+      ],
+      "element": "风"
+    },
+    {
+      "slug": "two-of-pentacles",
+      "name": "Two of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 2,
+      "brief_meaning": "金币二象征着平衡和适应性，代表着管理多重责任的能力。",
+      "upright_keywords": [
+        "平衡",
+        "适应性",
+        "时间管理",
+        "优先级",
+        "灵活性"
+      ],
+      "reversed_keywords": [
+        "失衡",
+        "混乱",
+        "优先级错误"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "three-of-pentacles",
+      "name": "Three of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 3,
+      "brief_meaning": "金币三象征着合作和技能，代表着通过团队合作获得认可。",
+      "upright_keywords": [
+        "合作",
+        "技能",
+        "认可",
+        "团队合作",
+        "学习"
+      ],
+      "reversed_keywords": [
+        "缺乏团队精神",
+        "竞争",
+        "低质量工作"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "four-of-pentacles",
+      "name": "Four of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 4,
+      "brief_meaning": "金币四象征着安全感和占有，代表着对物质的控制和积累。",
+      "upright_keywords": [
+        "安全感",
+        "占有",
+        "控制",
+        "稳定",
+        "积累"
+      ],
+      "reversed_keywords": [
+        "贪婪",
+        "物质主义",
+        "失去安全感"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "five-of-pentacles",
+      "name": "Five of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 5,
+      "brief_meaning": "金币五象征着困难和贫困，代表着面对物质和精神上的挑战。",
+      "upright_keywords": [
+        "困难",
+        "贫困",
+        "孤独",
+        "健康问题",
+        "物质损失"
+      ],
+      "reversed_keywords": [
+        "恢复",
+        "希望",
+        "灵性觉醒"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "six-of-pentacles",
+      "name": "Six of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 6,
+      "brief_meaning": "金币六象征着慷慨和分享，代表着物质和精神上的给予与接受。",
+      "upright_keywords": [
+        "慷慨",
+        "分享",
+        "施予",
+        "接受",
+        "平衡"
+      ],
+      "reversed_keywords": [
+        "自私",
+        "债务",
+        "不平等"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "seven-of-pentacles",
+      "name": "Seven of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 7,
+      "brief_meaning": "金币七象征着评估和耐心，代表着等待投资和努力的回报。",
+      "upright_keywords": [
+        "评估",
+        "耐心",
+        "投资",
+        "努力",
+        "收获"
+      ],
+      "reversed_keywords": [
+        "懒惰",
+        "错误投资",
+        "缺乏长远眼光"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "eight-of-pentacles",
+      "name": "Eight of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 8,
+      "brief_meaning": "金币八象征着专注和技能提升，代表着通过勤奋工作实现目标。",
+      "upright_keywords": [
+        "专注",
+        "技能提升",
+        "细节",
+        "完美主义",
+        "勤奋"
+      ],
+      "reversed_keywords": [
+        "缺乏动力",
+        "低质量",
+        "懈怠"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "nine-of-pentacles",
+      "name": "Nine of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 9,
+      "brief_meaning": "金币九象征着独立和奢华，代表着通过自律获得的物质成就。",
+      "upright_keywords": [
+        "独立",
+        "奢华",
+        "自律",
+        "成就",
+        "享受"
+      ],
+      "reversed_keywords": [
+        "虚荣",
+        "物质依赖",
+        "失去自我"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "page-of-pentacles",
+      "name": "Page of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 11,
+      "brief_meaning": "金币侍从象征着学习和实用，代表着追求实际目标的新开始。",
+      "upright_keywords": [
+        "学习",
+        "实用",
+        "勤奋",
+        "目标",
+        "新机会"
+      ],
+      "reversed_keywords": [
+        "缺乏专注",
+        "懒惰",
+        "不切实际"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "knight-of-pentacles",
+      "name": "Knight of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 12,
+      "brief_meaning": "金币骑士象征着责任和可靠，代表着通过勤奋实现目标。",
+      "upright_keywords": [
+        "责任",
+        "可靠",
+        "勤奋",
+        "保守",
+        "耐心"
+      ],
+      "reversed_keywords": [
+        "懒惰",
+        "固执",
+        "工作狂"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "queen-of-pentacles",
+      "name": "Queen of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 13,
+      "brief_meaning": "金币皇后象征着富足和实用，代表着通过滋养创造安全感。",
+      "upright_keywords": [
+        "富足",
+        "实用",
+        "滋养",
+        "安全",
+        "慷慨"
+      ],
+      "reversed_keywords": [
+        "物质依赖",
+        "嫉妒",
+        "不安全感"
+      ],
+      "element": "土"
+    },
+    {
+      "slug": "king-of-pentacles",
+      "name": "King of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "number": 14,
+      "brief_meaning": "金币国王象征着富有和领导力，代表着在物质世界中获得成功。",
+      "upright_keywords": [
+        "富有",
+        "领导力",
+        "安全",
+        "成功",
+        "实用"
+      ],
+      "reversed_keywords": [
+        "贪婪",
+        "物质主义",
+        "固执"
+      ],
+      "element": "土"
+    }
+  ]
+}

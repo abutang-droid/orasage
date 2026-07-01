@@ -1,0 +1,17 @@
+[Unit]
+Description=OraSage Bazi Calculator (Vite + Express + tRPC)
+After=network.target mariadb.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/bazi
+EnvironmentFile=-/opt/orasage/bazi/.env
+Environment=NODE_ENV=production
+Environment=PORT=3110
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=OraSage Tarot Mind (Next.js + Prisma)
+After=network.target mariadb.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/tarot
+EnvironmentFile=-/opt/orasage/tarot/.env
+Environment=NODE_ENV=production
+Environment=PORT=3112
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/local/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

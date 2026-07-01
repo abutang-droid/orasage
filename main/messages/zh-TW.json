@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "title": "OraSage — Destiny & Energy",
+    "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "faq": "FAQ",
+    "famous": "Famous Cases",
+    "daozang": "Dao Canon",
+    "login": "Sign In",
+    "shop": "Shop"
+  },
+  "hero": {
+    "title": "Explore Destiny, Balance Energy",
+    "subtitle": "BaZi · Zi Wei · Tarot — Eastern wisdom meets modern technology",
+    "cta": "Start Exploring"
+  },
+  "tools": {
+    "title": "Divination Tools",
+    "bazi": {
+      "name": "BaZi Chart",
+      "desc": "Five Elements · Life analysis · Crystal recommendations"
+    },
+    "ziwei": {
+      "name": "Zi Wei Dou Shu",
+      "desc": "Twelve palaces · Star readings · Energy guidance"
+    },
+    "tarot": {
+      "name": "Tarot Reading",
+      "desc": "Daily energy · Deep insights · Spiritual guidance"
+    }
+  },
+  "sections": {
+    "famous": "Famous Cases",
+    "famousDesc": "Insights from historical figures",
+    "daozang": "Dao Canon",
+    "daozangDesc": "Taoist classics, timeless wisdom",
+    "comingSoon": "Coming soon"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© 2026 OraSage. All rights reserved."
+  },
+  "about": {
+    "title": "About OraSage",
+    "p1": "OraSage is a divination platform blending Eastern wisdom with modern technology. We offer BaZi, Zi Wei Dou Shu, and Tarot tools to help you explore yourself and understand destiny.",
+    "p2": "Based on your readings, we recommend crystals and energy products to help balance your elements and harmonize your energy."
+  },
+  "faq": {
+    "title": "FAQ",
+    "q1": "What is OraSage?",
+    "a1": "OraSage is a divination platform offering BaZi, Zi Wei, and Tarot services, combined with crystal energy product recommendations.",
+    "q2": "How do I use the tools?",
+    "a2": "Click a tool card on the homepage to visit the corresponding app and try basic features for free. Premium reports are available via in-app purchase.",
+    "q3": "Is my data safe?",
+    "a3": "We use encrypted transmission and secure storage to protect your personal information. See our Privacy Policy for details."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "content": "We value your privacy. This policy explains how we collect, use, and protect your personal information. We only collect data necessary to provide our services and do not sell your information to third parties."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "content": "By using OraSage, you agree to these terms. Divination readings are for reference only and do not constitute professional advice. We reserve the right to modify our services at any time."
+  },
+  "famous": {
+    "title": "Famous Cases",
+    "desc": "Explore the destiny patterns of historical figures"
+  },
+  "daozang": {
+    "title": "Dao Canon",
+    "desc": "Taoist classics, wisdom passed through millennia"
+  },
+  "shop": {
+    "title": "Energy Shop",
+    "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
+    "cta": "Visit Shop",
+    "hint": "After a reading, purchase recommended crystals in one tap",
+    "products": {
+      "wood": {
+        "name": "Green Phantom",
+        "element": "Wood",
+        "desc": "Prosperity"
+      },
+      "fire": {
+        "name": "Red Agate",
+        "element": "Fire",
+        "desc": "Fire balance"
+      },
+      "earth": {
+        "name": "Citrine",
+        "element": "Earth",
+        "desc": "Grounding"
+      },
+      "metal": {
+        "name": "Clear Quartz",
+        "element": "Metal",
+        "desc": "Purify"
+      },
+      "water": {
+        "name": "Obsidian",
+        "element": "Water",
+        "desc": "Protection"
+      }
+    },
+    "categories": {
+      "crystal": "Crystal Bracelets",
+      "report": "Digital Reports",
+      "service": "Energy Sessions"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  nickname   String   @db.VarChar(50)
+  gender     String?  @db.VarChar(10)
+  birthday   DateTime?
+  avatar     String?  @db.VarChar(500)
+  email      String?  @unique @db.VarChar(100)
+  password   String?  @db.VarChar(200)
+  externalId String?  @unique @db.VarChar(100)
+  occupation String?  @db.VarChar(50)
+  preferredDeity String? @db.VarChar(50)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  dailyCards      DailyCardRecord[]
+  wishRecords     WishRecord[]
+  fortuneViews    FortuneView[]
+  readings        ReadingRecord[]
+  knowledgeReads  KnowledgeRead[]
+  angelDraws      AngelDraw[]
+  dreamRecords    DreamRecord[]
+}
+
+model DailyCardRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  cardName  String   @db.VarChar(50)
+  cardType  String   @db.VarChar(20)
+  message   String   @db.VarChar(500)
+  luckyTip  String?  @db.VarChar(200)
+  imageUrl  String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model WishRecord {
+  id         String   @id @default(uuid())
+  userId     String
+  wish       String   @db.VarChar(200)
+  cardName   String   @db.VarChar(50)
+  conclusion String   @db.VarChar(20)
+  advice     String   @db.VarChar(500)
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model ReadingRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  spreadType  String   @db.VarChar(20)
+  question    String?  @db.VarChar(500)
+  cards       Json
+  conclusion  String?  @db.VarChar(2000)
+  crystalName String?  @db.VarChar(50)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model FortuneView {
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime
+  love      Json
+  work      Json
+  wealth    Json
+  mood      Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model KnowledgeRead {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String   @db.VarChar(100)
+  content   String   @db.VarChar(500)
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, date])
+}
+
+// ── 天使牌抽取记录 ────────────────────────────────────────────────
+model AngelDraw {
+  id          String   @id @default(uuid())
+  userId      String
+  cardId      String   @db.VarChar(50)   // 天使牌 ID
+  cardName    String   @db.VarChar(50)
+  intention   String?  @db.VarChar(200)  // 用户的意图/祈愿
+  message     String   @db.Text          // 天使的讯息
+  affirmation String   @db.VarChar(300)  // 正念肯定语
+  guidance    String   @db.Text          // 行动指引
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+// ── 梦境解析记录 ──────────────────────────────────────────────────
+model DreamRecord {
+  id           String   @id @default(uuid())
+  userId       String
+  dreamContent String   @db.Text          // 用户描述的梦境
+  emotion      String?  @db.VarChar(20)   // 梦中情绪（平静/焦虑/喜悦/恐惧/困惑）
+  symbols      Json                        // 解析出的梦境符号列表
+  interpretation String @db.Text          // 综合解析
+  subconscious String   @db.VarChar(500)  // 潜意识信息
+  suggestion   String   @db.VarChar(300)  // 行动建议
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
