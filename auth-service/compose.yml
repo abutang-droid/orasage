@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: orasage_auth
+      POSTGRES_USER: orasage
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  auth:
+    build: .
+    ports:
+      - "3101:3101"
+    environment:
+      PORT: 3101
+      DATABASE_URL: postgres://orasage:password@db:5432/orasage_auth
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3110,http://localhost:3111,http://localhost:3112
+      COOKIE_DOMAIN: .localhost
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

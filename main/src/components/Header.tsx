@@ -61,7 +61,7 @@ export function Header() {
             )
           )}
           <a
-            href={externalUrls.auth}
+            href={externalUrls.authLogin}
             className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10"
           >
             {t('login')}
@@ -72,7 +72,7 @@ export function Header() {
         {/* 手机：登录 + 菜单 */}
         <div className="flex items-center gap-2 lg:hidden">
           <a
-            href={externalUrls.auth}
+            href={externalUrls.authLogin}
             className="rounded-full border border-sage-gold/40 px-3 py-2 text-xs text-sage-gold"
           >
             {t('login')}

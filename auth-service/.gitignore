@@ -1,3 +1,5 @@
-node_modules/
-dist/
 .env
+node_modules
+dist
+.next
+auth-service/src/.DS_Store
