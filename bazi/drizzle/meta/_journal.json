@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1779639072819,
+      "tag": "0000_wise_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1779639162000,
+      "tag": "0001_brainy_outlaw_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781752452079,
+      "tag": "0002_lumpy_stark_industries",
+      "breakpoints": true
+    }
+  ]
+}
