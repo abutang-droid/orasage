@@ -33,6 +33,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 ## 方案 B 要点
 
 - 各 App **独立子域名**，无需 Next.js `basePath`
+- **移动优先**：手机显示优先，再兼容 PC（见 [`docs/mobile-first.md`](docs/mobile-first.md)）
 - 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT
 - App 间 API 走内网 `127.0.0.1`，不暴露公网
 - 购买在 App 内浮层完成，后台调 `shop` 内网 API

@@ -4,12 +4,20 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 type Props = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+  themeColor: '#0f0e17',
 };
 
 export function generateStaticParams() {

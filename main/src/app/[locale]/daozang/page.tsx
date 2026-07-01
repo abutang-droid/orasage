@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { PageShell, PageTitle } from '@/components/PageShell';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -9,12 +10,14 @@ export default async function DaozangPage({ params }: Props) {
   const tSection = await getTranslations('sections');
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="font-serif text-3xl text-sage-gold">{t('title')}</h1>
-      <p className="mt-4 text-sage-muted">{t('desc')}</p>
-      <div className="mt-8 rounded-xl border border-dashed border-sage-border p-12 text-center text-sm text-sage-purple">
+    <PageShell>
+      <PageTitle>{t('title')}</PageTitle>
+      <p className="mt-3 text-[15px] leading-relaxed text-sage-muted sm:mt-4 sm:text-base">
+        {t('desc')}
+      </p>
+      <div className="mt-6 rounded-xl border border-dashed border-sage-border p-10 text-center text-sm text-sage-purple sm:mt-8 sm:p-12">
         {tSection('comingSoon')}
       </div>
-    </article>
+    </PageShell>
   );
 }
