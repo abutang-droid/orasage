@@ -63,6 +63,18 @@ cms.orasage.com       → cms     :3120   Payload CMS
 - 域名配置: 见 [`docs/domain-setup.md`](docs/domain-setup.md)
 - Nginx 配置: 见 [`deploy/nginx/orasage.conf`](deploy/nginx/orasage.conf)
 
+### bazi 八字排盘
+
+```bash
+# 迁移阶段（proxy）：将 bazi.orasage.com 代理到现有线上服务
+SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
+
+# 正式自托管（native）：需提供 BAZI_REPO_URL
+SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=native BAZI_REPO_URL=https://github.com/... bash deploy/remote-deploy-bazi.sh
+```
+
+GitHub Actions：在仓库 Settings → Secrets 配置 `SSH_PRIVATE_KEY` 后，手动触发 **Deploy Bazi** workflow。
+
 ## 目录结构
 
 ```
