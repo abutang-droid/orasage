@@ -35,12 +35,17 @@ if ! "${SSH_CMD[@]}" -p "$SSH_PORT" "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; the
   exit 1
 fi
 
-log "上传部署脚本..."
-"${SCP_CMD[@]}" -P "$SSH_PORT" deploy/deploy-shop-on-vps.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-shop-on-vps.sh"
+log "上传代码包..."
+TMP_TAR="/tmp/orasage-shop-deploy-$$.tgz"
+tar czf "$TMP_TAR" \
+  --exclude='node_modules' --exclude='.next' --exclude='dist' --exclude='.git' \
+  -C "$(dirname "$0")/.." shop auth-service deploy
+"${SCP_CMD[@]}" -P "$SSH_PORT" "$TMP_TAR" "${SSH_USER}@${SSH_HOST}:/tmp/orasage-shop-deploy.tgz"
+rm -f "$TMP_TAR"
 
-log "在 VPS 上执行部署..."
+log "在 VPS 上解压并部署..."
 "${SSH_CMD[@]}" -p "$SSH_PORT" "${SSH_USER}@${SSH_HOST}" \
-  "chmod +x /tmp/deploy-shop-on-vps.sh && BRANCH=$BRANCH bash /tmp/deploy-shop-on-vps.sh"
+  "cd /opt/orasage && tar xzf /tmp/orasage-shop-deploy.tgz && BRANCH=$BRANCH bash deploy/deploy-shop-on-vps.sh"
 
 log "远程部署完成"
 log "验证: curl -sI https://shop.orasage.com"

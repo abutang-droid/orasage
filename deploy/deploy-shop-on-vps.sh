@@ -23,6 +23,8 @@ if [ -d "$DEPLOY_DIR/.git" ]; then
   git -C "$DEPLOY_DIR" fetch origin "$BRANCH"
   git -C "$DEPLOY_DIR" checkout "$BRANCH" 2>/dev/null || git -C "$DEPLOY_DIR" checkout -b "$BRANCH" "origin/$BRANCH"
   git -C "$DEPLOY_DIR" reset --hard "origin/$BRANCH"
+elif [ -d "$DEPLOY_DIR/auth-service" ]; then
+  log "已有部署目录（无 git），跳过拉取。请用 deploy/deploy-shop.sh 从本地 rsync 同步。"
 else
   log "克隆仓库..."
   sudo mkdir -p "$DEPLOY_DIR"
@@ -42,9 +44,10 @@ source "$DEPLOY_DIR/.env" 2>/dev/null || true
 # ── 3. Auth 数据库迁移 ───────────────────────────────────────
 log "运行 auth 数据库迁移..."
 if command -v psql >/dev/null 2>&1; then
-  psql "${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:5432/orasage_auth}" \
-    -f "$DEPLOY_DIR/auth-service/drizzle/0002_add_shop_source.sql" 2>/dev/null || {
-    log "迁移可能已执行（shop app_source 已存在则跳过）"
+  sudo -u postgres psql orasage_auth \
+    -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || {
+    psql "${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:5432/orasage_auth}" \
+      -f "$DEPLOY_DIR/auth-service/drizzle/0002_add_shop_source.sql" 2>/dev/null || true
   }
 else
   log "psql 未找到，跳过迁移（请手动执行 0002_add_shop_source.sql）"
