@@ -1,5 +1,10 @@
 # Shop 部署
 
+> 一键部署 main + auth + shop 三个自托管 App，见
+> [`deploy/deploy-shop-on-vps.sh`](../deploy-shop-on-vps.sh)（VPS 本机执行）或
+> [`deploy/deploy-shop.sh`](../deploy-shop.sh)（本地/Cloud Agent 远程触发）。
+> 下面是手动分步执行的等价步骤，便于排查问题。
+
 ## VPS 部署步骤
 
 ```bash

@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# 在 VPS 本机执行的一键部署脚本（shop + auth 更新）
+# 在 VPS 本机执行的一键部署脚本（main + auth + shop 三个自托管 App）
 # 用法（GCP 控制台 SSH 或已有 VPS 登录）:
-#   curl -fsSL https://raw.githubusercontent.com/abutang-droid/orasage/cursor/shop-integration-9dd1/deploy/deploy-shop-on-vps.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/abutang-droid/orasage/main/deploy/deploy-shop-on-vps.sh | bash
 # 或:
 #   bash /opt/orasage/deploy/deploy-shop-on-vps.sh
 
 set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
-BRANCH="${BRANCH:-cursor/shop-integration-9dd1}"
+BRANCH="${BRANCH:-main}"
 REPO_URL="${REPO_URL:-https://github.com/abutang-droid/orasage.git}"
 NODE_BIN="${NODE_BIN:-/usr/local/bin}"
 NPM_BIN="${NPM_BIN:-/usr/local/bin/npm}"
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 
-log "=== OraSage Shop 部署 ==="
+log "=== OraSage main + auth + shop 部署 ==="
 
 # ── 1. 拉取最新代码 ──────────────────────────────────────────
 if [ -d "$DEPLOY_DIR/.git" ]; then
@@ -72,7 +72,36 @@ else
   sudo systemctl restart orasage-auth 2>/dev/null || log "请手动配置 orasage-auth.service"
 fi
 
-# ── 5. 部署 shop ─────────────────────────────────────────────
+# ── 5. 部署 main 主门户 ──────────────────────────────────────
+log "安装 main 依赖..."
+cd "$DEPLOY_DIR/main"
+"$NPM_BIN" install
+
+log "构建 main..."
+export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+"$NPM_BIN" run build
+
+log "配置 orasage-main 服务..."
+sudo cp "$DEPLOY_DIR/deploy/main/orasage-main.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable orasage-main
+sudo systemctl restart orasage-main
+
+# ── 6. 部署 admin ────────────────────────────────────────────
+log "安装 admin 依赖..."
+cd "$DEPLOY_DIR/admin"
+"$NPM_BIN" install
+
+log "构建 admin..."
+"$NPM_BIN" run build
+
+log "配置 orasage-admin 服务..."
+sudo cp "$DEPLOY_DIR/deploy/admin/orasage-admin.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable orasage-admin
+sudo systemctl restart orasage-admin
+
+# ── 7. 部署 shop ─────────────────────────────────────────────
 log "安装 shop 依赖..."
 cd "$DEPLOY_DIR/shop"
 "$NPM_BIN" install
@@ -83,24 +112,39 @@ export AUTH_INTERNAL_URL="${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 export SHOP_URL="${SHOP_URL:-https://shop.orasage.com}"
 "$NPM_BIN" run build
 
-# ── 6. systemd 服务 ──────────────────────────────────────────
+# ── 8. systemd 服务 ──────────────────────────────────────────
 log "配置 orasage-shop 服务..."
 sudo cp "$DEPLOY_DIR/deploy/shop/orasage-shop.service" /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable orasage-shop
 sudo systemctl restart orasage-shop
 
-# ── 7. 验证 ──────────────────────────────────────────────────
+# ── 9. 确保 Nginx 配置 ───────────────────────────────────────
+if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
+  log "部署 Nginx 配置..."
+  sudo cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" /etc/nginx/sites-available/orasage
+  sudo ln -sf /etc/nginx/sites-available/orasage /etc/nginx/sites-enabled/orasage
+  sudo nginx -t && sudo systemctl reload nginx
+fi
+
+# ── 10. 验证 ─────────────────────────────────────────────────
 sleep 2
 log "健康检查..."
+curl -sf http://127.0.0.1:3100 -o /dev/null -w "main   → HTTP %{http_code}\n" || true
 curl -sf http://127.0.0.1:3101/health | head -c 200 && echo ""
 curl -sf http://127.0.0.1:3102/api/health && echo ""
+curl -sf http://127.0.0.1:3103 -o /dev/null -w "admin  → HTTP %{http_code}\n" || true
 
-if curl -sfI https://shop.orasage.com | head -1 | grep -q 200; then
-  log "✅ shop.orasage.com 已上线"
-else
-  log "⚠️  shop.orasage.com 尚未返回 200，检查 nginx 与 systemd 日志"
-  sudo journalctl -u orasage-shop -n 20 --no-pager || true
-fi
+for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" || echo "000")
+  if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
+    log "✅ ${domain} → HTTP $code"
+  else
+    log "⚠️  ${domain} → HTTP $code，检查 nginx 与 systemd 日志"
+  fi
+done
+sudo journalctl -u orasage-main -n 10 --no-pager 2>/dev/null || true
+sudo journalctl -u orasage-admin -n 10 --no-pager 2>/dev/null || true
+sudo journalctl -u orasage-shop -n 10 --no-pager 2>/dev/null || true
 
 log "=== 部署完成 ==="

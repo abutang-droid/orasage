@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 从本地/Cloud Agent 远程部署 shop 到 VPS
+# 从本地/Cloud Agent 远程部署 main + auth + shop 到 VPS
 # 用法:
 #   SSH_PASSWORD='your-password' bash deploy/deploy-shop.sh
 #   SSH_KEY=~/.ssh/id_rsa bash deploy/deploy-shop.sh
@@ -11,7 +11,7 @@ SSH_HOST="${SSH_HOST:-34.75.40.67}"
 SSH_PORT="${SSH_PORT:-22}"
 SSH_KEY="${SSH_KEY:-}"
 SSH_PASSWORD="${SSH_PASSWORD:-}"
-BRANCH="${BRANCH:-cursor/shop-integration-9dd1}"
+BRANCH="${BRANCH:-main}"
 
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=15"
 if [ -n "$SSH_KEY" ]; then
@@ -39,7 +39,7 @@ log "上传代码包..."
 TMP_TAR="/tmp/orasage-shop-deploy-$$.tgz"
 tar czf "$TMP_TAR" \
   --exclude='node_modules' --exclude='.next' --exclude='dist' --exclude='.git' \
-  -C "$(dirname "$0")/.." shop auth-service deploy
+  -C "$(dirname "$0")/.." main admin shop auth-service deploy
 "${SCP_CMD[@]}" -P "$SSH_PORT" "$TMP_TAR" "${SSH_USER}@${SSH_HOST}:/tmp/orasage-shop-deploy.tgz"
 rm -f "$TMP_TAR"
 
