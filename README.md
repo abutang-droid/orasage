@@ -4,6 +4,8 @@
 
 GitHub: `abutang-droid/orasage`
 
+> 完整产品方案见 [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md)
+
 ## 域名架构（方案 B）
 
 ```
@@ -63,14 +65,15 @@ cms.orasage.com       → cms     :3120   Payload CMS
 
 ```
 docs/
-  domain-setup.md          # 域名 / DNS / SSL / 认证完整指南
+  domain-setup.md        # 域名 / DNS / SSL / 认证完整指南
 deploy/
-  nginx/orasage.conf       # Nginx 子域名反向代理配置
-  auth/cookie.example.ts   # auth Cookie 配置示例
-  .env.example             # 共享环境变量模板
+  nginx/orasage.conf     # Nginx 子域名反向代理配置
+  auth/cookie.example.ts
+  .env.example
+auth-service/            # 临时 scaffold（正式版见 abutang-droid/auth-service）
 ```
 
 ## 历史文档
 
-- `PRODUCT_PLAN_v3.md` — 当前产品方案（含方案 A 路径分发，已改用方案 B）
+- [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md) — 产品方案（英文）
 - `产品方案整理.md` — Codex 对话还原 + 技术评估
