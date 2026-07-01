@@ -1,0 +1,44 @@
+# 完全自托管 — ziwei.orasage.com :3111
+# 用法: docker compose -f docker-compose.native.yml up -d --build
+
+services:
+  ziwei-db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ziwei}
+      MYSQL_USER: ${MYSQL_USER:-ziwei}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-changeme}
+    volumes:
+      - ziwei-mysql:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER:-ziwei}", "-p${MYSQL_PASSWORD:-changeme}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  ziwei:
+    build:
+      context: ./app
+      dockerfile: ${ZIWEI_DOCKERFILE:-Dockerfile}
+    image: orasage-ziwei:native
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3111:3111"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3111
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: ${DATABASE_URL:-mysql://ziwei:changeme@ziwei-db:3306/ziwei}
+    depends_on:
+      ziwei-db:
+        condition: service_healthy
+
+volumes:
+  ziwei-mysql:

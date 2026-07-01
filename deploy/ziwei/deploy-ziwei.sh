@@ -61,38 +61,16 @@ deploy_proxy() {
 }
 
 deploy_native() {
-  log "部署 native 模式（自托管 ziwei 应用）..."
+  log "部署 native 模式（完全自托管）..."
   if [ -z "$REPO_URL" ]; then
     log "错误: native 模式需要设置 ZIWEI_REPO_URL"
+    log "示例: ZIWEI_REPO_URL=https://github.com/abutang-droid/ziwei.git DEPLOY_MODE=native bash deploy-ziwei.sh"
     exit 1
   fi
-  require_cmd docker
-  APP_SRC="$ZIWEI_DIR/app"
-  if [ -d "$APP_SRC/.git" ]; then
-    git -C "$APP_SRC" fetch --all --prune
-    git -C "$APP_SRC" checkout "$REPO_BRANCH"
-    git -C "$APP_SRC" pull --ff-only
-  else
-    mkdir -p "$APP_SRC"
-    git clone --branch "$REPO_BRANCH" --depth 1 "$REPO_URL" "$APP_SRC"
-  fi
-  cd "$APP_SRC"
-  if [ -f Dockerfile ]; then
-    docker build -t orasage-ziwei:native .
-    docker rm -f orasage-ziwei-native 2>/dev/null || true
-    docker run -d \
-      --name orasage-ziwei-native \
-      --restart unless-stopped \
-      -p 127.0.0.1:3111:3111 \
-      --env-file "$ZIWEI_DIR/.env" \
-      orasage-ziwei:native
-  elif [ -f docker-compose.yml ] || [ -f compose.yml ]; then
-    COMPOSE_FILE=$(ls docker-compose.yml compose.yml 2>/dev/null | head -1)
-    docker compose -f "$COMPOSE_FILE" up -d --build
-  else
-    log "错误: ziwei 仓库中未找到 Dockerfile 或 docker-compose.yml"
-    exit 1
-  fi
+  export ZIWEI_REPO_URL="$REPO_URL"
+  export ZIWEI_REPO_BRANCH="$REPO_BRANCH"
+  export GITHUB_TOKEN="${GITHUB_TOKEN:-}"
+  bash "$DEPLOY_DIR/deploy/ziwei/deploy-native-ziwei.sh"
 }
 
 ensure_nginx() {
