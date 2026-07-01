@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
-export const appSourceEnum = pgEnum("app_source", ["bazi", "ziwei", "tarot"]);
+export const appSourceEnum = pgEnum("app_source", ["bazi", "ziwei", "tarot", "shop"]);
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
   "paid",

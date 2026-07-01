@@ -11,6 +11,7 @@ const APP_LABELS: Record<string, string> = {
   bazi: "八字排盘",
   ziwei: "紫微斗数",
   tarot: "塔罗占卜",
+  shop: "能量商城",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -104,7 +105,11 @@ const orderSchema = z.object({
   amountCents: z.number().int().nonnegative(),
   currency: z.string().max(8).optional(),
   status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]).optional(),
-  appSource: z.enum(["bazi", "ziwei", "tarot"]).optional(),
+  appSource: z.enum(["bazi", "ziwei", "tarot", "shop"]).optional(),
+});
+
+const orderUpdateSchema = z.object({
+  status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]),
 });
 
 export const internalRouter = Router();
@@ -151,7 +156,10 @@ internalRouter.post("/orders", async (req, res) => {
     const body = orderSchema.parse(req.body);
     const dup = await db.select().from(userOrders).where(eq(userOrders.orderNo, body.orderNo)).limit(1);
     if (dup.length > 0) {
-      res.json({ success: true, id: dup[0].id, duplicate: true });
+      if (body.status && body.status !== dup[0].status) {
+        await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, body.orderNo));
+      }
+      res.json({ success: true, id: dup[0].id, duplicate: true, updated: Boolean(body.status) });
       return;
     }
     const [row] = await db.insert(userOrders).values({
@@ -170,6 +178,27 @@ internalRouter.post("/orders", async (req, res) => {
       return;
     }
     console.error("[internal] order error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+internalRouter.patch("/orders/:orderNo", async (req, res) => {
+  try {
+    const orderNo = String(req.params.orderNo);
+    const body = orderUpdateSchema.parse(req.body);
+    const existing = await db.select().from(userOrders).where(eq(userOrders.orderNo, orderNo)).limit(1);
+    if (existing.length === 0) {
+      res.status(404).json({ error: "订单不存在" });
+      return;
+    }
+    await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, orderNo));
+    res.json({ success: true, orderNo, status: body.status });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[internal] order update error:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

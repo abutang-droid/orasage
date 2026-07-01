@@ -23,7 +23,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 |--------|-----|------|--------|--------|------|
 | `orasage.com` | main | 3100 | Next.js 15 + next-intl | — | ✅ 已部署 |
 | `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建 |
-| `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | 未建 |
+| `shop.orasage.com` | shop | 3102 | Next.js + Stripe | — | ✅ 已搭建 |
 | `admin.orasage.com` | admin | 3103 | Next.js SPA | — | 未建 |
 | `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC | MySQL | ✅ 已有，需改认证 |
 | `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | ✅ 已有，需加用户系统 |
@@ -66,14 +66,16 @@ cms.orasage.com       → cms     :3120   Payload CMS
 
 ```
 main/                    # 主门户 Next.js 应用
+shop/                    # 能量商城 Next.js 应用
 docs/
   domain-setup.md        # 域名 / DNS / SSL / 认证完整指南
 deploy/
   nginx/orasage.conf     # Nginx 子域名反向代理配置
   main/orasage-main.service
+  shop/orasage-shop.service
   auth/cookie.example.ts
   .env.example
-auth-service/            # 临时 scaffold（正式版见 abutang-droid/auth-service）
+auth-service/            # 统一认证 + 用户中心
 ```
 
 ## 历史文档

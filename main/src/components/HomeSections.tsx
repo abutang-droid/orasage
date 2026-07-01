@@ -62,6 +62,13 @@ export function ToolCards() {
 }
 
 const productKeys = ['wood', 'fire', 'earth', 'metal', 'water'] as const;
+const productSkus: Record<(typeof productKeys)[number], string> = {
+  wood: 'crystal-wood',
+  fire: 'crystal-fire',
+  earth: 'crystal-earth',
+  metal: 'crystal-metal',
+  water: 'crystal-water',
+};
 const elementColors: Record<string, string> = {
   wood: 'bg-emerald-500/20 text-emerald-300',
   fire: 'bg-red-500/20 text-red-300',
@@ -97,7 +104,7 @@ export function ShopSection() {
         {productKeys.map((key) => (
           <a
             key={key}
-            href={externalUrls.shop}
+            href={`${externalUrls.shop}?sku=${productSkus[key]}`}
             className="flex w-[140px] shrink-0 flex-col rounded-2xl border border-sage-border bg-sage-card p-4 active:border-sage-gold/40 sm:w-auto"
           >
             <span
