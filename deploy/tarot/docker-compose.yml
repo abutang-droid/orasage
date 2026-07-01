@@ -1,0 +1,22 @@
+# tarot.orasage.com — 塔罗占卜
+# 迁移阶段：proxy 模式将流量转发到现有线上服务
+# 正式阶段：替换为自托管 tarot 镜像（TAROT_IMAGE）
+
+services:
+  tarot:
+    image: ${TAROT_IMAGE:-orasage-tarot-proxy:local}
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3112:3112"
+    environment:
+      PORT: 3112
+      TAROT_UPSTREAM_URL: ${TAROT_UPSTREAM_URL}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3112/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
