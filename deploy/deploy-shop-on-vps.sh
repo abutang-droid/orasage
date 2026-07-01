@@ -41,6 +41,22 @@ fi
 # shellcheck disable=SC1091
 source "$DEPLOY_DIR/.env" 2>/dev/null || true
 
+# auth-service 的 .env 常单独存放 JWT_SECRET，构建 admin/shop 前合并进来
+if [ -z "${JWT_SECRET:-}" ] && [ -f "$DEPLOY_DIR/auth-service/.env" ]; then
+  # shellcheck disable=SC1091
+  source "$DEPLOY_DIR/auth-service/.env" 2>/dev/null || true
+fi
+
+if [ -z "${JWT_SECRET:-}" ]; then
+  log "错误: 缺少 JWT_SECRET。请在 $DEPLOY_DIR/.env 或 auth-service/.env 中配置（与 auth 服务共用同一值）"
+  exit 1
+fi
+
+export JWT_SECRET
+export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
+export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
+export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+
 # ── 3. Auth 数据库迁移 ───────────────────────────────────────
 log "运行 auth 数据库迁移..."
 if command -v psql >/dev/null 2>&1; then
@@ -93,6 +109,10 @@ cd "$DEPLOY_DIR/admin"
 "$NPM_BIN" install
 
 log "构建 admin..."
+export JWT_SECRET="${JWT_SECRET}"
+export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
+export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
+export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
 "$NPM_BIN" run build
 
 log "配置 orasage-admin 服务..."
