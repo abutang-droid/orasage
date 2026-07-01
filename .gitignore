@@ -1,0 +1,1 @@
+node_modules/\n.turbo/\n.next/\ndist/\n.env\n.env.local\n*.log\n.DS_Store\n_tmp_*\n.pnpm-store/
