@@ -68,6 +68,11 @@ deploy_native() {
 
   pnpm run build
 
+  # sudo 部署时 build 产物归 root，但 systemd 以 ubuntu 运行
+  RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
+  mkdir -p "$APP_DIR/dist/public/reports"
+  chown -R "$RUN_USER:$RUN_USER" "$APP_DIR"
+
   cp "$DEPLOY_DIR/deploy/bazi/orasage-bazi.service" /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable orasage-bazi
