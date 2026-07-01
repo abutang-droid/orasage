@@ -1,0 +1,22 @@
+# ziwei.orasage.com — 紫微斗数
+# 迁移阶段：proxy 模式将流量转发到现有线上服务
+# 正式阶段：替换为自托管 ziwei 镜像（ZIWEI_IMAGE）
+
+services:
+  ziwei:
+    image: ${ZIWEI_IMAGE:-orasage-ziwei-proxy:local}
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3111:3111"
+    environment:
+      PORT: 3111
+      ZIWEI_UPSTREAM_URL: ${ZIWEI_UPSTREAM_URL:-https://api2.lilyfunnlove.com}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3111/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
