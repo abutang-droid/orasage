@@ -4,22 +4,65 @@
 
 ### What is runnable in this repo
 
-Despite the multi-app product plan in `README.md`/`PRODUCT_PLAN_v3.md`, the only app with source code in this repo is `auth-service/` (Express + Drizzle + `jose`, TypeScript, port `3101`). The other apps (main, shop, admin, bazi, ziwei, tarot, cms) are not present here. Everything under `deploy/` (nginx configs, `vps-setup.sh`, `remote-deploy.sh`) is production infrastructure for a remote VPS and is not used for local development.
+This repo now contains source for `main/` (Next.js 15 portal), `auth-service/`
+(Express + Drizzle + `jose`, port 3101), `shop/` (Next.js, port 3102),
+`admin/` (Next.js skeleton, port 3103) and `cms/` (Payload CMS skeleton, port
+3120). `bazi`, `ziwei`, `tarot` have no application source in this repo — they
+are reverse-proxied to their existing external services via
+`deploy/{bazi,ziwei,tarot}/proxy/`; `deploy/` also holds nginx configs,
+systemd units, and remote deploy scripts targeting a single production VPS.
 
 ### Services
 
-- PostgreSQL 16 is required and is already installed in the VM snapshot. It is NOT started automatically on boot — start it each session with `sudo pg_ctlcluster 16 main start` (check with `pg_lsclusters`).
-- The dev database is pre-created in the snapshot: role `orasage` (password `changeme`), database `orasage_auth`. The `users` table is auto-created by `initDb()` on server startup, so no migration step is required (`npm run db:push` is optional and needs a `drizzle.config`, which is absent).
+- PostgreSQL 16 is required for `auth-service`, `shop` (via auth-service) and
+  `cms`. Start it each session with `sudo pg_ctlcluster 16 main start` (check
+  with `pg_lsclusters`).
+- Create per-app databases as needed, e.g.
+  `sudo -u postgres psql -c "CREATE DATABASE orasage_auth;"` (also
+  `orasage_shop`-equivalent data lives in `orasage_auth` since shop delegates
+  persistence to auth-service's internal API; `orasage_cms` for Payload).
+- `auth-service` schema is managed by Drizzle: `DATABASE_URL=... npx drizzle-kit push --force`
+  (or apply the SQL files under `auth-service/drizzle/` in order).
+- `cms` schema is managed by Payload migrations: `npm run migrate` (creates
+  tables) after setting `DATABASE_URL` / `PAYLOAD_SECRET`.
 
 ### Running auth-service
 
-- Build first: `npm run build` (from `auth-service/`). There is NO watch/dev script — after editing `src/`, rebuild before restarting.
-- The app does NOT auto-load `.env` (no dotenv dependency). Provide env vars explicitly. Easiest: `node --env-file=.env dist/index.js` (Node 22 supports `--env-file`); `npm start` alone will fail unless the required vars are already exported.
-- Required env vars: `DATABASE_URL` (e.g. `postgresql://orasage:changeme@127.0.0.1:5432/orasage_auth`) and `JWT_SECRET` (min 16 chars, or the service throws on token signing).
-- The server binds to `127.0.0.1:3101` only (not `0.0.0.0`).
+- `npm install`, then `npm run build` (esbuild, no watch mode — rebuild after
+  editing `src/`), then `npm start`.
+- Required env vars: `DATABASE_URL`, `JWT_SECRET` (≥32 chars recommended).
+- Binds to `127.0.0.1` by default (`HOST` env var can override to `0.0.0.0`,
+  which is required when running via the provided docker-compose files).
+- The auth cookie domain defaults to `.orasage.com`. A cookie jar hitting
+  `127.0.0.1` over plain HTTP will not retain the `secure` cookie — for local
+  testing, read the `token` field from the JSON response and send it as
+  `Authorization: Bearer <token>` instead.
+
+### Running shop / main / admin
+
+- Each is a standalone Next.js app: `npm install && npm run build && npm start`.
+- `shop` needs `JWT_SECRET` (must match auth-service) and `AUTH_INTERNAL_URL`
+  (defaults to `http://127.0.0.1:3101`) to sync orders with auth-service.
+- `admin` needs `JWT_SECRET` matching auth-service; gate logic requires the
+  JWT's `role` claim to be `admin`.
+
+### Running cms
+
+- `npm install`, then `DATABASE_URL=... PAYLOAD_SECRET=... npm run migrate`
+  (first run only, creates tables), then `npm run build && npm start`
+  (port 3120). Visiting `/admin` for the first time prompts to create the
+  first admin user.
 
 ### Testing / gotchas
 
-- There is no automated test suite and no lint config in this repo; `npm run build` (tsc) is the only programmatic check.
-- The auth cookie domain defaults to `.orasage.com` (override via `JWT_COOKIE_DOMAIN`). Because of this, a cookie jar (e.g. `curl -c`) will NOT retain the cookie when hitting `127.0.0.1`. For local API testing, read the token from the `Set-Cookie` response header and pass it as `Authorization: Bearer <token>` to protected endpoints (`/verify`, `/auth/me`).
-- `deploy/auth/docker-compose.yml` will NOT build: it references `build: ./auth-service` but no Dockerfile exists and the path is wrong relative to `deploy/auth/`. Run the service directly with npm instead.
+- No repo-wide automated test suite. Per app: `npx tsc --noEmit` (auth-service,
+  shop, admin) or `npm run build` (main, cms) are the main programmatic
+  checks. There is no ESLint config committed for any app.
+- `deploy/` scripts assume a single production VPS reachable over SSH; they
+  are not meant to run inside this sandbox. Use them for review/editing, not
+  execution.
+- Binding to `127.0.0.1` inside a Docker container makes it unreachable via
+  Docker's published ports unless the container's network mode is `host`.
+  Both `auth-service/compose.yml` and `deploy/auth/docker-compose.yml` set
+  `HOST=0.0.0.0` for this reason, while still restricting host-side exposure
+  via `127.0.0.1:<port>:<port>` port mappings.
