@@ -80,9 +80,16 @@ EOF
 fi
 
 # 同步 app 目录 .env（部分项目从根目录读取）
-if [ -f "$ZIWEI_DIR/.env" ] && [ ! -f "$APP_DIR/.env" ]; then
+if [ -f "$ZIWEI_DIR/.env" ]; then
   cp "$ZIWEI_DIR/.env" "$APP_DIR/.env"
 fi
+
+# NEXT_PUBLIC_* 须在 docker build 时注入
+set -a
+# shellcheck disable=SC1090
+source "$ZIWEI_DIR/.env"
+set +a
+export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-https://ziwei.orasage.com}"
 
 # ── Dockerfile 处理 ───────────────────────────────────────────
 if [ ! -f "$APP_DIR/Dockerfile" ] && [ ! -f "$APP_DIR/docker-compose.yml" ] && [ ! -f "$APP_DIR/compose.yml" ]; then
