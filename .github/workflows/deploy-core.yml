@@ -1,0 +1,77 @@
+name: Deploy Core Apps (main + auth + shop + admin)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+    paths:
+      - 'main/**'
+      - 'auth-service/**'
+      - 'shop/**'
+      - 'admin/**'
+      - 'deploy/deploy-shop.sh'
+      - 'deploy/deploy-shop-on-vps.sh'
+      - 'deploy/nginx/orasage.conf'
+      - 'deploy/main/**'
+      - 'deploy/auth/**'
+      - 'deploy/shop/**'
+      - 'deploy/admin/**'
+      - '.github/workflows/deploy-core.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'abutang-droid/orasage'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        env:
+          KEY1: ${{ secrets.SSH_PRIVATE_KEY }}
+          KEY2: ${{ secrets.SSH_KEY }}
+          KEY3: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          SSH_PRIVATE_KEY="${KEY1:-${KEY2:-$KEY3}}"
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::未找到 SSH 私钥。请在 Settings → Secrets → Actions 添加 SSH_PRIVATE_KEY（完整 PEM，含 BEGIN/END 行）"
+            exit 1
+          fi
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          if ! grep -q 'BEGIN.*PRIVATE KEY' ~/.ssh/deploy_key; then
+            echo "::error::SSH_PRIVATE_KEY 格式不正确，需包含 -----BEGIN ... PRIVATE KEY-----"
+            exit 1
+          fi
+          ssh-keyscan -H "${{ secrets.SSH_HOST || '34.75.40.67' }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH key loaded ($(wc -c < ~/.ssh/deploy_key) bytes)"
+
+      - name: Test SSH connectivity
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+        run: |
+          if ! timeout 20 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=15 \
+            -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; then
+            echo "::error::无法 SSH 到 ${SSH_HOST}:22，请在 GCP 防火墙开放 22 端口或使用 IAP（见 deploy/bazi/README.md）"
+            exit 1
+          fi
+
+      - name: Deploy main + auth + shop to VPS
+        env:
+          SSH_KEY: ~/.ssh/deploy_key
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          BRANCH: ${{ github.ref_name }}
+        run: bash deploy/deploy-shop.sh
+
+      - name: Verify deployment
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
+          SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${SSH_USER}@${SSH_HOST}" \
+            "curl -sf http://127.0.0.1:3101/health && echo && curl -sI https://orasage.com | head -5 && curl -sI https://shop.orasage.com | head -5"
