@@ -26,7 +26,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 | `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | 未建 |
 | `admin.orasage.com` | admin | 3103 | Next.js SPA | — | 未建 |
 | `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC | MySQL | ✅ 已有，需改认证 |
-| `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | 🔄 Docker proxy → api2.lilyfunnlove.com |
+| `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | 🔄 自托管 `abutang-droid/ziwei-doushu` |
 | `tarot.orasage.com` | tarot | 3112 | Next.js + Prisma | MySQL | ✅ 已有，需统一 JWT |
 | `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 未建 |
 

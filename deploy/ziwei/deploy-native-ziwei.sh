@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
 # 紫微完全自托管部署
 # 在 VPS 上执行:
-#   sudo ZIWEI_REPO_URL=https://github.com/abutang-droid/ziwei.git bash deploy-native-ziwei.sh
-#
-# 私有仓库:
-#   sudo GITHUB_TOKEN=ghp_xxx ZIWEI_REPO_URL=... bash deploy-native-ziwei.sh
+#   sudo bash deploy-native-ziwei.sh
+#   sudo GITHUB_TOKEN=ghp_xxx bash deploy-native-ziwei.sh   # 私有仓库
 
 set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
 ZIWEI_DIR="${DEPLOY_DIR}/ziwei"
 APP_DIR="${ZIWEI_DIR}/app"
-REPO_URL="${ZIWEI_REPO_URL:-}"
+REPO_URL="${ZIWEI_REPO_URL:-https://github.com/abutang-droid/ziwei-doushu.git}"
 REPO_BRANCH="${ZIWEI_REPO_BRANCH:-main}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 log() { echo "[native-ziwei $(date '+%H:%M:%S')] $*"; }
 
 [ "$(id -u)" -eq 0 ] || { log "请 sudo 运行"; exit 1; }
-[ -n "$REPO_URL" ] || { log "请设置 ZIWEI_REPO_URL，例如: https://github.com/abutang-droid/ziwei.git"; exit 1; }
+log "仓库: $REPO_URL (branch: $REPO_BRANCH)"
 
 # ── 安装依赖 ─────────────────────────────────────────────────
 if ! command -v docker >/dev/null 2>&1; then
@@ -45,7 +43,15 @@ if [ -d "$APP_DIR/.git" ]; then
 else
   log "克隆 $REPO_URL (branch: $REPO_BRANCH)..."
   rm -rf "$APP_DIR"
-  git clone --branch "$REPO_BRANCH" --depth 1 "$CLONE_URL" "$APP_DIR"
+  if git clone --branch "$REPO_BRANCH" --depth 1 "$CLONE_URL" "$APP_DIR" 2>/dev/null; then
+    :
+  elif command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    log "git clone 失败，尝试 gh repo clone..."
+    gh repo clone "abutang-droid/ziwei-doushu" "$APP_DIR" -- --branch "$REPO_BRANCH" --depth 1
+  else
+    log "克隆失败。私有仓库请设置 GITHUB_TOKEN 或先在 VPS 执行: gh auth login"
+    exit 1
+  fi
 fi
 
 # ── 准备 .env ─────────────────────────────────────────────────

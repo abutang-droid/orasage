@@ -64,7 +64,7 @@ deploy_native() {
   log "部署 native 模式（完全自托管）..."
   if [ -z "$REPO_URL" ]; then
     log "错误: native 模式需要设置 ZIWEI_REPO_URL"
-    log "示例: ZIWEI_REPO_URL=https://github.com/abutang-droid/ziwei.git DEPLOY_MODE=native bash deploy-ziwei.sh"
+    log "示例: DEPLOY_MODE=native bash deploy-ziwei.sh"
     exit 1
   fi
   export ZIWEI_REPO_URL="$REPO_URL"

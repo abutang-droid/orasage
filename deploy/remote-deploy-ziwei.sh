@@ -13,6 +13,7 @@ SSH_KEY="${SSH_KEY:-}"
 SSH_PORT="${SSH_PORT:-22}"
 DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
 ORASAGE_REF="${ORASAGE_REF:-cursor/deploy-ziwei-1ddb}"
+ZIWEI_REPO_URL="${ZIWEI_REPO_URL:-https://github.com/abutang-droid/ziwei-doushu.git}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=15 -o BatchMode=yes"
 
 if [ -n "$SSH_KEY" ]; then
