@@ -1,6 +1,6 @@
 # auth.orasage.com — 认证服务
-# 需要先将 auth-service 代码放到 ./auth-service/ 目录
-# 启动: docker compose up -d
+# build 上下文指向仓库根目录的 auth-service/（相对本文件路径 ../../auth-service）
+# 启动: docker compose -f deploy/auth/docker-compose.yml up -d（在仓库根目录执行）
 
 services:
   auth-db:
@@ -21,7 +21,7 @@ services:
       retries: 5
 
   auth:
-    build: ./auth-service
+    build: ../../auth-service
     restart: unless-stopped
     depends_on:
       auth-db:
@@ -31,6 +31,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3101
+      # 容器内必须监听 0.0.0.0，否则 Docker 端口映射无法访问容器；
+      # 对外暴露仍由下方 `127.0.0.1:3101:3101` 端口映射限制为仅本机可达。
+      HOST: 0.0.0.0
       DATABASE_URL: postgresql://orasage:${DB_PASSWORD:-changeme}@auth-db:5432/orasage_auth
       JWT_SECRET: ${JWT_SECRET}
       JWT_COOKIE_NAME: orasage_token

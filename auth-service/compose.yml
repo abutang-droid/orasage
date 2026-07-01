@@ -16,6 +16,7 @@ services:
       - "3101:3101"
     environment:
       PORT: 3101
+      HOST: 0.0.0.0
       DATABASE_URL: postgres://orasage:password@db:5432/orasage_auth
       JWT_SECRET: dev-jwt-secret-change-in-production
       CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3110,http://localhost:3111,http://localhost:3112

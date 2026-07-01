@@ -21,6 +21,18 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const profileSchema = z.object({
+  nickname: z.string().max(100).optional(),
+  avatarUrl: z.string().url().max(500).optional().nullable(),
+  birthDate: z.string().max(20).optional().nullable(),
+  birthHour: z.string().max(10).optional().nullable(),
+  birthPlaceProvince: z.string().max(50).optional().nullable(),
+  birthPlaceCity: z.string().max(50).optional().nullable(),
+  gender: z.enum(["male", "female"]).optional().nullable(),
+  preferredDeity: z.string().max(50).optional().nullable(),
+  languagePreference: z.string().max(10).optional().nullable(),
+});
+
 // ── POST /auth/register ──
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
@@ -142,28 +154,29 @@ authRouter.put("/profile", async (req: Request, res: Response) => {
     return;
   }
 
-  const body = req.body;
-  const allowedFields = [
-    "nickname", "avatarUrl", "birthDate", "birthHour",
-    "birthPlaceProvince", "birthPlaceCity", "gender",
-    "preferredDeity", "languagePreference",
-  ];
-
-  const updates: Record<string, unknown> = {};
-  for (const field of allowedFields) {
-    if (body[field] !== undefined) {
-      updates[field] = body[field];
+  try {
+    const body = profileSchema.parse(req.body);
+    const updates: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if (value !== undefined) updates[key] = value;
     }
-  }
 
-  if (Object.keys(updates).length === 0) {
-    res.status(400).json({ error: "没有需要更新的字段" });
-    return;
-  }
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "没有需要更新的字段" });
+      return;
+    }
 
-  await db.update(users).set({ ...updates, updatedAt: new Date() }).where(eq(users.id, Number(payload.sub)));
-  const updated = await getAuthUser(req);
-  res.json({ success: true, user: updated ? publicUser(updated) : null });
+    await db.update(users).set({ ...updates, updatedAt: new Date() }).where(eq(users.id, Number(payload.sub)));
+    const updated = await getAuthUser(req);
+    res.json({ success: true, user: updated ? publicUser(updated) : null });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[auth] profile update error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 authRouter.use("/me", accountRouter);

@@ -23,7 +23,10 @@ app.use("/auth", authRouter);
 app.use("/internal", internalOnly, internalRouter);
 app.use(healthRouter);
 
-app.listen(ENV.port, () => {
-  console.log(`[auth] server running on http://0.0.0.0:${ENV.port}`);
+// 裸机部署默认只监听 127.0.0.1：对外统一由 Nginx 反代 auth.orasage.com，
+// 避免绕过反代直接从公网访问（尤其是 /internal/* 内网接口）。
+// 容器化部署需设置 HOST=0.0.0.0（见 env.ts 注释）。
+app.listen(ENV.port, ENV.host, () => {
+  console.log(`[auth] server running on http://${ENV.host}:${ENV.port}`);
   console.log(`[auth] cookie domain: ${ENV.cookieDomain}`);
 });

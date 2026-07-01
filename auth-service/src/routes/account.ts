@@ -182,6 +182,16 @@ internalRouter.post("/orders", async (req, res) => {
   }
 });
 
+internalRouter.get("/orders/:orderNo", async (req, res) => {
+  const orderNo = String(req.params.orderNo);
+  const [order] = await db.select().from(userOrders).where(eq(userOrders.orderNo, orderNo)).limit(1);
+  if (!order) {
+    res.status(404).json({ error: "订单不存在" });
+    return;
+  }
+  res.json({ order });
+});
+
 internalRouter.patch("/orders/:orderNo", async (req, res) => {
   try {
     const orderNo = String(req.params.orderNo);
