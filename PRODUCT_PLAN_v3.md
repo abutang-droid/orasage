@@ -15,9 +15,9 @@
 | `auth.orasage.com` | auth | 3101 | 统一认证 + 用户中心，Express + Drizzle + PostgreSQL |
 | `shop.orasage.com` | shop | 3102 | 能量水晶商城，Next.js + Stripe + 内网结账 API |
 | `admin.orasage.com` | admin | 3103 | 运营管理后台，Next.js |
-| `bazi.orasage.com` | bazi | 3110 | 八字排盘（迁移期反代到现有服务，逐步自托管） |
-| `ziwei.orasage.com` | ziwei | 3111 | 紫微斗数（迁移期反代到现有服务，逐步自托管） |
-| `tarot.orasage.com` | tarot | 3112 | 塔罗占卜（迁移期反代到现有服务，逐步自托管） |
+| `bazi.orasage.com` | bazi | 3110 | 八字排盘，Vite + Express + tRPC + Drizzle |
+| `ziwei.orasage.com` | ziwei | 3111 | 紫微斗数，Next.js + iztro |
+| `tarot.orasage.com` | tarot | 3112 | 塔罗占卜，Next.js + Prisma |
 | `cms.orasage.com` | cms | 3120 | 内容管理，Payload CMS |
 
 所有 8 个子域统一通过 `deploy/nginx/orasage.conf` 反代到同一台 VPS
@@ -25,8 +25,9 @@
 
 ## 2. 关键决策
 
-1. 保留现有 bazi/ziwei/tarot 服务，不做重写；先用 Node 反代服务把子域接入本
-   VPS，再逐步替换为自托管应用（需要拿到各产品线源码后才能启用 native 模式）。
+1. 保留现有 bazi/ziwei/tarot 应用代码，不做重写；三者源码已 vendor 进本仓库
+   （`bazi/` `ziwei/` `tarot/`），登录态通过新增的桥接逻辑接入 orasage
+   统一登录，不改动各自原有的登录/业务流程。
 2. 子域名架构（非 nginx 路径分发），规避 Next.js `basePath` 的历史坑。
 3. 跨 App 登录使用共享 Cookie（`domain=.orasage.com`），auth 统一签发 / 校验 JWT。
 4. App 间内网调用走 `127.0.0.1`，不经过公网；对外只暴露各自子域名。
@@ -47,18 +48,17 @@
 | 阶段 | 内容 | 状态 |
 |------|------|------|
 | 1 | DNS + SSL + 部署 auth.orasage.com | 脚本/配置就绪，待在真实 VPS 上执行 |
-| 2 | bazi.orasage.com 反代上线，逐步接入统一登录 | 反代已具备，统一登录待接入 |
-| 3 | ziwei / tarot 同步反代上线 | 反代已具备 |
-| 4 | shop.orasage.com 上线，各 App 接入内网结账 API | 代码就绪，待部署验证 |
-| 5 | 命理三条产品线源码逐步接管，切到 native 自托管 | 待获取各产品线源码后启动 |
-| 6 | 旧服务下线或保留为备用 | 未开始 |
+| 2 | bazi/ziwei/tarot 源码接入本仓库，桥接统一登录 | 已完成（本地验证），待真实 VPS 部署 |
+| 3 | shop.orasage.com 上线，各 App 接入内网结账 API | 代码就绪，待部署验证 |
+| 4 | bazi/ziwei/tarot 切到 native 自托管，下线迁移期反代 | 部署脚本就绪，待在真实 VPS 上执行切换 |
+| 5 | 旧服务（api1/api2.lilyfunnlove.com、c2.pub）下线或保留为备用 | 未开始，bazi 涉及真实付费用户需谨慎 |
 
 ## 4. 尚未开始 / 需要外部输入的事项
 
-- bazi / ziwei / tarot 的**实际应用源码**目前只存在于本机
-  （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
-  VPS/CI 可访问的 git 仓库，`deploy/<app>/deploy-*.sh` 的 `native` 模式需要
-  显式传入对应仓库地址（`*_REPO_URL`）才能自托管；推送前这三个 App 只能以
-  反代模式接入子域。
+- 所有 App 均已在本地沙箱验证过构建/运行，但**尚未在真实 VPS 上部署验证**
+  （DNS、SSL、MySQL/PostgreSQL 实例、systemd、Nginx 全链路）。
 - admin、cms 目前是最小骨架，尚未接入真实业务逻辑与鉴权后台。
-- c2.pub 旧站下线计划（详见 `docs/domain-setup.md` 第八节）尚未执行。
+- bazi/ziwei/tarot 目前只完成了后端登录态桥接，前端尚未展示登录状态或提供
+  跳转入口；用户体验依赖同域共享 cookie 自动生效，还需要各 App 前端配合展示。
+- c2.pub 旧站下线计划（详见 `docs/domain-setup.md` 第八节）尚未执行，bazi 仍
+  通过 WooCommerce/WordPress 服务真实付费用户，下线前需要单独评估。

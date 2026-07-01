@@ -25,17 +25,21 @@ cms.orasage.com       → cms     :3120   Payload CMS
 | `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建，部署至 VPS |
 | `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | ✅ 已开发，部署至 VPS |
 | `admin.orasage.com` | admin | 3103 | Next.js SPA | PostgreSQL | 🚧 骨架已建，部署至 VPS |
-| `bazi.orasage.com` | bazi | 3110 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
-| `ziwei.orasage.com` | ziwei | 3111 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
-| `tarot.orasage.com` | tarot | 3112 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
+| `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC + Drizzle | MySQL | ✅ 源码已接入，本地构建/运行验证通过 |
+| `ziwei.orasage.com` | ziwei | 3111 | Next.js 15 + iztro | 无（纯计算+AI） | ✅ 源码已接入，本地构建/运行验证通过 |
+| `tarot.orasage.com` | tarot | 3112 | Next.js 15 + Prisma | MySQL | ✅ 源码已接入，本地构建/运行验证通过 |
 | `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 🚧 骨架已建，部署至 VPS |
 
 ## 方案 B 要点
 
 - 各 App **独立子域名**，无需 Next.js `basePath`
-- 所有 8 个子域全部反代到同一台 VPS（`34.75.40.67`），命理三个 App 在源码迁移完成前先以反向代理方式接入现有线上服务
+- 所有 8 个 App 源码都在本仓库内（`main/` `auth-service/` `shop/` `admin/`
+  `cms/` `bazi/` `ziwei/` `tarot/`），统一部署在同一台 VPS（`34.75.40.67`）
 - **移动优先**：手机显示优先，再兼容 PC（见 [`docs/mobile-first.md`](docs/mobile-first.md)）
-- 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT
+- 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT；bazi/ziwei/tarot
+  各自新增了桥接逻辑，识别到该 cookie 时自动映射为已登录状态，**同时完全保留
+  各自原有的登录方式**（bazi 的 Manus OAuth、ziwei 的匿名模式、tarot 的访客
+  JWT），不是替换关系
 - App 间 API 走内网 `127.0.0.1`，不暴露公网
 - 购买在 App 内浮层完成，后台调 `shop` 内网 API
 
@@ -82,25 +86,28 @@ npm install && npm run migrate && npm run build
 sudo cp deploy/cms/orasage-cms.service /etc/systemd/system/ && sudo systemctl enable --now orasage-cms
 ```
 
-### bazi / ziwei / tarot（迁移期反代，逐步自托管）
+### bazi / ziwei / tarot（源码已 vendor 进本仓库，native 自托管为默认模式）
 
 ```bash
-# bazi：反代到现有线上服务
+# 均为 native 自托管（默认），从本地/Cloud Agent 远程触发：
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-bazi.sh
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-ziwei.sh
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-tarot.sh
+
+# 回滚到迁移期反代模式（proxy）：
 SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
-
-# ziwei：反代到现有线上服务
 SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-ziwei.sh
-
-# tarot：需先确认真实上游地址，再反代（未确认前请勿猜测填写）
-SSH_KEY=~/.ssh/id_rsa TAROT_UPSTREAM_URL=https://<真实地址> bash deploy/remote-deploy-tarot.sh
-
-# 三者的 native（完全自托管）模式都需要提供对应 *_REPO_URL，
-# 在拿到各产品线真实源码仓库地址前不要使用 native 模式
 ```
 
+native 模式部署前需在 VPS 上为每个 App 准备 `.env`（参考各自目录下的
+`.env.example`），bazi / tarot 需要 MySQL（`DATABASE_URL`），三者都需要与
+auth-service 共享同一个 `JWT_SECRET`。
+
 GitHub Actions：在仓库 Settings → Secrets 配置 `SSH_PRIVATE_KEY` 后，
-`Deploy Core Apps` / `Deploy Bazi` / `Deploy Ziwei` / `Deploy Tarot` 四个
-workflow 会在对应目录变更时自动触发（或手动 `workflow_dispatch`）。
+`Deploy Core Apps` 会随 main/auth/shop/admin 变更自动触发；
+`Deploy Bazi` / `Deploy Ziwei` / `Deploy Tarot` **只支持手动
+`workflow_dispatch` 触发**（切换部署方式是需要人为确认的操作，尤其 bazi 目前
+仍通过 Manus OAuth + WooCommerce 服务真实付费用户，不适合随 push 自动生效）。
 
 ## 目录结构
 
@@ -110,32 +117,51 @@ shop/                    # 能量商城 Next.js 应用
 admin/                   # 管理后台骨架（role=admin 鉴权，功能待迭代）
 cms/                     # Payload CMS 骨架（Users/Media/Pages）
 auth-service/            # 统一认证 + 用户中心
+bazi/                    # 八字排盘（对应 abutang-droid/bazi-calculator）
+ziwei/                   # 紫微斗数（对应 abutang-droid/ziwei-doushu）
+tarot/                   # 塔罗占卜（对应 abutang-droid/tarot-mind）
 docs/
   domain-setup.md        # 域名 / DNS / SSL / 认证完整指南
 deploy/
   nginx/orasage.conf     # Nginx 子域名反向代理配置（唯一可信源）
-  main/orasage-main.service
-  shop/orasage-shop.service
-  auth/orasage-auth.service
-  admin/orasage-admin.service
-  cms/orasage-cms.service
-  bazi/ ziwei/ tarot/    # 迁移期反代脚本 + docker-compose
+  main/ shop/ auth/ admin/ cms/   # 各 App 的 systemd unit
+  bazi/ ziwei/ tarot/     # native 部署脚本 + systemd unit + proxy 回滚方案
   deploy-shop.sh / deploy-shop-on-vps.sh  # main+auth+shop+admin 一键部署
   .env.example
 ```
 
+## 各命理 App 的桥接说明
+
+- **bazi**：新增 `authenticateViaOrasageBridge`（`server/_core/sdk.ts`），
+  当 Manus OAuth 会话缺失时识别共享 `orasage_token`，映射为
+  `openId = "orasage:<sub>"` 的本地用户，与原有 OAuth 用户体系互不干扰。
+  同时修复了 `buyPlan` 从不校验 `wooOrderId` 就写 `status: completed`、
+  未鉴权的 `/api/push-to-wordpress`（已确认无人调用，直接移除）、
+  `JWT_SECRET` 缺失时以空字符串签名会话等问题。
+- **ziwei**：新增 `lib/auth.ts` + `/api/auth/me`，识别到 `orasage_token`
+  时返回登录态，未配置时保持完全匿名（该 App 本身无用户表/DB）。同时修复了
+  `/api/interpret`（AI 解读代理）完全无鉴权无限流的问题，以及 `InsightPanel`
+  两处把请求字段错发成 `chart` 而不是 API 实际读取的 `chartData`、导致 AI 从
+  未真正拿到命盘上下文的功能性 bug。
+- **tarot**：`src/lib/auth.ts` 新增 `getParentBridgedUser`，通过已有的
+  `User.externalId` 字段（其设计文档里本就预留了这个用途）桥接父应用登录态，
+  完全保留原有的访客自动创建逻辑。同时修复了 `JWT_SECRET` 缺失时的公开硬编码
+  兜底值、JWT payload 未校验类型就直接类型断言、以及仓库里一个因误操作产生的
+  乱码文件名（`.gitignore` 相关）。
+
+以上均已在本地起服务用真实签名的 JWT 验证过：正确识别合法 token、拒绝伪造/
+错误密钥签名的 token、且不影响各自原有的独立登录方式。
+
 ## 已知遗留事项 / 后续优先级（按序执行）
 
-1. **P0** — bazi / ziwei / tarot 的真实应用源码目前只在本机
-   （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
-   VPS/CI 可访问的 git 仓库；三者当前均以反代接入子域名。要实现完全自托管，
-   需先将三个项目推送到 GitHub（或其他可访问的 git 远程），再在
-   `deploy/<app>/.env.example` 中填入真实的 `*_REPO_URL` 并切到 `native` 模式。
-2. **P0** — 在真实 VPS 上跑通 `deploy/deploy-shop-on-vps.sh`，验证 DNS/SSL/
-   Nginx/systemd 全链路（当前仅在本地沙箱验证过各 App 单独构建与运行）。
-3. **P1** — 三条命理产品线接入统一 JWT 登录（目前仅完成 auth 侧设计与
-   cookie/JWT 约定，命理侧改造依赖上述源码接入）。
-4. **P1** — admin 补充真实的用户/订单管理页面与操作 API（当前为鉴权骨架）。
+1. **P0** — 在真实 VPS 上跑通全部 native 部署脚本，验证 DNS/SSL/Nginx/
+   systemd/MySQL 全链路（当前仅在本地沙箱验证过各 App 单独构建、运行与
+   JWT 桥接逻辑，未在真实 VPS 环境跑过）。
+2. **P0** — bazi 涉及真实付费用户与 WooCommerce 支付，从 proxy 切到 native
+   前建议先在测试环境完整跑一遍下单流程，确认 WordPress 集成不受影响。
+3. **P1** — admin 补充真实的用户/订单管理页面与操作 API（当前为鉴权骨架）。
+4. **P1** — 三条命理产品线的登录 UI（目前只有后端桥接，各 App 前端尚未展示
+   "已通过 orasage 登录" 状态或提供入口，用户体验上依赖同域 cookie 自动生效）。
 5. **P2** — cms 按需拆分更细的内容模型，接入对象存储承载 Media。
 6. **P2** — Playwright E2E 覆盖登录→测算→购买→支付回调核心链路。
 7. **P2** — 接入 Loki + Grafana 做日志与可用性监控。

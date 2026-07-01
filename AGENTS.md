@@ -4,20 +4,27 @@
 
 ### What is runnable in this repo
 
-This repo now contains source for `main/` (Next.js 15 portal), `auth-service/`
-(Express + Drizzle + `jose`, port 3101), `shop/` (Next.js, port 3102),
-`admin/` (Next.js skeleton, port 3103) and `cms/` (Payload CMS skeleton, port
-3120). `bazi`, `ziwei`, `tarot` have no application source in this repo — they
-are reverse-proxied to their existing external services via
-`deploy/{bazi,ziwei,tarot}/proxy/`; `deploy/` also holds nginx configs,
-systemd units, and remote deploy scripts targeting a single production VPS.
+All 8 apps now have source in this repo: `main/` (Next.js 15 portal),
+`auth-service/` (Express + Drizzle + `jose`, port 3101), `shop/` (Next.js,
+port 3102), `admin/` (Next.js skeleton, port 3103), `cms/` (Payload CMS
+skeleton, port 3120), and `bazi/` `ziwei/` `tarot/` (vendored from the
+separate `abutang-droid/bazi-calculator` / `ziwei-doushu` / `tarot-mind`
+repos — copied working trees, not git subtrees, so they don't carry their
+original commit history). `deploy/{bazi,ziwei,tarot}/` also still contains a
+`proxy` fallback mode (reverse-proxies to the pre-migration external
+services) kept only as a rollback path; `native` (building the vendored
+source) is now the default. `deploy/` also holds nginx configs, systemd
+units, and remote deploy scripts targeting a single production VPS.
 
 ### Services
 
 - PostgreSQL 16 is required for `auth-service`, `shop` (via auth-service) and
   `cms`. Start it each session with `sudo pg_ctlcluster 16 main start` (check
   with `pg_lsclusters`).
-- Create per-app databases as needed, e.g.
+- MySQL/MariaDB is required for `bazi` and `tarot`. If not already running,
+  `sudo apt-get install -y mariadb-server && sudo service mariadb start`,
+  then create per-app databases/users as needed.
+- Create per-app Postgres databases as needed, e.g.
   `sudo -u postgres psql -c "CREATE DATABASE orasage_auth;"` (also
   `orasage_shop`-equivalent data lives in `orasage_auth` since shop delegates
   persistence to auth-service's internal API; `orasage_cms` for Payload).
@@ -25,6 +32,9 @@ systemd units, and remote deploy scripts targeting a single production VPS.
   (or apply the SQL files under `auth-service/drizzle/` in order).
 - `cms` schema is managed by Payload migrations: `npm run migrate` (creates
   tables) after setting `DATABASE_URL` / `PAYLOAD_SECRET`.
+- `bazi` schema is managed by Drizzle (MySQL): `DATABASE_URL=... npx drizzle-kit push --force`.
+  Uses `pnpm`, not `npm` (`corepack enable` first if pnpm isn't installed).
+- `tarot` schema is managed by Prisma (MySQL): `DATABASE_URL=... npx prisma db push`.
 
 ### Running auth-service
 
@@ -52,6 +62,22 @@ systemd units, and remote deploy scripts targeting a single production VPS.
   (first run only, creates tables), then `npm run build && npm start`
   (port 3120). Visiting `/admin` for the first time prompts to create the
   first admin user.
+
+### Running bazi / ziwei / tarot
+
+- `bazi`: `pnpm install`, `DATABASE_URL=mysql://... npx drizzle-kit push --force`,
+  then `DATABASE_URL=... JWT_SECRET=... pnpm run build && node dist/index.js`
+  (port from `PORT` env, default 3000; the deploy scripts set it to 3110).
+  `NODE_ENV=production` and missing `JWT_SECRET` will throw at startup.
+- `ziwei`: `npm install && npm run build && npm start` (port 3111 by default
+  now, see `package.json`). No database. `JWT_SECRET`/`AUTH_URL` are optional —
+  without them the app is fully anonymous (unchanged from upstream).
+- `tarot`: `npm install`, `DATABASE_URL=mysql://... npx prisma db push`, then
+  `DATABASE_URL=... JWT_SECRET=... npm run build && npm start` (reads `PORT`
+  env, no `-p` flag in the script; deploy scripts set `PORT=3112`).
+- All three accept the shared `orasage_token` cookie (same `JWT_SECRET` as
+  auth-service) as an additive login bridge — see README's "各命理 App 的桥接
+  说明" section for what changed in each app and how it was verified.
 
 ### Testing / gotchas
 
