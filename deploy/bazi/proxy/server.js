@@ -9,7 +9,7 @@ const app = express();
 app.get('/health', (_req, res) => {
   res.json({
     ok: true,
-    service: 'orasage-bazi-proxy',
+    service: 'orasage-bazi-proxy', // bazi.orasage.com
     upstream: UPSTREAM,
     time: new Date().toISOString(),
   });
