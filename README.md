@@ -4,6 +4,8 @@
 
 GitHub: `abutang-droid/orasage`
 
+> 完整产品方案见 [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md)
+
 ## 域名架构（方案 B）
 
 ```
@@ -75,5 +77,5 @@ auth-service/            # 临时 scaffold（正式版见 abutang-droid/auth-ser
 
 ## 历史文档
 
-- `PRODUCT_PLAN_v3.md` — 当前产品方案（含方案 A 路径分发，已改用方案 B）
+- [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md) — 产品方案（英文）
 - `产品方案整理.md` — Codex 对话还原 + 技术评估
