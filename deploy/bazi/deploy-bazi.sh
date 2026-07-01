@@ -66,6 +66,10 @@ deploy_native() {
   fi
   npx drizzle-kit push --force
 
+  export VITE_AUTH_URL="${VITE_AUTH_URL:-https://auth.orasage.com}"
+  # 空字符串会让 Vite 把 OAuth 门户当成已配置，前端应走 orasage auth 回退
+  unset VITE_OAUTH_PORTAL_URL VITE_APP_ID 2>/dev/null || true
+
   pnpm run build
 
   # sudo 部署时 build 产物归 root，但 systemd 以 ubuntu 运行
