@@ -48,33 +48,35 @@ jobs:
           ssh-keyscan -H "${{ secrets.SSH_HOST || '34.75.40.67' }}" >> ~/.ssh/known_hosts 2>/dev/null || true
           echo "SSH key loaded ($(wc -c < ~/.ssh/deploy_key) bytes)"
 
-      - name: Test direct SSH connectivity
-        id: direct_ssh
-        continue-on-error: true
+      - name: Configure SSH transport
+        id: ssh_transport
         env:
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
-        run: |
-          if timeout 25 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=20 \
-            -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::直连 SSH 失败，将尝试 GCP IAP（如已配置 GCP_SA_KEY）"
-          fi
-
-      - name: Setup GCP IAP tunnel
-        if: steps.direct_ssh.outputs.ok != 'true' && secrets.GCP_SA_KEY != ''
-        env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
           GCP_ZONE: ${{ secrets.GCP_ZONE }}
           GCP_INSTANCE: ${{ secrets.GCP_INSTANCE }}
         run: |
-          if [ -z "$GCP_PROJECT" ] || [ -z "$GCP_ZONE" ] || [ -z "$GCP_INSTANCE" ]; then
-            echo "::error::直连 SSH 失败，且 GCP IAP 配置不完整。请添加 GCP_SA_KEY、GCP_PROJECT、GCP_ZONE、GCP_INSTANCE"
+          if timeout 25 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=20 \
+            -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; then
+            echo "mode=direct" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "::warning::直连 SSH 失败，尝试 GCP IAP..."
+
+          if [ -z "$GCP_SA_KEY" ]; then
+            echo "::error::无法 SSH 到 ${SSH_HOST}:22，且未配置 GCP_SA_KEY"
+            echo "::error::请在 GCP 防火墙开放 22 端口，或配置 GCP_SA_KEY + GCP_PROJECT/GCP_ZONE/GCP_INSTANCE"
             exit 1
           fi
+
+          if [ -z "$GCP_PROJECT" ] || [ -z "$GCP_ZONE" ] || [ -z "$GCP_INSTANCE" ]; then
+            echo "::error::GCP IAP 配置不完整，请添加 GCP_PROJECT、GCP_ZONE、GCP_INSTANCE"
+            exit 1
+          fi
+
           echo "$GCP_SA_KEY" > /tmp/gcp-sa.json
           curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -87,14 +89,8 @@ jobs:
           timeout 30 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=20 \
             -o StrictHostKeyChecking=no \
             -o "ProxyCommand=$PROXY_CMD" \
-            "${{ secrets.SSH_USER || 'ubuntu' }}@${{ secrets.SSH_HOST || '34.75.40.67' }}" "echo IAP_SSH_OK"
-
-      - name: Fail if SSH unavailable
-        if: steps.direct_ssh.outputs.ok != 'true' && secrets.GCP_SA_KEY == ''
-        run: |
-          echo "::error::无法 SSH 到 ${{ secrets.SSH_HOST || '34.75.40.67' }}:22"
-          echo "::error::请在 GCP 防火墙开放 22 端口，或配置 GCP_SA_KEY + GCP_PROJECT/GCP_ZONE/GCP_INSTANCE 使用 IAP"
-          exit 1
+            "${SSH_USER}@${SSH_HOST}" "echo IAP_SSH_OK"
+          echo "mode=iap" >> "$GITHUB_OUTPUT"
 
       - name: Deploy bazi to VPS
         env:
