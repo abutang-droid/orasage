@@ -1,0 +1,36 @@
+name: Deploy Ziwei
+
+on:
+  push:
+    branches: [main, cursor/deploy-ziwei-1ddb]
+    paths:
+      - 'deploy/ziwei/**'
+      - 'deploy/nginx/orasage*.conf'
+      - 'deploy/remote-deploy.sh'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'abutang-droid/orasage'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy ziwei to VPS
+        env:
+          SSH_USER: ${{ vars.SSH_USER || 'ubuntu' }}
+          SSH_HOST: ${{ vars.SSH_HOST || '34.75.40.67' }}
+        run: bash deploy/remote-deploy.sh ziwei
+
+      - name: Verify deployment
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://ziwei.orasage.com)
+          echo "ziwei.orasage.com → HTTP $code"
+          if [ "$code" != "200" ] && [ "$code" != "307" ] && [ "$code" != "308" ]; then
+            echo "::warning::ziwei.orasage.com returned HTTP $code"
+          fi
