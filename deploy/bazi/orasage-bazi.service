@@ -9,7 +9,7 @@ WorkingDirectory=/opt/orasage/bazi
 EnvironmentFile=-/opt/orasage/bazi/.env
 Environment=NODE_ENV=production
 Environment=PORT=3110
-ExecStart=/usr/bin/node dist/index.js
+ExecStart=/usr/local/bin/node dist/index.js
 Restart=always
 RestartSec=5
 
