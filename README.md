@@ -82,21 +82,22 @@ npm install && npm run migrate && npm run build
 sudo cp deploy/cms/orasage-cms.service /etc/systemd/system/ && sudo systemctl enable --now orasage-cms
 ```
 
-### bazi / ziwei / tarot（迁移期反代，逐步自托管）
+### bazi / ziwei / tarot（native 自托管，默认 systemd）
 
 ```bash
-# bazi：反代到现有线上服务
-SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
+# 1. 同步源码（需 GitHub 仓库读权限）
+bash scripts/sync-fortune-repos.sh
 
-# ziwei：反代到现有线上服务
-SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-ziwei.sh
+# 2. 部署到 VPS（native 为默认模式）
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-bazi.sh
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-ziwei.sh
+SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-tarot.sh
 
-# tarot：需先确认真实上游地址，再反代（未确认前请勿猜测填写）
-SSH_KEY=~/.ssh/id_rsa TAROT_UPSTREAM_URL=https://<真实地址> bash deploy/remote-deploy-tarot.sh
-
-# 三者的 native（完全自托管）模式都需要提供对应 *_REPO_URL，
-# 在拿到各产品线真实源码仓库地址前不要使用 native 模式
+# 回退到迁移期反代
+DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
 ```
+
+完整接入步骤见 [`docs/fortune-apps-integration.md`](docs/fortune-apps-integration.md)。
 
 GitHub Actions：在仓库 Settings → Secrets 配置 `SSH_PRIVATE_KEY` 后，
 `Deploy Core Apps` / `Deploy Bazi` / `Deploy Ziwei` / `Deploy Tarot` 四个
@@ -110,7 +111,10 @@ shop/                    # 能量商城 Next.js 应用
 admin/                   # 管理后台骨架（role=admin 鉴权，功能待迭代）
 cms/                     # Payload CMS 骨架（Users/Media/Pages）
 auth-service/            # 统一认证 + 用户中心
+bazi/ ziwei/ tarot/      # 命理 App 源码（scripts/sync-fortune-repos.sh 同步）
+packages/orasage-auth/   # 命理 App 共享 JWT 库
 docs/
+  fortune-apps-integration.md  # 命理三线接入指南
   domain-setup.md        # 域名 / DNS / SSL / 认证完整指南
 deploy/
   nginx/orasage.conf     # Nginx 子域名反向代理配置（唯一可信源）
@@ -126,20 +130,18 @@ deploy/
 
 ## 已知遗留事项 / 后续优先级（按序执行）
 
-1. **P0** — bazi / ziwei / tarot 的真实应用源码目前只在本机
-   （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
-   VPS/CI 可访问的 git 仓库；三者当前均以反代接入子域名。要实现完全自托管，
-   需先将三个项目推送到 GitHub（或其他可访问的 git 远程），再在
-   `deploy/<app>/.env.example` 中填入真实的 `*_REPO_URL` 并切到 `native` 模式。
-2. **P0** — 在真实 VPS 上跑通 `deploy/deploy-shop-on-vps.sh`，验证 DNS/SSL/
-   Nginx/systemd 全链路（当前仅在本地沙箱验证过各 App 单独构建与运行）。
-3. **P1** — 三条命理产品线接入统一 JWT 登录（目前仅完成 auth 侧设计与
-   cookie/JWT 约定，命理侧改造依赖上述源码接入）。
-4. **P1** — admin 补充真实的用户/订单管理页面与操作 API（当前为鉴权骨架）。
-5. **P2** — cms 按需拆分更细的内容模型，接入对象存储承载 Media。
-6. **P2** — Playwright E2E 覆盖登录→测算→购买→支付回调核心链路。
-7. **P2** — 接入 Loki + Grafana 做日志与可用性监控。
-8. **P3** — c2.pub 旧站下线或转为备用收银台（见 `docs/domain-setup.md` 第八节）。
+1. **P0** — 接入 bazi / ziwei / tarot 源码并完成 native 自托管：
+   - 仓库：`abutang-droid/bazi-calculator`、`ziwei-doushu`、`tarot-mind`
+   - 同步：`bash scripts/sync-fortune-repos.sh`
+   - 接入指南：[`docs/fortune-apps-integration.md`](docs/fortune-apps-integration.md)
+   - 部署默认已切到 `DEPLOY_MODE=native` + `systemd`
+2. **P0** — 三条命理产品线接入统一 JWT 登录（`packages/orasage-auth` 已就绪）
+3. **P1** — 在真实 VPS 上跑通 native 部署并验证 DNS/SSL/Nginx/systemd 全链路
+4. **P1** — admin 补充真实的用户/订单管理页面与操作 API（当前为鉴权骨架）
+5. **P2** — cms 按需拆分更细的内容模型，接入对象存储承载 Media
+6. **P2** — Playwright E2E 覆盖登录→测算→购买→支付回调核心链路
+7. **P2** — 接入 Loki + Grafana 做日志与可用性监控
+8. **P3** — c2.pub 旧站下线或转为备用收银台（见 `docs/domain-setup.md` 第八节）
 
 ## 历史文档
 

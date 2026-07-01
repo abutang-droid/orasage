@@ -1,0 +1,19 @@
+[Unit]
+Description=OraSage Bazi (八字排盘)
+After=network.target orasage-auth.service mysql.service
+Wants=orasage-auth.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/bazi/app
+EnvironmentFile=/opt/orasage/bazi/.env
+Environment=NODE_ENV=production
+Environment=PORT=3110
+Environment=HOST=127.0.0.1
+ExecStart=/usr/local/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

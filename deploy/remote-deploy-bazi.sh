@@ -10,8 +10,8 @@ set -euo pipefail
 SSH_USER="${SSH_USER:-ubuntu}"
 SSH_HOST="${SSH_HOST:-34.75.40.67}"
 SSH_PORT="${SSH_PORT:-22}"
-DEPLOY_MODE="${DEPLOY_MODE:-proxy}"
-ORASAGE_REF="${ORASAGE_REF:-cursor/deploy-bazi-34a4}"
+DEPLOY_MODE="${DEPLOY_MODE:-native}"
+ORASAGE_REF="${ORASAGE_REF:-cursor/consolidate-platform-02ec}"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=20 -o BatchMode=yes"
 
 log() { echo "[deploy-bazi] $*"; }

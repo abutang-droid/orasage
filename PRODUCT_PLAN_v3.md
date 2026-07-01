@@ -55,10 +55,9 @@
 
 ## 4. 尚未开始 / 需要外部输入的事项
 
-- bazi / ziwei / tarot 的**实际应用源码**目前只存在于本机
-  （`bazi-calculator` / `ziwei-doushu` / `tarot-app`），尚未推送到任何
-  VPS/CI 可访问的 git 仓库，`deploy/<app>/deploy-*.sh` 的 `native` 模式需要
-  显式传入对应仓库地址（`*_REPO_URL`）才能自托管；推送前这三个 App 只能以
-  反代模式接入子域。
+- bazi / ziwei / tarot 源码仓库已确认：
+  `abutang-droid/bazi-calculator`、`ziwei-doushu`、`tarot-mind`。用
+  `scripts/sync-fortune-repos.sh` 同步后接入 `@orasage/auth`，详见
+  `docs/fortune-apps-integration.md`。部署默认 `native` + `systemd`。
 - admin、cms 目前是最小骨架，尚未接入真实业务逻辑与鉴权后台。
 - c2.pub 旧站下线计划（详见 `docs/domain-setup.md` 第八节）尚未执行。

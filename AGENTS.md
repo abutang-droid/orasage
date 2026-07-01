@@ -7,10 +7,10 @@
 This repo now contains source for `main/` (Next.js 15 portal), `auth-service/`
 (Express + Drizzle + `jose`, port 3101), `shop/` (Next.js, port 3102),
 `admin/` (Next.js skeleton, port 3103) and `cms/` (Payload CMS skeleton, port
-3120). `bazi`, `ziwei`, `tarot` have no application source in this repo — they
-are reverse-proxied to their existing external services via
-`deploy/{bazi,ziwei,tarot}/proxy/`; `deploy/` also holds nginx configs,
-systemd units, and remote deploy scripts targeting a single production VPS.
+3120). Fortune apps `bazi/`, `ziwei/`, `tarot/` are synced from separate
+GitHub repos via `scripts/sync-fortune-repos.sh` (not committed to orasage).
+Shared JWT helpers live in `packages/orasage-auth/`. Until synced, bazi/ziwei/
+tarot may still run via reverse-proxy in `deploy/{bazi,ziwei,tarot}/proxy/`.
 
 ### Services
 
@@ -52,6 +52,14 @@ systemd units, and remote deploy scripts targeting a single production VPS.
   (first run only, creates tables), then `npm run build && npm start`
   (port 3120). Visiting `/admin` for the first time prompts to create the
   first admin user.
+
+### Fortune apps (bazi / ziwei / tarot)
+
+- Sync source: `bash scripts/sync-fortune-repos.sh` (requires GitHub read access
+  to `abutang-droid/bazi-calculator`, `ziwei-doushu`, `tarot-mind`).
+- JWT integration: `packages/orasage-auth` — see `docs/fortune-apps-integration.md`.
+- Deploy defaults to `DEPLOY_MODE=native` + `systemd` on ports 3110/3111/3112.
+- Each app must expose `GET /health` and bind `127.0.0.1` in production.
 
 ### Testing / gotchas
 

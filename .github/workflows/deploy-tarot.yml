@@ -6,13 +6,14 @@ on:
       deploy_mode:
         description: '部署模式 (proxy=迁移代理, native=自托管)'
         required: true
-        default: 'proxy'
+        default: 'native'
         type: choice
         options:
           - proxy
           - native
   push:
     branches:
+      - cursor/consolidate-platform-02ec
       - main
     paths:
       - 'deploy/tarot/**'
@@ -31,7 +32,7 @@ jobs:
       - name: Check TAROT_UPSTREAM_URL configured
         env:
           TAROT_UPSTREAM_URL: ${{ secrets.TAROT_UPSTREAM_URL }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
         run: |
           if [ "$DEPLOY_MODE" = "proxy" ] && [ -z "$TAROT_UPSTREAM_URL" ]; then
             echo "::error::proxy 模式需要在 Secrets 中配置 TAROT_UPSTREAM_URL（塔罗现有线上服务真实地址），确认后再触发部署"
@@ -108,7 +109,7 @@ jobs:
           SSH_KEY: ~/.ssh/deploy_key
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
           TAROT_REPO_URL: ${{ secrets.TAROT_REPO_URL }}
           TAROT_UPSTREAM_URL: ${{ secrets.TAROT_UPSTREAM_URL }}
           ORASAGE_REF: ${{ github.ref_name }}

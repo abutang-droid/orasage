@@ -1,0 +1,19 @@
+[Unit]
+Description=OraSage Tarot (塔罗占卜)
+After=network.target orasage-auth.service mysql.service
+Wants=orasage-auth.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/tarot/app
+EnvironmentFile=/opt/orasage/tarot/.env
+Environment=NODE_ENV=production
+Environment=PORT=3112
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/local/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

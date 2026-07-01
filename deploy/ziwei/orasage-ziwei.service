@@ -1,0 +1,19 @@
+[Unit]
+Description=OraSage Ziwei (紫微斗数)
+After=network.target orasage-auth.service mysql.service
+Wants=orasage-auth.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/ziwei/app
+EnvironmentFile=/opt/orasage/ziwei/.env
+Environment=NODE_ENV=production
+Environment=PORT=3111
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/local/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -7,9 +7,11 @@ set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
 BAZI_DIR="$DEPLOY_DIR/bazi"
-MODE="${DEPLOY_MODE:-proxy}"
-REPO_URL="${BAZI_REPO_URL:-}"
+MODE="${DEPLOY_MODE:-native}"
+REPO_URL="${BAZI_REPO_URL:-https://github.com/abutang-droid/bazi-calculator.git}"
 REPO_BRANCH="${BAZI_REPO_BRANCH:-main}"
+NATIVE_RUNTIME="${NATIVE_RUNTIME:-systemd}"
+NPM_BIN="${NPM_BIN:-/usr/local/bin/npm}"
 
 log() { echo "[$(date '+%H:%M:%S')] [bazi] $*"; }
 
@@ -60,13 +62,7 @@ deploy_proxy() {
   docker compose up -d --remove-orphans
 }
 
-deploy_native() {
-  log "部署 native 模式（自托管 bazi 应用）..."
-  if [ -z "$REPO_URL" ]; then
-    log "错误: native 模式需要设置 BAZI_REPO_URL"
-    exit 1
-  fi
-  require_cmd docker
+sync_app_source() {
   APP_SRC="$BAZI_DIR/app"
   if [ -d "$APP_SRC/.git" ]; then
     git -C "$APP_SRC" fetch --all --prune
@@ -76,6 +72,38 @@ deploy_native() {
     mkdir -p "$APP_SRC"
     git clone --branch "$REPO_BRANCH" --depth 1 "$REPO_URL" "$APP_SRC"
   fi
+}
+
+deploy_native_systemd() {
+  log "部署 native/systemd 模式（自托管 bazi，端口 3110）..."
+  require_cmd "$NPM_BIN"
+  sync_app_source
+  cd "$APP_SRC"
+
+  if [ ! -f package.json ]; then
+    log "错误: bazi 仓库缺少 package.json，无法 systemd 部署"
+    exit 1
+  fi
+
+  "$NPM_BIN" install
+  if grep -q '"build"' package.json; then
+    "$NPM_BIN" run build
+  fi
+
+  # 停止 proxy 容器，避免端口冲突
+  docker compose -f "$BAZI_DIR/docker-compose.yml" down 2>/dev/null || true
+  docker rm -f orasage-bazi-native 2>/dev/null || true
+
+  sudo cp "$DEPLOY_DIR/deploy/bazi/orasage-bazi.service" /etc/systemd/system/
+  sudo systemctl daemon-reload
+  sudo systemctl enable orasage-bazi
+  sudo systemctl restart orasage-bazi
+}
+
+deploy_native_docker() {
+  log "部署 native/docker 模式（自托管 bazi 应用）..."
+  require_cmd docker
+  sync_app_source
   cd "$APP_SRC"
   if [ -f Dockerfile ]; then
     docker build -t orasage-bazi:native .
@@ -90,9 +118,27 @@ deploy_native() {
     COMPOSE_FILE=$(ls docker-compose.yml compose.yml 2>/dev/null | head -1)
     docker compose -f "$COMPOSE_FILE" up -d --build
   else
-    log "错误: bazi 仓库中未找到 Dockerfile 或 docker-compose.yml"
+    log "错误: bazi 仓库中未找到 Dockerfile、docker-compose.yml 或 package.json"
     exit 1
   fi
+}
+
+deploy_native() {
+  if [ -z "$REPO_URL" ]; then
+    log "错误: native 模式需要设置 BAZI_REPO_URL"
+    exit 1
+  fi
+  if [ -f "$BAZI_DIR/.env" ]; then
+    set -a && source "$BAZI_DIR/.env" && set +a
+  elif [ -f "$BAZI_DIR/.env.example" ]; then
+    cp "$BAZI_DIR/.env.example" "$BAZI_DIR/.env"
+    set -a && source "$BAZI_DIR/.env" && set +a
+  fi
+  case "$NATIVE_RUNTIME" in
+    systemd) deploy_native_systemd ;;
+    docker)  deploy_native_docker ;;
+    *)       log "未知 NATIVE_RUNTIME=$NATIVE_RUNTIME（支持 systemd | docker）"; exit 1 ;;
+  esac
 }
 
 ensure_nginx() {
@@ -112,7 +158,8 @@ verify() {
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:3110/health || echo "000")
   log "  127.0.0.1:3110/health → HTTP $code"
   if [ "$code" != "200" ]; then
-    log "警告: 健康检查未通过，请检查 docker logs"
+    log "警告: 健康检查未通过"
+    systemctl status orasage-bazi --no-pager 2>/dev/null || true
     docker compose -f "$BAZI_DIR/docker-compose.yml" logs --tail 30 2>/dev/null || true
   fi
   ext_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://bazi.orasage.com/health || echo "000")

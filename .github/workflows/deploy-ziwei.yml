@@ -6,13 +6,14 @@ on:
       deploy_mode:
         description: '部署模式 (proxy=迁移代理, native=自托管)'
         required: true
-        default: 'proxy'
+        default: 'native'
         type: choice
         options:
           - proxy
           - native
   push:
     branches:
+      - cursor/consolidate-platform-02ec
       - main
     paths:
       - 'deploy/ziwei/**'
@@ -98,7 +99,7 @@ jobs:
           SSH_KEY: ~/.ssh/deploy_key
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
-          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'proxy' }}
+          DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || 'native' }}
           ZIWEI_REPO_URL: ${{ secrets.ZIWEI_REPO_URL }}
           ZIWEI_UPSTREAM_URL: ${{ secrets.ZIWEI_UPSTREAM_URL || 'https://api2.lilyfunnlove.com' }}
           ORASAGE_REF: ${{ github.ref_name }}
