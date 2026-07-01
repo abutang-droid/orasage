@@ -1,1 +1,43 @@
-IyBPcmFTYWdlIOW6p+WTgeaetuaehAoKOCDkuKrni6znq4sgQXBw77yMbuWRmXgg57uf5LiA5YiG5Y+R44CCCgp8IOi3r+W+hCB8IEFwcCB8IOerr+WPo+OAkCB8IOadguiAgyB8IOaVsOaNruW6kyB8CnwtLS0tLS18LS0tLS18LS0tLS18LS0tLS0tLS0tfC0tLS0tLS0tLXwKfCAvYGBgIHwgbWFpbiB8IDMxMDAgfCBOZXh0LmpzICsgbmV4dC1pbnRsIHwgUG9zdGdyZVNRTCB8CnwgL2F1dGggfCBhdXRoIHwgMzEwMSB8IEV4cHJlc3MgKyBEcml6emxlIHwgUG9zdGdyZVNRTCB8CnwgL3Nob3AgfCBzaG9wIHwgMzEwMiB8IE5leHQuanMgKyBTdHJpcGUgfCBQb3N0Z3JlU1FMIHwKfCAvYWRtaW4gfCBhZG1pbiB8IDMxMDMgfCBOZXh0LmpzIFNQQSB8IOKAlCB8CnwgL2JhemkgfCBiYXppIHwgMzExMCB8IFZpdGUgKyBFeHByZXNzIHwgTXlTUUwgfAp8IC96aXdlaSB8IHppd2VpIHwgMzExMSB8IE5leHQuanMgKyBpenRybyB8IE15U1FMIHwKfCAvdGFyb3QgfCB0YXJvdCB8IDMxMTIgfCBOZXh0LmpzICsgUHJpc21hIHwgTXlTUUwgfAp8IC9jbXMgfCBjbXMgfCAzMTIwIHwgUGF5bG9hZCBDTVMgfCBQb3N0Z3JlU1FMIHwKCiMjIOaJvuWuoeiusOW9lQoKMS4g5L+d55WZ546w5pyJIGJhemkvcWl3ZWkvdGFyb3Qg5Luj56CB77yM5LiN5YGa6YeN5YaZCjIuIEFwcCDlhoXmta7lsYLotK3kubDvvIzkuI3ot7PovawgL3Nob3AKMy4gcmVjb21tZW5kYXRpb25Db250ZXh0IOW8oOmAkuaOqOiNkOeQhueUsQo0LiDlhbHkuqsgSldUIGNvb2tpZSDot6jot6/lvoTor6Tor4EKNy4g54us56uLIEFwcCBBUEkg5Y+q5a+55YaF5byA5pS+CjguIOa+p+eQhjEyIOenjeivr+iogAo5LiBQbGF5d3JpZ2h0IEUyRSDojrnlv4Poio/ot6/lvIAKMTEuIOWQhCBBcHAg54us56uLIGRvY2tlci1jb21wb3NlIOacrOWcsOW8gOWPkQoxMi4gVlBTIOaWsOaXnuW5tuihjOenu+aJgQoxMy4gUGF5bG9hZCBpMThuIOaPkuS7tiAxMiDor63oqIAKMTQuIFZQUyDlu7rorq7ljYfoh7MgMTZHQu+8jENJL0NEIOiEmuacrOWMlgoKIyMg6YOo572yCgpWUFM6IDM0Ljc1LjQwLjY3IChHQ1AgZTItc3RhbmRhcmQtMikK5Z+656GA6K6+5pa9OiBQb3N0Z3JlU1FMIDE2IC8gUmVkaXMgLyBEb2NrZXIgLyBOZ2lueCAvIExva2kgKyBHcmFmYW5hCgojIyDljoblj7LmlofmoaMKCi0gYEhBTkRPRkYubWRgIC0g5Y6f5aeL5Lqk5o6l5paH5qGjCgotIGBQUk9EVUNUX1BMQU5fdjIubWRgIC0gdjIg5pa55qGI77yI5bey5bqR5byD77yJCgotIGBQUk9EVUNUX1BMQU5fdjMubWRgIC0g5b2T5YmN5Lqn5ZOB5pa55qGICgotIGDkuqflk4HmlrnmoYjmlbTnkIYubWRgIC0gQ29kZXgg5a+56K+d6L+Y5Y6f
+# OraSage 产品架构
+
+8 个独立 App，nginx 统一分发。
+
+| 路径 | App | 端口 | 技术栈 | 数据库 |
+|------|-----|------|--------|--------|
+| `/` | main | 3100 | Next.js + next-intl | PostgreSQL |
+| `/auth` | auth | 3101 | Express + Drizzle | PostgreSQL |
+| `/shop` | shop | 3102 | Next.js + Stripe | PostgreSQL |
+| `/admin` | admin | 3103 | Next.js SPA | — |
+| `/bazi` | bazi | 3110 | Vite + Express | MySQL |
+| `/ziwei` | ziwei | 3111 | Next.js + iztro | MySQL |
+| `/tarot` | tarot | 3112 | Next.js + Prisma | MySQL |
+| `/cms` | cms | 3120 | Payload CMS | PostgreSQL |
+
+## 决策记录
+
+1. 保留现有 bazi/ziwei/tarot 代码，不做重写
+2. App 内浮层购买，不跳转 /shop
+3. recommendationContext 传递推荐理由
+4. 共享 JWT cookie 跨路径认证
+5. PostgreSQL + MySQL 双数据库
+6. 应用间通过内网 127.0.0.1 API 调用通信
+7. 独立 admin App
+8. 命理 App API 只对内开放
+9. Playwright E2E 核心链路测试
+10. Loki + Grafana 日志监控
+11. 各 App 独立 docker-compose 本地开发
+12. VPS 新旧并行迁移
+13. Payload CMS i18n 插件 12 语言
+14. VPS 建议升至 16GB，CI/CD 脚本化
+
+## 部署
+
+VPS: 34.75.40.67 (GCP e2-standard-2)
+基础设施: PostgreSQL 16 / Redis / Docker / Nginx / Loki + Grafana
+
+## 历史文档
+
+- `HANDOFF.md` - 原始交接文档
+- `PRODUCT_PLAN_v2.md` - v2 方案（已废弃）
+- `PRODUCT_PLAN_v3.md` - 当前产品方案
+- `产品方案整理.md` - Codex 对话还原
