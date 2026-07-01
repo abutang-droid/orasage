@@ -1,4 +1,4 @@
-import { Hero, ToolCards, ContentSections } from '@/components/HomeSections';
+import { Hero, ToolCards, ShopSection, ContentSections } from '@/components/HomeSections';
 import { setRequestLocale } from 'next-intl/server';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -11,6 +11,7 @@ export default async function HomePage({ params }: Props) {
     <>
       <Hero />
       <ToolCards />
+      <ShopSection />
       <ContentSections />
     </>
   );

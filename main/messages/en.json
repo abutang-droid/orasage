@@ -9,6 +9,7 @@
     "faq": "FAQ",
     "famous": "Famous Cases",
     "daozang": "Dao Canon",
+    "shop": "Shop",
     "login": "Sign In"
   },
   "hero": {
@@ -29,6 +30,24 @@
     "tarot": {
       "name": "Tarot Reading",
       "desc": "Daily energy · Deep insights · Spiritual guidance"
+    }
+  },
+  "shop": {
+    "title": "Energy Shop",
+    "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
+    "cta": "Visit Shop",
+    "hint": "After a reading, purchase recommended crystals in one tap",
+    "products": {
+      "wood": { "name": "Green Phantom", "element": "Wood", "desc": "Prosperity" },
+      "fire": { "name": "Red Agate", "element": "Fire", "desc": "Fire balance" },
+      "earth": { "name": "Citrine", "element": "Earth", "desc": "Grounding" },
+      "metal": { "name": "Clear Quartz", "element": "Metal", "desc": "Purify" },
+      "water": { "name": "Obsidian", "element": "Water", "desc": "Protection" }
+    },
+    "categories": {
+      "crystal": "Crystal Bracelets",
+      "report": "Digital Reports",
+      "service": "Energy Sessions"
     }
   },
   "sections": {

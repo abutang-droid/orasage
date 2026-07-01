@@ -12,13 +12,17 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const navItems = [
+  const navItems: Array<
+    | { href: '/' | '/about' | '/faq' | '/famous' | '/daozang'; label: string }
+    | { href: string; label: string; external: true }
+  > = [
     { href: '/', label: t('home') },
     { href: '/about', label: t('about') },
     { href: '/faq', label: t('faq') },
     { href: '/famous', label: t('famous') },
     { href: '/daozang', label: t('daozang') },
-  ] as const;
+    { href: externalUrls.shop, label: t('shop'), external: true },
+  ];
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -37,15 +41,25 @@ export function Header() {
 
         {/* 桌面导航 */}
         <nav className="hidden items-center gap-5 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-sage-muted transition hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            'external' in item && item.external ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm text-sage-muted transition hover:text-white"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm text-sage-muted transition hover:text-white"
+              >
+                {item.label}
+              </Link>
+            )
+          )}
           <a
             href={externalUrls.auth}
             className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10"
@@ -91,16 +105,27 @@ export function Header() {
             aria-hidden
           />
           <nav className="safe-bottom fixed inset-x-0 top-14 z-50 max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-b border-sage-border bg-sage-bg px-4 py-3 lg:hidden">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-white"
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              'external' in item && item.external ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-white"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-white"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
             <div className="mt-4 border-t border-sage-border/40 pt-4">
               <p className="mb-2 text-xs text-sage-muted">Language</p>
               <div className="grid grid-cols-2 gap-2">

@@ -61,6 +61,72 @@ export function ToolCards() {
   );
 }
 
+const productKeys = ['wood', 'fire', 'earth', 'metal', 'water'] as const;
+const elementColors: Record<string, string> = {
+  wood: 'bg-emerald-500/20 text-emerald-300',
+  fire: 'bg-red-500/20 text-red-300',
+  earth: 'bg-amber-500/20 text-amber-300',
+  metal: 'bg-slate-300/20 text-slate-200',
+  water: 'bg-indigo-500/20 text-indigo-300',
+};
+
+export function ShopSection() {
+  const t = useTranslations('shop');
+
+  return (
+    <section id="shop" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mb-5 text-center sm:mb-8">
+        <h2 className="font-serif text-xl text-sage-gold sm:text-2xl">{t('title')}</h2>
+        <p className="mt-2 text-sm text-sage-muted sm:text-base">{t('subtitle')}</p>
+      </div>
+
+      {/* 分类标签 */}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-center">
+        {(['crystal', 'report', 'service'] as const).map((cat) => (
+          <span
+            key={cat}
+            className="shrink-0 rounded-full border border-sage-border bg-sage-card px-4 py-2 text-xs text-sage-muted"
+          >
+            {t(`categories.${cat}`)}
+          </span>
+        ))}
+      </div>
+
+      {/* 水晶产品 — 手机横向滑动 */}
+      <div className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:gap-4 md:grid-cols-5 sm:overflow-visible">
+        {productKeys.map((key) => (
+          <a
+            key={key}
+            href={externalUrls.shop}
+            className="flex w-[140px] shrink-0 flex-col rounded-2xl border border-sage-border bg-sage-card p-4 active:border-sage-gold/40 sm:w-auto"
+          >
+            <span
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${elementColors[key]}`}
+            >
+              {t(`products.${key}.element`)}
+            </span>
+            <h3 className="mt-3 text-base font-medium text-white">
+              {t(`products.${key}.name`)}
+            </h3>
+            <p className="mt-1 text-xs text-sage-muted">{t(`products.${key}.desc`)}</p>
+          </a>
+        ))}
+      </div>
+
+      <p className="mt-4 text-center text-xs text-sage-muted sm:mt-6">{t('hint')}</p>
+
+      <div className="mt-5 flex justify-center sm:mt-6">
+        <a
+          href={externalUrls.shop}
+          className="inline-flex min-h-[48px] w-full max-w-sm items-center justify-center rounded-full border border-sage-gold/50 bg-sage-gold/10 px-8 text-base font-medium text-sage-gold active:bg-sage-gold/20 sm:w-auto sm:text-sm"
+        >
+          {t('cta')} →
+        </a>
+      </div>
+    </section>
+  );
+}
+
 export function ContentSections() {
   const t = useTranslations('sections');
 
