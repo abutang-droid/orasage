@@ -22,6 +22,7 @@ if [ -n "$SSH_PASSWORD" ]; then
   SSH_CMD=(sshpass -p "$SSH_PASSWORD" ssh $SSH_OPTS)
   SCP_CMD=(sshpass -p "$SSH_PASSWORD" scp $SSH_OPTS)
 else
+  SSH_OPTS="$SSH_OPTS -o BatchMode=yes"
   SSH_CMD=(ssh $SSH_OPTS)
   SCP_CMD=(scp $SSH_OPTS)
 fi
