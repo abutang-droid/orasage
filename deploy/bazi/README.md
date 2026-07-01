@@ -75,3 +75,4 @@ gcloud compute firewall-rules create allow-ssh-ingress-from-iap \
 | `native` | 自托管，需设置 `BAZI_REPO_URL` |
 
 ## 验证: curl -s https://bazi.orasage.com/health
+# GCP 防火墙已开放，GitHub Actions 可直连 VPS:22
