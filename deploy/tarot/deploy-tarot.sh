@@ -17,6 +17,9 @@ APP_DIR="$DEPLOY_DIR/tarot"
 PROXY_DIR="$DEPLOY_DIR/deploy/tarot"
 MODE="${DEPLOY_MODE:-native}"
 
+# shellcheck disable=SC1091
+source "$DEPLOY_DIR/deploy/lib/load-env.sh"
+
 log() { echo "[$(date '+%H:%M:%S')] [tarot] $*"; }
 
 require_cmd() {
@@ -48,8 +51,9 @@ deploy_native() {
   npm ci
 
   set -a
-  # shellcheck disable=SC1091
-  [ -f .env ] && source .env
+  if [ -f .env ]; then
+    load_dotenv .env
+  fi
   set +a
 
   if [ -z "${DATABASE_URL:-}" ]; then
