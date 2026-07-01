@@ -1,0 +1,18 @@
+[Unit]
+Description=OraSage Auth Service (Express)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/orasage/auth-service
+EnvironmentFile=/opt/orasage/.env
+Environment=NODE_ENV=production
+Environment=PORT=3101
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

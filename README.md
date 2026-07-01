@@ -21,18 +21,20 @@ cms.orasage.com       → cms     :3120   Payload CMS
 
 | 子域名 | App | 端口 | 技术栈 | 数据库 | 状态 |
 |--------|-----|------|--------|--------|------|
-| `orasage.com` | main | 3100 | Next.js 15 + next-intl | PostgreSQL | 未建 |
-| `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建 |
-| `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | 未建 |
-| `admin.orasage.com` | admin | 3103 | Next.js SPA | — | 未建 |
-| `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC | MySQL | ✅ 已有，需改认证 |
-| `ziwei.orasage.com` | ziwei | 3111 | Next.js + iztro | MySQL | ✅ 已有，需加用户系统 |
-| `tarot.orasage.com` | tarot | 3112 | Next.js + Prisma | MySQL | ✅ 已有，需统一 JWT |
-| `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 未建 |
+| `orasage.com` | main | 3100 | Next.js 15 + next-intl | — | ✅ 已开发，部署至 VPS |
+| `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建，部署至 VPS |
+| `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | ✅ 已开发，部署至 VPS |
+| `admin.orasage.com` | admin | 3103 | Next.js SPA | PostgreSQL | 🚧 骨架已建，部署至 VPS |
+| `bazi.orasage.com` | bazi | 3110 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
+| `ziwei.orasage.com` | ziwei | 3111 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
+| `tarot.orasage.com` | tarot | 3112 | Node 反代 → 现有服务 | MySQL（外部） | ✅ 代理已部署（迁移中） |
+| `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 🚧 骨架已建，部署至 VPS |
 
 ## 方案 B 要点
 
 - 各 App **独立子域名**，无需 Next.js `basePath`
+- 所有 8 个子域全部反代到同一台 VPS（`34.75.40.67`），命理三个 App 在源码迁移完成前先以反向代理方式接入现有线上服务
+- **移动优先**：手机显示优先，再兼容 PC（见 [`docs/mobile-first.md`](docs/mobile-first.md)）
 - 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT
 - App 间 API 走内网 `127.0.0.1`，不暴露公网
 - 购买在 App 内浮层完成，后台调 `shop` 内网 API
@@ -64,13 +66,18 @@ cms.orasage.com       → cms     :3120   Payload CMS
 ## 目录结构
 
 ```
+main/                    # 主门户 Next.js 应用
+shop/                    # 能量商城 Next.js 应用
+auth-service/            # 统一认证 + 用户中心
 docs/
   domain-setup.md        # 域名 / DNS / SSL / 认证完整指南
 deploy/
   nginx/orasage.conf     # Nginx 子域名反向代理配置
+  main/orasage-main.service
+  shop/orasage-shop.service
+  auth/orasage-auth.service
   auth/cookie.example.ts
   .env.example
-auth-service/            # 临时 scaffold（正式版见 abutang-droid/auth-service）
 ```
 
 ## 历史文档
