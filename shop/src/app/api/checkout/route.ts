@@ -93,9 +93,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
     }
 
+    let demoCheckoutUrl = `${ENV.shopUrl}/checkout?order=${encodeURIComponent(orderNo)}`;
+    if (body.successUrl) {
+      demoCheckoutUrl += `&return=${encodeURIComponent(successUrl)}`;
+    }
     return NextResponse.json({
       orderNo,
-      checkoutUrl: `${ENV.shopUrl}/checkout?order=${orderNo}`,
+      checkoutUrl: demoCheckoutUrl,
       provider: 'demo',
       amountCents,
       title,

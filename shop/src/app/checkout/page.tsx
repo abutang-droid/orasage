@@ -29,9 +29,7 @@ function CheckoutContent() {
       if (!res.ok) throw new Error(data.error || '支付失败');
       setDone(true);
       if (returnUrl) {
-        const sep = returnUrl.includes('?') ? '&' : '?';
-        const target = `${returnUrl}${sep}order=${encodeURIComponent(orderNo)}`;
-        setTimeout(() => { window.location.href = target; }, 800);
+        setTimeout(() => { window.location.href = returnUrl; }, 800);
       } else {
         setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 800);
       }

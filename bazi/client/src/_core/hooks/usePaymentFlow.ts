@@ -141,7 +141,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         if (result.checkoutUrl) {
           window.location.href = result.checkoutUrl;
         } else {
-          const returnUrl = encodeURIComponent(returnBase);
+          const returnUrl = encodeURIComponent(`${returnBase}&order=${encodeURIComponent(result.orderNo)}`);
           window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}&return=${returnUrl}`;
         }
       } catch (err) {
