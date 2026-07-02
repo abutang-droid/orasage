@@ -20,16 +20,16 @@ export function ProfileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="mb-8 flex gap-2 overflow-x-auto border-b border-sage-border/60 pb-3 sm:flex-wrap">
+    <nav className="mb-8 overflow-hidden rounded-xl border border-sage-border/60">
       {navItems.map((item) => {
         const active = pathname === item.href;
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
+            className={`flex min-h-[48px] items-center border-b border-sage-border/40 px-4 py-3 text-sm transition last:border-b-0 ${
               active
-                ? 'bg-sage-gold/15 text-sage-gold'
+                ? 'bg-sage-gold/10 text-sage-gold'
                 : 'text-sage-muted hover:bg-sage-card hover:text-sage-primary'
             }`}
           >
