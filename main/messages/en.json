@@ -90,6 +90,14 @@
   },
   "daozang": {
     "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "desc": "Taoist classics, wisdom passed through millennia",
+    "total": "{count} articles",
+    "empty": "No content yet",
+    "loadError": "Failed to load content",
+    "prev": "Previous",
+    "next": "Next",
+    "back": "Back to list",
+    "sourceLink": "Original source",
+    "noBody": "No content"
   }
 }

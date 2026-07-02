@@ -1,9 +1,19 @@
 import type { CollectionConfig } from 'payload';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 
+export const PUBLISH_SECTION_OPTIONS = [
+  { label: '主站 · 道藏精选', value: 'daozang' },
+  { label: '主站 · 名人案例', value: 'famous' },
+  { label: '主站 · 通用内容', value: 'main' },
+  { label: '八字 App', value: 'bazi' },
+  { label: '紫微 App', value: 'ziwei' },
+  { label: '塔罗 App', value: 'tarot' },
+  { label: '商城', value: 'shop' },
+] as const;
+
 /**
- * 内容页面（骨架）：用于主门户 / 各命理 App 的文章、FAQ、公告等内容管理。
- * 后续可按需拆分为更细的 Collection（如 Articles / Announcements）。
+ * 内容页面：主门户与各命理 App 的文章、知识库、公告等。
+ * `appSource` 决定内容发布到哪个前台栏目。
  */
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -12,8 +22,8 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'wpType', 'wpStatus', 'appSource', 'updatedAt'],
-    description: '导入的 WordPress 正文在「原文预览」中查看；公开预览：/view/[...slug]',
+    defaultColumns: ['title', 'appSource', 'wpType', 'wpStatus', 'locale', 'updatedAt'],
+    description: '「发布栏目」决定内容出现在哪个前台位置。WordPress 导入正文见「原文预览」。',
   },
   fields: [
     {
@@ -30,9 +40,29 @@ export const Pages: CollectionConfig = {
     },
     {
       name: 'appSource',
+      label: '发布栏目',
       type: 'select',
-      options: ['main', 'bazi', 'ziwei', 'tarot', 'shop'],
-      defaultValue: 'main',
+      required: true,
+      defaultValue: 'daozang',
+      options: [...PUBLISH_SECTION_OPTIONS],
+      admin: {
+        description: '选择该内容在前台的展示位置（主站道藏、名人案例，或各命理 App）',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'wpStatus',
+      label: '发布状态',
+      type: 'select',
+      defaultValue: 'publish',
+      options: [
+        { label: '已发布', value: 'publish' },
+        { label: '草稿', value: 'draft' },
+      ],
+      admin: {
+        description: '草稿不会出现在主站与各 App 列表中',
+        position: 'sidebar',
+      },
     },
     {
       type: 'collapsible',
@@ -55,7 +85,7 @@ export const Pages: CollectionConfig = {
           name: 'legacyHtml',
           type: 'textarea',
           admin: {
-            description: '从 c2.pub WordPress 迁移的原始 HTML。公开页 /view/[slug] 会渲染此字段。',
+            description: '从 c2.pub WordPress 迁移的原始 HTML。主站道藏页与各 /view 路由会渲染此字段。',
             rows: 12,
           },
         },
@@ -75,22 +105,13 @@ export const Pages: CollectionConfig = {
                 { label: '文章 (post)', value: 'post' },
                 { label: '页面 (page)', value: 'page' },
               ],
-              admin: { readOnly: true, width: '33%' },
-            },
-            {
-              name: 'wpStatus',
-              type: 'select',
-              options: [
-                { label: '已发布', value: 'publish' },
-                { label: '草稿', value: 'draft' },
-              ],
-              admin: { readOnly: true, width: '33%' },
+              admin: { readOnly: true, width: '50%' },
             },
             {
               name: 'wpId',
               type: 'number',
               index: true,
-              admin: { readOnly: true, width: '33%' },
+              admin: { readOnly: true, width: '50%' },
             },
           ],
         },
