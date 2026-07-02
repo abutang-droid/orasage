@@ -35,18 +35,27 @@ function detectLocale(link) {
   return 'zh-CN';
 }
 
-function makeSlug(item, type) {
-  const locale = detectLocale(item.link);
-  const base = item.slug || `item-${item.id}`;
-  const slug = `${locale.toLowerCase()}/${base}`.replace(/[^a-z0-9/_-]+/gi, '-').replace(/-+/g, '-');
-  return slug.slice(0, 180) || `c2-${type}-${item.id}`;
-}
-
-function detectAppSource(item) {
+function detectAppSource(item, type) {
+  if (type === 'doc') {
+    const cats = item.doc_category || [];
+    const baziCats = new Set([60, 62, 71, 72, 74]); // 八字、七政四余、渊海子平、三命通会、星命总括
+    const tarotCats = new Set([66, 67, 68]); // 易经、六爻、梅花易数
+    if (cats.some((id) => baziCats.has(id))) return 'bazi';
+    if (cats.some((id) => tarotCats.has(id))) return 'tarot';
+    return 'main'; // 中医、拳法、奇门等道藏内容
+  }
   const classes = item.class_list || [];
   const cats = (item.categories || []).join(',');
   if (/mingren|famous|personalidades|bazi|八字/i.test(classes.join(' ') + cats)) return 'bazi';
   return 'main';
+}
+
+function makeSlug(item, type) {
+  const locale = detectLocale(item.link);
+  const base = item.slug || `item-${item.id}`;
+  const prefix = type === 'doc' ? 'docs' : type === 'page' ? 'pages' : 'posts';
+  const slug = `${prefix}/${locale.toLowerCase()}/${base}`.replace(/[^a-z0-9/_-]+/gi, '-').replace(/-+/g, '-');
+  return slug.slice(0, 180) || `c2-${type}-${item.id}`;
 }
 
 async function fetchAll(endpoint) {
@@ -89,7 +98,7 @@ async function upsertPage(client, item, type) {
   const legacyHtml = item.content?.rendered || '';
   const sourceUrl = item.link || '';
   const locale = detectLocale(sourceUrl);
-  const appSource = detectAppSource(item);
+  const appSource = detectAppSource(item, type);
   const wpId = item.id;
 
   const existing = await client.query(
@@ -129,10 +138,14 @@ async function upsertPage(client, item, type) {
 }
 
 async function main() {
-  console.log(`[migrate-c2pub] source=${WP_BASE} dry_run=${DRY_RUN}`);
-  const posts = await fetchAll('posts');
-  const pages = await fetchAll('pages');
-  console.log(`[migrate-c2pub] fetched ${posts.length} posts, ${pages.length} pages`);
+  const endpoints = (process.env.MIGRATE_ONLY || 'posts,pages,docs').split(',').map((s) => s.trim()).filter(Boolean);
+  console.log(`[migrate-c2pub] source=${WP_BASE} dry_run=${DRY_RUN} endpoints=${endpoints.join(',')}`);
+
+  const buckets = {};
+  for (const ep of endpoints) {
+    buckets[ep] = await fetchAll(ep);
+    console.log(`[migrate-c2pub] fetched ${buckets[ep].length} ${ep}`);
+  }
 
   const client = new pg.Client({ connectionString: cmsDatabaseUrl() });
   await client.connect();
@@ -141,23 +154,26 @@ async function main() {
   let inserted = 0;
   let updated = 0;
 
-  for (const item of posts) {
-    const r = await upsertPage(client, item, 'post');
-    if (r === 'inserted') inserted += 1;
-    else updated += 1;
-  }
-  for (const item of pages) {
-    const r = await upsertPage(client, item, 'page');
-    if (r === 'inserted') inserted += 1;
-    else updated += 1;
+  const typeMap = { posts: 'post', pages: 'page', docs: 'doc' };
+  for (const ep of endpoints) {
+    const wpType = typeMap[ep] || ep.replace(/s$/, '');
+    for (const item of buckets[ep]) {
+      const r = await upsertPage(client, item, wpType);
+      if (r === 'inserted') inserted += 1;
+      else updated += 1;
+    }
   }
 
   const { rows: [{ count }] } = await client.query(
     "SELECT count(*)::int AS count FROM pages WHERE wp_id IS NOT NULL",
   );
+  const byType = await client.query(
+    'SELECT wp_type, count(*)::int AS n FROM pages WHERE wp_id IS NOT NULL GROUP BY wp_type ORDER BY wp_type',
+  );
   await client.end();
 
   console.log(`[migrate-c2pub] done: inserted=${inserted} updated=${updated} total_migrated=${count}`);
+  for (const row of byType.rows) console.log(`  ${row.wp_type}: ${row.n}`);
 }
 
 main().catch((err) => {

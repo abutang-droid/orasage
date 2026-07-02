@@ -1,15 +1,32 @@
-# c2.pub 数据迁移
+# c2.pub → CMS 内容迁移（知识库）
 
-从 `https://www.c2.pub`（WordPress + WooCommerce）迁移资料到 OraSage 平台。
+**仅迁移内容，不迁移用户/订单。**
 
-## 数据范围
+## 内容来源（BetterDocs + WordPress）
 
-| 数据 | 来源 | 目标 | 脚本 | 前置条件 |
-|------|------|------|------|----------|
-| 文章/页面 (110+33) | WP REST API 公开接口 | CMS `pages` 表 | `migrate-wp-content.mjs` | 无 |
-| WooCommerce 订单 | WC REST API | auth `user_orders` | `migrate-users-orders.mjs` | `WP_WOO_KEY/SECRET` |
-| WP 用户 | 订单 billing email | auth `users` | 同上 | 同上 |
-| 八字报告元数据 | WP `user_meta.orasage_reports` | auth `user_readings` | 待 DB 导出 | MySQL 只读权限 |
+| c2.pub 类型 | 数量 | CMS `wp_type` | 说明 |
+|-------------|------|---------------|------|
+| `docs` | ~132 | `doc` | **知识库**（易筋经、五禽戏、易经、中医等） |
+| `posts` | ~110 | `post` | 名人八字案例 |
+| `pages` | ~33 | `page` | 静态页面 |
+
+## 一键迁移（VPS）
+
+```bash
+cd /opt/orasage/scripts/migrate-c2pub && npm ci
+
+# 仅知识库
+MIGRATE_ONLY=docs CMS_DATABASE_URL=$(grep DATABASE_URL /opt/orasage/cms/.env | cut -d= -f2-) \
+  node migrate-wp-content.mjs
+
+# 全部内容（知识库 + 文章 + 页面）
+CMS_DATABASE_URL=$(grep DATABASE_URL /opt/orasage/cms/.env | cut -d= -f2-) \
+  node migrate-wp-content.mjs
+```
+
+在 CMS 后台查看：https://cms.orasage.com/admin/collections/pages
+
+筛选：`wp_type = doc` 即为知识库条目。
 
 ## 一、迁移文章/页面到 CMS（可立即执行）
 
