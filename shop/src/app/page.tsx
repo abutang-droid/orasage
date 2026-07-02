@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import { ShopHeader } from '@/components/ShopHeader';
 import { ProductCatalog } from '@/components/ProductCatalog';
-import { products } from '@/lib/products';
+import { fetchProducts } from '@/lib/products';
 import { getAuthUser } from '@/lib/auth';
 
 export default async function ShopPage() {
-  const user = await getAuthUser();
+  const [user, products] = await Promise.all([getAuthUser(), fetchProducts()]);
 
   return (
     <>

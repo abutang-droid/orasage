@@ -6,10 +6,12 @@ import {
   pgEnum,
   integer,
   text,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const appSourceEnum = pgEnum("app_source", ["bazi", "ziwei", "tarot", "shop"]);
+export const productCategoryEnum = pgEnum("product_category", ["crystal", "report", "service"]);
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
   "paid",
@@ -55,11 +57,26 @@ export const userOrders = pgTable("user_orders", {
   userId: integer("user_id").notNull(),
   orderNo: varchar("order_no", { length: 64 }).notNull().unique(),
   title: varchar("title", { length: 200 }).notNull(),
+  sku: varchar("sku", { length: 100 }),
   amountCents: integer("amount_cents").notNull().default(0),
   currency: varchar("currency", { length: 8 }).notNull().default("CNY"),
   status: orderStatusEnum("status").notNull().default("pending"),
   appSource: appSourceEnum("app_source"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  element: varchar("element", { length: 10 }),
+  description: text("description").notNull(),
+  priceCents: integer("price_cents").notNull(),
+  category: productCategoryEnum("category").notNull(),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const userRecommendations = pgTable("user_recommendations", {

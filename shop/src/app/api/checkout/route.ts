@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
-import { getProduct } from '@/lib/products';
+import { fetchProducts, getProduct } from '@/lib/products';
 import { makeOrderNo, syncOrderToAuth } from '@/lib/orders';
 import { ENV, hasStripe } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = checkoutSchema.parse(await req.json());
-    const lineItems: Array<{ product: NonNullable<ReturnType<typeof getProduct>>; quantity: number }> = [];
+    const lineItems: Array<{ product: NonNullable<Awaited<ReturnType<typeof getProduct>>>; quantity: number }> = [];
 
     for (const item of body.items) {
-      const product = getProduct(item.sku);
+      const product = await getProduct(item.sku);
       if (!product) {
         return NextResponse.json({ error: `商品不存在: ${item.sku}` }, { status: 400 });
       }
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       userId: body.userId,
       orderNo,
       title,
+      sku: lineItems.length === 1 ? lineItems[0].product.sku : undefined,
       amountCents,
       status: 'pending',
       appSource: body.appSource ?? 'shop',
@@ -102,7 +103,7 @@ export async function PUT(req: NextRequest) {
       quantity: z.number().int().positive().max(10).default(1),
     }).parse(await req.json());
 
-    const product = getProduct(sku);
+    const product = await getProduct(sku);
     if (!product) {
       return NextResponse.json({ error: '商品不存在' }, { status: 404 });
     }
@@ -114,6 +115,7 @@ export async function PUT(req: NextRequest) {
       userId: user.id,
       orderNo,
       title: quantity > 1 ? `${product.name} ×${quantity}` : product.name,
+      sku: product.sku,
       amountCents,
       status: 'pending',
       appSource: 'shop',

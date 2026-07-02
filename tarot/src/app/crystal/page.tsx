@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import { shopUrlForWuxing } from "@/lib/shop-products"
 
 const CRYSTALS = [
   { sku: "木", name: "绿幽灵", nameEN: "Green Phantom", emoji: "🌿", domains: ["生长","突破","事业上升"], desc: "适合正在起步、转型、或渴望突破停滞的你。火太旺时，木来持续燃烧。" },
@@ -19,7 +20,7 @@ export default function CrystalListPage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
           {CRYSTALS.map(crystal => (
-            <Link key={crystal.sku} href={`/crystal/${crystal.sku}`} style={{ textDecoration: 'none' }}>
+            <Link key={crystal.sku} href={shopUrlForWuxing(crystal.sku)} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
               <div className="card-gold card-hover" style={{
                 padding: '20px 20px', display: 'flex', alignItems: 'center', gap: 16,
               }}>
@@ -49,10 +50,10 @@ export default function CrystalListPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{crystal.desc}</div>
                 </div>
                 <div style={{
-                  fontSize: 18, fontWeight: 700, color: 'var(--gold-light)',
+                  fontSize: 12, fontWeight: 600, color: 'var(--gold-light)',
                   fontFamily: 'var(--font-mono)', flexShrink: 0,
                 }}>
-                  $39.99
+                  商城 →
                 </div>
               </div>
             </Link>

@@ -9,7 +9,8 @@ export interface Product {
   category: ProductCategory;
 }
 
-export const products: Product[] = [
+/** 静态兜底（auth-service 不可用时） */
+export const FALLBACK_PRODUCTS: Product[] = [
   { sku: 'crystal-wood', name: '绿幽灵手串', element: '木', desc: '招财旺运 · 五行补木', priceCents: 12800, category: 'crystal' },
   { sku: 'crystal-fire', name: '红玛瑙手串', element: '火', desc: '补火平衡 · 增强活力', priceCents: 9800, category: 'crystal' },
   { sku: 'crystal-earth', name: '黄水晶手串', element: '土', desc: '稳固根基 · 聚财守正', priceCents: 10800, category: 'crystal' },
@@ -21,9 +22,13 @@ export const products: Product[] = [
   { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, category: 'service' },
 ];
 
-export function getProduct(sku: string) {
-  return products.find((p) => p.sku === sku) ?? null;
-}
+export const ELEMENT_TO_SKU: Record<string, string> = {
+  木: 'crystal-wood',
+  火: 'crystal-fire',
+  土: 'crystal-earth',
+  金: 'crystal-metal',
+  水: 'crystal-water',
+};
 
 export function formatPrice(cents: number) {
   return `¥${(cents / 100).toFixed(2)}`;
@@ -34,3 +39,63 @@ export const categoryLabels: Record<ProductCategory, string> = {
   report: '数字报告',
   service: '能量咨询',
 };
+
+interface ApiProduct {
+  sku: string;
+  name: string;
+  element?: string | null;
+  desc?: string;
+  description?: string;
+  priceCents: number;
+  category: ProductCategory;
+}
+
+function mapApiProduct(p: ApiProduct): Product {
+  return {
+    sku: p.sku,
+    name: p.name,
+    element: p.element ?? undefined,
+    desc: p.desc ?? p.description ?? '',
+    priceCents: p.priceCents,
+    category: p.category,
+  };
+}
+
+let cachedProducts: Product[] | null = null;
+let cacheExpiry = 0;
+const CACHE_TTL_MS = 60_000;
+
+export async function fetchProducts(): Promise<Product[]> {
+  if (cachedProducts && Date.now() < cacheExpiry) {
+    return cachedProducts;
+  }
+
+  const { ENV } = await import('./env');
+  try {
+    const res = await fetch(`${ENV.authInternalUrl}/api/products`, {
+      next: { revalidate: 60 },
+    } as RequestInit);
+    if (!res.ok) throw new Error(`products API ${res.status}`);
+    const data = await res.json() as { products: ApiProduct[] };
+    cachedProducts = data.products.map(mapApiProduct);
+    cacheExpiry = Date.now() + CACHE_TTL_MS;
+    return cachedProducts;
+  } catch (err) {
+    console.warn('[shop] fetchProducts fallback:', err);
+    return FALLBACK_PRODUCTS;
+  }
+}
+
+export async function getProduct(sku: string): Promise<Product | null> {
+  const list = await fetchProducts();
+  return list.find((p) => p.sku === sku) ?? null;
+}
+
+export async function getProductByElement(element: string): Promise<Product | null> {
+  const sku = ELEMENT_TO_SKU[element];
+  if (!sku) return null;
+  return getProduct(sku);
+}
+
+/** @deprecated 使用 fetchProducts()；保留兼容旧 import */
+export const products = FALLBACK_PRODUCTS;

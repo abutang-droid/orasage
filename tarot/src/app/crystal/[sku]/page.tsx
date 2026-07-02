@@ -1,6 +1,7 @@
 "use client"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { shopUrlForWuxing } from "@/lib/shop-products"
 
 const CRYSTAL_MAP: Record<string, { name: string; nameEN: string; emoji: string; wuxing: string; domains: string[]; desc: string; color: string }> = {
   "木": { name: "绿幽灵", nameEN: "Green Phantom Quartz", emoji: "🌿", wuxing: "木", color: "#5B8C5A",
@@ -98,9 +99,15 @@ export default function CrystalDetailPage() {
         </div>
 
         {/* Buy CTA */}
-        <button className="btn-primary" style={{ width: '100%', marginBottom: 12 }}>
-          📿 请一条 · $39.99
-        </button>
+        <a
+          href={shopUrlForWuxing(crystal.wuxing)}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-primary"
+          style={{ display: 'block', width: '100%', marginBottom: 12, textAlign: 'center', textDecoration: 'none' }}
+        >
+          📿 前往能量商城购买
+        </a>
         <Link href="/temple" style={{
           display: 'flex', justifyContent: 'center', width: '100%',
           textDecoration: 'none',
