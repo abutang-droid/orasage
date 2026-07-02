@@ -5,16 +5,18 @@ module.exports = {
     extend: {
       colors: {
         sage: {
-          bg: '#0f0e17',
-          card: '#1a1928',
-          border: '#2e2d42',
-          gold: '#c9a962',
-          purple: '#7f5af0',
-          muted: '#a7a9be',
+          bg: '#fafaf8',
+          card: '#ffffff',
+          border: '#e7e5e4',
+          gold: '#b8943f',
+          purple: '#b8943f',
+          muted: '#6b7280',
+          primary: '#171717',
         },
       },
       fontFamily: {
         serif: ['Georgia', 'Noto Serif SC', 'serif'],
+        sans: ['Inter', 'Noto Sans SC', 'PingFang SC', 'sans-serif'],
       },
     },
   },

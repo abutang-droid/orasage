@@ -6,7 +6,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { trpc } from "@/lib/trpc";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER } from "@/theme";
+import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER, INK_DEEP } from "@/theme";
 import {
   SingleBaziResult, DoubleBaziResult, ScoreDimension,
   DailyFortune,
@@ -18,12 +18,15 @@ import { PaywallCard } from "@/components/PaywallCard";
 import { useT } from "@/lib/i18n";
 import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
+import type { BraceletRecommendation } from "@/lib/bazi";
+import { braceletToCrystalSku } from "@/lib/reading-sync";
+import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
     const html2canvas = (await import('html2canvas')).default;
     const contentCanvas = await html2canvas(el, {
-      backgroundColor: '#0A0815',
+      backgroundColor: INK_DEEP,
       scale: 2,
       useCORS: true,
       logging: false,
@@ -44,7 +47,7 @@ async function saveAsImage(el: HTMLElement, filename: string) {
 
     // 水印条背景
     const barY = contentCanvas.height;
-    ctx.fillStyle = '#1A1732';
+    ctx.fillStyle = INK_DEEP;
     ctx.fillRect(0, barY, finalCanvas.width, wh);
 
     // 分隔线
@@ -106,7 +109,7 @@ async function saveAsImage(el: HTMLElement, filename: string) {
         margin: 1,
         color: {
           dark: GOLD,   // 金色模块
-          light: '#1A1732',  // 深色背景，与水印条融合
+          light: INK_DEEP,
         },
       });
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
@@ -499,7 +502,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           position: "absolute",
           inset: 0,
           zIndex: 10,
-          background: "linear-gradient(to bottom, transparent 0%, rgba(10,8,21,0.75) 22%, rgba(10,8,21,0.98) 52%, #0A0815 100%)",
+          background: `linear-gradient(to bottom, transparent 0%, rgba(250,250,248,0.75) 22%, rgba(250,250,248,0.98) 52%, ${BG_PAGE} 100%)`,
           backdropFilter: "blur(2px)",
           WebkitBackdropFilter: "blur(2px)",
           display: "flex",
@@ -533,7 +536,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           className="w-full py-3 rounded-sm text-sm font-bold tracking-widest transition-all active:scale-95"
           style={{
             background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`,
-            color: "#1A1732",
+            color: "#ffffff",
             fontFamily: SERIF_F,
             letterSpacing: "0.18em",
             boxShadow: "0 0 18px #6F6880",
@@ -1148,7 +1151,7 @@ function SectionCard({
           flex: 1, fontFamily: SERIF,
           fontSize: "1.125rem", fontWeight: 600,
           letterSpacing: "0.08em",
-          color: isOpen ? "#EDE8D8" : "rgba(255,255,255,0.65)",
+          color: isOpen ? HEADING : BODY_CLR,
           transition: "color 0.3s",
         }}>
           {title}
@@ -1193,13 +1196,13 @@ function SectionCard({
           {paragraphs.map((para, pi) => (
             <div key={pi} style={{
               padding: "1rem 1.125rem",
-              background: "#1A1732",
+              background: BG_CARD,
               borderRadius: "12px",
-              border: "1px solid rgba(255,255,255,0.05)",
-              boxShadow: "0 1px 4px rgba(255,255,255,0.04)",
+              border: `1px solid ${CARD_BORDER}`,
+              boxShadow: "0 1px 4px rgba(23,23,23,0.04)",
             }}>
               <div style={{
-                color: "#ADA898",
+                color: BODY_CLR,
                 fontSize: "1rem",
                 lineHeight: 1.95,
                 fontFamily: "'Noto Serif SC', serif",
@@ -1418,7 +1421,7 @@ function AIAnalysisPanel({
   if (!open && autoTrigger) {
     return (
       <div className="flex flex-col items-center gap-4 py-8"
-        style={{ border: `1px solid ${G_FAINT}`, background: "#1A1732", borderRadius: "16px" }}>
+        style={{ border: `1px solid ${G_FAINT}`, background: BG_CARD, borderRadius: "16px" }}>
         <div className="relative" style={{ width: 48, height: 48 }}>
           <svg width="48" height="48" viewBox="0 0 100 100" fill="none" className="animate-spin" style={{ animationDuration: "3s" }}>
             <circle cx="50" cy="50" r="44" stroke={G_FAINT} strokeWidth="1.5" />
@@ -1438,9 +1441,9 @@ function AIAnalysisPanel({
 
   return (
     <div className="overflow-hidden" style={{
-      background: "#1A1732",
+      background: BG_CARD,
       borderRadius: "16px",
-      boxShadow: "0 1px 3px rgba(255,255,255,0.05), 0 4px 24px rgba(196,160,78,0.08)",
+      boxShadow: "0 1px 3px rgba(23,23,23,0.04), 0 4px 24px rgba(184,148,63,0.08)",
     }}>
       {/* ── 内容区 ── */}
       <div>
@@ -1513,7 +1516,7 @@ function AIAnalysisPanel({
               position: "relative",
               overflow: "hidden",
               padding: "2.5rem 1.5rem 2rem",
-              background: "linear-gradient(180deg, rgba(196,160,78,0.06) 0%, rgba(200,168,75,0.02) 40%, #1A1732 100%)",
+              background: `linear-gradient(180deg, rgba(184,148,63,0.06) 0%, rgba(184,148,63,0.02) 40%, ${BG_CARD} 100%)`,
               borderBottom: "none",
             }}>
               {/* 装饰性背景圆 */}
@@ -1830,7 +1833,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
 
             <div className="flex items-center justify-between rounded-lg px-4 py-2.5" style={{ background: "rgba(196,160,78,0.04)" }}>
               <p className="text-sm" style={{ color: GOLD, flex: 1 }}>{aiProfile.lucky}</p>
-              <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: GOLD, color: "#0A0815", fontFamily: SANS }}>{wx}</span>
+              <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: GOLD, color: "#ffffff", fontFamily: SANS }}>{wx}</span>
             </div>
           </>
         )}
@@ -1869,10 +1872,60 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
         className="w-full py-2.5 rounded-xl text-sm font-bold tracking-widest transition-all active:scale-[0.98]"
         style={{
           background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-          color: "#1A1732", fontFamily: SERIF_F, letterSpacing: "0.12em",
+          color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
           border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
         }}>
         {t('bracelet.upgrade')}
+      </button>
+    </div>
+  );
+}
+
+function CrystalShopCard({ braceletRec }: { braceletRec: BraceletRecommendation | null }) {
+  const { t } = useT();
+  const [loading, setLoading] = useState(false);
+  const crystalSku = braceletToCrystalSku(braceletRec);
+  if (!braceletRec || !crystalSku) return null;
+  const sku = crystalSku;
+
+  async function handleBuy() {
+    setLoading(true);
+    try {
+      const result = await startAppCheckout({
+        sku,
+        recommendationContext: braceletRec!.reason,
+      });
+      redirectAfterCheckout(result);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('checkout.error', '结账失败'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl p-5" style={{
+      background: `linear-gradient(135deg, rgba(196,160,78,0.08) 0%, rgba(15,12,32,0.95) 100%)`,
+      border: `1px solid rgba(196,160,78,0.2)`,
+    }}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-lg">📿</span>
+        <p className="text-sm font-bold" style={{ color: HEADING, fontFamily: SERIF_F }}>
+          {t('crystal.shop.title', '能量水晶推荐')}
+        </p>
+      </div>
+      <p className="text-xs mb-3" style={{ color: BODY_CLR, lineHeight: 1.6 }}>
+        {braceletRec.reason}
+      </p>
+      <button type="button" disabled={loading} onClick={() => void handleBuy()}
+        className="w-full py-2.5 rounded-xl text-sm font-bold tracking-widest transition-all active:scale-[0.98]"
+        style={{
+          background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
+          color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
+          border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
+          opacity: loading ? 0.7 : 1,
+        }}>
+        {loading ? t('checkout.loading', '正在跳转…') : t('crystal.shop.buy', '去能量商城请一条')}
       </button>
     </div>
   );
@@ -1913,16 +1966,17 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
     premium: t('plan.premium.name'),
   };
 
-  // 报告生成完毕 → 推送到 WordPress 用户中心
+  // 报告生成完毕 → 推送到用户中心（WC 或 shop 订单）
   const handleReportReady = (reportContent: string, sections: Array<{ title: string; content: string }>) => {
-    if (payment.purchasedPlan && payment.wooOrderId) {
-      payment.pushReportToWordPress({
-        planType: payment.purchasedPlan,
-        wooOrderId: payment.wooOrderId,
-        reportContent,
-        name: result.name,
-      });
-    }
+    if (!payment.purchasedPlan) return;
+    if (!payment.shopOrderNo && !payment.wooOrderId) return;
+    payment.pushReportToWordPress({
+      planType: payment.purchasedPlan,
+      wooOrderId: payment.wooOrderId || undefined,
+      shopOrderNo: payment.shopOrderNo || undefined,
+      reportContent,
+      name: result.name,
+    });
   };
 
   return (
@@ -1989,6 +2043,10 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
       {/* 计费墙：未付费时展示 */}
       {!payment.unlocked && <PaywallCard onPay={payment.openDirectPayment} />}
 
+      {!payment.unlocked && braceletRec && (
+        <CrystalShopCard braceletRec={braceletRec} />
+      )}
+
       {/* 已解锁内容 */}
       {payment.unlocked && (
         <UnlockedContent result={result} purchasedPlan={payment.purchasedPlan} braceletRec={braceletRec} captureRef={captureRef} onReportReady={handleReportReady} />
@@ -2007,7 +2065,7 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
           {onStartDouble && (
             <button type="button" onClick={onStartDouble}
               className="w-full py-3 rounded-2xl text-sm font-bold tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
-              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`, color: "#1A1732", fontFamily: SERIF_F, letterSpacing: "0.18em", boxShadow: `0 4px 16px rgba(196,160,78,0.35)` }}>
+              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`, color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.18em", boxShadow: `0 4px 16px rgba(196,160,78,0.35)` }}>
               {t('result.double')}
             </button>
           )}
@@ -2050,6 +2108,18 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
     basic: t('plan.couple.basic.name'),
     advanced: t('plan.couple.advanced.name'),
     premium: t('plan.couple.premium.name'),
+  };
+
+  const handleReportReady = (reportContent: string, sections: Array<{ title: string; content: string }>) => {
+    if (!payment.purchasedPlan) return;
+    if (!payment.shopOrderNo && !payment.wooOrderId) return;
+    payment.pushReportToWordPress({
+      planType: payment.purchasedPlan,
+      wooOrderId: payment.wooOrderId || undefined,
+      shopOrderNo: payment.shopOrderNo || undefined,
+      reportContent,
+      name: `${result.person1.name} & ${result.person2.name}`,
+    });
   };
 
   return (
@@ -2180,6 +2250,7 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
             resultData={result as unknown as Record<string, unknown>}
             type="couple"
             autoTrigger
+            onReportReady={handleReportReady}
           />
 
           {/* 付费后操作区 */}

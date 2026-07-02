@@ -6,18 +6,14 @@ import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import {
+  GOLD, GOLD_DIM, GOLD_FAINT, HEADING, BODY_CLR, MUTED_CLR,
+  BG_PAGE, BG_CARD, BORDER_CLR, SERIF_F,
+} from "@/theme";
 
-// ─── OraSage 设计常量（墨金主题）────────────────────────────────────
-const GOLD        = "#C4A04E";
-const GOLD_DIM    = "rgba(196,160,78,0.75)";
-const GOLD_FAINT  = "rgba(196,160,78,0.2)";
-const SERIF       = "'Noto Serif SC', 'ZCOOL XiaoWei', serif";
-const HEADING_CLR = "#EDE8D8";
-const BODY_CLR    = "#ADA898";
-const MUTED_CLR   = "#6E6858";
-const BG_PAGE     = "#0A0815";
-const CARD_BG     = "rgba(15,12,32,0.95)";
-const BORDER_CLR  = "rgba(196,160,78,0.18)";
+const SERIF = SERIF_F;
+const HEADING_CLR = HEADING;
+const CARD_BG = BG_CARD;
 
 function WuXingBar({ wuXing }: { wuXing: Record<string, number> }) {
   const WX_COLOR: Record<string, string> = {
@@ -83,10 +79,10 @@ export default function HistoryPage() {
             fontFamily: SERIF,
             fontSize: "0.85rem",
             letterSpacing: "0.15em",
-            color: "#0A0815",
+            color: "#ffffff",
             textDecoration: "none",
             padding: "0.6rem 2rem",
-            background: `linear-gradient(135deg, ${GOLD} 0%, #EFC97A 50%, ${GOLD} 100%)`,
+            background: `linear-gradient(135deg, ${GOLD} 0%, #d4b86a 50%, ${GOLD} 100%)`,
             borderRadius: "999px",
             boxShadow: "0 4px 14px rgba(196,160,78,0.35)",
           }}
@@ -104,7 +100,7 @@ export default function HistoryPage() {
         <div
           className="flex items-center justify-between px-5 py-3.5 sticky top-0 z-10"
           style={{
-            background: "rgba(10,8,21,0.92)",
+            background: "rgba(250,250,248,0.92)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
             borderBottom: `1px solid ${BORDER_CLR}`,
@@ -154,10 +150,10 @@ export default function HistoryPage() {
                     fontFamily: SERIF,
                     fontSize: "0.8rem",
                     letterSpacing: "0.12em",
-                    color: "#0A0815",
+                    color: "#ffffff",
                     cursor: "pointer",
                     padding: "0.5rem 1.5rem",
-                    background: `linear-gradient(135deg, ${GOLD} 0%, #EFC97A 50%, ${GOLD} 100%)`,
+                    background: `linear-gradient(135deg, ${GOLD} 0%, #d4b86a 50%, ${GOLD} 100%)`,
                     borderRadius: "999px",
                     boxShadow: "0 4px 12px rgba(196,160,78,0.3)",
                     display: "inline-block",

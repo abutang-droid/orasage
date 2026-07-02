@@ -51,7 +51,7 @@ export default async function DaozangPage({ params, searchParams }: Props) {
                   href={daozangArticlePath(item.slug)}
                   className="group block"
                 >
-                  <h2 className="font-serif text-lg text-sage-gold transition group-hover:text-white sm:text-xl">
+                  <h2 className="font-serif text-lg text-sage-gold transition group-hover:text-sage-primary sm:text-xl">
                     {decodeHtmlEntities(item.title)}
                   </h2>
                   {item.legacyHtml && (
@@ -69,7 +69,7 @@ export default async function DaozangPage({ params, searchParams }: Props) {
               {articles.hasPrevPage ? (
                 <Link
                   href={`/daozang?page=${page - 1}`}
-                  className="text-sage-gold hover:text-white"
+                  className="text-sage-gold hover:text-sage-primary"
                 >
                   ← {t('prev')}
                 </Link>
@@ -82,7 +82,7 @@ export default async function DaozangPage({ params, searchParams }: Props) {
               {articles.hasNextPage ? (
                 <Link
                   href={`/daozang?page=${page + 1}`}
-                  className="text-sage-gold hover:text-white"
+                  className="text-sage-gold hover:text-sage-primary"
                 >
                   {t('next')} →
                 </Link>

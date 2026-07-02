@@ -3,6 +3,7 @@ import { extractToken, verifyToken } from "./jwt.ts";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema.ts";
 import { eq } from "drizzle-orm";
+import { userDisplayName } from "./display-id.ts";
 
 export async function getAuthUser(req: Request) {
   const token = extractToken(req.headers.authorization, req.headers.cookie);
@@ -16,6 +17,8 @@ export async function getAuthUser(req: Request) {
 export function publicUser(user: typeof users.$inferSelect) {
   return {
     id: user.id,
+    displayId: user.displayId,
+    displayName: userDisplayName(user),
     email: user.email,
     nickname: user.nickname,
     avatarUrl: user.avatarUrl,

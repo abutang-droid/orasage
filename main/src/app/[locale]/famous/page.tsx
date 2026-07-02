@@ -48,7 +48,7 @@ export default async function FamousPage({ params, searchParams }: Props) {
             {articles.docs.map((item) => (
               <li key={item.id} className="py-4 sm:py-5">
                 <Link href={famousArticlePath(item.slug)} className="group block">
-                  <h2 className="font-serif text-lg text-sage-gold transition group-hover:text-white sm:text-xl">
+                  <h2 className="font-serif text-lg text-sage-gold transition group-hover:text-sage-primary sm:text-xl">
                     {decodeHtmlEntities(item.title)}
                   </h2>
                   {item.legacyHtml && (
@@ -64,7 +64,7 @@ export default async function FamousPage({ params, searchParams }: Props) {
           {(articles.hasPrevPage || articles.hasNextPage) && (
             <nav className="mt-8 flex items-center justify-between gap-4 text-sm">
               {articles.hasPrevPage ? (
-                <Link href={`/famous?page=${page - 1}`} className="text-sage-gold hover:text-white">
+                <Link href={`/famous?page=${page - 1}`} className="text-sage-gold hover:text-sage-primary">
                   ← {t('prev')}
                 </Link>
               ) : (
@@ -74,7 +74,7 @@ export default async function FamousPage({ params, searchParams }: Props) {
                 {page} / {articles.totalPages}
               </span>
               {articles.hasNextPage ? (
-                <Link href={`/famous?page=${page + 1}`} className="text-sage-gold hover:text-white">
+                <Link href={`/famous?page=${page + 1}`} className="text-sage-gold hover:text-sage-primary">
                   {t('next')} →
                 </Link>
               ) : (

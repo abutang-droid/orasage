@@ -59,14 +59,20 @@ export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
 
 # ── 3. Auth 数据库迁移 ───────────────────────────────────────
 log "运行 auth 数据库迁移..."
+AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:5432/orasage_auth}"
 if command -v psql >/dev/null 2>&1; then
   sudo -u postgres psql orasage_auth \
-    -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || {
-    psql "${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:5432/orasage_auth}" \
-      -f "$DEPLOY_DIR/auth-service/drizzle/0002_add_shop_source.sql" 2>/dev/null || true
-  }
+    -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || true
+  for mig in 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql; do
+    if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
+      log "  应用 $mig ..."
+      psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
+        sudo -u postgres psql orasage_auth -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
+        log "  警告: $mig 可能已应用或需手动执行"
+    fi
+  done
 else
-  log "psql 未找到，跳过迁移（请手动执行 0002_add_shop_source.sql）"
+  log "psql 未找到，跳过迁移（请手动执行 auth-service/drizzle/*.sql）"
 fi
 
 # ── 4. 部署 auth-service ─────────────────────────────────────

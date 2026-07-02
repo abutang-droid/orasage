@@ -11,6 +11,9 @@ export interface SyncOrderInput {
   currency?: string;
   status?: OrderStatus;
   appSource?: AppSource;
+  sku?: string;
+  recommendationContext?: string;
+  readingId?: string;
 }
 
 export function makeOrderNo() {
@@ -41,6 +44,9 @@ export interface AuthOrder {
   currency: string;
   status: OrderStatus;
   appSource: AppSource | null;
+  sku?: string | null;
+  readingId?: string | null;
+  recommendationContext?: string | null;
 }
 
 export async function getOrderByNo(orderNo: string): Promise<AuthOrder | null> {

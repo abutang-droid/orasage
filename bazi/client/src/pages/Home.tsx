@@ -11,13 +11,17 @@ import {
   loadLunarLib,
   calcSingleBazi, calcDoubleBazi,
   type SingleBaziResult, type DoubleBaziResult,
+  recommendBracelet,
 } from "@/lib/bazi";
 import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziResult";
 import { DatePicker } from "@/components/WheelPicker";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
+import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
+import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
+import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
+import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -44,15 +48,30 @@ const emptyForm = (): PersonForm => ({
   birthplace: { city: "北京", country: "中国", lng: 116.4074, timezone: "+8" },
 });
 
+function syncPersonProfile(form: PersonForm, label?: string | null) {
+  const month = form.month.startsWith("L") ? form.month.slice(1) : form.month;
+  return syncSavedProfile({
+    name: form.name.trim() || "访客",
+    gender: (form.gender || "male") as "male" | "female",
+    birthYear: form.year,
+    birthMonth: month,
+    birthDay: form.day,
+    birthHour: form.hour || null,
+    birthMinute: form.minute || null,
+    birthPlaceCity: form.birthplace.city || null,
+    birthPlaceLongitude: form.birthplace.lng != null ? String(form.birthplace.lng) : null,
+    sourceApp: "bazi",
+    label: label ?? null,
+  });
+}
+
 type ViewState = "form" | "loading" | "result";
 type ResultData =
   | { type: "single"; data: SingleBaziResult }
   | { type: "double"; data: DoubleBaziResult };
 
 // ─── 设计常量 ─────────────────────────
-// 颜色从 theme.ts 统一定义
-const MUTED_CLR  = "#6E6858";
-const BORDER_CLR = "#15122A";
+const MUTED_CLR  = BODY_CLR;
 const SANS       = "'Noto Sans SC','PingFang SC',sans-serif";
 
 // ─── 太极 SVG ─────────────────────────
@@ -416,7 +435,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.gender === g ? GOLD : "transparent",
-                color: form.gender === g ? "#0A0815" : MUTED_CLR,
+                color: form.gender === g ? "#ffffff" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.gender === g ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -436,7 +455,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.calendar === c ? GOLD : "transparent",
-                color: form.calendar === c ? "#0A0815" : MUTED_CLR,
+                color: form.calendar === c ? "#ffffff" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.calendar === c ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -495,12 +514,35 @@ function PersonFormPanel({ form, onChange }: {
   );
 }
 
+function savedProfileToPersonForm(p: SavedProfile): Partial<PersonForm> {
+  return {
+    name: p.name,
+    gender: (p.gender === 'female' ? 'female' : 'male') as 'male' | 'female',
+    year: p.birthYear ?? '1990',
+    month: p.birthMonth ?? '01',
+    day: p.birthDay ?? '01',
+    hour: p.birthHour ?? '08',
+    minute: p.birthMinute ?? '00',
+    birthplace: {
+      city: p.birthPlaceCity ?? '北京',
+      country: '中国',
+      lng: p.birthPlaceLongitude ? parseFloat(p.birthPlaceLongitude) : 116.4074,
+      timezone: '+8',
+    },
+  };
+}
+
 // ─── 主组件 ─────────────────
 export default function Home() {
   const { t } = useT();
   const [mode, setMode] = useState<"single" | "couple">("single");
   const [activePerson, setActivePerson] = useState<0 | 1>(0);
   const [forms, setForms] = useState<[PersonForm, PersonForm]>([emptyForm(), emptyForm()]);
+  const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
+
+  useEffect(() => {
+    void fetchSavedProfiles().then(setSavedProfiles);
+  }, []);
 
   // 切换模式时重置第二人
   const handleModeSwitch = (m: "single" | "couple") => {
@@ -538,6 +580,25 @@ export default function Home() {
     loadLunarLib();
     preloadCityData();
   }, []);
+
+  // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
+  useEffect(() => {
+    if (!isAuthenticated || !result) return;
+    const existingId = getLastReadingId() ?? undefined;
+    if (result.type === "single") {
+      const braceletRec = recommendBracelet(result.data.wuXing as unknown as Record<string, number>);
+      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId);
+      saveLastReadingId(readingId);
+    } else {
+      const readingId = syncBaziDoubleReading(
+        result.data.person1.name,
+        result.data.person2.name,
+        result.data,
+        existingId,
+      );
+      saveLastReadingId(readingId);
+    }
+  }, [isAuthenticated, result]);
 
   const updateForm = (idx: 0 | 1, patch: Partial<PersonForm>) => {
     setForms((prev) => {
@@ -623,6 +684,10 @@ export default function Home() {
               resultSummary: { riZhu: data.riZhu, strength: data.strength, wuXing: data.wuXing, favorable: data.favorable, unfavorable: data.unfavorable },
             });
           }
+          void syncPersonProfile(resolvedF0);
+          const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
+          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec);
+          saveLastReadingId(readingId);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -634,6 +699,10 @@ export default function Home() {
               resultSummary: { score: data.score, rating: data.rating },
             });
           }
+          void syncPersonProfile(resolvedF0, "A");
+          void syncPersonProfile(resolvedF1!, "B");
+          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data);
+          saveLastReadingId(readingId);
         }
         setView("result");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -720,7 +789,7 @@ export default function Home() {
                       style={{
                         padding: "0.6rem 0", border: "none",
                         background: mode === m ? `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)` : "transparent",
-                        color: mode === m ? "#0A0815" : MUTED_CLR,
+                        color: mode === m ? "#ffffff" : MUTED_CLR,
                         fontFamily: SANS, fontSize: "0.875rem",
                         fontWeight: mode === m ? 700 : 400,
                         borderRadius: "11px",
@@ -759,6 +828,32 @@ export default function Home() {
                 </div>
               )}
 
+              {savedProfiles.length > 0 && (
+                <div className="mx-5 mb-3">
+                  <label className="block text-[11px] mb-1.5" style={{ color: MUTED_CLR, fontFamily: SANS }}>
+                    {t('form.saved_profile')}
+                  </label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      const picked = savedProfiles.find((p) => p.id === id);
+                      if (picked) {
+                        updateForm(mode === 'single' ? 0 : activePerson, savedProfileToPersonForm(picked));
+                      }
+                      e.target.value = '';
+                    }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                    style={{ background: 'rgba(196,160,78,0.06)', border: `1px solid ${BORDER_CLR}`, color: BODY_CLR, fontFamily: SANS }}
+                  >
+                    <option value="">{t('form.saved_profile.placeholder')}</option>
+                    {savedProfiles.map((p) => (
+                      <option key={p.id} value={p.id}>{profileDisplayLabel(p)}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* 表单主体 */}
               <PersonFormPanel
                 form={forms[mode === "single" ? 0 : activePerson]}
@@ -772,7 +867,7 @@ export default function Home() {
                 style={{
                   padding: "1.125rem 0", border: "none", borderRadius: "20px",
                   background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-                  color: "#0A0815", fontFamily: SANS, fontSize: "1.125rem",
+                  color: "#ffffff", fontFamily: SANS, fontSize: "1.125rem",
                   fontWeight: 700, letterSpacing: "0.16em",
                   boxShadow: `0 6px 24px rgba(196,160,78,0.40)`,
                 }}

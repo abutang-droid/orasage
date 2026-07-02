@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+@import '../../shared/design-tokens/orasage-tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -15,44 +16,40 @@
   --font-serif: 'Noto Serif SC', 'Songti SC', serif;
   --font-mono:  'SF Mono', 'Menlo', 'Noto Sans Mono', monospace;
 
-  /* ── 品牌色 ── */
-  --gold:           #D9A441;
-  --gold-light:     #F0B354;
-  --gold-pale:      #FBF0D8;
-  --gold-border:    rgba(217, 164, 65, 0.25);
+  /* ── 品牌色（对齐设计规范）── */
+  --gold:           var(--orasage-gold, #b8943f);
+  --gold-light:     var(--orasage-gold-light, #d4b86a);
+  --gold-pale:      var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --gold-border:    var(--orasage-gold-border, rgba(184, 148, 63, 0.22));
   --ac:             #D9A441;
   --ac-dim:         #F0B354;
   --ac-bg:          rgba(217, 164, 65, 0.08);
   --ac-bdr:         rgba(217, 164, 65, 0.22);
 
   /* ── 文字色 ── */
-  --heading:    #2E295B;
-  --body-text:  #5D5973;
-  --muted:      #7F778B;
-  --placeholder:#A89DB5;
-  --tx-0:       #2E295B;
-  --tx-1:       #3D3660;
-  --tx-2:       #5D5973;
-  --tx-3:       #7F778B;
+  --heading:    var(--orasage-primary, #171717);
+  --body-text:  var(--orasage-secondary, #6b7280);
+  --muted:      var(--orasage-muted, #9ca3af);
+  --tx-0:       var(--orasage-primary, #171717);
+  --tx-1:       #262626;
+  --tx-2:       var(--orasage-secondary, #6b7280);
+  --tx-3:       var(--orasage-muted, #9ca3af);
   --tx-inv:     #FDFCFF;
   --tx-inv2:    rgba(253,252,255,0.65);
 
   /* ── 背景色 ── */
-  --bg-page:    #F7F4FA;
-  --bg-card:    #FDFCFF;
+  --bg-page:    var(--orasage-background, #fafaf8);
+  --bg-card:    var(--orasage-surface, #ffffff);
   --bg-input:   #FFFFFF;
-  --bg-hover:   #F2EFF8;
-  --bg-0:       #F7F4FA;
-  --bg-1:       #F0EDF6;
-  --bg-2:       #E8E3F0;
+  --bg-hover:   #f5f5f4;
+  --bg-0:       var(--orasage-background, #fafaf8);
+  --bg-1:       #f5f5f4;
+  --bg-2:       #ececea;
   --bg-inv:     #2E295B;
 
   /* ── 边框色 ── */
-  --border:         #E7E1EE;
-  --border-focus:   #D9A441;
-  --bdr:            rgba(46, 41, 91, 0.08);
-  --bdr-med:        rgba(46, 41, 91, 0.12);
-  --bdr-heavy:      rgba(46, 41, 91, 0.20);
+  --border:         var(--orasage-border, #e7e5e4);
+  --bdr:            var(--orasage-border-subtle, #f1f1ef);
 
   /* ── 四化语义色 ── */
   --lu:   #2D7A4A;
@@ -564,4 +561,66 @@ a:hover { color: var(--gold-light); }
   .no-print { display: none !important; }
   body { background: white; color: #2E295B; }
   @page { margin: 1.2cm; size: A4 landscape; }
+}
+
+/* ─── OraSage App Shell 内二级导航 ─── */
+.ziwei-chart-toolbar {
+  position: sticky;
+  top: var(--shell-top-h, 52px);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 52px;
+  gap: 12px;
+  background: rgba(247, 244, 250, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bdr);
+}
+
+.ziwei-chart-chat {
+  height: calc(100dvh - var(--shell-top-h, 52px) - var(--shell-bottom-h, 56px) - 68px);
+  position: sticky;
+  top: calc(var(--shell-top-h, 52px) + 52px);
+}
+
+@media (max-width: 900px) {
+  .chart-workspace-grid > div:last-child.ziwei-chart-chat,
+  .ziwei-chart-chat {
+    height: 480px !important;
+    position: static !important;
+  }
+}
+
+.ziwei-subnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(184, 146, 42, 0.15);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+.ziwei-subnav a {
+  color: var(--ac);
+  text-decoration: none;
+}
+
+.ziwei-subnav-muted {
+  color: var(--tx-3);
+}
+
+.ziwei-page-sticky-header {
+  position: sticky;
+  top: var(--shell-top-h, 52px);
+  z-index: 30;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--bdr);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }

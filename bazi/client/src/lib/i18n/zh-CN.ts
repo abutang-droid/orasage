@@ -31,6 +31,8 @@ const ui: TranslationDict = {
   "form.hint.time": "如果不清楚准确出生时间，系统将默认为 00:00",
   "form.submit.single": "开始排盘",
   "form.submit.couple": "开始合盘",
+  "form.saved_profile": "从用户中心导入",
+  "form.saved_profile.placeholder": "选择已保存的测试对象…",
   "form.error.gender": "请选择性别",
   "form.error.year": "请填写有效的出生年份（1900-2100）",
   "form.error.month": "请填写有效的出生月份（01-12）",

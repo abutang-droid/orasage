@@ -12,8 +12,8 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden px-5 pb-10 pt-8 text-center sm:px-6 sm:py-20 md:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#7f5af015_0%,_transparent_70%)]" />
-      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-white sm:text-4xl md:text-6xl">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(184,148,63,0.06)_0%,_transparent_70%)]" />
+      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-sage-primary sm:text-4xl md:text-6xl">
         {t('title')}
       </h1>
       <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-sage-muted sm:mt-4 sm:max-w-xl sm:text-lg">
@@ -21,7 +21,7 @@ export function Hero() {
       </p>
       <a
         href="#tools"
-        className="mt-6 inline-flex min-h-[48px] w-full max-w-xs items-center justify-center rounded-full bg-sage-purple px-8 text-base font-medium text-white active:bg-sage-purple/80 sm:mt-8 sm:w-auto sm:text-sm"
+        className="mt-6 inline-flex min-h-[48px] w-full max-w-xs items-center justify-center rounded-full bg-sage-gold px-8 text-base font-medium text-white active:bg-sage-gold/80 sm:mt-8 sm:w-auto sm:text-sm"
       >
         {t('cta')}
       </a>
@@ -42,11 +42,11 @@ export function ToolCards() {
           <a
             key={key}
             href={toolUrls[key]}
-            className="group flex min-h-[88px] items-start gap-4 rounded-2xl border border-sage-border bg-sage-card p-5 active:border-sage-purple/50 active:bg-sage-card/80 sm:block sm:p-8 md:hover:border-sage-purple/50"
+            className="group flex min-h-[88px] items-start gap-4 rounded-2xl border border-sage-border bg-sage-card p-5 active:border-sage-gold/40 active:bg-sage-gold/5 sm:block sm:p-8 md:hover:border-sage-gold/40"
           >
             <span className="text-3xl sm:block">{icons[key]}</span>
             <div className="flex-1 sm:mt-4">
-              <h3 className="text-lg font-medium text-white sm:text-xl">
+              <h3 className="text-lg font-medium text-sage-primary sm:text-xl">
                 {t(`${key}.name`)}
               </h3>
               <p className="mt-1 text-sm leading-relaxed text-sage-muted">
@@ -70,11 +70,11 @@ const productSkus: Record<(typeof productKeys)[number], string> = {
   water: 'crystal-water',
 };
 const elementColors: Record<string, string> = {
-  wood: 'bg-emerald-500/20 text-emerald-300',
-  fire: 'bg-red-500/20 text-red-300',
-  earth: 'bg-amber-500/20 text-amber-300',
-  metal: 'bg-slate-300/20 text-slate-200',
-  water: 'bg-indigo-500/20 text-indigo-300',
+  wood: 'bg-emerald-500/15 text-emerald-700',
+  fire: 'bg-red-500/15 text-red-700',
+  earth: 'bg-amber-500/15 text-amber-800',
+  metal: 'bg-slate-400/15 text-slate-700',
+  water: 'bg-indigo-500/15 text-indigo-700',
 };
 
 export function ShopSection() {
@@ -112,7 +112,7 @@ export function ShopSection() {
             >
               {t(`products.${key}.element`)}
             </span>
-            <h3 className="mt-3 text-base font-medium text-white">
+            <h3 className="mt-3 text-base font-medium text-sage-primary">
               {t(`products.${key}.name`)}
             </h3>
             <p className="mt-1 text-xs text-sage-muted">{t(`products.${key}.desc`)}</p>

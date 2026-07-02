@@ -1,0 +1,11 @@
+{
+  "name": "orasage-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:shop-flow": "node profile-shop-flow.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

@@ -14,16 +14,9 @@ import type { PlanType } from "@shared/types";
 import { useMemo } from "react";
 import { useT } from "@/lib/i18n";
 import { usePriceFetcher } from "@/lib/priceFetcher";
-
-// ─── 墨金设计令牌 ───
-const GOLD      = "#C4A04E";
-const GOLD_LIT  = "#D4B86A";
-const HEADING   = "#EDE8D8";
-const MUTED     = "#6E6858";
-const BG_CARD   = "#15122A";
-const BORDER    = "rgba(196,160,78,0.18)";
-const SANS      = "'Noto Sans SC', 'PingFang SC', sans-serif";
-const SERIF     = "'Noto Serif SC', serif";
+import {
+  GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER,
+} from "@/theme";
 
 interface PlanConfig {
   type: PlanType;
@@ -70,11 +63,11 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
       style={{
         borderRadius: 12,
         padding: "1.25rem 1.25rem 1rem",
-        background: "linear-gradient(180deg, rgba(196,160,78,0.04) 0%, rgba(10,8,21,0.5) 100%)",
-        border: "1px solid rgba(196,160,78,0.12)",
+        background: `linear-gradient(180deg, rgba(184,148,63,0.06) 0%, ${BG_PAGE} 100%)`,
+        border: `1px solid ${CARD_BORDER}`,
       }}
     >
-      <p style={{ color: MUTED, fontSize: "0.75rem", textAlign: "center", marginBottom: "0.75rem" }}>
+      <p style={{ color: MUTED_CLR, fontSize: "0.75rem", textAlign: "center", marginBottom: "0.75rem" }}>
         {t('paywall.subtitle')}
       </p>
 
@@ -91,8 +84,8 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              background: plan.highlight ? "#0F0C20" : BG_CARD,
-              border: plan.highlight ? `1px solid ${GOLD}` : `1px solid ${BORDER}`,
+              background: plan.highlight ? BG_CARD : BG_PAGE,
+              border: plan.highlight ? `1px solid ${GOLD}` : `1px solid ${CARD_BORDER}`,
               transition: "all 0.15s ease",
               cursor: "pointer",
               outline: "none",
@@ -108,8 +101,8 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span
                   style={{
-                    color: plan.highlight ? GOLD_LIT : HEADING,
-                    fontFamily: SANS,
+                    color: plan.highlight ? GOLD_LIGHT : HEADING,
+                    fontFamily: SANS_F,
                     fontSize: "0.875rem",
                     fontWeight: 700,
                   }}
@@ -120,8 +113,8 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
                   <span
                     style={{
                       background: GOLD,
-                      color: "#0A0815",
-                      fontFamily: SANS,
+                      color: "#ffffff",
+                      fontFamily: SANS_F,
                       fontSize: "0.625rem",
                       fontWeight: 600,
                       padding: "0.125rem 0.5rem",
@@ -132,11 +125,11 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
                   </span>
                 )}
               </div>
-              <p style={{ color: plan.highlight ? "rgba(255,255,255,0.5)" : MUTED, fontSize: "0.75rem", marginTop: "0.25rem" }}>
+              <p style={{ color: plan.highlight ? BODY_CLR : MUTED_CLR, fontSize: "0.75rem", marginTop: "0.25rem" }}>
                 {t(plan.descKey)}
               </p>
             </div>
-            <span style={{ color: GOLD, fontFamily: SERIF, fontSize: "1rem", fontWeight: 700 }}>
+            <span style={{ color: GOLD, fontFamily: SERIF_F, fontSize: "1rem", fontWeight: 700 }}>
               {plan.price}
             </span>
           </button>

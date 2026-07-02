@@ -3,7 +3,8 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/navigation';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { ConditionalFooter } from '@/components/ConditionalFooter';
+import { PortalChrome } from '@/components/PortalChrome';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
@@ -17,7 +18,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover',
-  themeColor: '#0f0e17',
+  themeColor: '#fafaf8',
 };
 
 export function generateStaticParams() {
@@ -43,11 +44,11 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <body className="flex min-h-screen flex-col bg-sage-bg text-white antialiased">
+      <body className="flex min-h-screen flex-col bg-sage-bg text-sage-primary antialiased">
         <NextIntlClientProvider messages={messages}>
           <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <PortalChrome locale={locale}>{children}</PortalChrome>
+          <ConditionalFooter />
         </NextIntlClientProvider>
       </body>
     </html>

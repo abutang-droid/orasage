@@ -1,9 +1,12 @@
 "use client"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import CardFrame from "@/components/CardFrame"
 import { getCardById } from "@/lib/tarot/cards"
 import { useUser } from "@/lib/user"
+import { syncSavedProfile } from "@/lib/profile-sync"
+import { syncTarotReading, WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
+import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
 
 const CACHE_KEY = "manto:profile"
 function loadCachedProfile(): Record<string, string> | null {
@@ -158,6 +161,10 @@ export default function ReadingPage() {
   const [profileStep, setProfileStep] = useState(0)
   const { user, saveProfile } = useUser()
   const [profile, setProfile] = useState({ name: "", birthdate: "", gender: "", occupation: "" })
+  const cardsRef = useRef<CardData[]>([])
+  const synthesisRef = useRef("")
+  const readingIdRef = useRef("")
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   // Determine if user has a saved profile (check both server + localStorage)
   const alreadySaved = user
@@ -245,6 +252,7 @@ export default function ReadingPage() {
   // ── Synthesis ───────────────────────────────────────────────────
   const doSynthesis = useCallback((currentCards: CardData[]) => {
     setStep("synthesis")
+    cardsRef.current = currentCards
     const reversedCount = currentCards.filter(c => c.orientation === "逆位").length
     const elements = currentCards.map(c => c.element)
     const fireCount = elements.filter(e => e === "火").length
@@ -270,6 +278,7 @@ export default function ReadingPage() {
     const c2 = currentCards[2] || { cardName: "?", orientation: "正位" as const }
 
     setSynthesisText(`${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`)
+    synthesisRef.current = `${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`
     setSuggestions([
       c0.orientation === "正位" ? "把过去的经验当成指南，而非包袱。" : "有些旧事不需要现在解决——允许自己放一放。",
       "接下来的三天里，做一件你一直拖着的小事。不为什么，就是为了证明给自己看。",
@@ -292,6 +301,8 @@ export default function ReadingPage() {
     let wuxing = "土"; let max = 0
     for (const [k,v] of Object.entries(counts)) { if (v > max) { max = v; wuxing = k } }
     const crystal = crystalMap[wuxing] || { name: "白水晶", emoji: "✨" }
+    const readingId = crypto.randomUUID?.() ? `tarot:${crypto.randomUUID()}` : `tarot:${Date.now()}`
+    readingIdRef.current = readingId
     setBlessing({
       wuxing,
       crystalName: crystal.name,
@@ -301,8 +312,34 @@ export default function ReadingPage() {
         : wuxing === "金" ? "清晰即力量。我知道自己在做什么。"
         : "我的平静比任何风暴都更有力量。",
     })
+    void syncTarotReading(cardsRef.current, {
+      synthesisText: synthesisRef.current,
+      wuxing,
+      crystalName: crystal.name,
+      readingId,
+    })
     setStep("blessing")
   }, [quizAnswers])
+
+  const handleCrystalCheckout = useCallback(async () => {
+    if (!blessing) return
+    const sku = WUXING_CRYSTAL_SKU[blessing.wuxing]
+    if (!sku) return
+    setCheckoutLoading(true)
+    try {
+      const result = await startAppCheckout({
+        sku,
+        recommendationContext: `塔罗占卜推荐：${blessing.crystalName}`,
+        readingId: readingIdRef.current || undefined,
+        successUrl: `${window.location.origin}/reading?paid=1`,
+      })
+      redirectAfterCheckout(result)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "结账失败")
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }, [blessing])
 
   const positionLabels: Record<string, string> = {
     past: "过去", present: "现在", future: "未来", current: "此刻",
@@ -567,6 +604,17 @@ export default function ReadingPage() {
                     }
                     cacheProfile({ nickname: profile.name, birthday: profile.birthdate, gender: profile.gender, occupation: profile.occupation })
                     await saveProfile(fields)
+                    if (profile.birthdate) {
+                      const [y, m, d] = profile.birthdate.split("-")
+                      void syncSavedProfile({
+                        name: profile.name || "旅人",
+                        gender: profile.gender === "female" ? "female" : profile.gender === "male" ? "male" : null,
+                        birthYear: y || null,
+                        birthMonth: m || null,
+                        birthDay: d || null,
+                        sourceApp: "tarot",
+                      })
+                    }
                     setStep("crystal_quiz"); setQuizStep(0)
                   }}>
                   {profile.name ? `${profile.name} — 继续` : "继续选水晶"}
@@ -725,6 +773,15 @@ export default function ReadingPage() {
               style={{ display: 'inline-flex', justifyContent: 'center', textDecoration: 'none', marginBottom: 16 }}>
               查看水晶详情
             </Link>
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={checkoutLoading}
+              onClick={() => void handleCrystalCheckout()}
+              style={{ width: '100%', marginBottom: 16 }}
+            >
+              {checkoutLoading ? '正在跳转…' : '📿 请一条水晶手串'}
+            </button>
             <div style={{
               fontSize: 17, fontWeight: 500, color: 'var(--gold-light)',
               fontFamily: 'var(--font-serif)', fontStyle: 'italic',

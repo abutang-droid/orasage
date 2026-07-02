@@ -5,6 +5,8 @@ import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
+import { registerCheckoutRoute } from "../checkout";
+import { registerReportJobRoute } from "../reportJob";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -36,6 +38,8 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  registerCheckoutRoute(app);
+  registerReportJobRoute(app);
   // 注：此前这里还有一个未鉴权的 POST /api/push-to-wordpress 路由，
   // 允许任何人提交任意 email + reportContent 推送到 WordPress 报告中心。
   // 排查确认没有任何客户端代码调用它（buyPlan 内部已有等价的服务端推送逻辑，

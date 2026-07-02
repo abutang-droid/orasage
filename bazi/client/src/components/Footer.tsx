@@ -1,12 +1,9 @@
 import { Link } from "wouter";
 import { useT } from "@/lib/i18n";
+import { GOLD, HEADING, BODY_CLR, MUTED_CLR, SERIF_F, SANS_F } from "@/theme";
 
-const GOLD = "#C4A04E";
-const HEADING = "#EDE8D8";
-const BODY_CLR = "#ADA898";
-const MUTED_CLR = "#6E6858";
-const SERIF = "'Noto Serif SC', serif";
-const SANS = "'Noto Sans SC', sans-serif";
+const SERIF = SERIF_F;
+const SANS = SANS_F;
 
 // Inline SVG 社交图标（简化版，fill: currentColor 支持 hover 变色）
 const WechatIcon = () => (
@@ -47,8 +44,8 @@ function SocialLink({ icon, label, href }: { icon: React.ReactNode; label: strin
         alignItems: "center",
         justifyContent: "center",
         color: HEADING,
-        background: "rgba(15,12,32,0.72)",
-        border: "1px solid rgba(217,209,228,0.9)",
+        background: "rgba(255,255,255,0.9)",
+        border: "1px solid var(--border-color, #e7e5e4)",
         textDecoration: "none",
         transition: "color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease",
       }}
@@ -295,8 +292,8 @@ export function Footer() {
                     alignItems: "center",
                     justifyContent: "center",
                     color: HEADING,
-                    background: "rgba(15,12,32,0.74)",
-                    border: "1px solid rgba(217,209,228,0.92)",
+                    background: "rgba(255,255,255,0.95)",
+                    border: "1px solid var(--border-color, #e7e5e4)",
                     fontSize: 12,
                     fontWeight: 600,
                     boxShadow: "0 4px 12px rgba(46,41,91,0.04)",

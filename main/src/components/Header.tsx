@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { locales, localeNames, type Locale } from '@/i18n/routing';
 import { externalUrls } from '@/lib/urls';
+import { HeaderAuthButton } from '@/components/HeaderAuthButton';
 import { useEffect, useState } from 'react';
 
 export function Header() {
@@ -23,15 +24,14 @@ export function Header() {
     { href: '/daozang', label: t('daozang') },
   ];
 
-  const returnUrl = encodeURIComponent(`https://orasage.com/${locale}${pathname === '/' ? '' : pathname}`);
-  const loginUrl = `${externalUrls.authLogin}?returnUrl=${returnUrl}`;
-
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
   }, [open]);
+
+  const isHome = pathname === '/';
 
   return (
     <header className="safe-top sticky top-0 z-50 border-b border-sage-border/60 bg-sage-bg/95 backdrop-blur-md">
@@ -49,7 +49,7 @@ export function Header() {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm text-sage-muted transition hover:text-white"
+                className="text-sm text-sage-muted transition hover:text-sage-primary"
               >
                 {item.label}
               </a>
@@ -57,28 +57,19 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-sage-muted transition hover:text-white"
+                className="text-sm text-sage-muted transition hover:text-sage-primary"
               >
                 {item.label}
               </Link>
             ),
           )}
-          <a
-            href={loginUrl}
-            className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10"
-          >
-            {t('login')}
-          </a>
-          <LocaleSwitcher current={locale as Locale} pathname={pathname} />
+          <HeaderAuthButton />
+          {isHome && <LocaleSwitcher current={locale as Locale} pathname={pathname} />}
         </nav>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <a
-            href={loginUrl}
-            className="rounded-full border border-sage-gold/40 px-3 py-2 text-xs text-sage-gold"
-          >
-            {t('login')}
-          </a>
+          <HeaderAuthButton className="px-3 py-2 text-xs" />
+          {isHome && <LocaleSwitcher current={locale as Locale} pathname={pathname} compact />}
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-sage-muted active:bg-sage-card"
@@ -111,7 +102,7 @@ export function Header() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-white"
+                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-sage-primary"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
@@ -120,33 +111,13 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-white"
+                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-sage-primary"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
                 </Link>
               ),
             )}
-            <div className="mt-4 border-t border-sage-border/40 pt-4">
-              <p className="mb-2 text-xs text-sage-muted">Language</p>
-              <div className="grid grid-cols-2 gap-2">
-                {locales.map((loc) => (
-                  <Link
-                    key={loc}
-                    href={pathname}
-                    locale={loc}
-                    className={`min-h-[44px] rounded-lg px-3 py-2 text-sm ${
-                      loc === locale
-                        ? 'bg-sage-purple/20 text-white'
-                        : 'bg-sage-card text-sage-muted active:bg-sage-border/40'
-                    }`}
-                    onClick={() => setOpen(false)}
-                  >
-                    {localeNames[loc]}
-                  </Link>
-                ))}
-              </div>
-            </div>
           </nav>
         </>
       )}
@@ -154,7 +125,15 @@ export function Header() {
   );
 }
 
-function LocaleSwitcher({ current, pathname }: { current: Locale; pathname: string }) {
+function LocaleSwitcher({
+  current,
+  pathname,
+  compact = false,
+}: {
+  current: Locale;
+  pathname: string;
+  compact?: boolean;
+}) {
   const [show, setShow] = useState(false);
 
   return (
@@ -162,7 +141,9 @@ function LocaleSwitcher({ current, pathname }: { current: Locale; pathname: stri
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="min-h-[44px] rounded-lg px-3 text-xs text-sage-muted hover:text-white"
+        className={`rounded-lg text-sage-muted hover:text-sage-primary ${
+          compact ? 'min-h-[44px] px-2 text-xs' : 'min-h-[44px] px-3 text-xs'
+        }`}
       >
         {localeNames[current]}
       </button>
@@ -173,7 +154,7 @@ function LocaleSwitcher({ current, pathname }: { current: Locale; pathname: stri
               key={loc}
               href={pathname}
               locale={loc}
-              className="block min-h-[40px] px-3 py-2 text-xs text-sage-muted hover:bg-sage-border/40 hover:text-white"
+              className="block min-h-[40px] px-3 py-2 text-xs text-sage-muted hover:bg-sage-border/40 hover:text-sage-primary"
               onClick={() => setShow(false)}
             >
               {localeNames[loc]}

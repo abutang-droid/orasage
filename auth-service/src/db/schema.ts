@@ -22,6 +22,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  displayId: varchar("display_id", { length: 9 }).unique(),
   nickname: varchar("nickname", { length: 100 }).notNull().default(""),
   avatarUrl: varchar("avatar_url", { length: 500 }),
   birthDate: varchar("birth_date", { length: 20 }),
@@ -47,6 +48,8 @@ export const userReadings = pgTable("user_readings", {
   summary: text("summary"),
   recommendationReason: text("recommendation_reason"),
   crystalSku: varchar("crystal_sku", { length: 100 }),
+  reportUrl: varchar("report_url", { length: 512 }),
+  payloadJson: text("payload_json"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -59,7 +62,30 @@ export const userOrders = pgTable("user_orders", {
   currency: varchar("currency", { length: 8 }).notNull().default("CNY"),
   status: orderStatusEnum("status").notNull().default("pending"),
   appSource: appSourceEnum("app_source"),
+  shippingAddress: text("shipping_address"),
+  sku: varchar("sku", { length: 100 }),
+  recommendationContext: text("recommendation_context"),
+  readingId: varchar("reading_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedProfiles = pgTable("saved_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  label: varchar("label", { length: 50 }),
+  name: varchar("name", { length: 100 }).notNull(),
+  gender: varchar("gender", { length: 10 }),
+  birthYear: varchar("birth_year", { length: 4 }),
+  birthMonth: varchar("birth_month", { length: 2 }),
+  birthDay: varchar("birth_day", { length: 2 }),
+  birthHour: varchar("birth_hour", { length: 2 }),
+  birthMinute: varchar("birth_minute", { length: 2 }),
+  birthPlaceProvince: varchar("birth_place_province", { length: 50 }),
+  birthPlaceCity: varchar("birth_place_city", { length: 50 }),
+  birthPlaceLongitude: varchar("birthplace_longitude", { length: 20 }),
+  sourceApp: appSourceEnum("source_app"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const userRecommendations = pgTable("user_recommendations", {

@@ -86,6 +86,14 @@ async function ensureUser(client, email, nickname) {
   return { id: row.id, created: true };
 }
 
+function detectAppSource(order) {
+  const text = (order.line_items || []).map((i) => `${i.name || ''} ${i.sku || ''}`).join(' ').toLowerCase();
+  if (text.includes('bazi') || text.includes('八字')) return 'bazi';
+  if (text.includes('ziwei') || text.includes('紫微')) return 'ziwei';
+  if (text.includes('tarot') || text.includes('塔罗')) return 'tarot';
+  return 'shop';
+}
+
 async function upsertOrder(client, order, userId) {
   const orderNo = wooOrderNo(order);
   const title = (order.line_items || []).map((i) => i.name).join(', ') || `WooCommerce #${order.id}`;
@@ -104,12 +112,14 @@ async function upsertOrder(client, order, userId) {
     return 'updated';
   }
 
+  const appSource = detectAppSource(order);
+
   if (DRY_RUN) return 'inserted';
 
   await client.query(
     `INSERT INTO user_orders (user_id, order_no, title, sku, amount_cents, currency, status, app_source)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, 'shop')`,
-    [userId, orderNo, title, sku, amountCents, (order.currency || 'CNY').toUpperCase(), status],
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [userId, orderNo, title, sku, amountCents, (order.currency || 'CNY').toUpperCase(), status, appSource],
   );
   return 'inserted';
 }

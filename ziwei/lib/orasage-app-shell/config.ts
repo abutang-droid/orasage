@@ -1,5 +1,13 @@
 export type AppId = 'bazi' | 'ziwei' | 'tarot';
 
+/** Main 门户子页使用 portal 上下文 */
+export type NavContext = AppId | 'portal';
+
+export function isMainPortalHome(pathname: string): boolean {
+  const p = pathname.replace(/\/$/, '') || '/';
+  return p === '/';
+}
+
 export const APP_BRANDS: Record<AppId, string> = {
   bazi: 'BaZi',
   ziwei: 'ZiWei',
@@ -33,6 +41,27 @@ export const APP_HOME_PATH: Record<AppId, string> = {
   ziwei: '/chart',
   tarot: '/',
 };
+
+/** 子页面路径前缀 — 显示顶栏返回按钮 */
+export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
+  bazi: ['/history'],
+  ziwei: ['/knowledge', '/library', '/heming'],
+  tarot: ['/reading', '/crystal', '/temple', '/history'],
+};
+
+export function isAppSubpage(appId: AppId, pathname: string): boolean {
+  if (!pathname) return false;
+  return !isCurrentAppHome(appId, pathname);
+}
+
+export function isCurrentAppHome(appId: AppId, pathname: string): boolean {
+  const home = APP_HOME_PATH[appId];
+  if (home === '/') return pathname === '/' || pathname === '';
+  if (appId === 'ziwei' && home === '/chart') {
+    return pathname === '/chart' || pathname === '/chart/';
+  }
+  return pathname === home;
+}
 
 export function appHomeUrl(appId: AppId): string {
   const base = ORASAGE_URLS[appId];

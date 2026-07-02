@@ -47,11 +47,12 @@ deploy_native() {
   fi
 
   cd "$APP_DIR"
+  export CI=true
   if command -v pnpm >/dev/null 2>&1; then
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --force
   else
     corepack enable && corepack prepare pnpm --activate
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --force
   fi
 
   set -a

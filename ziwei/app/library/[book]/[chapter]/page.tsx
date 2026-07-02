@@ -32,19 +32,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
   const nextIdx = chapterIdx + 1;
 
   return (
-    <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
-      <div className="px-6 py-4 flex items-center justify-between"
-        style={{ borderBottom: '1px solid rgba(184,146,42,0.15)', background: 'var(--bg-page)' }}>
-        <Link href={`/library/${book.slug}`} style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.3em', textDecoration: 'none' }}>
-          ← 《{book.title}》目录
-        </Link>
-        <div style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.15em' }}>
-          {chapter.title}
-        </div>
-        <Link href="/library" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em', textDecoration: 'none' }}>
-          古籍库 →
-        </Link>
-      </div>
+    <div style={{ background: 'var(--bg-page)' }}>
 
       <article className="max-w-3xl mx-auto px-6 py-12">
         {/* 标题 */}

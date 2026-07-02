@@ -1,0 +1,59 @@
+/**
+ * OraSage Design Tokens — 极致克制版 (Minimal Refinement)
+ * 无色胜有色 · 宋体衬线 + 无衬线混搭 · 纸质留白
+ */
+:root {
+  --orasage-background: #fafaf8;
+  --orasage-surface: #ffffff;
+  --orasage-primary: #171717;
+  --orasage-secondary: #6b7280;
+  --orasage-muted: #9ca3af;
+  --orasage-border: #e7e5e4;
+  --orasage-border-subtle: #f1f1ef;
+
+  /* 品牌点缀金 — 仅用于 CTA / 导航高亮，不做五行配色 */
+  --orasage-gold: #b8943f;
+  --orasage-gold-light: #d4b86a;
+  --orasage-gold-pale: rgba(184, 148, 63, 0.08);
+  --orasage-gold-border: rgba(184, 148, 63, 0.22);
+
+  --orasage-font-sans: 'Inter', 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --orasage-font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+
+  --orasage-letter-tight: -0.02em;
+  --orasage-letter-wide: 0.05em;
+
+  --orasage-ease-organic: cubic-bezier(0.4, 0, 0.2, 1);
+  --orasage-radius-sm: 8px;
+  --orasage-radius-md: 12px;
+  --orasage-radius-lg: 18px;
+
+  --orasage-shell-top-h: 52px;
+  --orasage-shell-bottom-h: 56px;
+}
+
+/* 极淡纸质噪点 */
+.orasage-grain::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.orasage-fade-in {
+  animation: orasage-fade-in 0.45s var(--orasage-ease-organic) both;
+}
+
+@keyframes orasage-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

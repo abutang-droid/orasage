@@ -1,7 +1,5 @@
-import type { AppId } from './config';
-
 type LabelSet = {
-  currentApp: Record<string, string>;
+  back: Record<string, string>;
   explore: Record<string, string>;
   blessing: Record<string, string>;
   shop: Record<string, string>;
@@ -10,11 +8,11 @@ type LabelSet = {
 };
 
 export const SHELL_LABELS: LabelSet = {
-  currentApp: {
-    'zh-CN': '当前应用',
-    en: 'App',
-    'zh-TW': '當前應用',
-    'pt-BR': 'App',
+  back: {
+    'zh-CN': '返回',
+    en: 'Back',
+    'zh-TW': '返回',
+    'pt-BR': 'Voltar',
   },
   explore: {
     'zh-CN': '探索',
@@ -50,8 +48,4 @@ export const SHELL_LABELS: LabelSet = {
 
 export function pickLabel(map: Record<string, string>, locale: string, fallback?: string): string {
   return map[locale] ?? map['zh-CN'] ?? map.en ?? fallback ?? '';
-}
-
-export function currentAppLabel(appId: AppId, locale: string): string {
-  return pickLabel(SHELL_LABELS.currentApp, locale);
 }

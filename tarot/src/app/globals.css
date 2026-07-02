@@ -1,52 +1,53 @@
 @import "tailwindcss";
+@import '../../../shared/design-tokens/orasage-tokens.css';
 
 /* ── Manto Fonts ─────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Manto Design Tokens: Web3 Dark Gold Aesthetic ──────────── */
+/* ── OraSage Design Tokens: 浅色纸感 ─────────────────────────── */
 :root {
   /* Brand colors */
-  --gold:           #C9954A;
-  --gold-light:     #D4A853;
-  --gold-dark:      #A67A38;
-  --gold-glow:      rgba(212,168,83,0.4);
+  --gold:           var(--orasage-gold, #B8943F);
+  --gold-light:     var(--orasage-gold-light, #D4B86A);
+  --gold-dark:      #96752f;
+  --gold-glow:      rgba(184, 148, 63, 0.25);
 
   /* Background */
-  --bg-base:        #0D0D0D;
-  --bg-card:        rgba(201,149,74,0.06);
-  --bg-card-hover:  rgba(201,149,74,0.10);
-  --bg-input:       rgba(201,149,74,0.05);
-  --bg-surface:     rgba(255,255,255,0.03);
+  --bg-base:        var(--orasage-background, #FAFAF8);
+  --bg-card:        var(--orasage-surface, #FFFFFF);
+  --bg-card-hover:  var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --bg-input:       #FFFFFF;
+  --bg-surface:     #FFFFFF;
 
   /* Text */
-  --text-primary:   #E8E0D5;
-  --text-secondary: rgba(232,224,213,0.65);
-  --text-muted:     rgba(232,224,213,0.40);
-  --text-faint:     rgba(232,224,213,0.22);
+  --text-primary:   var(--orasage-primary, #171717);
+  --text-secondary: var(--orasage-secondary, #6B7280);
+  --text-muted:     var(--orasage-muted, #9CA3AF);
+  --text-faint:     #D1D5DB;
 
   /* Borders */
-  --border:         rgba(201,149,74,0.12);
-  --border-focus:   rgba(201,149,74,0.35);
-  --border-card:    rgba(201,149,74,0.08);
+  --border:         var(--orasage-border, #E7E5E4);
+  --border-focus:   var(--orasage-gold-border, rgba(184, 148, 63, 0.35));
+  --border-card:    var(--orasage-border-subtle, #F1F1EF);
 
   /* Accent */
   --rose:           #C87B6E;
-  --rose-bg:        rgba(200,123,110,0.12);
+  --rose-bg:        rgba(200, 123, 110, 0.12);
   --blue:           #5B7FA6;
-  --blue-bg:        rgba(91,127,166,0.12);
+  --blue-bg:        rgba(91, 127, 166, 0.12);
   --purple:         #7E6FA8;
-  --purple-bg:      rgba(126,111,168,0.12);
+  --purple-bg:      rgba(126, 111, 168, 0.12);
   --success:        #5B8C5A;
-  --success-bg:     rgba(91,140,90,0.12);
+  --success-bg:     rgba(91, 140, 90, 0.12);
   --error:          #C45B4A;
-  --error-bg:       rgba(196,91,74,0.12);
+  --error-bg:       rgba(196, 91, 74, 0.12);
 
   /* Shadows */
-  --shadow-sm:      0 1px 4px rgba(0,0,0,0.3);
-  --shadow-md:      0 2px 16px rgba(0,0,0,0.4);
-  --shadow-lg:      0 8px 32px rgba(0,0,0,0.5);
-  --shadow-gold:    0 4px 24px rgba(201,149,74,0.18);
-  --shadow-button:  0 4px 16px rgba(201,149,74,0.25);
+  --shadow-sm:      0 1px 3px rgba(23, 23, 23, 0.06);
+  --shadow-md:      0 2px 12px rgba(23, 23, 23, 0.08);
+  --shadow-lg:      0 8px 24px rgba(23, 23, 23, 0.10);
+  --shadow-gold:    0 4px 16px rgba(184, 148, 63, 0.15);
+  --shadow-button:  0 4px 12px rgba(184, 148, 63, 0.2);
 
   /* Radius */
   --radius-xs:      6px;

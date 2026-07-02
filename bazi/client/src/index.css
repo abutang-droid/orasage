@@ -1,72 +1,66 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../../../shared/design-tokens/orasage-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ── Google Fonts 已在 index.html 中引入 ── */
 
 /* ══════════════════════════════════════════════════════════════
-   OraSage Design System
-   墨金风格 · 墨玉为底 · 鎏金点睛 · 东方命理
+   OraSage Design System — 极简克制浅色
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /* ── OraSage 品牌色 ── */
-  --gold:          #C4A04E;   /* 鎏金：品牌金、按钮、链接 */
-  --gold-light:    #D4B86A;   /* 亮金：Hover、渐变 */
-  --gold-bright:   #DBC47A;   /* 灿金：强调高亮 */
-  --gold-faint:    rgba(196, 160, 78, 0.20);
-  --gold-ghost:    rgba(196, 160, 78, 0.07);
-  --gold-glow:     rgba(196, 160, 78, 0.25);
+  --gold:          var(--orasage-gold, #b8943f);
+  --gold-light:    var(--orasage-gold-light, #d4b86a);
+  --gold-bright:   #c9a85a;
+  --gold-faint:    var(--orasage-gold-border, rgba(184, 148, 63, 0.22));
+  --gold-ghost:    var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --gold-glow:     rgba(184, 148, 63, 0.15);
 
-  /* ── 文字色 ── */
-  --heading:       #EDE8D8;   /* 素绢白：H1-H6、重要标题 */
-  --body:          #ADA898;   /* 灰金：正文、表单 */
-  --muted:         #6E6858;   /* 古铜：弱化文字、元信息 */
+  --heading:       var(--orasage-primary, #171717);
+  --body:          var(--orasage-secondary, #6b7280);
+  --muted:         var(--orasage-muted, #9ca3af);
 
-  /* ── 深色背景（视觉锚点）── */
-  --ink-deep:      #0F0C20;   /* 墨玉深：四柱等需要高对比的区域 */
-  --ink-border:    rgba(196, 160, 78, 0.15);  /* 深色背景上的鎏金边框 */
+  --ink-deep:      #0f0c20;
+  --ink-border:    rgba(184, 148, 63, 0.2);
 
-  /* ── 背景与边框 ── */
-  --bg-page:       #0A0815;   /* 墨玉：页面主背景 */
-  --bg-card:       #15122A;   /* 玄天：卡片背景 */
-  --bg-white:      #1A1732;   /* 代替原 #FFF 的浅墨色 */
-  --border-color:  rgba(196, 160, 78, 0.12);   /* 鎏金边框、分割线 */
+  --bg-page:       var(--orasage-background, #fafaf8);
+  --bg-card:       var(--orasage-surface, #ffffff);
+  --bg-white:      #ffffff;
+  --border-color:  var(--orasage-border, #e7e5e4);
 
-  /* ── 字体 ── */
-  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', serif;
-  --font-sans:  'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: var(--orasage-font-serif, 'Noto Serif SC', serif);
+  --font-sans:  var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
 
-  /* ── Tailwind / shadcn 兼容变量 ── */
   --radius: 0.75rem;
-  --background:              #0A0815;
-  --foreground:              #EDE8D8;
-  --card:                    #15122A;
-  --card-foreground:         #EDE8D8;
-  --popover:                 #1A1732;
-  --popover-foreground:      #EDE8D8;
-  --primary:                 #C4A04E;
-  --primary-foreground:      #0A0815;
-  --secondary:               #1A1732;
-  --secondary-foreground:    #EDE8D8;
-  --muted:                   #1A1732;
-  --muted-foreground:        #6E6858;
-  --accent:                  #1A1732;
-  --accent-foreground:       #EDE8D8;
+  --background:              var(--bg-page);
+  --foreground:              var(--heading);
+  --card:                    var(--bg-card);
+  --card-foreground:         var(--heading);
+  --popover:                 #ffffff;
+  --popover-foreground:      var(--heading);
+  --primary:                 var(--gold);
+  --primary-foreground:      #ffffff;
+  --secondary:               #f5f5f4;
+  --secondary-foreground:    var(--heading);
+  --muted:                   #f5f5f4;
+  --muted-foreground:        var(--muted);
+  --accent:                  #f5f5f4;
+  --accent-foreground:       var(--heading);
   --destructive:             oklch(0.577 0.245 27.325);
   --destructive-foreground:  oklch(0.985 0 0);
-  --border:                  rgba(196, 160, 78, 0.12);
-  --input:                   #1A1732;
-  --ring:                    #C4A04E;
-  --sidebar:                 #0F0C20;
-  --sidebar-foreground:      #EDE8D8;
-  --sidebar-primary:         #C4A04E;
-  --sidebar-primary-foreground: #0A0815;
-  --sidebar-accent:          #1A1732;
-  --sidebar-accent-foreground: #EDE8D8;
-  --sidebar-border:          rgba(196, 160, 78, 0.12);
-  --sidebar-ring:            #C4A04E;
-  --chart-1: #C4A04E;
+  --border:                  var(--border-color);
+  --input:                   #ffffff;
+  --ring:                    var(--gold);
+  --sidebar:                 var(--bg-card);
+  --sidebar-foreground:      var(--heading);
+  --sidebar-primary:         var(--gold);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:          #f5f5f4;
+  --sidebar-accent-foreground: var(--heading);
+  --sidebar-border:          var(--border-color);
+  --sidebar-ring:            var(--gold);
+  --chart-1: var(--gold);
   --chart-2: #7F6CB3;
   --chart-3: #5D9B8C;
   --chart-4: #C47A5A;
@@ -295,7 +289,7 @@
     width: 100%;
     padding: 0.875rem 1.5rem;
     background: var(--gold);
-    color: #0A0815;
+    color: #ffffff;
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 600;

@@ -1,6 +1,9 @@
 "use client"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { useState } from "react"
+import { WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
+import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
 
 const CRYSTAL_MAP: Record<string, { name: string; nameEN: string; emoji: string; wuxing: string; domains: string[]; desc: string; color: string }> = {
   "木": { name: "绿幽灵", nameEN: "Green Phantom Quartz", emoji: "🌿", wuxing: "木", color: "#5B8C5A",
@@ -24,6 +27,27 @@ export default function CrystalDetailPage() {
   const params = useParams()
   const sku = (params?.sku as string) || "金"
   const crystal = CRYSTAL_MAP[sku] || CRYSTAL_MAP["金"]
+  const shopSku = WUXING_CRYSTAL_SKU[crystal.wuxing]
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleBuy() {
+    if (!shopSku) return
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await startAppCheckout({
+        sku: shopSku,
+        recommendationContext: `塔罗商城推荐：${crystal.name}`,
+        successUrl: `${window.location.origin}/crystal/${sku}?paid=1`,
+      })
+      redirectAfterCheckout(result)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "结账失败")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
@@ -36,7 +60,6 @@ export default function CrystalDetailPage() {
           ← 返回商城
         </Link>
 
-        {/* Crystal display */}
         <div style={{
           width: '100%', maxWidth: 300, margin: '0 auto 24px',
           height: 300, borderRadius: 'var(--radius-xl)',
@@ -67,13 +90,11 @@ export default function CrystalDetailPage() {
           </div>
         </div>
 
-        {/* Rating */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <span style={{ color: 'var(--gold-light)', fontSize: 14 }}>⭐ 4.8</span>
           <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 8 }}>(1,234 条评价)</span>
         </div>
 
-        {/* Energy properties */}
         <div className="card" style={{ padding: '20px', marginBottom: 16 }}>
           <div className="section-label" style={{ marginBottom: 12 }}>能量属性</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -86,7 +107,6 @@ export default function CrystalDetailPage() {
           </p>
         </div>
 
-        {/* Wearer story */}
         <div className="card" style={{ padding: '20px', marginBottom: 24 }}>
           <div className="section-label" style={{ marginBottom: 12 }}>佩戴故事</div>
           <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, fontStyle: 'italic' }}>
@@ -97,10 +117,18 @@ export default function CrystalDetailPage() {
           </div>
         </div>
 
-        {/* Buy CTA */}
-        <button className="btn-primary" style={{ width: '100%', marginBottom: 12 }}>
-          📿 请一条 · $39.99
+        <button
+          type="button"
+          className="btn-primary"
+          style={{ width: '100%', marginBottom: 12 }}
+          disabled={loading || !shopSku}
+          onClick={() => void handleBuy()}
+        >
+          {loading ? '正在跳转…' : `📿 请一条 · ${crystal.name}`}
         </button>
+        {error && (
+          <p style={{ color: 'var(--error, #c45b4a)', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>{error}</p>
+        )}
         <Link href="/temple" style={{
           display: 'flex', justifyContent: 'center', width: '100%',
           textDecoration: 'none',
