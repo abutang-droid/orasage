@@ -93,6 +93,7 @@ sudo journalctl -u orasage-cms -n 50 --no-pager
 
 常见问题：
 - `DATABASE_URL` 连不上 → 检查 PostgreSQL 用户权限与库名 `orasage_cms`
+- `relation "users" does not exist` → 迁移未真正执行，在 VPS 上 `cd /opt/orasage/cms && set -a && source .env && set +a && npm run migrate` 后重启 `orasage-cms`
 - 构建内存不足 → VPS 至少 4GB 可用内存，或临时加 swap
 - 502 → `systemctl restart orasage-cms` 并确认 Nginx 已配置 `cms.orasage.com → 3120`
 

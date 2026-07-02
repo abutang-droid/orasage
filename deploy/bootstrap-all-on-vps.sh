@@ -55,9 +55,20 @@ deploy_cms() {
     return 0
   fi
   log "部署 cms..."
+  # shellcheck disable=SC1091
+  source "$DEPLOY_DIR/deploy/lib/load-env.sh"
+  set -a
+  load_dotenv "$DEPLOY_DIR/cms/.env"
+  set +u
+  export DATABASE_URL PAYLOAD_SECRET NODE_ENV="${NODE_ENV:-production}" PORT="${PORT:-3120}"
+  set -u
   cd "$DEPLOY_DIR/cms"
   npm ci
   npm run migrate
+  if ! psql "$DATABASE_URL" -tAc "SELECT to_regclass('public.users')" 2>/dev/null | grep -q users; then
+    log "错误: cms 迁移后 users 表不存在"
+    exit 1
+  fi
   npm run build
   sudo cp "$DEPLOY_DIR/deploy/cms/orasage-cms.service" /etc/systemd/system/
   sudo systemctl daemon-reload
