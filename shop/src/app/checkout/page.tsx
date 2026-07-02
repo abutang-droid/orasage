@@ -7,6 +7,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderNo = searchParams.get('order') ?? '';
+  const returnUrl = searchParams.get('return');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -27,7 +28,13 @@ function CheckoutContent() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || '支付失败');
       setDone(true);
-      setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 800);
+      if (returnUrl) {
+        const sep = returnUrl.includes('?') ? '&' : '?';
+        const target = `${returnUrl}${sep}order=${encodeURIComponent(orderNo)}`;
+        setTimeout(() => { window.location.href = target; }, 800);
+      } else {
+        setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 800);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '支付失败');
     } finally {

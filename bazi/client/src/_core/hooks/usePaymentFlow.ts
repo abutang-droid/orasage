@@ -50,11 +50,17 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
   const { t } = useT();
   const shopPayments = useShopPayments();
 
-  const planNameMap: Record<string, string> = {
-    basic: t('plan.basic.name'),
-    advanced: t('plan.advanced.name'),
-    premium: t('plan.premium.name'),
-  };
+  const planNameMap: Record<string, string> = mode === "couple"
+    ? {
+        basic: t('plan.couple.basic.name'),
+        advanced: t('plan.couple.advanced.name'),
+        premium: t('plan.couple.premium.name'),
+      }
+    : {
+        basic: t('plan.basic.name'),
+        advanced: t('plan.advanced.name'),
+        premium: t('plan.premium.name'),
+      };
 
   const [state, setState] = useState<PaymentFlowState>({
     unlocked: false,
@@ -122,6 +128,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
 
     if (shopPayments) {
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
+      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1`;
       try {
         sessionStorage.setItem(PLAN_KEY, plan);
         const result = await startAppCheckout({
@@ -129,12 +136,13 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
           planType: plan,
           readingId,
           recommendationContext: `八字${planNameMap[plan] || plan}报告`,
-          successUrl: `${window.location.origin}${window.location.pathname}?paid=1`,
+          successUrl: returnBase,
         });
         if (result.checkoutUrl) {
           window.location.href = result.checkoutUrl;
         } else {
-          window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}`;
+          const returnUrl = encodeURIComponent(returnBase);
+          window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}&return=${returnUrl}`;
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : t('checkout.error', '结账失败'));

@@ -2110,6 +2110,18 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
     premium: t('plan.couple.premium.name'),
   };
 
+  const handleReportReady = (reportContent: string, sections: Array<{ title: string; content: string }>) => {
+    if (!payment.purchasedPlan) return;
+    if (!payment.shopOrderNo && !payment.wooOrderId) return;
+    payment.pushReportToWordPress({
+      planType: payment.purchasedPlan,
+      wooOrderId: payment.wooOrderId || undefined,
+      shopOrderNo: payment.shopOrderNo || undefined,
+      reportContent,
+      name: `${result.person1.name} & ${result.person2.name}`,
+    });
+  };
+
   return (
     <div style={{ minHeight: "auto" }} className="flex flex-col gap-4 animate-fade-in-up">
       {/* 顶部重新排盘 */}
@@ -2238,6 +2250,7 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
             resultData={result as unknown as Record<string, unknown>}
             type="couple"
             autoTrigger
+            onReportReady={handleReportReady}
           />
 
           {/* 付费后操作区 */}
