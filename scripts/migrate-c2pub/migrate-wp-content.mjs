@@ -49,18 +49,12 @@ function detectLocale(link) {
 }
 
 function detectAppSource(item, type) {
-  if (type === 'doc') {
-    const cats = item.doc_category || [];
-    const baziCats = new Set([60, 62, 71, 72, 74]); // 八字、七政四余、渊海子平、三命通会、星命总括
-    const tarotCats = new Set([66, 67, 68]); // 易经、六爻、梅花易数
-    if (cats.some((id) => baziCats.has(id))) return 'bazi';
-    if (cats.some((id) => tarotCats.has(id))) return 'tarot';
-    return 'main'; // 中医、拳法、奇门等道藏内容
-  }
+  if (type === 'doc') return 'daozang';
+  if (type === 'post') return 'famous';
   const classes = item.class_list || [];
   const cats = (item.categories || []).join(',');
-  if (/mingren|famous|personalidades|bazi|八字/i.test(classes.join(' ') + cats)) return 'bazi';
-  return 'main';
+  if (/mingren|famous|personalidades|bazi|八字/i.test(classes.join(' ') + cats)) return 'famous';
+  return 'daozang';
 }
 
 function makeSlug(item, type) {

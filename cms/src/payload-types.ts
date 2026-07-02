@@ -164,7 +164,7 @@ export interface Media {
   focalY?: number | null;
 }
 /**
- * 导入的 WordPress 正文在「原文预览」中查看；公开预览：/view/[slug]
+ * 「发布栏目」决定内容出现在哪个前台位置。WordPress 导入正文见「原文预览」。
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
@@ -173,14 +173,20 @@ export interface Page {
   id: number;
   title: string;
   slug: string;
-  appSource?: ('main' | 'bazi' | 'ziwei' | 'tarot' | 'shop') | null;
   /**
-   * 从 c2.pub WordPress 迁移的原始 HTML。公开页 /view/[slug] 会渲染此字段。
+   * 选择该内容在前台的展示位置（主站道藏、名人案例，或各命理 App）
+   */
+  appSource: 'daozang' | 'famous' | 'main' | 'bazi' | 'ziwei' | 'tarot' | 'shop';
+  /**
+   * 草稿不会出现在主站与各 App 列表中
+   */
+  wpStatus?: ('publish' | 'draft') | null;
+  /**
+   * 从 c2.pub WordPress 迁移的原始 HTML。主站道藏页与各 /view 路由会渲染此字段。
    */
   legacyHtml?: string | null;
   sourceUrl?: string | null;
   wpType?: ('doc' | 'post' | 'page') | null;
-  wpStatus?: ('publish' | 'draft') | null;
   wpId?: number | null;
   locale?: string | null;
   /**
@@ -330,10 +336,10 @@ export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   appSource?: T;
+  wpStatus?: T;
   legacyHtml?: T;
   sourceUrl?: T;
   wpType?: T;
-  wpStatus?: T;
   wpId?: T;
   locale?: T;
   content?: T;

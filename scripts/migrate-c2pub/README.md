@@ -56,7 +56,7 @@ curl -s "https://cms.orasage.com/api/pages?limit=3"
 ```
 
 迁移字段：
-- `title` / `slug` / `app_source`（名人案例 → `bazi` 或 `main`）
+- `title` / `slug` / `app_source`（发布栏目：`daozang` 道藏、`famous` 名人案例、`bazi` 等）
 - `legacy_html` — 原 WordPress HTML 正文
 - `source_url` — 原 c2.pub 链接
 - `wp_type` + `wp_id` — 幂等去重

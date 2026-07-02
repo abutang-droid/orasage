@@ -33,4 +33,32 @@
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
   }
+
+  .prose-sage {
+    @apply text-[15px] leading-relaxed text-sage-muted sm:text-base;
+  }
+
+  .prose-sage :where(p, ul, ol, blockquote) {
+    @apply my-4;
+  }
+
+  .prose-sage :where(h1, h2, h3, h4) {
+    @apply mt-8 mb-3 font-serif text-sage-gold;
+  }
+
+  .prose-sage :where(h1) { @apply text-2xl; }
+  .prose-sage :where(h2) { @apply text-xl; }
+  .prose-sage :where(h3) { @apply text-lg; }
+
+  .prose-sage :where(a) {
+    @apply text-sage-gold underline-offset-2 hover:underline;
+  }
+
+  .prose-sage :where(img) {
+    @apply my-4 max-w-full rounded-lg;
+  }
+
+  .prose-sage :where(table) {
+    @apply my-4 block max-w-full overflow-x-auto text-sm;
+  }
 }
