@@ -12,10 +12,11 @@ export function syncBaziSingleReading(
   name: string,
   data: SingleBaziResult,
   braceletRec?: BraceletRecommendation | null,
+  existingReadingId?: string,
 ) {
   const displayName = name.trim() || '访客';
   const crystalSku = braceletToCrystalSku(braceletRec ?? null);
-  const readingId = newReadingId('bazi');
+  const readingId = existingReadingId ?? newReadingId('bazi');
   const payloadJson = JSON.stringify({ type: 'single', lang: 'zh-CN', resultData: data });
   void syncReading({
     appSource: 'bazi',
@@ -39,8 +40,13 @@ export function planToReportSku(plan: string): string {
   return PLAN_REPORT_SKU[plan] ?? 'report-bazi-advanced';
 }
 
-export function syncBaziDoubleReading(nameA: string, nameB: string, data: DoubleBaziResult) {
-  const readingId = newReadingId('bazi');
+export function syncBaziDoubleReading(
+  nameA: string,
+  nameB: string,
+  data: DoubleBaziResult,
+  existingReadingId?: string,
+) {
+  const readingId = existingReadingId ?? newReadingId('bazi');
   const payloadJson = JSON.stringify({ type: 'couple', lang: 'zh-CN', resultData: data });
   void syncReading({
     appSource: 'bazi',

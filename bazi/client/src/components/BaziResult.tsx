@@ -1966,16 +1966,17 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
     premium: t('plan.premium.name'),
   };
 
-  // 报告生成完毕 → 推送到 WordPress 用户中心
+  // 报告生成完毕 → 推送到用户中心（WC 或 shop 订单）
   const handleReportReady = (reportContent: string, sections: Array<{ title: string; content: string }>) => {
-    if (payment.purchasedPlan && payment.wooOrderId) {
-      payment.pushReportToWordPress({
-        planType: payment.purchasedPlan,
-        wooOrderId: payment.wooOrderId,
-        reportContent,
-        name: result.name,
-      });
-    }
+    if (!payment.purchasedPlan) return;
+    if (!payment.shopOrderNo && !payment.wooOrderId) return;
+    payment.pushReportToWordPress({
+      planType: payment.purchasedPlan,
+      wooOrderId: payment.wooOrderId || undefined,
+      shopOrderNo: payment.shopOrderNo || undefined,
+      reportContent,
+      name: result.name,
+    });
   };
 
   return (

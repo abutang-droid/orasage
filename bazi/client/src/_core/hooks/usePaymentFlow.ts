@@ -13,6 +13,7 @@ import { startAppCheckout } from "@/lib/shop-checkout";
 import { planToReportSku } from "@/lib/reading-sync";
 
 const READING_ID_KEY = "bazi:lastReadingId";
+const PLAN_KEY = "bazi:lastPurchasedPlan";
 
 const PRODUCT_ID_MAP: Record<string, { single: number; couple: number }> = {
   basic:    { single: 342, couple: 342 },
@@ -80,12 +81,14 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     if (params.get("paid") !== "1") return;
     const orderNo = params.get("order");
     if (!orderNo) return;
+    const storedPlan = sessionStorage.getItem(PLAN_KEY) as PlanType | null;
     setState((prev) => ({
       ...prev,
       shopOrderNo: orderNo,
       unlocked: true,
-      purchasedPlan: prev.purchasedPlan ?? "advanced",
+      purchasedPlan: prev.purchasedPlan ?? storedPlan ?? "advanced",
     }));
+    sessionStorage.removeItem(PLAN_KEY);
     toast.success(t('plan.paid_success', '支付成功，正在生成报告…'));
     const url = new URL(window.location.href);
     url.searchParams.delete("paid");
@@ -120,6 +123,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     if (shopPayments) {
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
       try {
+        sessionStorage.setItem(PLAN_KEY, plan);
         const result = await startAppCheckout({
           sku: planToReportSku(plan),
           planType: plan,
@@ -204,4 +208,12 @@ export function saveLastReadingId(readingId: string) {
   try {
     sessionStorage.setItem(READING_ID_KEY, readingId);
   } catch { /* ignore */ }
+}
+
+export function getLastReadingId(): string | null {
+  try {
+    return sessionStorage.getItem(READING_ID_KEY);
+  } catch {
+    return null;
+  }
 }

@@ -20,7 +20,7 @@ import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
-import { saveLastReadingId } from "@/_core/hooks/usePaymentFlow";
+import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -582,6 +582,25 @@ export default function Home() {
     loadLunarLib();
     preloadCityData();
   }, []);
+
+  // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
+  useEffect(() => {
+    if (!isAuthenticated || !result) return;
+    const existingId = getLastReadingId() ?? undefined;
+    if (result.type === "single") {
+      const braceletRec = recommendBracelet(result.data.wuXing as unknown as Record<string, number>);
+      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId);
+      saveLastReadingId(readingId);
+    } else {
+      const readingId = syncBaziDoubleReading(
+        result.data.person1.name,
+        result.data.person2.name,
+        result.data,
+        existingId,
+      );
+      saveLastReadingId(readingId);
+    }
+  }, [isAuthenticated, result]);
 
   const updateForm = (idx: 0 | 1, patch: Partial<PersonForm>) => {
     setForms((prev) => {
