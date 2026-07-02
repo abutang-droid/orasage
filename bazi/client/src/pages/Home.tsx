@@ -17,6 +17,7 @@ import { DatePicker } from "@/components/WheelPicker";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { syncSavedProfile } from "@/lib/profile-sync";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -43,6 +44,23 @@ const emptyForm = (): PersonForm => ({
   gender: "", calendar: "solar",
   birthplace: { city: "北京", country: "中国", lng: 116.4074, timezone: "+8" },
 });
+
+function syncPersonProfile(form: PersonForm, label?: string | null) {
+  const month = form.month.startsWith("L") ? form.month.slice(1) : form.month;
+  return syncSavedProfile({
+    name: form.name.trim() || "访客",
+    gender: (form.gender || "male") as "male" | "female",
+    birthYear: form.year,
+    birthMonth: month,
+    birthDay: form.day,
+    birthHour: form.hour || null,
+    birthMinute: form.minute || null,
+    birthPlaceCity: form.birthplace.city || null,
+    birthPlaceLongitude: form.birthplace.lng != null ? String(form.birthplace.lng) : null,
+    sourceApp: "bazi",
+    label: label ?? null,
+  });
+}
 
 type ViewState = "form" | "loading" | "result";
 type ResultData =
@@ -623,6 +641,7 @@ export default function Home() {
               resultSummary: { riZhu: data.riZhu, strength: data.strength, wuXing: data.wuXing, favorable: data.favorable, unfavorable: data.unfavorable },
             });
           }
+          void syncPersonProfile(resolvedF0);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -634,6 +653,8 @@ export default function Home() {
               resultSummary: { score: data.score, rating: data.rating },
             });
           }
+          void syncPersonProfile(resolvedF0, "A");
+          void syncPersonProfile(resolvedF1!, "B");
         }
         setView("result");
         window.scrollTo({ top: 0, behavior: "smooth" });

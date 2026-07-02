@@ -22,7 +22,7 @@ export interface BirthFormState {
 }
 
 interface BirthFormProps {
-  onSubmit: (info: BirthInfo) => void;
+  onSubmit: (info: BirthInfo, form: BirthFormState) => void;
   loading?: boolean;
   initialData?: Partial<BirthFormState>;
   onFormSave?: (data: BirthFormState) => void;
@@ -140,7 +140,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     setTouched({ year: true, month: true, day: true });
     if (hasError) return;
     onFormSave?.({ ...form });
-    onSubmit({ year: y, month: m, day: d, hour: branch, gender: form.gender, name: form.name || undefined, province: form.province || undefined, city: form.city || undefined, longitude: form.province ? form.longitude : undefined });
+    onSubmit({
+      year: y, month: m, day: d, hour: branch, gender: form.gender,
+      name: form.name || undefined, province: form.province || undefined,
+      city: form.city || undefined, longitude: form.province ? form.longitude : undefined,
+    }, form);
   };
 
   const bg = isDark ? 'rgba(8,16,40,0.85)' : 'rgba(255,255,255,0.92)';

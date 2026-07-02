@@ -125,6 +125,43 @@ function mapSavedProfile(row: typeof savedProfiles.$inferSelect) {
   };
 }
 
+const PROFILE_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+function nextProfileLabel(rows: Array<{ label: string | null }>): string {
+  const used = new Set(rows.map((r) => r.label?.trim()).filter(Boolean));
+  for (const label of PROFILE_LABELS) {
+    if (!used.has(label)) return label;
+  }
+  return String(rows.length + 1);
+}
+
+function profileBirthKey(body: {
+  name: string;
+  birthYear?: string | null;
+  birthMonth?: string | null;
+  birthDay?: string | null;
+}) {
+  return `${body.name}|${body.birthYear ?? ""}|${body.birthMonth ?? ""}|${body.birthDay ?? ""}`;
+}
+
+function profileValuesFromBody(userId: number, body: z.infer<typeof profileBodySchema>, label: string | null) {
+  return {
+    userId,
+    label,
+    name: body.name,
+    gender: body.gender ?? null,
+    birthYear: body.birthYear ?? null,
+    birthMonth: body.birthMonth ?? null,
+    birthDay: body.birthDay ?? null,
+    birthHour: body.birthHour ?? null,
+    birthMinute: body.birthMinute ?? null,
+    birthPlaceProvince: body.birthPlaceProvince ?? null,
+    birthPlaceCity: body.birthPlaceCity ?? null,
+    birthPlaceLongitude: body.birthPlaceLongitude ?? null,
+    sourceApp: body.sourceApp ?? null,
+  };
+}
+
 accountRouter.get("/profiles", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
@@ -233,6 +270,57 @@ accountRouter.delete("/profiles", async (req, res) => {
   if (!user) return;
   await db.delete(savedProfiles).where(eq(savedProfiles.userId, user.id));
   res.json({ success: true });
+});
+
+accountRouter.post("/profiles/sync", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    const body = profileBodySchema.parse(req.body);
+    const rows = await db
+      .select()
+      .from(savedProfiles)
+      .where(eq(savedProfiles.userId, user.id))
+      .orderBy(desc(savedProfiles.updatedAt));
+
+    const key = profileBirthKey(body);
+    const existing = rows.find(
+      (row) =>
+        profileBirthKey({
+          name: row.name,
+          birthYear: row.birthYear,
+          birthMonth: row.birthMonth,
+          birthDay: row.birthDay,
+        }) === key,
+    );
+
+    if (existing) {
+      const [row] = await db
+        .update(savedProfiles)
+        .set({
+          ...profileValuesFromBody(user.id, body, body.label ?? existing.label),
+          updatedAt: new Date(),
+        })
+        .where(eq(savedProfiles.id, existing.id))
+        .returning();
+      res.json({ profile: mapSavedProfile(row), created: false });
+      return;
+    }
+
+    const label = body.label?.trim() || nextProfileLabel(rows);
+    const [row] = await db
+      .insert(savedProfiles)
+      .values(profileValuesFromBody(user.id, body, label))
+      .returning();
+    res.status(201).json({ profile: mapSavedProfile(row), created: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[profiles] sync error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 const readingSchema = z.object({

@@ -4,6 +4,7 @@ import Link from "next/link"
 import CardFrame from "@/components/CardFrame"
 import { getCardById } from "@/lib/tarot/cards"
 import { useUser } from "@/lib/user"
+import { syncSavedProfile } from "@/lib/profile-sync"
 
 const CACHE_KEY = "manto:profile"
 function loadCachedProfile(): Record<string, string> | null {
@@ -567,6 +568,17 @@ export default function ReadingPage() {
                     }
                     cacheProfile({ nickname: profile.name, birthday: profile.birthdate, gender: profile.gender, occupation: profile.occupation })
                     await saveProfile(fields)
+                    if (profile.birthdate) {
+                      const [y, m, d] = profile.birthdate.split("-")
+                      void syncSavedProfile({
+                        name: profile.name || "旅人",
+                        gender: profile.gender === "female" ? "female" : profile.gender === "male" ? "male" : null,
+                        birthYear: y || null,
+                        birthMonth: m || null,
+                        birthDay: d || null,
+                        sourceApp: "tarot",
+                      })
+                    }
                     setStep("crystal_quiz"); setQuizStep(0)
                   }}>
                   {profile.name ? `${profile.name} — 继续` : "继续选水晶"}

@@ -11,13 +11,14 @@ import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/z
 import { useHistory } from '@/lib/ziwei/history';
 type FocusState = any;
 import { generateChart } from "@/lib/ziwei/algorithm";
+import { syncBirthFormProfile } from '@/lib/profile-sync';
 
 // ─── 合盘输入面板 ─────────────────────────────────────────────────────────────
 function HemingPanel({
   onSubmit,
   loading,
 }: {
-  onSubmit: (a: BirthInfo, b: BirthInfo) => void;
+  onSubmit: (a: BirthInfo, b: BirthInfo, formA: BirthFormState, formB: BirthFormState) => void;
   loading: boolean;
 }) {
   const t = useT();
@@ -26,7 +27,7 @@ function HemingPanel({
   const canSubmit = formA?.year && formA?.month && formA?.day && formB?.year && formB?.month && formB?.day;
   const handleSubmit = () => {
     if (!formA || !formB) return;
-    onSubmit(formToBirthInfo(formA), formToBirthInfo(formB));
+    onSubmit(formToBirthInfo(formA), formToBirthInfo(formB), formA, formB);
   };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -79,19 +80,29 @@ export default function ChartPage() {
     if (!formData?.year) return;
     const fullForm: BirthFormState = { name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0', unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', ...formData };
     setSavedForm(fullForm);
-    handleSingleSubmit(formToBirthInfo(fullForm));
+    handleSingleSubmit(formToBirthInfo(fullForm), fullForm);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSingleSubmit = async (info: BirthInfo) => {
+  const handleSingleSubmit = async (info: BirthInfo, form?: BirthFormState) => {
     setLoading(true); setError('');
-    try { const data = generateChart(info); setChart(data); setChartB(null); setFocus(null); setView('mingpan'); }
+    try {
+      const data = generateChart(info);
+      setChart(data); setChartB(null); setFocus(null); setView('mingpan');
+      const syncForm = form ?? savedForm;
+      if (syncForm) void syncBirthFormProfile(syncForm);
+    }
     catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
     finally { setLoading(false); }
   };
 
-  const handleHemingSubmit = async (infoA: BirthInfo, infoB: BirthInfo) => {
+  const handleHemingSubmit = async (infoA: BirthInfo, infoB: BirthInfo, formA: BirthFormState, formB: BirthFormState) => {
     setLoading(true); setError('');
-    try { const dataA = generateChart(infoA); const dataB = generateChart(infoB); setChart(dataA); setChartB(dataB); setFocus(null); setView('mingpan'); setHemingTab('A'); }
+    try {
+      const dataA = generateChart(infoA); const dataB = generateChart(infoB);
+      setChart(dataA); setChartB(dataB); setFocus(null); setView('mingpan'); setHemingTab('A');
+      void syncBirthFormProfile(formA, { label: 'A' });
+      void syncBirthFormProfile(formB, { label: 'B' });
+    }
     catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
     finally { setLoading(false); }
   };
@@ -139,7 +150,7 @@ export default function ChartPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {history.map(entry => (
-                  <div key={entry.id} onClick={() => { setSavedForm(entry.form); handleSingleSubmit(formToBirthInfo(entry.form)); }}
+                  <div key={entry.id} onClick={() => { setSavedForm(entry.form); handleSingleSubmit(formToBirthInfo(entry.form), entry.form); }}
                     style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-md)', cursor: 'pointer', transition: 'border-color 0.15s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold-border)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr)'; }}>

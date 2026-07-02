@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { locales, localeNames, type Locale } from '@/i18n/routing';
 import { externalUrls } from '@/lib/urls';
+import { HeaderAuthButton } from '@/components/HeaderAuthButton';
 import { useEffect, useState } from 'react';
 
 export function Header() {
@@ -22,9 +23,6 @@ export function Header() {
     { href: '/famous', label: t('famous') },
     { href: '/daozang', label: t('daozang') },
   ];
-
-  const returnUrl = encodeURIComponent(`https://orasage.com/${locale}${pathname === '/' ? '' : pathname}`);
-  const loginUrl = `${externalUrls.authLogin}?redirect=${returnUrl}`;
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -63,22 +61,12 @@ export function Header() {
               </Link>
             ),
           )}
-          <a
-            href={loginUrl}
-            className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10"
-          >
-            {t('login')}
-          </a>
+          <HeaderAuthButton />
           <LocaleSwitcher current={locale as Locale} pathname={pathname} />
         </nav>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <a
-            href={loginUrl}
-            className="rounded-full border border-sage-gold/40 px-3 py-2 text-xs text-sage-gold"
-          >
-            {t('login')}
-          </a>
+          <HeaderAuthButton className="px-3 py-2 text-xs" />
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-sage-muted active:bg-sage-card"

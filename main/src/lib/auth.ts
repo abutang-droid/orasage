@@ -53,6 +53,21 @@ export type UserOrder = {
   createdAt: string;
 };
 
+export type ProfileSyncPayload = {
+  name: string;
+  gender?: 'male' | 'female' | null;
+  birthYear?: string | null;
+  birthMonth?: string | null;
+  birthDay?: string | null;
+  birthHour?: string | null;
+  birthMinute?: string | null;
+  birthPlaceProvince?: string | null;
+  birthPlaceCity?: string | null;
+  birthPlaceLongitude?: string | null;
+  sourceApp: 'bazi' | 'ziwei' | 'tarot';
+  label?: string | null;
+};
+
 async function authFetch(path: string, init?: RequestInit) {
   const res = await fetch(`${AUTH_URL}${path}`, {
     ...init,
@@ -105,6 +120,20 @@ export async function createSavedProfile(body: Partial<SavedProfile> & { name: s
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `create profile failed: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.profile as SavedProfile;
+}
+
+export async function syncSavedProfile(payload: ProfileSyncPayload): Promise<SavedProfile | null> {
+  const res = await authFetch('/auth/me/profiles/sync', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 401) return null;
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `sync profile failed: ${res.status}`);
   }
   const data = await res.json();
   return data.profile as SavedProfile;
