@@ -19,7 +19,10 @@ export const products: Product[] = [
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, category: 'report' },
   { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, category: 'report' },
   { sku: 'report-bazi-premium', name: '八字终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, category: 'report' },
-  { sku: 'report-ziwei', name: '紫微斗数报告', desc: '十二宫详解 · 流年运势', priceCents: 7800, category: 'report' },
+  { sku: 'report-ziwei', name: '紫微深度报告', desc: '十二宫详解 · 流年运势', priceCents: 7800, category: 'report' },
+  { sku: 'report-ziwei-basic', name: '紫微深度解读', desc: '命盘 AI 解读报告', priceCents: 990, category: 'report' },
+  { sku: 'report-ziwei-advanced', name: '紫微报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, category: 'report' },
+  { sku: 'report-ziwei-premium', name: '紫微终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, category: 'report' },
   { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 4800, category: 'report' },
   { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, category: 'service' },
 ];

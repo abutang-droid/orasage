@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   APP_BRANDS,
-  APP_HOME_PATH,
   ORASAGE_URLS,
   appHomeUrl,
   exploreItems,
   profileUrl,
+  isCurrentAppHome,
+  isAppSubpage,
   type AppId,
 } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
@@ -64,12 +65,6 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
   return <>{icons[name] ?? icons.app}</>;
 }
 
-function isCurrentAppHome(appId: AppId, pathname: string): boolean {
-  const home = APP_HOME_PATH[appId];
-  if (home === '/') return pathname === '/' || pathname === '';
-  return pathname === home || pathname.startsWith(`${home}/`);
-}
-
 export function AppShell({
   appId,
   locale = 'zh-CN',
@@ -97,13 +92,25 @@ export function AppShell({
 
   const onAppHome = isCurrentAppHome(appId, pathname);
   const onTemple = appId === 'tarot' && (pathname === '/temple' || pathname.startsWith('/temple/'));
+  const showBack = isAppSubpage(appId, pathname);
 
   return (
-    <div className="orasage-app-shell" data-theme={theme}>
+    <div className="orasage-app-shell orasage-grain" data-theme={theme}>
       <header className="orasage-app-topbar">
-        <a href={appHomeUrl(appId)} className="orasage-app-brand">
-          {brand}
-        </a>
+        <div className="orasage-app-topbar-start">
+          {showBack ? (
+            <a href={appHomeUrl(appId)} className="orasage-app-back" aria-label={pickLabel(SHELL_LABELS.back, locale)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              <span>{pickLabel(SHELL_LABELS.back, locale)}</span>
+            </a>
+          ) : (
+            <a href={appHomeUrl(appId)} className="orasage-app-brand">
+              {brand}
+            </a>
+          )}
+        </div>
         {locales.length > 0 && onLocaleChange && (
           <div className="orasage-app-lang">
             <button

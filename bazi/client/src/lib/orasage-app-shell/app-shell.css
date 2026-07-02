@@ -2,6 +2,7 @@
   --shell-bg: #0f0e17;
   --shell-surface: rgba(21, 18, 42, 0.96);
   --shell-border: rgba(255, 255, 255, 0.08);
+  --shell-border-subtle: rgba(255, 255, 255, 0.04);
   --shell-text: #e8e4dc;
   --shell-muted: #9a9588;
   --shell-gold: #c9a05a;
@@ -11,15 +12,44 @@
   display: flex;
   flex-direction: column;
   color: var(--shell-text);
+  background: var(--shell-bg);
+  position: relative;
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: #f7f5f0;
+  --shell-bg: #fafaf8;
   --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: rgba(21, 18, 42, 0.1);
-  --shell-text: #1a1625;
-  --shell-muted: #6e6858;
-  --shell-gold: #a67c2e;
+  --shell-border: #e7e5e4;
+  --shell-border-subtle: #f1f1ef;
+  --shell-text: #171717;
+  --shell-muted: #6b7280;
+  --shell-gold: #b8943f;
+}
+
+.orasage-app-topbar-start {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.orasage-app-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-family: var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
+  padding: 4px 0;
+  transition: color 0.15s var(--orasage-ease-organic, ease);
+}
+
+.orasage-app-back:hover {
+  color: var(--shell-gold);
+}
+
+.orasage-app-back span {
+  letter-spacing: var(--orasage-letter-wide, 0.05em);
 }
 
 .orasage-app-topbar {
@@ -38,9 +68,9 @@
 }
 
 .orasage-app-brand {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
   font-size: 1.25rem;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--orasage-letter-wide, 0.06em);
   color: var(--shell-gold);
   text-decoration: none;
 }
@@ -93,6 +123,8 @@
 
 .orasage-app-main {
   flex: 1;
+  position: relative;
+  z-index: 1;
   padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
 }
 

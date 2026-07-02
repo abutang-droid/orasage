@@ -1,4 +1,5 @@
 type LabelSet = {
+  back: Record<string, string>;
   explore: Record<string, string>;
   blessing: Record<string, string>;
   shop: Record<string, string>;
@@ -7,6 +8,12 @@ type LabelSet = {
 };
 
 export const SHELL_LABELS: LabelSet = {
+  back: {
+    'zh-CN': '返回',
+    en: 'Back',
+    'zh-TW': '返回',
+    'pt-BR': 'Voltar',
+  },
   explore: {
     'zh-CN': '探索',
     en: 'Explore',

@@ -34,6 +34,28 @@ export const APP_HOME_PATH: Record<AppId, string> = {
   tarot: '/',
 };
 
+/** 子页面路径前缀 — 显示顶栏返回按钮 */
+export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
+  bazi: ['/history'],
+  ziwei: ['/knowledge', '/library', '/heming'],
+  tarot: ['/reading', '/crystal', '/temple', '/history'],
+};
+
+export function isAppSubpage(appId: AppId, pathname: string): boolean {
+  if (!pathname || isCurrentAppHome(appId, pathname)) return false;
+  const prefixes = APP_SUBPAGE_PREFIXES[appId];
+  return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+export function isCurrentAppHome(appId: AppId, pathname: string): boolean {
+  const home = APP_HOME_PATH[appId];
+  if (home === '/') return pathname === '/' || pathname === '';
+  if (appId === 'ziwei' && home === '/chart') {
+    return pathname === '/chart' || pathname === '/chart/';
+  }
+  return pathname === home;
+}
+
 export function appHomeUrl(appId: AppId): string {
   const base = ORASAGE_URLS[appId];
   const path = APP_HOME_PATH[appId];

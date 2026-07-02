@@ -4,6 +4,16 @@ import { newReadingId, syncReading, WUXING_CRYSTAL_SKU, type ReadingSyncPayload 
 export { newReadingId, syncReading };
 export type { ReadingSyncPayload };
 
+export const PLAN_REPORT_SKU: Record<string, string> = {
+  basic: 'report-ziwei-basic',
+  advanced: 'report-ziwei-advanced',
+  premium: 'report-ziwei-premium',
+};
+
+export function planToReportSku(plan: string): string {
+  return PLAN_REPORT_SKU[plan] ?? 'report-ziwei-advanced';
+}
+
 function ziweiSummary(chart: ZiweiChart): string {
   const ming = chart.palaces.find((p) => p.name === '命宫');
   const stars = ming?.stars?.map((s) => s.name).join('、') ?? '';
@@ -28,18 +38,22 @@ export function ziweiCrystalRecommendation(chart: ZiweiChart) {
   };
 }
 
-export function syncZiweiReading(chart: ZiweiChart, options?: { label?: string }) {
+export function syncZiweiReading(chart: ZiweiChart, options?: { label?: string; existingReadingId?: string }) {
   const name = chart.birthInfo.name?.trim() || '命主';
+  const readingId = options?.existingReadingId ?? newReadingId('ziwei');
   const title = options?.label
     ? `紫微合盘 · ${options.label} · ${name}`
     : `紫微排盘 · ${name}`;
   const crystal = ziweiCrystalRecommendation(chart);
-  return syncReading({
+  const payloadJson = JSON.stringify({ type: options?.label ? 'couple' : 'single', chart });
+  void syncReading({
     appSource: 'ziwei',
-    readingId: newReadingId('ziwei'),
+    readingId,
     title,
     summary: ziweiSummary(chart),
     recommendationReason: crystal?.reason,
     crystalSku: crystal?.crystalSku,
+    payloadJson,
   });
+  return readingId;
 }
