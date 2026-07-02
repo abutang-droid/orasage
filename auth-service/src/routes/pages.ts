@@ -6,14 +6,14 @@ export const pagesRouter = Router();
 const ALLOWED_HOSTS = ["orasage.com", "auth.orasage.com", "shop.orasage.com", "bazi.orasage.com", "ziwei.orasage.com", "tarot.orasage.com"];
 
 function safeRedirect(url?: string): string {
-  if (!url) return "/center";
+  if (!url) return "https://orasage.com/zh-CN/profile";
   try {
     const u = new URL(url);
     if (ALLOWED_HOSTS.includes(u.hostname) || u.hostname.endsWith(".orasage.com")) return url;
   } catch {
     if (url.startsWith("/")) return url;
   }
-  return "/center";
+  return "https://orasage.com/zh-CN/profile";
 }
 
 function layout(title: string, body: string): string {
@@ -37,7 +37,10 @@ function esc(s: string) {
 pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 
 pagesRouter.get("/login", (req, res) => {
-  const redirect = safeRedirect(typeof req.query.redirect === "string" ? req.query.redirect : undefined);
+  const redirectParam =
+    (typeof req.query.redirect === "string" ? req.query.redirect : undefined) ||
+    (typeof req.query.returnUrl === "string" ? req.query.returnUrl : undefined);
+  const redirect = safeRedirect(redirectParam);
   res.send(layout("登录", `
     <header class="page-header"><a href="https://orasage.com" class="logo">OraSage</a></header>
     <main class="auth-card">
@@ -54,7 +57,10 @@ pagesRouter.get("/login", (req, res) => {
 });
 
 pagesRouter.get("/register", (req, res) => {
-  const redirect = safeRedirect(typeof req.query.redirect === "string" ? req.query.redirect : undefined);
+  const redirectParam =
+    (typeof req.query.redirect === "string" ? req.query.redirect : undefined) ||
+    (typeof req.query.returnUrl === "string" ? req.query.returnUrl : undefined);
+  const redirect = safeRedirect(redirectParam);
   res.send(layout("注册", `
     <header class="page-header"><a href="https://orasage.com" class="logo">OraSage</a></header>
     <main class="auth-card">
@@ -73,54 +79,13 @@ pagesRouter.get("/register", (req, res) => {
 
 pagesRouter.get("/center", async (req, res) => {
   const user = await getAuthUser(req);
+  const locale = "zh-CN";
+  const target = `https://orasage.com/${locale}/profile`;
   if (!user) {
-    res.redirect("/login?redirect=%2Fcenter");
+    res.redirect(`/login?redirect=${encodeURIComponent(target)}`);
     return;
   }
-  const n = esc(user.nickname || "用户");
-  const e = esc(user.email);
-  res.send(layout("用户中心", `
-    <header class="page-header center-header">
-      <a href="https://orasage.com" class="logo">OraSage</a>
-      <button type="button" id="logout-btn" class="btn-text">退出</button>
-    </header>
-    <main class="center-main">
-      <section class="user-hero">
-        <div class="avatar">${(user.nickname || user.email)[0]?.toUpperCase() ?? "U"}</div>
-        <div><h1 id="user-nickname">${n}</h1><p class="muted">${e}</p></div>
-      </section>
-      <nav class="tab-bar">
-        <button type="button" class="tab active" data-tab="profile">基本资料</button>
-        <button type="button" class="tab" data-tab="readings">测试记录</button>
-        <button type="button" class="tab" data-tab="orders">我的订单</button>
-      </nav>
-      <section id="panel-profile" class="tab-panel active">
-        <form id="profile-form" class="profile-form">
-          <label>昵称<input name="nickname" value="${esc(user.nickname || "")}"></label>
-          <label>性别<select name="gender">
-            <option value="">未设置</option>
-            <option value="male" ${user.gender === "male" ? "selected" : ""}>男</option>
-            <option value="female" ${user.gender === "female" ? "selected" : ""}>女</option>
-          </select></label>
-          <label>出生日期<input type="date" name="birthDate" value="${esc(user.birthDate || "")}"></label>
-          <label>出生时辰<input name="birthHour" value="${esc(user.birthHour || "")}" placeholder="子时 / 23:00"></label>
-          <label>出生省份<input name="birthPlaceProvince" value="${esc(user.birthPlaceProvince || "")}"></label>
-          <label>出生城市<input name="birthPlaceCity" value="${esc(user.birthPlaceCity || "")}"></label>
-          <label>语言<select name="languagePreference">
-            <option value="zh-CN" ${user.languagePreference === "zh-CN" ? "selected" : ""}>简体中文</option>
-            <option value="en" ${user.languagePreference === "en" ? "selected" : ""}>English</option>
-          </select></label>
-          <p id="profile-msg" class="msg" hidden></p>
-          <button type="submit" class="btn-primary">保存资料</button>
-        </form>
-      </section>
-      <section id="panel-readings" class="tab-panel">
-        <div id="readings-list" class="card-list"><p class="loading">加载中…</p></div>
-      </section>
-      <section id="panel-orders" class="tab-panel">
-        <div id="orders-list" class="card-list"><p class="loading">加载中…</p></div>
-      </section>
-    </main>`));
+  res.redirect(target);
 });
 
 export function internalOnly(req: Request, res: Response, next: NextFunction) {

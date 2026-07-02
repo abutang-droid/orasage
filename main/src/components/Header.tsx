@@ -24,7 +24,7 @@ export function Header() {
   ];
 
   const returnUrl = encodeURIComponent(`https://orasage.com/${locale}${pathname === '/' ? '' : pathname}`);
-  const loginUrl = `${externalUrls.authLogin}?returnUrl=${returnUrl}`;
+  const loginUrl = `${externalUrls.authLogin}?redirect=${returnUrl}`;
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';

@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { userOrders, userReadings, userRecommendations } from "../db/schema.ts";
+import { savedProfiles, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
 import { getAuthUser } from "../lib/auth-user.ts";
 
 export const accountRouter = Router();
@@ -66,6 +66,7 @@ accountRouter.get("/orders", async (req, res) => {
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
+      shippingAddress: o.shippingAddress,
       createdAt: o.createdAt,
     })),
   });
@@ -88,6 +89,152 @@ accountRouter.get("/recommendations", async (req, res) => {
   });
 });
 
+const profileBodySchema = z.object({
+  label: z.string().max(50).optional().nullable(),
+  name: z.string().min(1).max(100),
+  gender: z.enum(["male", "female"]).optional().nullable(),
+  birthYear: z.string().max(4).optional().nullable(),
+  birthMonth: z.string().max(2).optional().nullable(),
+  birthDay: z.string().max(2).optional().nullable(),
+  birthHour: z.string().max(2).optional().nullable(),
+  birthMinute: z.string().max(2).optional().nullable(),
+  birthPlaceProvince: z.string().max(50).optional().nullable(),
+  birthPlaceCity: z.string().max(50).optional().nullable(),
+  birthPlaceLongitude: z.string().max(20).optional().nullable(),
+  sourceApp: z.enum(["bazi", "ziwei", "tarot", "shop"]).optional().nullable(),
+});
+
+function mapSavedProfile(row: typeof savedProfiles.$inferSelect) {
+  return {
+    id: row.id,
+    label: row.label,
+    name: row.name,
+    gender: row.gender,
+    birthYear: row.birthYear,
+    birthMonth: row.birthMonth,
+    birthDay: row.birthDay,
+    birthHour: row.birthHour,
+    birthMinute: row.birthMinute,
+    birthPlaceProvince: row.birthPlaceProvince,
+    birthPlaceCity: row.birthPlaceCity,
+    birthPlaceLongitude: row.birthPlaceLongitude,
+    sourceApp: row.sourceApp,
+    sourceAppLabel: row.sourceApp ? APP_LABELS[row.sourceApp] : null,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+accountRouter.get("/profiles", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const rows = await db
+    .select()
+    .from(savedProfiles)
+    .where(eq(savedProfiles.userId, user.id))
+    .orderBy(desc(savedProfiles.updatedAt));
+  res.json({ profiles: rows.map(mapSavedProfile) });
+});
+
+accountRouter.post("/profiles", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    const body = profileBodySchema.parse(req.body);
+    const [row] = await db.insert(savedProfiles).values({
+      userId: user.id,
+      label: body.label ?? null,
+      name: body.name,
+      gender: body.gender ?? null,
+      birthYear: body.birthYear ?? null,
+      birthMonth: body.birthMonth ?? null,
+      birthDay: body.birthDay ?? null,
+      birthHour: body.birthHour ?? null,
+      birthMinute: body.birthMinute ?? null,
+      birthPlaceProvince: body.birthPlaceProvince ?? null,
+      birthPlaceCity: body.birthPlaceCity ?? null,
+      birthPlaceLongitude: body.birthPlaceLongitude ?? null,
+      sourceApp: body.sourceApp ?? null,
+    }).returning();
+    res.status(201).json({ profile: mapSavedProfile(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[profiles] create error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+accountRouter.put("/profiles/:id", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: "无效 ID" });
+    return;
+  }
+  try {
+    const body = profileBodySchema.parse(req.body);
+    const [existing] = await db
+      .select()
+      .from(savedProfiles)
+      .where(and(eq(savedProfiles.id, id), eq(savedProfiles.userId, user.id)))
+      .limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "资料不存在" });
+      return;
+    }
+    const [row] = await db
+      .update(savedProfiles)
+      .set({
+        label: body.label ?? null,
+        name: body.name,
+        gender: body.gender ?? null,
+        birthYear: body.birthYear ?? null,
+        birthMonth: body.birthMonth ?? null,
+        birthDay: body.birthDay ?? null,
+        birthHour: body.birthHour ?? null,
+        birthMinute: body.birthMinute ?? null,
+        birthPlaceProvince: body.birthPlaceProvince ?? null,
+        birthPlaceCity: body.birthPlaceCity ?? null,
+        birthPlaceLongitude: body.birthPlaceLongitude ?? null,
+        sourceApp: body.sourceApp ?? existing.sourceApp,
+        updatedAt: new Date(),
+      })
+      .where(eq(savedProfiles.id, id))
+      .returning();
+    res.json({ profile: mapSavedProfile(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[profiles] update error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+accountRouter.delete("/profiles/:id", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: "无效 ID" });
+    return;
+  }
+  await db.delete(savedProfiles).where(and(eq(savedProfiles.id, id), eq(savedProfiles.userId, user.id)));
+  res.json({ success: true });
+});
+
+accountRouter.delete("/profiles", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  await db.delete(savedProfiles).where(eq(savedProfiles.userId, user.id));
+  res.json({ success: true });
+});
+
 const readingSchema = z.object({
   userId: z.number().int().positive(),
   appSource: z.enum(["bazi", "ziwei", "tarot"]),
@@ -106,6 +253,7 @@ const orderSchema = z.object({
   currency: z.string().max(8).optional(),
   status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]).optional(),
   appSource: z.enum(["bazi", "ziwei", "tarot", "shop"]).optional(),
+  shippingAddress: z.string().max(2000).optional(),
 });
 
 const orderUpdateSchema = z.object({
@@ -170,6 +318,7 @@ internalRouter.post("/orders", async (req, res) => {
       currency: body.currency ?? "CNY",
       status: body.status ?? "pending",
       appSource: body.appSource,
+      shippingAddress: body.shippingAddress,
     }).returning();
     res.status(201).json({ success: true, id: row.id });
   } catch (err) {

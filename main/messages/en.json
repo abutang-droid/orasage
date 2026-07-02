@@ -109,9 +109,64 @@
   },
   "profile": {
     "title": "My Account",
-    "desc": "Profile, orders, and account settings will be managed here.",
-    "phase2": "The full user center arrives in the next phase (profiles, orders, about us, and more).",
-    "login": "Sign in",
-    "backHome": "Back to home"
+    "desc": "Manage your profile, saved charts, and orders in one place.",
+    "loading": "Checking sign-in…",
+    "accountTitle": "Account",
+    "displayName": "Display name",
+    "displayId": "User ID",
+    "email": "Email",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Setting a nickname hides your user ID",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveError": "Save failed, please try again",
+    "logout": "Sign out",
+    "profilesTitle": "Saved charts",
+    "profilesDesc": "Birth data saved from BaZi, Zi Wei, and other apps",
+    "ordersTitle": "Orders",
+    "ordersDesc": "Shop and in-app purchase history",
+    "nav": {
+      "overview": "Overview",
+      "profiles": "Charts",
+      "orders": "Orders",
+      "about": "About",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "profiles": {
+      "title": "Saved charts",
+      "desc": "Charts saved in apps sync here. Use labels like A, B, C to tell them apart.",
+      "loading": "Loading…",
+      "loadError": "Failed to load",
+      "empty": "No saved charts yet",
+      "add": "Add",
+      "cancel": "Cancel",
+      "name": "Name",
+      "label": "Label",
+      "labelPlaceholder": "e.g. A, B (optional)",
+      "save": "Save",
+      "saving": "Saving…",
+      "saveError": "Save failed",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this chart?",
+      "deleteError": "Delete failed"
+    },
+    "orders": {
+      "title": "Orders",
+      "desc": "Orders from the shop and connected apps",
+      "loading": "Loading…",
+      "loadError": "Failed to load",
+      "empty": "No orders yet",
+      "shipping": "Shipping"
+    },
+    "legal": {
+      "about": "About us",
+      "contact": "Contact",
+      "privacy": "Privacy policy",
+      "terms": "Terms of service",
+      "noBody": "No content"
+    }
   }
 }

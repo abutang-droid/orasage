@@ -6,6 +6,7 @@ import { users } from "../db/schema.ts";
 import { eq } from "drizzle-orm";
 import { extractToken, signToken, verifyToken, getCookieOptions } from "../lib/jwt.ts";
 import { getAuthUser, publicUser } from "../lib/auth-user.ts";
+import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
 
 export const authRouter = Router();
@@ -46,9 +47,11 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
+    const displayId = await generateUniqueDisplayId();
     const [user] = await db.insert(users).values({
       email: body.email,
       passwordHash,
+      displayId,
       nickname: body.nickname || body.email.split("@")[0],
     }).returning();
 
@@ -59,12 +62,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
 
     res.status(201).json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        nickname: user.nickname,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -103,12 +101,7 @@ authRouter.post("/login", async (req: Request, res: Response) => {
 
     res.json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        nickname: user.nickname,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -122,10 +115,15 @@ authRouter.post("/login", async (req: Request, res: Response) => {
 
 // ── GET /auth/me ──
 authRouter.get("/me", async (req: Request, res: Response) => {
-  const user = await getAuthUser(req);
+  let user = await getAuthUser(req);
   if (!user) {
     res.status(401).json({ error: "未登录" });
     return;
+  }
+  if (!user.displayId) {
+    const displayId = await generateUniqueDisplayId();
+    await db.update(users).set({ displayId, updatedAt: new Date() }).where(eq(users.id, user.id));
+    user = (await getAuthUser(req))!;
   }
   res.json({ user: publicUser(user) });
 });
