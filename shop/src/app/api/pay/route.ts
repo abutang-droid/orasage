@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo, updateOrderStatus } from '@/lib/orders';
+import { dispatchBaziReportJob } from '@/lib/reportJob';
 
 /** 演示支付 — 无 Stripe 密钥时完成订单（需登录，且订单必须属于当前用户） */
 export async function POST(req: NextRequest) {
@@ -27,6 +28,11 @@ export async function POST(req: NextRequest) {
     }
 
     await updateOrderStatus(orderNo, 'paid');
+    try {
+      await dispatchBaziReportJob(order);
+    } catch (err) {
+      console.error('[pay] report-job error:', err);
+    }
     return NextResponse.json({ success: true, orderNo, status: 'paid' });
   } catch (err) {
     console.error('[pay]', err);

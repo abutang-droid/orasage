@@ -16,6 +16,50 @@ import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeI
 import { renderMarkdown } from "./reportHtml";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
 
+const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
+const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
+
+/** 推送报告 URL 到 auth 用户中心 readings */
+async function pushReportToAuth(params: {
+  userId: number;
+  readingId: string;
+  reportUrl: string;
+  title: string;
+  summary?: string;
+}) {
+  const res = await fetch(`${AUTH_INTERNAL}/internal/readings/${encodeURIComponent(params.readingId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      reportUrl: params.reportUrl,
+      title: params.title,
+      summary: params.summary,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`auth reading update failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+}
+
+async function verifyShopOrder(orderNo: string, userId?: number) {
+  try {
+    const res = await fetch(`${AUTH_INTERNAL}/internal/orders/${encodeURIComponent(orderNo)}`);
+    if (!res.ok) return { verified: false, error: "Order not found" };
+    const data = await res.json();
+    const order = data.order as { userId: number; status: string; sku?: string | null };
+    if (userId && order.userId !== userId) {
+      return { verified: false, error: "Order user mismatch" };
+    }
+    if (!["paid", "completed"].includes(order.status)) {
+      return { verified: false, error: "Order not paid", status: order.status };
+    }
+    return { verified: true, orderNo, status: order.status, sku: order.sku };
+  } catch (e: unknown) {
+    return { verified: false, error: e instanceof Error ? e.message : "verify failed" };
+  }
+}
+
 /** 推送报告 URL 到 WordPress 用户中心（独立函数，buyPlan 和补推复用） */
 async function pushReportToWordPress(wpUrl: string, params: {
   email: string; name: string; planType: string; price: string;
@@ -93,9 +137,14 @@ export const verifyWooOrderProc = publicProcedure
   }))
   .query(async ({ input }) => verifyWooOrder(input.orderId, input.planType));
 
+export const verifyShopOrderProc = publicProcedure
+  .input(z.object({ orderNo: z.string().min(1), userId: z.number().optional() }))
+  .query(async ({ input }) => verifyShopOrder(input.orderNo, input.userId));
+
 export const appRouter = router({
   system: systemRouter,
   verifyWooOrder: verifyWooOrderProc,
+  verifyShopOrder: verifyShopOrderProc,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -292,6 +341,8 @@ export const appRouter = router({
         email: z.string().optional().default(''),
         name: z.string().optional().default(''),
         wooOrderId: z.union([z.string(), z.number()]).optional(),
+        shopOrderNo: z.string().optional(),
+        readingId: z.string().optional(),
         inputSummary: z.any().optional(),
         reportContent: z.string().optional().default(''),
       }).passthrough())
@@ -311,7 +362,13 @@ export const appRouter = router({
         //    提供了 wooOrderId 时必须服务端复核；未提供时维持原有行为不变
         //    （该路径可能被其他未在本次审查范围内的调用方依赖，不做改动）。
         let verifiedStatus: "pending" | "completed" | "failed" = "completed";
-        if (input.wooOrderId) {
+        if (input.shopOrderNo) {
+          const verification = await verifyShopOrder(input.shopOrderNo, ctx.user?.id);
+          if (!verification.verified) {
+            console.warn('[buyPlan] shopOrderNo 校验未通过:', input.shopOrderNo, verification.error);
+            verifiedStatus = "pending";
+          }
+        } else if (input.wooOrderId) {
           const verification = await verifyWooOrder(input.wooOrderId, input.planType);
           if (!verification.verified) {
             console.warn('[buyPlan] wooOrderId 校验未通过，购买记录降级为 pending:', input.wooOrderId, verification.error);
@@ -400,7 +457,7 @@ body{font-family:"Noto Serif SC",serif;background:#F7F4FA;color:#3D3852;line-hei
 
             const filePath = path.join(reportsDir, fileName);
             fs.writeFileSync(filePath, staticHtml, 'utf-8');
-            reportUrl = `https://api1.lilyfunnlove.com/reports/${fileName}`;
+            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
             console.log('[StaticReport] Saved to:', filePath, 'size:', fs.statSync(filePath).size, 'URL:', reportUrl);
 
             // 更新 purchase 记录：设置 reportUrl，标记 push 状态初始为 pending
@@ -487,6 +544,23 @@ body{font-family:"Noto Serif SC",serif;background:#F7F4FA;color:#3D3852;line-hei
             }
           } else {
             console.warn('[WordPress] No email — report saved but not pushed. wooOrderId:', input.wooOrderId);
+          }
+
+          if (input.readingId && ctx.user?.id) {
+            try {
+              const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
+              const planLabel = planLabelMap[input.planType] || input.planType;
+              await pushReportToAuth({
+                userId: ctx.user.id,
+                readingId: input.readingId,
+                reportUrl,
+                title: `${planLabel} · ${buyerName || '报告'}`,
+                summary: (input.reportContent || '').slice(0, 500),
+              });
+              console.log('[Auth] Report pushed for reading:', input.readingId);
+            } catch (e) {
+              console.error('[Auth] pushReportToAuth failed:', e);
+            }
           }
         }
 

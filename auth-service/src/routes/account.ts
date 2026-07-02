@@ -38,6 +38,7 @@ const readingSyncSchema = z.object({
   summary: z.string().max(2000).optional(),
   recommendationReason: z.string().max(500).optional(),
   crystalSku: z.string().max(100).optional(),
+  payloadJson: z.string().max(50000).optional(),
 });
 
 accountRouter.post("/readings/sync", async (req, res) => {
@@ -51,6 +52,11 @@ accountRouter.post("/readings/sync", async (req, res) => {
       .where(eq(userReadings.readingId, body.readingId))
       .limit(1);
     if (existing.length > 0) {
+      if (body.payloadJson && !existing[0].payloadJson) {
+        await db.update(userReadings)
+          .set({ payloadJson: body.payloadJson })
+          .where(eq(userReadings.id, existing[0].id));
+      }
       res.json({ success: true, id: existing[0].id, duplicate: true });
       return;
     }
@@ -64,6 +70,7 @@ accountRouter.post("/readings/sync", async (req, res) => {
         summary: body.summary,
         recommendationReason: body.recommendationReason,
         crystalSku: body.crystalSku,
+        payloadJson: body.payloadJson,
       })
       .returning();
     if (body.recommendationReason && body.crystalSku) {
@@ -100,6 +107,7 @@ accountRouter.get("/readings", async (req, res) => {
       summary: r.summary,
       recommendationReason: r.recommendationReason,
       crystalSku: r.crystalSku,
+      reportUrl: r.reportUrl,
       createdAt: r.createdAt,
     })),
   });
@@ -391,6 +399,12 @@ const readingSchema = z.object({
   crystalSku: z.string().max(100).optional(),
 });
 
+const readingUpdateSchema = z.object({
+  reportUrl: z.string().url().max(512).optional(),
+  title: z.string().max(200).optional(),
+  summary: z.string().max(2000).optional(),
+});
+
 const orderSchema = z.object({
   userId: z.number().int().positive(),
   orderNo: z.string().min(1).max(64),
@@ -444,6 +458,56 @@ internalRouter.post("/readings", async (req, res) => {
       return;
     }
     console.error("[internal] reading error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+internalRouter.get("/readings/:readingId", async (req, res) => {
+  const readingId = String(req.params.readingId);
+  const [row] = await db.select().from(userReadings).where(eq(userReadings.readingId, readingId)).limit(1);
+  if (!row) {
+    res.status(404).json({ error: "占卜记录不存在" });
+    return;
+  }
+  res.json({
+    reading: {
+      id: row.id,
+      userId: row.userId,
+      appSource: row.appSource,
+      readingId: row.readingId,
+      title: row.title,
+      summary: row.summary,
+      reportUrl: row.reportUrl,
+      payloadJson: row.payloadJson,
+    },
+  });
+});
+
+internalRouter.patch("/readings/:readingId", async (req, res) => {
+  try {
+    const readingId = String(req.params.readingId);
+    const body = readingUpdateSchema.parse(req.body);
+    const [existing] = await db.select().from(userReadings).where(eq(userReadings.readingId, readingId)).limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "占卜记录不存在" });
+      return;
+    }
+    const updates: Record<string, unknown> = {};
+    if (body.reportUrl !== undefined) updates.reportUrl = body.reportUrl;
+    if (body.title !== undefined) updates.title = body.title;
+    if (body.summary !== undefined) updates.summary = body.summary;
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "没有需要更新的字段" });
+      return;
+    }
+    await db.update(userReadings).set(updates).where(eq(userReadings.readingId, readingId));
+    res.json({ success: true, readingId });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[internal] reading update error:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

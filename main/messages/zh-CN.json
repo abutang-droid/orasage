@@ -173,7 +173,8 @@
       "desc": "八字排盘、紫微斗数、塔罗占卜等应用的解读记录将同步显示在此",
       "loading": "加载中…",
       "loadError": "加载失败",
-      "empty": "暂无占卜记录"
+      "empty": "暂无占卜记录",
+      "viewReport": "查看报告"
     },
     "recommendations": {
       "title": "能量推荐",

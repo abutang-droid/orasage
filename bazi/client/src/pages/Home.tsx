@@ -20,6 +20,7 @@ import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
+import { saveLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -668,7 +669,8 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0);
           const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
-          void syncBaziSingleReading(resolvedF0.name, data, braceletRec);
+          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec);
+          saveLastReadingId(readingId);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -682,7 +684,8 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0, "A");
           void syncPersonProfile(resolvedF1!, "B");
-          void syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data);
+          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data);
+          saveLastReadingId(readingId);
         }
         setView("result");
         window.scrollTo({ top: 0, behavior: "smooth" });

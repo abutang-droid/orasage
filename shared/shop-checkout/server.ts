@@ -15,6 +15,7 @@ export type AppCheckoutInput = {
   appSource: AppCheckoutSource;
   recommendationContext?: string;
   readingId?: string;
+  planType?: string;
   successUrl?: string;
   cancelUrl?: string;
 };
@@ -57,6 +58,7 @@ export async function proxyShopCheckout(input: AppCheckoutInput): Promise<Checko
       appSource: input.appSource,
       recommendationContext: input.recommendationContext,
       readingId: input.readingId,
+      planType: input.planType,
       successUrl: input.successUrl,
       cancelUrl: input.cancelUrl,
     }),

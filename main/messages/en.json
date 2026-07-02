@@ -173,7 +173,8 @@
       "desc": "BaZi, Zi Wei, Tarot and other readings sync here",
       "loading": "Loading…",
       "loadError": "Failed to load",
-      "empty": "No readings yet"
+      "empty": "No readings yet",
+      "viewReport": "View report"
     },
     "recommendations": {
       "title": "Crystal picks",

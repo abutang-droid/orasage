@@ -1884,8 +1884,9 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
 function CrystalShopCard({ braceletRec }: { braceletRec: BraceletRecommendation | null }) {
   const { t } = useT();
   const [loading, setLoading] = useState(false);
-  const sku = braceletToCrystalSku(braceletRec);
-  if (!braceletRec || !sku) return null;
+  const crystalSku = braceletToCrystalSku(braceletRec);
+  if (!braceletRec || !crystalSku) return null;
+  const sku = crystalSku;
 
   async function handleBuy() {
     setLoading(true);

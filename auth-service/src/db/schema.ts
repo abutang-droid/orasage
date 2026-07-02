@@ -48,6 +48,8 @@ export const userReadings = pgTable("user_readings", {
   summary: text("summary"),
   recommendationReason: text("recommendation_reason"),
   crystalSku: varchar("crystal_sku", { length: 100 }),
+  reportUrl: varchar("report_url", { length: 512 }),
+  payloadJson: text("payload_json"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

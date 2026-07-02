@@ -18,6 +18,7 @@ const checkoutSchema = z.object({
   cancelUrl: z.string().url().optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
+  planType: z.string().max(32).optional(),
 });
 
 /** 内网结账 API — 供八字/紫微/塔罗等 App 调用 */
@@ -57,7 +58,9 @@ export async function POST(req: NextRequest) {
       readingId: body.readingId,
     });
 
-    const successUrl = body.successUrl ?? `${ENV.shopUrl}/success?order=${orderNo}`;
+    const successUrl = body.successUrl
+      ? `${body.successUrl}${body.successUrl.includes('?') ? '&' : '?'}order=${encodeURIComponent(orderNo)}`
+      : `${ENV.shopUrl}/success?order=${orderNo}`;
     const cancelUrl = body.cancelUrl ?? `${ENV.shopUrl}/?cancelled=1`;
     const stripeMeta: Record<string, string> = {
       orderNo,
@@ -66,6 +69,7 @@ export async function POST(req: NextRequest) {
     };
     if (body.appSource) stripeMeta.appSource = body.appSource;
     if (body.readingId) stripeMeta.readingId = body.readingId;
+    if (body.planType) stripeMeta.planType = body.planType;
     if (body.recommendationContext) {
       stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
     }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { updateOrderStatus } from '@/lib/orders';
+import { dispatchBaziReportJob } from '@/lib/reportJob';
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
@@ -29,6 +30,12 @@ export async function POST(req: NextRequest) {
     if (orderNo) {
       try {
         await updateOrderStatus(orderNo, 'paid');
+        await dispatchBaziReportJob({
+          orderNo,
+          userId: Number(session.metadata?.userId),
+          sku: session.metadata?.sku,
+          readingId: session.metadata?.readingId,
+        });
       } catch (err) {
         console.error('[webhook] order sync error:', err);
         return NextResponse.json({ error: 'order sync failed' }, { status: 500 });

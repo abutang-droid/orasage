@@ -3,6 +3,7 @@ export type AppCheckoutRequest = {
   quantity?: number;
   recommendationContext?: string;
   readingId?: string;
+  planType?: string;
   successUrl?: string;
   cancelUrl?: string;
 };

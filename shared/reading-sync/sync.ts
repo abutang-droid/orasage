@@ -7,6 +7,7 @@ export type ReadingSyncPayload = {
   summary?: string;
   recommendationReason?: string;
   crystalSku?: string;
+  payloadJson?: string;
 };
 
 const AUTH_URL =

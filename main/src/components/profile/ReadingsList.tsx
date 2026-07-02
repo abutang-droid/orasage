@@ -62,6 +62,16 @@ export function ReadingsList() {
           {r.recommendationReason && (
             <p className="mt-2 text-xs text-sage-gold/80">{r.recommendationReason}</p>
           )}
+          {r.reportUrl && (
+            <a
+              href={r.reportUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex rounded-full border border-sage-gold/40 px-4 py-1.5 text-xs text-sage-gold transition hover:bg-sage-gold/10"
+            >
+              {t('viewReport')}
+            </a>
+          )}
         </li>
       ))}
     </ul>

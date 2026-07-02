@@ -100,9 +100,9 @@ async function upsertReading(pgClient, userId, report) {
   if (DRY_RUN) return 'inserted';
 
   await pgClient.query(
-    `INSERT INTO user_readings (user_id, app_source, reading_id, title, summary, recommendation_reason, crystal_sku)
-     VALUES ($1, 'bazi', $2, $3, $4, $5, NULL)`,
-    [userId, readingId, title, summary, reason],
+    `INSERT INTO user_readings (user_id, app_source, reading_id, title, summary, recommendation_reason, crystal_sku, report_url)
+     VALUES ($1, 'bazi', $2, $3, $4, $5, NULL, $6)`,
+    [userId, readingId, title, summary, reason, reportUrl || null],
   );
 
   return 'inserted';
