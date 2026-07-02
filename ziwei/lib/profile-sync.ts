@@ -1,4 +1,6 @@
 import type { BirthFormState } from '@/components/BirthForm';
+import type { SavedProfile } from '../../shared/profile-sync/fetch';
+import { fetchSavedProfiles, profileDisplayLabel } from '../../shared/profile-sync/fetch';
 
 export type ProfileSyncSource = 'bazi' | 'ziwei' | 'tarot';
 
@@ -57,4 +59,23 @@ export function birthFormToProfileSync(
 
 export function syncBirthFormProfile(form: BirthFormState, options?: { label?: string | null }) {
   return syncSavedProfile(birthFormToProfileSync(form, options));
+}
+
+export { fetchSavedProfiles, profileDisplayLabel };
+export type { SavedProfile };
+
+export function savedProfileToBirthForm(p: SavedProfile): Partial<BirthFormState> {
+  return {
+    name: p.name,
+    gender: (p.gender === 'female' ? 'female' : 'male') as 'male' | 'female',
+    year: p.birthYear ?? '',
+    month: p.birthMonth ?? '',
+    day: p.birthDay ?? '',
+    clockHour: p.birthHour ?? '8',
+    clockMinute: p.birthMinute ?? '0',
+    unknownTime: !p.birthHour,
+    province: p.birthPlaceProvince ?? '',
+    city: p.birthPlaceCity ?? '',
+    longitude: p.birthPlaceLongitude ? parseFloat(p.birthPlaceLongitude) : 120,
+  };
 }

@@ -124,11 +124,18 @@
     "logout": "Sign out",
     "profilesTitle": "Saved charts",
     "profilesDesc": "Birth data saved from BaZi, Zi Wei, and other apps",
+    "readingsTitle": "Readings",
+    "readingsDesc": "BaZi, Zi Wei, Tarot and other reading history",
+    "recommendationsTitle": "Crystal picks",
+    "recommendationsDesc": "Crystal recommendations based on your readings",
     "ordersTitle": "Orders",
     "ordersDesc": "Shop and in-app purchase history",
+    "viewAll": "View all",
     "nav": {
       "overview": "Overview",
       "profiles": "Charts",
+      "readings": "Readings",
+      "recommendations": "Crystals",
       "orders": "Orders",
       "about": "About",
       "contact": "Contact",
@@ -160,6 +167,21 @@
       "loadError": "Failed to load",
       "empty": "No orders yet",
       "shipping": "Shipping"
+    },
+    "readings": {
+      "title": "Readings",
+      "desc": "BaZi, Zi Wei, Tarot and other readings sync here",
+      "loading": "Loading…",
+      "loadError": "Failed to load",
+      "empty": "No readings yet"
+    },
+    "recommendations": {
+      "title": "Crystal picks",
+      "desc": "Crystal recommendations based on your readings",
+      "loading": "Loading…",
+      "loadError": "Failed to load",
+      "empty": "No recommendations yet",
+      "viewShop": "View in shop"
     },
     "legal": {
       "about": "About us",

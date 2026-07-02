@@ -124,11 +124,18 @@
     "logout": "退出登录",
     "profilesTitle": "测试对象",
     "profilesDesc": "八字、紫微等应用保存的命盘资料",
+    "readingsTitle": "占卜记录",
+    "readingsDesc": "八字、紫微、塔罗等应用的解读记录",
+    "recommendationsTitle": "能量推荐",
+    "recommendationsDesc": "根据占卜结果推荐的水晶能量",
     "ordersTitle": "我的订单",
     "ordersDesc": "商城与各应用订单记录",
+    "viewAll": "查看全部",
     "nav": {
       "overview": "概览",
       "profiles": "测试对象",
+      "readings": "占卜记录",
+      "recommendations": "能量推荐",
       "orders": "订单",
       "about": "关于我们",
       "contact": "联系我们",
@@ -160,6 +167,21 @@
       "loadError": "加载失败",
       "empty": "暂无订单",
       "shipping": "收货地址"
+    },
+    "readings": {
+      "title": "占卜记录",
+      "desc": "八字排盘、紫微斗数、塔罗占卜等应用的解读记录将同步显示在此",
+      "loading": "加载中…",
+      "loadError": "加载失败",
+      "empty": "暂无占卜记录"
+    },
+    "recommendations": {
+      "title": "能量推荐",
+      "desc": "根据占卜结果为你推荐的水晶能量",
+      "loading": "加载中…",
+      "loadError": "加载失败",
+      "empty": "暂无推荐",
+      "viewShop": "去商城看看"
     },
     "legal": {
       "about": "关于我们",

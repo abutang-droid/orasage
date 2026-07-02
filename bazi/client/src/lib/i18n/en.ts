@@ -27,6 +27,8 @@ const ui: TranslationDict = {
   "form.hint.time": "If exact time is unknown, 00:00 will be used",
   "form.submit.single": "Start Reading",
   "form.submit.couple": "Start Synastry",
+  "form.saved_profile": "Import from account",
+  "form.saved_profile.placeholder": "Choose a saved profile…",
   "form.error.gender": "Please select gender",
   "form.error.year": "Enter valid year (1900-2100)",
   "form.error.month": "Enter valid month (01-12)",

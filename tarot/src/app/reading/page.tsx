@@ -1,10 +1,11 @@
 "use client"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import CardFrame from "@/components/CardFrame"
 import { getCardById } from "@/lib/tarot/cards"
 import { useUser } from "@/lib/user"
 import { syncSavedProfile } from "@/lib/profile-sync"
+import { syncTarotReading } from "@/lib/reading-sync"
 
 const CACHE_KEY = "manto:profile"
 function loadCachedProfile(): Record<string, string> | null {
@@ -159,6 +160,8 @@ export default function ReadingPage() {
   const [profileStep, setProfileStep] = useState(0)
   const { user, saveProfile } = useUser()
   const [profile, setProfile] = useState({ name: "", birthdate: "", gender: "", occupation: "" })
+  const cardsRef = useRef<CardData[]>([])
+  const synthesisRef = useRef("")
 
   // Determine if user has a saved profile (check both server + localStorage)
   const alreadySaved = user
@@ -246,6 +249,7 @@ export default function ReadingPage() {
   // ── Synthesis ───────────────────────────────────────────────────
   const doSynthesis = useCallback((currentCards: CardData[]) => {
     setStep("synthesis")
+    cardsRef.current = currentCards
     const reversedCount = currentCards.filter(c => c.orientation === "逆位").length
     const elements = currentCards.map(c => c.element)
     const fireCount = elements.filter(e => e === "火").length
@@ -271,6 +275,7 @@ export default function ReadingPage() {
     const c2 = currentCards[2] || { cardName: "?", orientation: "正位" as const }
 
     setSynthesisText(`${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`)
+    synthesisRef.current = `${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`
     setSuggestions([
       c0.orientation === "正位" ? "把过去的经验当成指南，而非包袱。" : "有些旧事不需要现在解决——允许自己放一放。",
       "接下来的三天里，做一件你一直拖着的小事。不为什么，就是为了证明给自己看。",
@@ -301,6 +306,11 @@ export default function ReadingPage() {
         : wuxing === "土" ? "我站得很稳。没有什么能动摇我。"
         : wuxing === "金" ? "清晰即力量。我知道自己在做什么。"
         : "我的平静比任何风暴都更有力量。",
+    })
+    void syncTarotReading(cardsRef.current, {
+      synthesisText: synthesisRef.current,
+      wuxing,
+      crystalName: crystal.name,
     })
     setStep("blessing")
   }, [quizAnswers])

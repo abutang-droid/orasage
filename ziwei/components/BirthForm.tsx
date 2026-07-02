@@ -6,6 +6,7 @@ import { SHICHEN } from '@/lib/ziwei/constants';
 import { useTheme } from '@/components/ThemeProvider';
 import { PROVINCES } from '@/lib/ziwei/cities';
 import { useT } from '@/lib/i18n';
+import { fetchSavedProfiles, profileDisplayLabel, savedProfileToBirthForm, type SavedProfile } from '@/lib/profile-sync';
 
 export interface BirthFormState {
   name: string;
@@ -66,6 +67,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
+
+  useEffect(() => {
+    void fetchSavedProfiles().then(setSavedProfiles);
+  }, []);
 
   useEffect(() => {
     onFormSave?.({ ...form });
@@ -218,6 +224,29 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           />
         ))}
       </div>
+
+      {savedProfiles.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>
+            {t('form.savedProfile')}
+          </label>
+          <select
+            defaultValue=""
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              const picked = savedProfiles.find((p) => p.id === id);
+              if (picked) setForm((prev) => ({ ...prev, ...savedProfileToBirthForm(picked) }));
+              e.target.value = '';
+            }}
+            style={inputStyle}
+          >
+            <option value="">{t('form.savedProfile.placeholder')}</option>
+            {savedProfiles.map((p) => (
+              <option key={p.id} value={p.id}>{profileDisplayLabel(p)}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.name')}</label>

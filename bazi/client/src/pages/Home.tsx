@@ -17,7 +17,8 @@ import { DatePicker } from "@/components/WheelPicker";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { syncSavedProfile } from "@/lib/profile-sync";
+import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
+import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -513,12 +514,35 @@ function PersonFormPanel({ form, onChange }: {
   );
 }
 
+function savedProfileToPersonForm(p: SavedProfile): Partial<PersonForm> {
+  return {
+    name: p.name,
+    gender: (p.gender === 'female' ? 'female' : 'male') as 'male' | 'female',
+    year: p.birthYear ?? '1990',
+    month: p.birthMonth ?? '01',
+    day: p.birthDay ?? '01',
+    hour: p.birthHour ?? '08',
+    minute: p.birthMinute ?? '00',
+    birthplace: {
+      city: p.birthPlaceCity ?? '北京',
+      country: '中国',
+      lng: p.birthPlaceLongitude ? parseFloat(p.birthPlaceLongitude) : 116.4074,
+      timezone: '+8',
+    },
+  };
+}
+
 // ─── 主组件 ─────────────────
 export default function Home() {
   const { t } = useT();
   const [mode, setMode] = useState<"single" | "couple">("single");
   const [activePerson, setActivePerson] = useState<0 | 1>(0);
   const [forms, setForms] = useState<[PersonForm, PersonForm]>([emptyForm(), emptyForm()]);
+  const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
+
+  useEffect(() => {
+    void fetchSavedProfiles().then(setSavedProfiles);
+  }, []);
 
   // 切换模式时重置第二人
   const handleModeSwitch = (m: "single" | "couple") => {
@@ -642,6 +666,7 @@ export default function Home() {
             });
           }
           void syncPersonProfile(resolvedF0);
+          void syncBaziSingleReading(resolvedF0.name, data);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -655,6 +680,7 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0, "A");
           void syncPersonProfile(resolvedF1!, "B");
+          void syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data);
         }
         setView("result");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -777,6 +803,32 @@ export default function Home() {
                       {label}
                     </button>
                   ))}
+                </div>
+              )}
+
+              {savedProfiles.length > 0 && (
+                <div className="mx-5 mb-3">
+                  <label className="block text-[11px] mb-1.5" style={{ color: MUTED_CLR, fontFamily: SANS }}>
+                    {t('form.saved_profile')}
+                  </label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      const picked = savedProfiles.find((p) => p.id === id);
+                      if (picked) {
+                        updateForm(mode === 'single' ? 0 : activePerson, savedProfileToPersonForm(picked));
+                      }
+                      e.target.value = '';
+                    }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                    style={{ background: 'rgba(196,160,78,0.06)', border: `1px solid ${BORDER_CLR}`, color: BODY_CLR, fontFamily: SANS }}
+                  >
+                    <option value="">{t('form.saved_profile.placeholder')}</option>
+                    {savedProfiles.map((p) => (
+                      <option key={p.id} value={p.id}>{profileDisplayLabel(p)}</option>
+                    ))}
+                  </select>
                 </div>
               )}
 

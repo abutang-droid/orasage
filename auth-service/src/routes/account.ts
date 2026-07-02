@@ -31,6 +31,61 @@ async function requireUser(req: Request, res: Response) {
   return user;
 }
 
+const readingSyncSchema = z.object({
+  appSource: z.enum(["bazi", "ziwei", "tarot"]),
+  readingId: z.string().min(1).max(100),
+  title: z.string().min(1).max(200),
+  summary: z.string().max(2000).optional(),
+  recommendationReason: z.string().max(500).optional(),
+  crystalSku: z.string().max(100).optional(),
+});
+
+accountRouter.post("/readings/sync", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    const body = readingSyncSchema.parse(req.body);
+    const existing = await db
+      .select()
+      .from(userReadings)
+      .where(eq(userReadings.readingId, body.readingId))
+      .limit(1);
+    if (existing.length > 0) {
+      res.json({ success: true, id: existing[0].id, duplicate: true });
+      return;
+    }
+    const [row] = await db
+      .insert(userReadings)
+      .values({
+        userId: user.id,
+        appSource: body.appSource,
+        readingId: body.readingId,
+        title: body.title,
+        summary: body.summary,
+        recommendationReason: body.recommendationReason,
+        crystalSku: body.crystalSku,
+      })
+      .returning();
+    if (body.recommendationReason && body.crystalSku) {
+      await db.insert(userRecommendations).values({
+        userId: user.id,
+        appSource: body.appSource,
+        crystalSku: body.crystalSku,
+        reason: body.recommendationReason,
+        readingId: body.readingId,
+      });
+    }
+    res.status(201).json({ success: true, id: row.id });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[readings] sync error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
 accountRouter.get("/readings", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;

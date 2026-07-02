@@ -4,6 +4,8 @@ const en: Record<string, string> = {
   'form.title': '── Birth Information ──',
   'form.name': 'Name (optional)',
   'form.name.placeholder': 'Enter your name',
+  'form.savedProfile': 'Import from account',
+  'form.savedProfile.placeholder': 'Choose a saved profile…',
   'form.birth.date': 'Birth Date (Gregorian)',
   'form.year': 'Year',
   'form.month': 'Month',

@@ -53,6 +53,28 @@ export type UserOrder = {
   createdAt: string;
 };
 
+export type UserReading = {
+  id: number;
+  appSource: string;
+  appLabel: string;
+  readingId: string;
+  title: string;
+  summary: string | null;
+  recommendationReason: string | null;
+  crystalSku: string | null;
+  createdAt: string;
+};
+
+export type UserRecommendation = {
+  id: number;
+  appSource: string;
+  appLabel: string;
+  crystalSku: string;
+  reason: string;
+  readingId: string | null;
+  createdAt: string;
+};
+
 export type ProfileSyncPayload = {
   name: string;
   gender?: 'male' | 'female' | null;
@@ -162,6 +184,20 @@ export async function fetchOrders(): Promise<UserOrder[]> {
   if (!res.ok) throw new Error(`orders fetch failed: ${res.status}`);
   const data = await res.json();
   return data.orders as UserOrder[];
+}
+
+export async function fetchReadings(): Promise<UserReading[]> {
+  const res = await authFetch('/auth/me/readings');
+  if (!res.ok) throw new Error(`readings fetch failed: ${res.status}`);
+  const data = await res.json();
+  return data.readings as UserReading[];
+}
+
+export async function fetchRecommendations(): Promise<UserRecommendation[]> {
+  const res = await authFetch('/auth/me/recommendations');
+  if (!res.ok) throw new Error(`recommendations fetch failed: ${res.status}`);
+  const data = await res.json();
+  return data.recommendations as UserRecommendation[];
 }
 
 export function profileLoginUrl(locale: string, path = '/profile'): string {

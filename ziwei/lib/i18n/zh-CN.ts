@@ -4,6 +4,8 @@ const zhCN: Record<string, string> = {
   'form.title': '── 输入生辰八字 ──',
   'form.name': '姓名（可选）',
   'form.name.placeholder': '请输入姓名',
+  'form.savedProfile': '从用户中心导入',
+  'form.savedProfile.placeholder': '选择已保存的测试对象…',
   'form.birth.date': '出生日期（公历）',
   'form.year': '年份',
   'form.month': '月份',

@@ -6,6 +6,8 @@ import { Link, usePathname } from '@/i18n/navigation';
 const navItems = [
   { href: '/profile', key: 'overview' as const },
   { href: '/profile/profiles', key: 'profiles' as const },
+  { href: '/profile/readings', key: 'readings' as const },
+  { href: '/profile/recommendations', key: 'recommendations' as const },
   { href: '/profile/orders', key: 'orders' as const },
   { href: '/profile/about', key: 'about' as const },
   { href: '/profile/contact', key: 'contact' as const },

@@ -12,6 +12,7 @@ import { useHistory } from '@/lib/ziwei/history';
 type FocusState = any;
 import { generateChart } from "@/lib/ziwei/algorithm";
 import { syncBirthFormProfile } from '@/lib/profile-sync';
+import { syncZiweiReading } from '@/lib/reading-sync';
 
 // ─── 合盘输入面板 ─────────────────────────────────────────────────────────────
 function HemingPanel({
@@ -90,6 +91,7 @@ export default function ChartPage() {
       setChart(data); setChartB(null); setFocus(null); setView('mingpan');
       const syncForm = form ?? savedForm;
       if (syncForm) void syncBirthFormProfile(syncForm);
+      void syncZiweiReading(data);
     }
     catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
     finally { setLoading(false); }
@@ -102,6 +104,8 @@ export default function ChartPage() {
       setChart(dataA); setChartB(dataB); setFocus(null); setView('mingpan'); setHemingTab('A');
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
+      void syncZiweiReading(dataA, { label: '甲' });
+      void syncZiweiReading(dataB, { label: '乙' });
     }
     catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
     finally { setLoading(false); }
