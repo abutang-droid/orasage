@@ -162,17 +162,10 @@ export default function HemingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      {/* 顶栏 */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: isDark ? 'rgba(2,8,16,0.88)' : 'rgba(250,245,235,0.92)',
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid var(--bdr)',
-        display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px',
-      }}>
+    <div style={{ background: 'var(--bg-0)' }}>
+      <header className="ziwei-chart-toolbar">
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/chart')}
           style={{
             display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px',
             color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer',
@@ -188,7 +181,7 @@ export default function HemingPage() {
       </header>
 
       {/* 主体 */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px 80px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px 24px' }}>
 
         {/* 标题 */}
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>

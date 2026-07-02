@@ -110,7 +110,7 @@ export default function ChartPage() {
   // ═══ 表单视图 ═══
   if (!chart) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg-0)', padding: '40px 0 80px' }}>
+      <div style={{ background: 'var(--bg-0)', padding: '24px 0 16px' }}>
         <div style={{ maxWidth: '480px', margin: '0 auto 24px', padding: '0 20px' }}>
           <div style={{ display: 'flex', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-lg)', padding: '4px', gap: '4px' }}>
             {(['single', 'heming'] as const).map(m => (
@@ -158,8 +158,8 @@ export default function ChartPage() {
 
   // ═══ 命盘视图 ═══
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(247,244,250,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 16px', height: '52px', gap: '12px' }}>
+    <div style={{ background: 'var(--bg-0)' }}>
+      <div className="ziwei-chart-toolbar">
         <button onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', flexShrink: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--tx-1)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--tx-3)'; }}>
@@ -196,7 +196,7 @@ export default function ChartPage() {
             selectedSiHua={focus?.type === 'sihua' ? { starName: focus.label.split(' ')[0], siHua: focus.siHua, view } : null}
           />
         </div>
-        <div style={{ height: 'calc(100vh - 92px)', position: 'sticky', top: '72px' }}>
+        <div className="ziwei-chart-chat">
           <ChatPanel chart={activeChart ?? chart} mode={mode} chartData={mode === 'heming' && chart && chartB ? { chartA: chart, chartB } : (activeChart ?? chart)} />
         </div>
       </div>

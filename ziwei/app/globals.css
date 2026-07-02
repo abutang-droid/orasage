@@ -565,3 +565,65 @@ a:hover { color: var(--gold-light); }
   body { background: white; color: #2E295B; }
   @page { margin: 1.2cm; size: A4 landscape; }
 }
+
+/* ─── OraSage App Shell 内二级导航 ─── */
+.ziwei-chart-toolbar {
+  position: sticky;
+  top: var(--shell-top-h, 52px);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 52px;
+  gap: 12px;
+  background: rgba(247, 244, 250, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bdr);
+}
+
+.ziwei-chart-chat {
+  height: calc(100dvh - var(--shell-top-h, 52px) - var(--shell-bottom-h, 56px) - 68px);
+  position: sticky;
+  top: calc(var(--shell-top-h, 52px) + 52px);
+}
+
+@media (max-width: 900px) {
+  .chart-workspace-grid > div:last-child.ziwei-chart-chat,
+  .ziwei-chart-chat {
+    height: 480px !important;
+    position: static !important;
+  }
+}
+
+.ziwei-subnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(184, 146, 42, 0.15);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+.ziwei-subnav a {
+  color: var(--ac);
+  text-decoration: none;
+}
+
+.ziwei-subnav-muted {
+  color: var(--tx-3);
+}
+
+.ziwei-page-sticky-header {
+  position: sticky;
+  top: var(--shell-top-h, 52px);
+  z-index: 30;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--bdr);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}

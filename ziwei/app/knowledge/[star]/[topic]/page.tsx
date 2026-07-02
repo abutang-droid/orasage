@@ -98,21 +98,13 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
   };
 
   return (
-    <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg-page)' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* 顶栏 */}
-      <div className="px-6 py-4 flex items-center justify-between"
-        style={{ borderBottom: '1px solid rgba(184,146,42,0.15)', background: 'var(--bg-page)' }}>
-        <Link href="/" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.3em', textDecoration: 'none' }}>
-          ← 首页
-        </Link>
-        <div style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.2em' }}>
-          倪师方法论 · 知识库
-        </div>
-        <Link href="/chart" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em', textDecoration: 'none' }}>
-          起盘 →
-        </Link>
+      <div className="ziwei-subnav">
+        <Link href="/knowledge">← 知识库</Link>
+        <span className="ziwei-subnav-muted">倪师方法论</span>
+        <Link href="/chart">起盘 →</Link>
       </div>
 
       <article className="max-w-3xl mx-auto px-6 py-12">
