@@ -566,7 +566,7 @@ a:hover { color: var(--gold-light); }
 /* ─── OraSage App Shell 内二级导航 ─── */
 .ziwei-chart-toolbar {
   position: sticky;
-  top: var(--shell-top-h, 52px);
+  top: 0;
   z-index: 30;
   display: flex;
   align-items: center;
@@ -580,9 +580,9 @@ a:hover { color: var(--gold-light); }
 }
 
 .ziwei-chart-chat {
-  height: calc(100dvh - var(--shell-top-h, 52px) - var(--shell-bottom-h, 56px) - 68px);
+  height: calc(100dvh - var(--shell-bottom-h, 56px) - 68px);
   position: sticky;
-  top: calc(var(--shell-top-h, 52px) + 52px);
+  top: 52px;
 }
 
 @media (max-width: 900px) {
@@ -615,7 +615,7 @@ a:hover { color: var(--gold-light); }
 
 .ziwei-page-sticky-header {
   position: sticky;
-  top: var(--shell-top-h, 52px);
+  top: 0;
   z-index: 30;
   background: var(--bg-0);
   border-bottom: 1px solid var(--bdr);

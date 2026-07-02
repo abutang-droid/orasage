@@ -10,7 +10,7 @@ export default async function SuccessPage({
 
   return (
     <>
-      <ShopHeader />
+      <ShopHeader showBack />
       <main className="safe-bottom mx-auto flex min-h-[60dvh] max-w-lg flex-col items-center justify-center px-4 py-12 text-center">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl">
           ✓

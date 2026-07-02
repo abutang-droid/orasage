@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
 import { fetchCmsPageBySlug } from '@/lib/cms';
@@ -22,9 +21,6 @@ export default async function DaozangArticlePage({ params }: Props) {
 
   return (
     <PageShell>
-      <Link href="/daozang" className="text-sm text-sage-gold hover:text-sage-primary">
-        ← {t('back')}
-      </Link>
       <PageTitle>
         <ArticleTitle>{page.title}</ArticleTitle>
       </PageTitle>

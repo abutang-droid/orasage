@@ -3,6 +3,7 @@ import { useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useT } from "@/lib/i18n/context"
+import { AppBrandMark } from "@/lib/orasage-app-shell/AppBrandMark"
 
 // ─── Starfield Canvas ─────────────────────────────────────────────
 function Starfield() {
@@ -145,23 +146,6 @@ const TapIcon = () => (
     <path d="M9 11V6a2 2 0 0 1 4 0v5M13 11V8a2 2 0 0 1 4 0v3M17 11a2 2 0 0 1 4 0v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-4.5-2L4 16a2 2 0 0 1 3-2.6l2 1.6" />
   </svg>
 )
-const ShieldIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" fill="rgba(201,149,74,0.08)" />
-  </svg>
-)
-const LockIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="5" y="11" width="14" height="9" rx="2" fill="rgba(201,149,74,0.08)" />
-    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-  </svg>
-)
-const GiftIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="4" y="9" width="16" height="11" rx="1.5" fill="rgba(201,149,74,0.08)" />
-    <path d="M12 9v11M4 13h16M12 9C10 9 8 8 8 6.5S9.5 5 12 9zM12 9c2 0 4-1 4-2.5S14.5 5 12 9z" />
-  </svg>
-)
 
 // ─── Energy Ring ──────────────────────────────────────────────────
 function EnergyRing({ pct }: { pct: number }) {
@@ -258,6 +242,7 @@ export default function MantoHomePage() {
         maxWidth: 'var(--content-max)', margin: '0 auto',
         padding: '0 20px 8px',
       }}>
+        <AppBrandMark appId="tarot" />
         {/* ── Hero ── */}
         <section className="animate-fade-in-up" style={{ paddingTop: 12, paddingBottom: 20, textAlign: "center" }}>
           <div className="mh-hero-cards animate-float">
@@ -383,29 +368,6 @@ export default function MantoHomePage() {
           </Link>
         </section>
 
-        {/* ── Trust / Privacy ── */}
-        <section className="card animate-fade-in-up delay-400" style={{ padding: 18, marginBottom: 8 }}>
-          <div className="mh-section-title">
-            {t({ en: "Private, safe, and just for you", zh: "隐私、安全，只属于你", pt: "Privado, seguro e só para você", es: "Privado, seguro y solo para ti" }, "Private, safe, and just for you")}
-          </div>
-          <div className="mh-trust">
-            <div className="mh-trust-item">
-              <div className="mh-trust-icon"><ShieldIcon /></div>
-              <div className="mh-trust-text">{t({ en: "No public personal info", zh: "不公开个人信息", pt: "Sem dados pessoais públicos", es: "Sin datos personales públicos" }, "No public personal info")}</div>
-            </div>
-            <div className="mh-trust-item">
-              <div className="mh-trust-icon"><LockIcon /></div>
-              <div className="mh-trust-text">{t({ en: "Your readings are visible only to you", zh: "占卜记录仅你可见", pt: "Suas leituras só você vê", es: "Solo tú ves tus lecturas" }, "Your readings are visible only to you")}</div>
-            </div>
-            <div className="mh-trust-item">
-              <div className="mh-trust-icon"><GiftIcon /></div>
-              <div className="mh-trust-text">{t({ en: "First reading free", zh: "首次占卜免费", pt: "Primeira leitura grátis", es: "Primera lectura gratis" }, "First reading free")}</div>
-            </div>
-          </div>
-          <p style={{ textAlign: "center", fontSize: 10.5, color: "var(--text-muted)", marginTop: 14 }}>
-            {t({ en: "For self-discovery and entertainment only", zh: "仅供自我探索与娱乐", pt: "Apenas para autoconhecimento e entretenimento", es: "Solo para autoconocimiento y entretenimiento" }, "For self-discovery and entertainment only")}
-          </p>
-        </section>
       </div>
     </>
   )

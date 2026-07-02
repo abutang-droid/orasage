@@ -21,6 +21,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
+import { AppBrandMark } from "@/lib/orasage-app-shell/AppBrandMark";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -731,6 +732,7 @@ export default function Home() {
   return (
     <div className="w-full" style={{ background: "transparent" }}>
       <div className="w-full mx-auto" style={{ maxWidth: "480px", background: "transparent", minHeight: "auto" }}>
+        {view === "form" && <AppBrandMark appId="bazi" />}
 
         {/* ── 内容 ── */}
         <div className="px-4">
@@ -751,32 +753,6 @@ export default function Home() {
               boxShadow: "0 8px 32px rgba(46,41,91,0.10)",
               overflow: "hidden",
             }}>
-
-              {/* ── 品牌抬头区 ── */}
-              <div style={{
-                padding: "1.5rem 1.5rem 0.75rem",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem",
-              }}>
-                <svg width="32" height="32" viewBox="0 0 100 100" fill="none" style={{ opacity: 0.6 }}>
-                  <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
-                  <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={GOLD_GHOST}/>
-                  <circle cx="50" cy="27" r="11.5" fill={GOLD_GHOST} stroke={GOLD_FAINT} strokeWidth="1"/>
-                  <circle cx="50" cy="73" r="11.5" fill="rgba(196,160,78,0.04)" stroke={GOLD_FAINT} strokeWidth="1"/>
-                  <circle cx="50" cy="27" r="4" fill="rgba(196,160,78,0.75)"/>
-                </svg>
-                <p style={{
-                  fontFamily: SERIF_F, fontSize: "1.1rem", fontWeight: 700,
-                  color: GOLD, letterSpacing: "0.3em",
-                }}>OraSage</p>
-                <p style={{
-                  fontFamily: SANS, fontSize: "0.75rem",
-                  color: MUTED_CLR, letterSpacing: "0.08em",
-                  textAlign: "center", lineHeight: 1.6,
-                }}>
-                  {t('brand.tagline')}
-                </p>
-                <div style={{ height: 1, width: "60%", background: `linear-gradient(90deg, transparent, ${GOLD_FAINT}, transparent)`, marginTop: "0.25rem" }} />
-              </div>
 
               {/* 模式切换 — 主级导航条 */}
               <div className="mx-5 mt-5 mb-2">
@@ -883,10 +859,6 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>
-      {/* 版本号 */}
-      <div style={{ textAlign: "center", padding: "0.75rem 0 0.25rem", fontSize: "0.6rem", color: "rgba(93,89,115,0.25)", fontFamily: "'Noto Sans SC', sans-serif" }}>
-        OraSage v1.0.2
       </div>
     </div>
   );

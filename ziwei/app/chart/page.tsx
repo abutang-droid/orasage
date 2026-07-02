@@ -15,6 +15,7 @@ import { syncBirthFormProfile } from '@/lib/profile-sync';
 import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
 import PaywallCard from '@/components/PaywallCard';
 import CrystalShopCard from '@/components/CrystalShopCard';
+import { AppBrandMark } from '@/lib/orasage-app-shell/AppBrandMark';
 import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
 
 // ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
@@ -184,7 +185,8 @@ export default function ChartPage() {
   // ═══ 表单视图 ═══
   if (!chart) {
     return (
-      <div style={{ background: 'var(--bg-0)', padding: '24px 0 16px' }} className="orasage-fade-in">
+      <div style={{ background: 'var(--bg-0)', padding: '8px 0 16px' }} className="orasage-fade-in">
+        <AppBrandMark appId="ziwei" />
         <div style={{ maxWidth: '480px', margin: '0 auto 24px', padding: '0 20px' }}>
           <div style={{ display: 'flex', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-lg)', padding: '4px', gap: '4px' }}>
             {(['single', 'heming'] as const).map(m => (

@@ -1,15 +1,25 @@
 'use client';
 
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
-import { locales, localeNames, type Locale } from '@/i18n/routing';
 import { externalUrls } from '@/lib/urls';
 import { HeaderAuthButton } from '@/components/HeaderAuthButton';
+import { getPortalSectionKey, shouldShowPortalBack } from '@/lib/portal-header';
 import { useEffect, useState } from 'react';
 
+const SECTION_TITLE_KEYS: Record<string, string> = {
+  famous: 'famous.title',
+  daozang: 'daozang.title',
+  about: 'about.title',
+  terms: 'terms.title',
+  privacy: 'privacy.title',
+  faq: 'faq.title',
+  profile: 'profile.title',
+};
+
 export function Header() {
-  const t = useTranslations('nav');
-  const locale = useLocale();
+  const tNav = useTranslations('nav');
+  const t = useTranslations();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -17,11 +27,11 @@ export function Header() {
     | { href: '/famous' | '/daozang'; label: string }
     | { href: string; label: string; external: true }
   > = [
-    { href: externalUrls.bazi, label: t('bazi'), external: true },
-    { href: externalUrls.ziwei, label: t('ziwei'), external: true },
-    { href: externalUrls.tarot, label: t('tarot'), external: true },
-    { href: '/famous', label: t('famous') },
-    { href: '/daozang', label: t('daozang') },
+    { href: externalUrls.bazi, label: tNav('bazi'), external: true },
+    { href: externalUrls.ziwei, label: tNav('ziwei'), external: true },
+    { href: externalUrls.tarot, label: tNav('tarot'), external: true },
+    { href: '/famous', label: tNav('famous') },
+    { href: '/daozang', label: tNav('daozang') },
   ];
 
   useEffect(() => {
@@ -32,14 +42,27 @@ export function Header() {
   }, [open]);
 
   const isHome = pathname === '/';
+  const sectionKey = getPortalSectionKey(pathname);
+  const sectionTitle = sectionKey ? t(SECTION_TITLE_KEYS[sectionKey] as 'famous.title') : null;
+  const showBack = shouldShowPortalBack(pathname);
+
+  if (!isHome) {
+    return (
+      <header className="safe-top border-b border-sage-border/40 bg-sage-bg">
+        <div className="safe-x mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <span className="font-serif text-base tracking-wide text-sage-gold sm:text-lg">
+            {sectionTitle ?? 'OraSage'}
+          </span>
+          {showBack && <HeaderBackButton />}
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header className="safe-top sticky top-0 z-50 border-b border-sage-border/60 bg-sage-bg/95 backdrop-blur-md">
+    <header className="safe-top border-b border-sage-border/40 bg-sage-bg">
       <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
-        <Link
-          href="/"
-          className="font-serif text-lg tracking-widest text-sage-gold sm:text-xl"
-        >
+        <Link href="/" className="font-serif text-lg tracking-widest text-sage-gold sm:text-xl">
           OraSage
         </Link>
 
@@ -64,12 +87,10 @@ export function Header() {
             ),
           )}
           <HeaderAuthButton />
-          {isHome && <LocaleSwitcher current={locale as Locale} pathname={pathname} />}
         </nav>
 
         <div className="flex items-center gap-2 lg:hidden">
           <HeaderAuthButton className="px-3 py-2 text-xs" />
-          {isHome && <LocaleSwitcher current={locale as Locale} pathname={pathname} compact />}
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-sage-muted active:bg-sage-card"
@@ -125,43 +146,19 @@ export function Header() {
   );
 }
 
-function LocaleSwitcher({
-  current,
-  pathname,
-  compact = false,
-}: {
-  current: Locale;
-  pathname: string;
-  compact?: boolean;
-}) {
-  const [show, setShow] = useState(false);
+function HeaderBackButton() {
+  const t = useTranslations('nav');
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setShow(!show)}
-        className={`rounded-lg text-sage-muted hover:text-sage-primary ${
-          compact ? 'min-h-[44px] px-2 text-xs' : 'min-h-[44px] px-3 text-xs'
-        }`}
-      >
-        {localeNames[current]}
-      </button>
-      {show && (
-        <div className="absolute right-0 top-full z-50 mt-1 max-h-64 w-40 overflow-y-auto rounded-lg border border-sage-border bg-sage-card py-1 shadow-xl">
-          {locales.map((loc) => (
-            <Link
-              key={loc}
-              href={pathname}
-              locale={loc}
-              className="block min-h-[40px] px-3 py-2 text-xs text-sage-muted hover:bg-sage-border/40 hover:text-sage-primary"
-              onClick={() => setShow(false)}
-            >
-              {localeNames[loc]}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={() => window.history.back()}
+      className="inline-flex min-h-[44px] items-center gap-1 text-sm text-sage-muted transition hover:text-sage-gold"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      {t('back')}
+    </button>
   );
 }

@@ -136,6 +136,46 @@
   padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
 }
 
+.orasage-page-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px 0;
+}
+
+.orasage-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--shell-muted);
+  font-size: 14px;
+  font-family: var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.orasage-page-back:hover {
+  color: var(--shell-gold);
+}
+
+.orasage-app-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 4px;
+  opacity: 0.72;
+  pointer-events: none;
+  user-select: none;
+}
+
+.orasage-app-brand-mark-label {
+  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--shell-gold);
+}
+
 .orasage-app-bottomnav {
   position: fixed;
   left: 0;
