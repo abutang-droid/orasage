@@ -13,20 +13,24 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   const navItems: Array<
-    | { href: '/' | '/about' | '/faq' | '/famous' | '/daozang'; label: string }
+    | { href: '/famous' | '/daozang'; label: string }
     | { href: string; label: string; external: true }
   > = [
-    { href: '/', label: t('home') },
-    { href: '/about', label: t('about') },
-    { href: '/faq', label: t('faq') },
+    { href: externalUrls.bazi, label: t('bazi'), external: true },
+    { href: externalUrls.ziwei, label: t('ziwei'), external: true },
+    { href: externalUrls.tarot, label: t('tarot'), external: true },
     { href: '/famous', label: t('famous') },
     { href: '/daozang', label: t('daozang') },
-    { href: externalUrls.shop, label: t('shop'), external: true },
   ];
+
+  const returnUrl = encodeURIComponent(`https://orasage.com/${locale}${pathname === '/' ? '' : pathname}`);
+  const loginUrl = `${externalUrls.authLogin}?returnUrl=${returnUrl}`;
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
   return (
@@ -39,7 +43,6 @@ export function Header() {
           OraSage
         </Link>
 
-        {/* 桌面导航 */}
         <nav className="hidden items-center gap-5 lg:flex">
           {navItems.map((item) =>
             'external' in item && item.external ? (
@@ -58,10 +61,10 @@ export function Header() {
               >
                 {item.label}
               </Link>
-            )
+            ),
           )}
           <a
-            href={externalUrls.authLogin}
+            href={loginUrl}
             className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10"
           >
             {t('login')}
@@ -69,10 +72,9 @@ export function Header() {
           <LocaleSwitcher current={locale as Locale} pathname={pathname} />
         </nav>
 
-        {/* 手机：登录 + 菜单 */}
         <div className="flex items-center gap-2 lg:hidden">
           <a
-            href={externalUrls.authLogin}
+            href={loginUrl}
             className="rounded-full border border-sage-gold/40 px-3 py-2 text-xs text-sage-gold"
           >
             {t('login')}
@@ -96,7 +98,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* 手机全屏菜单 */}
       {open && (
         <>
           <div
@@ -124,7 +125,7 @@ export function Header() {
                 >
                   {item.label}
                 </Link>
-              )
+              ),
             )}
             <div className="mt-4 border-t border-sage-border/40 pt-4">
               <p className="mb-2 text-xs text-sage-muted">Language</p>

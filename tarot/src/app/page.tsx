@@ -2,7 +2,6 @@
 import { useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import TopHeader from "@/components/TopHeader"
 import { useT } from "@/lib/i18n/context"
 
 // ─── Starfield Canvas ─────────────────────────────────────────────
@@ -254,7 +253,6 @@ export default function MantoHomePage() {
   return (
     <>
       <Starfield />
-      <TopHeader />
       <div style={{
         position: 'relative', zIndex: 1,
         maxWidth: 'var(--content-max)', margin: '0 auto',

@@ -5,11 +5,11 @@ import { LangProvider } from "@/lib/i18n/context"
 import { UserProvider } from "@/lib/user"
 
 export const metadata: Metadata = {
-  title: "Manto — 翻牌看运，拜神护体",
+  title: "ManTo — 翻牌看运，拜神护体",
   description: "翻开你的牌，神灵在背面 · AI塔罗占卜 × 每日拜神 × 五行水晶",
-  keywords: ["tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "web3"],
+  keywords: ["tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "ManTo"],
   openGraph: {
-    title: "Manto — 翻牌看运，拜神护体",
+    title: "ManTo — 翻牌看运，拜神护体",
     description: "翻开你的牌，神灵在背面",
   },
 }
