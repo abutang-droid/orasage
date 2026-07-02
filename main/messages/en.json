@@ -86,7 +86,15 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "total": "{count} articles",
+    "empty": "No content yet",
+    "loadError": "Failed to load content",
+    "prev": "Previous",
+    "next": "Next",
+    "back": "Back to list",
+    "sourceLink": "Original source",
+    "noBody": "No content"
   },
   "daozang": {
     "title": "Dao Canon",
