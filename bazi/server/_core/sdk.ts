@@ -289,7 +289,7 @@ class SDKServer {
     }
   }
 
-  async authenticateRequest(req: Request): Promise<AuthenticatedUser> {
+  async authenticateRequest(req: Request): Promise<AuthenticatedUser | null> {
     // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
@@ -298,7 +298,8 @@ class SDKServer {
     if (!session) {
       const bridgedUser = await this.authenticateViaOrasageBridge(req);
       if (bridgedUser) return bridgedUser;
-      throw ForbiddenError("Invalid session cookie");
+      // 无有效会话时保持匿名，公开接口（排盘/freeInsight）不应因此失败
+      return null;
     }
 
     if (session.openId.startsWith(CRON_OPEN_ID_PREFIX)) {
@@ -314,26 +315,37 @@ class SDKServer {
     const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
 
-    // If user not in DB, sync from OAuth server automatically
+    // If user not in DB, sync from OAuth server automatically (或仅用 session 落库)
     if (!user) {
-      try {
-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
+      if (!ENV.oAuthServerUrl) {
         await db.upsertUser({
-          openId: userInfo.openId,
-          name: userInfo.name || null,
-          email: userInfo.email ?? null,
-          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+          openId: sessionUserId,
+          name: session.name || null,
+          email: null,
+          loginMethod: "session",
           lastSignedIn: signedInAt,
         });
-        user = await db.getUserByOpenId(userInfo.openId);
-      } catch (error) {
-        console.error("[Auth] Failed to sync user from OAuth:", error);
-        throw ForbiddenError("Failed to sync user info");
+        user = await db.getUserByOpenId(sessionUserId);
+      } else {
+        try {
+          const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
+          await db.upsertUser({
+            openId: userInfo.openId,
+            name: userInfo.name || null,
+            email: userInfo.email ?? null,
+            loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+            lastSignedIn: signedInAt,
+          });
+          user = await db.getUserByOpenId(userInfo.openId);
+        } catch (error) {
+          console.warn("[Auth] Failed to sync user from OAuth:", error);
+          return null;
+        }
       }
     }
 
     if (!user) {
-      throw ForbiddenError("User not found");
+      return null;
     }
 
     await db.upsertUser({

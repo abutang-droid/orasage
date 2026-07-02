@@ -11,19 +11,7 @@ export type TrpcContext = {
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  let user: User | null = null;
-
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    // 区分正常认证失败（TRPCError）和意外系统错误
-    if (error && typeof error === "object" && "code" in error) {
-      // TRPCError 是预期的（未登录），静默处理
-    } else {
-      console.error("[Context] Unexpected auth error:", error);
-    }
-    user = null;
-  }
+  const user = await sdk.authenticateRequest(opts.req);
 
   return {
     req: opts.req,
