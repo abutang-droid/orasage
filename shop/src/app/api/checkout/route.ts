@@ -16,6 +16,8 @@ const checkoutSchema = z.object({
   appSource: z.enum(['bazi', 'ziwei', 'tarot', 'shop']).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
+  recommendationContext: z.string().max(2000).optional(),
+  readingId: z.string().max(100).optional(),
 });
 
 /** 内网结账 API — 供八字/紫微/塔罗等 App 调用 */
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
       ? lineItems[0].product.name
       : `${lineItems[0].product.name} 等 ${lineItems.length} 件`;
     const orderNo = makeOrderNo();
+    const primarySku = lineItems[0].product.sku;
 
     await syncOrderToAuth({
       userId: body.userId,
@@ -49,10 +52,23 @@ export async function POST(req: NextRequest) {
       amountCents,
       status: 'pending',
       appSource: body.appSource ?? 'shop',
+      sku: primarySku,
+      recommendationContext: body.recommendationContext,
+      readingId: body.readingId,
     });
 
     const successUrl = body.successUrl ?? `${ENV.shopUrl}/success?order=${orderNo}`;
     const cancelUrl = body.cancelUrl ?? `${ENV.shopUrl}/?cancelled=1`;
+    const stripeMeta: Record<string, string> = {
+      orderNo,
+      userId: String(body.userId),
+      sku: primarySku,
+    };
+    if (body.appSource) stripeMeta.appSource = body.appSource;
+    if (body.readingId) stripeMeta.readingId = body.readingId;
+    if (body.recommendationContext) {
+      stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
+    }
 
     const stripe = getStripe();
     if (stripe) {
@@ -60,7 +76,7 @@ export async function POST(req: NextRequest) {
         mode: 'payment',
         success_url: successUrl,
         cancel_url: cancelUrl,
-        metadata: { orderNo, userId: String(body.userId) },
+        metadata: stripeMeta,
         line_items: lineItems.map((li) => ({
           quantity: li.quantity,
           price_data: {
@@ -117,6 +133,7 @@ export async function PUT(req: NextRequest) {
       amountCents,
       status: 'pending',
       appSource: 'shop',
+      sku: product.sku,
     });
 
     const stripe = getStripe();

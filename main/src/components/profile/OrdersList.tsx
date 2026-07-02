@@ -77,6 +77,12 @@ export function OrdersList() {
               {t('shipping')}: {o.shippingAddress}
             </p>
           )}
+          {o.recommendationContext && (
+            <p className="mt-2 text-xs text-sage-gold/80">{o.recommendationContext}</p>
+          )}
+          {o.sku && (
+            <p className="mt-1 text-xs text-sage-muted">SKU: {o.sku}</p>
+          )}
           <p className="mt-2 text-xs text-sage-purple">{formatDate(o.createdAt)}</p>
         </li>
       ))}

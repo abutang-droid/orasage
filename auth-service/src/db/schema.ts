@@ -61,6 +61,9 @@ export const userOrders = pgTable("user_orders", {
   status: orderStatusEnum("status").notNull().default("pending"),
   appSource: appSourceEnum("app_source"),
   shippingAddress: text("shipping_address"),
+  sku: varchar("sku", { length: 100 }),
+  recommendationContext: text("recommendation_context"),
+  readingId: varchar("reading_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

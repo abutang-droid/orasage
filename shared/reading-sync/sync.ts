@@ -15,8 +15,8 @@ const AUTH_URL =
   'https://auth.orasage.com';
 
 /** 登录用户完成占卜/排盘后同步到用户中心（未登录静默跳过） */
-export async function syncReading(payload: ReadingSyncPayload): Promise<void> {
-  if (!payload.readingId?.trim() || !payload.title?.trim()) return;
+export async function syncReading(payload: ReadingSyncPayload): Promise<string | null> {
+  if (!payload.readingId?.trim() || !payload.title?.trim()) return null;
   try {
     const res = await fetch(`${AUTH_URL}/auth/me/readings/sync`, {
       method: 'POST',
@@ -24,12 +24,15 @@ export async function syncReading(payload: ReadingSyncPayload): Promise<void> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (res.status === 401) return;
+    if (res.status === 401) return null;
     if (!res.ok) {
       console.warn('[reading-sync] failed:', res.status);
+      return null;
     }
+    return payload.readingId;
   } catch (err) {
     console.warn('[reading-sync] error:', err);
+    return null;
   }
 }
 

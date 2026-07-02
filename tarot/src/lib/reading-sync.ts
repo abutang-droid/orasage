@@ -6,7 +6,7 @@ type TarotCard = { cardName: string; orientation: '正位' | '逆位' };
 
 export function syncTarotReading(
   cards: TarotCard[],
-  options?: { synthesisText?: string; wuxing?: string; crystalName?: string },
+  options?: { synthesisText?: string; wuxing?: string; crystalName?: string; readingId?: string },
 ) {
   const cardLine = cards.map((c) => `${c.cardName}(${c.orientation})`).join(' · ');
   const wuxing = options?.wuxing;
@@ -14,10 +14,11 @@ export function syncTarotReading(
   const reason = wuxing && options?.crystalName
     ? `根据本次牌阵能量，推荐 ${options.crystalName} 水晶`
     : undefined;
+  const readingId = options?.readingId ?? newReadingId('tarot');
 
   return syncReading({
     appSource: 'tarot',
-    readingId: newReadingId('tarot'),
+    readingId,
     title: '塔罗三牌阵',
     summary: options?.synthesisText?.slice(0, 500) || cardLine,
     recommendationReason: reason,

@@ -181,7 +181,10 @@
       "loading": "加载中…",
       "loadError": "加载失败",
       "empty": "暂无推荐",
-      "viewShop": "去商城看看"
+      "viewShop": "去商城看看",
+      "buyNow": "立即购买",
+      "buying": "处理中…",
+      "buyError": "购买失败，请重试"
     },
     "legal": {
       "about": "关于我们",

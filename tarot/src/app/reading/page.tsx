@@ -5,7 +5,8 @@ import CardFrame from "@/components/CardFrame"
 import { getCardById } from "@/lib/tarot/cards"
 import { useUser } from "@/lib/user"
 import { syncSavedProfile } from "@/lib/profile-sync"
-import { syncTarotReading } from "@/lib/reading-sync"
+import { syncTarotReading, WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
+import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
 
 const CACHE_KEY = "manto:profile"
 function loadCachedProfile(): Record<string, string> | null {
@@ -162,6 +163,8 @@ export default function ReadingPage() {
   const [profile, setProfile] = useState({ name: "", birthdate: "", gender: "", occupation: "" })
   const cardsRef = useRef<CardData[]>([])
   const synthesisRef = useRef("")
+  const readingIdRef = useRef("")
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   // Determine if user has a saved profile (check both server + localStorage)
   const alreadySaved = user
@@ -298,6 +301,8 @@ export default function ReadingPage() {
     let wuxing = "土"; let max = 0
     for (const [k,v] of Object.entries(counts)) { if (v > max) { max = v; wuxing = k } }
     const crystal = crystalMap[wuxing] || { name: "白水晶", emoji: "✨" }
+    const readingId = crypto.randomUUID?.() ? `tarot:${crypto.randomUUID()}` : `tarot:${Date.now()}`
+    readingIdRef.current = readingId
     setBlessing({
       wuxing,
       crystalName: crystal.name,
@@ -311,9 +316,30 @@ export default function ReadingPage() {
       synthesisText: synthesisRef.current,
       wuxing,
       crystalName: crystal.name,
+      readingId,
     })
     setStep("blessing")
   }, [quizAnswers])
+
+  const handleCrystalCheckout = useCallback(async () => {
+    if (!blessing) return
+    const sku = WUXING_CRYSTAL_SKU[blessing.wuxing]
+    if (!sku) return
+    setCheckoutLoading(true)
+    try {
+      const result = await startAppCheckout({
+        sku,
+        recommendationContext: `塔罗占卜推荐：${blessing.crystalName}`,
+        readingId: readingIdRef.current || undefined,
+        successUrl: `${window.location.origin}/reading?paid=1`,
+      })
+      redirectAfterCheckout(result)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "结账失败")
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }, [blessing])
 
   const positionLabels: Record<string, string> = {
     past: "过去", present: "现在", future: "未来", current: "此刻",
@@ -747,6 +773,15 @@ export default function ReadingPage() {
               style={{ display: 'inline-flex', justifyContent: 'center', textDecoration: 'none', marginBottom: 16 }}>
               查看水晶详情
             </Link>
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={checkoutLoading}
+              onClick={() => void handleCrystalCheckout()}
+              style={{ width: '100%', marginBottom: 16 }}
+            >
+              {checkoutLoading ? '正在跳转…' : '📿 请一条水晶手串'}
+            </button>
             <div style={{
               fontSize: 17, fontWeight: 500, color: 'var(--gold-light)',
               fontFamily: 'var(--font-serif)', fontStyle: 'italic',

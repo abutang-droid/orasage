@@ -26,6 +26,7 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
   const [items, setItems] = useState<UserRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [buyingId, setBuyingId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -70,12 +71,51 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
                   {!compact && ` · ${formatDate(r.createdAt)}`}
                 </p>
               </div>
-              <a
-                href={`${externalUrls.shop}?sku=${encodeURIComponent(r.crystalSku)}`}
-                className="shrink-0 rounded-full border border-sage-gold/40 px-3 py-1 text-xs text-sage-gold transition hover:bg-sage-gold/10"
-              >
-                {t('viewShop')}
-              </a>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={buyingId === r.id}
+                  onClick={async () => {
+                    setBuyingId(r.id);
+                    try {
+                      const res = await fetch('/api/checkout', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          sku: r.crystalSku,
+                          recommendationContext: r.reason,
+                          readingId: r.readingId ?? undefined,
+                          successUrl: `${window.location.origin}/profile/orders`,
+                        }),
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (res.status === 401) {
+                        window.location.href = `${externalUrls.authLogin}?redirect=${encodeURIComponent(window.location.href)}`;
+                        return;
+                      }
+                      if (!res.ok) throw new Error(data.error || '结账失败');
+                      if (data.checkoutUrl) window.location.href = data.checkoutUrl;
+                      else if (data.orderNo) {
+                        window.location.href = `${externalUrls.shop}/checkout?order=${encodeURIComponent(data.orderNo)}`;
+                      }
+                    } catch {
+                      setError(t('buyError'));
+                    } finally {
+                      setBuyingId(null);
+                    }
+                  }}
+                  className="shrink-0 rounded-full border border-sage-gold/40 px-3 py-1 text-xs text-sage-gold transition hover:bg-sage-gold/10 disabled:opacity-50"
+                >
+                  {buyingId === r.id ? t('buying') : t('buyNow')}
+                </button>
+                <a
+                  href={`${externalUrls.shop}?sku=${encodeURIComponent(r.crystalSku)}`}
+                  className="shrink-0 rounded-full border border-sage-border/60 px-3 py-1 text-xs text-sage-muted transition hover:text-sage-gold"
+                >
+                  {t('viewShop')}
+                </a>
+              </div>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-sage-muted">{r.reason}</p>
           </li>

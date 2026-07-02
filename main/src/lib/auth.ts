@@ -50,6 +50,9 @@ export type UserOrder = {
   appSource: string | null;
   appLabel: string | null;
   shippingAddress: string | null;
+  sku: string | null;
+  recommendationContext: string | null;
+  readingId: string | null;
   createdAt: string;
 };
 

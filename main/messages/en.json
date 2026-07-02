@@ -181,7 +181,10 @@
       "loading": "Loading…",
       "loadError": "Failed to load",
       "empty": "No recommendations yet",
-      "viewShop": "View in shop"
+      "viewShop": "View in shop",
+      "buyNow": "Buy now",
+      "buying": "Processing…",
+      "buyError": "Purchase failed, please try again"
     },
     "legal": {
       "about": "About us",

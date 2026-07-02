@@ -11,6 +11,7 @@ import {
   loadLunarLib,
   calcSingleBazi, calcDoubleBazi,
   type SingleBaziResult, type DoubleBaziResult,
+  recommendBracelet,
 } from "@/lib/bazi";
 import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziResult";
 import { DatePicker } from "@/components/WheelPicker";
@@ -666,7 +667,8 @@ export default function Home() {
             });
           }
           void syncPersonProfile(resolvedF0);
-          void syncBaziSingleReading(resolvedF0.name, data);
+          const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
+          void syncBaziSingleReading(resolvedF0.name, data, braceletRec);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);

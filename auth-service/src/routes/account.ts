@@ -122,6 +122,9 @@ accountRouter.get("/orders", async (req, res) => {
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
       shippingAddress: o.shippingAddress,
+      sku: o.sku,
+      recommendationContext: o.recommendationContext,
+      readingId: o.readingId,
       createdAt: o.createdAt,
     })),
   });
@@ -397,6 +400,9 @@ const orderSchema = z.object({
   status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]).optional(),
   appSource: z.enum(["bazi", "ziwei", "tarot", "shop"]).optional(),
   shippingAddress: z.string().max(2000).optional(),
+  sku: z.string().max(100).optional(),
+  recommendationContext: z.string().max(2000).optional(),
+  readingId: z.string().max(100).optional(),
 });
 
 const orderUpdateSchema = z.object({
@@ -462,6 +468,9 @@ internalRouter.post("/orders", async (req, res) => {
       status: body.status ?? "pending",
       appSource: body.appSource,
       shippingAddress: body.shippingAddress,
+      sku: body.sku,
+      recommendationContext: body.recommendationContext,
+      readingId: body.readingId,
     }).returning();
     res.status(201).json({ success: true, id: row.id });
   } catch (err) {

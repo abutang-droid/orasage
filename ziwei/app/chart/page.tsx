@@ -12,7 +12,8 @@ import { useHistory } from '@/lib/ziwei/history';
 type FocusState = any;
 import { generateChart } from "@/lib/ziwei/algorithm";
 import { syncBirthFormProfile } from '@/lib/profile-sync';
-import { syncZiweiReading } from '@/lib/reading-sync';
+import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
+import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 
 // ─── 合盘输入面板 ─────────────────────────────────────────────────────────────
 function HemingPanel({
@@ -72,6 +73,7 @@ export default function ChartPage() {
   const [liunianYear, setLiunianYear] = useState(new Date().getFullYear());
   const [focus, setFocus] = useState<FocusState | null>(null);
   const [hemingTab, setHemingTab] = useState<'A' | 'B'>('A');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const { history, save: saveHistory, remove: removeHistory } = useHistory();
 
   useEffect(() => {
@@ -121,6 +123,24 @@ export default function ChartPage() {
   const handleSiHuaBadgeClick = (starName: string, siHua: string) => setFocus({ type: 'sihua', label: `${starName} 化${siHua}`, siHua });
 
   const activeChart = mode === 'heming' && hemingTab === 'B' && chartB ? chartB : chart;
+  const crystalRec = activeChart ? ziweiCrystalRecommendation(activeChart) : null;
+
+  async function handleCrystalCheckout() {
+    if (!crystalRec) return;
+    setCheckoutLoading(true);
+    try {
+      const result = await startAppCheckout({
+        sku: crystalRec.crystalSku,
+        recommendationContext: crystalRec.reason,
+        successUrl: typeof window !== 'undefined' ? `${window.location.origin}/chart?paid=1` : undefined,
+      });
+      redirectAfterCheckout(result);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : t('checkout.error'));
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
 
   // ═══ 表单视图 ═══
   if (!chart) {
@@ -196,6 +216,32 @@ export default function ChartPage() {
         <div style={{ flex: 1 }} />
         <TimeNav chart={activeChart ?? chart} view={view} liunianYear={liunianYear} onViewChange={setView} onYearChange={setLiunianYear} />
       </div>
+
+      {crystalRec && (
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 20px 12px' }}>
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12,
+            padding: '12px 16px', borderRadius: 'var(--r-md)',
+            background: 'var(--bg-card)', border: '1px solid var(--bdr)',
+          }}>
+            <span style={{ flex: 1, fontSize: 13, color: 'var(--tx-2)', lineHeight: 1.5 }}>
+              {crystalRec.reason}
+            </span>
+            <button
+              type="button"
+              disabled={checkoutLoading}
+              onClick={() => void handleCrystalCheckout()}
+              style={{
+                padding: '8px 16px', borderRadius: 'var(--r-md)', border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)',
+                color: '#fff', fontSize: 13, fontWeight: 700, opacity: checkoutLoading ? 0.7 : 1,
+              }}
+            >
+              {checkoutLoading ? t('checkout.loading') : t('crystal.shop.buy')}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '20px', padding: '20px', maxWidth: '1400px', margin: '0 auto' }} className="chart-workspace-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>

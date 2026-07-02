@@ -11,6 +11,9 @@ export interface SyncOrderInput {
   currency?: string;
   status?: OrderStatus;
   appSource?: AppSource;
+  sku?: string;
+  recommendationContext?: string;
+  readingId?: string;
 }
 
 export function makeOrderNo() {
