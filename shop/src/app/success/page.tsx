@@ -18,7 +18,7 @@ export default async function SuccessPage({
         <h1 className="font-serif text-2xl text-sage-gold">支付成功</h1>
         {order && (
           <p className="mt-3 text-sm text-sage-muted">
-            订单号：<span className="text-white">{order}</span>
+            订单号：<span className="text-sage-primary">{order}</span>
           </p>
         )}
         <p className="mt-2 text-sm text-sage-muted">订单已同步到您的用户中心</p>

@@ -10,13 +10,13 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#0f0e17',
+  themeColor: '#fafaf8',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <body className="min-h-dvh bg-sage-bg text-white antialiased">{children}</body>
+      <body className="min-h-dvh bg-sage-bg text-sage-primary antialiased">{children}</body>
     </html>
   );
 }

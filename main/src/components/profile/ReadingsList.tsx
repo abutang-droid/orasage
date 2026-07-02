@@ -51,7 +51,7 @@ export function ReadingsList() {
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="font-medium text-white">{r.title}</p>
+              <p className="font-medium text-sage-primary">{r.title}</p>
               <p className="mt-1 text-xs text-sage-muted">{r.appLabel}</p>
             </div>
             <p className="text-xs text-sage-purple">{formatDate(r.createdAt)}</p>

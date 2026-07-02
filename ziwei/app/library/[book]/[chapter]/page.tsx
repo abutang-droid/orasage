@@ -33,11 +33,6 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
-      <div className="ziwei-subnav">
-        <Link href={`/library/${book.slug}`}>← 《{book.title}》目录</Link>
-        <span className="ziwei-subnav-muted">{chapter.title}</span>
-        <Link href="/library">古籍库 →</Link>
-      </div>
 
       <article className="max-w-3xl mx-auto px-6 py-12">
         {/* 标题 */}

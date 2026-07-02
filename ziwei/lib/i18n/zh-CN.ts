@@ -1,6 +1,9 @@
 const zhCN: Record<string, string> = {
   'tab.single': '单人排盘',
   'tab.heming': '双人合盘',
+  'form.person.editing': '编辑',
+  'form.person.first': '第一人',
+  'form.person.second': '第二人',
   'form.title': '── 输入生辰八字 ──',
   'form.name': '姓名（可选）',
   'form.name.placeholder': '请输入姓名',

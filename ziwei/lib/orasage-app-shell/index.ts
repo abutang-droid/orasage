@@ -7,4 +7,6 @@ export {
   famousUrl,
   daozangUrl,
   exploreItems,
+  isCurrentAppHome,
+  isAppSubpage,
 } from './config';

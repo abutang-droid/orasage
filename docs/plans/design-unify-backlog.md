@@ -1,10 +1,20 @@
 # OraSage 设计统一 & Phase 5 后续 — 待完成计划
 
-> 最后更新：2026-07-02  
-> 关联分支：`cursor/design-unify-ziwei-9ded`  
-> 关联 PR：[#21](https://github.com/abutang-droid/orasage/pull/21)（当前为 **draft**）
+> 最后更新：2026-07-02（平台全站统一迭代）  
+> 关联分支：`cursor/platform-unify-full-e21e`  
+> 前置：已合并 `cursor/design-unify-ziwei-9ded` 至本分支
 
 ---
+
+## 本轮已完成（platform-unify）
+
+- [x] 合并 `design-unify` 分支至工作分支
+- [x] **全站浅色设计令牌**：Main / Shop / Auth / Admin / Tarot 接入 `shared/design-tokens/orasage-tokens.css`
+- [x] **语言切换**：仅 Main 门户首页显示；命理 App 子页通过 URL `?lang=` 或用户中心偏好
+- [x] **底部导航**：Bazi / Ziwei / Tarot 全页面保留；仅 Main 门户无底部导航
+- [x] **Ziwei 合盘输入**：改为 Tab 切换两人表单（与八字一致）
+- [x] **Ziwei 子页**：移除重复 `ziwei-subnav`，统一 App Shell 返回
+- [x] **子页返回逻辑**：`isAppSubpage` 改为「非 App 首页即显示返回」
 
 ## 状态总览
 
@@ -69,7 +79,7 @@
 ## P2 — 中期 / 可选
 
 - [ ] 废弃路由与导航文案统一（旧 `/heming` 入口、底部 Tab 命名）
-- [ ] Tarot 浅色主题与设计令牌对齐
+- [x] Tarot 浅色主题与设计令牌对齐（`tarot/src/app/globals.css` + App Shell `theme="light"`）
 - [ ] Admin 502 修复与部署
 - [ ] CMS 部署（`cms.orasage.com` 当前 502）
 - [ ] Stripe 真实支付 webhook 路径与演示支付路径一致性回归

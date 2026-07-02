@@ -104,7 +104,7 @@ export function ProfilesList() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-white"
+              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary"
             />
           </label>
           <label className="block text-sm">
@@ -114,7 +114,7 @@ export function ProfilesList() {
               onChange={(e) => setLabel(e.target.value)}
               placeholder={t('labelPlaceholder')}
               maxLength={50}
-              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-white"
+              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary"
             />
           </label>
           <button
@@ -139,8 +139,8 @@ export function ProfilesList() {
               className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-sage-border/60 bg-sage-card/30 p-4"
             >
               <div>
-                <p className="font-medium text-white">
-                  <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-sage-purple/30 text-xs text-sage-gold">
+                <p className="font-medium text-sage-primary">
+                  <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-sage-gold/15 text-xs text-sage-gold">
                     {profileLabel(p, i)}
                   </span>
                   {p.name}

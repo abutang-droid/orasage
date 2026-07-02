@@ -16,11 +16,6 @@ export const metadata = {
 export default function LibraryHomePage() {
   return (
     <div style={{ background: 'var(--bg-page)' }}>
-      <div className="ziwei-subnav">
-        <Link href="/chart">← 起盘</Link>
-        <span className="ziwei-subnav-muted">古籍原典库 · CLASSICS</span>
-        <Link href="/knowledge">知识库 →</Link>
-      </div>
 
       {/* Hero */}
       <div className="text-center px-6 py-16">

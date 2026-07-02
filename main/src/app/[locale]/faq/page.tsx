@@ -18,7 +18,7 @@ export default async function FaqPage({ params }: Props) {
             key={n}
             className="rounded-xl border border-sage-border bg-sage-card/60 p-4 sm:p-6"
           >
-            <h2 className="text-base font-medium text-white sm:text-lg">{t(`q${n}`)}</h2>
+            <h2 className="text-base font-medium text-sage-primary sm:text-lg">{t(`q${n}`)}</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-sage-muted sm:text-sm">
               {t(`a${n}`)}
             </p>

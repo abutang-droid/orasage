@@ -42,9 +42,8 @@ export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
 };
 
 export function isAppSubpage(appId: AppId, pathname: string): boolean {
-  if (!pathname || isCurrentAppHome(appId, pathname)) return false;
-  const prefixes = APP_SUBPAGE_PREFIXES[appId];
-  return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  if (!pathname) return false;
+  return !isCurrentAppHome(appId, pathname);
 }
 
 export function isCurrentAppHome(appId: AppId, pathname: string): boolean {

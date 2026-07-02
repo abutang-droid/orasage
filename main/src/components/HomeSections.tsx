@@ -13,7 +13,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden px-5 pb-10 pt-8 text-center sm:px-6 sm:py-20 md:py-28">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#7f5af015_0%,_transparent_70%)]" />
-      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-white sm:text-4xl md:text-6xl">
+      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-sage-primary sm:text-4xl md:text-6xl">
         {t('title')}
       </h1>
       <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-sage-muted sm:mt-4 sm:max-w-xl sm:text-lg">
@@ -21,7 +21,7 @@ export function Hero() {
       </p>
       <a
         href="#tools"
-        className="mt-6 inline-flex min-h-[48px] w-full max-w-xs items-center justify-center rounded-full bg-sage-purple px-8 text-base font-medium text-white active:bg-sage-purple/80 sm:mt-8 sm:w-auto sm:text-sm"
+        className="mt-6 inline-flex min-h-[48px] w-full max-w-xs items-center justify-center rounded-full bg-sage-gold px-8 text-base font-medium text-white active:bg-sage-gold/80 sm:mt-8 sm:w-auto sm:text-sm"
       >
         {t('cta')}
       </a>
@@ -46,7 +46,7 @@ export function ToolCards() {
           >
             <span className="text-3xl sm:block">{icons[key]}</span>
             <div className="flex-1 sm:mt-4">
-              <h3 className="text-lg font-medium text-white sm:text-xl">
+              <h3 className="text-lg font-medium text-sage-primary sm:text-xl">
                 {t(`${key}.name`)}
               </h3>
               <p className="mt-1 text-sm leading-relaxed text-sage-muted">
@@ -112,7 +112,7 @@ export function ShopSection() {
             >
               {t(`products.${key}.element`)}
             </span>
-            <h3 className="mt-3 text-base font-medium text-white">
+            <h3 className="mt-3 text-base font-medium text-sage-primary">
               {t(`products.${key}.name`)}
             </h3>
             <p className="mt-1 text-xs text-sage-muted">{t(`products.${key}.desc`)}</p>

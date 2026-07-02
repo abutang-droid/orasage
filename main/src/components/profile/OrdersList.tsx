@@ -59,7 +59,7 @@ export function OrdersList() {
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="font-medium text-white">{o.title}</p>
+              <p className="font-medium text-sage-primary">{o.title}</p>
               <p className="mt-1 text-xs text-sage-muted">
                 {o.orderNo}
                 {o.appLabel ? ` · ${o.appLabel}` : ''}

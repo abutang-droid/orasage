@@ -46,7 +46,7 @@ export function ProfileDashboard() {
         <dl className="mt-4 space-y-3 text-sm">
           <div className="flex flex-wrap gap-x-2">
             <dt className="text-sage-muted">{t('displayName')}</dt>
-            <dd className="text-white">{user.displayName}</dd>
+            <dd className="text-sage-primary">{user.displayName}</dd>
           </div>
           {showDisplayId && user.displayId && (
             <div className="flex flex-wrap gap-x-2">
@@ -56,7 +56,7 @@ export function ProfileDashboard() {
           )}
           <div className="flex flex-wrap gap-x-2">
             <dt className="text-sage-muted">{t('email')}</dt>
-            <dd className="text-white">{user.email}</dd>
+            <dd className="text-sage-primary">{user.email}</dd>
           </div>
         </dl>
 
@@ -68,7 +68,7 @@ export function ProfileDashboard() {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               maxLength={100}
-              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-white outline-none focus:border-sage-gold/50"
+              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary outline-none focus:border-sage-gold/50"
               placeholder={t('nicknamePlaceholder')}
             />
           </label>

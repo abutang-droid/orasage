@@ -101,12 +101,6 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
     <div style={{ background: 'var(--bg-page)' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <div className="ziwei-subnav">
-        <Link href="/knowledge">← 知识库</Link>
-        <span className="ziwei-subnav-muted">倪师方法论</span>
-        <Link href="/chart">起盘 →</Link>
-      </div>
-
       <article className="max-w-3xl mx-auto px-6 py-12">
         {/* 面包屑 */}
         <nav style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.1em', marginBottom: '16px' }}>

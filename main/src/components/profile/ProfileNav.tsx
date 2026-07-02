@@ -29,8 +29,8 @@ export function ProfileNav() {
             href={item.href}
             className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
               active
-                ? 'bg-sage-purple/30 text-white'
-                : 'text-sage-muted hover:bg-sage-card hover:text-white'
+                ? 'bg-sage-gold/15 text-sage-gold'
+                : 'text-sage-muted hover:bg-sage-card hover:text-sage-primary'
             }`}
           >
             {t(item.key)}

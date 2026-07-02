@@ -18,11 +18,6 @@ export default function KnowledgeHomePage() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
-      <div className="ziwei-subnav">
-        <Link href="/chart">← 起盘</Link>
-        <span className="ziwei-subnav-muted">倪师方法论 · 知识库</span>
-        <Link href="/library">古籍 →</Link>
-      </div>
 
       {/* Hero */}
       <div className="text-center px-6 py-14">

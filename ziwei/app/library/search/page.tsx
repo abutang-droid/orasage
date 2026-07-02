@@ -16,11 +16,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
-      <div className="ziwei-subnav">
-        <Link href="/library">← 古籍库</Link>
-        <span className="ziwei-subnav-muted">搜索结果</span>
-        <Link href="/chart">起盘 →</Link>
-      </div>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
         <div className="text-center mb-10">

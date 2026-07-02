@@ -1,9 +1,14 @@
 # OraSage 平台交接备忘录
 
 > 写给下一任 Agent / 开发者。  
-> 最后更新：**2026-07-02**  
-> 当前活跃分支：`cursor/design-unify-ziwei-9ded`  
+> 最后更新：**2026-07-02**（platform-unify 迭代）  
+> 当前活跃分支：`cursor/platform-unify-full-e21e`  
 > 待办清单：[`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md)
+
+**本轮新增（platform-unify）：**
+- 合并 `design-unify` 后推进全站浅色设计（Main/Shop/Auth/Admin/Tarot）
+- 语言切换仅 Main 门户首页；命理 App 依赖 URL / 用户中心
+- Ziwei 合盘输入改为 Tab 切换；子页统一 App Shell 返回
 
 ---
 

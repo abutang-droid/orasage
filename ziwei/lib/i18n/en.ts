@@ -1,6 +1,9 @@
 const en: Record<string, string> = {
   'tab.single': 'Single Chart',
   'tab.heming': 'Compatibility',
+  'form.person.editing': 'Editing',
+  'form.person.first': 'Person 1',
+  'form.person.second': 'Person 2',
   'form.title': '── Birth Information ──',
   'form.name': 'Name (optional)',
   'form.name.placeholder': 'Enter your name',

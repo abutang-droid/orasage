@@ -58,17 +58,17 @@ export function ProductCard({ product }: { product: Product }) {
     <article className="flex flex-col rounded-2xl border border-sage-border bg-sage-card p-4">
       {product.element && (
         <span
-          className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${elementColors[product.element] ?? 'bg-sage-purple/20 text-sage-purple'}`}
+          className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${elementColors[product.element] ?? 'bg-sage-gold/15 text-sage-gold'}`}
         >
           {product.element}
         </span>
       )}
       {!product.element && (
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sage-purple/20 text-sm text-sage-purple">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sage-gold/15 text-sm text-sage-gold">
           ✦
         </span>
       )}
-      <h3 className="mt-3 text-base font-medium text-white">{product.name}</h3>
+      <h3 className="mt-3 text-base font-medium text-sage-primary">{product.name}</h3>
       <p className="mt-1 flex-1 text-xs text-sage-muted">{product.desc}</p>
       <div className="mt-4 flex items-center justify-between gap-2">
         <span className="text-lg font-medium text-sage-gold">{formatPrice(product.priceCents)}</span>

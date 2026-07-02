@@ -27,11 +27,6 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
-      <div className="ziwei-subnav">
-        <Link href="/library">← 古籍库</Link>
-        <span className="ziwei-subnav-muted">《{book.title}》</span>
-        <Link href="/chart">起盘 →</Link>
-      </div>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* 书名信息 */}

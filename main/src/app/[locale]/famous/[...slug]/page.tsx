@@ -22,7 +22,7 @@ export default async function FamousArticlePage({ params }: Props) {
 
   return (
     <PageShell>
-      <Link href="/famous" className="text-sm text-sage-gold hover:text-white">
+      <Link href="/famous" className="text-sm text-sage-gold hover:text-sage-primary">
         ← {t('back')}
       </Link>
       <PageTitle>

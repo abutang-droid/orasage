@@ -22,7 +22,7 @@ export default async function DaozangArticlePage({ params }: Props) {
 
   return (
     <PageShell>
-      <Link href="/daozang" className="text-sm text-sage-gold hover:text-white">
+      <Link href="/daozang" className="text-sm text-sage-gold hover:text-sage-primary">
         ← {t('back')}
       </Link>
       <PageTitle>

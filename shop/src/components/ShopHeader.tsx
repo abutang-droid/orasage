@@ -11,7 +11,7 @@ export async function ShopHeader() {
           OraSage
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="https://orasage.com" className="hidden text-xs text-sage-muted sm:inline hover:text-white">
+          <Link href="https://orasage.com" className="hidden text-xs text-sage-muted sm:inline hover:text-sage-primary">
             返回主站
           </Link>
           {user ? (
