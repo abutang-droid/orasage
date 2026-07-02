@@ -21,7 +21,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F } from "@/theme";
+import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -71,9 +71,7 @@ type ResultData =
   | { type: "double"; data: DoubleBaziResult };
 
 // ─── 设计常量 ─────────────────────────
-// 颜色从 theme.ts 统一定义
-const MUTED_CLR  = "#6E6858";
-const BORDER_CLR = "#15122A";
+const MUTED_CLR  = BODY_CLR;
 const SANS       = "'Noto Sans SC','PingFang SC',sans-serif";
 
 // ─── 太极 SVG ─────────────────────────
@@ -437,7 +435,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.gender === g ? GOLD : "transparent",
-                color: form.gender === g ? "#0A0815" : MUTED_CLR,
+                color: form.gender === g ? "#ffffff" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.gender === g ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -457,7 +455,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.calendar === c ? GOLD : "transparent",
-                color: form.calendar === c ? "#0A0815" : MUTED_CLR,
+                color: form.calendar === c ? "#ffffff" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.calendar === c ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -791,7 +789,7 @@ export default function Home() {
                       style={{
                         padding: "0.6rem 0", border: "none",
                         background: mode === m ? `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)` : "transparent",
-                        color: mode === m ? "#0A0815" : MUTED_CLR,
+                        color: mode === m ? "#ffffff" : MUTED_CLR,
                         fontFamily: SANS, fontSize: "0.875rem",
                         fontWeight: mode === m ? 700 : 400,
                         borderRadius: "11px",
@@ -869,7 +867,7 @@ export default function Home() {
                 style={{
                   padding: "1.125rem 0", border: "none", borderRadius: "20px",
                   background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-                  color: "#0A0815", fontFamily: SANS, fontSize: "1.125rem",
+                  color: "#ffffff", fontFamily: SANS, fontSize: "1.125rem",
                   fontWeight: 700, letterSpacing: "0.16em",
                   boxShadow: `0 6px 24px rgba(196,160,78,0.40)`,
                 }}

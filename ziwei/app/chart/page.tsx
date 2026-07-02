@@ -81,6 +81,9 @@ export default function ChartPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'heming') {
+      setMode('heming');
+    }
     const formData = searchParamsToForm(params);
     if (!formData?.year) return;
     const fullForm: BirthFormState = { name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0', unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', ...formData };
@@ -111,9 +114,8 @@ export default function ChartPage() {
       setChart(dataA); setChartB(dataB); setFocus(null); setView('mingpan'); setHemingTab('A');
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
-      const readingId = syncZiweiReading(dataA, { label: '甲' });
+      const readingId = syncZiweiReading(dataA, { couplePartner: dataB });
       saveLastReadingId(readingId);
-      void syncZiweiReading(dataB, { label: '乙', existingReadingId: readingId });
     }
     catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
     finally { setLoading(false); }

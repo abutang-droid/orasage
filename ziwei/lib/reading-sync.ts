@@ -38,14 +38,32 @@ export function ziweiCrystalRecommendation(chart: ZiweiChart) {
   };
 }
 
-export function syncZiweiReading(chart: ZiweiChart, options?: { label?: string; existingReadingId?: string }) {
+export function syncZiweiReading(
+  chart: ZiweiChart,
+  options?: { label?: string; existingReadingId?: string; couplePartner?: ZiweiChart },
+) {
   const name = chart.birthInfo.name?.trim() || '命主';
   const readingId = options?.existingReadingId ?? newReadingId('ziwei');
+
+  if (options?.couplePartner) {
+    const partner = options.couplePartner;
+    const nameB = partner.birthInfo.name?.trim() || '对方';
+    const payloadJson = JSON.stringify({ type: 'couple', chartA: chart, chartB: partner });
+    void syncReading({
+      appSource: 'ziwei',
+      readingId,
+      title: `紫微合盘 · ${name} & ${nameB}`,
+      summary: `${ziweiSummary(chart)} × ${ziweiSummary(partner)}`,
+      payloadJson,
+    });
+    return readingId;
+  }
+
   const title = options?.label
     ? `紫微合盘 · ${options.label} · ${name}`
     : `紫微排盘 · ${name}`;
   const crystal = ziweiCrystalRecommendation(chart);
-  const payloadJson = JSON.stringify({ type: options?.label ? 'couple' : 'single', chart });
+  const payloadJson = JSON.stringify({ type: 'single', chart });
   void syncReading({
     appSource: 'ziwei',
     readingId,

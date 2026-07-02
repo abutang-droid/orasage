@@ -13,17 +13,13 @@ interface WheelPickerProps {
   formatLabel?: (val: string) => string;
 }
 
-// ── 设计常量（墨金主题）───────
-const GOLD       = "#C4A04E";
-const GOLD_GHOST = "rgba(196,160,78,0.08)";
-const HEADING    = "#EDE8D8";
-const BODY_CLR   = "#ADA898";
-const MUTED_CLR  = "#6E6858";
-const ERR_CLR    = "#f87171";
-const BG_PAGE    = "#0A0815";
-const BG_CARD    = "#15122A";
-const BORDER_CLR = "#15122A";
-const SANS       = "'Noto Sans SC','PingFang SC',sans-serif";
+import {
+  GOLD, GOLD_GHOST, HEADING, BODY_CLR, MUTED_CLR,
+  BG_PAGE, BG_CARD, BORDER_CLR, SANS_F,
+} from "@/theme";
+
+const ERR_CLR = "#dc2626";
+const SANS = SANS_F;
 
 // ── 各字段的验证规则 ────────
 type FieldKind = "year" | "month" | "day" | "hour" | "minute";

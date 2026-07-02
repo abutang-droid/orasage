@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { updateOrderStatus } from '@/lib/orders';
-import { dispatchBaziReportJob } from '@/lib/reportJob';
+import { dispatchReportJob } from '@/lib/reportJob';
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (orderNo) {
       try {
         await updateOrderStatus(orderNo, 'paid');
-        await dispatchBaziReportJob({
+        await dispatchReportJob({
           orderNo,
           userId: Number(session.metadata?.userId),
           sku: session.metadata?.sku,

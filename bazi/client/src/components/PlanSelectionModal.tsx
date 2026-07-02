@@ -5,20 +5,13 @@ import { PLAN_OPTIONS, COUPLE_PLAN_OPTIONS } from "@shared/types";
 import { useT } from "@/lib/i18n";
 import { usePriceFetcher } from "@/lib/priceFetcher";
 
-// ─── OraSage 设计常量（墨金主题）────────────────────────────────────
-const GOLD       = "#C4A04E";
-const GOLD_LIGHT = "#D4B86A";
-const GOLD_DIM   = "rgba(196,160,78,0.85)";
-const GOLD_FAINT = "rgba(196,160,78,0.22)";
-const GOLD_GHOST = "rgba(196,160,78,0.07)";
-const HEADING    = "#EDE8D8";
-const BODY_CLR   = "#ADA898";
-const MUTED_CLR  = "#6E6858";
-const BG_PAGE    = "#0A0815";
-const BG_CARD    = "#15122A";
-const BORDER_CLR = "#15122A";
-const SERIF      = "'Noto Serif SC','Source Han Serif SC',serif";
-const SANS       = "'Noto Sans SC','PingFang SC',sans-serif";
+import {
+  GOLD, GOLD_LIGHT, GOLD_DIM, GOLD_FAINT, GOLD_GHOST,
+  HEADING, BODY_CLR, MUTED_CLR, BG_PAGE, BG_CARD, BORDER_CLR, SERIF_F, SANS_F,
+} from "@/theme";
+
+const SERIF = SERIF_F;
+const SANS = SANS_F;
 
 interface PlanSelectionModalProps {
   open: boolean;
@@ -205,7 +198,7 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
                   className="absolute top-0 right-0 px-3 py-1 text-[10px] font-bold tracking-wider"
                   style={{
                     background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-                    color: "#0A0815",
+                    color: "#ffffff",
                     borderRadius: "0 0 0 10px",
                     fontFamily: SANS,
                     letterSpacing: "0.12em",
