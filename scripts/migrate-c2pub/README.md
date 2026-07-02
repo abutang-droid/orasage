@@ -61,14 +61,37 @@ AUTH_DATABASE_URL=$(grep DATABASE_URL /opt/orasage/.env | cut -d= -f2-) \
 - 已存在相同邮箱的用户会复用，不会重复创建
 - 订单号格式：`WC-{woocommerce_order_id}`
 
-## 三、八字报告（需 MySQL 访问）
+## 三、八字报告（MySQL 只读）
 
-报告存在 WordPress `wp_usermeta.meta_key = 'orasage_reports'`（序列化 PHP 数组）。
+报告存在 WordPress `wp_usermeta.meta_key = 'orasage_reports'`。
 
-可选方案：
-- **A.** 提供 c2.pub MySQL 只读账号，运行 `export-wp-reports.sql` 导出
-- **B.** 在 c2.pub 临时安装导出脚本（`orasage-payment` 插件可扩展 `/orasage/v1/export`）
-- **C.** 保留 c2.pub 报告链接，在 auth 用户中心显示 `source_url` 跳转
+### 3.1 放行 VPS IP（必做）
+
+c2.pub MySQL 默认禁止外网连接。在主机面板添加 **Remote MySQL** 白名单：
+
+| 主机商 | 路径 |
+|--------|------|
+| **SiteGround** | Site Tools → MySQL → **Remote MySQL** → 添加 `34.75.40.67` |
+| **cPanel** | Remote MySQL → Access Hosts → `34.75.40.67` |
+
+OraSage VPS IP：`34.75.40.67`
+
+### 3.2 执行迁移
+
+```bash
+cd /opt/orasage/scripts/migrate-c2pub && npm ci
+
+C2PUB_MYSQL_HOST=35.213.189.218 \
+C2PUB_MYSQL_USER=你的用户 \
+C2PUB_MYSQL_PASSWORD='你的密码' \
+C2PUB_MYSQL_DATABASE=你的库名 \
+AUTH_DATABASE_URL=$(grep DATABASE_URL /opt/orasage/.env | cut -d= -f2-) \
+  node migrate-wp-reports.mjs
+```
+
+凭证来源：`wp-config.php` 中的 `DB_NAME` / `DB_USER` / `DB_PASSWORD`（建议另建只读账号）。
+
+**勿将密码提交到 Git 或发到公开渠道。** 迁移完成后请轮换数据库密码。
 
 ## 四、迁移后
 

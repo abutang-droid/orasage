@@ -4,6 +4,8 @@
   "type": "module",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "pg": "^8.13.0"
+    "mysql2": "^3.14.0",
+    "pg": "^8.13.0",
+    "php-serialize": "^5.1.3"
   }
 }
