@@ -78,6 +78,13 @@ form input, form select {
 .empty { text-align: center; padding: 2rem 1rem; color: var(--orasage-secondary, #6b7280); font-size: 0.9rem; }
 .empty a { display: inline-block; margin-top: 0.75rem; }
 .loading { text-align: center; color: var(--orasage-secondary, #6b7280); padding: 2rem; }
+
+.orasage-auth-body {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 16px);
+}
+.orasage-auth-content {
+  min-height: calc(100dvh - 72px);
+}
 @media (min-width: 768px) {
   .auth-card { padding-top: 3rem; }
 }

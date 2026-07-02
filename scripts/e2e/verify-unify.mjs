@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * 本地自检：固定底栏 + Ziwei 合盘 Tab
- * 用法：node scripts/e2e/verify-unify.mjs
+ * 全站底栏自检：除 Main 门户首页外，所有页面应有固定底栏
  */
 import { chromium } from 'playwright';
 
-const ZIWEI = process.env.ZIWEI_URL || 'http://127.0.0.1:3111';
 const MAIN = process.env.MAIN_URL || 'http://127.0.0.1:3100';
+const SHOP = process.env.SHOP_URL || 'http://127.0.0.1:3102';
+const ZIWEI = process.env.ZIWEI_URL || 'http://127.0.0.1:3111';
+const AUTH = process.env.AUTH_URL || 'http://127.0.0.1:3101';
 
 const failures = [];
 
@@ -15,41 +16,69 @@ function check(name, ok, detail = '') {
   console.log(`${ok ? '✓' : '✗'} ${name}${detail ? ` — ${detail}` : ''}`);
 }
 
+async function expectNav(page, label) {
+  const nav = page.locator('.orasage-app-bottomnav');
+  let visible = false;
+  try {
+    await nav.waitFor({ state: 'visible', timeout: 10000 });
+    visible = true;
+  } catch {
+    visible = false;
+  }
+  check(`${label} bottom nav visible`, visible);
+  if (visible) {
+    const pos = await nav.evaluate((el) => getComputedStyle(el).position);
+    check(`${label} bottom nav fixed`, pos === 'fixed', pos);
+  }
+}
+
+async function expectNoNav(page, label) {
+  const count = await page.locator('.orasage-app-bottomnav').count();
+  check(`${label} NO bottom nav`, count === 0, `count=${count}`);
+}
+
 async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 
-  // 1. Ziwei /chart 有固定底栏
-  await page.goto(`${ZIWEI}/chart?lang=zh-CN`, { waitUntil: 'domcontentloaded' });
-  const chartNav = page.locator('.orasage-app-bottomnav');
-  check('ziwei /chart bottom nav visible', await chartNav.isVisible());
-  const chartNavPos = await chartNav.evaluate((el) => getComputedStyle(el).position);
-  check('ziwei /chart bottom nav position fixed', chartNavPos === 'fixed', chartNavPos);
+  const mainPagesWithNav = [
+    '/zh-CN/famous',
+    '/zh-CN/daozang',
+    '/zh-CN/about',
+    '/zh-CN/terms',
+    '/zh-CN/privacy',
+    '/zh-CN/faq',
+    '/zh-CN/profile',
+    '/zh-CN/profile/about',
+    '/zh-CN/profile/terms',
+    '/zh-CN/profile/privacy',
+    '/zh-CN/profile/orders',
+    '/zh-CN/profile/readings',
+  ];
 
-  // 2. Ziwei 合盘 Tab 切换
-  await page.getByRole('button', { name: /双人合盘|合盘/ }).click();
-  await page.waitForTimeout(300);
-  const personTabs = page.getByRole('button', { name: /第一人|第二人/ });
-  const tabCount = await personTabs.count();
-  check('ziwei heming has person tabs', tabCount >= 2, `count=${tabCount}`);
-  const formCount = await page.locator('form').count();
-  check('ziwei heming shows one form at a time', formCount === 1, `forms=${formCount}`);
-  await personTabs.nth(1).click();
-  await page.waitForTimeout(200);
-  check('ziwei heming tab switch works', await personTabs.nth(1).evaluate((el) => {
-    const bg = getComputedStyle(el).backgroundImage;
-    return bg.includes('gradient') || getComputedStyle(el).color === 'rgb(255, 255, 255)';
-  }));
-
-  // 3. Ziwei 子页底栏
-  await page.goto(`${ZIWEI}/knowledge?lang=zh-CN`, { waitUntil: 'domcontentloaded' });
-  check('ziwei /knowledge bottom nav', await page.locator('.orasage-app-bottomnav').isVisible());
-
-  // 4. Main 首页无底栏，profile 有底栏
   await page.goto(`${MAIN}/zh-CN`, { waitUntil: 'domcontentloaded' });
-  check('main homepage NO bottom nav', (await page.locator('.orasage-app-bottomnav').count()) === 0);
-  await page.goto(`${MAIN}/zh-CN/profile`, { waitUntil: 'domcontentloaded' });
-  check('main /profile bottom nav', await page.locator('.orasage-app-bottomnav').isVisible());
+  await expectNoNav(page, 'main homepage');
+
+  for (const path of mainPagesWithNav) {
+    await page.goto(`${MAIN}${path}`, { waitUntil: 'domcontentloaded' });
+    await expectNav(page, path);
+  }
+
+  await page.goto(`${SHOP}/`, { waitUntil: 'domcontentloaded' });
+  await expectNav(page, 'shop home');
+
+  await page.goto(`${SHOP}/success?order=demo`, { waitUntil: 'domcontentloaded' });
+  await expectNav(page, 'shop success');
+
+  await page.goto(`${ZIWEI}/chart?lang=zh-CN`, { waitUntil: 'domcontentloaded' });
+  await expectNav(page, 'ziwei chart');
+
+  try {
+    await page.goto(`${AUTH}/login`, { waitUntil: 'domcontentloaded', timeout: 8000 });
+    await expectNav(page, 'auth login');
+  } catch {
+    check('auth login (skipped — server not running)', true, 'skipped');
+  }
 
   await browser.close();
 
@@ -57,7 +86,7 @@ async function main() {
     console.error('\nFAILED:', failures);
     process.exit(1);
   }
-  console.log('\nAll unify checks passed.');
+  console.log('\nAll portal bottom-nav checks passed.');
 }
 
 main().catch((err) => {

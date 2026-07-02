@@ -1,5 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getAuthUser } from "../lib/auth-user.ts";
+import { bottomNavHtml } from "../lib/bottom-nav-html.ts";
 
 export const pagesRouter = Router();
 
@@ -16,17 +17,18 @@ function safeRedirect(url?: string): string {
   return "https://orasage.com/zh-CN/profile";
 }
 
-function layout(title: string, body: string): string {
+function layout(title: string, body: string, locale = "zh-CN"): string {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-  <meta name="theme-color" content="#0f0e17">
+  <meta name="theme-color" content="#fafaf8">
   <title>${title} — OraSage</title>
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
 </head>
-<body><div class="app-shell">${body}</div><script src="/assets/app.js" defer></script></body>
+<body class="orasage-auth-body"><div class="app-shell orasage-auth-content">${body}</div>${bottomNavHtml(locale)}<script src="/assets/app.js" defer></script></body>
 </html>`;
 }
 
