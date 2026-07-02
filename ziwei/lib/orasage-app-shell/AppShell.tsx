@@ -148,7 +148,6 @@ export function AppShell({
           >
             <NavIcon name="app" active={onAppHome} />
             <span className="orasage-app-nav-brand">{brand}</span>
-            <span>{pickLabel(SHELL_LABELS.currentApp, locale)}</span>
           </a>
 
           <button
