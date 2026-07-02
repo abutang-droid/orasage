@@ -128,6 +128,14 @@
   padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
 }
 
+.orasage-app-main--no-bottomnav {
+  padding-bottom: 12px;
+}
+
+.orasage-portal-main {
+  padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
 .orasage-app-bottomnav {
   position: fixed;
   left: 0;

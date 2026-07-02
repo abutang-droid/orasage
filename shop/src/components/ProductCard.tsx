@@ -5,11 +5,11 @@ import type { Product } from '@/lib/products';
 import { formatPrice } from '@/lib/products';
 
 const elementColors: Record<string, string> = {
-  '木': 'bg-emerald-500/20 text-emerald-300',
-  '火': 'bg-red-500/20 text-red-300',
-  '土': 'bg-amber-500/20 text-amber-300',
-  '金': 'bg-slate-400/20 text-slate-200',
-  '水': 'bg-indigo-500/20 text-indigo-300',
+  '木': 'bg-emerald-500/15 text-emerald-700',
+  '火': 'bg-red-500/15 text-red-700',
+  '土': 'bg-amber-500/15 text-amber-800',
+  '金': 'bg-slate-400/15 text-slate-700',
+  '水': 'bg-indigo-500/15 text-indigo-700',
 };
 
 export function ProductCard({ product }: { product: Product }) {

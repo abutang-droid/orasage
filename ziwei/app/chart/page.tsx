@@ -17,7 +17,12 @@ import PaywallCard from '@/components/PaywallCard';
 import CrystalShopCard from '@/components/CrystalShopCard';
 import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
 
-// ─── 合盘输入面板（Tab 切换两人信息，与八字一致）────────────────────────────
+// ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
+const emptyBirthForm = (): BirthFormState => ({
+  name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0',
+  unknownTime: false, province: '', city: '', longitude: 120, gender: 'male',
+});
+
 function HemingPanel({
   onSubmit,
   loading,
@@ -27,57 +32,75 @@ function HemingPanel({
 }) {
   const t = useT();
   const [activePerson, setActivePerson] = useState<0 | 1>(0);
-  const [formA, setFormA] = useState<BirthFormState | null>(null);
-  const [formB, setFormB] = useState<BirthFormState | null>(null);
-  const canSubmit = formA?.year && formA?.month && formA?.day && formB?.year && formB?.month && formB?.day;
+  const [forms, setForms] = useState<[BirthFormState, BirthFormState]>([emptyBirthForm(), emptyBirthForm()]);
+  const canSubmit =
+    forms[0].year && forms[0].month && forms[0].day &&
+    forms[1].year && forms[1].month && forms[1].day;
+
   const handleSubmit = () => {
-    if (!formA || !formB) return;
-    onSubmit(formToBirthInfo(formA), formToBirthInfo(formB), formA, formB);
+    onSubmit(formToBirthInfo(forms[0]), formToBirthInfo(forms[1]), forms[0], forms[1]);
   };
-  const activeForm = activePerson === 0 ? formA : formB;
-  const personLabels = [t('heming.person.a'), t('heming.person.b')] as const;
-  const personBadges = ['甲', '乙'] as const;
+
+  const personLabels = [t('form.person.first'), t('form.person.second')] as const;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.08em', flexShrink: 0 }}>
           {t('form.person.editing')}
         </span>
+      </div>
+      <div style={{ display: 'flex', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-lg)', padding: '4px', gap: '4px' }}>
         {personLabels.map((label, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => setActivePerson(idx as 0 | 1)}
             style={{
-              padding: '6px 16px',
+              flex: 1,
+              height: '40px',
+              borderRadius: 'var(--r-md)',
               border: 'none',
-              background: 'transparent',
-              color: activePerson === idx ? 'var(--gold)' : 'var(--tx-3)',
-              borderBottom: activePerson === idx ? '2px solid var(--gold)' : '2px solid transparent',
-              fontSize: '12px',
-              fontWeight: activePerson === idx ? 600 : 400,
+              background: activePerson === idx ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'transparent',
+              color: activePerson === idx ? '#FFFFFF' : 'var(--tx-2)',
+              fontSize: '13px',
+              fontWeight: activePerson === idx ? 700 : 400,
               cursor: 'pointer',
-              borderRadius: 0,
+              letterSpacing: '0.05em',
             }}
           >
-            {personBadges[idx]} · {label}
+            {label}
           </button>
         ))}
       </div>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--bdr)', overflow: 'hidden' }}>
-        <div style={{ padding: '20px' }}>
-          <BirthForm
-            key={activePerson}
-            onSubmit={() => {}}
-            loading={false}
-            hideSubmit
-            initialData={activeForm ?? undefined}
-            onFormSave={activePerson === 0 ? setFormA : setFormB}
-          />
-        </div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--bdr)', padding: '24px' }}>
+        <BirthForm
+          key={activePerson}
+          onSubmit={() => {}}
+          loading={false}
+          hideSubmit
+          initialData={forms[activePerson]}
+          onFormSave={(data) => {
+            setForms((prev) => {
+              const next: [BirthFormState, BirthFormState] = [...prev] as [BirthFormState, BirthFormState];
+              next[activePerson] = data;
+              return next;
+            });
+          }}
+        />
       </div>
-      <button onClick={handleSubmit} disabled={!canSubmit || loading}
-        style={{ width: '100%', height: '52px', background: canSubmit && !loading ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'var(--bdr-med)', color: canSubmit && !loading ? '#FFFFFF' : 'var(--tx-3)', border: 'none', borderRadius: 'var(--r-md)', fontSize: '15px', fontWeight: 700, cursor: canSubmit && !loading ? 'pointer' : 'not-allowed', letterSpacing: '0.15em', transition: 'all 0.2s' }}>
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!canSubmit || loading}
+        style={{
+          width: '100%', height: '52px',
+          background: canSubmit && !loading ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'var(--bdr-med)',
+          color: canSubmit && !loading ? '#FFFFFF' : 'var(--tx-3)',
+          border: 'none', borderRadius: 'var(--r-md)', fontSize: '15px', fontWeight: 700,
+          cursor: canSubmit && !loading ? 'pointer' : 'not-allowed', letterSpacing: '0.15em',
+        }}
+      >
         {loading ? t('heming.submit.loading') : t('heming.submit')}
       </button>
     </div>

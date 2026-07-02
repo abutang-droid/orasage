@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PortalShell } from '@/components/PortalShell';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
@@ -46,7 +47,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="flex min-h-screen flex-col bg-sage-bg text-sage-primary antialiased">
         <NextIntlClientProvider messages={messages}>
           <Header />
-          <main className="flex-1">{children}</main>
+          <PortalShell>{children}</PortalShell>
           <Footer />
         </NextIntlClientProvider>
       </body>

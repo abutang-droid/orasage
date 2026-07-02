@@ -3,7 +3,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
-import { useTheme } from '@/components/ThemeProvider';
 import { PROVINCES } from '@/lib/ziwei/cities';
 import { useT } from '@/lib/i18n';
 import { fetchSavedProfiles, profileDisplayLabel, savedProfileToBirthForm, type SavedProfile } from '@/lib/profile-sync';
@@ -47,8 +46,6 @@ function isValidDate(y: number, m: number, d: number): boolean {
 }
 
 export default function BirthForm({ onSubmit, loading, initialData, onFormSave, hideSubmit }: BirthFormProps) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
   const t = useT();
 
   const [form, setForm] = useState<BirthFormState>({
@@ -153,20 +150,21 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     }, form);
   };
 
-  const bg = isDark ? 'rgba(8,16,40,0.85)' : 'rgba(255,255,255,0.92)';
-  const border = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(200,160,60,0.2)';
-  const labelClr = isDark ? 'rgba(180,200,225,0.9)' : 'rgba(120,80,10,0.55)';
-  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,252,240,0.8)';
-  const inputBorder = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(200,160,60,0.25)';
-  const inputClr = isDark ? '#e8eef8' : '#2a1a00';
-  const focusBorder = isDark ? 'rgba(212,168,67,0.5)' : 'rgba(180,120,20,0.5)';
-  const errorClr = isDark ? '#f87171' : '#dc2626';
-  const panelBg = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,250,235,0.7)';
-  const panelBorder = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(200,160,60,0.2)';
-  const goldText = isDark ? '#d4a843' : '#7a5008';
-  const summaryBg = isDark ? 'rgba(37,99,235,0.12)' : 'rgba(37,99,235,0.07)';
-  const summaryBorder = isDark ? 'rgba(37,99,235,0.35)' : 'rgba(37,99,235,0.25)';
-  const summaryClr = isDark ? 'rgba(147,197,253,0.9)' : 'rgba(37,99,235,0.85)';
+  const bg = 'var(--bg-card)';
+  const border = 'var(--bdr)';
+  const labelClr = 'var(--tx-2)';
+  const inputBg = '#ffffff';
+  const inputBorder = 'var(--bdr)';
+  const inputClr = 'var(--tx-0)';
+  const focusBorder = 'var(--gold-border)';
+  const errorClr = '#dc2626';
+  const panelBg = 'var(--gold-pale)';
+  const panelBorder = 'var(--gold-border)';
+  const goldText = 'var(--gold)';
+  const summaryBg = 'rgba(184, 148, 63, 0.08)';
+  const summaryBorder = 'var(--gold-border)';
+  const summaryClr = 'var(--tx-1)';
+  const hintClr = 'var(--tx-3)';
 
   const inputStyle = {
     background: inputBg,
@@ -218,7 +216,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         {steps.map((done, i) => (
           <motion.div
             key={i}
-            animate={{ background: done ? (isDark ? '#d4a843' : '#b07820') : (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(200,160,60,0.15)') }}
+            animate={{ background: done ? 'var(--gold)' : 'var(--gold-pale)' }}
             transition={{ duration: 0.3 }}
             style={{ flex: 1, height: '2px', borderRadius: '2px' }}
           />
@@ -305,12 +303,12 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         <AnimatePresence mode="wait">
           {form.province ? (
             <motion.p key="location-info" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.5)', marginTop: '5px' }}>
+              style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
               {form.city || t('form.city.select')} · {t('form.longitude')} {form.longitude.toFixed(1)}°E · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
             </motion.p>
           ) : (
             <motion.p key="location-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)', marginTop: '5px' }}>
+              style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
               {t('form.location.hint')}
             </motion.p>
           )}
@@ -329,14 +327,14 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             </select>
           </div>
           <div style={{ textAlign: 'center', padding: '4px 0' }}>
-            <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)' }}>{t('form.solar.hour')}</span>
+            <span style={{ fontSize: '10px', color: hintClr }}>{t('form.solar.hour')}</span>
             <span style={{ fontSize: '15px', color: goldText, fontWeight: 600, letterSpacing: '0.08em' }}>{SHICHEN_NAMES[branch]}时</span>
-            {shichenInfo && (<span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)', marginLeft: '4px' }}>（{shichenInfo.range}）</span>)}
+            {shichenInfo && (<span style={{ fontSize: '10px', color: hintClr, marginLeft: '4px' }}>（{shichenInfo.range}）</span>)}
           </div>
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', cursor: 'pointer' }}>
           <input type="checkbox" checked={form.unknownTime} onChange={e => setForm({ ...form, unknownTime: e.target.checked })} style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }} />
-          <span style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)' }}>{t('form.unknown.time')}</span>
+          <span style={{ fontSize: '10px', color: hintClr }}>{t('form.unknown.time')}</span>
         </label>
       </div>
 
@@ -350,7 +348,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             return (<motion.button key={g} type="button" onClick={() => setForm({ ...form, gender: g })} whileTap={{ scale: 0.97 }}
               style={{ flex: 1, padding: '11px', borderRadius: '14px', fontSize: '13px', fontWeight: 500,
                 border: `1px solid ${active ? `rgba(${accent},0.6)` : inputBorder}`, background: active ? `rgba(${accent},0.08)` : inputBg,
-                color: active ? `rgba(${accent},0.9)` : (isDark ? 'rgba(190,205,225,0.7)' : 'rgba(100,80,40,0.4)'), cursor: 'pointer' }}>
+                color: active ? `rgba(${accent},0.9)` : 'var(--tx-3)', cursor: 'pointer' }}>
               {isMale ? t('form.gender.male') : t('form.gender.female')}
             </motion.button>);
           })}
@@ -371,9 +369,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       {!hideSubmit && <motion.button type="submit" disabled={loading}
         whileHover={loading ? {} : { scale: 1.01 }} whileTap={loading ? {} : { scale: 0.98 }}
         style={{ width: '100%', padding: '14px', borderRadius: '16px', fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-          background: loading ? (isDark ? 'rgba(212,168,67,0.15)' : 'rgba(180,120,20,0.15)') : (isDark ? 'linear-gradient(135deg, rgba(180,130,40,0.9), rgba(240,200,80,0.9))' : 'linear-gradient(135deg, #9a6210, #c88020)'),
-          color: loading ? (isDark ? 'rgba(212,168,67,0.4)' : 'rgba(120,80,10,0.4)') : (isDark ? '#08080a' : '#fff8e8'),
-          boxShadow: loading ? 'none' : (isDark ? '0 4px 20px rgba(212,168,67,0.2)' : '0 4px 16px rgba(140,100,20,0.25)'), transition: 'all 0.2s' }}>
+          background: loading ? 'var(--gold-pale)' : 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)',
+          color: loading ? 'var(--tx-3)' : '#ffffff',
+          boxShadow: loading ? 'none' : '0 4px 16px rgba(184, 148, 63, 0.25)', transition: 'all 0.2s' }}>
         {loading ? (
           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}

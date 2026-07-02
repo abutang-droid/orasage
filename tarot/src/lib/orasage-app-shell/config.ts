@@ -1,5 +1,13 @@
 export type AppId = 'bazi' | 'ziwei' | 'tarot';
 
+/** Main 门户子页使用 portal 上下文 */
+export type NavContext = AppId | 'portal';
+
+export function isMainPortalHome(pathname: string): boolean {
+  const p = pathname.replace(/\/$/, '') || '/';
+  return p === '/';
+}
+
 export const APP_BRANDS: Record<AppId, string> = {
   bazi: 'BaZi',
   ziwei: 'ZiWei',
