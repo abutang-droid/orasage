@@ -37,5 +37,34 @@ export const Pages: CollectionConfig = {
       type: 'richText',
       editor: lexicalEditor(),
     },
+    {
+      name: 'legacyHtml',
+      type: 'textarea',
+      admin: {
+        description: '从 c2.pub WordPress 迁移的原始 HTML（优先于富文本展示）',
+      },
+    },
+    {
+      name: 'sourceUrl',
+      type: 'text',
+      admin: { readOnly: true },
+    },
+    {
+      name: 'wpType',
+      type: 'select',
+      options: ['post', 'page'],
+      admin: { readOnly: true },
+    },
+    {
+      name: 'wpId',
+      type: 'number',
+      index: true,
+      admin: { readOnly: true },
+    },
+    {
+      name: 'locale',
+      type: 'text',
+      admin: { readOnly: true },
+    },
   ],
 };

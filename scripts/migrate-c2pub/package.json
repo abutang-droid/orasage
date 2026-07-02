@@ -1,0 +1,9 @@
+{
+  "name": "orasage-migrate-c2pub",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "pg": "^8.13.0"
+  }
+}
