@@ -115,3 +115,7 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
 export function daozangArticlePath(slug: string): string {
   return `/daozang/${slug}`;
 }
+
+export function famousArticlePath(slug: string): string {
+  return `/famous/${slug}`;
+}
