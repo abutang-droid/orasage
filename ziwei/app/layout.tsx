@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { LocaleProvider } from '@/lib/i18n';
+import { OraSageAppShell } from '@/components/OraSageAppShell';
 
 export const metadata: Metadata = {
   title: '紫微斗数排盘 · OraSage',
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
         <LocaleProvider>
-          {children}
+          <OraSageAppShell>{children}</OraSageAppShell>
         </LocaleProvider>
       </body>
     </html>

@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { OraSageAppShell } from "./components/OraSageAppShell";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
@@ -67,7 +68,9 @@ function App() {
           <LocaleContext.Provider value={{ locale, ui }}>
             <Toaster />
             <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
-              <Router />
+              <OraSageAppShell>
+                <Router />
+              </OraSageAppShell>
             </div>
           </LocaleContext.Provider>
         </TooltipProvider>

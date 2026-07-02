@@ -4,12 +4,11 @@
     "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
   },
   "nav": {
-    "home": "Home",
-    "about": "About",
-    "faq": "FAQ",
+    "bazi": "BaZi",
+    "ziwei": "ZiWei",
+    "tarot": "Tarot",
     "famous": "Famous Cases",
     "daozang": "Dao Canon",
-    "shop": "Shop",
     "login": "Sign In"
   },
   "hero": {
@@ -107,5 +106,12 @@
     "back": "Back to list",
     "sourceLink": "Original source",
     "noBody": "No content"
+  },
+  "profile": {
+    "title": "My Account",
+    "desc": "Profile, orders, and account settings will be managed here.",
+    "phase2": "The full user center arrives in the next phase (profiles, orders, about us, and more).",
+    "login": "Sign in",
+    "backHome": "Back to home"
   }
 }
