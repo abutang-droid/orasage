@@ -12,6 +12,8 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
+    defaultColumns: ['title', 'wpType', 'wpStatus', 'appSource', 'updatedAt'],
+    description: '导入的 WordPress 正文在「原文预览」中查看；公开预览：/view/[slug]',
   },
   fields: [
     {
@@ -33,38 +35,79 @@ export const Pages: CollectionConfig = {
       defaultValue: 'main',
     },
     {
+      type: 'collapsible',
+      label: 'WordPress 迁移信息',
+      admin: {
+        initCollapsed: false,
+        condition: (data) => Boolean(data?.legacyHtml || data?.sourceUrl || data?.wpId),
+      },
+      fields: [
+        {
+          name: 'legacyPreview',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: '/components/LegacyHtmlPreview#LegacyHtmlPreview',
+            },
+          },
+        },
+        {
+          name: 'legacyHtml',
+          type: 'textarea',
+          admin: {
+            description: '从 c2.pub WordPress 迁移的原始 HTML。公开页 /view/[slug] 会渲染此字段。',
+            rows: 12,
+          },
+        },
+        {
+          name: 'sourceUrl',
+          type: 'text',
+          admin: { readOnly: true },
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'wpType',
+              type: 'select',
+              options: [
+                { label: '知识库 (doc)', value: 'doc' },
+                { label: '文章 (post)', value: 'post' },
+                { label: '页面 (page)', value: 'page' },
+              ],
+              admin: { readOnly: true, width: '33%' },
+            },
+            {
+              name: 'wpStatus',
+              type: 'select',
+              options: [
+                { label: '已发布', value: 'publish' },
+                { label: '草稿', value: 'draft' },
+              ],
+              admin: { readOnly: true, width: '33%' },
+            },
+            {
+              name: 'wpId',
+              type: 'number',
+              index: true,
+              admin: { readOnly: true, width: '33%' },
+            },
+          ],
+        },
+        {
+          name: 'locale',
+          type: 'text',
+          admin: { readOnly: true },
+        },
+      ],
+    },
+    {
       name: 'content',
       type: 'richText',
       editor: lexicalEditor(),
-    },
-    {
-      name: 'legacyHtml',
-      type: 'textarea',
       admin: {
-        description: '从 c2.pub WordPress 迁移的原始 HTML（优先于富文本展示）',
+        description: 'CMS 富文本（新内容用此字段；WordPress 导入的正文在上方「原文预览」）',
       },
-    },
-    {
-      name: 'sourceUrl',
-      type: 'text',
-      admin: { readOnly: true },
-    },
-    {
-      name: 'wpType',
-      type: 'select',
-      options: ['post', 'page'],
-      admin: { readOnly: true },
-    },
-    {
-      name: 'wpId',
-      type: 'number',
-      index: true,
-      admin: { readOnly: true },
-    },
-    {
-      name: 'locale',
-      type: 'text',
-      admin: { readOnly: true },
     },
   ],
 };
