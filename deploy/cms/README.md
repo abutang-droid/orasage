@@ -15,11 +15,13 @@ CMS 使用 **PostgreSQL**（与 auth/shop 同一实例，独立库 `orasage_cms`
 grep DATABASE_URL /opt/orasage/.env
 ```
 
-用 auth 的账号创建 CMS 库（把连接串里的库名换成 `postgres` 执行建库）：
+用 auth 的账号创建 CMS 库（把连接串末尾库名换成 `postgres` 执行建库）：
 
 ```bash
 # 示例：若 auth 为 postgresql://orasage:你的密码@127.0.0.1:5432/orasage_auth
-psql "postgresql://orasage:你的密码@127.0.0.1:5432/postgres" -c "CREATE DATABASE orasage_cms;"
+AUTH_URL=$(grep '^DATABASE_URL=' /opt/orasage/.env | cut -d= -f2- | tr -d "'\"")
+BASE_URL=$(echo "$AUTH_URL" | sed -E 's|/[a-zA-Z0-9_]+(\?.*)?$|/postgres\1|')
+psql "$BASE_URL" -c "CREATE DATABASE orasage_cms;"
 ```
 
 或用 postgres 超级用户：
@@ -40,11 +42,17 @@ nano cms/.env
 
 写入（**PAYLOAD_SECRET 单独生成，不要用 JWT_SECRET**）：
 
+```bash
+AUTH_URL=$(grep '^DATABASE_URL=' /opt/orasage/.env | cut -d= -f2- | tr -d "'\"")
+CMS_DB_URL=$(echo "$AUTH_URL" | sed -E 's|/[a-zA-Z0-9_]+(\?.*)?$|/orasage_cms\1|')
+openssl rand -hex 32   # 用作 PAYLOAD_SECRET
+```
+
 ```
 NODE_ENV=production
 PORT=3120
-DATABASE_URL=postgresql://orasage:你的密码@127.0.0.1:5432/orasage_cms
-PAYLOAD_SECRET=随机32位以上字符串
+DATABASE_URL=<上一步 CMS_DB_URL>
+PAYLOAD_SECRET=<openssl 生成的随机串>
 NEXT_PUBLIC_SERVER_URL=https://cms.orasage.com
 ```
 

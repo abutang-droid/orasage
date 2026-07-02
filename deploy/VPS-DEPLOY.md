@@ -2,18 +2,18 @@
 
 VPS: `34.75.40.67`（GCP e2-standard-2，用户 `ubuntu`）
 
-## 当前线上状态（2026-07-01）
+## 当前线上状态（2026-07-02）
 
 | 子域名 | HTTP | 说明 |
 |--------|------|------|
-| shop.orasage.com | 200 | ✅ 正常 |
-| auth.orasage.com | 302 | ✅ 正常 |
-| tarot.orasage.com | 200 | ⚠️ 可能是旧 proxy，待切 native |
 | orasage.com | 307 | ✅ 重定向正常 |
-| ziwei.orasage.com | 307 | ⚠️ 待确认 native |
-| admin.orasage.com | 502 | ❌ 未部署 |
-| bazi.orasage.com | 502 | ❌ 未部署 |
-| cms.orasage.com | 502 | ❌ 未部署 |
+| auth.orasage.com | 302 | ✅ 正常 |
+| shop.orasage.com | 200 | ✅ 正常 |
+| admin.orasage.com | 200/502 | ⚠️ 骨架，服务已启但功能未完善 |
+| bazi.orasage.com | 200 | ✅ native |
+| ziwei.orasage.com | 307 | ✅ native |
+| tarot.orasage.com | 200 | ✅ native |
+| cms.orasage.com | 200 | ✅ Payload CMS（首次访问 /admin 创建管理员） |
 
 ## 方式一：GCP 控制台 SSH（推荐，无需本地密钥）
 

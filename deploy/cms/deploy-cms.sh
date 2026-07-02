@@ -70,9 +70,12 @@ try_create_database() {
   fi
 
   if [ -n "$auth_url" ]; then
-    local db_name
-    db_name=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+).*|\1|')
-    psql "$auth_url" -c "CREATE DATABASE ${db_name};" 2>/dev/null || true
+    local db_name base_url
+    db_name=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+)(\?.*)?$|\1|')
+    base_url=$(echo "$auth_url" | sed -E 's|/[a-zA-Z0-9_]+(\?.*)?$|/postgres\1|')
+    psql "$base_url" -c "CREATE DATABASE ${db_name} OWNER orasage;" 2>/dev/null \
+      || sudo -u postgres psql -c "CREATE DATABASE ${db_name} OWNER orasage;" 2>/dev/null \
+      || true
     if psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; then
       log "数据库 ${db_name} 已就绪"
       return 0
