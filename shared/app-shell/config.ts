@@ -24,6 +24,10 @@ export const ORASAGE_URLS = {
   temple: 'https://tarot.orasage.com/temple',
 } as const;
 
+export function mainPortalUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}`;
+}
+
 export function profileUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/profile`;
 }
