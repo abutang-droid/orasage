@@ -57,17 +57,22 @@ async function upsertLegalPage(client, map, item) {
   const wpId = item?.id ?? null;
   const wpStatus = item?.status || 'publish';
 
-  const existing = await client.query('SELECT id FROM pages WHERE slug = $1', [map.cmsSlug]);
+  const byWp = wpId
+    ? await client.query('SELECT id, slug FROM pages WHERE wp_type = $1 AND wp_id = $2', ['page', wpId])
+    : { rows: [] };
 
-  if (existing.rows.length > 0) {
+  const bySlug = await client.query('SELECT id, slug FROM pages WHERE slug = $1', [map.cmsSlug]);
+  const existing = byWp.rows[0] ?? bySlug.rows[0];
+
+  if (existing) {
     if (DRY_RUN) {
-      console.log(`[dry-run] update ${map.cmsSlug} ← ${map.wpSlug}`);
+      console.log(`[dry-run] update ${map.cmsSlug} ← ${map.wpSlug} (id=${existing.id})`);
       return 'updated';
     }
     await client.query(
-      `UPDATE pages SET title=$1, app_source='main', legacy_html=$2, source_url=$3, wp_type='page', wp_id=$4, locale='zh-CN', wp_status=$5, updated_at=now()
-       WHERE slug=$6`,
-      [title, legacyHtml, sourceUrl, wpId, wpStatus, map.cmsSlug],
+      `UPDATE pages SET title=$1, slug=$2, app_source='main', legacy_html=$3, source_url=$4, wp_type='page', wp_id=$5, locale='zh-CN', wp_status=$6, updated_at=now()
+       WHERE id=$7`,
+      [title, map.cmsSlug, legacyHtml, sourceUrl, wpId, wpStatus, existing.id],
     );
     return 'updated';
   }
