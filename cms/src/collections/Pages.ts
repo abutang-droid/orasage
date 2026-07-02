@@ -13,7 +13,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'wpType', 'wpStatus', 'appSource', 'updatedAt'],
-    description: '导入的 WordPress 正文在「原文预览」中查看；公开预览：/view/[slug]',
+    description: '导入的 WordPress 正文在「原文预览」中查看；公开预览：/view/[...slug]',
   },
   fields: [
     {

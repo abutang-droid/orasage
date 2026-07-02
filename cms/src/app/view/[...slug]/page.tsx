@@ -3,11 +3,12 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 export default async function PageView({ params }: Props) {
-  const { slug } = await params;
+  const { slug: slugParts } = await params;
+  const slug = slugParts.join('/');
   const payload = await getPayload({ config });
 
   const result = await payload.find({
