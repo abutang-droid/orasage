@@ -17,8 +17,11 @@ export async function PortalChrome({ children, locale }: { children: ReactNode; 
         style={{
           minHeight: 0,
           background: 'transparent',
-          // 与 main 页面 background token（白底）一致，底栏不形成色块
-          ['--shell-bg' as string]: '#ffffff',
+          ['--shell-bg' as string]: '#fafaf8',
+          ['--shell-text' as string]: '#171717',
+          ['--shell-muted' as string]: '#6b7280',
+          ['--shell-gold' as string]: '#171717',
+          ['--shell-border' as string]: '#e7e5e4',
         }}
       >
         <FixedBottomNav context="portal" locale={locale} pathname={pathname} />

@@ -5,16 +5,33 @@
  */
 
 /**
- * OraSage Design Tokens v1.1
- * Runtime source for Tailwind and shadcn/ui.
- *
- * Source baseline:
- * docs/design-system/tokens/OraSage_Brand_Design_Tokens_v1.1.md
+ * OraSage Design Tokens v1.1 (Revised)
+ * Monochrome system — black / white / gray only.
+ * Authority: OraSage Design System v1.1 (Revised)
  */
 :root {
   color-scheme: light;
 
-  /* Primitive colors */
+  /* Monochrome primitives (v1.1 Revised) */
+  --os-color-mono-black: #171717;
+  --os-color-mono-black-hover: #333333;
+  --os-color-mono-gray-deep: #6b7280;
+  --os-color-mono-gray-mid: #a1a1aa;
+  --os-color-mono-gray-light: #e7e5e4;
+  --os-color-mono-bg: #fafaf8;
+  --os-color-mono-white: #ffffff;
+  --os-color-mono-disabled-text: #d1d5db;
+  --os-color-mono-disabled-border: #f3f4f6;
+
+  --os-rgb-mono-black: 23 23 23;
+  --os-rgb-mono-black-hover: 51 51 51;
+  --os-rgb-mono-gray-deep: 107 114 128;
+  --os-rgb-mono-gray-mid: 161 161 170;
+  --os-rgb-mono-gray-light: 231 229 228;
+  --os-rgb-mono-bg: 250 250 248;
+  --os-rgb-mono-white: 255 255 255;
+
+  /* Legacy primitives (kept for gradual migration) */
   --os-color-ink-1000: #070908;
   --os-color-ink-950: #0b0e0d;
   --os-color-ink-900: #111615;
@@ -40,10 +57,10 @@
   --os-color-brass-50: #f8f2e5;
   --os-color-brass-100: #efe2c5;
   --os-color-brass-200: #dfc997;
-  --os-color-brass-300: #d0b47a;
-  --os-color-brass-400: #be9e60;
-  --os-color-brass-500: #a88445;
-  --os-color-brass-600: #806431;
+  --os-color-brass-300: #a1a1aa;
+  --os-color-brass-400: #9ca3af;
+  --os-color-brass-500: #9ca3af;
+  --os-color-brass-600: #9ca3af;
   --os-color-brass-700: #5d4825;
 
   --os-color-jade-50: #ecf3f0;
@@ -51,8 +68,8 @@
   --os-color-jade-200: #a6c6ba;
   --os-color-jade-300: #79aa98;
   --os-color-jade-400: #4b8c79;
-  --os-color-jade-500: #2f6b5c;
-  --os-color-jade-600: #255448;
+  --os-color-jade-500: #171717;
+  --os-color-jade-600: #6b7280;
   --os-color-jade-700: #1a3e35;
   --os-color-jade-800: #112b25;
   --os-color-jade-900: #0b1e1a;
@@ -66,16 +83,16 @@
   --os-color-violet-700: #413563;
   --os-color-violet-800: #2d2545;
 
-  --os-color-element-wood: #7fb08a;
-  --os-color-element-fire: #d98278;
-  --os-color-element-earth: #c4a665;
-  --os-color-element-metal: #bcc3c0;
-  --os-color-element-water: #7da3c0;
+  --os-color-element-wood: #a1a1aa;
+  --os-color-element-fire: #9ca3af;
+  --os-color-element-earth: #d1d5db;
+  --os-color-element-metal: #b0b5b2;
+  --os-color-element-water: #9ca3af;
 
-  --os-color-status-success: #73b68d;
-  --os-color-status-warning: #e7b66d;
-  --os-color-status-error: #e4877e;
-  --os-color-status-info: #76a7d7;
+  --os-color-status-success: #16a34a;
+  --os-color-status-warning: #d97706;
+  --os-color-status-error: #dc2626;
+  --os-color-status-info: #2563eb;
 
   /* RGB primitives for Tailwind opacity modifiers */
   --os-rgb-ink-950: 11 14 13;
@@ -100,16 +117,20 @@
   --os-rgb-violet-500: 111 90 168;
   --os-rgb-violet-600: 88 71 134;
   --os-rgb-violet-700: 65 53 99;
-  --os-rgb-status-error: 228 135 126;
-  --brand-primary: var(--os-rgb-jade-500);
-  --brand-gold: var(--os-rgb-brass-300);
-  --brand-purple: var(--os-rgb-violet-500);
+  --os-rgb-status-success: 22 163 74;
+  --os-rgb-status-warning: 217 119 6;
+  --os-rgb-status-error: 220 38 38;
+  --os-rgb-status-info: 37 99 235;
+  --brand-primary: var(--os-rgb-mono-black);
+  --brand-gold: var(--os-rgb-mono-gray-deep);
+  --brand-purple: var(--os-rgb-mono-gray-mid);
 
   /* Typography */
-  --os-font-serif-zh: "Source Han Serif SC", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", serif;
+  --os-font-serif-zh: "Source Han Serif SC", "Noto Serif SC", "Noto Serif CJK SC", "Songti SC", serif;
   --os-font-serif-latin: "Source Serif 4", "Times New Roman", serif;
-  --os-font-sans: "Inter", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --os-font-numeric: "Inter", "IBM Plex Sans", "Source Han Sans SC", sans-serif;
+  --os-font-sans: "Inter", "PingFang SC", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --os-font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --os-font-numeric: "Inter", "IBM Plex Sans", "PingFang SC", sans-serif;
 
   --os-font-weight-regular: 400;
   --os-font-weight-medium: 500;
@@ -118,10 +139,10 @@
 
   --os-font-display-1: clamp(2.75rem, 5vw, 4.5rem);
   --os-font-display-2: clamp(2.375rem, 4vw, 3.5rem);
-  --os-font-heading-1: clamp(2rem, 3.2vw, 2.75rem);
-  --os-font-heading-2: clamp(1.75rem, 2.6vw, 2.25rem);
-  --os-font-heading-3: clamp(1.5rem, 2vw, 1.75rem);
-  --os-font-heading-4: clamp(1.25rem, 1.6vw, 1.375rem);
+  --os-font-heading-1: 2.5rem;
+  --os-font-heading-2: 2rem;
+  --os-font-heading-3: 1.5rem;
+  --os-font-heading-4: 1.25rem;
   --os-font-body-lg: 1.125rem;
   --os-font-body-md: 1rem;
   --os-font-body-sm: 0.875rem;
@@ -131,16 +152,17 @@
   --os-line-display-1: 1.1;
   --os-line-display-2: 1.14;
   --os-line-heading-1: 1.2;
-  --os-line-heading-2: 1.25;
-  --os-line-heading-3: 1.3;
+  --os-line-heading-2: 1.3;
+  --os-line-heading-3: 1.4;
   --os-line-heading-4: 1.35;
-  --os-line-body: 1.7;
-  --os-line-label: 1.4;
+  --os-line-body: 1.6;
+  --os-line-label: 1.5;
 
-  --os-letter-tight: -0.01em;
+  --os-letter-tight: -0.02em;
   --os-letter-normal: 0;
-  --os-letter-wide: 0.04em;
-  --os-letter-eyebrow: 0.12em;
+  --os-letter-wide: 0.02em;
+  --os-letter-eyebrow: 0.05em;
+  --os-letter-caption: 0.05em;
 
   /* Spacing and layout */
   --os-space-0: 0;
@@ -177,6 +199,8 @@
   --os-radius-md: 0.75rem;
   --os-radius-lg: 1rem;
   --os-radius-xl: 1.5rem;
+  --os-radius-btn: 0.75rem;
+  --os-radius-card: 1rem;
   --os-radius-pill: 999px;
 
   --os-border-hairline: 1px;
@@ -185,18 +209,18 @@
   --os-border-emphasis: 2px;
 
   --os-shadow-none: none;
-  --os-shadow-surface-1: 0 1px 2px rgb(0 0 0 / 0.18);
-  --os-shadow-surface-2: 0 12px 32px rgb(0 0 0 / 0.2);
-  --os-shadow-surface-3: 0 24px 64px rgb(0 0 0 / 0.28);
-  --os-shadow-focus: 0 0 0 3px rgb(208 180 122 / 0.34);
-  --os-shadow-image: 0 24px 60px rgb(0 0 0 / 0.3);
+  --os-shadow-surface-1: 0 1px 2px rgb(0 0 0 / 0.04);
+  --os-shadow-surface-2: 0 4px 12px rgb(0 0 0 / 0.06);
+  --os-shadow-surface-3: 0 12px 32px rgb(0 0 0 / 0.08);
+  --os-shadow-focus: none;
+  --os-shadow-image: 0 12px 32px rgb(0 0 0 / 0.08);
 
   --os-motion-instant: 80ms;
-  --os-motion-fast: 140ms;
+  --os-motion-fast: 200ms;
   --os-motion-normal: 220ms;
   --os-motion-slow: 360ms;
   --os-motion-scene: 600ms;
-  --os-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --os-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --os-ease-enter: cubic-bezier(0, 0, 0, 1);
   --os-ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --os-ease-emphasis: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -216,47 +240,48 @@
   --os-size-icon-md: 20px;
   --os-size-icon-lg: 24px;
 
-  /* Semantic tokens: default paper editorial runtime mode */
-  --background: var(--os-rgb-ivory-50);
-  --foreground: var(--os-rgb-ink-900);
-  --card: 251 248 241;
-  --card-foreground: var(--os-rgb-ink-900);
-  --popover: 251 248 241;
-  --popover-foreground: var(--os-rgb-ink-900);
-  --primary: var(--os-rgb-jade-500);
-  --primary-foreground: var(--os-rgb-ivory-50);
-  --secondary: var(--os-rgb-ivory-100);
-  --secondary-foreground: var(--os-rgb-ink-900);
-  --muted: var(--os-rgb-ivory-100);
-  --muted-foreground: var(--os-rgb-ink-500);
-  --accent: var(--os-rgb-brass-300);
-  --accent-foreground: var(--os-rgb-ink-900);
+  /* Semantic tokens: v1.1 Revised monochrome */
+  --background: var(--os-rgb-mono-bg);
+  --foreground: var(--os-rgb-mono-black);
+  --card: var(--os-rgb-mono-white);
+  --card-foreground: var(--os-rgb-mono-black);
+  --popover: var(--os-rgb-mono-white);
+  --popover-foreground: var(--os-rgb-mono-black);
+  --primary: var(--os-rgb-mono-black);
+  --primary-foreground: var(--os-rgb-mono-white);
+  --secondary: var(--os-rgb-mono-white);
+  --secondary-foreground: var(--os-rgb-mono-black);
+  --muted: var(--os-rgb-mono-bg);
+  --muted-foreground: var(--os-rgb-mono-gray-deep);
+  --accent: var(--os-rgb-mono-gray-deep);
+  --accent-foreground: var(--os-rgb-mono-white);
   --destructive: var(--os-rgb-status-error);
-  --destructive-foreground: var(--os-rgb-ink-900);
-  --border: var(--os-rgb-ivory-300);
-  --input: var(--os-rgb-ink-500);
-  --ring: var(--os-rgb-jade-500);
-  --radius: var(--os-radius-md);
+  --destructive-foreground: var(--os-rgb-mono-white);
+  --border: var(--os-rgb-mono-gray-light);
+  --input: var(--os-rgb-mono-white);
+  --ring: var(--os-rgb-mono-black);
+  --placeholder: var(--os-rgb-mono-gray-mid);
+  --radius: var(--os-radius-btn);
   --radius-sm: var(--os-radius-sm);
-  --radius-md: var(--os-radius-md);
-  --radius-lg: var(--os-radius-lg);
+  --radius-md: var(--os-radius-btn);
+  --radius-lg: var(--os-radius-card);
   --radius-xl: var(--os-radius-xl);
 
   /* OraSage semantic aliases */
-  --orasage-brand-primary: var(--os-color-jade-500);
-  --orasage-brand-primary-hover: var(--os-color-jade-600);
-  --orasage-brand-primary-active: var(--os-color-jade-700);
-  --orasage-brand-gold: var(--os-color-brass-300);
-  --orasage-brand-purple: var(--os-color-violet-500);
-  --orasage-surface-1: #fbf8f1;
-  --orasage-surface-2: var(--os-color-ivory-100);
-  --orasage-surface-3: var(--os-color-ivory-200);
-  --orasage-text-primary: var(--os-color-ink-900);
-  --orasage-text-secondary: var(--os-color-ink-600);
-  --orasage-text-muted: var(--os-color-ink-500);
-  --orasage-focus-ring: var(--os-color-jade-500);
-  --orasage-selection: rgb(var(--os-rgb-jade-400) / 0.22);
-  --orasage-overlay-scrim: rgb(var(--os-rgb-ink-950) / 0.58);
+  --orasage-brand-primary: var(--os-color-mono-black);
+  --orasage-brand-primary-hover: var(--os-color-mono-black-hover);
+  --orasage-brand-primary-active: #262626;
+  --orasage-brand-gold: var(--os-color-mono-gray-deep);
+  --orasage-brand-purple: var(--os-color-mono-gray-mid);
+  --orasage-surface-1: var(--os-color-mono-white);
+  --orasage-surface-2: var(--os-color-mono-bg);
+  --orasage-surface-3: var(--os-color-mono-gray-light);
+  --orasage-text-primary: var(--os-color-mono-black);
+  --orasage-text-secondary: var(--os-color-mono-gray-deep);
+  --orasage-text-muted: var(--os-color-mono-gray-mid);
+  --orasage-focus-ring: var(--os-color-mono-black);
+  --orasage-selection: rgb(var(--os-rgb-mono-black) / 0.08);
+  --orasage-overlay-scrim: rgb(var(--os-rgb-mono-black) / 0.45);
 
   /* Deprecated legacy aliases kept for current pages */
   --orasage-background: rgb(var(--background));
@@ -265,11 +290,11 @@
   --orasage-secondary: rgb(var(--os-rgb-ink-600));
   --orasage-muted: rgb(var(--muted-foreground));
   --orasage-border: rgb(var(--border));
-  --orasage-border-subtle: rgb(var(--os-rgb-ivory-100));
+  --orasage-border-subtle: var(--os-color-mono-bg);
   --orasage-gold: var(--orasage-brand-gold);
-  --orasage-gold-light: var(--os-color-brass-200);
-  --orasage-gold-pale: rgb(var(--os-rgb-brass-300) / 0.1);
-  --orasage-gold-border: rgb(var(--os-rgb-brass-400) / 0.28);
+  --orasage-gold-light: var(--os-color-mono-gray-mid);
+  --orasage-gold-pale: rgb(var(--os-rgb-mono-gray-light) / 0.5);
+  --orasage-gold-border: var(--os-color-mono-gray-light);
   --orasage-purple: var(--orasage-brand-purple);
   --orasage-font-sans: var(--os-font-sans);
   --orasage-font-serif: var(--os-font-serif-zh);
@@ -336,23 +361,23 @@
 
 [data-theme="paper"] {
   color-scheme: light;
-  --background: var(--os-rgb-ivory-50);
-  --foreground: var(--os-rgb-ink-900);
-  --card: 251 248 241;
-  --card-foreground: var(--os-rgb-ink-900);
-  --popover: 251 248 241;
-  --popover-foreground: var(--os-rgb-ink-900);
-  --primary: var(--os-rgb-jade-500);
-  --primary-foreground: var(--os-rgb-ivory-50);
-  --secondary: var(--os-rgb-ivory-100);
-  --secondary-foreground: var(--os-rgb-ink-900);
-  --muted: var(--os-rgb-ivory-100);
-  --muted-foreground: var(--os-rgb-ink-500);
-  --accent: var(--os-rgb-brass-600);
-  --accent-foreground: var(--os-rgb-ivory-50);
-  --border: var(--os-rgb-ivory-300);
-  --input: var(--os-rgb-ink-500);
-  --ring: var(--os-rgb-jade-500);
+  --background: var(--os-rgb-mono-bg);
+  --foreground: var(--os-rgb-mono-black);
+  --card: var(--os-rgb-mono-white);
+  --card-foreground: var(--os-rgb-mono-black);
+  --popover: var(--os-rgb-mono-white);
+  --popover-foreground: var(--os-rgb-mono-black);
+  --primary: var(--os-rgb-mono-black);
+  --primary-foreground: var(--os-rgb-mono-white);
+  --secondary: var(--os-rgb-mono-white);
+  --secondary-foreground: var(--os-rgb-mono-black);
+  --muted: var(--os-rgb-mono-bg);
+  --muted-foreground: var(--os-rgb-mono-gray-deep);
+  --accent: var(--os-rgb-mono-gray-deep);
+  --accent-foreground: var(--os-rgb-mono-white);
+  --border: var(--os-rgb-mono-gray-light);
+  --input: var(--os-rgb-mono-white);
+  --ring: var(--os-rgb-mono-black);
 }
 
 /* Subtle paper texture utility retained for legacy surfaces. */

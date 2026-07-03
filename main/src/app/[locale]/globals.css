@@ -1,63 +1,6 @@
 @import '../../../../shared/design-tokens/orasage-tokens.css';
 @import '../../lib/orasage-app-shell/app-shell.css';
 
-/*
- * Main portal: monochrome tokens (white canvas, black/gray accents).
- * Layout, components, and home section structure are unchanged — only colors.
- */
-:root {
-  --background: 255 255 255;
-  --foreground: var(--os-rgb-ink-700);
-  --card: 255 255 255;
-  --card-foreground: var(--os-rgb-ink-700);
-  --popover: 255 255 255;
-  --popover-foreground: var(--os-rgb-ink-700);
-  --primary: var(--os-rgb-ink-700);
-  --primary-foreground: 255 255 255;
-  --secondary: 248 248 248;
-  --secondary-foreground: var(--os-rgb-ink-700);
-  --muted: 248 248 248;
-  --muted-foreground: var(--os-rgb-ink-400);
-  --accent: var(--os-rgb-ink-500);
-  --accent-foreground: 255 255 255;
-  --border: 237 239 237;
-  --input: var(--os-rgb-ink-400);
-  --ring: var(--os-rgb-ink-500);
-  --brand-primary: var(--os-rgb-ink-700);
-  --brand-gold: var(--os-rgb-ink-400);
-  --brand-purple: var(--os-rgb-ink-400);
-  --orasage-brand-primary: var(--os-color-ink-700);
-  --orasage-brand-gold: var(--os-color-ink-400);
-  --orasage-brand-purple: var(--os-color-ink-400);
-  --orasage-surface-1: #ffffff;
-  --orasage-surface-2: #f8f8f8;
-  --orasage-surface-3: #f0f0f0;
-  --orasage-selection: rgb(var(--os-rgb-ink-700) / 0.08);
-  --orasage-background: rgb(var(--background));
-  --orasage-primary: rgb(var(--foreground));
-  --orasage-border: rgb(var(--border));
-  --orasage-border-subtle: #f5f5f5;
-  /* Shop badge primitives → lighter gray scale */
-  --os-color-jade-600: #7a837e;
-  --os-color-violet-600: #a3aaa5;
-  --os-color-brass-600: #9ca3af;
-  --os-color-element-wood: #b0b5b2;
-  --os-color-element-fire: #a3aaa5;
-  --os-color-element-earth: #c8cdc8;
-  --os-color-element-metal: #b0b5b2;
-  --os-color-element-water: #9ca3af;
-}
-
-.orasage-app-shell[data-theme='light'] {
-  --shell-bg: #ffffff;
-  --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: #ededed;
-  --shell-border-subtle: #f8f8f8;
-  --shell-text: #2a3531;
-  --shell-muted: #7a837e;
-  --shell-gold: #3a4742;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -87,7 +30,6 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* 移动端优先：触控目标最小 44px */
   a,
   button {
     touch-action: manipulation;
@@ -120,6 +62,11 @@
   textarea,
   select {
     color: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgb(var(--placeholder));
   }
 
   [dir='rtl'] {
@@ -161,13 +108,13 @@
   }
 
   .prose-sage :where(h1, h2, h3, h4) {
-    @apply mt-8 mb-3 font-serif text-foreground;
+    @apply mt-8 mb-3 font-serif font-bold text-foreground;
   }
 
-  .prose-sage :where(h1) { @apply text-2xl leading-snug; }
-  .prose-sage :where(h2) { @apply text-xl leading-snug; }
-  .prose-sage :where(h3) { @apply text-lg leading-snug; }
-  .prose-sage :where(h4) { @apply text-base leading-snug; }
+  .prose-sage :where(h1) { @apply text-heading-1 tracking-[var(--os-letter-tight)]; }
+  .prose-sage :where(h2) { @apply text-heading-2 tracking-[-0.01em]; }
+  .prose-sage :where(h3) { @apply text-heading-3 font-medium; }
+  .prose-sage :where(h4) { @apply text-heading-4 font-medium; }
 
   .prose-sage :where(ul, ol) {
     @apply ps-5;
@@ -178,19 +125,19 @@
   }
 
   .prose-sage :where(blockquote) {
-    @apply border-s-2 border-primary/50 ps-4 text-muted-foreground;
+    @apply border-s-2 border-border ps-4 text-muted-foreground;
   }
 
   .prose-sage :where(a) {
-    @apply text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .prose-sage :where(img) {
-    @apply my-4 h-auto max-w-full rounded-md border border-border;
+    @apply my-4 h-auto max-w-full rounded-[var(--os-radius-card)] border border-border;
   }
 
   .prose-sage :where(pre, code) {
-    @apply rounded-md bg-muted text-foreground;
+    @apply rounded-[var(--os-radius-btn)] bg-muted font-mono text-foreground;
   }
 
   .prose-sage :where(pre) {
@@ -209,13 +156,22 @@
     @apply my-4 block max-w-full overflow-x-auto text-sm;
   }
 
-  /* ── Main portal home (editorial paper layout) ── */
+  /* ── Main portal home (DS v1.1 Revised) ── */
+  .home-portal {
+    background: rgb(var(--background));
+  }
+
+  .home-hero {
+    border-bottom: 0.5px solid rgb(var(--border));
+  }
+
   .home-eyebrow {
-    font-family: var(--os-font-serif-zh);
-    font-size: 0.6875rem;
-    letter-spacing: 0.22em;
+    font-family: var(--os-font-sans);
+    font-size: var(--os-font-label-sm);
+    font-weight: 500;
+    letter-spacing: var(--os-letter-caption);
     text-transform: uppercase;
-    color: rgb(var(--brand-gold) / 0.92);
+    color: rgb(var(--placeholder));
   }
 
   .home-hero-inner {
@@ -224,11 +180,19 @@
   }
 
   .home-section {
-    @apply mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8;
+    @apply mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10;
+  }
+
+  .home-section + .home-section {
+    border-top: 0.5px solid rgb(var(--border));
   }
 
   .home-section--tail {
-    @apply pb-8 sm:pb-10;
+    @apply pb-10 sm:pb-12;
+  }
+
+  .home-section-title {
+    @apply mb-4 font-serif text-heading-2 font-bold tracking-[-0.01em] text-foreground sm:mb-5;
   }
 
   .home-shop-toolbar {
@@ -236,19 +200,17 @@
   }
 
   .home-shop-more {
-    @apply border-primary/35 font-medium text-primary hover:bg-primary/5;
+    @apply font-medium;
   }
 
-  .home-tool-card {
-    @apply border-border/80 bg-background;
-  }
-
-  .home-product-card {
-    @apply border-border/80 bg-background;
-  }
-
+  .home-tool-card,
+  .home-product-card,
   .home-editorial-card {
-    @apply relative overflow-hidden border-border/80 bg-background;
+    @apply bg-card;
+  }
+
+  .home-tool-icon {
+    @apply bg-muted text-muted-foreground;
   }
 
   .home-editorial-card::before {
@@ -258,13 +220,7 @@
     inset-inline-start: 0;
     width: 2px;
     border-radius: 999px;
-    background: linear-gradient(
-      180deg,
-      transparent,
-      rgb(var(--brand-gold) / 0.55) 30%,
-      rgb(var(--brand-primary) / 0.45) 70%,
-      transparent
-    );
+    background: rgb(var(--foreground));
     opacity: 0;
     transition: opacity var(--os-motion-fast) var(--os-ease-standard);
   }

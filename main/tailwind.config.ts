@@ -46,6 +46,7 @@ const config: Config = {
         border: withOpacity('--border'),
         input: withOpacity('--input'),
         ring: withOpacity('--ring'),
+        placeholder: withOpacity('--placeholder'),
         brand: {
           primary: withOpacity('--brand-primary'),
           gold: withOpacity('--brand-gold'),
@@ -77,6 +78,7 @@ const config: Config = {
         serif: ['var(--os-font-serif-zh)'],
         'serif-latin': ['var(--os-font-serif-latin)'],
         numeric: ['var(--os-font-numeric)'],
+        mono: ['var(--os-font-mono)'],
       },
       fontSize: {
         'display-1': ['var(--os-font-display-1)', { lineHeight: 'var(--os-line-display-1)' }],

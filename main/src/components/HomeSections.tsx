@@ -17,48 +17,44 @@ const icons = { bazi: '☯', ziwei: '✦', tarot: '🌙' };
 
 const ELEMENT_STYLES: Record<string, CSSProperties> = {
   木: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-wood) 18%, transparent)',
-    color: 'var(--os-color-element-wood)',
+    backgroundColor: 'rgb(var(--foreground) / 0.06)',
+    color: 'rgb(var(--muted-foreground))',
   },
   火: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-fire) 18%, transparent)',
-    color: 'var(--os-color-element-fire)',
+    backgroundColor: 'rgb(var(--foreground) / 0.08)',
+    color: 'rgb(var(--muted-foreground))',
   },
   土: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-earth) 18%, transparent)',
-    color: 'var(--os-color-element-earth)',
+    backgroundColor: 'rgb(var(--foreground) / 0.1)',
+    color: 'rgb(var(--muted-foreground))',
   },
   金: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-metal) 22%, transparent)',
-    color: 'var(--os-color-ink-600)',
+    backgroundColor: 'rgb(var(--foreground) / 0.08)',
+    color: 'rgb(var(--muted-foreground))',
   },
   水: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-water) 20%, transparent)',
-    color: 'var(--os-color-element-water)',
+    backgroundColor: 'rgb(var(--foreground) / 0.06)',
+    color: 'rgb(var(--muted-foreground))',
   },
 };
 
 const CATEGORY_STYLES: Record<ProductCategory, CSSProperties> = {
   crystal: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-wood) 14%, transparent)',
-    color: 'var(--os-color-jade-600)',
+    backgroundColor: 'rgb(var(--foreground) / 0.06)',
+    color: 'rgb(var(--muted-foreground))',
   },
   report: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-violet-500) 14%, transparent)',
-    color: 'var(--os-color-violet-600)',
+    backgroundColor: 'rgb(var(--foreground) / 0.08)',
+    color: 'rgb(var(--muted-foreground))',
   },
   service: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-brass-300) 16%, transparent)',
-    color: 'var(--os-color-brass-600)',
+    backgroundColor: 'rgb(var(--foreground) / 0.1)',
+    color: 'rgb(var(--muted-foreground))',
   },
 };
 
 function ModuleTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="mb-3 font-serif text-lg font-medium tracking-wide text-foreground sm:mb-4 sm:text-xl">
-      {children}
-    </h2>
-  );
+  return <h2 className="home-section-title">{children}</h2>;
 }
 
 function productBadgeStyle(element?: string | null, category?: ProductCategory): CSSProperties {
@@ -94,15 +90,15 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
         />
       ) : null}
 
-      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-8 pt-6 text-center sm:px-6 sm:pb-10 sm:pt-8">
+      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-10 pt-8 text-center sm:px-6 sm:pb-12 sm:pt-10">
         {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="mt-2 font-serif text-[1.65rem] font-light leading-[1.2] tracking-wide text-foreground sm:mt-3 sm:text-[2.5rem] md:text-[2.75rem]">
+        <h1 className="mt-3 font-serif text-[1.75rem] font-bold leading-[var(--os-line-heading-1)] tracking-[var(--os-letter-tight)] text-foreground sm:mt-4 sm:text-heading-1">
           {hero.headline}
         </h1>
 
         {hero.subtitle ? (
-          <p className="mx-auto mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-base">
             {hero.subtitle}
           </p>
         ) : null}
@@ -112,12 +108,12 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
           <img
             src={hero.imageUrl!}
             alt=""
-            className="mx-auto mt-4 max-h-52 w-auto max-w-full rounded-lg object-contain sm:mt-5"
+            className="mx-auto mt-6 max-h-52 w-auto max-w-full rounded-[var(--os-radius-card)] border border-border object-contain sm:mt-7"
           />
         ) : null}
 
         {hero.bodyText ? (
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-[var(--os-line-body)] text-muted-foreground">
             {hero.bodyText}
           </p>
         ) : null}
@@ -144,7 +140,7 @@ export function ToolCards() {
           >
             <div className="flex items-start gap-3 sm:block">
               <span
-                className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-xl text-brand-gold transition-colors duration-fast group-hover:bg-primary/10 group-hover:text-primary sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
+                className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl transition-colors duration-fast group-hover:bg-foreground group-hover:text-background sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
                 aria-hidden
               >
                 {icons[key]}
@@ -152,14 +148,16 @@ export function ToolCards() {
               <div className="flex-1 sm:mt-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="text-base font-medium text-foreground sm:text-lg">{t(`${key}.name`)}</h3>
-                  <span className="hidden font-serif text-[10px] tracking-widest text-muted-foreground/60 sm:inline">
+                  <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground/70 sm:inline">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">{t(`${key}.desc`)}</p>
+                <p className="mt-1 text-xs leading-[var(--os-line-label)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-sm">
+                  {t(`${key}.desc`)}
+                </p>
               </div>
             </div>
-            <span className="self-center text-lg text-primary/70 transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-primary sm:hidden" aria-hidden>
+            <span className="self-center text-lg text-muted-foreground transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-foreground sm:hidden" aria-hidden>
               ›
             </span>
           </a>
@@ -187,7 +185,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
     <section id="shop" className="home-section">
       <ModuleTitle>{t('title')}</ModuleTitle>
 
-      <div className="home-shop-toolbar mb-4 flex items-center gap-3 sm:mb-5">
+      <div className="home-shop-toolbar mb-5 flex items-center gap-3 sm:mb-6">
         <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => {
             const active = currentCategory === cat.id;
@@ -198,7 +196,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(
                   badgeVariants({ variant: active ? 'default' : 'outline' }),
-                  'min-h-9 shrink-0 cursor-pointer rounded-full px-4 text-xs tracking-wide',
+                  'min-h-9 shrink-0 cursor-pointer rounded-[var(--os-radius-btn)] px-4 text-xs tracking-[var(--os-letter-wide)]',
                 )}
               >
                 {t(`categories.${cat.id}`)}
@@ -236,11 +234,11 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
             <h3 className="mt-2.5 text-sm font-medium leading-snug text-foreground sm:text-[15px]">
               {item.name}
             </h3>
-            <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+            <p className="mt-1 line-clamp-2 text-[11px] leading-[var(--os-line-label)] text-muted-foreground sm:text-xs">
               {item.desc}
             </p>
             {item.priceDisplay ? (
-              <p className="mt-auto pt-2 text-sm font-medium text-brand-gold">{item.priceDisplay}</p>
+              <p className="mt-auto pt-2 text-sm font-medium text-foreground">{item.priceDisplay}</p>
             ) : null}
           </a>
         ))}
@@ -263,9 +261,11 @@ export function ContentSections() {
             'home-editorial-card group block p-5 sm:p-6',
           )}
         >
-          <h3 className="font-serif text-lg text-foreground">{t('famous')}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('famousDesc')}</p>
-          <p className="mt-4 text-sm font-medium text-primary transition-transform duration-fast group-hover:translate-x-0.5">
+          <h3 className="font-serif text-heading-3 font-medium text-foreground">{t('famous')}</h3>
+          <p className="mt-2 text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground">
+            {t('famousDesc')}
+          </p>
+          <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
             {t('explore')} →
           </p>
         </Link>
@@ -276,9 +276,11 @@ export function ContentSections() {
             'home-editorial-card group block p-5 sm:p-6',
           )}
         >
-          <h3 className="font-serif text-lg text-foreground">{t('daozang')}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('daozangDesc')}</p>
-          <p className="mt-4 text-sm font-medium text-primary transition-transform duration-fast group-hover:translate-x-0.5">
+          <h3 className="font-serif text-heading-3 font-medium text-foreground">{t('daozang')}</h3>
+          <p className="mt-2 text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground">
+            {t('daozangDesc')}
+          </p>
+          <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
             {t('explore')} →
           </p>
         </Link>

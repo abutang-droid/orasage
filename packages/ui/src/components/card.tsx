@@ -3,12 +3,12 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
-const cardVariants = cva('rounded-lg border text-card-foreground', {
+const cardVariants = cva('rounded-[var(--os-radius-card)] border text-card-foreground', {
   variants: {
     variant: {
-      default: 'border-border bg-card shadow-none',
+      default: 'border-border bg-card shadow-surface-1',
       interactive:
-        'border-border bg-card shadow-none transition-[border-color,background-color,box-shadow,transform] duration-fast ease-standard hover:border-input hover:shadow-surface-1 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'border-border bg-card shadow-surface-1 transition-[border-color,background-color,box-shadow,transform] duration-fast ease-standard hover:border-foreground/15 hover:shadow-surface-2 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       muted: 'border-border bg-muted text-muted-foreground shadow-none',
       editorial: 'rounded-none border-border bg-card shadow-none',
     },

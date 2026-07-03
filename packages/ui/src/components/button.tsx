@@ -6,7 +6,7 @@ import { cn } from '../lib/utils';
 
 const buttonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold',
+    'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--os-radius-btn)] text-sm font-semibold',
     'transition-[background-color,border-color,color,box-shadow,opacity,transform] duration-fast ease-standard',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[var(--os-opacity-disabled)]',
@@ -16,10 +16,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70',
+        default:
+          'bg-primary text-primary-foreground hover:bg-[rgb(var(--os-rgb-mono-black-hover))] hover:-translate-y-px active:translate-y-0 active:bg-primary/90',
+        secondary:
+          'border border-border bg-secondary text-secondary-foreground hover:bg-muted active:bg-muted/80',
         outline: 'border border-border bg-background text-foreground hover:bg-muted active:bg-muted/80',
-        ghost: 'text-foreground hover:bg-muted active:bg-muted/80',
+        ghost: 'text-muted-foreground hover:bg-transparent hover:text-foreground active:text-foreground',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80',
         link: 'h-auto min-h-0 rounded-none px-0 text-primary underline-offset-4 hover:underline',
