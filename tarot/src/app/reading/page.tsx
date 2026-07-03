@@ -259,7 +259,7 @@ export default function ReadingPage() {
         setStep("revealing")
       })
       .catch(() => setError("连接星象失败，请重试"))
-  }, [started])
+  }, [started, fetchInterpret])
 
   // ── Reveal a card ───────────────────────────────────────────────
   const revealCard = useCallback((cardIndex: number) => {
