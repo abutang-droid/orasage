@@ -92,3 +92,20 @@ export function updateOrderStatus(orderNo: string, status: string) {
     body: JSON.stringify({ status }),
   });
 }
+
+export interface HomepageProductsConfig {
+  skus: string[];
+  products: AdminProduct[];
+  categories: Array<{ id: 'crystal' | 'report' | 'service'; label: string }>;
+}
+
+export function getHomepageProducts() {
+  return adminFetch<HomepageProductsConfig>('/homepage-products');
+}
+
+export function saveHomepageProducts(skus: string[]) {
+  return adminFetch<HomepageProductsConfig>('/homepage-products', {
+    method: 'PUT',
+    body: JSON.stringify({ skus }),
+  });
+}

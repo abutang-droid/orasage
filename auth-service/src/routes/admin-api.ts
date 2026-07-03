@@ -5,6 +5,7 @@ import { db } from "../db/index.ts";
 import { products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
 import { formatProduct } from "../lib/product-format.ts";
+import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 
 export const adminApiRouter = Router();
@@ -44,6 +45,38 @@ adminApiRouter.get("/stats", async (_req, res) => {
 adminApiRouter.get("/products", async (_req, res) => {
   const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
   res.json({ products: rows.map(formatProduct) });
+});
+
+const homepageSkusSchema = z.object({
+  skus: z.array(z.string().min(1).max(100)).max(6),
+});
+
+adminApiRouter.get("/homepage-products", async (_req, res) => {
+  const [skus, catalog] = await Promise.all([
+    listHomepageFeaturedSkus(),
+    resolveHomepageProducts(),
+  ]);
+  res.json({ skus, ...catalog });
+});
+
+adminApiRouter.put("/homepage-products", async (req, res) => {
+  try {
+    const body = homepageSkusSchema.parse(req.body);
+    await setHomepageFeaturedSkus(body.skus);
+    const catalog = await resolveHomepageProducts();
+    res.json({ skus: body.skus, ...catalog });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] homepage-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 adminApiRouter.post("/products", async (req, res) => {

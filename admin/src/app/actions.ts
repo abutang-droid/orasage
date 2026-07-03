@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts } from '@/lib/api';
 
 export async function saveProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
@@ -47,4 +47,14 @@ export async function updateOrderStatusAction(formData: FormData) {
   await updateOrderStatus(orderNo, status);
   revalidatePath('/orders');
   revalidatePath('/');
+}
+
+export async function saveHomepageProductsAction(formData: FormData) {
+  const skus: string[] = [];
+  for (let i = 0; i < 6; i += 1) {
+    const sku = String(formData.get(`slot_${i}`) ?? '').trim();
+    if (sku) skus.push(sku);
+  }
+  await saveHomepageProducts(skus);
+  revalidatePath('/products');
 }
