@@ -58,6 +58,7 @@ deploy_cms() {
   cd "$DEPLOY_DIR/cms"
   npm ci
   npm run migrate
+  npm run seed:tarot 2>/dev/null || log "cms seed:tarot 跳过"
   npm run build
   sudo cp "$DEPLOY_DIR/deploy/cms/orasage-cms.service" /etc/systemd/system/
   sudo systemctl daemon-reload

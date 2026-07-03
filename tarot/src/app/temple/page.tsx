@@ -3,7 +3,8 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { FaithPicker, loadStoredFaith } from "@/components/FaithPicker"
 import { formatFaithLabel } from "@/lib/faiths/religions"
-import { DEITIES, filterDeitiesByFaith, type Deity } from "@/lib/faiths/deities"
+import type { Sanctuary } from "@/lib/cms/sanctuaries"
+import type { Deity } from "@/lib/faiths/deities"
 import { useUser } from "@/lib/user"
 
 type TemplePhase = "faith" | "select" | "worship" | "blessing"
@@ -244,7 +245,7 @@ function WorshipScreen({ deity, onComplete }: { deity: Deity; onComplete: (durat
 
 // ─── Blessing End Screen ───────────────────────────────────────────
 function BlessingScreen({ deity, duration, stage, onDone }: {
-  deity: Deity; duration: number; stage: number; onDone: () => void
+  deity: Sanctuary; duration: number; stage: number; onDone: () => void
 }) {
   const peakLabel = stage === 3 ? "虔诚之巅" : stage === 2 ? "深度参拜" : "参拜完成"
   const merit = stage === 3 ? 10 : stage === 2 ? 5 : 1
@@ -292,9 +293,13 @@ function BlessingScreen({ deity, duration, stage, onDone }: {
           fontSize: 14, color: 'var(--text-primary)',
           lineHeight: 1.8, fontFamily: 'var(--font-serif)',
         }}>
-          她看见你心里的那团火——<br />
-          那是还没说出口的话。<br />
-          今天，向前走一步。
+          {deity.blessingText ?? (
+            <>
+              她看见你心里的那团火——<br />
+              那是还没说出口的话。<br />
+              今天，向前走一步。
+            </>
+          )}
         </div>
       </div>
 
@@ -334,8 +339,10 @@ function BlessingScreen({ deity, duration, stage, onDone }: {
 export default function TemplePage() {
   const { user, setFaith } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
-  const [selectedDeity, setSelectedDeity] = useState<Deity | null>(null)
-  const [savedDeity, setSavedDeity] = useState<Deity | null>(null)
+  const [selectedDeity, setSelectedDeity] = useState<Sanctuary | null>(null)
+  const [savedDeity, setSavedDeity] = useState<Sanctuary | null>(null)
+  const [sanctuaries, setSanctuaries] = useState<Sanctuary[]>([])
+  const [sanctuariesLoading, setSanctuariesLoading] = useState(false)
   const [phase, setPhase] = useState<TemplePhase>("faith")
   const [blessingData, setBlessingData] = useState<{ duration: number; stage: number } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -349,15 +356,31 @@ export default function TemplePage() {
   }, [user?.faith])
 
   useEffect(() => {
-    const saved = localStorage.getItem("manto:deity")
-    if (saved) {
-      try {
-        const deityId = JSON.parse(saved).id
-        const deity = DEITIES.find(d => d.id === deityId)
-        if (deity) setSavedDeity(deity)
-      } catch {}
-    }
-  }, [])
+    if (phase !== "select") return
+    let cancelled = false
+    setSanctuariesLoading(true)
+    const q = selectedFaith ? `?faith=${encodeURIComponent(selectedFaith)}` : ""
+    fetch(`/api/sanctuaries${q}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.sanctuaries) {
+          setSanctuaries(data.sanctuaries)
+          const saved = localStorage.getItem("manto:deity")
+          if (saved) {
+            try {
+              const deityId = JSON.parse(saved).id
+              const deity = data.sanctuaries.find((d: Sanctuary) => d.id === deityId)
+              if (deity) setSavedDeity(deity)
+            } catch {}
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setSanctuariesLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [phase, selectedFaith])
 
   const handleFaithChange = useCallback(async (faithId: string) => {
     setSelectedFaith(faithId)
@@ -365,9 +388,8 @@ export default function TemplePage() {
     setPhase("select")
   }, [setFaith])
 
-  const handleSelectDeity = useCallback((deity: Deity) => {
+  const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
-    // Save to localStorage
     localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
     setSavedDeity(deity)
     setPhase("worship")
@@ -383,8 +405,7 @@ export default function TemplePage() {
     setBlessingData(null)
   }, [])
 
-  const faithDeities = filterDeitiesByFaith(selectedFaith)
-  const filteredDeities = faithDeities.filter(d =>
+  const filteredDeities = sanctuaries.filter(d =>
     !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -463,7 +484,21 @@ export default function TemplePage() {
             />
           </div>
 
-          {searchQuery && filteredDeities.length === 0 && (
+          {sanctuariesLoading ? (
+            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 13 }}>
+              正在从 CMS 加载圣地…
+            </div>
+          ) : null}
+
+          {!sanctuariesLoading && filteredDeities.length === 0 && !searchQuery && (
+            <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+                该信仰暂无圣地，请在 CMS 后台添加或选择其他信仰。
+              </div>
+            </div>
+          )}
+
+          {searchQuery && !sanctuariesLoading && filteredDeities.length === 0 && (
             <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
               <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
               <div style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 8, fontFamily: 'var(--font-serif)' }}>
