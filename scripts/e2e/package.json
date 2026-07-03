@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:shop-flow": "node profile-shop-flow.mjs"
+    "test:shop-flow": "node profile-shop-flow.mjs",
+    "test:tarot-offer": "node tarot-offer-merit.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
