@@ -7,6 +7,8 @@
   "scripts": {
     "build:ui": "npm run build -w @orasage/ui",
     "build:tokens": "npm run build -w @orasage/tokens",
+    "tokens:sync": "node scripts/tokens/sync-tokens.mjs sync",
+    "tokens:check": "node scripts/tokens/sync-tokens.mjs check",
     "sync:auth-ui-css": "cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css && sed -i '1,/^$/d' auth-service/public/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — tokens via style.css */' auth-service/public/assets/orasage-ui.css"
   },
   "engines": {
