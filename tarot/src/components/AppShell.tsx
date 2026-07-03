@@ -11,6 +11,8 @@ const LANG_TO_LOCALE: Record<Lang, string> = {
   es: "es",
 }
 
+import { PortalFooter } from "@/components/PortalFooter"
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { lang } = useLang()
@@ -22,6 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       locale={locale}
       theme="light"
       pathname={pathname}
+      footer={<PortalFooter />}
     >
       {children}
     </OraSageAppShell>
