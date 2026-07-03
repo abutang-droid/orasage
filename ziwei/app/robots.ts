@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { ORASAGE_URLS } from '@/lib/orasage-seo';
 
-const BASE_URL = 'https://wdyziweidoushu666.com';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.ziwei;
 
 export default function robots(): MetadataRoute.Robots {
   return {

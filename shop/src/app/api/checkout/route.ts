@@ -6,6 +6,7 @@ import { makeOrderNo, syncOrderToAuth } from '@/lib/orders';
 import { ENV, hasStripe } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { isLocalRequest } from '@/lib/internal';
+import { detectCurrency, toStripeAmount, type ShopCurrency } from '@/lib/currency';
 
 const checkoutSchema = z.object({
   userId: z.number().int().positive(),
@@ -19,6 +20,7 @@ const checkoutSchema = z.object({
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
   planType: z.string().max(32).optional(),
+  currency: z.enum(['cny', 'usd']).optional(),
 });
 
 /** 内网结账 API — 供八字/紫微/塔罗等 App 调用 */
@@ -29,6 +31,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = checkoutSchema.parse(await req.json());
+    const currency: ShopCurrency = body.currency ?? detectCurrency(req.headers.get('accept-language'));
     const lineItems: Array<{ product: NonNullable<ReturnType<typeof getProduct>>; quantity: number }> = [];
 
     for (const item of body.items) {
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
     if (body.recommendationContext) {
       stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
     }
+    stripeMeta.currency = currency;
 
     const stripe = getStripe();
     if (stripe) {
@@ -81,14 +85,17 @@ export async function POST(req: NextRequest) {
         success_url: successUrl,
         cancel_url: cancelUrl,
         metadata: stripeMeta,
-        line_items: lineItems.map((li) => ({
-          quantity: li.quantity,
-          price_data: {
-            currency: 'cny',
-            unit_amount: li.product.priceCents,
-            product_data: { name: li.product.name, description: li.product.desc },
-          },
-        })),
+        line_items: lineItems.map((li) => {
+          const charge = toStripeAmount(li.product.priceCents, currency);
+          return {
+            quantity: li.quantity,
+            price_data: {
+              currency: charge.currency,
+              unit_amount: charge.unit_amount,
+              product_data: { name: li.product.name, description: li.product.desc },
+            },
+          };
+        }),
       });
       return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
     }
@@ -121,10 +128,13 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    const { sku, quantity = 1 } = z.object({
+    const { sku, quantity = 1, currency: requestedCurrency } = z.object({
       sku: z.string().min(1),
       quantity: z.number().int().positive().max(10).default(1),
+      currency: z.enum(['cny', 'usd']).optional(),
     }).parse(await req.json());
+
+    const currency: ShopCurrency = requestedCurrency ?? detectCurrency(req.headers.get('accept-language'));
 
     const product = getProduct(sku);
     if (!product) {
@@ -150,14 +160,17 @@ export async function PUT(req: NextRequest) {
         mode: 'payment',
         success_url: `${ENV.shopUrl}/success?order=${orderNo}`,
         cancel_url: `${ENV.shopUrl}/?sku=${sku}`,
-        metadata: { orderNo, userId: String(user.id) },
+        metadata: { orderNo, userId: String(user.id), currency },
         line_items: [{
           quantity,
-          price_data: {
-            currency: 'cny',
-            unit_amount: product.priceCents,
-            product_data: { name: product.name, description: product.desc },
-          },
+          price_data: (() => {
+            const charge = toStripeAmount(product.priceCents, currency);
+            return {
+              currency: charge.currency,
+              unit_amount: charge.unit_amount,
+              product_data: { name: product.name, description: product.desc },
+            };
+          })(),
         }],
       });
       return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
