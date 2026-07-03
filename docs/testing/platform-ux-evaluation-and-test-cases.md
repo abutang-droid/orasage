@@ -315,6 +315,7 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `auth-internal-forbidden.mjs` | `test:auth-internal` | BIZ-004 | API | ✅ |
 | `shop-crystal-flow.mjs` | `test:shop-crystal` | TC-SHOP-001 | Browser | ✅ |
 | `pay-double-click.mjs` | `test:pay-double` | UI-001 | Browser | ✅ |
+| `pay-network-retry.mjs` | `test:pay-network` | NET-002 | Browser | ✅ |
 | `run-smoke-all.mjs` | `test:smoke-all` | 全量生产冒烟（含 verify-unify） | mixed | ✅ |
 
 **一键生产冒烟（推荐 CI）：**
@@ -333,7 +334,6 @@ npm run test:smoke-all
 | TC-AUTH-002 | auth `/center` → profile 302 |
 | TC-TAROT-001/002 | 访客 daily-card / temple 浏览器流 |
 | TC-ADMIN-* | admin 角色门控 |
-| NET-002 | 支付中断网（需 Playwright 断网模拟） |
 
 ---
 
