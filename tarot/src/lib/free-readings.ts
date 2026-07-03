@@ -29,14 +29,20 @@ export async function grantFreeReadings(
   idempotencyKey: string,
 ): Promise<{ granted: boolean; remaining: number }> {
   if (count <= 0) {
-    const remaining = await getFreeReadingsRemaining(userId);
-    return { granted: false, remaining };
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { freeReadingsRemaining: true },
+    });
+    return { granted: false, remaining: user?.freeReadingsRemaining ?? 0 };
   }
 
   const dup = await prisma.meritLog.findUnique({ where: { idempotencyKey } });
   if (dup) {
-    const remaining = await getFreeReadingsRemaining(userId);
-    return { granted: false, remaining };
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { freeReadingsRemaining: true },
+    });
+    return { granted: false, remaining: user?.freeReadingsRemaining ?? 0 };
   }
 
   const updated = await prisma.$transaction(async (tx) => {
