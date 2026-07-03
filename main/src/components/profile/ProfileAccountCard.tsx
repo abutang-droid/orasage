@@ -1,14 +1,10 @@
 'use client';
 
+import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from '@orasage/ui';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { logout, updateProfile } from '@/lib/auth';
 import { externalUrls } from '@/lib/urls';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useProfileAuth } from './ProfileAuth';
 
 export function ProfileAccountCard() {

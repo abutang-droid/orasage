@@ -1,12 +1,10 @@
 'use client';
 
+import { Button, Card, CardContent, Skeleton } from '@orasage/ui';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { fetchMe, profileLoginUrl, type AuthUser } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const ProfileAuthContext = createContext<{
   user: AuthUser | null;

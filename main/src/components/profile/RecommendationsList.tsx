@@ -1,12 +1,10 @@
 'use client';
 
+import { Alert, AlertDescription, Button, Card, CardContent } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchRecommendations, type UserRecommendation } from '@/lib/auth';
 import { externalUrls } from '@/lib/urls';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 const CRYSTAL_LABELS: Record<string, string> = {

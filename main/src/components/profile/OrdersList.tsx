@@ -1,11 +1,9 @@
 'use client';
 
+import { Alert, AlertDescription, Badge, Card, CardContent } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOrders, type UserOrder } from '@/lib/auth';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 function formatDate(iso: string): string {

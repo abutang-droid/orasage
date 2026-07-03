@@ -1,6 +1,3 @@
-'use client';
-
-export type { OrasageControlSize } from '@orasage/tokens';
 export { CONTROL_HEIGHT_PX, ORASAGE_COLORS } from '@orasage/tokens';
 
 export { cn } from './lib/utils';

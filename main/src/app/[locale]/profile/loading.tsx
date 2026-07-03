@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton';
 
+import { Skeleton } from '@orasage/ui';
 export default function ProfileLoading() {
   return (
     <div className="space-y-6" aria-busy="true" aria-live="polite">

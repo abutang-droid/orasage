@@ -1,6 +1,6 @@
 import { PageShell } from '@/components/PageShell';
-import { Skeleton } from '@/components/ui/skeleton';
 
+import { Skeleton } from '@orasage/ui';
 export default function DaozangLoading() {
   return (
     <PageShell className="max-w-5xl" aria-busy="true" aria-live="polite">
