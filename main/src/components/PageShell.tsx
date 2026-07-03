@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { PortalBackToolbar } from '@/components/PortalBackToolbar';
 import { cn } from '@/lib/utils';
 
 /** 内容页通用容器 — 移动优先内边距与阅读宽度 */
@@ -12,6 +13,7 @@ export function PageShell({ children, className, ...props }: PageShellProps) {
       className={cn('mx-auto w-full max-w-3xl px-5 py-10 text-foreground sm:px-6 sm:py-16', className)}
       {...props}
     >
+      <PortalBackToolbar />
       {children}
     </article>
   );

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 全站底栏自检：除 Main 门户首页外，所有页面应有固定底栏
+ * 全站底栏自检：Main 门户全页（含首页）在移动端应有固定底栏
  */
 import { chromium } from 'playwright';
 
@@ -32,11 +32,6 @@ async function expectNav(page, label) {
   }
 }
 
-async function expectNoNav(page, label) {
-  const count = await page.locator('.orasage-app-bottomnav').count();
-  check(`${label} NO bottom nav`, count === 0, `count=${count}`);
-}
-
 async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -57,7 +52,7 @@ async function main() {
   ];
 
   await page.goto(`${MAIN}/zh-CN`, { waitUntil: 'domcontentloaded' });
-  await expectNoNav(page, 'main homepage');
+  await expectNav(page, 'main homepage');
 
   for (const path of mainPagesWithNav) {
     await page.goto(`${MAIN}${path}`, { waitUntil: 'domcontentloaded' });

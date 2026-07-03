@@ -22,7 +22,7 @@
 
 ## 布局模式
 
-- **导航**：手机汉堡菜单 + 全屏抽屉；`lg:` 以上水平导航
+- **导航**：`lg:` 以上顶栏水平导航；手机端同一套主导航固定底栏按钮式（`PortalMainBottomNav`）
 - **卡片列表**：手机单列纵向；`md:` 以上多列网格
 - **CTA 按钮**：手机全宽（`max-w-xs`）；桌面自适应宽度
 - **内容页**：`PageShell` 组件统一 `px-5 py-10` 移动内边距
@@ -38,6 +38,7 @@
 
 ## 参考实现
 
-- `main/src/components/Header.tsx` — 移动菜单 + 语言切换
+- `main/src/components/Header.tsx` — 桌面顶栏主导航
+- `main/src/components/PortalMainBottomNav.tsx` — 移动端底栏主导航
 - `main/src/components/PageShell.tsx` — 内容页容器
 - `main/src/app/[locale]/globals.css` — 安全区与触控基础样式
