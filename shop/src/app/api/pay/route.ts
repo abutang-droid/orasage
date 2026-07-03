@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo, updateOrderStatus } from '@/lib/orders';
 import { dispatchReportJob } from '@/lib/reportJob';
+import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
 
 /** 模拟支付 — PAYMENT_MODE=mock 时完成订单（需登录，且订单必须属于当前用户） */
 export async function POST(req: NextRequest) {
@@ -32,6 +33,14 @@ export async function POST(req: NextRequest) {
       await dispatchReportJob(order);
     } catch (err) {
       console.error('[pay] report-job error:', err);
+    }
+    if (order.appSource === 'tarot') {
+      await notifyTarotOfferMerit({
+        recommendationContext: order.recommendationContext,
+        orderNo,
+        amountCents: order.amountCents,
+        sku: order.sku,
+      });
     }
     return NextResponse.json({ success: true, orderNo, status: 'paid' });
   } catch (err) {

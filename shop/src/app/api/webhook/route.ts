@@ -4,6 +4,7 @@ import { getStripe } from '@/lib/stripe';
 import { paymentsUseStripe } from '@/lib/payment-mode';
 import { updateOrderStatus } from '@/lib/orders';
 import { dispatchReportJob } from '@/lib/reportJob';
+import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
 
 export async function POST(req: NextRequest) {
   if (!paymentsUseStripe()) {
@@ -42,6 +43,14 @@ export async function POST(req: NextRequest) {
           sku: session.metadata?.sku,
           readingId: session.metadata?.readingId,
         });
+        if (session.metadata?.appSource === 'tarot') {
+          await notifyTarotOfferMerit({
+            recommendationContext: session.metadata?.recommendationContext,
+            orderNo,
+            amountCents: session.amount_total ?? 0,
+            sku: session.metadata?.sku,
+          });
+        }
       } catch (err) {
         console.error('[webhook] order sync error:', err);
         return NextResponse.json({ error: 'order sync failed' }, { status: 500 });

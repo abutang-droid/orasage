@@ -20,6 +20,11 @@ model User {
   preferredDeity String? @db.VarChar(50)
   faith      String?  @db.VarChar(80)
   onboardingCompleted Boolean @default(false)
+  onboardingStep String @default("welcome") @db.VarChar(20)
+  referralCode String? @unique @db.VarChar(16)
+  referredByUserId String? @db.VarChar(36)
+  totalSpentCents Int @default(0)
+  freeReadingsRemaining Int @default(0)
   streakDays Int      @default(0)
   streakLongest Int   @default(0)
   lastCheckinDate String? @db.VarChar(10)
@@ -39,6 +44,7 @@ model User {
   angelDraws      AngelDraw[]
   dreamRecords    DreamRecord[]
   templeCheckins  TempleCheckin[]
+  meritLogs       MeritLog[]
 }
 
 model DailyCardRecord {
@@ -157,4 +163,18 @@ model TempleCheckin {
   user User @relation(fields: [userId], references: [id])
   @@unique([userId, checkinDate])
   @@index([userId, createdAt])
+}
+
+model MeritLog {
+  id             String   @id @default(uuid())
+  userId         String
+  path           String   @db.VarChar(10)
+  amount         Int
+  reason         String   @db.VarChar(120)
+  idempotencyKey String?  @unique @db.VarChar(80)
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+  @@index([userId, path])
 }

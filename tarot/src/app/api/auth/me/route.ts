@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAuthUser, createToken, setAuthCookie } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { ensureReferralCode } from "@/lib/merit-service"
+
+const USER_SELECT = {
+  id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true,
+  occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true,
+  onboardingStep: true, meritTotal: true, meritLevel: true, streakDays: true,
+  streakLongest: true, lastCheckinDate: true, referralCode: true,
+} as const
+
+async function withReferralCode<T extends { id: string; referralCode?: string | null }>(user: T) {
+  const code = user.referralCode ?? await ensureReferralCode(user.id)
+  return { ...user, referralCode: code }
+}
 
 /**
  * GET  — return the current user (or create a guest one automatically).
@@ -12,19 +25,19 @@ export async function GET() {
     if (auth) {
       const user = await prisma.user.findUnique({
         where: { id: auth.userId },
-        select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true, meritTotal: true, meritLevel: true, streakDays: true, streakLongest: true, lastCheckinDate: true },
+        select: USER_SELECT,
       })
-      if (user) return NextResponse.json({ user })
+      if (user) return NextResponse.json({ user: await withReferralCode(user) })
     }
 
     // No user — create an auto guest
     const randomId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
     const user = await prisma.user.create({
       data: { id: randomId, nickname: "旅人", email: `${randomId}@manto.guest` },
-      select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true, meritTotal: true, meritLevel: true, streakDays: true, streakLongest: true, lastCheckinDate: true },
+      select: USER_SELECT,
     })
     const token = await createToken({ userId: user.id, email: user.email ?? `${randomId}@manto.guest` })
-    const res = NextResponse.json({ user })
+    const res = NextResponse.json({ user: await withReferralCode(user) })
     res.cookies.set(setAuthCookie(token))
     return res
   } catch (error) {
