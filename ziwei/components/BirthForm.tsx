@@ -1,11 +1,12 @@
 'use client';
+
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
 import { PROVINCES } from '@/lib/ziwei/cities';
-import { searchGlobalCities, type GlobalCity } from '@/lib/ziwei/globalCities';
+import { searchGlobalCities } from '@/lib/ziwei/globalCities';
 import { useT } from '@/lib/i18n';
+import { formToBirthInfo } from '@/lib/ziwei/share';
 import { fetchSavedProfiles, profileDisplayLabel, savedProfileToBirthForm, type SavedProfile } from '@/lib/profile-sync';
 
 export interface BirthFormState {
@@ -20,6 +21,7 @@ export interface BirthFormState {
   city: string;
   longitude: number;
   gender: 'male' | 'female';
+  calendar: 'solar' | 'lunar';
 }
 
 interface BirthFormProps {
@@ -30,7 +32,19 @@ interface BirthFormProps {
   hideSubmit?: boolean;
 }
 
+type BirthplaceOption = {
+  city: string;
+  province: string;
+  longitude: number;
+  label: string;
+};
+
 const SHICHEN_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+const YEARS = Array.from({ length: 127 }, (_, i) => String(2026 - i));
+const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i));
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i));
 
 function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
   const clockMins = clockHour * 60 + clockMinute;
@@ -44,6 +58,51 @@ function isValidDate(y: number, m: number, d: number): boolean {
   if (!y || !m || !d) return false;
   const date = new Date(y, m - 1, d);
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
+function searchBirthplaces(query: string): BirthplaceOption[] {
+  const q = query.trim();
+  if (!q) return [];
+  const lower = q.toLowerCase();
+  const results: BirthplaceOption[] = [];
+  const seen = new Set<string>();
+
+  for (const p of PROVINCES) {
+    for (const c of p.cities) {
+      if (c.name.includes(q) || p.name.includes(q)) {
+        const key = `${c.name}|${p.name}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({
+            city: c.name,
+            province: p.name,
+            longitude: c.longitude,
+            label: `${c.name} · ${p.name}`,
+          });
+        }
+      }
+    }
+  }
+
+  for (const g of searchGlobalCities(q)) {
+    const key = `${g.city}|${g.country}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      results.push({
+        city: g.city,
+        province: g.country,
+        longitude: g.longitude,
+        label: `${g.city} · ${g.country}`,
+      });
+    }
+  }
+
+  return results.filter((r) => r.label.toLowerCase().includes(lower) || r.city.includes(q)).slice(0, 8);
+}
+
+function birthplaceLabel(form: Pick<BirthFormState, 'city' | 'province'>) {
+  if (!form.city) return '';
+  return form.province && form.province !== form.city ? `${form.city} · ${form.province}` : form.city;
 }
 
 export default function BirthForm({ onSubmit, loading, initialData, onFormSave, hideSubmit }: BirthFormProps) {
@@ -61,15 +120,18 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     city: initialData?.city ?? '',
     longitude: initialData?.longitude ?? 120,
     gender: initialData?.gender ?? 'male',
+    calendar: initialData?.calendar ?? 'solar',
   });
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
-  const [locationMode, setLocationMode] = useState<'china' | 'global'>('china');
-  const [globalQuery, setGlobalQuery] = useState('');
-  const [globalOpen, setGlobalOpen] = useState(false);
-  const globalRef = useRef<HTMLDivElement>(null);
+  const [birthplaceQuery, setBirthplaceQuery] = useState(() => birthplaceLabel({
+    city: initialData?.city ?? '',
+    province: initialData?.province ?? '',
+  }));
+  const [birthplaceOpen, setBirthplaceOpen] = useState(false);
+  const birthplaceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void fetchSavedProfiles().then(setSavedProfiles);
@@ -77,25 +139,23 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (globalRef.current && !globalRef.current.contains(e.target as Node)) {
-        setGlobalOpen(false);
+      if (birthplaceRef.current && !birthplaceRef.current.contains(e.target as Node)) {
+        setBirthplaceOpen(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const globalSuggestions = useMemo(() => searchGlobalCities(globalQuery), [globalQuery]);
-
   useEffect(() => {
     onFormSave?.({ ...form });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
-  const cityList = useMemo(() => {
-    const prov = PROVINCES.find(p => p.name === form.province);
-    return prov ? prov.cities : [];
-  }, [form.province]);
+  const birthplaceSuggestions = useMemo(
+    () => searchBirthplaces(birthplaceQuery),
+    [birthplaceQuery],
+  );
 
   const branch = useMemo(() => {
     if (form.unknownTime) return 0;
@@ -110,7 +170,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const shichenInfo = SHICHEN[branch];
 
   const y = parseInt(form.year) || 0;
-  const m = parseInt(form.month) || 0;
+  const m = parseInt(form.month.replace(/^L/, '')) || 0;
   const d = parseInt(form.day) || 0;
 
   const errors = {
@@ -119,66 +179,32 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       : '',
     month: !form.month ? t('form.error.month.required') : '',
     day: !form.day ? t('form.error.day.required')
-      : form.year && form.month && !isValidDate(y, m, d) ? t('form.error.day.invalid', { month: m, day: d })
-      : '',
+      : form.year && form.month && form.calendar === 'solar' && !isValidDate(y, m, d)
+        ? t('form.error.day.invalid', { month: m, day: d })
+        : '',
   };
   const hasError = Object.values(errors).some(Boolean);
+  const showErr = (field: string) => touched[field] || submitAttempted;
 
-  const steps = [
-    !!form.year && !!form.month && !!form.day && !errors.year && !errors.month && !errors.day,
-    !!form.province && !!form.city,
-    form.unknownTime || (!!form.clockHour && !!form.clockMinute),
-    true,
-  ];
-  const completedSteps = steps.filter(Boolean).length;
-
-  const showSummary = steps[0] && steps[2] && !hasError;
-  const summaryText = showSummary
-    ? [
-        `${y}年${m}月${d}日`,
-        form.city || (form.province ? form.province : ''),
-        form.unknownTime ? t('form.unknown.hour.label') : `${SHICHEN_NAMES[branch]}时`,
-        form.gender === 'male' ? '男' : '女',
-      ].filter(Boolean).join(' · ')
-    : '';
-
-  const handleProvince = (prov: string) => {
-    const provData = PROVINCES.find(p => p.name === prov);
-    const firstCity = provData?.cities[0];
-    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? 120 });
-  };
-
-  const handleCity = (cityName: string) => {
-    const prov = PROVINCES.find(p => p.name === form.province);
-    const cityData = prov?.cities.find(c => c.name === cityName);
-    setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? 120 });
-  };
-
-  const handleLocationMode = (mode: 'china' | 'global') => {
-    setLocationMode(mode);
-    setForm({ ...form, province: '', city: '', longitude: 120 });
-    setGlobalQuery('');
-    setGlobalOpen(false);
-  };
-
-  const handleGlobalInput = (value: string) => {
-    setGlobalQuery(value);
-    setGlobalOpen(value.trim().length > 0);
+  const handleBirthplaceInput = (value: string) => {
+    setBirthplaceQuery(value);
+    setBirthplaceOpen(value.trim().length > 0);
     if (!value.trim()) {
-      setForm({ ...form, province: '', city: '', longitude: 120 });
+      setForm((prev) => ({ ...prev, province: '', city: '', longitude: 120 }));
+    } else {
+      setForm((prev) => ({ ...prev, city: value.trim(), province: '' }));
     }
   };
 
-  const handleGlobalSelect = (gc: GlobalCity) => {
-    const label = `${gc.city} · ${gc.country}`;
-    setGlobalQuery(label);
-    setGlobalOpen(false);
-    setForm({
-      ...form,
-      province: gc.country,
-      city: gc.city,
-      longitude: gc.longitude,
-    });
+  const handleBirthplaceSelect = (opt: BirthplaceOption) => {
+    setBirthplaceQuery(opt.label);
+    setBirthplaceOpen(false);
+    setForm((prev) => ({
+      ...prev,
+      city: opt.city,
+      province: opt.province,
+      longitude: opt.longitude,
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -187,100 +213,27 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     setTouched({ year: true, month: true, day: true });
     if (hasError) return;
     onFormSave?.({ ...form });
-    onSubmit({
-      year: y, month: m, day: d, hour: branch, gender: form.gender,
-      name: form.name || undefined, province: form.province || undefined,
-      city: form.city || undefined, longitude: form.province ? form.longitude : undefined,
-    }, form);
+    onSubmit(formToBirthInfo(form), form);
   };
 
-  const bg = 'var(--bg-card)';
-  const border = 'var(--bdr)';
-  const labelClr = 'var(--tx-2)';
-  const inputBg = '#ffffff';
-  const inputBorder = 'var(--bdr)';
-  const inputClr = 'var(--tx-0)';
-  const focusBorder = 'var(--gold-border)';
-  const errorClr = '#dc2626';
-  const panelBg = 'var(--gold-pale)';
-  const panelBorder = 'var(--gold-border)';
-  const goldText = 'var(--gold)';
-  const summaryBg = 'rgba(184, 148, 63, 0.08)';
-  const summaryBorder = 'var(--gold-border)';
-  const summaryClr = 'var(--tx-1)';
-  const hintClr = 'var(--tx-3)';
-
-  const inputStyle = {
-    background: inputBg,
-    border: `1px solid ${inputBorder}`,
-    color: inputClr,
-    borderRadius: '14px',
-    padding: '10px 14px',
-    fontSize: '13px',
-    width: '100%',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  } as React.CSSProperties;
-
-  const errorInputStyle = { ...inputStyle, borderColor: errorClr };
-
-  function FieldError({ msg }: { msg: string }) {
-    return (
-      <AnimatePresence>
-        {msg && (
-          <motion.p
-            initial={{ opacity: 0, y: -4, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
-            transition={{ duration: 0.18 }}
-            style={{ color: errorClr, fontSize: '11px', marginTop: '4px' }}
-          >
-            ✕ {msg}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    );
-  }
-
-  const showErr = (field: string) => touched[field] || submitAttempted;
-
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      style={{ background: bg, border: `1px solid ${border}`, borderRadius: '24px', padding: '28px', backdropFilter: 'blur(20px)' }}
-    >
-      <h3 style={{ color: goldText, fontSize: '12px', letterSpacing: '0.4em', textAlign: 'center', marginBottom: '20px', fontWeight: 500 }}>
-        ── {t('form.title')} ──
-      </h3>
-
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '20px' }}>
-        {steps.map((done, i) => (
-          <motion.div
-            key={i}
-            animate={{ background: done ? 'var(--gold)' : 'var(--gold-pale)' }}
-            transition={{ duration: 0.3 }}
-            style={{ flex: 1, height: '2px', borderRadius: '2px' }}
-          />
-        ))}
-      </div>
-
+    <form className="ziwei-birth-form" onSubmit={handleSubmit}>
       {savedProfiles.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>
-            {t('form.savedProfile')}
-          </label>
+        <div>
+          <label className="ziwei-calc-field-label">{t('form.savedProfile')}</label>
           <select
+            className="ziwei-field-select"
             defaultValue=""
             onChange={(e) => {
               const id = Number(e.target.value);
               const picked = savedProfiles.find((p) => p.id === id);
-              if (picked) setForm((prev) => ({ ...prev, ...savedProfileToBirthForm(picked) }));
+              if (picked) {
+                const next = { ...form, ...savedProfileToBirthForm(picked) };
+                setForm(next);
+                setBirthplaceQuery(birthplaceLabel(next));
+              }
               e.target.value = '';
             }}
-            style={inputStyle}
           >
             <option value="">{t('form.savedProfile.placeholder')}</option>
             {savedProfiles.map((p) => (
@@ -290,235 +243,156 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         </div>
       )}
 
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.name')}</label>
-        <input type="text" placeholder={t('form.name.placeholder')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle}
-          onFocus={e => { e.target.style.borderColor = focusBorder; }}
-          onBlur={e => { e.target.style.borderColor = inputBorder; }} />
-      </div>
-
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.birth.date')}</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-          <div>
-            <select value={form.year} onChange={e => { setForm({ ...form, year: e.target.value }); setTouched(t => ({ ...t, year: true })); }}
-              style={showErr('year') && errors.year ? errorInputStyle : inputStyle} required>
-              <option value="">{t('form.year')}</option>
-              {Array.from({ length: 127 }, (_, i) => 2026 - i).map(yr => (<option key={yr} value={String(yr)}>{yr}</option>))}
-            </select>
-            <FieldError msg={showErr('year') ? errors.year : ''} />
-          </div>
-          <div>
-            <select value={form.month} onChange={e => { setForm({ ...form, month: e.target.value }); setTouched(t => ({ ...t, month: true })); }}
-              style={showErr('month') && errors.month ? errorInputStyle : inputStyle} required>
-              <option value="">{t('form.month')}</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (<option key={mo} value={String(mo)}>{`${mo}${t('form.month.suffix')}`}</option>))}
-            </select>
-            <FieldError msg={showErr('month') ? errors.month : ''} />
-          </div>
-          <div>
-            <select value={form.day} onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
-              style={showErr('day') && errors.day ? errorInputStyle : inputStyle} required>
-              <option value="">{t('form.day')}</option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map(dy => (<option key={dy} value={String(dy)}>{`${dy}${t('form.day.suffix')}`}</option>))}
-            </select>
-            <FieldError msg={showErr('day') ? errors.day : ''} />
-          </div>
+      {/* 姓名 / 性别 / 公农历 */}
+      <div className="ziwei-birth-form-row">
+        <div className="ziwei-birth-form-name">
+          <input
+            type="text"
+            className="ziwei-field-input"
+            placeholder={t('form.name.placeholder')}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+        </div>
+        <div className="ziwei-calc-segment" role="group" aria-label={t('form.gender')}>
+          {(['male', 'female'] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              className={`ziwei-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}
+              onClick={() => setForm({ ...form, gender: g })}
+            >
+              {g === 'male' ? t('form.gender.male') : t('form.gender.female')}
+            </button>
+          ))}
+        </div>
+        <div className="ziwei-calc-segment" role="group" aria-label={t('form.calendar.label')}>
+          {(['solar', 'lunar'] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={`ziwei-calc-segment-btn${form.calendar === c ? ' is-active' : ''}`}
+              onClick={() => setForm({ ...form, calendar: c })}
+            >
+              {c === 'solar' ? t('form.calendar.solar') : t('form.calendar.lunar')}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.birth.place')}</label>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-          {(['china', 'global'] as const).map((mode) => {
-            const active = locationMode === mode;
-            return (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => handleLocationMode(mode)}
-                style={{
-                  flex: 1,
-                  padding: '9px 10px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  border: `1px solid ${active ? focusBorder : inputBorder}`,
-                  background: active ? panelBg : inputBg,
-                  color: active ? goldText : 'var(--tx-3)',
-                  cursor: 'pointer',
-                }}
-              >
-                {mode === 'china' ? t('form.location.china') : t('form.location.global')}
-              </button>
-            );
-          })}
+      {/* 出生年月日时分 */}
+      <div>
+        <label className="ziwei-calc-field-label">{t('form.birth.datetime')}</label>
+        <div className="ziwei-birth-form-row ziwei-birth-form-row--datetime">
+          <select
+            className={`ziwei-field-select ziwei-field-select--compact${showErr('year') && errors.year ? ' is-error' : ''}`}
+            value={form.year}
+            onChange={(e) => { setForm({ ...form, year: e.target.value }); setTouched((t) => ({ ...t, year: true })); }}
+            required
+          >
+            <option value="">{t('form.year')}</option>
+            {YEARS.map((yr) => <option key={yr} value={yr}>{yr}</option>)}
+          </select>
+          <select
+            className={`ziwei-field-select ziwei-field-select--compact${showErr('month') && errors.month ? ' is-error' : ''}`}
+            value={form.month}
+            onChange={(e) => { setForm({ ...form, month: e.target.value }); setTouched((t) => ({ ...t, month: true })); }}
+            required
+          >
+            <option value="">{t('form.month')}</option>
+            {MONTHS.map((mo) => <option key={mo} value={mo}>{`${mo}${t('form.month.suffix')}`}</option>)}
+          </select>
+          <select
+            className={`ziwei-field-select ziwei-field-select--compact${showErr('day') && errors.day ? ' is-error' : ''}`}
+            value={form.day}
+            onChange={(e) => { setForm({ ...form, day: e.target.value }); setTouched((t) => ({ ...t, day: true })); }}
+            required
+          >
+            <option value="">{t('form.day')}</option>
+            {DAYS.map((dy) => <option key={dy} value={dy}>{`${dy}${t('form.day.suffix')}`}</option>)}
+          </select>
+          <select
+            className="ziwei-field-select ziwei-field-select--compact"
+            value={form.clockHour}
+            disabled={form.unknownTime}
+            onChange={(e) => setForm({ ...form, clockHour: e.target.value })}
+          >
+            {HOURS.map((h) => (
+              <option key={h} value={h}>{h.padStart(2, '0')}{t('form.hour.suffix')}</option>
+            ))}
+          </select>
+          <select
+            className="ziwei-field-select ziwei-field-select--compact"
+            value={form.clockMinute}
+            disabled={form.unknownTime}
+            onChange={(e) => setForm({ ...form, clockMinute: e.target.value })}
+          >
+            {MINUTES.map((min) => (
+              <option key={min} value={min}>{min.padStart(2, '0')}{t('form.minute.suffix')}</option>
+            ))}
+          </select>
         </div>
-
-        {locationMode === 'china' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <select value={form.province} onChange={e => handleProvince(e.target.value)} style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = focusBorder; }}
-              onBlur={e => { e.target.style.borderColor = inputBorder; }}>
-              <option value="">{t('form.province')}</option>
-              {PROVINCES.map(p => (<option key={p.name} value={p.name}>{p.name}</option>))}
-            </select>
-            <select value={form.city} onChange={e => handleCity(e.target.value)} disabled={!form.province}
-              style={{ ...inputStyle, opacity: form.province ? 1 : 0.45 }}
-              onFocus={e => { e.target.style.borderColor = focusBorder; }}
-              onBlur={e => { e.target.style.borderColor = inputBorder; }}>
-              <option value="">{form.province ? t('form.city') : t('form.city.placeholder')}</option>
-              {cityList.map(c => (<option key={c.name} value={c.name}>{c.name}</option>))}
-            </select>
-          </div>
-        ) : (
-          <div ref={globalRef} style={{ position: 'relative' }}>
-            <input
-              type="text"
-              value={globalQuery}
-              onChange={e => handleGlobalInput(e.target.value)}
-              onFocus={() => { if (globalQuery.trim()) setGlobalOpen(true); }}
-              placeholder={t('form.city.search.placeholder')}
-              style={inputStyle}
-            />
-            {globalOpen && globalSuggestions.length > 0 && (
-              <div style={{
-                position: 'absolute',
-                zIndex: 20,
-                top: 'calc(100% + 4px)',
-                left: 0,
-                right: 0,
-                background: inputBg,
-                border: `1px solid ${inputBorder}`,
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-              }}>
-                {globalSuggestions.map((gc) => (
-                  <button
-                    key={`${gc.city}-${gc.country}`}
-                    type="button"
-                    onClick={() => handleGlobalSelect(gc)}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '10px 14px',
-                      border: 'none',
-                      background: 'transparent',
-                      color: inputClr,
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {gc.city} · {gc.country}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {(showErr('year') && errors.year) && <p className="ziwei-field-error">{errors.year}</p>}
+        {(showErr('month') && errors.month) && <p className="ziwei-field-error">{errors.month}</p>}
+        {(showErr('day') && errors.day) && <p className="ziwei-field-error">{errors.day}</p>}
+        {!form.unknownTime && (
+          <p className="ziwei-solar-hint">
+            {t('form.solar.hour')}
+            <strong>{SHICHEN_NAMES[branch]}{t('form.hour.suffix')}</strong>
+            {shichenInfo ? `（${shichenInfo.range}）` : ''}
+          </p>
         )}
-
-        <AnimatePresence mode="wait">
-          {form.city ? (
-            <motion.p key="location-info" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
-              {form.city}{form.province ? ` · ${form.province}` : ''} · {t('form.longitude')} {form.longitude.toFixed(1)}° · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
-            </motion.p>
-          ) : (
-            <motion.p key="location-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
-              {locationMode === 'global' ? t('form.city.global.hint') : t('form.location.hint')}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.birth.time')}</label>
-        <div style={{ borderRadius: '14px', padding: '12px', background: panelBg, border: `1px solid ${panelBorder}`, opacity: form.unknownTime ? 0.45 : 1, pointerEvents: form.unknownTime ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-            <select value={form.clockHour} onChange={e => setForm({ ...form, clockHour: e.target.value })} style={inputStyle}>
-              {Array.from({ length: 24 }, (_, i) => i).map(h => (<option key={h} value={String(h)}>{h.toString().padStart(2, '0')} 时</option>))}
-            </select>
-            <select value={form.clockMinute} onChange={e => setForm({ ...form, clockMinute: e.target.value })} style={inputStyle}>
-              {Array.from({ length: 60 }, (_, i) => i).map(min => (<option key={min} value={String(min)}>{min.toString().padStart(2, '0')} 分</option>))}
-            </select>
-          </div>
-          <div style={{ textAlign: 'center', padding: '4px 0' }}>
-            <span style={{ fontSize: '10px', color: hintClr }}>{t('form.solar.hour')}</span>
-            <span style={{ fontSize: '15px', color: goldText, fontWeight: 600, letterSpacing: '0.08em' }}>{SHICHEN_NAMES[branch]}时</span>
-            {shichenInfo && (<span style={{ fontSize: '10px', color: hintClr, marginLeft: '4px' }}>（{shichenInfo.range}）</span>)}
-          </div>
-        </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', cursor: 'pointer' }}>
-          <input type="checkbox" checked={form.unknownTime} onChange={e => setForm({ ...form, unknownTime: e.target.checked })} style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }} />
-          <span style={{ fontSize: '10px', color: hintClr }}>{t('form.unknown.time')}</span>
+        <label className="ziwei-checkbox-row" style={{ marginTop: '0.5rem' }}>
+          <input
+            type="checkbox"
+            checked={form.unknownTime}
+            onChange={(e) => setForm({ ...form, unknownTime: e.target.checked })}
+          />
+          <span>{t('form.unknown.time')}</span>
         </label>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.gender')}</label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {(['male', 'female'] as const).map(g => {
-            const active = form.gender === g;
-            const isMale = g === 'male';
-            const accent = isMale ? '37,99,235' : '225,29,72';
-            return (<motion.button key={g} type="button" onClick={() => setForm({ ...form, gender: g })} whileTap={{ scale: 0.97 }}
-              style={{ flex: 1, padding: '11px', borderRadius: '14px', fontSize: '13px', fontWeight: 500,
-                border: `1px solid ${active ? `rgba(${accent},0.6)` : inputBorder}`, background: active ? `rgba(${accent},0.08)` : inputBg,
-                color: active ? `rgba(${accent},0.9)` : 'var(--tx-3)', cursor: 'pointer' }}>
-              {isMale ? t('form.gender.male') : t('form.gender.female')}
-            </motion.button>);
-          })}
+      {/* 出生地 — 文本输入 */}
+      <div>
+        <label className="ziwei-calc-field-label">{t('form.birth.place')}</label>
+        <div className="ziwei-birthplace-wrap" ref={birthplaceRef}>
+          <input
+            type="text"
+            className="ziwei-field-input"
+            value={birthplaceQuery}
+            onChange={(e) => handleBirthplaceInput(e.target.value)}
+            onFocus={() => { if (birthplaceQuery.trim()) setBirthplaceOpen(true); }}
+            placeholder={t('form.birthplace.placeholder')}
+          />
+          {birthplaceOpen && birthplaceSuggestions.length > 0 && (
+            <div className="ziwei-birthplace-dropdown">
+              {birthplaceSuggestions.map((opt) => (
+                <button
+                  key={`${opt.city}-${opt.province}`}
+                  type="button"
+                  className="ziwei-birthplace-option"
+                  onClick={() => handleBirthplaceSelect(opt)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+        {form.city ? (
+          <p className="ziwei-field-hint">
+            {form.city}{form.province ? ` · ${form.province}` : ''} · {t('form.longitude')} {form.longitude.toFixed(1)}° · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
+          </p>
+        ) : (
+          <p className="ziwei-field-hint">{t('form.location.hint')}</p>
+        )}
       </div>
 
-      <AnimatePresence>{showSummary && (
-        <motion.div initial={{ opacity: 0, y: -8, height: 0, marginBottom: 0 }}
-          animate={{ opacity: 1, y: 0, height: 'auto', marginBottom: 12 }}
-          exit={{ opacity: 0, y: -8, height: 0, marginBottom: 0 }} transition={{ duration: 0.25, ease: 'easeOut' }}>
-          <div style={{ background: summaryBg, border: `1px solid ${summaryBorder}`, borderRadius: '12px', padding: '9px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: summaryClr }}>{t('form.confirm')}</span>
-            <span style={{ fontSize: '11px', color: summaryClr, letterSpacing: '0.03em', flex: 1 }}>{summaryText}</span>
-          </div>
-        </motion.div>
-      )}</AnimatePresence>
-
       {!hideSubmit && (
-        <motion.button
-          type="submit"
-          disabled={loading}
-          className="oui-btn oui-btn--default"
-          data-size="lg"
-          whileHover={loading ? {} : { scale: 1.01 }}
-          whileTap={loading ? {} : { scale: 0.98 }}
-          style={{
-            letterSpacing: '0.12em',
-            boxShadow: loading ? 'none' : '0 4px 16px rgba(184, 148, 63, 0.25)',
-          }}
-        >
-          {loading ? (
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                style={{
-                  display: 'inline-block',
-                  width: '12px',
-                  height: '12px',
-                  border: '2px solid currentColor',
-                  borderTopColor: 'transparent',
-                  borderRadius: '50%',
-                }}
-              />
-              {t('form.submit.loading')}
-            </span>
-          ) : (
-            t('form.submit')
-          )}
-        </motion.button>
+        <button type="submit" className="ziwei-calc-submit" disabled={loading}>
+          {loading ? t('form.submit.loading') : t('form.submit')}
+        </button>
       )}
-    </motion.form>
+    </form>
   );
 }

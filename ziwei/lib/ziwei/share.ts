@@ -1,5 +1,23 @@
 import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
+import { Lunar } from 'lunar-javascript';
+
+/** 将表单日期解析为公历（农历输入时转换） */
+export function resolveGregorianYmd(form: BirthFormState): { y: number; m: number; d: number } {
+  let y = parseInt(form.year) || 0;
+  const mStr = form.month || '';
+  let d = parseInt(form.day) || 0;
+
+  if (form.calendar === 'lunar' && y && mStr && d) {
+    const isLeap = mStr.startsWith('L');
+    const lm = parseInt(isLeap ? mStr.slice(1) : mStr, 10) || 0;
+    const lunarMonth = isLeap ? -lm : lm;
+    const solar = Lunar.fromYmd(y, lunarMonth, d).getSolar();
+    return { y: solar.getYear(), m: solar.getMonth(), d: solar.getDay() };
+  }
+
+  return { y, m: parseInt(mStr, 10) || 0, d };
+}
 
 /** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
 export function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
@@ -18,9 +36,7 @@ export function calcTrueSolarBranch(clockHour: number, clockMinute: number, long
  * 这与「时辰支同为子(0)」并不冲突——子时分早晚两段，需要在日期上区分。
  */
 export function formToBirthInfo(form: BirthFormState): BirthInfo {
-  let y = parseInt(form.year) || 0;
-  let m = parseInt(form.month) || 0;
-  let d = parseInt(form.day) || 0;
+  let { y, m, d } = resolveGregorianYmd(form);
 
   // 晚子时（23:00-23:59）按次日处理：用 Date 对象自动处理月末/年末进位
   if (!form.unknownTime) {
@@ -64,6 +80,7 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   if (form.city) p.set('c', form.city);
   if (form.longitude && form.longitude !== 120) p.set('lo', String(form.longitude));
   p.set('g', form.gender === 'male' ? 'm' : 'f');
+  if (form.calendar === 'lunar') p.set('cal', 'lunar');
   return p;
 }
 
@@ -85,5 +102,6 @@ export function searchParamsToForm(params: URLSearchParams): Partial<BirthFormSt
     city: params.get('c') || '',
     longitude: parseFloat(params.get('lo') || '120'),
     gender: params.get('g') === 'f' ? 'female' : 'male',
+    calendar: params.get('cal') === 'lunar' ? 'lunar' : 'solar',
   };
 }

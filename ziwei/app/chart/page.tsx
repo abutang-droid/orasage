@@ -21,7 +21,7 @@ import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
 // ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
 const emptyBirthForm = (): BirthFormState => ({
   name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0',
-  unknownTime: false, province: '', city: '', longitude: 120, gender: 'male',
+  unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', calendar: 'solar',
 });
 
 function HemingPanel({
@@ -110,7 +110,7 @@ export default function ChartPage() {
     }
     const formData = searchParamsToForm(params);
     if (!formData?.year) return;
-    const fullForm: BirthFormState = { name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0', unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', ...formData };
+    const fullForm: BirthFormState = { name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0', unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', calendar: 'solar', ...formData };
     setSavedForm(fullForm);
     handleSingleSubmit(formToBirthInfo(fullForm), fullForm);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
