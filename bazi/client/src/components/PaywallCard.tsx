@@ -63,7 +63,7 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
       style={{
         borderRadius: 12,
         padding: "1.25rem 1.25rem 1rem",
-        background: `linear-gradient(180deg, rgba(184,148,63,0.06) 0%, ${BG_PAGE} 100%)`,
+        background: `linear-gradient(180deg, rgb(var(--os-rgb-mono-bg)) 0%, ${BG_PAGE} 100%)`,
         border: `1px solid ${CARD_BORDER}`,
       }}
     >

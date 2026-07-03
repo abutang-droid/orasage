@@ -6,10 +6,12 @@
   gap: 0.5rem;
   width: 100%;
   border: 1px solid transparent;
-  border-radius: 999px;
-  font-weight: 500;
+  border-radius: var(--os-radius-btn, 0.75rem);
+  font-weight: 600;
   font-family: var(--orasage-font-sans);
-  transition: background-color 0.15s var(--orasage-ease-organic), opacity 0.15s;
+  transition: background-color var(--os-motion-fast) var(--os-ease-standard),
+    border-color var(--os-motion-fast) var(--os-ease-standard),
+    transform var(--os-motion-fast) var(--os-ease-standard);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -59,16 +61,17 @@
   display: block;
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: var(--orasage-radius-md);
-  background: var(--input);
-  color: var(--foreground);
+  border-radius: var(--os-radius-btn, 0.75rem);
+  background: rgb(var(--input));
+  color: rgb(var(--foreground));
   font-family: var(--orasage-font-sans);
-  transition: box-shadow 0.15s;
+  transition: border-color var(--os-motion-fast);
 }
 .oui-input:focus,
 .oui-select:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  border-color: rgb(var(--ring));
+  box-shadow: none;
 }
 .oui-input:disabled,
 .oui-select:disabled {

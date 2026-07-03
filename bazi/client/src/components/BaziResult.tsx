@@ -6,7 +6,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { trpc } from "@/lib/trpc";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER, INK_DEEP } from "@/theme";
+import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, GOLD_DIM, HEADING, BODY_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER, INK_DEEP, MUTED_CLR, BORDER_CLR, TRACK_BG, DIVIDER_SUBTLE, CHART_GRID, CHART_FILL, CHART_STROKE, CHART_FILL_ALT, CHART_STROKE_ALT, TEXT_SUBTLE, TEXT_FAINT, CARD_GRADIENT, CARD_GRADIENT_SOFT } from "@/theme";
 import {
   SingleBaziResult, DoubleBaziResult, ScoreDimension,
   DailyFortune,
@@ -52,7 +52,7 @@ async function saveAsImage(el: HTMLElement, filename: string) {
     ctx.fillRect(0, barY, finalCanvas.width, wh);
 
     // 分隔线
-    ctx.strokeStyle = 'rgba(93,89,115,0.45)';
+    ctx.strokeStyle = 'DIVIDER_SUBTLE';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, barY);
@@ -64,12 +64,12 @@ async function saveAsImage(el: HTMLElement, filename: string) {
     const iconX = 28 * scale;
     const iconY = barY + (wh - svgSize) / 2;
     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="46" stroke="rgba(196,160,78,0.35)" stroke-width="2"/>
-      <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill="rgba(196,160,78,0.12)"/>
-      <circle cx="50" cy="27" r="11.5" fill="rgba(196,160,78,0.12)" stroke="#6F6880" stroke-width="1.5"/>
-      <circle cx="50" cy="73" r="11.5" fill="rgba(196,160,78,0.05)" stroke="#6F6880" stroke-width="1.5"/>
-      <circle cx="50" cy="27" r="4" fill="rgba(200,168,75,0.85)"/>
-      <circle cx="50" cy="73" r="4" fill="rgba(93,89,115,0.5)"/>
+      <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} stroke-width="2"/>
+      <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={CHART_GRID}/>
+      <circle cx="50" cy="27" r="11.5" fill={CHART_GRID} stroke="TEXT_SUBTLE" stroke-width="1.5"/>
+      <circle cx="50" cy="73" r="11.5" fill={TRACK_BG} stroke="TEXT_SUBTLE" stroke-width="1.5"/>
+      <circle cx="50" cy="27" r="4" fill={GOLD}/>
+      <circle cx="50" cy="73" r="4" fill={DIVIDER_SUBTLE}/>
     </svg>`;
     const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
     const svgUrl = URL.createObjectURL(svgBlob);
@@ -88,13 +88,13 @@ async function saveAsImage(el: HTMLElement, filename: string) {
     const textX = iconX + svgSize + 16 * scale;
     const centerY = barY + wh / 2;
     ctx.font = `600 ${18 * scale}px 'Georgia', 'Times New Roman', serif`;
-    ctx.fillStyle = 'rgba(240,208,128,0.92)';
+    ctx.fillStyle = GOLD;
     ctx.textBaseline = 'middle';
     ctx.fillText('Orasage', textX, centerY - 6 * scale);
 
     // 副标题
     ctx.font = `400 ${10 * scale}px 'Arial', sans-serif`;
-    ctx.fillStyle = '#78718B';
+    ctx.fillStyle = 'TEXT_SUBTLE';
     ctx.fillText('orasage.com  ·  八字命盘 · 合盘分析', textX, centerY + 10 * scale);
 
     // 右侧真实二维码（qrcode 库生成）
@@ -116,7 +116,7 @@ async function saveAsImage(el: HTMLElement, filename: string) {
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
     } catch {
       // 生成失败时降级为占位框
-      ctx.strokeStyle = 'rgba(93,89,115,0.5)';
+      ctx.strokeStyle = 'DIVIDER_SUBTLE';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(qrX, qrY, qrSize, qrSize);
     }
@@ -146,21 +146,11 @@ interface DoubleProps {
 const PILLAR_LABELS_KEYS = ["pillar.year", "pillar.month", "pillar.day", "pillar.hour"];
 // PILLAR_LABELS is now assigned per-component via useT()
 
-// OraSage 设计系统 — 颜色和字体从 theme.ts 导入，仅保留本地常量
-const GOLD_DIM = "rgba(196,160,78,0.8)";
-const SANS = "'Noto Sans SC', sans-serif";
-const MUTED_CLR = "#6E6858";
-const BORDER_CLR = "rgba(196,160,78,0.2)";
+// OraSage DS v1.1 — 颜色从 theme.ts 导入
+const SANS = SANS_F;
 const HEADING_CLR = HEADING;
-/** 纸感卡片面（与 theme BG_CARD 一致） */
 const CARD_SURFACE = BG_CARD;
-/** 淡金 → 纸白渐变（AI 解读、手串等非四柱区块） */
-const CARD_GRADIENT = `linear-gradient(180deg, ${GOLD_GHOST} 0%, ${BG_CARD} 100%)`;
-const CARD_GRADIENT_SOFT = `linear-gradient(135deg, ${GOLD_GHOST} 0%, ${BG_CARD} 100%)`;
-/** 四柱墨玉锚点 — 唯一保留的深色视觉块 */
 const PILLAR_SURFACE = INK_DEEP;
-const TRACK_BG = "rgba(23,23,23,0.06)";
-const DIVIDER_SUBTLE = "rgba(23,23,23,0.08)";
 
 // ── 五行雷达图（SVG五边形） ──────────────────────────────────────────────────────
 function WuXingRadar({
@@ -210,7 +200,7 @@ function WuXingRadar({
             return `${x},${y}`;
           }).join(' ')}
           fill="none"
-          stroke="rgba(196,160,78,0.12)"
+          stroke={CHART_GRID}
           strokeWidth="0.8"
         />
       ))}
@@ -220,15 +210,15 @@ function WuXingRadar({
           x1={CX} y1={CY}
           x2={CX + R * Math.cos(angles[i])}
           y2={CY + R * Math.sin(angles[i])}
-          stroke="rgba(196,160,78,0.1)" strokeWidth="0.8"
+          stroke={DIVIDER_SUBTLE} strokeWidth="0.8"
         />
       ))}
       {/* 第二人数据（若有，先画底层） */}
       {data2 && (
         <polygon
           points={polyPoints(data2)}
-          fill="rgba(96,165,250,0.12)"
-          stroke="rgba(96,165,250,0.6)"
+          fill={CHART_FILL_ALT}
+          stroke={CHART_STROKE_ALT}
           strokeWidth="1.5"
           strokeLinejoin="round"
         />
@@ -236,8 +226,8 @@ function WuXingRadar({
       {/* 第一人数据 */}
       <polygon
         points={polyPoints(data1)}
-        fill="rgba(196,160,78,0.2)"
-        stroke="rgba(200,168,75,0.85)"
+        fill={CHART_FILL}
+        stroke={GOLD}
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
@@ -256,11 +246,11 @@ function WuXingRadar({
       {/* 数据点 */}
       {LABELS.map((_, i) => {
         const p = toXY(data1, i);
-        return <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="rgba(200,168,75,0.9)" />;
+        return <circle key={i} cx={p.x} cy={p.y} r="2.5" fill={GOLD} />;
       })}
       {data2 && LABELS.map((_, i) => {
         const p = toXY(data2!, i);
-        return <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="rgba(96,165,250,0.9)" />;
+        return <circle key={i} cx={p.x} cy={p.y} r="2.5" fill={CHART_STROKE_ALT} />;
       })}
     </svg>
   );
@@ -278,12 +268,12 @@ function ScoreDetailsPanel({ details }: { details: ScoreDimension[] }) {
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold" style={{ color: BODY_CLR }}>{d.label}</span>
-                <span className="text-[10px]" style={{ color: '#6F6880' }}>
+                <span className="text-[10px]" style={{ color: 'TEXT_SUBTLE' }}>
                   ×{(d.weight * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px]" style={{ color: '#78718B' }}>{d.detail}</span>
+                <span className="text-[10px]" style={{ color: 'TEXT_SUBTLE' }}>{d.detail}</span>
                 <span className="text-xs font-bold tabular-nums" style={{ color, minWidth: 28, textAlign: 'right' }}>{pct}</span>
               </div>
             </div>
@@ -325,7 +315,7 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
     <div className={`flex flex-col items-center gap-1.5 flex-1 ${isDay ? "" : ""}`}>
       {isDay ? (
         <span className="text-xs font-bold mb-0.5 tracking-wider"
-          style={{ color: dark ? "#DBC47A" : "#C4A04E", letterSpacing: "0.1em" }}>
+          style={{ color: dark ? GOLD : GOLD, letterSpacing: "0.1em" }}>
           {t('pillar.day_master')}
         </span>
       ) : (
@@ -334,7 +324,7 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
       )}
       {/* 天干 */}
       <div className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl font-bold ${isDay && !dark ? "ring-2 ring-yellow-400/40" : ""}`}
-        style={{ background: isDay ? (dark ? "rgba(196,160,78,0.15)" : "rgba(196,160,78,0.12)") : (dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.05)"), color: dark ? "#D4B86A" : GOLD, fontFamily: SERIF_F }}>
+        style={{ background: isDay ? (dark ? "CHART_FILL" : "CHART_GRID") : (dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.05)"), color: dark ? GOLD : GOLD, fontFamily: SERIF_F }}>
         {gan}
       </div>
       {/* 地支 */}
@@ -343,15 +333,15 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
         {zhi}
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-[9px]" style={{ color: dark ? "rgba(255,255,255,0.3)" : "rgba(93,89,115,0.4)" }}>{t('pillar.hidden')}</span>
+        <span className="text-[9px]" style={{ color: dark ? "rgba(255,255,255,0.3)" : "TEXT_FAINT" }}>{t('pillar.hidden')}</span>
         {cangGan.map((cg, i) => (
           <span key={i} className="text-[11px] px-1.5 py-0.5 rounded"
-            style={{ background: dark ? "rgba(255,255,255,0.06)" : "#EFE9F5", color: dark ? "rgba(255,255,255,0.6)" : "#5D5973" }}>
+            style={{ background: dark ? "rgba(255,255,255,0.06)" : "rgb(var(--os-rgb-mono-bg))", color: dark ? "rgba(255,255,255,0.6)" : "TEXT_SUBTLE" }}>
             {cg}
           </span>
         ))}
       </div>
-      <span className="text-xs" style={{ color: dark ? "rgba(255,255,255,0.45)" : "#6F6880" }}>{label}</span>
+      <span className="text-xs" style={{ color: dark ? "rgba(255,255,255,0.45)" : "TEXT_SUBTLE" }}>{label}</span>
     </div>
   );
 }
@@ -396,18 +386,18 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
               {result.gender === "male" ? term('男命') : term('女命')} · {result.birthStr}
             </p>
             {result.birthCity && result.birthLng !== undefined && (
-              <p className="text-xs mt-1 flex items-center gap-1.5" style={{ color: "#78718B", fontSize: "0.67rem", letterSpacing: "0.05em" }}>
+              <p className="text-xs mt-1 flex items-center gap-1.5" style={{ color: "TEXT_SUBTLE", fontSize: "0.67rem", letterSpacing: "0.05em" }}>
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
                 {result.birthCity} · 东经{result.birthLng.toFixed(1)}°
                 {result.trueSolarOffset !== undefined && result.trueSolarOffset !== 0 && (
-                  <span style={{ color: result.trueSolarOffset > 0 ? "rgba(96,165,250,0.7)" : "rgba(251,191,36,0.7)" }}>
+                  <span style={{ color: result.trueSolarOffset > 0 ? "CHART_STROKE_ALT" : "rgba(251,191,36,0.7)" }}>
                     · 真太阳时{result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}分钟
                   </span>
                 )}
                 {result.trueSolarOffset === 0 && (
-                  <span style={{ color: "#6F6880" }}>· 无需修正</span>
+                  <span style={{ color: "TEXT_SUBTLE" }}>· 无需修正</span>
                 )}
               </p>
             )}
@@ -440,20 +430,20 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
       }>
         <div className="grid grid-cols-3 gap-2">
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('pillar.day_master')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('pillar.day_master')}</span>
             <span className="text-lg font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.riZhu}</span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '强弱')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('result.strength', '强弱')}</span>
             <span className="text-base font-bold" style={{ color: result.strength === "身强" ? "#4ade80" : result.strength === "身弱" ? "#f87171" : GOLD }}>
               {result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : result.strength}
             </span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.shensha', '神煞')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('result.shensha', '神煞')}</span>
             <span className="text-base font-bold" style={{ color: GOLD }}>{shenshaCnt > 0 ? `${shenshaCnt}${t('result.items', '项')}` : t('result.none', '无')}</span>
           </div>
         </div>
@@ -488,7 +478,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
             ))}
           </div>
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid rgba(196,160,78,0.12)" }}>
+        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid CHART_GRID" }}>
           {wxEntries.sort((a, b) => b[1] - a[1]).map(([label, value]) => (
             <span key={label} className="text-xs px-2 py-1 rounded-full"
               style={{ background: WU_XING_BG[label], color: WU_XING_COLOR[label], border: `1px solid ${WU_XING_COLOR[label]}30` }}>
@@ -534,7 +524,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
         <p className="text-base font-bold mb-1 text-center" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.12em" }}>
           {t('paywall.title_overlay', '完整命盘待解锁')}
         </p>
-        <p className="text-xs text-center mb-5" style={{ color: "#6F6880", lineHeight: 1.7 }}>
+        <p className="text-xs text-center mb-5" style={{ color: "TEXT_SUBTLE", lineHeight: 1.7 }}>
           {t('paywall.subtitle_overlay', '大运排列、神煞分析、命理小结属于深度解读内容')}
           <br />{t('paywall.unlock_hint', '解锁后可查看完整命盘分析')}
         </p>
@@ -548,7 +538,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
             color: "#ffffff",
             fontFamily: SERIF_F,
             letterSpacing: "0.18em",
-            boxShadow: "0 0 18px #6F6880",
+            boxShadow: "0 0 18px TEXT_SUBTLE",
           }}
         >
           {t('paywall.unlock_trial', '解锁完整命盘 · 免费体验')}
@@ -562,7 +552,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
             style={{
               background: "transparent",
               color: GOLD,
-              border: `1px solid rgba(196,160,78,0.35)`,
+              border: `1px solid GOLD_FAINT`,
               fontFamily: SERIF_F,
               letterSpacing: "0.12em",
             }}
@@ -586,8 +576,8 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
             <div className="grid grid-cols-4 gap-2">
               {["甲子","丙寅","戊辰","庚午"].map((s, i) => (
                 <div key={i} className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-                  style={{ background: "rgba(196,160,78,0.08)", border: `1px solid rgba(196,160,78,0.2)` }}>
-                  <span className="text-[10px]" style={{ color: "#6F6880" }}>{t('result.da_yun_label', '{n}运').replace('{n}', String(i+1))}</span>
+                  style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+                  <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('result.da_yun_label', '{n}运').replace('{n}', String(i+1))}</span>
                   <span className="text-base font-bold" style={{ color: GOLD }}>{s[0]}</span>
                   <span className="text-base font-bold" style={{ color: GOLD }}>{s[1]}</span>
                 </div>
@@ -598,8 +588,8 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           <div className="rounded-xl px-4 py-4" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
             <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '命理小结')}</h3>
             <div className="space-y-2">
-              <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{result.mingLiSummary.overview}</p>
-              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>✨ {result.mingLiSummary.personality.slice(0, 40)}……</p>
+              <p className="text-xs" style={{ color: "TEXT_SUBTLE", lineHeight: 1.8 }}>{result.mingLiSummary.overview}</p>
+              <p className="text-xs" style={{ color: "TEXT_SUBTLE", lineHeight: 1.8 }}>✨ {result.mingLiSummary.personality.slice(0, 40)}……</p>
             </div>
           </div>
         </div>
@@ -625,7 +615,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.name}</h2>
-              <p className="text-xs mt-0.5" style={{ color: "#6F6880" }}>
+              <p className="text-xs mt-0.5" style={{ color: "TEXT_SUBTLE" }}>
                 {result.gender === "male" ? term('男命') : term('女命')} · {result.birthStr}
               </p>
               {result.birthCity && result.birthLng !== undefined && (
@@ -635,12 +625,12 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
                   </svg>
                   {result.birthCity} · 东经{result.birthLng.toFixed(1)}°
                   {result.trueSolarOffset !== undefined && result.trueSolarOffset !== 0 && (
-                    <span style={{ color: result.trueSolarOffset > 0 ? "rgba(96,165,250,0.7)" : "rgba(251,191,36,0.7)" }}>
+                    <span style={{ color: result.trueSolarOffset > 0 ? "CHART_STROKE_ALT" : "rgba(251,191,36,0.7)" }}>
                       · 真太阳时{result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}分钟
                     </span>
                   )}
                   {result.trueSolarOffset === 0 && (
-                    <span style={{ color: "rgba(93,89,115,0.5)" }}>· 无需修正</span>
+                    <span style={{ color: "DIVIDER_SUBTLE" }}>· 无需修正</span>
                   )}
                 </p>
               )}
@@ -674,20 +664,20 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
       }>
         <div className="grid grid-cols-3 gap-2">
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('pillar.day_master')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('pillar.day_master')}</span>
             <span className="text-lg font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.riZhu}</span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '强弱')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('result.strength', '强弱')}</span>
             <span className="text-base font-bold" style={{ color: result.strength === '身强' ? '#4ade80' : result.strength === '身弱' ? '#f87171' : GOLD }}>
               {result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : result.strength}
             </span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
-            style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.shensha', '神煞')}</span>
+            style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
+            <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{t('result.shensha', '神煞')}</span>
             <span className="text-base font-bold" style={{ color: GOLD }}>{shenshaCnt > 0 ? `${shenshaCnt}${t('result.items', '项')}` : t('result.none', '无')}</span>
           </div>
         </div>
@@ -723,7 +713,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
             ))}
           </div>
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid rgba(196,160,78,0.12)" }}>
+        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid CHART_GRID" }}>
           {wxEntries.sort((a, b) => b[1] - a[1]).map(([label, value]) => (
             <span key={label} className="text-xs px-2 py-1 rounded-full"
               style={{ background: WU_XING_BG[label], color: WU_XING_COLOR[label], border: `1px solid ${WU_XING_COLOR[label]}30` }}>
@@ -742,7 +732,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
         }>
           <div className="flex flex-wrap gap-2">
             {Object.entries(result.shensha).map(([name, vals]) => (
-              <div key={name} className="rounded-lg px-3 py-2" style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
+              <div key={name} className="rounded-lg px-3 py-2" style={{ background: "TRACK_BG", border: `1px solid ${GOLD_FAINT}` }}>
                 <p className="text-[10px]" style={{ color: BODY_CLR }}>{name}</p>
                 <p className="text-sm font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>
                   {vals.join(' ')}
@@ -763,7 +753,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           {result.daYun.map((dy, i) => (
             <div key={i} className="flex flex-col items-center gap-1 rounded-lg py-2.5"
               style={{ background: i === 0 ? GOLD_GHOST : TRACK_BG, border: `1px solid ${i === 0 ? GOLD_FAINT : DIVIDER_SUBTLE}` }}>
-              <span className="text-[10px]" style={{ color: "#6F6880" }}>{dy.label}</span>
+              <span className="text-[10px]" style={{ color: "TEXT_SUBTLE" }}>{dy.label}</span>
               <span className="text-base font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{dy.gan}</span>
               <span className="text-base font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{dy.zhi}</span>
             </div>
@@ -779,7 +769,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
       }>
         <div className="space-y-4">
           {/* 命局概述 */}
-          <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(196,160,78,0.07)', border: '1px solid rgba(196,160,78,0.2)' }}>
+          <div className="rounded-lg px-4 py-3" style={{ background: 'TRACK_BG', border: '1px solid ${GOLD_FAINT}' }}>
             <p className="text-xs leading-relaxed" style={{ color: BODY_CLR }}>{result.mingLiSummary.overview}</p>
           </div>
           {/* 三维解读 */}
@@ -793,18 +783,18 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
                 <span className="text-[10px]">{icon}</span>
                 <span className="text-[11px] font-semibold tracking-widest" style={{ color: GOLD }}>{label}</span>
               </div>
-              <p className="text-xs leading-relaxed pl-4" style={{ color: GOLD_DIM, borderLeft: '2px solid rgba(196,160,78,0.22)' }}>{text}</p>
+              <p className="text-xs leading-relaxed pl-4" style={{ color: GOLD_DIM, borderLeft: '2px solid GOLD_FAINT' }}>{text}</p>
             </div>
           ))}
           {/* 运势提示 */}
-          <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(196,160,78,0.05)', border: '1px solid rgba(196,160,78,0.12)' }}>
+          <div className="rounded-lg px-4 py-3" style={{ background: 'TRACK_BG', border: '1px solid CHART_GRID' }}>
             <div className="flex items-center gap-1.5 mb-1.5">
               <span className="text-[10px]">★</span>
-              <span className="text-[11px] font-semibold tracking-widest" style={{ color: 'rgba(196,160,78,0.8)' }}>{t('report.fortune_tip', '运势提示')}</span>
+              <span className="text-[11px] font-semibold tracking-widest" style={{ color: 'GOLD_DIM' }}>{t('report.fortune_tip', '运势提示')}</span>
             </div>
-            <p className="text-xs leading-relaxed" style={{ color: '#78718B' }}>{result.mingLiSummary.fortune}</p>
+            <p className="text-xs leading-relaxed" style={{ color: 'TEXT_SUBTLE' }}>{result.mingLiSummary.fortune}</p>
           </div>
-          <p className="text-[10px] pt-0.5" style={{ color: 'rgba(93,89,115,0.45)' }}>
+          <p className="text-[10px] pt-0.5" style={{ color: 'DIVIDER_SUBTLE' }}>
             {t('report.disclaimer', '※ 以上分析仅供参考，命理之道博大精深，如需深度解读请咨询专业命理师。')}
           </p>
         </div>
@@ -821,8 +811,8 @@ function DailyFortuneCard({ fortune }: { fortune: DailyFortune }) {
     : fortune.overallScore >= 50 ? GOLD_DIM
     : '#f87171';
   const labelBg: Record<string, string> = {
-    '大吉': 'rgba(74,222,128,0.12)', '吉': 'rgba(196,160,78,0.1)',
-    '平': 'rgba(196,160,78,0.08)', '小凶': 'rgba(248,113,113,0.08)', '凶': 'rgba(248,113,113,0.14)',
+    '大吉': 'rgba(74,222,128,0.12)', '吉': 'DIVIDER_SUBTLE',
+    '平': 'TRACK_BG', '小凶': 'rgba(248,113,113,0.08)', '凶': 'rgba(248,113,113,0.14)',
   };
   return (
     <InfoCard title={t('result.daily_fortune', '今日运势')} icon={
@@ -839,15 +829,15 @@ function DailyFortuneCard({ fortune }: { fortune: DailyFortune }) {
         <div className="flex items-center justify-between">
           <span className="text-xs" style={{ color: BODY_CLR }}>{fortune.date}</span>
           <div className="flex items-center gap-2">
-            <span className="text-xs" style={{ color: '#6F6880' }}>{t('result.today_pillar', '今日日柱')}</span>
+            <span className="text-xs" style={{ color: 'TEXT_SUBTLE' }}>{t('result.today_pillar', '今日日柱')}</span>
             <span className="text-lg font-bold" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: '0.1em' }}>
               {fortune.todayGan}{fortune.todayZhi}
             </span>
-            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(196,160,78,0.12)', color: GOLD_DIM }}>{fortune.todayWx}行</span>
+            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'CHART_GRID', color: GOLD_DIM }}>{fortune.todayWx}行</span>
           </div>
         </div>
         {/* 综合得分 */}
-        <div className="flex items-center gap-4 rounded-lg px-4 py-3" style={{ background: labelBg[fortune.overallLabel] ?? 'rgba(196,160,78,0.08)', border: '1px solid rgba(196,160,78,0.2)' }}>
+        <div className="flex items-center gap-4 rounded-lg px-4 py-3" style={{ background: labelBg[fortune.overallLabel] ?? 'TRACK_BG', border: '1px solid ${GOLD_FAINT}' }}>
           <div className="text-center" style={{ minWidth: 56 }}>
             <div className="text-3xl font-bold" style={{ color: scoreColor, fontFamily: SERIF_F }}>{fortune.overallScore}</div>
             <div className="text-xs mt-0.5 font-semibold tracking-widest" style={{ color: scoreColor }}>{fortune.overallLabel}</div>
@@ -859,15 +849,15 @@ function DailyFortuneCard({ fortune }: { fortune: DailyFortune }) {
           {fortune.dimensions.map(dim => {
             const dc = dim.score >= 70 ? '#4ade80' : dim.score >= 50 ? GOLD : '#f87171';
             return (
-              <div key={dim.label} className="rounded-lg px-3 py-2.5" style={{ background: 'rgba(200,168,75,0.05)', border: '1px solid rgba(196,160,78,0.12)' }}>
+              <div key={dim.label} className="rounded-lg px-3 py-2.5" style={{ background: 'TRACK_BG', border: '1px solid CHART_GRID' }}>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[11px] font-semibold" style={{ color: GOLD }}>{dim.label}</span>
                   <span className="text-[11px] font-bold" style={{ color: dc }}>{dim.score}</span>
                 </div>
-                <div className="rounded-full overflow-hidden" style={{ height: 3, background: 'rgba(196,160,78,0.1)' }}>
+                <div className="rounded-full overflow-hidden" style={{ height: 3, background: 'DIVIDER_SUBTLE' }}>
                   <div className="h-full rounded-full transition-all" style={{ width: `${dim.score}%`, background: dc }} />
                 </div>
-                <p className="text-[10px] mt-1.5 leading-relaxed" style={{ color: '#78718B' }}>{dim.tip}</p>
+                <p className="text-[10px] mt-1.5 leading-relaxed" style={{ color: 'TEXT_SUBTLE' }}>{dim.tip}</p>
               </div>
             );
           })}
@@ -878,7 +868,7 @@ function DailyFortuneCard({ fortune }: { fortune: DailyFortune }) {
           <span>★ {t('result.lucky_direction', '幸运方位')}：<span style={{ color: GOLD }}>{fortune.luckyDirection}</span></span>
         </div>
         {/* 宜忌 */}
-        <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(196,160,78,0.35)', borderTop: '1px solid rgba(196,160,78,0.12)', paddingTop: 10 }}>{fortune.avoidTip}</p>
+        <p className="text-[11px] leading-relaxed" style={{ color: 'GOLD_FAINT', borderTop: '1px solid CHART_GRID', paddingTop: 10 }}>{fortune.avoidTip}</p>
       </div>
     </InfoCard>
   );
@@ -914,15 +904,15 @@ function BaguaDecor({ size = 20, opacity = 0.35 }: { size?: number; opacity?: nu
   const degs = [0,45,90,135,180,225,270,315];
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" style={{ opacity }}>
-      <circle cx="50" cy="50" r="44" stroke="rgba(200,168,75,1)" strokeWidth="2"/>
-      <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(93,89,115,0.45)"/>
-      <circle cx="50" cy="28" r="11" fill="rgba(196,160,78,0.22)" />
-      <circle cx="50" cy="72" r="11" fill="rgba(196,160,78,0.08)" />
-      <circle cx="50" cy="28" r="4" fill="rgba(200,168,75,0.9)" />
-      <circle cx="50" cy="72" r="4" fill="rgba(93,89,115,0.5)" />
+      <circle cx="50" cy="50" r="44" stroke="GOLD" strokeWidth="2"/>
+      <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={DIVIDER_SUBTLE}/>
+      <circle cx="50" cy="28" r="11" fill="GOLD_FAINT" />
+      <circle cx="50" cy="72" r="11" fill={TRACK_BG} />
+      <circle cx="50" cy="28" r="4" fill={GOLD} />
+      <circle cx="50" cy="72" r="4" fill={DIVIDER_SUBTLE} />
       {degs.map((deg, i) => (
         <g key={i} transform={`rotate(${deg} 50 50)`}>
-          <line x1="50" y1="2" x2="50" y2="10" stroke="rgba(200,168,75,1)" strokeWidth="2.5" strokeLinecap="round"/>
+          <line x1="50" y1="2" x2="50" y2="10" stroke="GOLD" strokeWidth="2.5" strokeLinecap="round"/>
         </g>
       ))}
     </svg>
@@ -933,13 +923,13 @@ function BaguaDecor({ size = 20, opacity = 0.35 }: { size?: number; opacity?: nu
 function GoldDivider() {
   return (
     <div className="flex items-center justify-center gap-2">
-      <div style={{ flex: 1, maxWidth: 80, height: 1, background: "linear-gradient(90deg, transparent, rgba(200,168,75,0.3))" }} />
+      <div style={{ flex: 1, maxWidth: 80, height: 1, background: "linear-gradient(90deg, transparent, GOLD_FAINT)" }} />
       <svg width="16" height="16" viewBox="0 0 100 100" fill="none" style={{ opacity: 0.5 }}>
-        <circle cx="50" cy="50" r="46" stroke="rgba(200,168,75,0.6)" strokeWidth="2"/>
-        <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.15)" />
-        <circle cx="50" cy="28" r="4" fill="rgba(200,168,75,0.7)" />
+        <circle cx="50" cy="50" r="46" stroke="GOLD_DIM" strokeWidth="2"/>
+        <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={CHART_FILL} />
+        <circle cx="50" cy="28" r="4" fill="GOLD_DIM" />
       </svg>
-      <div style={{ flex: 1, maxWidth: 80, height: 1, background: "linear-gradient(90deg, rgba(200,168,75,0.3), transparent)" }} />
+      <div style={{ flex: 1, maxWidth: 80, height: 1, background: "linear-gradient(90deg, GOLD_FAINT, transparent)" }} />
     </div>
   );
 }
@@ -952,13 +942,13 @@ const CHAPTER_NUMERALS = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'
 const SECTION_STYLE_MAP: Record<string, {
   accent: string; bar: string; numeralBg: string; bg: string; border: string; dotColor: string;
 }> = {
-  total:     { accent: '#C4A04E', bar: '#C4A04E', numeralBg: 'rgba(196,160,78,0.12)', bg: 'linear-gradient(180deg, rgba(196,160,78,0.05) 0%, transparent 100%)', border: 'rgba(196,160,78,0.15)', dotColor: '#C4A04E' },
-  character: { accent: '#4AB478', bar: '#4AB478', numeralBg: 'rgba(74,180,120,0.12)', bg: 'linear-gradient(180deg, rgba(74,180,120,0.05) 0%, transparent 100%)', border: 'rgba(74,180,120,0.15)', dotColor: '#4AB478' },
-  career:    { accent: '#B48C3C', bar: '#B48C3C', numeralBg: 'rgba(180,140,60,0.12)', bg: 'linear-gradient(180deg, rgba(180,140,60,0.05) 0%, transparent 100%)', border: 'rgba(180,140,60,0.15)', dotColor: '#B48C3C' },
-  relation:  { accent: '#C85064', bar: '#C85064', numeralBg: 'rgba(200,80,100,0.12)', bg: 'linear-gradient(180deg, rgba(200,80,100,0.05) 0%, transparent 100%)', border: 'rgba(200,80,100,0.15)', dotColor: '#C85064' },
-  health:    { accent: '#3CA0C8', bar: '#3CA0C8', numeralBg: 'rgba(60,160,200,0.12)', bg: 'linear-gradient(180deg, rgba(60,160,200,0.05) 0%, transparent 100%)', border: 'rgba(60,160,200,0.15)', dotColor: '#3CA0C8' },
-  fortune:   { accent: '#A064C8', bar: '#A064C8', numeralBg: 'rgba(160,100,200,0.12)', bg: 'linear-gradient(180deg, rgba(160,100,200,0.05) 0%, transparent 100%)', border: 'rgba(160,100,200,0.15)', dotColor: '#A064C8' },
-  summary:   { accent: '#C4A04E', bar: '#C4A04E', numeralBg: 'rgba(196,160,78,0.12)', bg: 'linear-gradient(180deg, rgba(196,160,78,0.05) 0%, transparent 100%)', border: 'rgba(196,160,78,0.15)', dotColor: '#C4A04E' },
+  total:     { accent: GOLD, bar: GOLD, numeralBg: CHART_GRID, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: GOLD_FAINT, dotColor: GOLD },
+  character: { accent: TEXT_SUBTLE, bar: TEXT_SUBTLE, numeralBg: TRACK_BG, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: DIVIDER_SUBTLE, dotColor: TEXT_SUBTLE },
+  career:    { accent: TEXT_SUBTLE, bar: GOLD_DIM, numeralBg: TRACK_BG, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: GOLD_FAINT, dotColor: GOLD_DIM },
+  relation:  { accent: TEXT_FAINT, bar: TEXT_SUBTLE, numeralBg: TRACK_BG, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: DIVIDER_SUBTLE, dotColor: TEXT_FAINT },
+  health:    { accent: GOLD_DIM, bar: TEXT_SUBTLE, numeralBg: CHART_GRID, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: GOLD_FAINT, dotColor: GOLD_DIM },
+  fortune:   { accent: GOLD, bar: GOLD_DIM, numeralBg: CHART_GRID, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: GOLD_FAINT, dotColor: GOLD },
+  summary:   { accent: GOLD, bar: GOLD, numeralBg: CHART_GRID, bg: `linear-gradient(180deg, ${TRACK_BG} 0%, transparent 100%)`, border: GOLD_FAINT, dotColor: GOLD },
 };
 
 function getSectionStyle(title: string) {
@@ -1095,13 +1085,13 @@ function WuXingRing({ values }: { values?: Record<string, number> }) {
             stroke={s.color} strokeWidth={STROKE_W} strokeDasharray={`${s.pct * circ} ${circ}`}
             strokeDashoffset={-s.start * circ} strokeLinecap="round" opacity={0.8} />
         ))}
-        <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(196,160,78,0.08)" strokeWidth={STROKE_W} />
+        <circle cx={CX} cy={CY} r={R} fill="none" stroke={TRACK_BG} strokeWidth={STROKE_W} />
       </svg>
       <div className="flex gap-3 flex-wrap justify-center">
         {segments.map((s) => (
           <div key={s.wx} className="flex items-center gap-1">
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, opacity: 0.8 }} />
-            <span style={{ fontSize: "0.6rem", color: "#6F6880", fontFamily: "'Noto Sans SC', sans-serif" }}>
+            <span style={{ fontSize: "0.6rem", color: "TEXT_SUBTLE", fontFamily: "'Noto Sans SC', sans-serif" }}>
               {s.wx} {s.value.toFixed(1)}
             </span>
           </div>
@@ -1261,12 +1251,12 @@ function BraceletRecommendCard({ recommendation, planType }: {
   const isPremium = planType === "premium";
   return (
     <div className="rounded-xl overflow-hidden" style={{
-      border: `1px solid rgba(196,160,78,0.2)`,
+      border: `1px solid ${GOLD_FAINT}`,
       background: CARD_GRADIENT,
     }}>
       {/* 头部 */}
       <div className="px-4 py-3 flex items-center justify-between"
-        style={{ borderBottom: "1px solid rgba(196,160,78,0.1)" }}>
+        style={{ borderBottom: "1px solid DIVIDER_SUBTLE" }}>
         <div className="flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
@@ -1276,9 +1266,9 @@ function BraceletRecommendCard({ recommendation, planType }: {
           </span>
         </div>
         <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
-          background: "rgba(196,160,78,0.1)",
+          background: "DIVIDER_SUBTLE",
           color: GOLD,
-          border: `1px solid rgba(196,160,78,0.2)`,
+          border: `1px solid ${GOLD_FAINT}`,
         }}>
           {isPremium ? t('bracelet.premium_box') : t('bracelet.standard')}
         </span>
@@ -1290,7 +1280,7 @@ function BraceletRecommendCard({ recommendation, planType }: {
           {/* 手串图标（五行颜色圆点） */}
           <div className="shrink-0 w-16 h-16 rounded-full flex items-center justify-center"
             style={{
-              background: `radial-gradient(circle, ${GOLD_FAINT} 0%, rgba(196,160,78,0.04) 100%)`,
+              background: `radial-gradient(circle, ${GOLD_FAINT} 0%, TRACK_BG 100%)`,
               border: `1px solid ${GOLD_FAINT}`,
             }}>
             <div className="flex flex-col items-center">
@@ -1311,7 +1301,7 @@ function BraceletRecommendCard({ recommendation, planType }: {
 
         {/* 推荐理由 */}
         <div className="rounded-lg px-3 py-2.5 mb-3"
-          style={{ background: "rgba(196,160,78,0.08)", border: `1px solid rgba(196,160,78,0.1)` }}>
+          style={{ background: "TRACK_BG", border: `1px solid DIVIDER_SUBTLE` }}>
           <p className="text-[11px] leading-relaxed" style={{ color: BODY_CLR }}>
             {recommendation.reason}
           </p>
@@ -1351,7 +1341,7 @@ function BraceletRecommendCard({ recommendation, planType }: {
       {/* 底部 - 礼盒版额外信息 */}
       {isPremium && (
         <div className="px-4 py-2.5 flex items-center gap-2"
-          style={{ borderTop: "1px solid rgba(196,160,78,0.08)", background: "rgba(196,160,78,0.02)" }}>
+          style={{ borderTop: "1px solid ${TRACK_BG}", background: "TRACK_BG" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={GOLD_DIM} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
             <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
@@ -1430,7 +1420,7 @@ function AIAnalysisPanel({
   const G_MID = GOLD;
   const G_DIM = GOLD_DIM;
   const G_FAINT = GOLD_FAINT;
-  const G_GHOST = "rgba(196,160,78,0.08)";
+  const G_GHOST = "TRACK_BG";
   const SERIF = SERIF_F;
 
   // 如果非自动触发且未打开，返回 null
@@ -1444,7 +1434,7 @@ function AIAnalysisPanel({
         <div className="relative" style={{ width: 48, height: 48 }}>
           <svg width="48" height="48" viewBox="0 0 100 100" fill="none" className="animate-spin" style={{ animationDuration: "3s" }}>
             <circle cx="50" cy="50" r="44" stroke={G_FAINT} strokeWidth="1.5" />
-            <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.15)" />
+            <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={CHART_FILL} />
             <circle cx="50" cy="28" r="4" fill={G_MID} />
             <circle cx="50" cy="72" r="4" fill={G_FAINT} />
           </svg>
@@ -1478,13 +1468,13 @@ function AIAnalysisPanel({
             <div className="relative" style={{ width: 72, height: 72 }}>
               <svg width="72" height="72" viewBox="0 0 100 100" fill="none"
                 className="animate-spin" style={{ animationDuration: "6s", position: "absolute" }}>
-                <circle cx="50" cy="50" r="48" stroke="rgba(196,160,78,0.15)" strokeWidth="0.8" strokeDasharray="3 6"/>
+                <circle cx="50" cy="50" r="48" stroke={CHART_FILL} strokeWidth="0.8" strokeDasharray="3 6"/>
               </svg>
               <svg width="72" height="72" viewBox="0 0 100 100" fill="none"
                 className="animate-spin" style={{ animationDuration: "3s", position: "absolute" }}>
-                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.2)"/>
-                <circle cx="50" cy="28" r="10" fill="rgba(196,160,78,0.08)"/>
-                <circle cx="50" cy="72" r="10" fill="rgba(196,160,78,0.04)"/>
+                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={CHART_FILL}/>
+                <circle cx="50" cy="28" r="10" fill={TRACK_BG}/>
+                <circle cx="50" cy="72" r="10" fill="TRACK_BG"/>
                 <circle cx="50" cy="28" r="3.5" fill={G_MID}/>
                 <circle cx="50" cy="72" r="3.5" fill={GOLD_FAINT}/>
               </svg>
@@ -1544,14 +1534,14 @@ function AIAnalysisPanel({
                 transform: "translate(-50%, -50%)",
                 width: 200, height: 200,
                 borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(196,160,78,0.06) 0%, transparent 65%)",
+                background: "radial-gradient(circle, TRACK_BG 0%, transparent 65%)",
                 pointerEvents: "none",
               }} />
               <div style={{
                 position: "absolute", top: -40, right: -40,
                 width: 120, height: 120,
                 borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(196,160,78,0.04) 0%, transparent 70%)",
+                background: "radial-gradient(circle, TRACK_BG 0%, transparent 70%)",
                 pointerEvents: "none",
               }} />
 
@@ -1563,7 +1553,7 @@ function AIAnalysisPanel({
               {/* 杂志头 — 大标题 */}
               <div className="flex flex-col items-center gap-2">
                 <p style={{
-                  color: "#C4A04E",
+                  color: GOLD,
                   fontFamily: "'Noto Serif SC', serif",
                   fontSize: "1.35rem",
                   fontWeight: 700,
@@ -1574,7 +1564,7 @@ function AIAnalysisPanel({
                   OraSage
                 </p>
                 <p style={{
-                  color: "rgba(93,89,115,0.5)",
+                  color: "DIVIDER_SUBTLE",
                   fontFamily: "'Noto Serif SC', serif",
                   fontSize: "0.55rem",
                   letterSpacing: "0.45em",
@@ -1593,11 +1583,11 @@ function AIAnalysisPanel({
                       padding: "3px 10px",
                       borderRadius: "999px",
                       whiteSpace: "nowrap",
-                      border: `1px solid rgba(196,160,78,0.15)`,
-                      color: "#6F6880",
+                      border: `1px solid ${GOLD_FAINT}`,
+                      color: "TEXT_SUBTLE",
                       fontFamily: "'Noto Sans SC', sans-serif",
                       letterSpacing: "0.06em",
-                      background: "rgba(196,160,78,0.04)",
+                      background: "TRACK_BG",
                     }}>
                       {sec.title}
                     </span>
@@ -1609,7 +1599,7 @@ function AIAnalysisPanel({
               <div style={{
                 marginTop: "1.25rem",
                 height: 1,
-                background: "linear-gradient(90deg, transparent, rgba(196,160,78,0.2) 20%, rgba(196,160,78,0.2) 80%, transparent)",
+                background: "linear-gradient(90deg, transparent, CHART_FILL 20%, CHART_FILL 80%, transparent)",
               }} />
             </div>
 
@@ -1622,11 +1612,11 @@ function AIAnalysisPanel({
                     <span style={{ fontSize: "0.5rem", color: "rgba(93,89,115,0.35)", fontFamily: SERIF, letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
                       {t('report.progress').replace('{open}', String(openSections.size)).replace('{total}', String((sections || []).length))}
                     </span>
-                    <div style={{ flex: 1, height: 2, borderRadius: 1, background: "rgba(196,160,78,0.1)", overflow: "hidden" }}>
+                    <div style={{ flex: 1, height: 2, borderRadius: 1, background: "DIVIDER_SUBTLE", overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
                         width: `${(openSections.size / (sections?.length || 1)) * 100}%`,
-                        background: "linear-gradient(90deg, #C4A04E, rgba(196,160,78,0.3))",
+                        background: "linear-gradient(90deg, GOLD, GOLD_FAINT)",
                         borderRadius: 1,
                         transition: "width 0.5s cubic-bezier(0.23,1,0.32,1)",
                       }} />
@@ -1646,8 +1636,8 @@ function AIAnalysisPanel({
             {/* 底部 — 版权/免责 */}
             <div style={{
               padding: "2rem 1.5rem",
-              background: "linear-gradient(0deg, rgba(196,160,78,0.04) 0%, transparent 100%)",
-              borderTop: "1px solid rgba(196,160,78,0.08)",
+              background: "linear-gradient(0deg, TRACK_BG 0%, transparent 100%)",
+              borderTop: "1px solid ${TRACK_BG}",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -1655,9 +1645,9 @@ function AIAnalysisPanel({
             }}>
               <GoldDivider />
               <svg width="18" height="18" viewBox="0 0 100 100" fill="none" style={{ opacity: 0.2 }}>
-                <circle cx="50" cy="50" r="46" stroke="#C4A04E" strokeWidth="1.5"/>
-                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.2)"/>
-                <circle cx="50" cy="28" r="3.5" fill="#C4A04E"/>
+                <circle cx="50" cy="50" r="46" stroke={GOLD} strokeWidth="1.5"/>
+                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={CHART_FILL}/>
+                <circle cx="50" cy="28" r="3.5" fill={GOLD}/>
               </svg>
               <p style={{
                 color: "rgba(93,89,115,0.3)",
@@ -1773,7 +1763,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
             </p>
           </div>
           <div className="ml-auto text-right">
-            <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: "rgba(196,160,78,0.1)", color: GOLD, fontFamily: SANS }}>
+            <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: "DIVIDER_SUBTLE", color: GOLD, fontFamily: SANS }}>
               {wx} · {result.riZhu}
             </span>
           </div>
@@ -1788,17 +1778,17 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
             <div className="relative" style={{ width: 44, height: 44 }}>
               <svg width="44" height="44" viewBox="0 0 100 100" fill="none"
                 className="animate-spin" style={{ animationDuration: "3s" }}>
-                <circle cx="50" cy="50" r="44" stroke="rgba(196,160,78,0.15)" strokeWidth="1.5"/>
-                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.15)"/>
-                <circle cx="50" cy="28" r="4" fill="#C4A04E" opacity="0.8"/>
-                <circle cx="50" cy="72" r="4" fill="rgba(196,160,78,0.2)"/>
+                <circle cx="50" cy="50" r="44" stroke={CHART_FILL} strokeWidth="1.5"/>
+                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill={CHART_FILL}/>
+                <circle cx="50" cy="28" r="4" fill={GOLD} opacity="0.8"/>
+                <circle cx="50" cy="72" r="4" fill={CHART_FILL}/>
               </svg>
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-sm" style={{ color: "rgba(196,160,78,0.7)", fontFamily: SERIF_F, letterSpacing: "0.12em" }}>
+              <span className="text-sm" style={{ color: "GOLD_DIM", fontFamily: SERIF_F, letterSpacing: "0.12em" }}>
                 {t('insight.loading')}
               </span>
-              <span className="text-xs" style={{ color: "rgba(93,89,115,0.4)", letterSpacing: "0.05em" }}>
+              <span className="text-xs" style={{ color: "TEXT_FAINT", letterSpacing: "0.05em" }}>
                 {t('insight.subtitle')}
               </span>
             </div>
@@ -1811,7 +1801,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(248,113,113,0.5)" strokeWidth="1.5">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <span className="text-sm" style={{ color: "#6F6880", letterSpacing: "0.04em" }}>
+            <span className="text-sm" style={{ color: "TEXT_SUBTLE", letterSpacing: "0.04em" }}>
               {t('insight.error')}
             </span>
             <button type="button" onClick={() => {
@@ -1820,7 +1810,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
               insightMutation.mutate({ lang: insightLocale, resultData: result as unknown as Record<string, unknown> });
             }}
               className="text-sm px-5 py-2 rounded-lg transition-colors"
-              style={{ background: "rgba(196,160,78,0.1)", color: "#C4A04E", border: "none", cursor: "pointer" }}>
+              style={{ background: "DIVIDER_SUBTLE", color: GOLD, border: "none", cursor: "pointer" }}>
               {t('insight.retry')}
             </button>
           </div>
@@ -1829,7 +1819,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
         {/* AI 内容 */}
         {hasAi && aiProfile && (
           <>
-            <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(196,160,78,0.06)", border: `1px solid rgba(196,160,78,0.12)` }}>
+            <div className="rounded-lg px-4 py-3.5" style={{ background: "TRACK_BG", border: `1px solid CHART_GRID` }}>
               <p className="text-sm font-bold mb-1.5" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.riZhu} · {aiProfile.title}</p>
               <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.75 }}>{aiProfile.matrix || aiProfile.traits}</p>
             </div>
@@ -1850,7 +1840,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
               <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.risk}</p>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg px-4 py-2.5" style={{ background: "rgba(196,160,78,0.04)" }}>
+            <div className="flex items-center justify-between rounded-lg px-4 py-2.5" style={{ background: "TRACK_BG" }}>
               <p className="text-sm" style={{ color: GOLD, flex: 1 }}>{aiProfile.lucky}</p>
               <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: GOLD, color: "#ffffff", fontFamily: SANS }}>{wx}</span>
             </div>
@@ -1882,7 +1872,7 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
       <div className="flex flex-wrap gap-1.5 mb-3">
         {[t('bracelet.tag.natural'), t('bracelet.tag.handmade'), t('bracelet.tag.energy'), t('bracelet.tag.gift_box')].map(tag => (
           <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full"
-            style={{ background: GOLD_GHOST, color: GOLD, fontFamily: SANS, border: `1px solid rgba(196,160,78,0.2)` }}>
+            style={{ background: GOLD_GHOST, color: GOLD, fontFamily: SANS, border: `1px solid ${GOLD_FAINT}` }}>
             {tag}
           </span>
         ))}
@@ -1892,7 +1882,7 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
         style={{
           background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
           color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
-          border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
+          border: "none", boxShadow: `0 3px 12px GOLD_FAINT`,
         }}>
         {t('bracelet.upgrade')}
       </button>
@@ -1941,7 +1931,7 @@ function CrystalShopCard({ braceletRec }: { braceletRec: BraceletRecommendation 
         style={{
           background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
           color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
-          border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
+          border: "none", boxShadow: `0 3px 12px GOLD_FAINT`,
           opacity: loading ? 0.7 : 1,
         }}>
         {loading ? t('checkout.loading', '正在跳转…') : t('crystal.shop.buy', '去能量商城请一条')}
@@ -2013,7 +2003,7 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
         {onStartDouble && (
           <button type="button" onClick={onStartDouble}
             className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-80 active:scale-95 px-3 py-1.5 rounded-full"
-            style={{ color: GOLD, border: `1px solid ${BORDER_CLR}`, background: "rgba(196,160,78,0.07)" }}>
+            style={{ color: GOLD, border: `1px solid ${BORDER_CLR}`, background: "TRACK_BG" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
@@ -2045,9 +2035,9 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
       {/* 八字四柱 — 深色视觉锚点 */}
       <div className="rounded-xl px-5 py-5" style={{ background: PILLAR_SURFACE, border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center justify-center gap-2 mb-4">
-          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(196,160,78,0.2)" }} />
-          <span className="text-[10px] font-bold tracking-widest" style={{ color: "#C4A04E", fontFamily: SERIF_F, letterSpacing: "0.3em", opacity: 0.8 }}>{t('result.pillars')}</span>
-          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(196,160,78,0.2)" }} />
+          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "CHART_FILL" }} />
+          <span className="text-[10px] font-bold tracking-widest" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.3em", opacity: 0.8 }}>{t('result.pillars')}</span>
+          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "CHART_FILL" }} />
         </div>
         <div className="flex gap-5 justify-around">
           {[result.year, result.month, result.day, result.hour].map((p, i) => (
@@ -2084,7 +2074,7 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
           {onStartDouble && (
             <button type="button" onClick={onStartDouble}
               className="w-full py-3 rounded-2xl text-sm font-bold tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
-              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`, color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.18em", boxShadow: `0 4px 16px rgba(196,160,78,0.35)` }}>
+              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`, color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.18em", boxShadow: `0 4px 16px GOLD_FAINT` }}>
               {t('result.double')}
             </button>
           )}
@@ -2159,7 +2149,7 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
           {result.score}
         </div>
         <div className="text-lg font-bold" style={{ color: GOLD }}>{result.rating}</div>
-        <div className="mt-3 flex justify-center gap-2 text-xs" style={{ color: "#6F6880" }}>
+        <div className="mt-3 flex justify-center gap-2 text-xs" style={{ color: "TEXT_SUBTLE" }}>
           <span>{result.person1.name} · {result.person1.riZhu}</span>
           <span>×</span>
           <span>{result.person2.name} · {result.person2.riZhu}</span>
@@ -2189,12 +2179,12 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
           />
           <div className="flex gap-4 text-[10px]">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-0.5 rounded" style={{ background: 'rgba(200,168,75,0.85)' }} />
+              <div className="w-3 h-0.5 rounded" style={{ background: GOLD }} />
               <span style={{ color: BODY_CLR }}>{result.person1.name}</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-0.5 rounded" style={{ background: 'rgba(96,165,250,0.7)' }} />
-              <span style={{ color: 'rgba(96,165,250,0.7)' }}>{result.person2.name}</span>
+              <div className="w-3 h-0.5 rounded" style={{ background: 'CHART_STROKE_ALT' }} />
+              <span style={{ color: 'CHART_STROKE_ALT' }}>{result.person2.name}</span>
             </div>
           </div>
         </div>
@@ -2244,11 +2234,11 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
             {t('paywall.couple.hook')}
           </p>
           <div className="mt-3 flex items-center gap-2">
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(196,160,78,0.2))" }} />
+            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, CHART_FILL)" }} />
             <span className="text-[10px]" style={{ color: MUTED_CLR, fontFamily: SANS, letterSpacing: "0.08em" }}>
               {t('paywall.couple.hook_label')}
             </span>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(196,160,78,0.2), transparent)" }} />
+            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, CHART_FILL, transparent)" }} />
           </div>
         </div>
       )}
