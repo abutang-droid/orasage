@@ -52,8 +52,23 @@ ensure_env() {
     log "错误: cms/.env 缺少有效的 PAYLOAD_SECRET（至少 32 位随机字符串）"
     exit 1
   fi
+  export DATABASE_URL PAYLOAD_SECRET
   export NEXT_PUBLIC_SERVER_URL="${NEXT_PUBLIC_SERVER_URL:-https://cms.orasage.com}"
+  export NODE_ENV="${NODE_ENV:-production}"
+  export PORT="${PORT:-3120}"
   set -u
+}
+
+run_migrations() {
+  log "执行数据库迁移..."
+  cd "$APP_DIR"
+  npm run migrate
+
+  if ! psql "$DATABASE_URL" -tAc "SELECT to_regclass('public.users')" 2>/dev/null | grep -q users; then
+    log "错误: 迁移后 users 表不存在，请检查 DATABASE_URL 与 payload migrate 日志"
+    exit 1
+  fi
+  log "数据库迁移完成（users 表已就绪）"
 }
 
 try_create_database() {
@@ -70,9 +85,12 @@ try_create_database() {
   fi
 
   if [ -n "$auth_url" ]; then
-    local db_name
-    db_name=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+).*|\1|')
-    psql "$auth_url" -c "CREATE DATABASE ${db_name};" 2>/dev/null || true
+    local db_name base_url
+    db_name=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+)(\?.*)?$|\1|')
+    base_url=$(echo "$auth_url" | sed -E 's|/[a-zA-Z0-9_]+(\?.*)?$|/postgres\1|')
+    psql "$base_url" -c "CREATE DATABASE ${db_name} OWNER orasage;" 2>/dev/null \
+      || sudo -u postgres psql -c "CREATE DATABASE ${db_name} OWNER orasage;" 2>/dev/null \
+      || true
     if psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; then
       log "数据库 ${db_name} 已就绪"
       return 0
@@ -90,7 +108,7 @@ deploy_native() {
 
   cd "$APP_DIR"
   npm ci
-  npm run migrate
+  run_migrations
   npm run build
 
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
