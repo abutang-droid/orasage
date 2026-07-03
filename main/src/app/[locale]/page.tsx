@@ -10,11 +10,11 @@ export default async function HomePage({ params }: Props) {
   const catalog = await fetchShopCatalog();
 
   return (
-    <>
+    <div className="home-portal">
       <Hero />
       <ToolCards />
       <ShopSection catalog={catalog} />
       <ContentSections />
-    </>
+    </div>
   );
 }

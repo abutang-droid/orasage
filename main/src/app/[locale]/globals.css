@@ -144,4 +144,80 @@
   .prose-sage :where(table) {
     @apply my-4 block max-w-full overflow-x-auto text-sm;
   }
+
+  /* ── Main portal home (editorial paper layout) ── */
+  .home-eyebrow {
+    font-family: var(--os-font-serif-zh);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgb(var(--brand-gold) / 0.92);
+  }
+
+  .home-hero-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-section {
+    @apply mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14;
+  }
+
+  .home-section--band {
+    @apply relative max-w-none px-0 py-12 sm:py-16;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgb(var(--muted) / 0.35) 12%,
+      rgb(var(--muted) / 0.35) 88%,
+      transparent 100%
+    );
+  }
+
+  .home-section--band > *:not([aria-hidden]) {
+    @apply mx-auto max-w-6xl px-4 sm:px-6;
+  }
+
+  .home-section--tail {
+    @apply pb-12 sm:pb-16;
+  }
+
+  .home-section-head {
+    @apply text-center;
+  }
+
+  .home-tool-card {
+    @apply border-border/80 bg-card/90 backdrop-blur-[2px];
+  }
+
+  .home-product-card {
+    @apply border-border/70 bg-card;
+  }
+
+  .home-editorial-card {
+    @apply relative overflow-hidden border-border/80 bg-card/95;
+  }
+
+  .home-editorial-card::before {
+    content: '';
+    position: absolute;
+    inset-block: 1.25rem;
+    inset-inline-start: 0;
+    width: 2px;
+    border-radius: 999px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(var(--brand-gold) / 0.55) 30%,
+      rgb(var(--brand-primary) / 0.45) 70%,
+      transparent
+    );
+    opacity: 0;
+    transition: opacity var(--os-motion-fast) var(--os-ease-standard);
+  }
+
+  .home-editorial-card:hover::before,
+  .home-editorial-card:focus-visible::before {
+    opacity: 1;
+  }
 }
