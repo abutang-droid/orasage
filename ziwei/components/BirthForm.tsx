@@ -485,20 +485,40 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         </motion.div>
       )}</AnimatePresence>
 
-      {!hideSubmit && <motion.button type="submit" disabled={loading}
-        whileHover={loading ? {} : { scale: 1.01 }} whileTap={loading ? {} : { scale: 0.98 }}
-        style={{ width: '100%', padding: '14px', borderRadius: '16px', fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-          background: loading ? 'var(--gold-pale)' : 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)',
-          color: loading ? 'var(--tx-3)' : '#ffffff',
-          boxShadow: loading ? 'none' : '0 4px 16px rgba(184, 148, 63, 0.25)', transition: 'all 0.2s' }}>
-        {loading ? (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-              style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%' }} />
-            {t('form.submit.loading')}
-          </span>
-        ) : t('form.submit')}
-      </motion.button>}
+      {!hideSubmit && (
+        <motion.button
+          type="submit"
+          disabled={loading}
+          className="oui-btn oui-btn--default"
+          data-size="lg"
+          whileHover={loading ? {} : { scale: 1.01 }}
+          whileTap={loading ? {} : { scale: 0.98 }}
+          style={{
+            letterSpacing: '0.12em',
+            boxShadow: loading ? 'none' : '0 4px 16px rgba(184, 148, 63, 0.25)',
+          }}
+        >
+          {loading ? (
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <motion.span
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                style={{
+                  display: 'inline-block',
+                  width: '12px',
+                  height: '12px',
+                  border: '2px solid currentColor',
+                  borderTopColor: 'transparent',
+                  borderRadius: '50%',
+                }}
+              />
+              {t('form.submit.loading')}
+            </span>
+          ) : (
+            t('form.submit')
+          )}
+        </motion.button>
+      )}
     </motion.form>
   );
 }

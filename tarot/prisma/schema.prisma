@@ -19,6 +19,15 @@ model User {
   occupation String?  @db.VarChar(50)
   preferredDeity String? @db.VarChar(50)
   faith      String?  @db.VarChar(80)
+  onboardingCompleted Boolean @default(false)
+  streakDays Int      @default(0)
+  streakLongest Int   @default(0)
+  lastCheckinDate String? @db.VarChar(10)
+  meritTotal Int      @default(0)
+  meritTime  Int      @default(0)
+  meritShare Int      @default(0)
+  meritOffer Int      @default(0)
+  meritLevel Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -29,6 +38,7 @@ model User {
   knowledgeReads  KnowledgeRead[]
   angelDraws      AngelDraw[]
   dreamRecords    DreamRecord[]
+  templeCheckins  TempleCheckin[]
 }
 
 model DailyCardRecord {
@@ -128,5 +138,23 @@ model DreamRecord {
   createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+// ── 每日拜神 / 功德参拜记录 ───────────────────────────────────────
+model TempleCheckin {
+  id           String   @id @default(uuid())
+  userId       String
+  deityCode    String   @db.VarChar(50)
+  deityName    String   @db.VarChar(80)
+  faithCode    String?  @db.VarChar(80)
+  worshipStage Int      @default(1)
+  durationSec  Float    @default(0)
+  meritEarned  Int      @default(0)
+  checkinDate  String   @db.VarChar(10)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, checkinDate])
   @@index([userId, createdAt])
 }

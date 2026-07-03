@@ -18,6 +18,9 @@ export interface UserData {
   occupation?: string | null
   preferredDeity?: string | null
   faith?: string | null
+  onboardingCompleted?: boolean
+  meritTotal?: number
+  streakDays?: number
 }
 
 interface UserCtx {
@@ -61,6 +64,9 @@ function merge(server: UserData, local: UserData | null): UserData {
     occupation: server.occupation || local?.occupation || null,
     preferredDeity: server.preferredDeity || local?.preferredDeity || null,
     faith: server.faith || local?.faith || null,
+    onboardingCompleted: server.onboardingCompleted ?? local?.onboardingCompleted ?? false,
+    meritTotal: server.meritTotal ?? local?.meritTotal ?? 0,
+    streakDays: server.streakDays ?? local?.streakDays ?? 0,
   }
 }
 

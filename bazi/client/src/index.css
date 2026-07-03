@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../../../shared/design-tokens/orasage-tokens.css";
+@import "./assets/orasage-ui.css";
 
 @custom-variant dark (&:is(.dark *));
 
