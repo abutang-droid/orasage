@@ -61,7 +61,7 @@ export function Header() {
   }
 
   return (
-    <header className="safe-top border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+    <header className="safe-top bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
         <Link
           href="/"
