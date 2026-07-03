@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@orasage/ui";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import { useState, useEffect, useRef } from "react";

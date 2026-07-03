@@ -23,6 +23,7 @@ import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { AppBrandMark } from "@/lib/orasage-app-shell/AppBrandMark";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, PRIMARY, PRIMARY_HOVER, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
+import { buttonVariants, cn } from "@orasage/ui";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -839,7 +840,10 @@ export default function Home() {
               {/* 提交按钮 */}
               <button
                 type="button" onClick={handleSubmit}
-                className="mx-5 mt-2 mb-5 w-auto flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "mx-5 mt-2 mb-5 w-auto flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]",
+                )}
                 style={{
                   padding: "1.125rem 0", border: "none", borderRadius: "20px",
                   background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)`,
