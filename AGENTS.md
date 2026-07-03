@@ -1,5 +1,16 @@
 # AGENTS.md
 
+## 改动前必读（铁规）
+
+**在修改任何代码、UI 或配置之前，必须先阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)。**
+
+1. **不擅自改布局** — 未经产品负责人确认，不得改动页面结构、导航、组件摆放等任何界面布局。
+2. **不主动增删功能** — 未经产品负责人确认，不得新增或删除用户可见/可调用的功能与入口。
+
+若任务可能触及以上范围，先列出修改计划并等待确认，再动手。
+
+---
+
 ## Cursor Cloud specific instructions
 
 ### What is runnable in this repo
