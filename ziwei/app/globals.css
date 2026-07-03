@@ -8,8 +8,7 @@
 @tailwind utilities;
 
 /* =====================================================
-   OraSage 紫微斗数 - 全局设计系统
-   品牌：浅金 #D9A441 | 深紫 #2E295B | 淡紫薄雾 #F7F4FA
+   OraSage 紫微斗数 — DS v1.1 语义 token（单色黑/白/灰）
 ===================================================== */
 
 :root {
@@ -18,7 +17,7 @@
   --font-serif: 'Noto Serif SC', 'Songti SC', serif;
   --font-mono:  'SF Mono', 'Menlo', 'Noto Sans Mono', monospace;
 
-  /* ── 品牌色（对齐设计规范）── */
+  /* ── DS v1.1 语义色（via orasage-tokens）── */
   --gold:           var(--orasage-gold, #b8943f);
   --gold-light:     var(--orasage-gold-light, #d4b86a);
   --gold-pale:      var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));

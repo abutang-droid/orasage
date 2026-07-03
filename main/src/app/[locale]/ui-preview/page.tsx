@@ -373,7 +373,7 @@ export default function UiPreviewPage() {
             <div data-theme="paper" className="rounded-lg border border-border bg-background p-5 text-foreground">
               <h3 className="font-serif text-heading-4">Paper Editorial</h3>
               <p className="mt-2 text-muted-foreground">
-                Calm reading surfaces with jade primary actions and limited brass accents.
+                Calm reading surfaces with DS v1.1 monochrome primary actions and gray accents.
               </p>
               <Button className="mt-4">Primary CTA</Button>
             </div>

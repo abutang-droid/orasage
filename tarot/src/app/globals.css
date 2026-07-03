@@ -1,10 +1,12 @@
 @import "tailwindcss";
 @import '../../../shared/design-tokens/orasage-tokens.css';
 
-/* ── Manto Fonts ─────────────────────────────────────────────── */
+@source "../**/*.{ts,tsx}";
+
+/* ── Tarot app fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── OraSage Design Tokens: 浅色纸感 ─────────────────────────── */
+/* ── OraSage DS v1.1 — app semantic tokens ───────────────────── */
 :root {
   /* Brand colors */
   --gold:           var(--orasage-gold, #B8943F);
@@ -455,7 +457,7 @@ body {
 @media (min-width: 481px) { .hide-desktop { display: none !important; } }
 
 /* ══════════════════════════════════════════════════════════════════
-   Manto Home — redesign components
+   Tarot home — legacy layout helpers (visual: DS v1.1 monochrome)
    ══════════════════════════════════════════════════════════════════ */
 
 /* Gold gradient text (logo / headings) */

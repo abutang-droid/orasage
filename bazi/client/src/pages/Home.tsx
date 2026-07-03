@@ -1,6 +1,6 @@
 /**
  * 八字排盘 — 主页面
- * Design: OraSage · 纸感编辑风（与主站一致）
+ * Design: OraSage DS v1.1（单色黑/白/灰）
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";

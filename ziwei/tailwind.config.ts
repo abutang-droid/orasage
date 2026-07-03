@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 2.0 设计系统色
+        // DS v1.1 layout neutrals
         bg: {
           0: "#FAFAF9",
           1: "#F4F3EF",
