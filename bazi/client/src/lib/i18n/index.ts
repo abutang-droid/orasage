@@ -60,7 +60,9 @@ const uiLoaders: Record<Locale, () => Promise<TranslationDict>> = {
   "pt-BR": () => import("./pt-BR").then((m) => m.default),
 };
 
+import zhCN from "./zh-CN";
+
 export function loadUi(locale: Locale): Promise<TranslationDict> {
-  return uiLoaders[locale]();
+  return uiLoaders[locale]().catch(() => zhCN);
 }
 

@@ -45,6 +45,14 @@ function getLocaleFromUrl(): Locale {
   const params = new URLSearchParams(window.location.search);
   const lang = params.get('lang');
   if (lang === 'zh-TW' || lang === 'en' || lang === 'pt-BR') return lang;
+  if (lang === 'zh-CN' || lang === 'zh') return 'zh-CN';
+
+  const navLang = navigator.language?.toLowerCase() || '';
+  if (navLang.startsWith('zh-tw') || navLang.startsWith('zh-hk')) return 'zh-TW';
+  if (navLang.startsWith('zh')) return 'zh-CN';
+  if (navLang.startsWith('pt')) return 'pt-BR';
+  if (navLang.startsWith('en')) return 'en';
+
   return 'zh-CN';
 }
 

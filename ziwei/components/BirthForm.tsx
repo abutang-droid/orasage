@@ -1,9 +1,10 @@
 'use client';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
 import { PROVINCES } from '@/lib/ziwei/cities';
+import { searchGlobalCities, type GlobalCity } from '@/lib/ziwei/globalCities';
 import { useT } from '@/lib/i18n';
 import { fetchSavedProfiles, profileDisplayLabel, savedProfileToBirthForm, type SavedProfile } from '@/lib/profile-sync';
 
@@ -65,10 +66,26 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
+  const [locationMode, setLocationMode] = useState<'china' | 'global'>('china');
+  const [globalQuery, setGlobalQuery] = useState('');
+  const [globalOpen, setGlobalOpen] = useState(false);
+  const globalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void fetchSavedProfiles().then(setSavedProfiles);
   }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (globalRef.current && !globalRef.current.contains(e.target as Node)) {
+        setGlobalOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const globalSuggestions = useMemo(() => searchGlobalCities(globalQuery), [globalQuery]);
 
   useEffect(() => {
     onFormSave?.({ ...form });
@@ -135,6 +152,33 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     const prov = PROVINCES.find(p => p.name === form.province);
     const cityData = prov?.cities.find(c => c.name === cityName);
     setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? 120 });
+  };
+
+  const handleLocationMode = (mode: 'china' | 'global') => {
+    setLocationMode(mode);
+    setForm({ ...form, province: '', city: '', longitude: 120 });
+    setGlobalQuery('');
+    setGlobalOpen(false);
+  };
+
+  const handleGlobalInput = (value: string) => {
+    setGlobalQuery(value);
+    setGlobalOpen(value.trim().length > 0);
+    if (!value.trim()) {
+      setForm({ ...form, province: '', city: '', longitude: 120 });
+    }
+  };
+
+  const handleGlobalSelect = (gc: GlobalCity) => {
+    const label = `${gc.city} · ${gc.country}`;
+    setGlobalQuery(label);
+    setGlobalOpen(false);
+    setForm({
+      ...form,
+      province: gc.country,
+      city: gc.city,
+      longitude: gc.longitude,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -285,31 +329,106 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>{t('form.birth.place')}</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <select value={form.province} onChange={e => handleProvince(e.target.value)} style={inputStyle}
-            onFocus={e => { e.target.style.borderColor = focusBorder; }}
-            onBlur={e => { e.target.style.borderColor = inputBorder; }}>
-            <option value="">{t('form.province')}</option>
-            {PROVINCES.map(p => (<option key={p.name} value={p.name}>{p.name}</option>))}
-          </select>
-          <select value={form.city} onChange={e => handleCity(e.target.value)} disabled={!form.province}
-            style={{ ...inputStyle, opacity: form.province ? 1 : 0.45 }}
-            onFocus={e => { e.target.style.borderColor = focusBorder; }}
-            onBlur={e => { e.target.style.borderColor = inputBorder; }}>
-            <option value="">{form.province ? t('form.city') : t('form.city.placeholder')}</option>
-            {cityList.map(c => (<option key={c.name} value={c.name}>{c.name}</option>))}
-          </select>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          {(['china', 'global'] as const).map((mode) => {
+            const active = locationMode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => handleLocationMode(mode)}
+                style={{
+                  flex: 1,
+                  padding: '9px 10px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  border: `1px solid ${active ? focusBorder : inputBorder}`,
+                  background: active ? panelBg : inputBg,
+                  color: active ? goldText : 'var(--tx-3)',
+                  cursor: 'pointer',
+                }}
+              >
+                {mode === 'china' ? t('form.location.china') : t('form.location.global')}
+              </button>
+            );
+          })}
         </div>
+
+        {locationMode === 'china' ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <select value={form.province} onChange={e => handleProvince(e.target.value)} style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = focusBorder; }}
+              onBlur={e => { e.target.style.borderColor = inputBorder; }}>
+              <option value="">{t('form.province')}</option>
+              {PROVINCES.map(p => (<option key={p.name} value={p.name}>{p.name}</option>))}
+            </select>
+            <select value={form.city} onChange={e => handleCity(e.target.value)} disabled={!form.province}
+              style={{ ...inputStyle, opacity: form.province ? 1 : 0.45 }}
+              onFocus={e => { e.target.style.borderColor = focusBorder; }}
+              onBlur={e => { e.target.style.borderColor = inputBorder; }}>
+              <option value="">{form.province ? t('form.city') : t('form.city.placeholder')}</option>
+              {cityList.map(c => (<option key={c.name} value={c.name}>{c.name}</option>))}
+            </select>
+          </div>
+        ) : (
+          <div ref={globalRef} style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={globalQuery}
+              onChange={e => handleGlobalInput(e.target.value)}
+              onFocus={() => { if (globalQuery.trim()) setGlobalOpen(true); }}
+              placeholder={t('form.city.search.placeholder')}
+              style={inputStyle}
+            />
+            {globalOpen && globalSuggestions.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                zIndex: 20,
+                top: 'calc(100% + 4px)',
+                left: 0,
+                right: 0,
+                background: inputBg,
+                border: `1px solid ${inputBorder}`,
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+              }}>
+                {globalSuggestions.map((gc) => (
+                  <button
+                    key={`${gc.city}-${gc.country}`}
+                    type="button"
+                    onClick={() => handleGlobalSelect(gc)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '10px 14px',
+                      border: 'none',
+                      background: 'transparent',
+                      color: inputClr,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {gc.city} · {gc.country}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
-          {form.province ? (
+          {form.city ? (
             <motion.p key="location-info" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
-              {form.city || t('form.city.select')} · {t('form.longitude')} {form.longitude.toFixed(1)}°E · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
+              {form.city}{form.province ? ` · ${form.province}` : ''} · {t('form.longitude')} {form.longitude.toFixed(1)}° · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
             </motion.p>
           ) : (
             <motion.p key="location-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: hintClr, marginTop: '5px' }}>
-              {t('form.location.hint')}
+              {locationMode === 'global' ? t('form.city.global.hint') : t('form.location.hint')}
             </motion.p>
           )}
         </AnimatePresence>

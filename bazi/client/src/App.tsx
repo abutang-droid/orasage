@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
 import { LocaleContext, detectLocale, loadUi } from "./lib/i18n";
 import type { Locale, TranslationDict } from "./lib/i18n";
+import zhCN from "./lib/i18n/zh-CN";
 
 function Router() {
   return (
@@ -24,7 +25,7 @@ function Router() {
 
 function App() {
   const [locale, setLocale] = useState<Locale>("zh-CN");
-  const [ui, setUi] = useState<TranslationDict>({});
+  const [ui, setUi] = useState<TranslationDict>(zhCN);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
