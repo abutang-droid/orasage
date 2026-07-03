@@ -27,7 +27,7 @@ export function PageTitle({ children }: { children: ReactNode }) {
 
 export function PageBody({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:mt-6 sm:text-base">
+    <div className="mt-5 space-y-4 break-words text-[15px] leading-relaxed text-muted-foreground sm:mt-6 sm:text-base [&_a]:text-primary [&_a]:underline-offset-2 [&_a:hover]:underline [&_a:focus-visible]:outline-none [&_a:focus-visible]:ring-2 [&_a:focus-visible]:ring-ring [&_a:focus-visible]:ring-offset-2 [&_a:focus-visible]:ring-offset-background [&_li]:my-2 [&_ol]:ps-5 [&_ul]:ps-5">
       {children}
     </div>
   );
