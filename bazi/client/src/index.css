@@ -212,8 +212,8 @@
   /* ── 输入框：深色背景 + 鎏金描边 ── */
   .ora-input {
     width: 100%;
-    background: var(--bg-white);
-    border: 1px solid var(--border-color);
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
     border-radius: 12px;
     color: var(--heading);
     font-family: var(--font-sans);
@@ -236,8 +236,8 @@
   /* ── 旧版 ink-input 兼容 ── */
   .ink-input {
     width: 100%;
-    background: var(--bg-white);
-    border: 1px solid var(--border-color);
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
     border-radius: 12px;
     color: var(--heading);
     font-family: var(--font-sans);

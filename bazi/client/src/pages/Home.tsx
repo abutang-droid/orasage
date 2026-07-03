@@ -16,13 +16,14 @@ import {
 import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziResult";
 import { DatePicker } from "@/components/WheelPicker";
 import { BaziHomeFeed } from "@/components/BaziHomeFeed";
+import { BaziHomeHero } from "@/components/BaziHomeHero";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
-import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, BORDER_CLR } from "@/theme";
+import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -215,13 +216,8 @@ function CitySearchInput({ value, onChange }: {
 
   return (
     <div className="relative" ref={containerRef}>
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-colors duration-200"
-        style={{
-          borderColor: focused ? GOLD : BORDER_CLR,
-          background: BG_PAGE,
-          boxShadow: focused ? `0 0 0 3px ${GOLD_FAINT}` : 'none',
-        }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={focused ? GOLD : MUTED_CLR} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className={`bazi-city-field${focused ? ' is-focused' : ''}`}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
         </svg>
         <input
@@ -231,55 +227,42 @@ function CitySearchInput({ value, onChange }: {
           onFocus={() => { setFocused(true); if (query.length >= 1) setOpen(suggestions.length > 0); }}
           onBlur={() => setFocused(false)}
           placeholder={t('form.city.placeholder')}
-          style={{
-            flex: 1, background: 'transparent', border: 'none', outline: 'none',
-            color: HEADING, fontFamily: SANS, fontSize: '0.9375rem', caretColor: GOLD,
-          }}
         />
         {aiSearching && (
-          <span className="text-xs" style={{ color: GOLD, opacity: 0.7 }}>{t('form.city.ai_matching')}</span>
+          <span className="text-xs text-primary/70 shrink-0">{t('form.city.ai_matching')}</span>
         )}
         {query && (
-          <button type="button" onClick={handleClear}
-            style={{ color: MUTED_CLR, fontSize: '1rem', padding: '0 2px', lineHeight: 1 }}>
+          <button type="button" onClick={handleClear} className="text-muted-foreground text-base leading-none px-0.5">
             ×
           </button>
         )}
-        {aiSearching && (
-          <span className="text-xs" style={{ color: GOLD, opacity: 0.7 }}>{t('form.city.searching')}</span>
-        )}
       </div>
+      {dataError && (
+        <p className="text-xs text-muted-foreground mt-1 px-1">{dataError}</p>
+      )}
       {value.lng !== undefined && (
-        <div style={{ fontSize: '0.6875rem', color: MUTED_CLR, marginTop: '0.25rem', paddingLeft: '0.25rem' }}>
+        <div className="text-[0.6875rem] text-muted-foreground mt-1 px-1">
           {value.lng > 0 ? t('city.longitude_east', '东经') + value.lng.toFixed(1) + '°' : t('city.longitude_west', '西经') + Math.abs(value.lng).toFixed(1) + '°'}
           {' · '}{t('city.timezone', '时区')} UTC{value.timezone || '+8'}
         </div>
       )}
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 z-50 rounded-xl overflow-hidden"
-          style={{
-            top: 'calc(100% + 4px)',
-            background: BG_CARD,
-            border: `1px solid ${BORDER_CLR}`,
-            boxShadow: '0 8px 32px rgba(46,41,91,0.12)',
-          }}>
+        <div className="bazi-city-dropdown">
           {suggestions.map((city, i) => (
             <button
-              key={i} type="button"
+              key={i}
+              type="button"
               onMouseDown={(e) => { e.preventDefault(); handleSelect(city); }}
-              className="w-full text-left px-4 py-2.5 transition-colors"
-              style={{ background: 'transparent', borderBottom: i < suggestions.length - 1 ? `1px solid ${BORDER_CLR}` : 'none' }}
-              onMouseEnter={e => (e.currentTarget.style.background = GOLD_GHOST)}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              className="bazi-city-option"
             >
               <div className="flex items-center justify-between">
-                <span style={{ color: HEADING, fontFamily: SANS, fontSize: '0.9rem', fontWeight: 500 }}>{city.city}</span>
-                <span style={{ fontSize: '0.7rem', color: MUTED_CLR, background: GOLD_GHOST, padding: '1px 8px', borderRadius: '4px' }}>
+                <span className="text-sm font-medium text-foreground">{city.city}</span>
+                <span className="text-[0.7rem] text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   {city.country && city.country !== '中国' ? city.country : city.province || ''}
                 </span>
               </div>
               {city.lng !== undefined && (
-                <div style={{ fontSize: '0.65rem', color: MUTED_CLR, marginTop: '2px' }}>
+                <div className="text-[0.65rem] text-muted-foreground mt-0.5">
                   {city.lng > 0 ? t('city.longitude_east', '东经') + ' ' + city.lng.toFixed(2) + '°' : t('city.longitude_west', '西经') + ' ' + Math.abs(city.lng).toFixed(2) + '°'}
                   {city.timezone && <span> · UTC{city.timezone}</span>}
                 </div>
@@ -374,15 +357,14 @@ function PersonFormPanel({ form, onChange }: {
   // Field label helper
   const Label = ({ text, required }: { text: string; required?: boolean }) => (
     <div className="flex items-center gap-1 mb-2">
-      <span className="bazi-home-field-label">{text}</span>
-      {required && <span className="text-red-400 text-xs">*</span>}
+      <span className="bazi-calc-field-label">{text}</span>
+      {required && <span className="text-red-500 text-xs">*</span>}
     </div>
   );
 
   return (
-    <div className="flex flex-col px-5 py-3 gap-4">
+    <div className="flex flex-col gap-4">
 
-      {/* 姓名 + 性别 + 历法 */}
       <div className="flex items-center gap-1.5">
         <div className="flex-1">
           <input
@@ -390,30 +372,30 @@ function PersonFormPanel({ form, onChange }: {
             value={form.name}
             onChange={(e) => onChange({ name: e.target.value })}
             placeholder={t('form.name.placeholder')}
-            className="ora-input !min-h-0 !py-2.5 !text-[0.9375rem]"
+            className="bazi-field-input"
           />
         </div>
 
-        <div className="bazi-home-segment">
+        <div className="bazi-calc-segment">
           {(["male", "female"] as const).map((g) => (
             <button
               key={g}
               type="button"
               onClick={() => onChange({ gender: g })}
-              className={`bazi-home-segment-btn${form.gender === g ? ' is-active' : ''}`}
+              className={`bazi-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}
             >
               {g === "male" ? (t('form.gender.male') || "男") : (t('form.gender.female') || "女")}
             </button>
           ))}
         </div>
 
-        <div className="bazi-home-segment">
+        <div className="bazi-calc-segment">
           {(["solar", "lunar"] as const).map((c) => (
             <button
               key={c}
               type="button"
               onClick={() => onChange({ calendar: c })}
-              className={`bazi-home-segment-btn${form.calendar === c ? ' is-active' : ''}`}
+              className={`bazi-calc-segment-btn${form.calendar === c ? ' is-active' : ''}`}
             >
               {c === "solar" ? (t('form.calendar.solar') || "公") : (t('form.calendar.lunar') || "农")}
             </button>
@@ -429,11 +411,11 @@ function PersonFormPanel({ form, onChange }: {
       {/* 出生日期与时间 */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
-          <span style={{ fontFamily: SANS, fontSize: "0.8125rem", fontWeight: 600, color: HEADING }}>{t('form.birth_time')}</span>
-          <span style={{ color: '#f87171', fontSize: '0.75rem' }}>*</span>
+          <span className="bazi-calc-field-label">{t('form.birth_time')}</span>
+          <span className="text-red-500 text-xs">*</span>
         </div>
         <div className="flex gap-2">
           <DatePicker label={t('date.year', '年')} options={YEARS} value={form.year} onChange={(v) => onChange({ year: v })} />
@@ -453,8 +435,8 @@ function PersonFormPanel({ form, onChange }: {
 
       {/* 出生地 */}
       <div>
-        <div className="flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-2 mb-1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
           </svg>
           <Label text={t('form.birth_place')} />
@@ -697,20 +679,16 @@ export default function Home() {
 
         {view === "form" && (
           <>
-            <header className="bazi-home-hero animate-fade-in-up">
-              <p className="bazi-home-eyebrow">{t('home.eyebrow')}</p>
-              <h1 className="bazi-home-title">{t('home.title')}</h1>
-              <p className="bazi-home-subtitle">{t('home.subtitle')}</p>
-            </header>
+            <BaziHomeHero />
 
-            <div className="bazi-home-card animate-fade-in-up">
-              <div className="bazi-home-mode-bar">
+            <div className="bazi-calc-form bazi-calc-section animate-fade-in-up">
+              <div className="bazi-calc-mode-bar">
                 {(["single", "couple"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => handleModeSwitch(m)}
-                    className={`bazi-home-mode-btn${mode === m ? ' is-active' : ''}`}
+                    className={`bazi-calc-mode-btn${mode === m ? ' is-active' : ''}`}
                   >
                     {m === "single" ? t('form.mode.single') : t('form.mode.couple')}
                   </button>
@@ -718,8 +696,8 @@ export default function Home() {
               </div>
 
               {mode === "couple" && (
-                <div className="bazi-home-person-tabs">
-                  <p className="bazi-home-person-hint">
+                <div className="bazi-calc-person-tabs">
+                  <p className="bazi-calc-person-hint">
                     {t('form.person.editing', '编辑')}
                   </p>
                   {([t('form.person.first'), t('form.person.second')] as const).map((label, idx) => (
@@ -727,7 +705,7 @@ export default function Home() {
                       key={idx}
                       type="button"
                       onClick={() => setActivePerson(idx as 0 | 1)}
-                      className={`bazi-home-person-tab${activePerson === idx ? ' is-active' : ''}`}
+                      className={`bazi-calc-person-tab${activePerson === idx ? ' is-active' : ''}`}
                     >
                       {label}
                     </button>
@@ -736,7 +714,7 @@ export default function Home() {
               )}
 
               {savedProfiles.length > 0 && (
-                <div className="mx-5 mb-3">
+                <div className="mb-3">
                   <label className="block text-[11px] mb-1.5 text-muted-foreground">
                     {t('form.saved_profile')}
                   </label>
@@ -750,7 +728,7 @@ export default function Home() {
                       }
                       e.target.value = '';
                     }}
-                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none bg-secondary border border-border text-foreground"
+                    className="bazi-field-select"
                   >
                     <option value="">{t('form.saved_profile.placeholder')}</option>
                     {savedProfiles.map((p) => (
@@ -768,7 +746,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="btn-primary bazi-home-submit"
+                className="bazi-calc-submit"
               >
                 {mode === "single" ? t('form.submit.single') : t('form.submit.couple')}
               </button>

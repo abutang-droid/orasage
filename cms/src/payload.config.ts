@@ -11,6 +11,7 @@ import { Pages } from './collections/Pages';
 import { Faiths } from './collections/Faiths';
 import { Sanctuaries } from './collections/Sanctuaries';
 import { HomeHero } from './globals/HomeHero';
+import { BaziHomeHero } from './globals/BaziHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 
 const filename = fileURLToPath(import.meta.url);
@@ -24,7 +25,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed],
-  globals: [HomeHero],
+  globals: [HomeHero, BaziHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

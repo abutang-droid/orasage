@@ -17,13 +17,13 @@
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: #fafaf8;
+  --shell-bg: rgb(247, 243, 234);
   --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: #e7e5e4;
-  --shell-border-subtle: #f1f1ef;
-  --shell-text: #171717;
-  --shell-muted: #6b7280;
-  --shell-gold: #b8943f;
+  --shell-border: rgb(var(--os-rgb-ivory-300) / 0.85);
+  --shell-border-subtle: rgb(var(--os-rgb-ivory-100));
+  --shell-text: rgb(var(--os-rgb-ink-900));
+  --shell-muted: rgb(var(--os-rgb-ink-500));
+  --shell-gold: var(--orasage-brand-gold, #d0b47a);
 }
 
 .orasage-app-topbar-start {

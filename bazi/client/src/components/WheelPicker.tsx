@@ -174,30 +174,14 @@ export function DatePicker({
             onChange={handleInputChange}
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
-            className="w-full py-2.5 rounded-xl text-sm text-center"
-            style={{
-              background: error ? "rgba(248,113,113,0.06)" : BG_PAGE,
-              border: `1px solid ${error ? ERR_CLR : GOLD}`,
-              color: error ? ERR_CLR : HEADING,
-              fontFamily: SANS,
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              outline: "none",
-            }}
+            className={`bazi-date-input${error ? ' border-destructive' : ''}`}
+            style={error ? { borderColor: ERR_CLR, color: ERR_CLR } : undefined}
           />
         ) : (
           <button
             type="button"
             onClick={handleClick}
-            className="w-full py-2.5 rounded-xl text-sm transition-all duration-200 flex items-center justify-center"
-            style={{
-              background: BG_PAGE,
-              border: `1px solid ${BORDER_CLR}`,
-              color: HEADING,
-              fontFamily: SANS,
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}
+            className="bazi-date-trigger flex items-center justify-center"
           >
             {display}
           </button>

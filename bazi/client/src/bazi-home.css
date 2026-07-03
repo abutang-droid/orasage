@@ -1,19 +1,43 @@
 /* ══════════════════════════════════════════════════════════════
-   Bazi home — editorial paper layout (aligned with main portal)
+   Bazi home — aligned with main portal (orasage.com)
+   Page bg: #f7f3ea · inputs on card surface · jade primary
    ══════════════════════════════════════════════════════════════ */
 
 .bazi-home-page {
   width: 100%;
-  max-width: 32rem;
+  max-width: 28rem;
   margin-inline: auto;
+  padding-bottom: 0.5rem;
 }
 
-.bazi-home-hero {
-  padding: 1.25rem 1rem 1rem;
+/* ── Hero (CMS-configurable, mirrors main .home-hero) ── */
+.bazi-hero {
+  position: relative;
+  overflow: hidden;
   text-align: center;
 }
 
-.bazi-home-eyebrow {
+.bazi-hero-video {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.bazi-hero-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
+
+.bazi-hero-inner {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 0.25rem 1rem;
+}
+
+.bazi-hero-eyebrow {
   font-family: var(--font-serif);
   font-size: 0.6875rem;
   letter-spacing: 0.22em;
@@ -21,142 +45,311 @@
   color: rgb(var(--brand-gold) / 0.92);
 }
 
-.bazi-home-title {
+.bazi-hero-title {
   margin-top: 0.5rem;
   font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 400;
-  line-height: 1.25;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 300;
+  line-height: 1.2;
   letter-spacing: 0.04em;
-  color: var(--heading);
+  color: rgb(var(--foreground));
 }
 
-.bazi-home-subtitle {
-  margin: 0.625rem auto 0;
-  max-width: 20rem;
+.bazi-hero-subtitle {
+  margin: 0.75rem auto 0;
+  max-width: 22rem;
   font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--muted-text);
+  line-height: 1.65;
+  color: rgb(var(--muted-foreground));
 }
 
-.bazi-home-card {
-  background: var(--bg-card);
-  border: 1px solid color-mix(in srgb, var(--border-color) 85%, transparent);
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px rgb(var(--os-rgb-ink-950) / 0.06);
-  overflow: hidden;
+.bazi-hero-image {
+  margin: 1rem auto 0;
+  max-height: 13rem;
+  width: auto;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  object-fit: contain;
 }
 
-.bazi-home-mode-bar {
+.bazi-hero-body {
+  margin: 0.75rem auto 0;
+  max-width: 22rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: rgb(var(--muted-foreground));
+}
+
+/* ── Calculator form (no card shell — transparent on page bg) ── */
+.bazi-calc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.bazi-calc-section {
+  padding-top: 0.25rem;
+}
+
+.bazi-calc-mode-bar {
   display: flex;
   gap: 0.25rem;
-  margin: 1.25rem 1.25rem 0.5rem;
+  margin-bottom: 0.75rem;
   padding: 0.25rem;
-  border-radius: 0.75rem;
-  background: rgb(var(--os-rgb-ivory-100) / 0.8);
-  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: rgb(var(--muted));
+  border: 1px solid rgb(var(--border) / 0.65);
 }
 
-.bazi-home-mode-btn {
+.bazi-calc-mode-btn {
   flex: 1;
   padding: 0.6rem 0.5rem;
   border: none;
-  border-radius: 0.625rem;
+  border-radius: calc(var(--radius-md) - 2px);
   font-family: var(--font-sans);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--muted-text);
+  color: rgb(var(--muted-foreground));
   background: transparent;
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.bazi-home-mode-btn.is-active {
-  color: var(--heading);
-  background: var(--bg-white);
-  box-shadow: 0 1px 4px rgb(var(--os-rgb-ink-950) / 0.08);
+.bazi-calc-mode-btn.is-active {
+  color: rgb(var(--foreground));
+  background: rgb(var(--card));
+  box-shadow: var(--os-shadow-surface-1);
   font-weight: 600;
 }
 
-.bazi-home-person-tabs {
+.bazi-calc-person-tabs {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0 1.25rem 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
-.bazi-home-person-hint {
+.bazi-calc-person-hint {
   flex-shrink: 0;
   font-size: 0.625rem;
   letter-spacing: 0.08em;
-  color: var(--muted-text);
+  color: rgb(var(--muted-foreground));
 }
 
-.bazi-home-person-tab {
+.bazi-calc-person-tab {
   padding: 0.375rem 1rem;
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--muted-text);
+  color: rgb(var(--muted-foreground));
   background: transparent;
   transition: color 0.18s ease, border-color 0.18s ease;
 }
 
-.bazi-home-person-tab.is-active {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
+.bazi-calc-person-tab.is-active {
+  color: rgb(var(--brand-primary));
+  border-bottom-color: rgb(var(--brand-primary));
 }
 
-.bazi-home-field-label {
+.bazi-calc-field-label {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--heading);
+  color: rgb(var(--foreground));
 }
 
-.bazi-home-segment {
+/* Input surface — distinct from page bg (#f7f3ea) */
+.bazi-field-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius-md);
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  caret-color: rgb(var(--ring));
+}
+
+.bazi-field-input::placeholder {
+  color: rgb(var(--muted-foreground));
+}
+
+.bazi-field-input:focus {
+  border-color: rgb(var(--ring));
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
+}
+
+.bazi-field-select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius-md);
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.bazi-field-select:focus {
+  border-color: rgb(var(--ring));
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
+}
+
+.bazi-calc-segment {
   display: flex;
   overflow: hidden;
   flex-shrink: 0;
-  border-radius: 0.625rem;
-  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--card));
 }
 
-.bazi-home-segment-btn {
+.bazi-calc-segment-btn {
   min-width: 2rem;
   padding: 0.5rem 0.55rem;
   border: none;
   font-family: var(--font-sans);
   font-size: 0.75rem;
   line-height: 1;
-  color: var(--body);
+  color: rgb(var(--muted-foreground));
   background: transparent;
   transition: background 0.18s ease, color 0.18s ease;
 }
 
-.bazi-home-segment-btn.is-active {
-  color: var(--primary-foreground);
-  background: var(--gold);
+.bazi-calc-segment-btn.is-active {
+  color: rgb(var(--primary-foreground));
+  background: rgb(var(--primary));
   font-weight: 600;
 }
 
-.bazi-home-submit {
-  margin: 0.5rem 1.25rem 1.25rem;
-  width: calc(100% - 2.5rem);
+.bazi-calc-submit {
+  margin-top: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: rgb(var(--primary));
+  color: rgb(var(--primary-foreground));
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  box-shadow: var(--os-shadow-surface-1);
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bazi-calc-submit:hover {
+  background: var(--orasage-brand-primary-hover);
+}
+
+.bazi-calc-submit:active {
+  transform: scale(0.98);
+}
+
+.bazi-city-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius-md);
+  background: rgb(var(--card));
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bazi-city-field.is-focused {
+  border-color: rgb(var(--ring));
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
+}
+
+.bazi-city-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  caret-color: rgb(var(--ring));
+}
+
+.bazi-city-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 50;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--card));
+  box-shadow: var(--os-shadow-surface-2);
+}
+
+.bazi-city-option {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-bottom: 1px solid rgb(var(--border) / 0.5);
+  text-align: left;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.bazi-city-option:hover {
+  background: rgb(var(--muted));
+}
+
+.bazi-date-trigger {
+  width: 100%;
+  padding: 0.625rem 0;
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius-md);
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bazi-date-trigger:hover {
+  border-color: rgb(var(--ring) / 0.5);
+}
+
+.bazi-date-input {
+  width: 100%;
+  padding: 0.625rem 0;
+  border-radius: var(--radius-md);
+  border: 1px solid rgb(var(--ring));
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
 }
 
 /* ── Scrolling feed ticker ── */
 .bazi-home-feed {
   margin-top: 1.25rem;
-  padding: 0 0.25rem;
 }
 
 .bazi-home-feed-mask {
   overflow: hidden;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
-  background: color-mix(in srgb, var(--bg-card) 92%, rgb(var(--brand-gold) / 0.04));
+  border-radius: var(--radius-md);
+  border: 1px solid rgb(var(--border) / 0.65);
+  background: rgb(var(--card) / 0.55);
 }
 
 .bazi-home-feed-track {
@@ -177,11 +370,7 @@
   gap: 0.5rem;
   white-space: nowrap;
   font-size: 0.8125rem;
-  color: var(--body);
-}
-
-.bazi-home-feed-text {
-  font-family: var(--font-sans);
+  color: rgb(var(--muted-foreground));
 }
 
 .bazi-feed-chip {
@@ -195,22 +384,18 @@
 }
 
 .bazi-feed-chip--order {
-  color: var(--primary);
-  background: rgb(var(--brand-primary) / 0.1);
+  color: rgb(var(--primary));
+  background: rgb(var(--primary) / 0.1);
 }
 
 .bazi-feed-chip--review {
-  color: rgb(var(--brand-gold) / 1);
+  color: rgb(var(--brand-gold));
   background: rgb(var(--brand-gold) / 0.12);
 }
 
 @keyframes bazi-feed-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
