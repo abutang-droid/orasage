@@ -2,7 +2,8 @@
 
 > 写给下一任 Cloud Agent / 开发者。  
 > 覆盖本轮对话主线：**门户 UX → 支付 mock → 塔罗信仰/圣地 CMS → UI 脚手架 → 功德成长后端（非 UI）→ 合并部署**。  
-> 平台总览仍见 [`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)（部分章节已过期，以本文为准）。
+> 平台总览仍见 [`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)（部分章节已过期，以本文为准）。  
+> **改动前必读铁规：** [`AGENT-RULES.md`](./AGENT-RULES.md)（不擅自改布局、不主动增删功能）。
 
 ---
 
