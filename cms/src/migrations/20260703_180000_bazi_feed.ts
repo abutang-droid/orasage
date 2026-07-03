@@ -26,6 +26,19 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   CREATE INDEX IF NOT EXISTS "bazi_feed_sort_idx" ON "bazi_feed" ("sort");
   CREATE INDEX IF NOT EXISTS "bazi_feed_locale_idx" ON "bazi_feed" ("locale");
 
+  ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "bazi_feed_id" integer;
+
+  DO $$ BEGIN
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_bazi_feed_fk"
+      FOREIGN KEY ("bazi_feed_id") REFERENCES "public"."bazi_feed"("id")
+      ON DELETE cascade ON UPDATE no action;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END $$;
+
+  CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_bazi_feed_id_idx"
+    ON "payload_locked_documents_rels" USING btree ("bazi_feed_id");
+
   INSERT INTO "bazi_feed" ("kind", "message", "locale", "sort", "enabled", "created_at", "updated_at")
   SELECT * FROM (VALUES
     ('order'::"enum_bazi_feed_kind", '张** 刚刚完成了八字排盘', 'zh-CN'::"enum_bazi_feed_locale", 10, true, now(), now()),

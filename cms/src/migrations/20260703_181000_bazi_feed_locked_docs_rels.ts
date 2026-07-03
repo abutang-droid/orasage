@@ -1,0 +1,26 @@
+import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres';
+
+/** payload_locked_documents_rels 需为新集合 bazi-feed 增加外键列 */
+export async function up({ db }: MigrateUpArgs): Promise<void> {
+  await db.execute(sql`
+  ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "bazi_feed_id" integer;
+
+  DO $$ BEGIN
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_bazi_feed_fk"
+      FOREIGN KEY ("bazi_feed_id") REFERENCES "public"."bazi_feed"("id")
+      ON DELETE cascade ON UPDATE no action;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END $$;
+
+  CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_bazi_feed_id_idx"
+    ON "payload_locked_documents_rels" USING btree ("bazi_feed_id");
+  `);
+}
+
+export async function down({ db }: MigrateDownArgs): Promise<void> {
+  await db.execute(sql`
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_bazi_feed_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "bazi_feed_id";
+  `);
+}

@@ -22,7 +22,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
-import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BORDER_CLR } from "@/theme";
+import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
