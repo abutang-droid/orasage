@@ -131,13 +131,14 @@ flowchart TD
 | 操作步骤 | 1. 访问 `https://bazi.orasage.com` 2. 触发需登录操作 3. 跳转 `auth.orasage.com/register?redirect=…` 4. 注册 5. 回跳 bazi 6. 新标签打开 `ziwei.orasage.com` |
 | 预期结果 | 1. 设置 `orasage_token`（`domain=.orasage.com`）2. 回跳原页 3. ziwei 识别已登录（`GET /api/auth/me` 有用户） |
 
-#### TC-AUTH-002：已登录用户访问用户中心 `[P1]` `[M]`
+#### TC-AUTH-002：已登录用户访问用户中心 `[P1]` `[A]`
 
 | 字段 | 内容 |
 |------|------|
 | 前置条件 | 已登录 |
 | 操作步骤 | 访问 `https://auth.orasage.com/center` |
 | 预期结果 | 302 → `https://orasage.com/zh-CN/profile`，展示邮箱、测算、订单 |
+| 自动化 | `npm run test:auth-center`（`auth-center-redirect.mjs`） |
 
 #### TC-AUTH-003：登录 redirect 白名单校验 `[P0]` `[M/A]`
 
@@ -311,6 +312,7 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `verify-unify.mjs` | （手动 `node`） | App Shell 底栏一致性 | Browser | ✅ |
 | `auth-redirect-security.mjs` | `test:auth-redirect` | TC-AUTH-003 | Browser | ✅ |
 | `auth-cross-domain.mjs` | `test:auth-sso` | TC-AUTH-001 | Browser | ✅ |
+| `auth-center-redirect.mjs` | `test:auth-center` | TC-AUTH-002 | API + Browser | ✅ |
 | `shop-checkout-security.mjs` | `test:shop-security` | BIZ-003 | API | ✅ |
 | `auth-internal-forbidden.mjs` | `test:auth-internal` | BIZ-004 | API | ✅ |
 | `shop-crystal-flow.mjs` | `test:shop-crystal` | TC-SHOP-001 | Browser | ✅ |
@@ -331,7 +333,6 @@ npm run test:smoke-all
 
 | 用例 ID | 说明 |
 |---------|------|
-| TC-AUTH-002 | auth `/center` → profile 302 |
 | TC-TAROT-001/002 | 访客 daily-card / temple 浏览器流 |
 | TC-ADMIN-* | admin 角色门控 |
 
