@@ -56,6 +56,10 @@ deploy_cms() {
   fi
   log "部署 cms..."
   cd "$DEPLOY_DIR/cms"
+  set -a
+  # shellcheck disable=SC1091
+  [ -f .env ] && . ./.env
+  set +a
   npm ci
   npm run migrate
   npm run seed:tarot 2>/dev/null || log "cms seed:tarot 跳过"
