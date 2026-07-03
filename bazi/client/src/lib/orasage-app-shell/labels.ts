@@ -6,6 +6,8 @@ type LabelSet = {
   shop: Record<string, string>;
   mine: Record<string, string>;
   exploreTitle: Record<string, string>;
+  login: Record<string, string>;
+  signedIn: Record<string, string>;
 };
 
 export const SHELL_LABELS: LabelSet = {
@@ -50,6 +52,18 @@ export const SHELL_LABELS: LabelSet = {
     en: 'Explore',
     'zh-TW': '探索',
     'pt-BR': 'Explorar',
+  },
+  login: {
+    'zh-CN': '登录',
+    en: 'Login',
+    'zh-TW': '登入',
+    'pt-BR': 'Entrar',
+  },
+  signedIn: {
+    'zh-CN': '已通过 OraSage 登录',
+    en: 'Signed in with OraSage',
+    'zh-TW': '已通過 OraSage 登入',
+    'pt-BR': 'Conectado com OraSage',
   },
 };
 

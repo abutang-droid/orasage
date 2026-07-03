@@ -1,5 +1,6 @@
-export { AppShell, APP_BRANDS, ORASAGE_URLS, FixedBottomNav } from './AppShell';
+export { AppShell, APP_BRANDS, ORASAGE_URLS, FixedBottomNav, AppBrandMark } from './AppShell';
 export type { AppShellProps, LocaleOption } from './AppShell';
+export { OrasageAuthChip } from './OrasageAuthChip';
 export type { AppId, NavContext } from './config';
 export {
   appHomeUrl,

@@ -5,7 +5,7 @@
 ```bash
 for app in tarot/src/lib/orasage-app-shell ziwei/lib/orasage-app-shell bazi/client/src/lib/orasage-app-shell; do
   mkdir -p "$app"
-  cp shared/app-shell/{AppShell.tsx,config.ts,labels.ts,app-shell.css,index.ts} "$app/"
+  cp shared/app-shell/{AppShell.tsx,OrasageAuthChip.tsx,config.ts,labels.ts,app-shell.css,index.ts} "$app/"
 done
 ```
 

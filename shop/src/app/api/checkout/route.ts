@@ -8,6 +8,7 @@ import { getStripe } from '@/lib/stripe';
 import { paymentsUseStripe } from '@/lib/payment-mode';
 import { isLocalRequest } from '@/lib/internal';
 import { detectCurrency, toStripeAmount, type ShopCurrency } from '@/lib/currency';
+import { resolveAuthUserId } from '../../../../shared/shop-checkout/server';
 
 const checkoutSchema = z.object({
   userId: z.number().int().positive(),
@@ -40,6 +41,14 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = checkoutSchema.parse(await req.json());
+    const verifiedUserId = await resolveAuthUserId(req.headers.get('cookie'));
+    if (!verifiedUserId) {
+      return NextResponse.json({ error: '未登录或凭证无效' }, { status: 401 });
+    }
+    if (body.userId !== verifiedUserId) {
+      return NextResponse.json({ error: 'userId 与登录凭证不一致' }, { status: 403 });
+    }
+
     const currency: ShopCurrency = body.currency ?? detectCurrency(req.headers.get('accept-language'));
     const lineItems: Array<{ product: NonNullable<Awaited<ReturnType<typeof getProduct>>>; quantity: number }> = [];
 

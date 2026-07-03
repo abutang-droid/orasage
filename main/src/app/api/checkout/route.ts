@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       readingId: body.readingId,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,
+      cookieHeader: req.headers.get('cookie'),
     });
     return NextResponse.json(result);
   } catch (err) {

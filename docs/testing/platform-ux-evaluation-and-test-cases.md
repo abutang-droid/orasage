@@ -264,7 +264,7 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 |----|--------|------|
 | BIZ-003 | 公网 POST shop `/api/checkout` | 403 |
 | BIZ-004 | 公网 POST auth `/internal/*` | 403（Nginx + IP 白名单） |
-| BIZ-008 | 内网 checkout 伪造 userId | **安全风险**：应校验 token 与 userId 一致（待加固） |
+| BIZ-008 | 内网 checkout 伪造 userId | shop POST 校验 cookie 与 body.userId 一致 |
 | BIZ-009 | redirect 开放重定向 | `safeRedirect` 兜底 profile |
 | BIZ-013 | 访问他人 report URL | 当前报告 URL 可公开访问（需产品决策是否加鉴权） |
 | BIZ-015 | 本地 HTTP Cookie | `secure` 不写入；用 Bearer token 测 API |
@@ -289,7 +289,7 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 
 ### 已知产品缺口（Expected Failure / Blocked）
 
-1. 命理 App 前端未展示 orasage 登录态（README P1）
+1. ~~命理 App 前端未展示 orasage 登录态（README P1）~~ → `OrasageAuthChip` 已接入 bazi/ziwei/tarot App Shell
 2. admin/cms 仅为骨架
 3. 默认 `PAYMENT_MODE=mock`；Stripe 需单独环境
 4. tarot 访客 → orasage 账号数据合并未定义
@@ -309,6 +309,8 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `tarot-offer-merit.mjs` | `test:tarot-offer` | TC-TAROT-003 | API | 需单独跑 |
 | `tarot-free-readings.mjs` | `test:tarot-free` | tarot 免费次数 P2 | API | 需单独跑 |
 | `verify-unify.mjs` | （手动 `node`） | App Shell 底栏一致性 | Browser | ✅ |
+| `auth-redirect-security.mjs` | `test:auth-redirect` | TC-AUTH-003 | Browser | 待跑 |
+| `shop-checkout-security.mjs` | `test:shop-security` | BIZ-003（+ BIZ-008 外网不可达时 skip） | API | 待跑 |
 
 **一键生产冒烟（推荐 CI）：**
 
@@ -328,11 +330,10 @@ MAIN_URL=https://orasage.com SHOP_URL=https://shop.orasage.com \
 
 | 用例 ID | 说明 |
 |---------|------|
-| TC-AUTH-001/003 | 跨子域 Cookie + evil redirect（可 Playwright + curl） |
+| TC-AUTH-001 | 跨子域 Cookie（可 Playwright + curl） |
 | TC-SHOP-001 | shop 前台水晶直购浏览器流 |
 | TC-AUTH-002 | auth `/center` → profile 302 |
 | UI-001 | 连续点击支付按钮 |
-| BIZ-003 | 公网 POST checkout 期望 403 |
 | TC-TAROT-001/002 | 访客 daily-card / temple 浏览器流 |
 | TC-ADMIN-* | admin 角色门控 |
 
@@ -344,7 +345,7 @@ MAIN_URL=https://orasage.com SHOP_URL=https://shop.orasage.com \
 |----------|------------------------|
 | `orasage_token` 跨子域 SSO | ✅ `auth-service/src/lib/jwt.ts`，`.orasage.com` |
 | redirect 白名单 | ✅ `safeRedirect()` in `pages.ts` |
-| shop 内网 checkout | ✅ `isLocalRequest()` 取真实 IP 末段 |
+| shop 内网 checkout | ✅ `isLocalRequest()` + cookie/userId 绑定 |
 | bazi orasage 桥接 | ✅ `authenticateViaOrasageBridge` |
 | ziwei 匿名 + 桥接 | ✅ `ziwei/lib/auth.ts` |
 | mock 默认支付 | ✅ `shared/payments/mode.ts` |
