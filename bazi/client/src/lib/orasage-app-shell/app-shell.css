@@ -1,11 +1,14 @@
 .orasage-app-shell {
-  --shell-bg: #0f0e17;
-  --shell-surface: rgba(21, 18, 42, 0.96);
-  --shell-border: rgba(255, 255, 255, 0.08);
-  --shell-border-subtle: rgba(255, 255, 255, 0.04);
-  --shell-text: #e8e4dc;
-  --shell-muted: #9a9588;
-  --shell-gold: #c9a05a;
+  --shell-bg: var(--orasage-background);
+  --shell-surface: color-mix(in srgb, var(--orasage-surface) 94%, transparent);
+  --shell-border: var(--orasage-border);
+  --shell-border-subtle: var(--orasage-border-subtle);
+  --shell-text: var(--orasage-text-primary);
+  --shell-muted: var(--orasage-text-muted);
+  --shell-primary: var(--orasage-brand-primary);
+  --shell-accent: var(--orasage-brand-gold);
+  --shell-focus: var(--orasage-focus-ring);
+  --shell-shadow: var(--os-shadow-surface-1);
   --shell-top-h: 52px;
   --shell-bottom-h: 56px;
   min-height: 100dvh;
@@ -17,13 +20,14 @@
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: #fafaf8;
-  --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: #e7e5e4;
-  --shell-border-subtle: #f1f1ef;
-  --shell-text: #171717;
-  --shell-muted: #6b7280;
-  --shell-gold: #b8943f;
+  --shell-bg: var(--orasage-background);
+  --shell-surface: color-mix(in srgb, var(--orasage-surface) 94%, transparent);
+  --shell-border: var(--orasage-border);
+  --shell-border-subtle: var(--orasage-border-subtle);
+  --shell-text: var(--orasage-text-primary);
+  --shell-muted: var(--orasage-text-muted);
+  --shell-primary: var(--orasage-brand-primary);
+  --shell-accent: var(--orasage-brand-gold);
 }
 
 .orasage-app-topbar-start {
@@ -45,7 +49,16 @@
 }
 
 .orasage-app-back:hover {
-  color: var(--shell-gold);
+  color: var(--shell-primary);
+}
+
+.orasage-app-back:focus-visible,
+.orasage-app-lang-btn:focus-visible,
+.orasage-page-back:focus-visible,
+.orasage-app-nav-item:focus-visible,
+.orasage-app-explore-link:focus-visible {
+  outline: 2px solid var(--shell-focus);
+  outline-offset: 3px;
 }
 
 .orasage-app-back span {
@@ -71,7 +84,7 @@
   font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
   font-size: 1.25rem;
   letter-spacing: var(--orasage-letter-wide, 0.06em);
-  color: var(--shell-gold);
+  color: var(--shell-accent);
   text-decoration: none;
 }
 
@@ -80,7 +93,7 @@
 }
 
 .orasage-app-lang-btn {
-  min-height: 36px;
+  min-height: var(--orasage-control-h-md, 44px);
   padding: 0 10px;
   border: 1px solid var(--shell-border);
   border-radius: 8px;
@@ -100,7 +113,7 @@
   border: 1px solid var(--shell-border);
   border-radius: 8px;
   background: var(--shell-surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--os-shadow-surface-2);
 }
 
 .orasage-app-lang-item {
@@ -113,12 +126,13 @@
   font-size: 12px;
   text-align: left;
   cursor: pointer;
+  min-height: 44px;
 }
 
 .orasage-app-lang-item:hover,
 .orasage-app-lang-item[aria-current='true'] {
-  background: rgba(201, 160, 90, 0.12);
-  color: var(--shell-gold);
+  background: rgb(var(--brand-primary) / 0.1);
+  color: var(--shell-primary);
 }
 
 .orasage-app-main {
@@ -156,7 +170,7 @@
 }
 
 .orasage-page-back:hover {
-  color: var(--shell-gold);
+  color: var(--shell-primary);
 }
 
 .orasage-app-brand-mark {
@@ -173,7 +187,7 @@
   font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
   font-size: 0.95rem;
   letter-spacing: 0.14em;
-  color: var(--shell-gold);
+  color: var(--shell-accent);
 }
 
 .orasage-app-bottomnav {
@@ -186,6 +200,7 @@
   border-top: 1px solid var(--shell-border);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   backdrop-filter: blur(16px);
+  box-shadow: 0 -1px 0 var(--shell-border-subtle);
 }
 
 .orasage-app-bottomnav-inner {
@@ -212,10 +227,11 @@
   cursor: pointer;
   position: relative;
   padding: 4px 2px;
+  min-height: var(--shell-bottom-h);
 }
 
 .orasage-app-nav-item[data-active='true'] {
-  color: var(--shell-gold);
+  color: var(--shell-primary);
   font-weight: 600;
 }
 
@@ -228,7 +244,7 @@
   width: 20px;
   height: 2px;
   border-radius: 1px;
-  background: var(--shell-gold);
+  background: var(--shell-primary);
 }
 
 .orasage-app-nav-brand {
@@ -241,7 +257,7 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--orasage-overlay-scrim);
 }
 
 .orasage-app-explore-sheet {
@@ -260,7 +276,7 @@
   margin: 0 0 12px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--shell-gold);
+  color: var(--shell-primary);
 }
 
 .orasage-app-explore-list {
@@ -281,6 +297,6 @@
 }
 
 .orasage-app-explore-link:hover {
-  border-color: var(--shell-gold);
-  color: var(--shell-gold);
+  border-color: var(--shell-primary);
+  color: var(--shell-primary);
 }
