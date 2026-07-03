@@ -17,7 +17,9 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@orasage/ui": ["../packages/ui/src/index.ts"],
+      "@orasage/tokens": ["../packages/tokens/src/index.ts"]
     }
   }
 }

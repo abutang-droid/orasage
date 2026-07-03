@@ -150,6 +150,8 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+const REPO_ROOT = path.resolve(import.meta.dirname, "..");
+
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
@@ -167,6 +169,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    commonjsOptions: {
+      include: [/node_modules/, /packages\/ui/, /packages\/tokens/],
+    },
+  },
+  optimizeDeps: {
+    include: ["@orasage/ui", "@orasage/tokens"],
   },
   server: {
     host: true,
@@ -182,6 +190,7 @@ export default defineConfig({
     fs: {
       strict: true,
       deny: ["**/.*"],
+      allow: ["..", path.resolve(REPO_ROOT, "packages"), path.resolve(REPO_ROOT, "shared")],
     },
   },
 });

@@ -3,6 +3,8 @@
 @import "../../../shared/design-tokens/orasage-tokens.css";
 @import "./assets/orasage-ui.css";
 
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
+
 @custom-variant dark (&:is(.dark *));
 
 /* ── Google Fonts 已在 index.html 中引入 ── */

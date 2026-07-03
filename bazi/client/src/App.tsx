@@ -1,5 +1,5 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { OraSageToaster } from "@/components/OraSageToaster";
+import { TooltipProvider } from "@orasage/ui";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import { useState, useEffect, useRef } from "react";
@@ -67,7 +67,7 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <LocaleContext.Provider value={{ locale, ui }}>
-            <Toaster />
+            <OraSageToaster />
             <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
               <OraSageAppShell>
                 <Router />
