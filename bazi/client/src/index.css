@@ -14,6 +14,39 @@
    OraSage Design System — 极简克制浅色
    ══════════════════════════════════════════════════════════════ */
 :root {
+  /*
+   * 八字独立主题：纸感暖底 + 翡翠主色 + 鎏金点缀
+   * 覆盖全局 DS v1.1 单色 token，与 main 门户一致
+   */
+  --background: var(--os-rgb-ivory-50);
+  --foreground: var(--os-rgb-ink-900);
+  --card: 251 248 241;
+  --card-foreground: var(--os-rgb-ink-900);
+  --primary: var(--os-rgb-jade-500);
+  --primary-foreground: var(--os-rgb-ivory-50);
+  --muted-foreground: var(--os-rgb-ink-500);
+  --border: var(--os-rgb-ivory-300);
+  --ring: var(--os-rgb-jade-500);
+  --brand-primary: var(--os-rgb-jade-500);
+  --brand-gold: var(--os-rgb-brass-300);
+
+  --orasage-brand-primary: var(--os-color-jade-500);
+  --orasage-brand-primary-hover: var(--os-color-jade-600);
+  --orasage-brand-primary-active: var(--os-color-jade-700);
+  --orasage-brand-gold: var(--os-color-brass-300);
+  --orasage-brand-purple: var(--os-color-violet-500);
+  --orasage-background: rgb(var(--background));
+  --orasage-surface: rgb(var(--card));
+  --orasage-text-primary: var(--os-color-ink-900);
+  --orasage-text-secondary: var(--os-color-ink-600);
+  --orasage-text-muted: var(--os-color-ink-500);
+  --orasage-focus-ring: var(--os-color-jade-500);
+  --orasage-border: rgb(var(--border));
+  --orasage-border-subtle: rgb(var(--os-rgb-ivory-100));
+  --orasage-gold-light: var(--os-color-brass-200);
+  --orasage-gold-pale: rgb(var(--os-rgb-brass-300) / 0.1);
+  --orasage-gold-border: rgb(var(--os-rgb-brass-400) / 0.28);
+
   --gold:          var(--orasage-brand-gold);
   --gold-light:    var(--orasage-gold-light);
   --gold-bright:   var(--orasage-brand-gold);
