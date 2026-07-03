@@ -14,6 +14,7 @@ import { HomeHero } from './globals/HomeHero';
 import { BaziHomeHero } from './globals/BaziHomeHero';
 import { ZiweiHomeHero } from './globals/ZiweiHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
+import { ZiweiFeed } from './collections/ZiweiFeed';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -25,7 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed],
+  collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed, ZiweiFeed],
   globals: [HomeHero, BaziHomeHero, ZiweiHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
