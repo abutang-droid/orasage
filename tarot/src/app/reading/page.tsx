@@ -206,11 +206,20 @@ export default function ReadingPage() {
   useEffect(() => {
     if (started) return
     setStarted(true)
+    const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
+    const orderNo = params?.get("order")
     fetch("/api/reading", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: "", spreadType: "three" }),
+      body: JSON.stringify({ question: "", spreadType: "three", ...(orderNo ? { orderNo } : {}) }),
     })
-      .then(r => { if (!r.ok) throw new Error(""); return r.json() })
+      .then(async r => {
+        if (r.status === 402) {
+          const data = await r.json().catch(() => ({}))
+          throw new Error(data.error === "paywall" ? "免费次数已用完，请购买深度解读" : "paywall")
+        }
+        if (!r.ok) throw new Error("")
+        return r.json()
+      })
       .then(data => {
         setCards(data.cards.map((c: any) => ({ ...c, revealed: false, interpretation: "", mantra: "" })))
         setReadingId(data.readingId)

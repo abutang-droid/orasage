@@ -25,6 +25,7 @@ model User {
   referredByUserId String? @db.VarChar(36)
   totalSpentCents Int @default(0)
   freeReadingsRemaining Int @default(0)
+  freeReadingsGrantMonth String? @db.VarChar(7)
   streakDays Int      @default(0)
   streakLongest Int   @default(0)
   lastCheckinDate String? @db.VarChar(10)

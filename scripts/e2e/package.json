@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test:shop-flow": "node profile-shop-flow.mjs",
-    "test:tarot-offer": "node tarot-offer-merit.mjs"
+    "test:tarot-offer": "node tarot-offer-merit.mjs",
+    "test:tarot-free": "node tarot-free-readings.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

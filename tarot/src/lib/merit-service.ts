@@ -15,6 +15,7 @@ import {
   nextOnboardingStep,
 } from '@/lib/merit';
 import { generateReferralCode } from '@/lib/referral';
+import { maybeGrantMonthlyLevelFreeReadings, maybeGrantWorshipDay7FreeReading } from '@/lib/free-readings';
 
 const MERIT_SELECT = {
   meritTotal: true,
@@ -32,6 +33,7 @@ const MERIT_SELECT = {
   referredByUserId: true,
   nickname: true,
   totalSpentCents: true,
+  freeReadingsRemaining: true,
 } as const;
 
 export type MeritSummary = {
@@ -51,6 +53,7 @@ export type MeritSummary = {
   onboardingCompleted: boolean;
   onboardingStep: string;
   referralCode: string | null;
+  freeReadingsRemaining: number;
 };
 
 export async function ensureReferralCode(userId: string): Promise<string> {
@@ -102,6 +105,7 @@ export async function getMeritSummary(userId: string): Promise<MeritSummary | nu
     onboardingCompleted: user.onboardingCompleted,
     onboardingStep: user.onboardingStep,
     referralCode: user.referralCode,
+    freeReadingsRemaining: user.freeReadingsRemaining,
   };
 }
 
@@ -463,6 +467,9 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
   if (levelUp) {
     await maybeAwardReferrerLevelBonus(input.userId, user.meritLevel, newLevel);
   }
+
+  await maybeGrantWorshipDay7FreeReading(input.userId, streakDays, priorCheckins + 1);
+  await maybeGrantMonthlyLevelFreeReadings(input.userId);
 
   await advanceOnboarding(input.userId, input.markOnboardingComplete ? 'done' : 'worship');
 
