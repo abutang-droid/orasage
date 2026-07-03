@@ -1,9 +1,17 @@
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 /** 内容页通用容器 — 移动优先内边距与阅读宽度 */
-export function PageShell({ children }: { children: ReactNode }) {
+type PageShellProps = HTMLAttributes<HTMLElement> & {
+  children: ReactNode;
+};
+
+export function PageShell({ children, className, ...props }: PageShellProps) {
   return (
-    <article className="mx-auto w-full max-w-3xl px-5 py-10 text-foreground sm:px-6 sm:py-16">
+    <article
+      className={cn('mx-auto w-full max-w-3xl px-5 py-10 text-foreground sm:px-6 sm:py-16', className)}
+      {...props}
+    >
       {children}
     </article>
   );
@@ -11,7 +19,7 @@ export function PageShell({ children }: { children: ReactNode }) {
 
 export function PageTitle({ children }: { children: ReactNode }) {
   return (
-    <h1 className="font-serif text-2xl leading-snug text-brand-gold sm:text-3xl">
+    <h1 className="font-serif text-2xl leading-snug text-foreground sm:text-3xl">
       {children}
     </h1>
   );
