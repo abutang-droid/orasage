@@ -77,5 +77,6 @@ export function savedProfileToBirthForm(p: SavedProfile): Partial<BirthFormState
     province: p.birthPlaceProvince ?? '',
     city: p.birthPlaceCity ?? '',
     longitude: p.birthPlaceLongitude ? parseFloat(p.birthPlaceLongitude) : 120,
+    calendar: 'solar',
   };
 }
