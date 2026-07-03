@@ -1,4 +1,7 @@
 const en: Record<string, string> = {
+  'home.eyebrow': 'Zi Wei Dou Shu',
+  'home.title': 'Chart the Stars, Read Twelve Palaces',
+  'home.subtitle': 'Enter birth details to generate your Zi Wei chart and AI reading',
   'tab.single': 'Single Chart',
   'tab.heming': 'Compatibility',
   'form.person.editing': 'Editing',

@@ -15,6 +15,7 @@ import { syncBirthFormProfile } from '@/lib/profile-sync';
 import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
 import PaywallCard from '@/components/PaywallCard';
 import CrystalShopCard from '@/components/CrystalShopCard';
+import { ZiweiHomeHero } from '@/components/ZiweiHomeHero';
 import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
 
 // ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
@@ -44,7 +45,7 @@ function HemingPanel({
   const personLabels = [t('form.person.first'), t('form.person.second')] as const;
 
   return (
-    <div className="ziwei-calc-form">
+    <>
       <div className="ziwei-calc-person-tabs">
         <span className="ziwei-calc-person-hint">{t('form.person.editing')}</span>
         {personLabels.map((label, idx) => (
@@ -58,22 +59,20 @@ function HemingPanel({
           </button>
         ))}
       </div>
-      <div className="ziwei-calc-card">
-        <BirthForm
-          key={activePerson}
-          onSubmit={() => {}}
-          loading={false}
-          hideSubmit
-          initialData={forms[activePerson]}
-          onFormSave={(data) => {
-            setForms((prev) => {
-              const next: [BirthFormState, BirthFormState] = [...prev] as [BirthFormState, BirthFormState];
-              next[activePerson] = data;
-              return next;
-            });
-          }}
-        />
-      </div>
+      <BirthForm
+        key={activePerson}
+        onSubmit={() => {}}
+        loading={false}
+        hideSubmit
+        initialData={forms[activePerson]}
+        onFormSave={(data) => {
+          setForms((prev) => {
+            const next: [BirthFormState, BirthFormState] = [...prev] as [BirthFormState, BirthFormState];
+            next[activePerson] = data;
+            return next;
+          });
+        }}
+      />
       <button
         type="button"
         onClick={handleSubmit}
@@ -82,7 +81,7 @@ function HemingPanel({
       >
         {loading ? t('heming.submit.loading') : t('heming.submit')}
       </button>
-    </div>
+    </>
   );
 }
 
@@ -164,29 +163,45 @@ export default function ChartPage() {
   if (!chart) {
     return (
       <div className="ziwei-chart-page orasage-fade-in">
-        <div className="ziwei-calc-mode-bar">
-          {(['single', 'heming'] as const).map(m => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMode(m)}
-              className={`ziwei-calc-mode-btn${mode === m ? ' is-active' : ''}`}
-            >
-              {m === 'single' ? t('tab.single') : t('tab.heming')}
-            </button>
-          ))}
-        </div>
+        <ZiweiHomeHero />
 
-        {mode === 'single' ? (
-          <div className="ziwei-calc-card">
-            <BirthForm key={formKey} onSubmit={handleSingleSubmit} loading={loading} initialData={savedForm ?? undefined}
-              onFormSave={form => { setSavedForm(form); if (form.year && form.month && form.day) { saveHistory(form); const params = formToSearchParams(form); if (typeof window !== 'undefined') window.history.replaceState({}, '', `/chart?${params.toString()}`); } }} />
+        <div className="ziwei-calc-form ziwei-calc-section">
+          <div className="ziwei-calc-mode-bar">
+            {(['single', 'heming'] as const).map(m => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={`ziwei-calc-mode-btn${mode === m ? ' is-active' : ''}`}
+              >
+                {m === 'single' ? t('tab.single') : t('tab.heming')}
+              </button>
+            ))}
           </div>
-        ) : (
-          <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
-        )}
 
-        {error && <div className="ziwei-calc-error">{error}</div>}
+          {mode === 'single' ? (
+            <BirthForm
+              key={formKey}
+              onSubmit={handleSingleSubmit}
+              loading={loading}
+              initialData={savedForm ?? undefined}
+              onFormSave={form => {
+                setSavedForm(form);
+                if (form.year && form.month && form.day) {
+                  saveHistory(form);
+                  const params = formToSearchParams(form);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState({}, '', `/chart?${params.toString()}`);
+                  }
+                }
+              }}
+            />
+          ) : (
+            <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
+          )}
+
+          {error && <div className="ziwei-calc-error">{error}</div>}
+        </div>
 
         {mode === 'single' && history.length > 0 && (
           <div className="ziwei-calc-history">

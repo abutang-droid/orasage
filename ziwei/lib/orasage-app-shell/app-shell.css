@@ -31,6 +31,11 @@
   --shell-gold: #171717;
 }
 
+/* 紫微计算器页 — 纸感背景，与八字计算器一致 */
+.orasage-app-shell[data-app='ziwei'][data-theme='light'] {
+  --shell-bg: rgb(247, 243, 234);
+}
+
 .orasage-app-topbar-start {
   display: flex;
   align-items: center;
