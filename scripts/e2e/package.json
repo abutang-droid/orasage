@@ -6,7 +6,8 @@
     "test:shop-flow": "node profile-shop-flow.mjs",
     "test:tarot-offer": "node tarot-offer-merit.mjs",
     "test:tarot-free": "node tarot-free-readings.mjs",
-    "test:platform-report": "node platform-report-flow.mjs"
+    "test:platform-report": "node platform-report-flow.mjs",
+    "test:ziwei-flow": "node ziwei-shop-flow.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

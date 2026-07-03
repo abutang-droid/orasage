@@ -57,6 +57,19 @@ export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
 export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
 export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
 
+# shop report-job 分发依赖各 App 内网 URL
+ensure_root_env_kv() {
+  local key="$1" val="$2"
+  if grep -q "^${key}=" "$DEPLOY_DIR/.env" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${val}|" "$DEPLOY_DIR/.env"
+  else
+    echo "${key}=${val}" >> "$DEPLOY_DIR/.env"
+  fi
+}
+ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
+ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
+ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
+
 # ── 3. Auth 数据库迁移 ───────────────────────────────────────
 log "运行 auth 数据库迁移..."
 AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:5432/orasage_auth}"

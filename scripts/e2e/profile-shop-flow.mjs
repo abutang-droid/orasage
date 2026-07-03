@@ -29,7 +29,7 @@ const L = {
   planCouple: '定制双人能量手串',
   dayMaster: '日主',
   coupleScore: '双人合盘综合评分',
-  demoPay: '演示支付（完成订单）',
+  demoPay: '模拟支付（完成订单）',
   viewReport: '查看报告',
   paidToast: '支付成功',
 };
