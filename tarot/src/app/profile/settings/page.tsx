@@ -14,6 +14,7 @@ const LANG_OPTIONS: { lang: Lang; native: string; emoji: string }[] = [
 export default function SettingsPage() {
   const router = useRouter()
   const { lang, setLang } = useLang()
+  const { user } = useUser()
 
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
@@ -58,6 +59,28 @@ export default function SettingsPage() {
           >
             <span style={{ fontSize: 22 }}>📦</span>
             <span style={{ flex: 1, textAlign: 'left' }}>订单详情</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
+          </button>
+        </div>
+
+        {/* 信仰 */}
+        <div style={{ marginBottom: 28 }}>
+          <div className="section-label" style={{ marginBottom: 12 }}>信仰</div>
+          <button
+            onClick={() => router.push("/temple")}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              width: '100%', padding: '16px',
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)', cursor: 'pointer',
+              fontFamily: 'var(--font-sans)', fontSize: 15,
+              color: 'var(--text-primary)',
+            }}
+          >
+            <span style={{ fontSize: 22 }}>🛐</span>
+            <span style={{ flex: 1, textAlign: 'left' }}>
+              {user?.faith ? formatFaithLabel(user.faith) : '选择信仰'}
+            </span>
             <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
           </button>
         </div>
