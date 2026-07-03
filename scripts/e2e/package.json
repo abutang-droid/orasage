@@ -6,6 +6,8 @@
     "test:shop-flow": "node profile-shop-flow.mjs",
     "test:tarot-offer": "node tarot-offer-merit.mjs",
     "test:tarot-free": "node tarot-free-readings.mjs",
+    "test:tarot-daily": "node tarot-daily-card-guest.mjs",
+    "test:tarot-temple": "node tarot-temple-merit.mjs",
     "test:platform-report": "node platform-report-flow.mjs",
     "test:ziwei-flow": "node ziwei-shop-flow.mjs",
     "test:auth-redirect": "node auth-redirect-security.mjs",
