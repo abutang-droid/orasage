@@ -44,6 +44,28 @@ deploy_native() {
     cp "$APP_DIR/.env.example" "$APP_DIR/.env"
   fi
 
+  # 若 ziwei 未配置 DeepSeek，尝试从 tarot 或根 .env 继承（report-job 依赖）
+  if [ -f "$APP_DIR/.env" ]; then
+    ziwei_key=$(grep '^DEEPSEEK_API_KEY=' "$APP_DIR/.env" 2>/dev/null | cut -d= -f2- || true)
+    if [ -z "$ziwei_key" ]; then
+      for src in "$DEPLOY_DIR/tarot/.env" "$DEPLOY_DIR/.env"; do
+        if [ -f "$src" ]; then
+          inherit=$(grep '^DEEPSEEK_API_KEY=' "$src" 2>/dev/null | cut -d= -f2- || true)
+          if [ -n "$inherit" ]; then
+            if grep -q '^DEEPSEEK_API_KEY=' "$APP_DIR/.env"; then
+              sed -i "s|^DEEPSEEK_API_KEY=.*|DEEPSEEK_API_KEY=$inherit|" "$APP_DIR/.env"
+            else
+              echo "DEEPSEEK_API_KEY=$inherit" >> "$APP_DIR/.env"
+            fi
+            log "已从 $(basename "$(dirname "$src")")/.env 继承 DEEPSEEK_API_KEY"
+            break
+          fi
+        fi
+      done
+    fi
+    grep -q '^AUTH_INTERNAL_URL=' "$APP_DIR/.env" || echo 'AUTH_INTERNAL_URL=http://127.0.0.1:3101' >> "$APP_DIR/.env"
+  fi
+
   cd "$APP_DIR"
   npm ci
 
