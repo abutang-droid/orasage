@@ -17,6 +17,16 @@ function CheckoutContent() {
     if (!orderNo) setError('缺少订单号');
   }, [orderNo]);
 
+  function formatPayError(err: unknown): string {
+    if (err instanceof TypeError) {
+      return '网络异常，请检查连接后重试';
+    }
+    if (err instanceof Error && /failed to fetch|networkerror|load failed/i.test(err.message)) {
+      return '网络异常，请检查连接后重试';
+    }
+    return err instanceof Error ? err.message : '支付失败';
+  }
+
   async function handlePay() {
     if (!orderNo || payingRef.current || done) return;
     payingRef.current = true;
@@ -37,7 +47,7 @@ function CheckoutContent() {
       }
     } catch (err) {
       payingRef.current = false;
-      setError(err instanceof Error ? err.message : '支付失败');
+      setError(formatPayError(err));
     } finally {
       setLoading(false);
     }

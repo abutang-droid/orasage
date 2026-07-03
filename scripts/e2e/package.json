@@ -13,6 +13,7 @@
     "test:auth-sso": "node auth-cross-domain.mjs",
     "test:shop-crystal": "node shop-crystal-flow.mjs",
     "test:pay-double": "node pay-double-click.mjs",
+    "test:pay-network": "node pay-network-retry.mjs",
     "test:auth-internal": "node auth-internal-forbidden.mjs",
     "test:smoke-all": "node run-smoke-all.mjs"
   },
