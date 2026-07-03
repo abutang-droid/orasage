@@ -30,6 +30,11 @@
 
   --orasage-shell-top-h: 52px;
   --orasage-shell-bottom-h: 56px;
+
+  /* Control sizes — @orasage/ui sm | md | lg */
+  --orasage-control-h-sm: 36px;
+  --orasage-control-h-md: 44px;
+  --orasage-control-h-lg: 48px;
 }
 
 /* 极淡纸质噪点 */

@@ -1,0 +1,59 @@
+/**
+ * OraSage Design Tokens — canonical source for @orasage/tokens
+ * Synced from shared/design-tokens/orasage-tokens.css
+ */
+:root {
+  --orasage-background: #fafaf8;
+  --orasage-surface: #ffffff;
+  --orasage-primary: #171717;
+  --orasage-secondary: #6b7280;
+  --orasage-muted: #9ca3af;
+  --orasage-border: #e7e5e4;
+  --orasage-border-subtle: #f1f1ef;
+
+  --orasage-gold: #b8943f;
+  --orasage-gold-light: #d4b86a;
+  --orasage-gold-pale: rgba(184, 148, 63, 0.08);
+  --orasage-gold-border: rgba(184, 148, 63, 0.22);
+
+  --orasage-font-sans: 'Inter', 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --orasage-font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+
+  --orasage-letter-tight: -0.02em;
+  --orasage-letter-wide: 0.05em;
+
+  --orasage-ease-organic: cubic-bezier(0.4, 0, 0.2, 1);
+  --orasage-radius-sm: 8px;
+  --orasage-radius-md: 12px;
+  --orasage-radius-lg: 18px;
+
+  --orasage-shell-top-h: 52px;
+  --orasage-shell-bottom-h: 56px;
+
+  /* Control sizes — pages must use sm | md | lg only */
+  --orasage-control-h-sm: 36px;
+  --orasage-control-h-md: 44px;
+  --orasage-control-h-lg: 48px;
+
+  /* shadcn semantic mapping */
+  --background: var(--orasage-background);
+  --foreground: var(--orasage-primary);
+  --card: var(--orasage-surface);
+  --card-foreground: var(--orasage-primary);
+  --popover: var(--orasage-surface);
+  --popover-foreground: var(--orasage-primary);
+  --primary: var(--orasage-gold);
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f4;
+  --secondary-foreground: var(--orasage-primary);
+  --muted: #f5f5f4;
+  --muted-foreground: var(--orasage-muted);
+  --accent: #f5f5f4;
+  --accent-foreground: var(--orasage-primary);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: var(--orasage-border);
+  --input: var(--orasage-surface);
+  --ring: var(--orasage-gold);
+  --radius: var(--orasage-radius-md);
+}

@@ -1,4 +1,5 @@
 @import url('../../../shared/design-tokens/orasage-tokens.css');
+@import url('./orasage-ui.css');
 
 *,
 *::before,
@@ -28,14 +29,13 @@ a { color: var(--orasage-gold, #b8943f); text-decoration: none; }
 .auth-card h1 { font-size: 1.5rem; margin-bottom: 0.25rem; color: var(--orasage-primary, #171717); }
 .subtitle { color: var(--orasage-secondary, #6b7280); font-size: 0.9rem; margin-bottom: 1.5rem; }
 form label { display: block; margin-bottom: 1rem; font-size: 0.85rem; color: var(--orasage-secondary, #6b7280); }
+/* Legacy — prefer .oui-input from @orasage/ui/css */
 form input, form select {
   display: block; width: 100%; margin-top: 0.35rem;
-  padding: 0.85rem 1rem; border-radius: 0.75rem;
-  border: 1px solid var(--orasage-border, #e7e5e4); background: #fff; color: var(--orasage-primary, #171717);
-  font-size: 1rem; min-height: 48px;
 }
+form .oui-field label { margin-bottom: 0; color: var(--foreground); font-size: 0.875rem; font-weight: 500; }
 .btn-primary {
-  width: 100%; min-height: 48px; margin-top: 0.5rem;
+  width: 100%; min-height: var(--orasage-control-h-md, 44px); margin-top: 0.5rem;
   border: none; border-radius: 999px; background: var(--orasage-gold, #b8943f);
   color: #fff; font-size: 1rem; font-weight: 500;
 }

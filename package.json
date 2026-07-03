@@ -1,0 +1,15 @@
+{
+  "name": "orasage",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:ui": "npm run build -w @orasage/ui",
+    "build:tokens": "npm run build -w @orasage/tokens",
+    "sync:auth-ui-css": "cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css && sed -i '1,/^$/d' auth-service/public/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — tokens via style.css */' auth-service/public/assets/orasage-ui.css"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
