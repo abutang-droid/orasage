@@ -1,8 +1,13 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
+import { buttonVariants } from '@/components/ui/button';
+import { badgeVariants } from '@/components/ui/badge';
+import { cardVariants } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
 const toolUrls = { bazi: externalUrls.bazi, ziwei: externalUrls.ziwei, tarot: externalUrls.tarot };
@@ -13,16 +18,15 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden px-5 pb-10 pt-8 text-center sm:px-6 sm:py-20 md:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(184,148,63,0.06)_0%,_transparent_70%)]" />
-      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-sage-primary sm:text-4xl md:text-6xl">
+      <h1 className="font-serif text-[1.75rem] font-light leading-tight tracking-wide text-foreground sm:text-4xl md:text-6xl">
         {t('title')}
       </h1>
-      <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-sage-muted sm:mt-4 sm:max-w-xl sm:text-lg">
+      <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-muted-foreground sm:mt-4 sm:max-w-xl sm:text-lg">
         {t('subtitle')}
       </p>
       <a
         href="#tools"
-        className="mt-6 inline-flex min-h-[48px] w-full max-w-xs items-center justify-center rounded-full bg-sage-gold px-8 text-base font-medium text-white active:bg-sage-gold/80 sm:mt-8 sm:w-auto sm:text-sm"
+        className={cn(buttonVariants({ size: 'lg' }), 'mt-6 w-full max-w-xs sm:mt-8 sm:w-auto')}
       >
         {t('cta')}
       </a>
@@ -35,7 +39,7 @@ export function ToolCards() {
 
   return (
     <section id="tools" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <h2 className="mb-5 text-center font-serif text-xl text-sage-gold sm:mb-8 sm:text-2xl">
+      <h2 className="mb-5 text-center font-serif text-xl text-foreground sm:mb-8 sm:text-2xl">
         {t('title')}
       </h2>
       <div className="flex flex-col gap-4 sm:gap-6 md:grid md:grid-cols-3">
@@ -43,18 +47,21 @@ export function ToolCards() {
           <a
             key={key}
             href={toolUrls[key]}
-            className="group flex min-h-[88px] items-start gap-4 rounded-2xl border border-sage-border bg-sage-card p-5 active:border-sage-gold/40 active:bg-sage-gold/5 sm:block sm:p-8 md:hover:border-sage-gold/40"
+            className={cn(
+              cardVariants({ variant: 'interactive' }),
+              'group flex min-h-[88px] items-start gap-4 p-5 active:border-primary/60 active:bg-primary/5 sm:block sm:p-8',
+            )}
           >
-            <span className="text-3xl sm:block">{icons[key]}</span>
+            <span className="text-3xl text-brand-gold sm:block">{icons[key]}</span>
             <div className="flex-1 sm:mt-4">
-              <h3 className="text-lg font-medium text-sage-primary sm:text-xl">
+              <h3 className="text-lg font-medium text-foreground sm:text-xl">
                 {t(`${key}.name`)}
               </h3>
-              <p className="mt-1 text-sm leading-relaxed text-sage-muted">
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 {t(`${key}.desc`)}
               </p>
             </div>
-            <span className="self-center text-sage-muted sm:hidden" aria-hidden>›</span>
+            <span className="self-center text-primary sm:hidden" aria-hidden>›</span>
           </a>
         ))}
       </div>
@@ -63,12 +70,27 @@ export function ToolCards() {
 }
 
 const productKeys = ['wood', 'fire', 'earth', 'metal', 'water'] as const;
-const elementColors: Record<string, string> = {
-  wood: 'bg-emerald-500/15 text-emerald-700',
-  fire: 'bg-red-500/15 text-red-700',
-  earth: 'bg-amber-500/15 text-amber-800',
-  metal: 'bg-slate-400/15 text-slate-700',
-  water: 'bg-indigo-500/15 text-indigo-700',
+const elementStyles: Record<(typeof productKeys)[number], CSSProperties> = {
+  wood: {
+    backgroundColor: 'color-mix(in srgb, var(--os-color-element-wood) 18%, transparent)',
+    color: 'var(--os-color-element-wood)',
+  },
+  fire: {
+    backgroundColor: 'color-mix(in srgb, var(--os-color-element-fire) 18%, transparent)',
+    color: 'var(--os-color-element-fire)',
+  },
+  earth: {
+    backgroundColor: 'color-mix(in srgb, var(--os-color-element-earth) 18%, transparent)',
+    color: 'var(--os-color-element-earth)',
+  },
+  metal: {
+    backgroundColor: 'color-mix(in srgb, var(--os-color-element-metal) 22%, transparent)',
+    color: 'var(--os-color-ink-600)',
+  },
+  water: {
+    backgroundColor: 'color-mix(in srgb, var(--os-color-element-water) 20%, transparent)',
+    color: 'var(--os-color-element-water)',
+  },
 };
 
 export function ShopSection({ catalog }: { catalog?: Array<{ sku: string; shopUrl: string; priceDisplay?: string }> }) {
@@ -78,8 +100,8 @@ export function ShopSection({ catalog }: { catalog?: Array<{ sku: string; shopUr
   return (
     <section id="shop" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <div className="mb-5 text-center sm:mb-8">
-        <h2 className="font-serif text-xl text-sage-gold sm:text-2xl">{t('title')}</h2>
-        <p className="mt-2 text-sm text-sage-muted sm:text-base">{t('subtitle')}</p>
+        <h2 className="font-serif text-xl text-foreground sm:text-2xl">{t('title')}</h2>
+        <p className="mt-2 text-sm text-muted-foreground sm:text-base">{t('subtitle')}</p>
       </div>
 
       {/* 分类标签 */}
@@ -87,7 +109,7 @@ export function ShopSection({ catalog }: { catalog?: Array<{ sku: string; shopUr
         {(['crystal', 'report', 'service'] as const).map((cat) => (
           <span
             key={cat}
-            className="shrink-0 rounded-full border border-sage-border bg-sage-card px-4 py-2 text-xs text-sage-muted"
+            className={cn(badgeVariants({ variant: 'muted' }), 'min-h-9 shrink-0 rounded-md px-4')}
           >
             {t(`categories.${cat}`)}
           </span>
@@ -105,31 +127,35 @@ export function ShopSection({ catalog }: { catalog?: Array<{ sku: string; shopUr
           <a
             key={key}
             href={href}
-            className="flex w-[140px] shrink-0 flex-col rounded-2xl border border-sage-border bg-sage-card p-4 active:border-sage-gold/40 sm:w-auto"
+            className={cn(
+              cardVariants({ variant: 'interactive' }),
+              'flex w-[140px] shrink-0 flex-col p-4 active:border-primary/60 active:bg-primary/5 sm:w-auto',
+            )}
           >
             <span
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${elementColors[key]}`}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium"
+              style={elementStyles[key]}
             >
               {t(`products.${key}.element`)}
             </span>
-            <h3 className="mt-3 text-base font-medium text-sage-primary">
+            <h3 className="mt-3 text-base font-medium text-foreground">
               {t(`products.${key}.name`)}
             </h3>
-            <p className="mt-1 text-xs text-sage-muted">{t(`products.${key}.desc`)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t(`products.${key}.desc`)}</p>
             {item?.priceDisplay ? (
-              <p className="mt-2 text-sm font-medium text-sage-gold">{item.priceDisplay}</p>
+              <p className="mt-2 text-sm font-medium text-brand-gold">{item.priceDisplay}</p>
             ) : null}
           </a>
           );
         })}
       </div>
 
-      <p className="mt-4 text-center text-xs text-sage-muted sm:mt-6">{t('hint')}</p>
+      <p className="mt-4 text-center text-xs text-muted-foreground sm:mt-6">{t('hint')}</p>
 
       <div className="mt-5 flex justify-center sm:mt-6">
         <a
           href={externalUrls.shop}
-          className="inline-flex min-h-[48px] w-full max-w-sm items-center justify-center rounded-full border border-sage-gold/50 bg-sage-gold/10 px-8 text-base font-medium text-sage-gold active:bg-sage-gold/20 sm:w-auto sm:text-sm"
+          className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full max-w-sm sm:w-auto')}
         >
           {t('cta')} →
         </a>
@@ -146,19 +172,25 @@ export function ContentSections() {
       <div className="flex flex-col gap-4 sm:gap-6 md:grid md:grid-cols-2">
         <Link
           href="/famous"
-          className="group rounded-2xl border border-sage-border bg-sage-card/60 p-5 transition active:border-sage-gold/40 sm:p-8 md:hover:border-sage-gold/40"
+          className={cn(
+            cardVariants({ variant: 'interactive' }),
+            'group block p-5 active:border-primary/60 active:bg-primary/5 sm:p-8',
+          )}
         >
-          <h3 className="font-serif text-lg text-sage-gold sm:text-xl">{t('famous')}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-sage-muted">{t('famousDesc')}</p>
-          <p className="mt-3 text-sm text-sage-gold sm:mt-4">{t('explore')} →</p>
+          <h3 className="font-serif text-lg text-foreground sm:text-xl">{t('famous')}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('famousDesc')}</p>
+          <p className="mt-3 text-sm text-primary sm:mt-4">{t('explore')} →</p>
         </Link>
         <Link
           href="/daozang"
-          className="group rounded-2xl border border-sage-border bg-sage-card/60 p-5 transition active:border-sage-gold/40 sm:p-8 md:hover:border-sage-gold/40"
+          className={cn(
+            cardVariants({ variant: 'interactive' }),
+            'group block p-5 active:border-primary/60 active:bg-primary/5 sm:p-8',
+          )}
         >
-          <h3 className="font-serif text-lg text-sage-gold sm:text-xl">{t('daozang')}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-sage-muted">{t('daozangDesc')}</p>
-          <p className="mt-3 text-sm text-sage-gold sm:mt-4">{t('explore')} →</p>
+          <h3 className="font-serif text-lg text-foreground sm:text-xl">{t('daozang')}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('daozangDesc')}</p>
+          <p className="mt-3 text-sm text-primary sm:mt-4">{t('explore')} →</p>
         </Link>
       </div>
     </section>
