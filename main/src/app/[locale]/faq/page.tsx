@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell, PageTitle } from '@/components/PageShell';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@orasage/ui';
 
 type Props = { params: Promise<{ locale: string }> };
 

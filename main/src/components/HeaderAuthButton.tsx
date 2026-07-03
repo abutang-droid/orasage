@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { fetchMe, type AuthUser } from '@/lib/auth';
 import { externalUrls } from '@/lib/urls';
+import { buttonVariants, cn } from '@orasage/ui';
 
 export function HeaderAuthButton({ className = '' }: { className?: string }) {
   const t = useTranslations('nav');
@@ -37,7 +38,7 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
     return (
       <Link
         href="/profile"
-        className={`inline-flex min-h-11 max-w-[140px] items-center truncate rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
+        className={cn(buttonVariants({ variant: 'outline' }), 'max-w-[140px] truncate', className)}
         title={user.email}
       >
         {user.displayName}
@@ -48,7 +49,7 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
   return (
     <a
       href={loginUrl}
-      className={`inline-flex min-h-11 items-center rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
+      className={cn(buttonVariants({ variant: 'outline' }), className)}
     >
       {t('login')}
     </a>

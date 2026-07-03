@@ -1,5 +1,5 @@
 import { PageShell } from '@/components/PageShell';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@orasage/ui';
 
 export function StaticPageLoading() {
   return (

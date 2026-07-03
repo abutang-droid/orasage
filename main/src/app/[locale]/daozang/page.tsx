@@ -1,10 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle } from '@/components/PageShell';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@orasage/ui';
+import { Badge } from '@orasage/ui';
+import { buttonVariants } from '@orasage/ui';
+import { Card, CardContent } from '@orasage/ui';
 import { cmsLocale, daozangArticlePath, decodeHtmlEntities, fetchCmsPages, stripHtml } from '@/lib/cms';
 
 type Props = {

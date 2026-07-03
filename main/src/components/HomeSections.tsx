@@ -4,9 +4,7 @@ import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
-import { buttonVariants } from '@/components/ui/button';
-import { badgeVariants } from '@/components/ui/badge';
-import { cardVariants } from '@/components/ui/card';
+import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
 import { cn } from '@/lib/utils';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
