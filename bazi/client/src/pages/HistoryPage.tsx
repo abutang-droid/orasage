@@ -7,7 +7,7 @@ import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import {
-  GOLD, GOLD_DIM, GOLD_FAINT, HEADING, BODY_CLR, MUTED_CLR,
+  GOLD, GOLD_DIM, GOLD_FAINT, PRIMARY, PRIMARY_HOVER, HEADING, BODY_CLR, MUTED_CLR,
   BG_PAGE, BG_CARD, BORDER_CLR, SERIF_F,
 } from "@/theme";
 
@@ -17,7 +17,11 @@ const CARD_BG = BG_CARD;
 
 function WuXingBar({ wuXing }: { wuXing: Record<string, number> }) {
   const WX_COLOR: Record<string, string> = {
-    木: '#22C55E', 火: '#EF4444', 土: '#F59E0B', 金: '#94A3B8', 水: '#3B82F6',
+    木: "var(--os-color-element-wood)",
+    火: "var(--os-color-element-fire)",
+    土: "var(--os-color-element-earth)",
+    金: "var(--os-color-element-metal)",
+    水: "var(--os-color-element-water)",
   };
   const total = Object.values(wuXing).reduce((a, b) => a + b, 0) || 1;
   return (
@@ -79,12 +83,12 @@ export default function HistoryPage() {
             fontFamily: SERIF,
             fontSize: "0.85rem",
             letterSpacing: "0.15em",
-            color: "#ffffff",
+            color: "var(--primary-foreground)",
             textDecoration: "none",
             padding: "0.6rem 2rem",
-            background: `linear-gradient(135deg, ${GOLD} 0%, #d4b86a 50%, ${GOLD} 100%)`,
+            background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)`,
             borderRadius: "999px",
-            boxShadow: "0 4px 14px rgba(196,160,78,0.35)",
+            boxShadow: "0 4px 14px rgb(var(--brand-primary) / 0.24)",
           }}
         >
           登录
@@ -133,7 +137,7 @@ export default function HistoryPage() {
             </div>
           ) : !records || records.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-5">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${BORDER_CLR}` }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgb(var(--brand-gold) / 0.08)", border: `1px solid ${BORDER_CLR}` }}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={GOLD_DIM} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
@@ -150,12 +154,12 @@ export default function HistoryPage() {
                     fontFamily: SERIF,
                     fontSize: "0.8rem",
                     letterSpacing: "0.12em",
-                    color: "#ffffff",
+                    color: "var(--primary-foreground)",
                     cursor: "pointer",
                     padding: "0.5rem 1.5rem",
-                    background: `linear-gradient(135deg, ${GOLD} 0%, #d4b86a 50%, ${GOLD} 100%)`,
+                    background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)`,
                     borderRadius: "999px",
-                    boxShadow: "0 4px 12px rgba(196,160,78,0.3)",
+                    boxShadow: "0 4px 12px rgb(var(--brand-primary) / 0.22)",
                     display: "inline-block",
                   }}
                 >
@@ -195,9 +199,9 @@ export default function HistoryPage() {
                             fontFamily: SERIF,
                             fontSize: "0.6rem",
                             letterSpacing: "0.08em",
-                            color: isCouple ? "#7C3AED" : GOLD,
-                            background: isCouple ? "rgba(124,58,237,0.08)" : "rgba(196,160,78,0.1)",
-                            border: `1px solid ${isCouple ? "rgba(124,58,237,0.2)" : BORDER_CLR}`,
+                            color: isCouple ? "var(--orasage-brand-purple)" : GOLD,
+                            background: isCouple ? "rgb(var(--brand-purple) / 0.08)" : "rgb(var(--brand-gold) / 0.1)",
+                            border: `1px solid ${isCouple ? "rgb(var(--brand-purple) / 0.2)" : BORDER_CLR}`,
                             padding: "0.15rem 0.5rem",
                             borderRadius: "999px",
                           }}
@@ -216,7 +220,7 @@ export default function HistoryPage() {
                           }
                         }}
                         style={{ color: MUTED_CLR, background: "transparent", border: "none", cursor: "pointer", padding: "0.25rem", transition: "color 0.2s" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--destructive)")}
                         onMouseLeave={(e) => (e.currentTarget.style.color = MUTED_CLR)}
                       >
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

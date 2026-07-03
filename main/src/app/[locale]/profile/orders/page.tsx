@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { RequireProfileAuth } from '@/components/profile/ProfileAuth';
 import { OrdersList } from '@/components/profile/OrdersList';
+import { ProfileSection } from '@/components/profile/ProfileSection';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,13 +12,9 @@ export default async function ProfileOrdersPage({ params }: Props) {
 
   return (
     <RequireProfileAuth locale={locale}>
-      <div>
-        <h2 className="font-serif text-xl text-sage-gold">{t('title')}</h2>
-        <p className="mt-2 text-sm text-sage-muted">{t('desc')}</p>
-        <div className="mt-4">
-          <OrdersList />
-        </div>
-      </div>
+      <ProfileSection title={t('title')} description={t('desc')}>
+        <OrdersList />
+      </ProfileSection>
     </RequireProfileAuth>
   );
 }

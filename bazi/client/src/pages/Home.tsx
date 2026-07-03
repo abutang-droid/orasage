@@ -22,7 +22,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { AppBrandMark } from "@/lib/orasage-app-shell/AppBrandMark";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
+import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, PRIMARY, PRIMARY_HOVER, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -82,9 +82,9 @@ function TaijiSVG({ size = 48 }: { size?: number }) {
       <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
       <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={GOLD_GHOST}/>
       <circle cx="50" cy="27" r="11.5" fill={GOLD_GHOST} stroke={GOLD_FAINT} strokeWidth="1"/>
-      <circle cx="50" cy="73" r="11.5" fill="rgba(196,160,78,0.04)" stroke={GOLD_FAINT} strokeWidth="1"/>
-      <circle cx="50" cy="27" r="4" fill="rgba(196,160,78,0.75)"/>
-      <circle cx="50" cy="73" r="4" fill="rgba(196,160,78,0.25)"/>
+      <circle cx="50" cy="73" r="11.5" fill="rgb(var(--brand-gold) / 0.04)" stroke={GOLD_FAINT} strokeWidth="1"/>
+      <circle cx="50" cy="27" r="4" fill="rgb(var(--brand-gold) / 0.75)"/>
+      <circle cx="50" cy="73" r="4" fill="rgb(var(--brand-gold) / 0.25)"/>
       {[0,45,90,135,180,225,270,315].map((deg, i) => (
         <g key={i} transform={`rotate(${deg} 50 50)`}>
           <line x1="50" y1="2" x2="50" y2="10" stroke={GOLD} strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
@@ -436,7 +436,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.gender === g ? GOLD : "transparent",
-                color: form.gender === g ? "#ffffff" : MUTED_CLR,
+                color: form.gender === g ? "var(--primary-foreground)" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.gender === g ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -456,7 +456,7 @@ function PersonFormPanel({ form, onChange }: {
               style={{
                 minWidth: "32px", padding: "0.5rem 0.55rem",
                 background: form.calendar === c ? GOLD : "transparent",
-                color: form.calendar === c ? "#ffffff" : MUTED_CLR,
+                color: form.calendar === c ? "var(--primary-foreground)" : MUTED_CLR,
                 fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.calendar === c ? 600 : 400,
                 border: "none", lineHeight: 1,
               }}
@@ -756,7 +756,7 @@ export default function Home() {
 
               {/* 模式切换 — 主级导航条 */}
               <div className="mx-5 mt-5 mb-2">
-                <div className="flex p-1 gap-1" style={{ background: "rgba(196,160,78,0.08)", borderRadius: "14px", border: "1px solid rgba(196,160,78,0.12)" }}>
+                <div className="flex p-1 gap-1" style={{ background: "rgb(var(--brand-gold) / 0.08)", borderRadius: "14px", border: "1px solid rgb(var(--brand-gold) / 0.12)" }}>
                   {(["single", "couple"] as const).map((m) => (
                     <button
                       key={m} type="button"
@@ -764,12 +764,12 @@ export default function Home() {
                       className="flex-1 flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
                       style={{
                         padding: "0.6rem 0", border: "none",
-                        background: mode === m ? `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)` : "transparent",
-                        color: mode === m ? "#ffffff" : MUTED_CLR,
+                        background: mode === m ? `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)` : "transparent",
+                        color: mode === m ? "var(--primary-foreground)" : MUTED_CLR,
                         fontFamily: SANS, fontSize: "0.875rem",
                         fontWeight: mode === m ? 700 : 400,
                         borderRadius: "11px",
-                        boxShadow: mode === m ? `0 3px 12px rgba(196,160,78,0.4)` : "none",
+                        boxShadow: mode === m ? "0 3px 12px rgb(var(--brand-primary) / 0.28)" : "none",
                       }}
                     >
                       {m === "single" ? t('form.mode.single') : t('form.mode.couple')}
@@ -820,7 +820,7 @@ export default function Home() {
                       e.target.value = '';
                     }}
                     className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                    style={{ background: 'rgba(196,160,78,0.06)', border: `1px solid ${BORDER_CLR}`, color: BODY_CLR, fontFamily: SANS }}
+                    style={{ background: 'rgb(var(--brand-gold) / 0.06)', border: `1px solid ${BORDER_CLR}`, color: BODY_CLR, fontFamily: SANS }}
                   >
                     <option value="">{t('form.saved_profile.placeholder')}</option>
                     {savedProfiles.map((p) => (
@@ -842,10 +842,10 @@ export default function Home() {
                 className="mx-5 mt-2 mb-5 w-auto flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]"
                 style={{
                   padding: "1.125rem 0", border: "none", borderRadius: "20px",
-                  background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-                  color: "#ffffff", fontFamily: SANS, fontSize: "1.125rem",
+                  background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)`,
+                  color: "var(--primary-foreground)", fontFamily: SANS, fontSize: "1.125rem",
                   fontWeight: 700, letterSpacing: "0.16em",
-                  boxShadow: `0 6px 24px rgba(196,160,78,0.40)`,
+                  boxShadow: "0 6px 24px rgb(var(--brand-primary) / 0.28)",
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 100 100" fill="none">
