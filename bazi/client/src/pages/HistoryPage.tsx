@@ -1,5 +1,5 @@
 /*
- * 历史排盘记录页面 - OraSage 设计规范
+ * 历史排盘记录页面 — OraSage DS v1.1
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";

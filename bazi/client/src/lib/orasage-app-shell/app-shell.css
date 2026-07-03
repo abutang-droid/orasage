@@ -256,10 +256,17 @@
   }
 }
 
-/* PC 页脚 — 与 main 门户一致 */
+/* PC 页脚 — 版权/隐私；移动端隐藏（底栏已承载导航） */
 .orasage-portal-footer {
+  display: none;
   margin-top: auto;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 1024px) {
+  .orasage-portal-footer {
+    display: block;
+  }
 }
 
 .orasage-portal-footer-inner {

@@ -146,18 +146,18 @@ interface DoubleProps {
 const PILLAR_LABELS_KEYS = ["pillar.year", "pillar.month", "pillar.day", "pillar.hour"];
 // PILLAR_LABELS is now assigned per-component via useT()
 
-// OraSage 设计系统 — 颜色和字体从 theme.ts 导入，仅保留本地常量
+// OraSage DS v1.1 — 颜色和字体从 theme.ts 导入，仅保留本地常量
 const GOLD_DIM = "rgba(196,160,78,0.8)";
 const SANS = "'Noto Sans SC', sans-serif";
 const MUTED_CLR = "#6E6858";
 const BORDER_CLR = "rgba(196,160,78,0.2)";
 const HEADING_CLR = HEADING;
-/** 纸感卡片面（与 theme BG_CARD 一致） */
+/** DS v1.1 卡片面（与 theme BG_CARD 一致） */
 const CARD_SURFACE = BG_CARD;
-/** 淡金 → 纸白渐变（AI 解读、手串等非四柱区块） */
+/** 浅灰 → 白渐变（AI 解读、手串等非四柱区块） */
 const CARD_GRADIENT = `linear-gradient(180deg, ${GOLD_GHOST} 0%, ${BG_CARD} 100%)`;
 const CARD_GRADIENT_SOFT = `linear-gradient(135deg, ${GOLD_GHOST} 0%, ${BG_CARD} 100%)`;
-/** 四柱墨玉锚点 — 唯一保留的深色视觉块 */
+/** 四柱深色锚点 — DS v1.1 对比区块 */
 const PILLAR_SURFACE = INK_DEEP;
 const TRACK_BG = "rgba(23,23,23,0.06)";
 const DIVIDER_SUBTLE = "rgba(23,23,23,0.08)";

@@ -182,7 +182,7 @@
     min-width: 0;
   }
 
-  /* ── OraSage 卡片（墨金版）── */
+  /* ── DS v1.1 卡片 ── */
   .ora-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -190,7 +190,7 @@
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
   }
 
-  /* ── 金色分隔线 ── */
+  /* ── 强调分隔线 ── */
   .gold-rule {
     height: 1px;
     background: linear-gradient(to right, transparent, var(--gold-faint), transparent);
@@ -209,7 +209,7 @@
     margin-bottom: 0.75rem;
   }
 
-  /* ── 输入框：深色背景 + 鎏金描边 ── */
+  /* ── 输入框：DS v1.1 白底 + 灰阶描边 ── */
   .ora-input {
     width: 100%;
     background: rgb(var(--card));
@@ -365,7 +365,7 @@
   .wheel-scroll::-webkit-scrollbar { display: none; }
   .wheel-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* ── OraSage 页脚（墨金版）── */
+  /* ── DS v1.1 页脚 ── */
   .orasage-global-footer {
     position: relative;
     width: 100%;

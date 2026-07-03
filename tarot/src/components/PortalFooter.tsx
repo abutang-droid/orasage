@@ -39,7 +39,7 @@ export function PortalFooter() {
   const base = mainPortalUrl(locale)
 
   return (
-    <footer className="orasage-portal-footer safe-bottom mt-auto hidden lg:block">
+    <footer className="orasage-portal-footer safe-bottom mt-auto">
       <div className="orasage-portal-footer-inner">
         <p className="orasage-portal-footer-copy">{t(FOOTER_COPY.copyright, FOOTER_COPY.copyright.zh)}</p>
         <div className="orasage-portal-footer-links">
