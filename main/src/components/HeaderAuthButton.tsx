@@ -37,7 +37,7 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
     return (
       <Link
         href="/profile"
-        className={`inline-flex min-h-11 max-w-[140px] items-center truncate rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
+        className={`inline-flex min-h-11 max-w-[140px] items-center truncate rounded-[var(--os-radius-btn)] border border-border px-4 text-sm text-foreground transition-colors hover:bg-muted active:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
         title={user.email}
       >
         {user.displayName}
@@ -48,7 +48,7 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
   return (
     <a
       href={loginUrl}
-      className={`inline-flex min-h-11 items-center rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
+      className={`inline-flex min-h-11 items-center rounded-[var(--os-radius-btn)] border border-border px-4 text-sm text-foreground transition-colors hover:bg-muted active:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
     >
       {t('login')}
     </a>

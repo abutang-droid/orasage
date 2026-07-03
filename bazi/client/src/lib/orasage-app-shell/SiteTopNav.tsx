@@ -1,10 +1,11 @@
 'use client';
 
-import { APP_BRANDS, appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
+import { APP_BRANDS, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { OrasageAuthChip } from './OrasageAuthChip';
 
 const TOP_NAV_ITEMS = [
+  { id: 'home' as const, href: (locale: string) => mainPortalUrl(locale), external: false },
   { id: 'bazi' as const, href: ORASAGE_URLS.bazi, external: true },
   { id: 'ziwei' as const, href: ORASAGE_URLS.ziwei, external: true },
   { id: 'tarot' as const, href: ORASAGE_URLS.tarot, external: true },
@@ -21,7 +22,7 @@ export type SiteTopNavProps = {
 /** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
 export function SiteTopNav({ locale = 'zh-CN', context = 'portal' }: SiteTopNavProps) {
   const isPortal = context === 'portal';
-  const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
+  const brandLabel = isPortal ? 'OraSage' : APP_BRANDS[context];
   const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
 
   return (

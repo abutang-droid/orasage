@@ -229,4 +229,25 @@
   .home-editorial-card:focus-visible::before {
     opacity: 1;
   }
+
+  /* ── Portal subpages (profile / famous / daozang) ── */
+  .portal-subpage {
+    color: rgb(var(--foreground));
+  }
+
+  .portal-subpage-body {
+    @apply text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-base;
+  }
+
+  .portal-subpage-body :where(a) {
+    @apply text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .portal-subpage-body :where(ul, ol) {
+    @apply ps-5;
+  }
+
+  .portal-subpage-body :where(li) {
+    @apply my-2;
+  }
 }

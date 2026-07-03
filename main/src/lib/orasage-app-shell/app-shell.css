@@ -219,7 +219,7 @@
 }
 
 .orasage-site-topnav-link:hover {
-  color: var(--shell-gold);
+  color: var(--shell-text);
 }
 
 .orasage-site-topnav-menu .orasage-auth-chip {

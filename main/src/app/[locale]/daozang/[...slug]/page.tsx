@@ -43,7 +43,7 @@ export default async function DaozangArticlePage({ params }: Props) {
       <Separator className="my-6 sm:my-8" />
 
       {legacyHtml ? (
-        <LegacyHtmlArticle html={legacyHtml} />
+        <LegacyHtmlArticle html={legacyHtml} className="portal-subpage-body" />
       ) : (
         <Alert>
           <AlertDescription>{t('noBody')}</AlertDescription>

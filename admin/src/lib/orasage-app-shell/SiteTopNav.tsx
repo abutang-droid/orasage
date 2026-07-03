@@ -5,6 +5,7 @@ import { pickLabel, SHELL_LABELS } from './labels';
 import { OrasageAuthChip } from './OrasageAuthChip';
 
 const TOP_NAV_ITEMS = [
+  { id: 'home' as const, href: (locale: string) => mainPortalUrl(locale), external: false },
   { id: 'bazi' as const, href: ORASAGE_URLS.bazi, external: true },
   { id: 'ziwei' as const, href: ORASAGE_URLS.ziwei, external: true },
   { id: 'tarot' as const, href: ORASAGE_URLS.tarot, external: true },

@@ -5,6 +5,7 @@ import { pickLabel, SHELL_LABELS } from './labels';
 export function topNavHtml(locale = 'zh-CN'): string {
   const main = mainPortalUrl(locale);
   const items = [
+    { href: main, label: pickLabel(SHELL_LABELS.home, locale) },
     { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) },
     { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) },
     { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) },

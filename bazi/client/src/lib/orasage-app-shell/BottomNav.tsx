@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react';
 import {
-  appBrandLabel,
+  APP_BRANDS,
   ORASAGE_URLS,
   appHomeUrl,
   mainPortalUrl,
@@ -60,7 +60,7 @@ export type FixedBottomNavProps = {
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const isPortal = context === 'portal';
   const appId = isPortal ? null : context;
-  const brand = isPortal ? 'OraSage' : appBrandLabel(appId as AppId, locale);
+  const brand = isPortal ? 'OraSage' : APP_BRANDS[appId as AppId];
   const portalHref = mainPortalUrl(locale);
   const appHref = isPortal ? portalHref : appHomeUrl(appId as AppId);
   const onAppHome = isPortal

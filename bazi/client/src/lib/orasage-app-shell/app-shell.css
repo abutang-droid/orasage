@@ -1,3 +1,8 @@
+:root {
+  --shell-top-h: 52px;
+  --shell-bottom-h: 56px;
+}
+
 .orasage-app-shell {
   --shell-bg: #0f0e17;
   --shell-surface: rgba(21, 18, 42, 0.96);
@@ -17,33 +22,13 @@
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: rgb(247, 243, 234);
+  --shell-bg: #fafaf8;
   --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: rgb(var(--os-rgb-ivory-300) / 0.85);
-  --shell-border-subtle: rgb(var(--os-rgb-ivory-100));
-  --shell-text: rgb(var(--os-rgb-ink-900));
-  --shell-muted: rgb(var(--os-rgb-ink-500));
-  --shell-gold: var(--orasage-brand-gold, #d0b47a);
-}
-
-/* 八字页：顶栏品牌/登录与纸底拉开对比 */
-.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-mobile-bar-brand,
-.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-topnav-brand {
-  color: rgb(var(--os-rgb-ink-900));
-  font-weight: 500;
-}
-
-.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip {
-  color: rgb(var(--os-rgb-jade-600));
-  border-color: rgb(var(--os-rgb-jade-500) / 0.45);
-  background: #fff;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.06);
-}
-
-.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip:hover {
-  border-color: rgb(var(--os-rgb-jade-500) / 0.7);
-  background: rgb(var(--os-rgb-jade-500) / 0.08);
+  --shell-border: #e7e5e4;
+  --shell-border-subtle: #fafaf8;
+  --shell-text: #171717;
+  --shell-muted: #6b7280;
+  --shell-gold: #171717;
 }
 
 .orasage-app-topbar-start {
@@ -148,17 +133,12 @@
   padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
-.orasage-app-main--column {
-  display: flex;
-  flex-direction: column;
-}
-
 .orasage-app-main--no-bottomnav {
   padding-bottom: 12px;
 }
 
 .orasage-portal-main {
-  padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 @media (min-width: 1024px) {
@@ -239,7 +219,7 @@
 }
 
 .orasage-site-topnav-link:hover {
-  color: var(--shell-gold);
+  color: var(--shell-text);
 }
 
 .orasage-site-topnav-menu .orasage-auth-chip {
@@ -274,68 +254,6 @@
   .orasage-site-mobile-bar {
     display: none;
   }
-}
-
-/* PC 页脚 — 与 main 门户一致 */
-.orasage-portal-footer {
-  margin-top: auto;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-.orasage-portal-footer-inner {
-  max-width: 72rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 2rem 1.25rem;
-}
-
-@media (min-width: 640px) {
-  .orasage-portal-footer-inner {
-    flex-direction: row;
-    justify-content: space-between;
-    padding-inline: 1.5rem;
-  }
-}
-
-.orasage-portal-footer-copy {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--shell-muted);
-  text-align: center;
-}
-
-@media (min-width: 640px) {
-  .orasage-portal-footer-copy {
-    font-size: 0.875rem;
-    text-align: start;
-  }
-}
-
-.orasage-portal-footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-}
-
-.orasage-portal-footer-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: 0.875rem;
-  color: var(--shell-muted);
-  text-decoration: none;
-  transition: color 0.15s var(--orasage-ease-organic, ease);
-}
-
-.orasage-portal-footer-link:hover {
-  color: var(--shell-gold);
-}
-
-.orasage-page-toolbar--subpage {
-  justify-content: flex-start;
 }
 
 @media (min-width: 1024px) {

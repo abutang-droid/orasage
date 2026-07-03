@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { PageShell, PageTitle } from '@/components/PageShell';
+import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { cmsLocale, daozangArticlePath, decodeHtmlEntities, fetchCmsPages, stripHtml } from '@/lib/cms';
 
 import { Alert, AlertDescription, Badge, Card, CardContent, buttonVariants } from '@orasage/ui';
@@ -29,9 +29,7 @@ export default async function DaozangPage({ params, searchParams }: Props) {
     <PageShell className="max-w-5xl">
       <header className="max-w-3xl">
         <PageTitle>{t('title')}</PageTitle>
-        <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
-          {t('desc')}
-        </p>
+        <PageLead>{t('desc')}</PageLead>
       </header>
 
       {!articles ? (
@@ -54,7 +52,7 @@ export default async function DaozangPage({ params, searchParams }: Props) {
                 <Card variant="interactive" asChild>
                   <Link href={daozangArticlePath(item.slug)} className="group block">
                     <CardContent className="p-5 sm:p-6">
-                      <h2 className="font-serif text-lg leading-snug text-foreground transition-colors group-hover:text-primary sm:text-xl">
+                      <h2 className="font-serif text-heading-3 font-medium leading-snug text-foreground transition-colors group-hover:text-foreground/80">
                         {decodeHtmlEntities(item.title)}
                       </h2>
                       {item.legacyHtml && (

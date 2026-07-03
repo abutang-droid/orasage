@@ -10,9 +10,10 @@ export function Header() {
   const tNav = useTranslations('nav');
 
   const navItems: Array<
-    | { href: '/famous' | '/daozang'; label: string }
+    | { href: '/' | '/famous' | '/daozang'; label: string }
     | { href: string; label: string; external: true }
   > = [
+    { href: '/', label: tNav('home') },
     { href: externalUrls.bazi, label: tNav('bazi'), external: true },
     { href: externalUrls.ziwei, label: tNav('ziwei'), external: true },
     { href: externalUrls.tarot, label: tNav('tarot'), external: true },

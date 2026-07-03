@@ -1,5 +1,3 @@
-import { pickLabel, SHELL_LABELS } from './labels';
-
 export type AppId = 'bazi' | 'ziwei' | 'tarot';
 
 /** Main 门户子页使用 portal 上下文 */
@@ -15,11 +13,6 @@ export const APP_BRANDS: Record<AppId, string> = {
   ziwei: 'ZiWei',
   tarot: 'ManTo',
 };
-
-/** 子应用品牌名（随 locale；中文八字用「八字」） */
-export function appBrandLabel(appId: AppId, locale: string): string {
-  return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
-}
 
 export const ORASAGE_URLS = {
   main: 'https://orasage.com',

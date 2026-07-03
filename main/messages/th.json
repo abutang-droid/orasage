@@ -4,6 +4,7 @@
     "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
   },
   "nav": {
+    "home": "หน้าแรก",
     "bazi": "BaZi",
     "ziwei": "ZiWei",
     "tarot": "Tarot",
