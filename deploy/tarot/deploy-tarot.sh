@@ -60,7 +60,7 @@ deploy_native() {
     log "错误: 缺少 DATABASE_URL（MySQL），请在 $APP_DIR/.env 中配置"
     exit 1
   fi
-  npx prisma db push
+  npx prisma db push --accept-data-loss
 
   npm run build
 

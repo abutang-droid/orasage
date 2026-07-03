@@ -2,6 +2,7 @@
 
 > 写给下一任 Agent / 开发者。  
 > 最后更新：**2026-07-02**（platform-unify 迭代）  
+> **最新会话交接（2026-07-03，塔罗功德后端 + 部署）：** [`HANDOFF-agent-2026-07-03.md`](./HANDOFF-agent-2026-07-03.md) ← **优先读这个**  
 > 当前活跃分支：`cursor/platform-unify-full-e21e`  
 > 待办清单：[`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md)
 
