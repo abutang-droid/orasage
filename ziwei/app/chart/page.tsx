@@ -8,15 +8,16 @@ import InsightPanel from '@/components/InsightPanel';
 import ChatPanel from '@/components/ChatPanel';
 import type { BirthInfo, ZiweiChart, Star, Palace } from '@/lib/ziwei/types';
 import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/ziwei/share';
-import { useHistory } from '@/lib/ziwei/history';
-type FocusState = any;
 import { generateChart } from "@/lib/ziwei/algorithm";
 import { syncBirthFormProfile } from '@/lib/profile-sync';
 import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
 import PaywallCard from '@/components/PaywallCard';
 import CrystalShopCard from '@/components/CrystalShopCard';
 import { ZiweiHomeHero } from '@/components/ZiweiHomeHero';
+import { ZiweiHomeFeed } from '@/components/ZiweiHomeFeed';
 import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
+
+type FocusState = any;
 
 // ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
 const emptyBirthForm = (): BirthFormState => ({
@@ -100,7 +101,6 @@ export default function ChartPage() {
   const [liunianYear, setLiunianYear] = useState(new Date().getFullYear());
   const [focus, setFocus] = useState<FocusState | null>(null);
   const [hemingTab, setHemingTab] = useState<'A' | 'B'>('A');
-  const { history, save: saveHistory, remove: removeHistory } = useHistory();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -188,7 +188,6 @@ export default function ChartPage() {
               onFormSave={form => {
                 setSavedForm(form);
                 if (form.year && form.month && form.day) {
-                  saveHistory(form);
                   const params = formToSearchParams(form);
                   if (typeof window !== 'undefined') {
                     window.history.replaceState({}, '', `/chart?${params.toString()}`);
@@ -203,33 +202,7 @@ export default function ChartPage() {
           {error && <div className="ziwei-calc-error">{error}</div>}
         </div>
 
-        {mode === 'single' && history.length > 0 && (
-          <div className="ziwei-calc-history">
-            <div className="ziwei-calc-history-header">
-              <span className="ziwei-calc-history-label">{t('form.history')}</span>
-              <div className="ziwei-calc-history-line" />
-            </div>
-            <div className="ziwei-calc-history-list">
-              {history.map(entry => (
-                <div
-                  key={entry.id}
-                  className="ziwei-calc-history-item"
-                  onClick={() => { setSavedForm(entry.form); handleSingleSubmit(formToBirthInfo(entry.form), entry.form); }}
-                >
-                  <span className="ziwei-calc-history-item-label">{entry.label}</span>
-                  <button
-                    type="button"
-                    className="ziwei-calc-history-item-remove"
-                    onClick={e => { e.stopPropagation(); removeHistory(entry.id); }}
-                    aria-label={t('common.close')}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <ZiweiHomeFeed />
       </div>
     );
   }

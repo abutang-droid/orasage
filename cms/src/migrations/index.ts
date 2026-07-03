@@ -9,6 +9,7 @@ import * as migration_20260703_190000_bazi_home_hero_global from './20260703_190
 import * as migration_20260703_191000_bazi_home_hero_locked_docs_rels from './20260703_191000_bazi_home_hero_locked_docs_rels';
 import * as migration_20260703_200000_ziwei_home_hero_global from './20260703_200000_ziwei_home_hero_global';
 import * as migration_20260703_201000_ziwei_home_hero_locked_docs_rels from './20260703_201000_ziwei_home_hero_locked_docs_rels';
+import * as migration_20260703_210000_ziwei_feed from './20260703_210000_ziwei_feed';
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20260703_201000_ziwei_home_hero_locked_docs_rels.up,
     down: migration_20260703_201000_ziwei_home_hero_locked_docs_rels.down,
     name: '20260703_201000_ziwei_home_hero_locked_docs_rels',
+  },
+  {
+    up: migration_20260703_210000_ziwei_feed.up,
+    down: migration_20260703_210000_ziwei_feed.down,
+    name: '20260703_210000_ziwei_feed',
   },
 ];
