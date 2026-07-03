@@ -13,6 +13,7 @@ import {
   WU_XING_COLOR, WU_XING_BG, DI_ZHI_CANG_GAN,
   calcDailyFortune, recommendBracelet,
 } from "@/lib/bazi";
+import { shopUrlForElement } from "@/lib/shop-products";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { PaywallCard } from "@/components/PaywallCard";
 import { useT } from "@/lib/i18n";
@@ -1327,6 +1328,16 @@ function BraceletRecommendCard({ recommendation, planType }: {
             ))}
           </div>
         </details>
+
+        <a
+          href={shopUrlForElement(b.wuXing)}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+          style={{ background: GOLD, color: "#1a1528" }}
+        >
+          {t('bracelet.buy_shop')}
+        </a>
       </div>
 
       {/* 底部 - 礼盒版额外信息 */}

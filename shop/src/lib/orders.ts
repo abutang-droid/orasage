@@ -7,11 +7,11 @@ export interface SyncOrderInput {
   userId: number;
   orderNo: string;
   title: string;
+  sku?: string;
   amountCents: number;
   currency?: string;
   status?: OrderStatus;
   appSource?: AppSource;
-  sku?: string;
   recommendationContext?: string;
   readingId?: string;
 }

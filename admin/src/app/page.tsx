@@ -1,4 +1,6 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getStats } from '@/lib/api';
+import Link from 'next/link';
 
 export default async function AdminHome() {
   const admin = await getAdminUser();
@@ -17,32 +19,46 @@ export default async function AdminHome() {
     );
   }
 
+  let stats = { users: 0, orders: 0, readings: 0, products: 0 };
+  try {
+    stats = await getStats();
+  } catch {
+    // auth API 未就绪时显示占位
+  }
+
   return (
-    <main className="admin-shell">
-      <header className="admin-header">
-        <h1>OraSage 管理后台</h1>
-        <a className="btn-text" href="https://auth.orasage.com/center">
-          返回用户中心
-        </a>
+    <div className="admin-page">
+      <header className="page-header">
+        <h1>运营概览</h1>
+        <p className="muted">商品与订单数据来自 auth-service 统一数据源</p>
       </header>
+
       <section className="card-grid">
         <div className="card">
           <h2>用户总数</h2>
-          <div className="value">—</div>
+          <div className="value">{stats.users}</div>
         </div>
         <div className="card">
           <h2>订单总数</h2>
-          <div className="value">—</div>
+          <div className="value">{stats.orders}</div>
         </div>
         <div className="card">
-          <h2>命理测算次数</h2>
-          <div className="value">—</div>
+          <h2>命理测算</h2>
+          <div className="value">{stats.readings}</div>
+        </div>
+        <div className="card">
+          <h2>在售商品</h2>
+          <div className="value">{stats.products}</div>
         </div>
       </section>
-      <p style={{ marginTop: '2rem', color: '#a7a9be', fontSize: '0.9rem' }}>
-        当前为最小可用骨架：已完成管理员身份校验（仅 role=admin 可访问），
-        数据看板与用户/订单管理功能待后续迭代接入 auth-service 的管理端 API。
-      </p>
-    </main>
+
+      <section className="quick-links">
+        <Link href="/products" className="btn-secondary">管理商品</Link>
+        <Link href="/orders" className="btn-secondary">查看订单</Link>
+        <a href="https://shop.orasage.com/api/products" className="btn-secondary" target="_blank" rel="noreferrer">
+          商品 JSON API
+        </a>
+      </section>
+    </div>
   );
 }

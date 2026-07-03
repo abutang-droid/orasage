@@ -90,6 +90,7 @@ const ui: TranslationDict = {
   "bracelet.standard": "標準版",
   "bracelet.premium_box": "禮盒版",
   "bracelet.energy_guide": "能量激活指南",
+  "bracelet.buy_shop": "前往能量商城購買",
   "bracelet.premium_kit": "禮盒套裝包含：手串 {spec} · 石印章 · 檀香 · 紅木禮盒",
   "bracelet.tag.natural": "天然水晶",
   "bracelet.tag.handmade": "手工製作",
