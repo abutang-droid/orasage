@@ -67,7 +67,7 @@ async function waitForReport(token, { titleIncludes, maxWaitMs = 120000 } = {}) 
 }
 
 async function fillBirthDate(page, { year, month, day }) {
-  const selects = page.locator('select');
+  const selects = page.getByText('出生日期（公历）').locator('..').locator('select');
   await selects.nth(0).selectOption(String(year));
   await selects.nth(1).selectOption(String(month));
   await selects.nth(2).selectOption(String(day));
@@ -96,8 +96,6 @@ async function runCoupleFlow(page) {
     timeout: 60000,
   });
   await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => null);
-
-  await page.getByRole('button', { name: L.hemingTab }).click();
 
   await page.getByRole('button', { name: L.person1, exact: true }).click();
   await fillBirthDate(page, { year: 1990, month: 6, day: 15 });
