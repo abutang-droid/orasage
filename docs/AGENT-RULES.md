@@ -29,6 +29,12 @@
 - 移动端与 PC 端通过 CSS 媒体查询切换，同一页面不重复显示两套主导航。
 - 子页「返回」放在内容区工具条，不占顶栏主导航位。
 
+## 全站视觉规范
+
+- 唯一设计规范：[DS v1.1 Revised](./design-system/OraSage-Design-System-v1.1-Revised.md)
+- Token 实现：`shared/design-tokens/orasage-tokens.css`
+- 布局与导航：见本文「全站响应式导航」与 [mobile-first.md](./mobile-first.md)
+
 ## 布局与功能变更
 
 - **未经明确批准**，不要改动全局布局或增删产品功能。

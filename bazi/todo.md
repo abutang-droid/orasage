@@ -57,8 +57,11 @@
 - [x] 修复 getShiZhu 中 23:00 应归亥时而非子时（亥时范围 21:00-23:00）
 - [x] 23 测试用例全部通过
 
-## OraSage 设计规范改造
-- [x] 全局 CSS：更新色板（淡紫薄雾背景 #F7F4FA、浅金 #D9A441、深紫 #2E295B、紫灰 #5D5973）
+## OraSage 设计规范改造（历史 · 已由 DS v1.1 取代）
+
+> 当前规范：[`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../docs/design-system/OraSage-Design-System-v1.1-Revised.md)
+
+- [x] ~~淡紫/鎏金色板~~ → DS v1.1 单色（`#FAFAF8` / `#171717` / 灰阶）
 - [x] 全局 CSS：更新字体（标题 Noto Serif SC、正文/按钮 Noto Sans SC）
 - [x] 全局 CSS：切换为亮色主题（ThemeProvider defaultTheme="light"）
 - [x] Home.tsx：表单卡片改为白色背景 + 淡紫边框 + 圆角 18-24px

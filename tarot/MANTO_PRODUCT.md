@@ -1,5 +1,7 @@
 # Manto — 产品完整文档 v3
 
+> **UI / 视觉**：全站唯一设计规范为 [OraSage DS v1.1 Revised](../docs/design-system/OraSage-Design-System-v1.1-Revised.md)（单色黑/白/灰）。本文档内若出现暗金、配色等描述，属早期产品叙事或牌面意象，**实现以 DS v1.1 与 `shared/design-tokens/orasage-tokens.css` 为准**。
+
 > 翻开你的牌，神灵在背面
 > 2026-06-26
 
