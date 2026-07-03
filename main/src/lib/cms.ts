@@ -68,6 +68,21 @@ export function stripHtml(html: string, max = 140): string {
   return plain.length > max ? `${plain.slice(0, max)}…` : plain;
 }
 
+const JUNK_SLUG_RE =
+  /^(cart|checkout|confirmation|order-history|wiki|shop|store|my-account|sample-page|hello-world)(\/|$)/i;
+const JUNK_TITLE_RE =
+  /^(cart|checkout|confirmation|order history|wiki|shop|store|my account|sample page|hello world)$/i;
+
+/** 过滤 WordPress 迁移时混入的非正文页面 */
+export function isJunkCmsPage(page: Pick<CmsPage, 'title' | 'slug'>): boolean {
+  const title = decodeHtmlEntities(page.title).trim();
+  const slug = page.slug.replace(/^\/+/, '').toLowerCase();
+  if (JUNK_SLUG_RE.test(slug)) return true;
+  if (JUNK_TITLE_RE.test(title)) return true;
+  if (/^zh-cn\/(cart|checkout|order-history|wiki)/i.test(slug)) return true;
+  return false;
+}
+
 /** 清洗 WordPress 迁移正文：去二维码/外链推广/脚本，修复常见乱码 */
 export function sanitizeLegacyHtml(html: string): string {
   let out = html;
@@ -83,7 +98,10 @@ export function sanitizeLegacyHtml(html: string): string {
     .replace(/<img[^>]*(wp-content\/uploads\/[^"']*qr[^"']*|barcode)[^>]*>/gi, '')
     .replace(/<a[^>]*(weixin|wechat|mp\.weixin|javascript:)[^>]*>[\s\S]*?<\/a>/gi, '')
     .replace(/<div[^>]*(qr|qrcode|wechat|weixin|related|share|social|promo|广告)[^>]*>[\s\S]*?<\/div>/gi, '')
-    .replace(/<p[^>]*(qr|qrcode|wechat|weixin|扫码|关注公众号)[^>]*>[\s\S]*?<\/p>/gi, '');
+    .replace(/<p[^>]*(qr|qrcode|wechat|weixin|扫码|关注公众号)[^>]*>[\s\S]*?<\/p>/gi, '')
+  // 问真八字等第三方 App 推广行
+    .replace(/<p[^>]*>[\s\S]*?(手机阅读|扫码下载|问真八字|在手机上继续阅读)[\s\S]*?<\/p>/gi, '')
+    .replace(/目录\s*手机阅读[\s\S]*?在手机上继续阅读本书/gi, '');
 
   // 移除孤立小尺寸图片（常见二维码 80–400px）
   out = out.replace(/<img[^>]*width=["']?\d{2,3}["']?[^>]*height=["']?\d{2,3}["']?[^>]*>/gi, (tag) => {
@@ -133,7 +151,8 @@ export async function fetchCmsPages(options: {
   if (!res.ok) {
     throw new Error(`CMS fetch failed: ${res.status}`);
   }
-  return res.json();
+  const data: CmsListResponse = await res.json();
+  return { ...data, docs: data.docs.filter((page) => !isJunkCmsPage(page)) };
 }
 
 export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> {
