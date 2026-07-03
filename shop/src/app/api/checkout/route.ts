@@ -8,7 +8,7 @@ import { getStripe } from '@/lib/stripe';
 import { paymentsUseStripe } from '@/lib/payment-mode';
 import { isLocalRequest } from '@/lib/internal';
 import { detectCurrency, toStripeAmount, type ShopCurrency } from '@/lib/currency';
-import { resolveAuthUserId } from '../../../../shared/shop-checkout/server';
+import { resolveAuthUserId } from '../../../../../shared/shop-checkout/server';
 
 const checkoutSchema = z.object({
   userId: z.number().int().positive(),
