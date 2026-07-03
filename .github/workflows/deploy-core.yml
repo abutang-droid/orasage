@@ -7,6 +7,8 @@ on:
       - main
     paths:
       - 'main/**'
+      - 'packages/ui/**'
+      - 'packages/tokens/**'
       - 'auth-service/**'
       - 'shop/**'
       - 'admin/**'
