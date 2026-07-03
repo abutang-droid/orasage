@@ -14,7 +14,7 @@ export const CRYSTAL_MAP: Record<string, CrystalData> = {
   "major": { element: "大阿卡纳", wuxing: "金", name: "白水晶", spec: "8mm×23颗", description: "全面净化、能量平衡，适合所有场合" },
 }
 
-export function recommendCrystal(elements: string[]): CrystalData {
+export function recommendCrystal(elements: string[]): CrystalData & { shopSku: string } {
   const counts: Record<string, number> = {}
   for (const e of elements) {
     if (e === "大阿卡纳" || e === "major") continue
@@ -24,5 +24,9 @@ export function recommendCrystal(elements: string[]): CrystalData {
   for (const [el, count] of Object.entries(counts)) {
     if (count > maxCount) { maxCount = count; maxElement = el }
   }
-  return CRYSTAL_MAP[maxElement] || CRYSTAL_MAP["major"]
+  const crystal = CRYSTAL_MAP[maxElement] || CRYSTAL_MAP["major"]
+  const wuxingToSku: Record<string, string> = {
+    木: "crystal-wood", 火: "crystal-fire", 土: "crystal-earth", 金: "crystal-metal", 水: "crystal-water",
+  }
+  return { ...crystal, shopSku: wuxingToSku[crystal.wuxing] ?? "crystal-metal" }
 }

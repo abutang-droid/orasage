@@ -8,6 +8,13 @@
       "when": 1782872100178,
       "tag": "0000_illegal_master_chief",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782872200000,
+      "tag": "0003_products",
+      "breakpoints": true
     }
   ]
 }

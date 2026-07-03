@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { products } from '@/lib/products';
+import { fetchProducts } from '@/lib/products';
 
 export async function GET() {
+  const products = await fetchProducts();
   return NextResponse.json({
     products: products.map((p) => ({
       sku: p.sku,
@@ -11,6 +12,7 @@ export async function GET() {
       priceCents: p.priceCents,
       priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
       category: p.category,
+      shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,
     })),
   });
 }

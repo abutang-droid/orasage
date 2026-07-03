@@ -32,10 +32,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = checkoutSchema.parse(await req.json());
     const currency: ShopCurrency = body.currency ?? detectCurrency(req.headers.get('accept-language'));
-    const lineItems: Array<{ product: NonNullable<ReturnType<typeof getProduct>>; quantity: number }> = [];
+    const lineItems: Array<{ product: NonNullable<Awaited<ReturnType<typeof getProduct>>>; quantity: number }> = [];
 
     for (const item of body.items) {
-      const product = getProduct(item.sku);
+      const product = await getProduct(item.sku);
       if (!product) {
         return NextResponse.json({ error: `商品不存在: ${item.sku}` }, { status: 400 });
       }
@@ -53,10 +53,10 @@ export async function POST(req: NextRequest) {
       userId: body.userId,
       orderNo,
       title,
+      sku: primarySku,
       amountCents,
       status: 'pending',
       appSource: body.appSource ?? 'shop',
-      sku: primarySku,
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
     });
@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       orderNo,
       userId: String(body.userId),
       sku: primarySku,
+      currency,
     };
     if (body.appSource) stripeMeta.appSource = body.appSource;
     if (body.readingId) stripeMeta.readingId = body.readingId;
@@ -76,7 +77,6 @@ export async function POST(req: NextRequest) {
     if (body.recommendationContext) {
       stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
     }
-    stripeMeta.currency = currency;
 
     const stripe = getStripe();
     if (stripe) {
@@ -135,8 +135,7 @@ export async function PUT(req: NextRequest) {
     }).parse(await req.json());
 
     const currency: ShopCurrency = requestedCurrency ?? detectCurrency(req.headers.get('accept-language'));
-
-    const product = getProduct(sku);
+    const product = await getProduct(sku);
     if (!product) {
       return NextResponse.json({ error: '商品不存在' }, { status: 404 });
     }
@@ -148,10 +147,10 @@ export async function PUT(req: NextRequest) {
       userId: user.id,
       orderNo,
       title: quantity > 1 ? `${product.name} ×${quantity}` : product.name,
+      sku: product.sku,
       amountCents,
       status: 'pending',
       appSource: 'shop',
-      sku: product.sku,
     });
 
     const stripe = getStripe();

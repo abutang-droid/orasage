@@ -94,6 +94,7 @@ const ui: TranslationDict = {
   "bracelet.standard": "Padrão",
   "bracelet.premium_box": "Premium",
   "bracelet.energy_guide": "Guia de Ativação Energética",
+  "bracelet.buy_shop": "Comprar na Loja de Energia",
   "bracelet.premium_kit": "Kit premium inclui: Pulseira {spec} · Selo · Sândalo · Caixa de Mogno",
   "bracelet.tag.natural": "Cristal Natural",
   "bracelet.tag.handmade": "Feito à Mão",

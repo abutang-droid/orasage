@@ -63,13 +63,6 @@ export function ToolCards() {
 }
 
 const productKeys = ['wood', 'fire', 'earth', 'metal', 'water'] as const;
-const productSkus: Record<(typeof productKeys)[number], string> = {
-  wood: 'crystal-wood',
-  fire: 'crystal-fire',
-  earth: 'crystal-earth',
-  metal: 'crystal-metal',
-  water: 'crystal-water',
-};
 const elementColors: Record<string, string> = {
   wood: 'bg-emerald-500/15 text-emerald-700',
   fire: 'bg-red-500/15 text-red-700',
@@ -78,8 +71,9 @@ const elementColors: Record<string, string> = {
   water: 'bg-indigo-500/15 text-indigo-700',
 };
 
-export function ShopSection() {
+export function ShopSection({ catalog }: { catalog?: Array<{ sku: string; shopUrl: string; priceDisplay?: string }> }) {
   const t = useTranslations('shop');
+  const catalogBySku = new Map(catalog?.map((c) => [c.sku, c]));
 
   return (
     <section id="shop" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -102,10 +96,15 @@ export function ShopSection() {
 
       {/* 水晶产品 — 手机横向滑动 */}
       <div className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:gap-4 md:grid-cols-5 sm:overflow-visible">
-        {productKeys.map((key) => (
+        {productKeys.map((key) => {
+          const skuMap = { wood: 'crystal-wood', fire: 'crystal-fire', earth: 'crystal-earth', metal: 'crystal-metal', water: 'crystal-water' } as const;
+          const sku = skuMap[key];
+          const item = catalogBySku.get(sku);
+          const href = item?.shopUrl ?? `${externalUrls.shop}?sku=${sku}`;
+          return (
           <a
             key={key}
-            href={`${externalUrls.shop}?sku=${productSkus[key]}`}
+            href={href}
             className="flex w-[140px] shrink-0 flex-col rounded-2xl border border-sage-border bg-sage-card p-4 active:border-sage-gold/40 sm:w-auto"
           >
             <span
@@ -117,8 +116,12 @@ export function ShopSection() {
               {t(`products.${key}.name`)}
             </h3>
             <p className="mt-1 text-xs text-sage-muted">{t(`products.${key}.desc`)}</p>
+            {item?.priceDisplay ? (
+              <p className="mt-2 text-sm font-medium text-sage-gold">{item.priceDisplay}</p>
+            ) : null}
           </a>
-        ))}
+          );
+        })}
       </div>
 
       <p className="mt-4 text-center text-xs text-sage-muted sm:mt-6">{t('hint')}</p>
