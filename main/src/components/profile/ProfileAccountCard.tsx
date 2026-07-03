@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { logout, updateProfile } from '@/lib/auth';
 import { externalUrls } from '@/lib/urls';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useProfileAuth } from './ProfileAuth';
 
 export function ProfileAccountCard() {
@@ -40,56 +45,60 @@ export function ProfileAccountCard() {
   }
 
   return (
-    <section className="rounded-2xl border border-sage-border/60 bg-sage-card/40 p-5 sm:p-6">
-      <h2 className="font-serif text-lg text-sage-gold">{t('accountTitle')}</h2>
-      <dl className="mt-4 space-y-3 text-sm">
-        <div className="flex flex-wrap gap-x-2">
-          <dt className="text-sage-muted">{t('displayName')}</dt>
-          <dd className="text-sage-primary">{user.displayName}</dd>
-        </div>
-        {showDisplayId && user.displayId && (
+    <Card>
+      <CardHeader className="pb-4">
+        <CardTitle>{t('accountTitle')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <dl className="space-y-3 text-sm">
           <div className="flex flex-wrap gap-x-2">
-            <dt className="text-sage-muted">{t('displayId')}</dt>
-            <dd className="font-mono text-sage-gold">{user.displayId}</dd>
+            <dt className="text-muted-foreground">{t('displayName')}</dt>
+            <dd className="font-medium text-foreground">{user.displayName}</dd>
           </div>
-        )}
-        <div className="flex flex-wrap gap-x-2">
-          <dt className="text-sage-muted">{t('email')}</dt>
-          <dd className="text-sage-primary">{user.email}</dd>
-        </div>
-      </dl>
+          {showDisplayId && user.displayId && (
+            <div className="flex flex-wrap gap-x-2">
+              <dt className="text-muted-foreground">{t('displayId')}</dt>
+              <dd className="font-mono text-primary">{user.displayId}</dd>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-x-2">
+            <dt className="text-muted-foreground">{t('email')}</dt>
+            <dd className="text-foreground">{user.email}</dd>
+          </div>
+        </dl>
 
-      <form onSubmit={handleSave} className="mt-6 space-y-4">
-        <label className="block text-sm">
-          <span className="text-sage-muted">{t('nickname')}</span>
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            maxLength={100}
-            className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary outline-none focus:border-sage-gold/50"
-            placeholder={t('nicknamePlaceholder')}
-          />
-        </label>
-        {message && <p className="text-sm text-green-600">{message}</p>}
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-full border border-sage-gold/40 px-5 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10 disabled:opacity-50"
-          >
-            {saving ? t('saving') : t('save')}
-          </button>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-sm text-sage-muted underline-offset-2 hover:text-red-500 hover:underline"
-          >
-            {t('logout')}
-          </button>
-        </div>
-      </form>
-    </section>
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="profile-nickname">{t('nickname')}</Label>
+            <Input
+              id="profile-nickname"
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              maxLength={100}
+              placeholder={t('nicknamePlaceholder')}
+            />
+          </div>
+          {message && (
+            <Alert variant="info">
+              <AlertDescription>{message}</AlertDescription>
+            </Alert>
+          )}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <div className="flex flex-wrap gap-3">
+            <Button type="submit" disabled={saving} loading={saving}>
+              {saving ? t('saving') : t('save')}
+            </Button>
+            <Button type="button" variant="ghost" onClick={handleLogout} className="text-muted-foreground hover:text-destructive">
+              {t('logout')}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

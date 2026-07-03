@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
+import { PageBody } from '@/components/PageShell';
+import { ProfileSection } from '@/components/profile/ProfileSection';
+import { Separator } from '@/components/ui/separator';
 import { fetchCmsPageBySlug } from '@/lib/cms';
 
 type Props = {
@@ -20,17 +23,15 @@ export async function ProfileLegalPage({ params, slug, titleKey }: Props) {
   const legacyHtml = page.legacyHtml?.trim();
 
   return (
-    <div>
-      <h2 className="font-serif text-xl text-sage-gold">
-        <ArticleTitle>{page.title || t(titleKey)}</ArticleTitle>
-      </h2>
-      <div className="mt-6">
-        {legacyHtml ? (
-          <LegacyHtmlArticle html={legacyHtml} />
-        ) : (
-          <p className="text-sage-muted">{t('noBody')}</p>
-        )}
-      </div>
-    </div>
+    <ProfileSection title={<ArticleTitle>{page.title || t(titleKey)}</ArticleTitle>}>
+      <Separator className="my-2 sm:my-4" />
+      {legacyHtml ? (
+        <LegacyHtmlArticle html={legacyHtml} />
+      ) : (
+        <PageBody>
+          <p>{t('noBody')}</p>
+        </PageBody>
+      )}
+    </ProfileSection>
   );
 }
