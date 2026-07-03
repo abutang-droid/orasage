@@ -2,20 +2,22 @@
 
 ## 「全站」范围
 
-除非任务中**单独列出例外**，「全站」指所有面向用户的应用及其**全部页面**，不做 main 门户与子应用的区分：
+**「全站」指 `orasage.com` 域名下的所有页面**，包括但不限于：
 
-| 应用 | 路径 |
-|------|------|
-| main（门户） | `main/` |
-| shop（商城） | `shop/` |
-| auth（登录/用户中心） | `auth-service/` |
-| admin（运营后台） | `admin/` |
-| bazi（八字） | `bazi/` |
-| ziwei（紫微） | `ziwei/` |
-| tarot（塔罗） | `tarot/` |
+| 子域 / 应用 | 说明 |
+|-------------|------|
+| `orasage.com` | main 门户 |
+| `shop.orasage.com` | 商城 |
+| `auth.orasage.com` | 登录 / 用户中心 |
+| `admin.orasage.com` | 运营后台 |
+| `cms.orasage.com` | 内容管理后台（Payload） |
+| `bazi.orasage.com` | 八字 |
+| `ziwei.orasage.com` | 紫微 |
+| `tarot.orasage.com` | 塔罗 |
 
-- 不要默认把 main 与子应用分开处理；需要例外时任务会写明（例如「仅 main」「不含 admin」）。
-- 共享导航实现以 `shared/app-shell/` 为主源，构建前同步到各应用的 `orasage-app-shell` 副本。
+- 除非任务中**单独列出例外**，否则不对 main / 子应用 / 后台（admin、cms）做区分或特殊豁免。
+- 后台页面（admin、cms）同样遵循全站视觉与导航规范。
+- 共享导航以 `shared/app-shell/` 为主源，构建前同步到各应用的 `orasage-app-shell` 副本。
 
 ## 全站响应式导航（平台统一）
 

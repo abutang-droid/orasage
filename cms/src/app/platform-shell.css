@@ -1,0 +1,19 @@
+@import '../../../shared/design-tokens/orasage-tokens.css';
+@import '../lib/orasage-app-shell/app-shell.css';
+
+.cms-platform-shell {
+  min-height: 100dvh;
+  background: rgb(var(--background, 250 250 248));
+  color: rgb(var(--foreground, 23 23 23));
+}
+
+.cms-platform-main {
+  min-height: 0;
+}
+
+/* Payload 管理区在移动底栏之上留出空间 */
+@media (max-width: 1023px) {
+  .cms-platform-main .payload-admin {
+    padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px));
+  }
+}
