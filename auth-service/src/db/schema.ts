@@ -104,6 +104,13 @@ export const products = pgTable("products", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
+  id: serial("id").primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull().unique(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const userRecommendations = pgTable("user_recommendations", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),

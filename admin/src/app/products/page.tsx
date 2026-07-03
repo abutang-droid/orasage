@@ -1,6 +1,6 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
-import { getProducts } from '@/lib/api';
-import { saveProductAction } from '@/app/actions';
+import { getHomepageProducts, getProducts } from '@/lib/api';
+import { saveHomepageProductsAction, saveProductAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -9,16 +9,26 @@ const CATEGORIES = [
   { value: 'service', label: '能量咨询' },
 ] as const;
 
+const HOMEPAGE_SLOTS = 6;
+
 export default async function ProductsPage() {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
+  let homepageSkus: string[] = [];
   try {
     ({ products } = await getProducts());
   } catch (err) {
     console.error('[admin/products]', err);
   }
+  try {
+    ({ skus: homepageSkus } = await getHomepageProducts());
+  } catch (err) {
+    console.error('[admin/homepage-products]', err);
+  }
+
+  const activeProducts = products.filter((p) => p.active);
 
   return (
     <div className="admin-page">
@@ -26,6 +36,29 @@ export default async function ProductsPage() {
         <h1>商品管理</h1>
         <p className="muted">全平台统一商品目录，shop / bazi / tarot / main 共用 SKU</p>
       </header>
+
+      <section className="panel">
+        <h2>首页展示商品（最多 {HOMEPAGE_SLOTS} 个）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          配置 orasage.com 首页商城区块展示的商品。类别标签会根据所选商品自动出现，访客可切换筛选。
+        </p>
+        <form action={saveHomepageProductsAction} className="form-grid">
+          {Array.from({ length: HOMEPAGE_SLOTS }, (_, i) => (
+            <label key={i}>
+              位置 {i + 1}
+              <select name={`slot_${i}`} defaultValue={homepageSkus[i] ?? ''}>
+                <option value="">— 不展示 —</option>
+                {activeProducts.map((p) => (
+                  <option key={p.sku} value={p.sku}>
+                    [{p.categoryLabel}] {p.name} ({p.sku})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <button type="submit" className="btn-primary full-width">保存首页展示</button>
+        </form>
+      </section>
 
       <section className="panel">
         <h2>新增商品</h2>

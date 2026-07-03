@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { ELEMENT_TO_SKU, formatProduct } from "../lib/product-format.ts";
+import { resolveHomepageProducts } from "../lib/homepage-products.ts";
 
 export const productsRouter = Router();
 
@@ -24,6 +25,16 @@ productsRouter.get("/", async (req, res) => {
     .orderBy(asc(products.sortOrder), asc(products.id));
 
   res.json({ products: rows.map(formatProduct) });
+});
+
+productsRouter.get("/homepage", async (_req, res) => {
+  try {
+    const data = await resolveHomepageProducts();
+    res.json(data);
+  } catch (err) {
+    console.error("[products] homepage:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 productsRouter.get("/recommend/crystal", async (req, res) => {
