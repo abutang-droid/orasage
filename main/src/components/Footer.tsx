@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { buttonVariants, cn } from '@orasage/ui';
 
 export function Footer() {
   const t = useTranslations('footer');
@@ -15,13 +16,19 @@ export function Footer() {
         <div className="flex w-full justify-center gap-8 sm:w-auto sm:gap-6">
           <Link
             href="/privacy"
-            className="flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className={cn(
+              buttonVariants({ variant: 'ghost' }),
+              'px-1 font-normal text-muted-foreground hover:bg-transparent hover:text-primary active:bg-transparent active:text-primary',
+            )}
           >
             {t('privacy')}
           </Link>
           <Link
             href="/terms"
-            className="flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className={cn(
+              buttonVariants({ variant: 'ghost' }),
+              'px-1 font-normal text-muted-foreground hover:bg-transparent hover:text-primary active:bg-transparent active:text-primary',
+            )}
           >
             {t('terms')}
           </Link>
