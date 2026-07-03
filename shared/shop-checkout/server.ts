@@ -18,6 +18,8 @@ export type AppCheckoutInput = {
   planType?: string;
   successUrl?: string;
   cancelUrl?: string;
+  /** 转发 orasage_token，供 shop 内网 checkout 校验 userId */
+  cookieHeader?: string | null;
 };
 
 export type CheckoutResult = {
@@ -46,12 +48,17 @@ export async function resolveAuthUserId(cookieHeader: string | null): Promise<nu
 
 /** 内网调用 shop 结账 API */
 export async function proxyShopCheckout(input: AppCheckoutInput): Promise<CheckoutResult> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-real-ip': '127.0.0.1',
+  };
+  if (input.cookieHeader) {
+    headers.cookie = input.cookieHeader;
+  }
+
   const res = await fetch(`${SHOP_INTERNAL}/api/checkout`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-real-ip': '127.0.0.1',
-    },
+    headers,
     body: JSON.stringify({
       userId: input.userId,
       items: [{ sku: input.sku, quantity: input.quantity ?? 1 }],

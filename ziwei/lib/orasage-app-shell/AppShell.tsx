@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { isAppSubpage, type AppId } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
+import { OrasageAuthChip } from './OrasageAuthChip';
 import './app-shell.css';
 
 export type LocaleOption = { code: string; label: string };
@@ -33,8 +34,8 @@ export function AppShell({
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme}>
       <main className={`orasage-app-main${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}`}>
-        {showBack && (
-          <div className="orasage-page-toolbar">
+        <div className="orasage-page-toolbar">
+          {showBack ? (
             <button
               type="button"
               className="orasage-page-back"
@@ -46,8 +47,11 @@ export function AppShell({
               </svg>
               <span>{pickLabel(SHELL_LABELS.back, locale)}</span>
             </button>
-          </div>
-        )}
+          ) : (
+            <span className="orasage-page-toolbar-spacer" aria-hidden />
+          )}
+          <OrasageAuthChip locale={locale} />
+        </div>
         {children}
       </main>
 

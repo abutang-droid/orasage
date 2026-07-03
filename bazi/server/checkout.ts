@@ -31,6 +31,7 @@ export function registerCheckoutRoute(app: Express) {
         planType: body.planType,
         successUrl: body.successUrl,
         cancelUrl: body.cancelUrl,
+        cookieHeader: req.headers.cookie ?? null,
       });
       res.json(result);
     } catch (err) {
