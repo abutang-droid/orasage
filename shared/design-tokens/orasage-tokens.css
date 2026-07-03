@@ -35,6 +35,28 @@
   --orasage-control-h-sm: 36px;
   --orasage-control-h-md: 44px;
   --orasage-control-h-lg: 48px;
+
+  /* @orasage/ui semantic aliases */
+  --background: var(--orasage-background);
+  --foreground: var(--orasage-primary);
+  --card: var(--orasage-surface);
+  --card-foreground: var(--orasage-primary);
+  --popover: var(--orasage-surface);
+  --popover-foreground: var(--orasage-primary);
+  --primary: var(--orasage-gold);
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f4;
+  --secondary-foreground: var(--orasage-primary);
+  --muted: #f5f5f4;
+  --muted-foreground: var(--orasage-muted);
+  --accent: #f5f5f4;
+  --accent-foreground: var(--orasage-primary);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: var(--orasage-border);
+  --input: var(--orasage-surface);
+  --ring: var(--orasage-gold);
+  --radius: var(--orasage-radius-md);
 }
 
 /* 极淡纸质噪点 */

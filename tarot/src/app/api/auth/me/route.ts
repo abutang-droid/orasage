@@ -12,7 +12,7 @@ export async function GET() {
     if (auth) {
       const user = await prisma.user.findUnique({
         where: { id: auth.userId },
-        select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true },
+        select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true, meritTotal: true, meritLevel: true, streakDays: true, streakLongest: true, lastCheckinDate: true },
       })
       if (user) return NextResponse.json({ user })
     }
@@ -21,7 +21,7 @@ export async function GET() {
     const randomId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
     const user = await prisma.user.create({
       data: { id: randomId, nickname: "旅人", email: `${randomId}@manto.guest` },
-      select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true },
+      select: { id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true, occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true, meritTotal: true, meritLevel: true, streakDays: true, streakLongest: true, lastCheckinDate: true },
     })
     const token = await createToken({ userId: user.id, email: user.email ?? `${randomId}@manto.guest` })
     const res = NextResponse.json({ user })

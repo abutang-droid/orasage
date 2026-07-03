@@ -244,11 +244,17 @@ function WorshipScreen({ deity, onComplete }: { deity: Deity; onComplete: (durat
 }
 
 // ─── Blessing End Screen ───────────────────────────────────────────
-function BlessingScreen({ deity, duration, stage, onDone }: {
-  deity: Sanctuary; duration: number; stage: number; onDone: () => void
+function BlessingScreen({ deity, duration, stage, meritEarned, alreadyCheckedIn, levelUp, streakDays, onDone }: {
+  deity: Sanctuary
+  duration: number
+  stage: number
+  meritEarned: number
+  alreadyCheckedIn?: boolean
+  levelUp?: boolean
+  streakDays?: number
+  onDone: () => void
 }) {
   const peakLabel = stage === 3 ? "虔诚之巅" : stage === 2 ? "深度参拜" : "参拜完成"
-  const merit = stage === 3 ? 10 : stage === 2 ? 5 : 1
 
   return (
     <div className="animate-fade-in-up" style={{
@@ -310,7 +316,9 @@ function BlessingScreen({ deity, duration, stage, onDone }: {
         background: 'rgba(201,149,74,0.1)', padding: '6px 16px',
         borderRadius: 'var(--radius-pill)',
       }}>
-        +{merit} 功德
+        {alreadyCheckedIn ? '今日功德已记录' : `+${meritEarned} 功德`}
+        {levelUp ? ' · 升阶！' : ''}
+        {streakDays && streakDays > 1 ? ` · 连续 ${streakDays} 天` : ''}
       </div>
 
       {/* Actions */}
@@ -337,23 +345,33 @@ function BlessingScreen({ deity, duration, stage, onDone }: {
 
 // ─── Main Temple Page ──────────────────────────────────────────────
 export default function TemplePage() {
-  const { user, setFaith } = useUser()
+  const { user, setFaith, setDeity } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
   const [selectedDeity, setSelectedDeity] = useState<Sanctuary | null>(null)
   const [savedDeity, setSavedDeity] = useState<Sanctuary | null>(null)
   const [sanctuaries, setSanctuaries] = useState<Sanctuary[]>([])
   const [sanctuariesLoading, setSanctuariesLoading] = useState(false)
   const [phase, setPhase] = useState<TemplePhase>("faith")
-  const [blessingData, setBlessingData] = useState<{ duration: number; stage: number } | null>(null)
+  const [blessingData, setBlessingData] = useState<{
+    duration: number
+    stage: number
+    meritEarned: number
+    alreadyCheckedIn?: boolean
+    levelUp?: boolean
+    streakDays?: number
+  } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [worshipSaving, setWorshipSaving] = useState(false)
 
   useEffect(() => {
     const storedFaith = loadStoredFaith() || user?.faith || null
     if (storedFaith) {
       setSelectedFaith(storedFaith)
       setPhase("select")
+    } else if (!user?.onboardingCompleted) {
+      setPhase("faith")
     }
-  }, [user?.faith])
+  }, [user?.faith, user?.onboardingCompleted])
 
   useEffect(() => {
     if (phase !== "select") return
@@ -392,13 +410,47 @@ export default function TemplePage() {
     setSelectedDeity(deity)
     localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
     setSavedDeity(deity)
+    void setDeity(deity.id)
     setPhase("worship")
-  }, [])
+  }, [setDeity])
 
-  const handleWorshipComplete = useCallback((duration: number, stage: number) => {
-    setBlessingData({ duration, stage })
-    setPhase("blessing")
-  }, [])
+  const handleWorshipComplete = useCallback(async (duration: number, stage: number) => {
+    if (!selectedDeity || worshipSaving) return
+    setWorshipSaving(true)
+    try {
+      const res = await fetch("/api/temple", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deityCode: selectedDeity.id,
+          deityName: selectedDeity.name,
+          faithCode: selectedFaith,
+          worshipStage: stage,
+          durationSec: duration,
+          markOnboardingComplete: !user?.onboardingCompleted,
+        }),
+      })
+      const data = res.ok ? await res.json() : null
+      setBlessingData({
+        duration,
+        stage,
+        meritEarned: data?.meritEarned ?? (stage === 3 ? 10 : stage === 2 ? 5 : 1),
+        alreadyCheckedIn: data?.alreadyCheckedIn,
+        levelUp: data?.levelUp,
+        streakDays: data?.streakDays ?? data?.summary?.streak,
+      })
+      setPhase("blessing")
+    } catch {
+      setBlessingData({
+        duration,
+        stage,
+        meritEarned: stage === 3 ? 10 : stage === 2 ? 5 : 1,
+      })
+      setPhase("blessing")
+    } finally {
+      setWorshipSaving(false)
+    }
+  }, [selectedDeity, selectedFaith, user?.onboardingCompleted, worshipSaving])
 
   const handleBlessingDone = useCallback(() => {
     setPhase("select")
@@ -581,6 +633,10 @@ export default function TemplePage() {
           deity={selectedDeity}
           duration={blessingData.duration}
           stage={blessingData.stage}
+          meritEarned={blessingData.meritEarned}
+          alreadyCheckedIn={blessingData.alreadyCheckedIn}
+          levelUp={blessingData.levelUp}
+          streakDays={blessingData.streakDays}
           onDone={handleBlessingDone}
         />
       </div>

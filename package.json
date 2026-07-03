@@ -7,7 +7,8 @@
   "scripts": {
     "build:ui": "npm run build -w @orasage/ui",
     "build:tokens": "npm run build -w @orasage/tokens",
-    "sync:auth-ui-css": "cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css && sed -i '1,/^$/d' auth-service/public/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — tokens via style.css */' auth-service/public/assets/orasage-ui.css"
+    "sync:auth-ui-css": "cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css && sed -i '1,/^$/d' auth-service/public/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — tokens via style.css */' auth-service/public/assets/orasage-ui.css",
+    "sync:fortune-ui-css": "npm run sync:auth-ui-css && mkdir -p bazi/client/src/assets ziwei/app/assets && tail -n +7 packages/ui/src/styles/components.css > bazi/client/src/assets/orasage-ui.css && cp bazi/client/src/assets/orasage-ui.css ziwei/app/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — load after orasage-tokens */' bazi/client/src/assets/orasage-ui.css ziwei/app/assets/orasage-ui.css"
   },
   "engines": {
     "node": ">=20"
