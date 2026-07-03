@@ -89,7 +89,7 @@
   }
 
   .prose-sage {
-    @apply text-[15px] leading-relaxed text-sage-muted sm:text-base;
+    @apply max-w-none text-[15px] leading-relaxed text-foreground sm:text-base;
   }
 
   .prose-sage :where(p, ul, ol, blockquote) {
@@ -97,19 +97,40 @@
   }
 
   .prose-sage :where(h1, h2, h3, h4) {
-    @apply mt-8 mb-3 font-serif text-sage-gold;
+    @apply mt-8 mb-3 font-serif text-foreground;
   }
 
-  .prose-sage :where(h1) { @apply text-2xl; }
-  .prose-sage :where(h2) { @apply text-xl; }
-  .prose-sage :where(h3) { @apply text-lg; }
+  .prose-sage :where(h1) { @apply text-2xl leading-snug; }
+  .prose-sage :where(h2) { @apply text-xl leading-snug; }
+  .prose-sage :where(h3) { @apply text-lg leading-snug; }
+  .prose-sage :where(h4) { @apply text-base leading-snug; }
+
+  .prose-sage :where(ul, ol) {
+    @apply ps-5;
+  }
+
+  .prose-sage :where(li) {
+    @apply my-2;
+  }
+
+  .prose-sage :where(blockquote) {
+    @apply border-s-2 border-primary/50 ps-4 text-muted-foreground;
+  }
 
   .prose-sage :where(a) {
-    @apply text-sage-gold underline-offset-2 hover:underline;
+    @apply text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .prose-sage :where(img) {
-    @apply my-4 max-w-full rounded-lg;
+    @apply my-4 h-auto max-w-full rounded-md border border-border;
+  }
+
+  .prose-sage :where(pre, code) {
+    @apply rounded-md bg-muted text-foreground;
+  }
+
+  .prose-sage :where(pre) {
+    @apply my-4 overflow-x-auto p-4 text-sm;
   }
 
   .legacy-html-article :where(img[width], img[height]) {
