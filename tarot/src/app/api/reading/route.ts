@@ -1,15 +1,40 @@
 import { NextRequest, NextResponse } from "next/server"
 import { drawCards } from "@/lib/tarot/draw"
+import { getAuthUser } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { getFreeReadingsRemaining, resolveReadingAccess } from "@/lib/free-readings"
+
+export async function GET() {
+  const auth = await getAuthUser()
+  if (!auth) {
+    return NextResponse.json({ freeReadingsRemaining: null, requiresAuth: false })
+  }
+  const remaining = await getFreeReadingsRemaining(auth.userId)
+  return NextResponse.json({ freeReadingsRemaining: remaining, requiresAuth: true })
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { question = "", spreadType = "three" } = body
+    const { question = "", spreadType = "three", orderNo = null } = body
+
+    const auth = await getAuthUser()
+    const access = await resolveReadingAccess(auth?.userId ?? null, orderNo)
+    if (!access.ok) {
+      return NextResponse.json(
+        {
+          error: "paywall",
+          freeReadingsRemaining: 0,
+          sku: access.sku,
+        },
+        { status: 402 },
+      )
+    }
 
     const spreadKey = spreadType === "single" ? "single" : "three"
     const result = drawCards(spreadKey, question || "今日整体运势")
 
-    const cards = result.cards.map((c, i) => {
+    const cards = result.cards.map((c) => {
       const pos = c.position
       return {
         position: pos,
@@ -27,11 +52,24 @@ export async function POST(req: NextRequest) {
 
     const readingId = `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
+    if (auth) {
+      await prisma.readingRecord.create({
+        data: {
+          userId: auth.userId,
+          spreadType: spreadKey,
+          question: question || "今日整体运势",
+          cards,
+        },
+      })
+    }
+
     return NextResponse.json({
       readingId,
       cards,
       question: question || "今日整体运势",
-      free: true,
+      free: access.source !== "paid_order",
+      accessSource: access.source,
+      freeReadingsRemaining: auth ? access.remaining : null,
     })
   } catch (error) {
     console.error("Reading API error:", error)

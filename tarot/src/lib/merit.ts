@@ -137,3 +137,15 @@ export function onboardingDayBonus(checkinCount: number): number {
   if (checkinCount === 7) return 30;
   return 0;
 }
+
+/** 持光者及以上每月免费占卜次数（MANTO_PRODUCT.md §C3） */
+export const LEVEL_MONTHLY_FREE_READINGS: Record<number, number> = {
+  2: 1,
+  3: 2,
+  4: 2,
+};
+
+export const FREE_READING_GRANTS = {
+  initial: 1,
+  worshipDay7: 1,
+} as const;
