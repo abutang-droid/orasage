@@ -178,6 +178,9 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "Política de Privacidade",
   "footer.support_desc": "Múltiplos métodos de pagamento seguros. Seus dados são criptografados e protegidos.",
   "footer.copyright": "Todos os direitos reservados.",
+  "footer.portal.copyright": "© 2026 OraSage. Todos os direitos reservados.",
+  "footer.portal.privacy": "Política de Privacidade",
+  "footer.portal.terms": "Termos de Serviço",
 
   "city.longitude_east": "L",
   "city.longitude_west": "O",

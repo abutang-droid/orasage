@@ -21,7 +21,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
-import { AppBrandMark } from "@/lib/orasage-app-shell/AppBrandMark";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, PRIMARY, PRIMARY_HOVER, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -732,7 +731,6 @@ export default function Home() {
   return (
     <div className="w-full" style={{ background: "transparent" }}>
       <div className="w-full mx-auto" style={{ maxWidth: "480px", background: "transparent", minHeight: "auto" }}>
-        {view === "form" && <AppBrandMark appId="bazi" />}
 
         {/* ── 内容 ── */}
         <div className="px-4">

@@ -178,6 +178,9 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "隱私政策",
   "footer.support_desc": "支援多種安全支付方式，資料加密保護您的隱私。",
   "footer.copyright": "保留所有權利。",
+  "footer.portal.copyright": "© 2026 OraSage. 保留所有權利。",
+  "footer.portal.privacy": "隱私政策",
+  "footer.portal.terms": "服務條款",
 
   "city.longitude_east": "東經",
   "city.longitude_west": "西經",

@@ -180,6 +180,9 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "Privacy Policy",
   "footer.support_desc": "Multiple secure payment methods. Your data is encrypted and protected.",
   "footer.copyright": "All rights reserved.",
+  "footer.portal.copyright": "© 2026 OraSage. All rights reserved.",
+  "footer.portal.privacy": "Privacy Policy",
+  "footer.portal.terms": "Terms of Service",
 
   "city.longitude_east": "E",
   "city.longitude_west": "W",

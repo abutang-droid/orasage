@@ -215,6 +215,9 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "隐私政策",
   "footer.support_desc": "支持多种安全支付方式，数据加密保护您的隐私。",
   "footer.copyright": "保留所有权利。",
+  "footer.portal.copyright": "© 2026 OraSage. 保留所有权利。",
+  "footer.portal.privacy": "隐私政策",
+  "footer.portal.terms": "服务条款",
 };
 
 export default ui;
