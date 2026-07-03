@@ -1,12 +1,14 @@
 'use client';
 
 import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
+import type { HomeHeroContent } from '@/lib/cms-home-hero';
 import type { HomepageCatalog, ProductCategory } from '@/lib/shop-products';
+import { HomeHeroVideo } from '@/components/HomeHeroVideo';
 import { cn } from '@/lib/utils';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
@@ -51,6 +53,14 @@ const CATEGORY_STYLES: Record<ProductCategory, CSSProperties> = {
   },
 };
 
+function ModuleTitle({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="mb-3 font-serif text-lg font-medium tracking-wide text-foreground sm:mb-4 sm:text-xl">
+      {children}
+    </h2>
+  );
+}
+
 function productBadgeStyle(element?: string | null, category?: ProductCategory): CSSProperties {
   if (element && ELEMENT_STYLES[element]) return ELEMENT_STYLES[element];
   if (category && CATEGORY_STYLES[category]) return CATEGORY_STYLES[category];
@@ -68,42 +78,49 @@ function productBadgeLabel(
   return categoryLabel.slice(0, 2);
 }
 
-export function Hero() {
-  const t = useTranslations('hero');
+export function Hero({ hero }: { hero: HomeHeroContent }) {
+  if (!hero.enabled) return null;
+
+  const showImage = hero.displayMode === 'image' && hero.imageUrl;
+  const showVideo = hero.displayMode === 'video' && hero.videoUrl;
 
   return (
-    <section className="home-hero orasage-grain relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-20%,rgb(var(--brand-primary)/0.09),transparent_55%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_45%_at_100%_100%,rgb(var(--brand-gold)/0.07),transparent_60%)]"
-        aria-hidden
-      />
+    <section className="home-hero relative overflow-hidden">
+      {showVideo ? (
+        <HomeHeroVideo
+          src={hero.videoUrl!}
+          poster={hero.videoPosterUrl}
+          autoplay={hero.videoAutoplay}
+        />
+      ) : null}
 
-      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-8 pt-6 text-center sm:px-6 sm:pb-12 sm:pt-10 md:pb-14 md:pt-12">
-        <p className="home-eyebrow">OraSage</p>
+      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-8 pt-6 text-center sm:px-6 sm:pb-10 sm:pt-8">
+        {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
         <h1 className="mt-2 font-serif text-[1.65rem] font-light leading-[1.2] tracking-wide text-foreground sm:mt-3 sm:text-[2.5rem] md:text-[2.75rem]">
-          {t('title')}
+          {hero.headline}
         </h1>
 
-        <p className="mx-auto mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-base">
-          {t('subtitle')}
-        </p>
+        {hero.subtitle ? (
+          <p className="mx-auto mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-base">
+            {hero.subtitle}
+          </p>
+        ) : null}
 
-        <div
-          className="mx-auto mt-5 h-px w-12 bg-gradient-to-r from-transparent via-brand-gold/45 to-transparent sm:mt-6"
-          aria-hidden
-        />
+        {showImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={hero.imageUrl!}
+            alt=""
+            className="mx-auto mt-4 max-h-52 w-auto max-w-full rounded-lg object-contain sm:mt-5"
+          />
+        ) : null}
 
-        <a
-          href="#tools"
-          className={cn(buttonVariants({ size: 'lg' }), 'mt-5 w-full max-w-xs shadow-surface-1 sm:mt-6 sm:w-auto')}
-        >
-          {t('cta')}
-        </a>
+        {hero.bodyText ? (
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {hero.bodyText}
+          </p>
+        ) : null}
       </div>
     </section>
   );
@@ -114,6 +131,7 @@ export function ToolCards() {
 
   return (
     <section id="tools" className="home-section">
+      <ModuleTitle>{t('title')}</ModuleTitle>
       <div className="flex flex-col gap-3 sm:gap-4 md:grid md:grid-cols-3 md:gap-4">
         {toolKeys.map((key, index) => (
           <a
@@ -166,9 +184,11 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
   );
 
   return (
-    <section id="shop" className="home-section home-section--band" aria-label={t('title')}>
-      {categories.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-center">
+    <section id="shop" className="home-section">
+      <ModuleTitle>{t('title')}</ModuleTitle>
+
+      <div className="home-shop-toolbar mb-4 flex items-center gap-3 sm:mb-5">
+        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => {
             const active = currentCategory === cat.id;
             return (
@@ -186,9 +206,18 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
             );
           })}
         </div>
-      )}
+        <a
+          href={externalUrls.shop}
+          className={cn(
+            buttonVariants({ variant: 'outline', size: 'sm' }),
+            'home-shop-more shrink-0 whitespace-nowrap',
+          )}
+        >
+          {t('cta')} →
+        </a>
+      </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:grid-cols-3 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-4">
         {visible.map((item) => (
           <a
             key={item.sku}
@@ -216,15 +245,6 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
           </a>
         ))}
       </div>
-
-      <div className="mt-5 flex justify-center sm:mt-6">
-        <a
-          href={externalUrls.shop}
-          className={cn(buttonVariants({ variant: 'outline', size: 'default' }), 'w-full max-w-sm bg-card/80 sm:w-auto')}
-        >
-          {t('cta')} →
-        </a>
-      </div>
     </section>
   );
 }
@@ -234,6 +254,7 @@ export function ContentSections() {
 
   return (
     <section className="home-section home-section--tail">
+      <ModuleTitle>{t('moduleTitle')}</ModuleTitle>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <Link
           href="/famous"

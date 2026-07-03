@@ -36,7 +36,7 @@
   "shop": {
     "title": "Energy Shop",
     "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
-    "cta": "Visit Shop",
+    "cta": "More products",
     "products": {
       "wood": {
         "name": "Green Phantom",
@@ -76,7 +76,8 @@
     "daozang": "Dao Canon",
     "daozangDesc": "Taoist classics, timeless wisdom",
     "comingSoon": "Coming soon",
-    "explore": "Explore"
+    "explore": "Explore",
+    "moduleTitle": "Featured reading"
   },
   "footer": {
     "privacy": "Privacy",
