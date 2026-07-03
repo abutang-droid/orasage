@@ -7,7 +7,7 @@ import { usePriceFetcher } from "@/lib/priceFetcher";
 
 import {
   GOLD, GOLD_LIGHT, GOLD_DIM, GOLD_FAINT, GOLD_GHOST,
-  HEADING, BODY_CLR, MUTED_CLR, BG_PAGE, BG_CARD, BORDER_CLR, SERIF_F, SANS_F,
+  HEADING, BODY_CLR, MUTED_CLR, BG_PAGE, BG_CARD, BORDER_CLR, SERIF_F, SANS_F, TRACK_BG,
 } from "@/theme";
 
 const SERIF = SERIF_F;
@@ -129,7 +129,7 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
       className="fixed inset-0 z-50 flex items-center justify-center"
       onClick={onClose}
       style={{
-        background: "rgba(14,12,9,0.65)",
+        background: "var(--orasage-overlay-scrim)",
         backdropFilter: "blur(4px)",
         WebkitBackdropFilter: "blur(4px)",
       }}
@@ -144,7 +144,7 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
           background: BG_CARD,
           borderRadius: "20px",
           border: `1px solid ${BORDER_CLR}`,
-          boxShadow: "0 8px 48px rgba(46,41,91,0.15)",
+          boxShadow: "var(--os-shadow-surface-3)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -186,10 +186,10 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
               className="relative flex flex-col rounded-xl overflow-hidden transition-all duration-200"
               style={{
                 border: `1px solid ${selectedPlan === plan.type ? GOLD : GOLD_FAINT}`,
-                background: selectedPlan === plan.type ? "rgba(196,160,78,0.04)" : BG_CARD,
+                background: selectedPlan === plan.type ? TRACK_BG : BG_CARD,
                 boxShadow: selectedPlan === plan.type
-                  ? `0 0 0 1px ${GOLD}, 0 4px 16px rgba(196,160,78,0.12)`
-                  : "0 1px 4px rgba(46,41,91,0.04)",
+                  ? `0 0 0 1px ${GOLD}, var(--os-shadow-surface-2)`
+                  : "var(--os-shadow-surface-1)",
               }}
             >
               {/* Popular 标签 */}
@@ -260,7 +260,7 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
                     fontFamily: SERIF,
                     letterSpacing: "0.18em",
                     boxShadow: selectedPlan === plan.type
-                      ? `0 4px 16px rgba(196,160,78,0.35)`
+                      ? "var(--os-shadow-surface-2)"
                       : "none",
                   }}
                 >

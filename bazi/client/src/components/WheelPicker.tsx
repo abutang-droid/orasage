@@ -14,8 +14,8 @@ interface WheelPickerProps {
 }
 
 import {
-  GOLD, GOLD_GHOST, HEADING, BODY_CLR, MUTED_CLR,
-  BG_PAGE, BG_CARD, BORDER_CLR, SANS_F,
+  GOLD, GOLD_GHOST, GOLD_DIM, HEADING, BODY_CLR, MUTED_CLR,
+  BG_PAGE, BG_CARD, BORDER_CLR, SANS_F, TRACK_BG, DIVIDER_SUBTLE, TEXT_FAINT,
 } from "@/theme";
 
 const ERR_CLR = "#dc2626";
@@ -274,12 +274,12 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
   const btnStyle = (active: boolean, hasValue: boolean) => ({
     flex: 1,
     padding: '8px 6px',
-    background: active ? 'rgba(200,168,75,0.12)' : 'rgba(255,255,255,0.03)',
-    border: `1px solid ${active ? 'rgba(200,168,75,0.7)' : 'rgba(200,168,75,0.25)'}`,
-    borderRadius: '6px',
-    color: hasValue ? 'rgba(240,208,128,0.9)' : 'rgba(200,168,75,0.35)',
+    background: active ? TRACK_BG : BG_CARD,
+    border: `1px solid ${active ? GOLD : BORDER_CLR}`,
+    borderRadius: 'var(--os-radius-btn, 0.75rem)',
+    color: hasValue ? HEADING : MUTED_CLR,
     fontSize: '12px',
-    fontFamily: "'Noto Serif SC', serif",
+    fontFamily: SANS_F,
     cursor: 'pointer',
     transition: 'all 0.2s',
     textAlign: 'center' as const,
@@ -317,25 +317,25 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
           className="absolute left-0 right-0 z-50 rounded-lg overflow-hidden"
           style={{
             bottom: 'calc(100% + 4px)',
-            background: 'rgba(14,12,8,0.97)',
-            border: '1px solid rgba(200,168,75,0.35)',
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.6)',
+            background: BG_CARD,
+            border: `1px solid ${BORDER_CLR}`,
+            boxShadow: 'var(--os-shadow-surface-2)',
           }}
         >
-          <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(200,168,75,0.15)' }}>
+          <div className="px-3 py-2" style={{ borderBottom: `1px solid ${BORDER_CLR}` }}>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={getPlaceholder()}
               className="w-full bg-transparent text-sm outline-none"
-              style={{ color: 'rgba(240,208,128,0.8)', caretColor: '#c8a84b' }}
+              style={{ color: GOLD, caretColor: GOLD }}
               autoFocus
             />
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: '200px' }}>
             {getFilteredList().length === 0 ? (
-              <div className="px-3 py-3 text-xs text-center" style={{ color: 'rgba(200,168,75,0.4)' }}>无匹配结果</div>
+              <div className="px-3 py-3 text-xs text-center" style={{ color: TEXT_FAINT }}>无匹配结果</div>
             ) : (
               getFilteredList().map((item) => {
                 const isSelected = item === getSelectedForStep(step);
@@ -346,11 +346,11 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
                     onClick={() => handleSelect(item)}
                     className="w-full text-left px-3 py-2.5 text-sm transition-colors duration-150"
                     style={{
-                      color: isSelected ? '#f0d080' : 'rgba(200,168,75,0.65)',
-                      background: isSelected ? 'rgba(200,168,75,0.12)' : 'transparent',
-                      fontFamily: "'Noto Serif SC', serif",
+                      color: isSelected ? GOLD : GOLD_DIM,
+                      background: isSelected ? TRACK_BG : 'transparent',
+                      fontFamily: SANS_F,
                     }}
-                    onMouseEnter={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(200,168,75,0.06)'; }}
+                    onMouseEnter={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = TRACK_BG; }}
                     onMouseLeave={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   >
                     {item}
@@ -399,14 +399,14 @@ export function ListPicker({ options, value, onChange, placeholder }: ListPicker
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-3 py-2.5 rounded text-sm transition-all duration-200"
         style={{
-          background: open ? "rgba(200,168,75,0.08)" : "rgba(255,255,255,0.04)",
-          border: `1px solid ${open ? "rgba(200,168,75,0.6)" : "rgba(200,168,75,0.3)"}`,
-          color: value ? "rgba(240,208,128,0.9)" : "rgba(200,168,75,0.35)",
+          background: open ? TRACK_BG : BG_CARD,
+          border: `1px solid ${open ? GOLD : BORDER_CLR}`,
+          color: value ? HEADING : MUTED_CLR,
         }}
       >
         <span>{value || placeholder || "请选择"}</span>
         <svg
-          width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.6)"
+          width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
         >
@@ -419,25 +419,25 @@ export function ListPicker({ options, value, onChange, placeholder }: ListPicker
           className="absolute left-0 right-0 z-50 rounded-lg overflow-hidden animate-fade-in"
           style={{
             bottom: "calc(100% + 4px)",
-            background: "rgba(14,12,8,0.97)",
-            border: "1px solid rgba(200,168,75,0.35)",
-            boxShadow: "0 -8px 32px rgba(0,0,0,0.6)",
+            background: BG_CARD,
+            border: `1px solid ${BORDER_CLR}`,
+            boxShadow: "var(--os-shadow-surface-2)",
           }}
         >
-          <div className="px-3 py-2" style={{ borderBottom: "1px solid rgba(200,168,75,0.15)" }}>
+          <div className="px-3 py-2" style={{ borderBottom: `1px solid ${BORDER_CLR}` }}>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="搜索省份..."
               className="w-full bg-transparent text-sm outline-none"
-              style={{ color: "rgba(240,208,128,0.8)", caretColor: "#c8a84b" }}
+              style={{ color: GOLD, caretColor: GOLD }}
               autoFocus
             />
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: "200px" }}>
             {filtered.length === 0 ? (
-              <div className="px-3 py-3 text-xs text-center" style={{ color: "rgba(200,168,75,0.4)" }}>无匹配结果</div>
+              <div className="px-3 py-3 text-xs text-center" style={{ color: TEXT_FAINT }}>无匹配结果</div>
             ) : (
               filtered.map((opt) => (
                 <button
@@ -446,10 +446,10 @@ export function ListPicker({ options, value, onChange, placeholder }: ListPicker
                   onClick={() => { onChange(opt); setOpen(false); setSearch(""); }}
                   className="w-full text-left px-3 py-2.5 text-sm transition-colors duration-150"
                   style={{
-                    color: opt === value ? "#f0d080" : "rgba(200,168,75,0.65)",
-                    background: opt === value ? "rgba(200,168,75,0.12)" : "transparent",
+                    color: opt === value ? GOLD : GOLD_DIM,
+                    background: opt === value ? TRACK_BG : "transparent",
                   }}
-                  onMouseEnter={(e) => { if (opt !== value) (e.target as HTMLElement).style.background = "rgba(200,168,75,0.06)"; }}
+                  onMouseEnter={(e) => { if (opt !== value) (e.target as HTMLElement).style.background = TRACK_BG; }}
                   onMouseLeave={(e) => { if (opt !== value) (e.target as HTMLElement).style.background = "transparent"; }}
                 >
                   {opt}

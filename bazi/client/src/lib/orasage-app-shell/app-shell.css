@@ -17,33 +17,32 @@
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: rgb(247, 243, 234);
+  --shell-bg: #fafaf8;
   --shell-surface: rgba(255, 255, 255, 0.96);
-  --shell-border: rgb(var(--os-rgb-ivory-300) / 0.85);
-  --shell-border-subtle: rgb(var(--os-rgb-ivory-100));
-  --shell-text: rgb(var(--os-rgb-ink-900));
-  --shell-muted: rgb(var(--os-rgb-ink-500));
-  --shell-gold: var(--orasage-brand-gold, #d0b47a);
+  --shell-border: #e7e5e4;
+  --shell-border-subtle: #fafaf8;
+  --shell-text: #171717;
+  --shell-muted: #6b7280;
+  --shell-gold: #171717;
 }
 
-/* 八字页：顶栏品牌/登录与纸底拉开对比 */
 .orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-mobile-bar-brand,
 .orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-topnav-brand {
-  color: rgb(var(--os-rgb-ink-900));
-  font-weight: 500;
+  color: #171717;
+  font-weight: 600;
 }
 
 .orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip {
-  color: rgb(var(--os-rgb-jade-600));
-  border-color: rgb(var(--os-rgb-jade-500) / 0.45);
+  color: #171717;
+  border-color: #e7e5e4;
   background: #fff;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.06);
+  font-weight: 500;
+  box-shadow: var(--os-shadow-surface-1, 0 1px 2px rgb(0 0 0 / 0.04));
 }
 
 .orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip:hover {
-  border-color: rgb(var(--os-rgb-jade-500) / 0.7);
-  background: rgb(var(--os-rgb-jade-500) / 0.08);
+  border-color: #171717;
+  background: #fafaf8;
 }
 
 .orasage-app-topbar-start {

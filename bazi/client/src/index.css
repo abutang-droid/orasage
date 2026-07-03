@@ -8,110 +8,79 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── Google Fonts 已在 index.html 中引入 ── */
-
 /* ══════════════════════════════════════════════════════════════
-   OraSage Design System — 极简克制浅色
+   Bazi — DS v1.1 Revised (monochrome, shared tokens)
    ══════════════════════════════════════════════════════════════ */
 :root {
-  --gold:          var(--orasage-brand-gold);
-  --gold-light:    var(--orasage-gold-light);
-  --gold-bright:   var(--orasage-brand-gold);
-  --gold-faint:    var(--orasage-gold-border);
-  --gold-ghost:    var(--orasage-gold-pale);
-  --gold-glow:     rgb(var(--brand-gold) / 0.15);
+  --gold: var(--orasage-brand-gold);
+  --gold-light: var(--orasage-gold-light);
+  --gold-faint: var(--orasage-gold-border);
+  --gold-ghost: var(--orasage-gold-pale);
+  --gold-glow: rgb(var(--brand-gold) / 0.12);
 
-  --heading:       var(--orasage-text-primary);
-  --body:          var(--orasage-text-secondary);
-  --muted-text:    var(--orasage-text-muted);
+  --heading: var(--orasage-text-primary);
+  --body: var(--orasage-text-secondary);
+  --muted-text: var(--orasage-text-muted);
 
-  --ink-deep:      rgb(var(--os-rgb-ink-950));
-  --ink-border:    rgb(var(--brand-gold) / 0.2);
+  --ink-deep: var(--os-color-mono-black);
+  --ink-border: var(--os-color-mono-gray-light);
 
-  --bg-page:       var(--orasage-background);
-  --bg-card:       var(--orasage-surface);
-  --bg-white:      rgb(var(--popover));
-  --border-color:  var(--orasage-border);
+  --bg-page: var(--orasage-background);
+  --bg-card: var(--orasage-surface);
+  --bg-white: rgb(var(--card));
+  --border-color: var(--orasage-border);
 
-  --font-serif: var(--orasage-font-serif, 'Noto Serif SC', serif);
-  --font-sans:  var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
+  --font-serif: var(--orasage-font-serif);
+  --font-sans: var(--orasage-font-sans);
 
-  --radius: 0.75rem;
-  --background:              var(--bg-page);
-  --foreground:              var(--heading);
-  --card:                    var(--bg-card);
-  --card-foreground:         var(--heading);
-  --popover:                 rgb(var(--os-rgb-ivory-50));
-  --popover-foreground:      var(--heading);
-  --primary:                 var(--orasage-brand-primary);
-  --primary-foreground:      rgb(var(--os-rgb-ivory-50));
-  --secondary:               rgb(var(--os-rgb-ivory-100));
-  --secondary-foreground:    var(--heading);
-  --muted:                   rgb(var(--os-rgb-ivory-100));
-  --muted-foreground:        var(--muted-text);
-  --accent:                  rgb(var(--os-rgb-brass-300));
-  --accent-foreground:       var(--heading);
-  --destructive:             rgb(var(--os-rgb-status-error));
-  --destructive-foreground:  rgb(var(--os-rgb-ink-900));
-  --border:                  var(--border-color);
-  --input:                   var(--border-color);
-  --ring:                    var(--orasage-focus-ring);
-  --sidebar:                 var(--bg-card);
-  --sidebar-foreground:      var(--heading);
-  --sidebar-primary:         var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent:          var(--muted);
-  --sidebar-accent-foreground: var(--heading);
-  --sidebar-border:          var(--border-color);
-  --sidebar-ring:            var(--ring);
-  --chart-1: var(--orasage-brand-gold);
-  --chart-2: var(--orasage-brand-purple);
-  --chart-3: var(--orasage-brand-primary);
-  --chart-4: var(--os-color-element-fire);
-  --chart-5: var(--os-color-element-water);
+  --radius: var(--os-radius-btn);
 
-  /* ── Tailwind 颜色映射 ── */
-  --color-background:                var(--background);
-  --color-foreground:                var(--foreground);
-  --color-card:                      var(--card);
-  --color-card-foreground:           var(--card-foreground);
-  --color-popover:                   var(--popover);
-  --color-popover-foreground:        var(--popover-foreground);
-  --color-primary:                   var(--primary);
-  --color-primary-foreground:        var(--primary-foreground);
-  --color-secondary:                 var(--secondary);
-  --color-secondary-foreground:      var(--secondary-foreground);
-  --color-muted:                     var(--muted);
-  --color-muted-foreground:          var(--muted-foreground);
-  --color-accent:                    var(--accent);
-  --color-accent-foreground:         var(--accent-foreground);
-  --color-destructive:               var(--destructive);
-  --color-destructive-foreground:    var(--destructive-foreground);
-  --color-border:                    var(--border);
-  --color-input:                     var(--input);
-  --color-ring:                      var(--ring);
-  --color-sidebar:                   var(--sidebar);
-  --color-sidebar-foreground:        var(--sidebar-foreground);
-  --color-sidebar-primary:           var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent:            var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border:            var(--sidebar-border);
-  --color-sidebar-ring:              var(--sidebar-ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 4px);
-  --radius-xl: calc(var(--radius) + 8px);
+  --background: var(--os-rgb-mono-bg);
+  --foreground: var(--os-rgb-mono-black);
+  --card: var(--os-rgb-mono-white);
+  --card-foreground: var(--os-rgb-mono-black);
+  --popover: var(--os-rgb-mono-white);
+  --popover-foreground: var(--os-rgb-mono-black);
+  --primary: var(--os-rgb-mono-black);
+  --primary-foreground: var(--os-rgb-mono-white);
+  --secondary: var(--os-rgb-mono-white);
+  --secondary-foreground: var(--os-rgb-mono-black);
+  --muted: var(--os-rgb-mono-bg);
+  --muted-foreground: var(--os-rgb-mono-gray-deep);
+  --accent: var(--os-rgb-mono-gray-deep);
+  --accent-foreground: var(--os-rgb-mono-white);
+  --destructive: var(--os-rgb-status-error);
+  --destructive-foreground: var(--os-rgb-mono-white);
+  --border: var(--os-rgb-mono-gray-light);
+  --input: var(--os-rgb-mono-white);
+  --ring: var(--os-rgb-mono-black);
+  --placeholder: var(--os-rgb-mono-gray-mid);
+
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --radius-sm: var(--os-radius-sm);
+  --radius-md: var(--os-radius-btn);
+  --radius-lg: var(--os-radius-card);
+  --radius-xl: var(--os-radius-xl);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   Base Reset
-   ══════════════════════════════════════════════════════════════ */
 @layer base {
   * {
     border-color: var(--color-border);
@@ -128,7 +97,8 @@
     background-color: var(--bg-page);
     color: var(--body);
     font-family: var(--font-sans);
-    line-height: 1.65;
+    line-height: var(--os-line-body, 1.6);
+    letter-spacing: var(--os-letter-wide, 0.02em);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -136,7 +106,8 @@
   h1, h2, h3, h4 {
     font-family: var(--font-serif);
     color: var(--heading);
-    line-height: 1.25;
+    font-weight: 700;
+    line-height: var(--os-line-heading-3, 1.4);
   }
 
   h5, h6 {
@@ -146,12 +117,13 @@
   }
 
   a {
-    color: var(--gold);
+    color: var(--heading);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color var(--os-motion-fast, 200ms) var(--os-ease-standard);
   }
+
   a:hover {
-    color: var(--gold-light);
+    color: var(--muted-text);
   }
 
   button:not(:disabled),
@@ -164,9 +136,6 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   Components
-   ══════════════════════════════════════════════════════════════ */
 @layer components {
   .container {
     width: 100%;
@@ -182,26 +151,23 @@
     min-width: 0;
   }
 
-  /* ── OraSage 卡片（墨金版）── */
   .ora-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    border-radius: var(--os-radius-card);
+    box-shadow: var(--os-shadow-surface-1);
   }
 
-  /* ── 金色分隔线 ── */
   .gold-rule {
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--gold-faint), transparent);
+    height: 0.5px;
+    background: var(--border-color);
     margin: 1.25rem 0;
   }
 
-  /* ── 区块标题 ── */
   .section-label {
     font-family: var(--font-serif);
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
+    font-size: 0.75rem;
+    letter-spacing: var(--os-letter-eyebrow, 0.05em);
     color: var(--muted-text);
     display: flex;
     align-items: center;
@@ -209,174 +175,138 @@
     margin-bottom: 0.75rem;
   }
 
-  /* ── 输入框：深色背景 + 鎏金描边 ── */
-  .ora-input {
-    width: 100%;
-    background: rgb(var(--card));
-    border: 1px solid rgb(var(--border));
-    border-radius: 12px;
-    color: var(--heading);
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    caret-color: var(--ring);
-    min-height: 52px;
-  }
-  .ora-input::placeholder {
-    color: var(--muted-text);
-    font-size: 0.875rem;
-  }
-  .ora-input:focus {
-    border-color: var(--ring);
-    box-shadow: 0 0 0 3px rgb(var(--brand-primary) / 0.18);
-  }
-
-  /* ── 旧版 ink-input 兼容 ── */
+  .ora-input,
   .ink-input {
     width: 100%;
-    background: rgb(var(--card));
+    background: rgb(var(--input));
     border: 1px solid rgb(var(--border));
-    border-radius: 12px;
-    color: var(--heading);
+    border-radius: var(--os-radius-btn);
+    color: rgb(var(--foreground));
     font-family: var(--font-sans);
     font-size: 1rem;
     padding: 0.75rem 1rem;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    caret-color: var(--ring);
-  }
-  .ink-input::placeholder {
-    color: var(--muted-text);
-    font-size: 0.875rem;
-  }
-  .ink-input:focus {
-    border-color: var(--ring);
-    box-shadow: 0 0 0 3px rgb(var(--brand-primary) / 0.18);
+    transition: border-color var(--os-motion-fast), box-shadow var(--os-motion-fast);
+    caret-color: rgb(var(--ring));
+    min-height: var(--os-size-input-md, 44px);
   }
 
-  /* ── 选项按钮 ── */
+  .ora-input::placeholder,
+  .ink-input::placeholder {
+    color: rgb(var(--placeholder));
+    font-size: 0.875rem;
+  }
+
+  .ora-input:focus,
+  .ink-input:focus {
+    border-color: rgb(var(--ring));
+    box-shadow: none;
+  }
+
   .option-btn {
     flex: 1;
     padding: 0.625rem 0;
-    background: var(--bg-white);
-    border: 1px solid var(--border-color);
-    color: var(--body);
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
+    color: rgb(var(--muted-foreground));
     font-family: var(--font-sans);
     font-size: 0.875rem;
     font-weight: 500;
-    border-radius: 12px;
-    transition: all 0.18s ease;
+    border-radius: var(--os-radius-btn);
+    transition: all var(--os-motion-fast) var(--os-ease-standard);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
     min-height: 44px;
   }
+
   .option-btn.active {
-    background: rgb(var(--brand-primary) / 0.1);
-    border-color: var(--primary);
-    color: var(--primary);
-    box-shadow: 0 0 0 2px rgb(var(--brand-primary) / 0.16);
-  }
-  .option-btn:hover:not(.active) {
-    border-color: var(--ring);
-    color: var(--heading);
-  }
-  .option-btn:active {
-    transform: scale(0.97);
+    background: rgb(var(--primary));
+    border-color: rgb(var(--primary));
+    color: rgb(var(--primary-foreground));
+    font-weight: 600;
   }
 
-  /* ── 主按钮：鎏金实心 ── */
+  .option-btn:hover:not(.active) {
+    border-color: rgb(var(--ring));
+    color: rgb(var(--foreground));
+  }
+
+  .option-btn:active {
+    transform: scale(0.98);
+  }
+
   .btn-primary {
     width: 100%;
     padding: 0.875rem 1.5rem;
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: rgb(var(--primary));
+    color: rgb(var(--primary-foreground));
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: var(--os-letter-wide);
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgb(var(--brand-primary) / 0.2);
-    transition: all 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+    border-radius: var(--os-radius-btn);
+    box-shadow: var(--os-shadow-surface-1);
+    transition: background var(--os-motion-fast), transform var(--os-motion-fast), box-shadow var(--os-motion-fast);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-height: 52px;
-  }
-  .btn-primary:hover {
-    background: var(--orasage-brand-primary-hover);
-    box-shadow: 0 6px 20px rgb(var(--brand-primary) / 0.26);
-    transform: translateY(-1px);
-  }
-  .btn-primary:active {
-    transform: scale(0.98) translateY(0);
-    box-shadow: 0 2px 10px rgb(var(--brand-primary) / 0.18);
+    min-height: 48px;
   }
 
-  /* ── 模式标签（公历/农历 切换） ── */
+  .btn-primary:hover {
+    background: var(--orasage-brand-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--os-shadow-surface-2);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
   .mode-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.75rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
+    border-radius: var(--os-radius-pill);
     font-family: var(--font-sans);
     font-size: 0.75rem;
-    color: var(--gold);
-    transition: all 0.18s ease;
-  }
-  .mode-tag.active {
-    background: var(--gold-ghost);
-    border-color: var(--gold);
-    color: var(--gold);
-    box-shadow: 0 0 0 1px var(--gold-faint);
+    color: rgb(var(--muted-foreground));
+    transition: all var(--os-motion-fast) var(--os-ease-standard);
   }
 
-  /* ── 动画 ── */
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+  .mode-tag.active {
+    background: rgb(var(--primary));
+    border-color: rgb(var(--primary));
+    color: rgb(var(--primary-foreground));
   }
 
   @keyframes fade-in-up {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
   .animate-fade-in-up {
-    animation: fade-in-up 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+    animation: fade-in-up 0.4s var(--os-ease-enter) both;
   }
 
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-  .animate-spin-slow {
-    animation: spin-slow 4s linear infinite;
-  }
-
-  /* ── 滚轮选择器 ── */
   .wheel-scroll::-webkit-scrollbar { display: none; }
   .wheel-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* ── OraSage 页脚（墨金版）── */
+  /* Footer — monochrome */
   .orasage-global-footer {
     position: relative;
     width: 100%;
     overflow: hidden;
     color: var(--body);
-    border-top: 1px solid var(--border-color);
-    background: linear-gradient(
-      180deg,
-      rgba(15, 12, 32, 0.98) 0%,
-      rgba(10, 8, 21, 0.96) 100%
-    );
+    border-top: 0.5px solid var(--border-color);
+    background: var(--bg-page);
   }
 
   .orasage-footer-inner {
@@ -397,12 +327,6 @@
     align-items: center;
     margin-bottom: 18px;
   }
-  .orasage-footer-logo img {
-    display: block;
-    width: auto;
-    max-width: 142px;
-    height: auto;
-  }
 
   .orasage-footer-slogan {
     max-width: 320px;
@@ -410,34 +334,6 @@
     color: var(--body);
     font-size: 15px;
     line-height: 1.9;
-    letter-spacing: 0.02em;
-  }
-
-  .orasage-footer-social {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .orasage-footer-social a {
-    width: 38px;
-    height: 38px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--heading);
-    background: rgba(26, 23, 50, 0.72);
-    border: 1px solid var(--border-color);
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-  }
-  .orasage-footer-social a:hover {
-    color: var(--gold);
-    border-color: var(--gold);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(196, 160, 78, 0.12);
   }
 
   .orasage-footer-col h4,
@@ -445,75 +341,38 @@
     margin: 0 0 18px;
     color: var(--heading);
     font-size: 15px;
-    font-family: var(--font-sans);
     font-weight: 600;
-    letter-spacing: 0.03em;
   }
+
   .orasage-footer-col a {
     display: block;
     margin-bottom: 12px;
     color: var(--body);
     font-size: 14px;
-    line-height: 1.4;
     text-decoration: none;
     transition: color 0.2s ease;
   }
-  .orasage-footer-col a:hover {
-    color: var(--gold);
-  }
 
-  .orasage-payment-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .orasage-payment-list span {
-    min-width: 58px;
-    height: 36px;
-    padding: 0 12px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .orasage-footer-col a:hover {
     color: var(--heading);
-    background: var(--bg-white);
-    border: 1px solid var(--border-color);
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .orasage-footer-bottom {
     margin-top: 44px;
     padding-top: 24px;
-    border-top: 1px solid var(--border-color);
+    border-top: 0.5px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
   }
+
   .orasage-footer-bottom p {
     margin: 0;
     color: var(--muted-text);
     font-size: 13px;
   }
-  .orasage-footer-legal {
-    display: flex;
-    gap: 28px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .orasage-footer-legal a {
-    color: var(--body);
-    font-size: 13px;
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-  .orasage-footer-legal a:hover {
-    color: var(--gold);
-  }
 
-  /* ── 响应式页脚 ── */
   @media (max-width: 1024px) {
     .orasage-footer-main {
       grid-template-columns: 1.4fr 1fr 1fr;
@@ -536,22 +395,6 @@
     .orasage-footer-brand,
     .orasage-footer-support {
       grid-column: 1 / -1;
-    }
-    .orasage-footer-col h4 {
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-    .orasage-footer-col a {
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-    .orasage-footer-bottom {
-      margin-top: 28px;
-      padding-top: 20px;
-    }
-    .orasage-footer-bottom p,
-    .orasage-footer-legal a {
-      font-size: clamp(10px, 2.7vw, 12px);
     }
   }
 }
