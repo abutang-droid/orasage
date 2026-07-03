@@ -18,6 +18,7 @@
     "test:pay-double": "node pay-double-click.mjs",
     "test:pay-network": "node pay-network-retry.mjs",
     "test:auth-internal": "node auth-internal-forbidden.mjs",
+    "test:admin-gate": "node admin-gate.mjs",
     "test:smoke-all": "node run-smoke-all.mjs"
   },
   "devDependencies": {

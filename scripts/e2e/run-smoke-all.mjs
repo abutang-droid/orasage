@@ -9,6 +9,7 @@ const STEPS = [
   'npm run test:platform-report',
   'npm run test:shop-security',
   'npm run test:auth-internal',
+  'npm run test:admin-gate',
   'npm run test:auth-redirect',
   'npm run test:auth-sso',
   'npm run test:auth-center',

@@ -217,7 +217,9 @@ API 级 checkout + pay：`platform-report-flow.mjs`。公网 POST `/api/checkout
 
 #### TC-ADMIN-001 / 002 `[P2]` `[M]`
 
-JWT `role=admin` 门控；普通用户 403。
+JWT `role=admin` 门控；普通用户 API 403、后台 UI 显示登录门控卡片；子页 `/products` 重定向 auth 登录。
+
+**自动化：** `npm run test:admin-gate`（`admin-gate.mjs`）。管理员 happy path 需环境变量 `E2E_ADMIN_EMAIL` + `E2E_ADMIN_PASSWORD`（可选）。
 
 ### 2.8 CMS（cms）
 
@@ -324,6 +326,7 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `shop-crystal-flow.mjs` | `test:shop-crystal` | TC-SHOP-001 | Browser | ✅ |
 | `pay-double-click.mjs` | `test:pay-double` | UI-001 | Browser | ✅ |
 | `pay-network-retry.mjs` | `test:pay-network` | NET-002 | Browser | ✅ |
+| `admin-gate.mjs` | `test:admin-gate` | TC-ADMIN-001/002 | API + Browser | ✅ |
 | `run-smoke-all.mjs` | `test:smoke-all` | 全量生产冒烟（含 verify-unify） | mixed | ✅ |
 
 **一键生产冒烟（推荐 CI）：**
@@ -337,9 +340,7 @@ npm run test:smoke-all
 
 ### 自动化缺口（待补脚本）
 
-| 用例 ID | 说明 |
-|---------|------|
-| TC-ADMIN-* | admin 角色门控 |
+（当前 P0/P2 浏览器与 API 冒烟已覆盖；剩余主要为 CMS、部分 UI edge case。）
 
 ---
 
