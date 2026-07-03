@@ -70,6 +70,8 @@ export interface Config {
     users: User;
     media: Media;
     pages: Page;
+    faiths: Faith;
+    sanctuaries: Sanctuary;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +82,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    faiths: FaithsSelect<false> | FaithsSelect<true>;
+    sanctuaries: SanctuariesSelect<false> | SanctuariesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -211,6 +215,84 @@ export interface Page {
   createdAt: string;
 }
 /**
+ * 宗教分类。code 与塔罗 App 信仰 ID 一致，圣地通过关联自动匹配。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faiths".
+ */
+export interface Faith {
+  id: number;
+  /**
+   * 稳定标识，如 christianity、buddhism、taoism
+   */
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  emoji?: string | null;
+  rank?: number | null;
+  adherentsM?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 塔罗祈福圣地。关联宗教后，用户选择信仰即可看到匹配的圣地列表。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sanctuaries".
+ */
+export interface Sanctuary {
+  id: number;
+  /**
+   * 稳定标识，如 guanyin、mazu
+   */
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  /**
+   * 用户选择对应信仰时展示此圣地
+   */
+  faiths: (number | Faith)[];
+  tradition?: ('latin' | 'seasia' | 'global') | null;
+  region?: string | null;
+  domains?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  color?: string | null;
+  gradient?: string | null;
+  /**
+   * 塔罗静态资源路径，如 /gods/观音.webp；也可填 CDN 绝对地址
+   */
+  imageUrl?: string | null;
+  image?: (number | null) | Media;
+  /**
+   * 参拜完成后展示的指引文案
+   */
+  blessingText?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  sortOrder?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -245,6 +327,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'faiths';
+        value: number | Faith;
+      } | null)
+    | ({
+        relationTo: 'sanctuaries';
+        value: number | Sanctuary;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -343,6 +433,49 @@ export interface PagesSelect<T extends boolean = true> {
   wpId?: T;
   locale?: T;
   content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faiths_select".
+ */
+export interface FaithsSelect<T extends boolean = true> {
+  code?: T;
+  nameZh?: T;
+  nameEn?: T;
+  emoji?: T;
+  rank?: T;
+  adherentsM?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sanctuaries_select".
+ */
+export interface SanctuariesSelect<T extends boolean = true> {
+  code?: T;
+  nameZh?: T;
+  nameEn?: T;
+  faiths?: T;
+  tradition?: T;
+  region?: T;
+  domains?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  color?: T;
+  gradient?: T;
+  imageUrl?: T;
+  image?: T;
+  blessingText?: T;
+  content?: T;
+  sortOrder?: T;
+  wpStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }

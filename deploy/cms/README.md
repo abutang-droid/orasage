@@ -2,7 +2,9 @@
 
 管理后台地址：**https://cms.orasage.com/admin**
 
-当前 Collections：**Users**（管理员）、**Media**（图片）、**Pages**（内容页，可按 `appSource` 区分 main/bazi/ziwei/tarot/shop）。
+当前 Collections：**Users**、**Media**、**Pages**、**Faiths**（宗教）、**Sanctuaries**（圣地，关联宗教自动匹配）。
+
+塔罗祈福圣地数据在 **Sanctuaries**，通过 `faiths` 多选关联；部署后运行 `npm run seed:tarot` 导入初始 8 条圣地与 22 种宗教。
 
 ## VPS 一键部署
 

@@ -10,6 +10,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "seed:tarot": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-tarot-faith.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3120"
   },
@@ -29,6 +30,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.2"
   },
   "engines": {
