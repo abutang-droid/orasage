@@ -5,6 +5,7 @@ import { routing } from '@/i18n/navigation';
 import { Header } from '@/components/Header';
 import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { PortalChrome } from '@/components/PortalChrome';
+import { ORASAGE_URLS, orasageOpenGraph, orasageTwitter } from '@/lib/orasage-seo';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
@@ -28,9 +29,29 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const messages = (await import(`../../../messages/${locale}.json`)).default;
+  const title = messages.meta.title as string;
+  const description = messages.meta.description as string;
+  const keywords = (messages.meta.keywords as string | undefined)
+    ?? 'OraSage, divination, BaZi, Zi Wei, tarot, crystal energy';
+
   return {
-    title: messages.meta.title,
-    description: messages.meta.description,
+    metadataBase: new URL(ORASAGE_URLS.main),
+    title,
+    description,
+    keywords: keywords.split(',').map((k: string) => k.trim()),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(
+        routing.locales.map((loc) => [loc, `/${loc}`]),
+      ),
+    },
+    openGraph: orasageOpenGraph({
+      title,
+      description,
+      url: `${ORASAGE_URLS.main}/${locale}`,
+      locale: locale.replace('-', '_'),
+    }),
+    twitter: orasageTwitter(title, description),
   };
 }
 

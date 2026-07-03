@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import type { Product } from '@/lib/products';
-import { formatPrice } from '@/lib/products';
+import { useShopCurrency } from '@/components/CurrencyProvider';
+import { formatProductPrice } from '@/lib/currency';
 
 const elementColors: Record<string, string> = {
   '木': 'bg-emerald-500/15 text-emerald-700',
@@ -15,6 +16,7 @@ const elementColors: Record<string, string> = {
 export function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { currency } = useShopCurrency();
 
   async function handleBuy() {
     setLoading(true);
@@ -24,7 +26,7 @@ export function ProductCard({ product }: { product: Product }) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ sku: product.sku }),
+        body: JSON.stringify({ sku: product.sku, currency }),
       });
       const data = await res.json();
       if (res.status === 401) {
@@ -71,7 +73,7 @@ export function ProductCard({ product }: { product: Product }) {
       <h3 className="mt-3 text-base font-medium text-sage-primary">{product.name}</h3>
       <p className="mt-1 flex-1 text-xs text-sage-muted">{product.desc}</p>
       <div className="mt-4 flex items-center justify-between gap-2">
-        <span className="text-lg font-medium text-sage-gold">{formatPrice(product.priceCents)}</span>
+        <span className="text-lg font-medium text-sage-gold">{formatProductPrice(product.priceCents, currency)}</span>
         <button
           type="button"
           onClick={handleBuy}

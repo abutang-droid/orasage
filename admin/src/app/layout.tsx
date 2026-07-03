@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AdminShell } from '@/components/AdminShell';
+import { buildOrasageMetadata } from '@/lib/orasage-seo';
 
-export const metadata: Metadata = {
-  title: 'OraSage 管理后台',
+export const metadata: Metadata = buildOrasageMetadata({
+  title: '管理后台',
   description: 'OraSage 运营管理后台',
-};
+  robots: { index: false, follow: false },
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

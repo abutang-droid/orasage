@@ -24,6 +24,9 @@ import {
   STAR_TO_SLUG,
   SLUG_TO_STAR,
 } from '@/lib/seo/knowledge';
+import { ORASAGE_URLS, orasageTitle } from '@/lib/orasage-seo';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.ziwei;
 
 // 允许动态参数：如果某个 star/topic 组合不在 generateStaticParams 列表中
 // 也允许运行时按需渲染，避免中文 URL 编码问题导致 404
@@ -42,9 +45,10 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
   const data = getKnowledge(star, topic as TopicKey);
   if (!data.exists) return {};
 
-  const title = `${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`;
+  const title = orasageTitle(`${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`);
   const description = data.parsed.dingdiao
     || `${star}入${data.palaceName}宫的紫微斗数解读 — 基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
+  const pageUrl = `${SITE_URL}/knowledge/${slug}/${topic}`;
 
   return {
     title,
@@ -53,10 +57,11 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
       title,
       description,
       type: 'article',
-      url: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+      url: pageUrl,
+      siteName: 'OraSage',
     },
     alternates: {
-      canonical: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+      canonical: pageUrl,
     },
     keywords: [
       '紫微斗数', '倪海夏', star, data.palaceName, data.topicLabel,
@@ -84,15 +89,15 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
     '@type': 'Article',
     headline: `${star}入${data.palaceName}宫 · ${data.topicLabel}`,
     description: data.parsed.dingdiao,
-    author: { '@type': 'Organization', name: '紫微研究 · 倪海夏正宗' },
+    author: { '@type': 'Organization', name: 'OraSage · 倪海夏紫微体系' },
     publisher: {
       '@type': 'Organization',
-      name: '紫微研究',
-      url: 'https://wdyziweidoushu666.com',
+      name: 'OraSage',
+      url: ORASAGE_URLS.main,
     },
     datePublished: '2026-04-28',
     dateModified: '2026-04-28',
-    mainEntityOfPage: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+    mainEntityOfPage: `${SITE_URL}/knowledge/${slug}/${topic}`,
     articleSection: '紫微斗数 · 倪海夏体系',
     keywords: [`紫微斗数`, star, data.palaceName, data.topicLabel].join(', '),
   };
