@@ -2,11 +2,9 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { buttonVariants } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { fetchCmsPageBySlug } from '@/lib/cms';
 
+import { Alert, AlertDescription, Separator, buttonVariants } from '@orasage/ui';
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
 };

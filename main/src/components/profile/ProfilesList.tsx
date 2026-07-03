@@ -1,5 +1,6 @@
 'use client';
 
+import { Alert, AlertDescription, Badge, Button, Card, CardContent, Input, Label } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
@@ -8,12 +9,6 @@ import {
   fetchSavedProfiles,
   type SavedProfile,
 } from '@/lib/auth';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');

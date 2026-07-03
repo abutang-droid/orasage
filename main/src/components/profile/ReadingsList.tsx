@@ -1,11 +1,9 @@
 'use client';
 
+import { Alert, AlertDescription, Card, CardContent, buttonVariants } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchReadings, type UserReading } from '@/lib/auth';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { buttonVariants } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 

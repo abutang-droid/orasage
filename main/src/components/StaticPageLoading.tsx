@@ -1,6 +1,6 @@
 import { PageShell } from '@/components/PageShell';
-import { Skeleton } from '@/components/ui/skeleton';
 
+import { Skeleton } from '@orasage/ui';
 export function StaticPageLoading() {
   return (
     <PageShell aria-busy="true" aria-live="polite">

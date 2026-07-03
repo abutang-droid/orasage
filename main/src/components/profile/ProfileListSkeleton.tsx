@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton';
 
+import { Skeleton } from '@orasage/ui';
 export function ProfileListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <ul className="space-y-3" aria-hidden="true">

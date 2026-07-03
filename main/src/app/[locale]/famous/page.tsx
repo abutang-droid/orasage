@@ -1,12 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle } from '@/components/PageShell';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { cmsLocale, decodeHtmlEntities, famousArticlePath, fetchCmsPages, stripHtml } from '@/lib/cms';
 
+import { Alert, AlertDescription, Badge, Card, CardContent, buttonVariants } from '@orasage/ui';
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ page?: string }>;

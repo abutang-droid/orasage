@@ -1,10 +1,9 @@
 'use client';
 
+import { Button, Card, CardContent } from '@orasage/ui';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { profileLoginUrl } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useProfileAuth } from './ProfileAuth';
 import { ProfileAccountCard } from './ProfileAccountCard';
 
