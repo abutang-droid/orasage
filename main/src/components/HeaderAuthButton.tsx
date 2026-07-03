@@ -30,14 +30,14 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
   }, []);
 
   if (user === undefined) {
-    return <span className={`inline-block h-9 w-16 animate-pulse rounded-full bg-sage-card/60 ${className}`} aria-hidden />;
+    return <span className={`inline-block h-11 w-20 animate-pulse rounded-md bg-muted ${className}`} aria-hidden />;
   }
 
   if (user) {
     return (
       <Link
         href="/profile"
-        className={`max-w-[140px] truncate rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10 ${className}`}
+        className={`inline-flex min-h-11 max-w-[140px] items-center truncate rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
         title={user.email}
       >
         {user.displayName}
@@ -48,7 +48,7 @@ export function HeaderAuthButton({ className = '' }: { className?: string }) {
   return (
     <a
       href={loginUrl}
-      className={`rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold transition hover:bg-sage-gold/10 ${className}`}
+      className={`inline-flex min-h-11 items-center rounded-md border border-primary/40 px-4 text-sm text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`}
     >
       {t('login')}
     </a>

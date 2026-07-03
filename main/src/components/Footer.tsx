@@ -7,21 +7,21 @@ export function Footer() {
   const t = useTranslations('footer');
 
   return (
-    <footer className="safe-bottom mt-auto border-t border-sage-border bg-sage-card/40">
+    <footer className="safe-bottom mt-auto border-t border-border bg-card/50">
       <div className="safe-x mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-8 sm:flex-row sm:justify-between sm:px-6">
-        <p className="text-center text-xs text-sage-muted sm:text-left sm:text-sm">
+        <p className="text-center text-xs text-muted-foreground sm:text-start sm:text-sm">
           {t('copyright')}
         </p>
         <div className="flex w-full justify-center gap-8 sm:w-auto sm:gap-6">
           <Link
             href="/privacy"
-            className="min-h-[44px] flex items-center text-sm text-sage-muted active:text-sage-gold"
+            className="flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {t('privacy')}
           </Link>
           <Link
             href="/terms"
-            className="min-h-[44px] flex items-center text-sm text-sage-muted active:text-sage-gold"
+            className="flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {t('terms')}
           </Link>

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
 import { PageBody, PageShell, PageTitle } from '@/components/PageShell';
+import { Separator } from '@/components/ui/separator';
 import { fetchCmsPageBySlug } from '@/lib/cms';
 
 type Props = {
@@ -35,12 +36,15 @@ export async function PublicLegalPage({ params, slug, titleKey, fallbackKey, ns 
 
   return (
     <PageShell>
-      <PageTitle>
-        <ArticleTitle>{page.title || t(titleKey)}</ArticleTitle>
-      </PageTitle>
-      <div className="mt-6 sm:mt-8">
-        <LegacyHtmlArticle html={legacyHtml} />
-      </div>
+      <header>
+        <PageTitle>
+          <ArticleTitle>{page.title || t(titleKey)}</ArticleTitle>
+        </PageTitle>
+      </header>
+
+      <Separator className="my-6 sm:my-8" />
+
+      <LegacyHtmlArticle html={legacyHtml} />
     </PageShell>
   );
 }

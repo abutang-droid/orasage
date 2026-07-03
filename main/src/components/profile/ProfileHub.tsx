@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { profileLoginUrl } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useProfileAuth } from './ProfileAuth';
 import { ProfileAccountCard } from './ProfileAccountCard';
 
@@ -33,31 +35,34 @@ export function ProfileHub({ locale }: { locale: string }) {
   return (
     <div className="space-y-6">
       {!user ? (
-        <section className="rounded-2xl border border-sage-border/60 bg-sage-card/40 p-6 text-center">
-          <p className="text-sm text-sage-muted">{t('guestDesc')}</p>
-          <a
-            href={profileLoginUrl(locale)}
-            className="mt-4 inline-flex min-h-[48px] items-center justify-center rounded-full bg-sage-gold/15 px-8 text-sm font-medium text-sage-gold transition hover:bg-sage-gold/25"
-          >
-            {t('loginCta')}
-          </a>
-        </section>
+        <Card>
+          <CardContent className="p-6 text-center sm:p-8">
+            <p className="text-sm leading-relaxed text-muted-foreground">{t('guestDesc')}</p>
+            <Button asChild size="lg" className="mt-5">
+              <a href={profileLoginUrl(locale)}>{t('loginCta')}</a>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <ProfileAccountCard />
       )}
 
-      <nav className="overflow-hidden rounded-2xl border border-sage-border/60 bg-sage-card/30">
-        {visibleItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex min-h-[52px] items-center justify-between border-b border-sage-border/40 px-4 py-3 text-sm last:border-b-0 active:bg-sage-card/60"
-          >
-            <span className="text-sage-primary">{tNav(item.labelKey)}</span>
-            <span className="text-sage-muted" aria-hidden>›</span>
-          </Link>
-        ))}
-      </nav>
+      <Card className="overflow-hidden p-0">
+        <nav aria-label={t('title')}>
+          {visibleItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex min-h-[52px] items-center justify-between border-b border-border px-4 py-3 text-sm transition-colors last:border-b-0 active:bg-muted/60 hover:bg-muted/40"
+            >
+              <span className="text-foreground">{tNav(item.labelKey)}</span>
+              <span className="text-muted-foreground" aria-hidden>
+                ›
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </Card>
     </div>
   );
 }

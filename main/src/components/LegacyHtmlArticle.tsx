@@ -11,7 +11,7 @@ export function LegacyHtmlArticle({ html, className = '' }: Props) {
   const clean = sanitizeLegacyHtml(html);
   return (
     <article
-      className={`legacy-html-article prose-sage ${className}`}
+      className={`legacy-html-article prose-sage break-words ${className}`}
       dangerouslySetInnerHTML={{ __html: clean }}
     />
   );

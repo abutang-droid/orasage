@@ -4,6 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { fetchMe, profileLoginUrl, type AuthUser } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ProfileAuthContext = createContext<{
   user: AuthUser | null;
@@ -50,8 +53,9 @@ export function ProfileAuthProvider({ children, loadingLabel }: { children: Reac
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-sm text-sage-muted">
-        {loadingLabel}
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3" aria-busy="true" aria-live="polite">
+        <Skeleton className="h-4 w-32" />
+        <span className="sr-only">{loadingLabel}</span>
       </div>
     );
   }
@@ -69,20 +73,19 @@ export function RequireProfileAuth({ locale, children }: { locale: string; child
 
   if (!user) {
     return (
-      <div className="rounded-2xl border border-sage-border/60 bg-sage-card/40 p-8 text-center">
-        <p className="text-sm text-sage-muted">{t('loginRequired')}</p>
-        <a
-          href={profileLoginUrl(locale)}
-          className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full border border-sage-gold/40 px-6 text-sm text-sage-gold transition hover:bg-sage-gold/10"
-        >
-          {t('loginCta')}
-        </a>
-        <p className="mt-4">
-          <Link href="/profile" className="text-xs text-sage-muted hover:text-sage-gold">
-            ← {t('nav.overview')}
-          </Link>
-        </p>
-      </div>
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-sm text-muted-foreground">{t('loginRequired')}</p>
+          <Button asChild variant="outline" size="default" className="mt-5">
+            <a href={profileLoginUrl(locale)}>{t('loginCta')}</a>
+          </Button>
+          <p className="mt-5">
+            <Link href="/profile" className="text-xs text-muted-foreground transition-colors hover:text-primary">
+              ← {t('nav.overview')}
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 

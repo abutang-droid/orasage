@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { buttonVariants } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { fetchCmsPageBySlug } from '@/lib/cms';
 
 type Props = {
@@ -21,23 +24,33 @@ export default async function DaozangArticlePage({ params }: Props) {
 
   return (
     <PageShell>
-      <PageTitle>
-        <ArticleTitle>{page.title}</ArticleTitle>
-      </PageTitle>
-      {page.sourceUrl && (
-        <p className="mt-2 text-sm text-sage-purple">
-          <a href={page.sourceUrl} target="_blank" rel="noreferrer" className="hover:text-sage-gold">
-            {t('sourceLink')}
-          </a>
-        </p>
-      )}
-      <div className="mt-6 sm:mt-8">
-        {legacyHtml ? (
-          <LegacyHtmlArticle html={legacyHtml} />
-        ) : (
-          <p className="text-sage-muted">{t('noBody')}</p>
+      <header>
+        <PageTitle>
+          <ArticleTitle>{page.title}</ArticleTitle>
+        </PageTitle>
+        {page.sourceUrl && (
+          <div className="mt-4">
+            <a
+              href={page.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            >
+              {t('sourceLink')}
+            </a>
+          </div>
         )}
-      </div>
+      </header>
+
+      <Separator className="my-6 sm:my-8" />
+
+      {legacyHtml ? (
+        <LegacyHtmlArticle html={legacyHtml} />
+      ) : (
+        <Alert>
+          <AlertDescription>{t('noBody')}</AlertDescription>
+        </Alert>
+      )}
     </PageShell>
   );
 }
