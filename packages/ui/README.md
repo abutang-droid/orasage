@@ -1,62 +1,49 @@
 # @orasage/ui
 
-Shared OraSage UI primitives built on **Tailwind CSS** + **shadcn/ui** (Radix + CVA).
+OraSage 共享 UI 源码包，基于 React、TypeScript、Radix、CVA 和 Tailwind utility class。组件只包含无业务逻辑的基础交互与视觉适配，品牌颜色、圆角、阴影、动效和控件尺寸来自应用已接入的 OraSage CSS Variables。
 
-## Rules
+## 边界
 
-1. **Only three control sizes:** `sm` (36px), `md` (44px, default), `lg` (48px)
-2. Pages choose size via `size="sm|md|lg"` — do not override height, radius, font, border, or focus styles
-3. **Tailwind tokens** from `@orasage/tokens` define colors, spacing, radii, and states
-4. **shadcn/Radix** provide accessibility and interaction; OraSage tokens define appearance
-5. **Pages handle layout**; components handle look and interaction
+- 只放基础 UI：Button、Input、Textarea、Select、Checkbox、RadioGroup、Switch、Card、Badge、Alert、Separator、Dialog、DropdownMenu、Tooltip、Tabs、Skeleton、FormField、`cn()` 和公共 variants。
+- 不放业务组件：八字命盘、紫微宫位、塔罗牌阵、商品卡片、订单、报告、API、路由或数据请求。
+- 默认交互控件以 44px 为基准；Checkbox、Radio、Switch 的视觉图形可以更小，但消费侧需要用 Label 或外层布局保证可用点击区域。
+- 不写硬编码品牌色，优先使用 `bg-primary`、`text-foreground`、`border-border`、`ring-ring` 等语义 token。
 
-## Packages
+## main / Tailwind 3
 
-| Package | Role |
-|---------|------|
-| `@orasage/tokens` | CSS variables + Tailwind preset |
-| `@orasage/ui` | React components + static CSS for auth |
-
-## React usage (Next / Vite apps)
-
-```tsx
-import { Button, Input, FormField } from '@orasage/ui';
-import '@orasage/ui/styles';
-
-<Button size="md">登录</Button>
-<Input size="md" placeholder="邮箱" />
-```
-
-### Tailwind content path
+`main` 使用 Next.js 和 Tailwind 3，消费共享源码时需要同时配置转译与扫描：
 
 ```ts
-// tailwind.config.ts
-import { orasageTailwindPreset } from '@orasage/ui/tailwind-preset';
-
-export default {
-  presets: [orasageTailwindPreset],
-  content: [
-    './src/**/*.{ts,tsx}',
-    './node_modules/@orasage/ui/src/**/*.{ts,tsx}',
-  ],
+// main/next.config.ts
+const nextConfig = {
+  transpilePackages: ['@orasage/ui', '@orasage/tokens'],
 };
 ```
 
-## Static HTML (auth-service pilot)
-
-```html
-<link rel="stylesheet" href="/assets/orasage-ui.css" />
-<button type="submit" class="oui-btn oui-btn--default" data-size="md">登录</button>
-<input class="oui-input" data-size="md" name="email" />
+```ts
+// main/tailwind.config.ts
+content: [
+  './src/app/**/*.{ts,tsx}',
+  './src/components/**/*.{ts,tsx}',
+  './src/lib/**/*.{ts,tsx}',
+  '../packages/ui/src/**/*.{ts,tsx}',
+];
 ```
 
-Build/sync: `cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css`
+## bazi / Tailwind 4
 
-## Migration order
+本阶段不接入 bazi。后续在 `bazi/client` 接入时，Tailwind 4 应在全局 CSS 中增加源码扫描：
 
-1. **auth-service** — static CSS layer (`oui-*` classes)
-2. **main** + **shop** — React components (Tailwind v3)
-3. **admin** — React or CSS layer
-4. **bazi** — replace local shadcn with `@orasage/ui` re-exports
-5. **ziwei** + **tarot** — replace `.btn-primary` / `.input-field`
-6. **cms** — admin forms when needed
+```css
+@source "../../../packages/ui/src";
+```
+
+Vite 侧如遇到仓库外源码读取限制，再在 `server.fs.allow` 中显式允许仓库根目录；不要复制第二套组件源码。
+
+## 使用方式
+
+```tsx
+import { Button, Card, Input, Select } from '@orasage/ui';
+```
+
+当前包通过源码导出，依赖由 `@orasage/ui` 声明，React 和 React DOM 保持 peerDependencies，由各 App 提供。
