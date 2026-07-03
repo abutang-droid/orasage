@@ -1,5 +1,7 @@
 # OraSage UI Design System Phase 1
 
+> 架构与并行分支策略见 **[ui-phase-2.md](./ui-phase-2.md)**。
+
 ## Token Source
 
 Runtime tokens live in:
