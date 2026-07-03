@@ -17,8 +17,8 @@ export async function PortalChrome({ children, locale }: { children: ReactNode; 
         style={{
           minHeight: 0,
           background: 'transparent',
-          // 与 main 页面 bg-sage-bg（#f7f3ea）一致，底栏不形成色块
-          ['--shell-bg' as string]: 'rgb(247, 243, 234)',
+          // 与 main 页面 background token（白底）一致，底栏不形成色块
+          ['--shell-bg' as string]: '#ffffff',
         }}
       >
         <FixedBottomNav context="portal" locale={locale} pathname={pathname} />

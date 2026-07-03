@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover',
-  themeColor: '#fafaf8',
+  themeColor: '#ffffff',
 };
 
 export function generateStaticParams() {
