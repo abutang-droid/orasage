@@ -48,7 +48,7 @@ deploy_native() {
   fi
 
   cd "$APP_DIR"
-  npm ci
+  npm ci --include=dev
 
   set -a
   if [ -f .env ]; then
