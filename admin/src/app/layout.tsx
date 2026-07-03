@@ -21,25 +21,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         data-theme="light"
         style={{ background: 'var(--orasage-background, #fafaf8)', color: 'var(--orasage-primary, #171717)' }}
       >
-        {admin ? (
-          <div className="admin-layout">
-            <nav className="admin-nav">
-              <Link href="/" className="admin-logo">OraSage Admin</Link>
-              <div className="admin-nav-links">
-                <Link href="/">概览</Link>
-                <Link href="/products">商品</Link>
-                <Link href="/orders">订单</Link>
-                <a href="https://shop.orasage.com" target="_blank" rel="noreferrer">商城</a>
-                <a href="https://auth.orasage.com/center">用户中心</a>
-              </div>
-            </nav>
-            <AdminShell>
+        <AdminShell>
+          {admin ? (
+            <div className="admin-layout">
+              <nav className="admin-nav">
+                <Link href="/" className="admin-logo">OraSage Admin</Link>
+                <div className="admin-nav-links">
+                  <Link href="/">概览</Link>
+                  <Link href="/products">商品</Link>
+                  <Link href="/orders">订单</Link>
+                  <a href="https://shop.orasage.com" target="_blank" rel="noreferrer">商城</a>
+                  <a href="https://auth.orasage.com/center">用户中心</a>
+                </div>
+              </nav>
               <main className="admin-main">{children}</main>
-            </AdminShell>
-          </div>
-        ) : (
-          children
-        )}
+            </div>
+          ) : (
+            <main className="admin-main">{children}</main>
+          )}
+        </AdminShell>
       </body>
     </html>
   );

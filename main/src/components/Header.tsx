@@ -1,53 +1,23 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { HeaderAuthButton } from '@/components/HeaderAuthButton';
-import { isPortalNavItemActive, PORTAL_NAV_ITEMS } from '@/lib/portal-nav';
+import { SiteTopNav } from '@/lib/orasage-app-shell/SiteTopNav';
 
+/** 门户顶栏：PC 全站主导航；移动仅 Logo + 登录（主导航在底栏 5 键） */
 export function Header() {
-  const tNav = useTranslations('nav');
-  const pathname = usePathname();
+  const locale = useLocale();
 
   return (
-    <header className="safe-top border-b border-border/70 lg:border-b-0">
-      <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center rounded-sm font-serif text-lg tracking-widest text-brand-gold transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-xl"
-        >
+    <>
+      <header className="orasage-site-mobile-bar border-border/70 bg-background lg:hidden">
+        <Link href="/" className="orasage-site-mobile-bar-brand">
           OraSage
         </Link>
-
-        <nav className="hidden items-center gap-5 lg:flex" aria-label="Portal navigation">
-          {PORTAL_NAV_ITEMS.map((item) => {
-            const label = tNav(item.id);
-            const active = isPortalNavItemActive(pathname, item);
-            const linkClass = `inline-flex min-h-11 items-center rounded-md px-1 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-              active ? 'font-medium text-primary' : 'text-muted-foreground hover:text-primary'
-            }`;
-
-            if (item.external) {
-              return (
-                <a key={item.id} href={item.href} className={linkClass}>
-                  {label}
-                </a>
-              );
-            }
-
-            return (
-              <Link key={item.id} href={item.href} className={linkClass} aria-current={active ? 'page' : undefined}>
-                {label}
-              </Link>
-            );
-          })}
-          <HeaderAuthButton />
-        </nav>
-
-        <div className="lg:hidden">
-          <HeaderAuthButton className="px-3 py-2 text-xs" />
-        </div>
-      </div>
-    </header>
+        <HeaderAuthButton className="px-3 py-2 text-xs" />
+      </header>
+      <SiteTopNav locale={locale} />
+    </>
   );
 }

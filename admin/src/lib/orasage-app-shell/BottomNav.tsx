@@ -56,7 +56,7 @@ export type FixedBottomNavProps = {
   pathname?: string;
 };
 
-/** 固定底栏 — 除 Main 门户首页外全站使用 */
+/** 固定底栏 5 键 — 移动端全站；PC 由 CSS 隐藏 */
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const isPortal = context === 'portal';
   const appId = isPortal ? null : context;

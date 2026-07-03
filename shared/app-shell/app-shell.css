@@ -136,6 +136,118 @@
   padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
 }
 
+@media (min-width: 1024px) {
+  .orasage-app-main,
+  .orasage-portal-main {
+    padding-bottom: 12px;
+  }
+
+  .orasage-app-main--no-bottomnav {
+    padding-bottom: 12px;
+  }
+
+  .orasage-page-toolbar .orasage-auth-chip {
+    display: none;
+  }
+}
+
+/* —— PC 顶栏主导航 —— */
+.orasage-site-topnav {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  border-bottom: 1px solid var(--shell-border);
+  background: var(--shell-surface);
+  backdrop-filter: blur(12px);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.orasage-site-topnav-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--shell-top-h);
+  padding: 0 16px;
+}
+
+.orasage-site-topnav-brand {
+  flex-shrink: 0;
+  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  color: var(--shell-gold);
+  text-decoration: none;
+}
+
+.orasage-site-topnav-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 20px;
+  min-width: 0;
+}
+
+.orasage-site-topnav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s var(--orasage-ease-organic, ease);
+}
+
+.orasage-site-topnav-link:hover {
+  color: var(--shell-gold);
+}
+
+.orasage-site-topnav-auth {
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .orasage-site-topnav {
+    display: block;
+  }
+}
+
+/* —— 移动顶栏（仅 Logo + 登录，主导航在底栏） —— */
+.orasage-site-mobile-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--shell-top-h);
+  padding: env(safe-area-inset-top, 0px) 16px 0;
+  border-bottom: 1px solid var(--shell-border);
+  background: var(--shell-surface);
+}
+
+.orasage-site-mobile-bar-brand {
+  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+  color: var(--shell-gold);
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .orasage-site-mobile-bar {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .orasage-app-bottomnav {
+    display: none !important;
+  }
+}
+
 .orasage-page-toolbar {
   display: flex;
   align-items: center;

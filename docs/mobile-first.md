@@ -22,7 +22,7 @@
 
 ## 布局模式
 
-- **导航**：`lg:` 以上顶栏水平导航；手机端同一套主导航固定底栏按钮式（`PortalMainBottomNav`）
+- **导航**：PC（≥1024px）顶栏 `SiteTopNav`；移动（<1024px）固定 5 键底栏 `FixedBottomNav`（全站统一，无首页例外）
 - **卡片列表**：手机单列纵向；`md:` 以上多列网格
 - **CTA 按钮**：手机全宽（`max-w-xs`）；桌面自适应宽度
 - **内容页**：`PageShell` 组件统一 `px-5 py-10` 移动内边距
@@ -38,7 +38,8 @@
 
 ## 参考实现
 
-- `main/src/components/Header.tsx` — 桌面顶栏主导航
-- `main/src/components/PortalMainBottomNav.tsx` — 移动端底栏主导航
+- `shared/app-shell/SiteTopNav.tsx` — PC 顶栏主导航
+- `shared/app-shell/BottomNav.tsx` — 移动 5 键底栏
+- `main/src/components/Header.tsx` — 门户移动顶栏（Logo + 登录）
 - `main/src/components/PageShell.tsx` — 内容页容器
 - `main/src/app/[locale]/globals.css` — 安全区与触控基础样式

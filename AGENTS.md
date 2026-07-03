@@ -1,5 +1,7 @@
 # AGENTS.md
 
+> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含「全站」范围定义与导航规范）。
+
 ## Cursor Cloud specific instructions
 
 ### What is runnable in this repo

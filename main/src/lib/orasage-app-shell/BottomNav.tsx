@@ -14,7 +14,7 @@ import {
 import { pickLabel, SHELL_LABELS } from './labels';
 
 function NavIcon({ name, active }: { name: string; active: boolean }) {
-  const color = active ? 'var(--shell-primary)' : 'var(--shell-muted)';
+  const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
   const icons: Record<string, ReactNode> = {
     home: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
@@ -56,7 +56,7 @@ export type FixedBottomNavProps = {
   pathname?: string;
 };
 
-/** 固定底栏 — 除 Main 门户首页外全站使用 */
+/** 固定底栏 5 键 — 移动端全站；PC 由 CSS 隐藏 */
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const isPortal = context === 'portal';
   const appId = isPortal ? null : context;

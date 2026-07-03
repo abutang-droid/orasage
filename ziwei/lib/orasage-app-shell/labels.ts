@@ -8,6 +8,11 @@ type LabelSet = {
   exploreTitle: Record<string, string>;
   login: Record<string, string>;
   signedIn: Record<string, string>;
+  bazi: Record<string, string>;
+  ziwei: Record<string, string>;
+  tarot: Record<string, string>;
+  famous: Record<string, string>;
+  daozang: Record<string, string>;
 };
 
 export const SHELL_LABELS: LabelSet = {
@@ -64,6 +69,36 @@ export const SHELL_LABELS: LabelSet = {
     en: 'Signed in with OraSage',
     'zh-TW': '已通過 OraSage 登入',
     'pt-BR': 'Conectado com OraSage',
+  },
+  bazi: {
+    'zh-CN': '八字',
+    en: 'BaZi',
+    'zh-TW': '八字',
+    'pt-BR': 'BaZi',
+  },
+  ziwei: {
+    'zh-CN': '紫微',
+    en: 'Zi Wei',
+    'zh-TW': '紫微',
+    'pt-BR': 'Zi Wei',
+  },
+  tarot: {
+    'zh-CN': '塔罗牌',
+    en: 'Tarot',
+    'zh-TW': '塔羅牌',
+    'pt-BR': 'Tarô',
+  },
+  famous: {
+    'zh-CN': '名人案例',
+    en: 'Famous Cases',
+    'zh-TW': '名人案例',
+    'pt-BR': 'Casos Famosos',
+  },
+  daozang: {
+    'zh-CN': '道藏',
+    en: 'Dao Canon',
+    'zh-TW': '道藏',
+    'pt-BR': 'Canon Taoista',
   },
 };
 

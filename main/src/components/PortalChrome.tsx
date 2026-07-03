@@ -1,24 +1,22 @@
-import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
-import { PortalMainBottomNav } from '@/components/PortalMainBottomNav';
-import { isMainPortalHome } from '@/lib/orasage-app-shell/config';
+import { FixedBottomNav } from '@/lib/orasage-app-shell/BottomNav';
 import { ORASAGE_PATHNAME_HEADER } from '@/lib/portal-pathname';
+import { headers } from 'next/headers';
 
-/** 门户页面包裹：全站移动端固定底栏（与顶栏同一套主导航） */
-export async function PortalChrome({ children }: { children: ReactNode; locale: string }) {
+/** 门户页面包裹：全站移动端 5 键底栏（PC 由 CSS 隐藏，顶栏导航代替） */
+export async function PortalChrome({ children, locale }: { children: ReactNode; locale: string }) {
   const headersList = await headers();
   const pathname = headersList.get(ORASAGE_PATHNAME_HEADER) ?? '/';
-  const isHome = isMainPortalHome(pathname);
 
   return (
     <>
-      <main className={`flex-1${isHome ? '' : ' orasage-portal-main'}`}>{children}</main>
+      <main className="orasage-portal-main flex-1">{children}</main>
       <div
-        className="orasage-app-shell lg:hidden"
+        className="orasage-app-shell"
         data-theme="light"
         style={{ minHeight: 0, background: 'transparent' }}
       >
-        <PortalMainBottomNav />
+        <FixedBottomNav context="portal" locale={locale} pathname={pathname} />
       </div>
     </>
   );

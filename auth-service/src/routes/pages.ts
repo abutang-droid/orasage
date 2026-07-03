@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getAuthUser } from "../lib/auth-user.ts";
 import { bottomNavHtml } from "../lib/bottom-nav-html.ts";
+import { topNavHtml } from "../lib/top-nav-html.ts";
 
 export const pagesRouter = Router();
 
@@ -29,7 +30,7 @@ function layout(title: string, body: string, locale = "zh-CN"): string {
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/app-shell.css">
 </head>
-<body class="orasage-auth-body"><div class="app-shell orasage-auth-content">${body}</div>${bottomNavHtml(locale)}<script src="/assets/app.js" defer></script></body>
+<body class="orasage-auth-body">${topNavHtml(locale)}<div class="app-shell orasage-auth-content">${body}</div>${bottomNavHtml(locale)}<script src="/assets/app.js" defer></script></body>
 </html>`;
 }
 

@@ -16,6 +16,17 @@ body {
 }
 a { color: var(--orasage-gold, #b8943f); text-decoration: none; }
 .app-shell { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom, 0); }
+.orasage-auth-content {
+  padding-bottom: calc(var(--orasage-shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+@media (min-width: 1024px) {
+  .orasage-auth-content {
+    padding-bottom: 2rem;
+  }
+  .page-header {
+    display: none;
+  }
+}
 .page-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.75rem 1rem;
