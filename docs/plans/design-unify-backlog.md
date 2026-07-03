@@ -1,8 +1,16 @@
 # OraSage 设计统一 & Phase 5 后续 — 待完成计划
 
-> 最后更新：2026-07-02（平台全站统一迭代）  
-> 关联分支：`cursor/platform-unify-full-e21e`  
-> 前置：已合并 `cursor/design-unify-ziwei-9ded` 至本分支
+> 最后更新：2026-07-03（Phase 2 UI 三轨合入 main）  
+> 关联文档：`docs/design-system/ui-phase-2.md`
+
+---
+
+## Phase 2 合入 main（2026-07-03）
+
+- [x] `feat/shared-ui-foundation` → `@orasage/ui`、`tokens:sync`、Phase 2 架构文档
+- [x] `feat/main-ui-unification` → 主站 Header/Footer/内容页/Profile UI 统一
+- [x] `feat/bazi-ui-unification` → 八字主题 + `BaziResult` 浅色纸面（四柱锚点保留）
+- [x] `main` / `bazi` build 通过；生产 E2E（platform-report / profile-shop / ziwei-shop）待 redeploy 后复验
 
 ---
 
@@ -22,11 +30,11 @@
 |------|------|------|
 | 设计令牌 / App Shell | ✅ 已合并入分支 | `shared/design-tokens/`, `shared/app-shell/` |
 | Ziwei 付费墙 parity | ✅ 已合并入分支 | `/chart` PaywallCard + usePaymentFlow |
-| Bazi 浅色主题 | 🟡 主体完成 | 仍有 `BaziResult.tsx` 局部深色残留 |
+| Bazi 浅色主题 | ✅ Phase 2 完成 | `BaziResult.tsx` 纸感背景；四柱区保留深色对比 |
 | Ziwei report-job | ✅ 已合并入分支 | 待 E2E 实测支付→报告 |
 | `/heming` 重定向 | ✅ 已部署验证 | 307 → `/chart?mode=heming` |
 | VPS 部署 | 🟡 部分完成 | ziwei / bazi / shop 已部署；E2E 未跑 |
-| PR 合并 main | ⬜ 未做 | 依赖 E2E 通过 |
+| PR 合并 main | ✅ Phase 2 三轨已合入 | foundation → main-ui → bazi-ui |
 
 ---
 
