@@ -151,15 +151,12 @@
   }
 }
 
-/* —— PC 顶栏主导航 —— */
+/* —— PC 顶栏主导航（左品牌 + 右链接，页面流内非浮层色块） —— */
 .orasage-site-topnav {
   display: none;
-  position: sticky;
-  top: 0;
-  z-index: 45;
-  border-bottom: 1px solid var(--shell-border);
-  background: var(--shell-surface);
-  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 10;
+  background: var(--shell-bg);
   padding-top: env(safe-area-inset-top, 0px);
 }
 
@@ -169,25 +166,38 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
   min-height: var(--shell-top-h);
   padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .orasage-site-topnav-inner {
+    padding: 0 24px;
+    min-height: 64px;
+  }
 }
 
 .orasage-site-topnav-brand {
   flex-shrink: 0;
   font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
+  font-size: 1.125rem;
+  letter-spacing: 0.1em;
   color: var(--shell-gold);
   text-decoration: none;
+}
+
+@media (min-width: 640px) {
+  .orasage-site-topnav-brand {
+    font-size: 1.25rem;
+  }
 }
 
 .orasage-site-topnav-menu {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex: 1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 20px;
   min-width: 0;
 }
@@ -207,8 +217,8 @@
   color: var(--shell-gold);
 }
 
-.orasage-site-topnav-auth {
-  flex-shrink: 0;
+.orasage-site-topnav-menu .orasage-auth-chip {
+  margin-inline-start: 4px;
 }
 
 @media (min-width: 1024px) {
@@ -217,15 +227,14 @@
   }
 }
 
-/* —— 移动顶栏（仅 Logo + 登录，主导航在底栏） —— */
+/* —— 移动顶栏（仅 Logo + 登录） —— */
 .orasage-site-mobile-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: var(--shell-top-h);
   padding: env(safe-area-inset-top, 0px) 16px 0;
-  border-bottom: 1px solid var(--shell-border);
-  background: var(--shell-surface);
+  background: var(--shell-bg);
 }
 
 .orasage-site-mobile-bar-brand {
@@ -342,10 +351,9 @@
   right: 0;
   bottom: 0;
   z-index: 50;
-  background: var(--shell-surface);
-  border-top: 1px solid var(--shell-border);
+  background: var(--shell-bg);
+  border-top: none;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  backdrop-filter: blur(16px);
 }
 
 .orasage-app-bottomnav-inner {

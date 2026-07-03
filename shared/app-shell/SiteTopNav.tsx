@@ -1,6 +1,6 @@
 'use client';
 
-import { daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS } from './config';
+import { APP_BRANDS, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { OrasageAuthChip } from './OrasageAuthChip';
 
@@ -12,13 +12,23 @@ const TOP_NAV_ITEMS = [
   { id: 'daozang' as const, href: (locale: string) => daozangUrl(locale), external: false },
 ];
 
-/** PC 顶栏主导航 — 全站统一（移动端由 CSS 隐藏） */
-export function SiteTopNav({ locale = 'zh-CN' }: { locale?: string }) {
+export type SiteTopNavProps = {
+  locale?: string;
+  /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / ManTo） */
+  context?: NavContext;
+};
+
+/** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
+export function SiteTopNav({ locale = 'zh-CN', context = 'portal' }: SiteTopNavProps) {
+  const isPortal = context === 'portal';
+  const brandLabel = isPortal ? 'OraSage' : APP_BRANDS[context];
+  const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
+
   return (
     <header className="orasage-site-topnav">
       <div className="orasage-site-topnav-inner">
-        <a href={mainPortalUrl(locale)} className="orasage-site-topnav-brand">
-          OraSage
+        <a href={brandHref} className="orasage-site-topnav-brand">
+          {brandLabel}
         </a>
         <nav className="orasage-site-topnav-menu" aria-label="Site navigation">
           {TOP_NAV_ITEMS.map((item) => {
@@ -30,10 +40,8 @@ export function SiteTopNav({ locale = 'zh-CN' }: { locale?: string }) {
               </a>
             );
           })}
-        </nav>
-        <div className="orasage-site-topnav-auth">
           <OrasageAuthChip locale={locale} />
-        </div>
+        </nav>
       </div>
     </header>
   );

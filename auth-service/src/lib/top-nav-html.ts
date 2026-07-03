@@ -18,10 +18,8 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
     <nav class="orasage-site-topnav-menu" aria-label="Site navigation">
           ${links}
-    </nav>
-    <div class="orasage-site-topnav-auth">
       <a href="https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}" class="orasage-auth-chip" id="orasage-topnav-login">登录</a>
-    </div>
+    </nav>
   </div>
 </header>`;
 }

@@ -15,7 +15,6 @@ export function topNavHtml(locale = 'zh-CN'): string {
     .map((item) => `<a href="${item.href}" class="orasage-site-topnav-link">${item.label}</a>`)
     .join('\n          ');
   const login = pickLabel(SHELL_LABELS.login, locale);
-  const profile = `${main}/profile`;
 
   return `
 <header class="orasage-site-topnav">
@@ -23,10 +22,8 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
     <nav class="orasage-site-topnav-menu" aria-label="Site navigation">
           ${links}
-    </nav>
-    <div class="orasage-site-topnav-auth">
       <a href="${ORASAGE_URLS.authLogin}?redirect=${encodeURIComponent(main)}" class="orasage-auth-chip" id="orasage-topnav-login">${login}</a>
-    </div>
+    </nav>
   </div>
 </header>`;
 }

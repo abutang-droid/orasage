@@ -34,7 +34,7 @@ export function AppShell({
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme}>
-      <SiteTopNav locale={locale} />
+      <SiteTopNav locale={locale} context={appId} />
       <main className={`orasage-app-main${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}`}>
         <div className="orasage-page-toolbar">
           {showBack ? (

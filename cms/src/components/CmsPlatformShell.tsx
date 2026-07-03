@@ -8,7 +8,7 @@ import { SiteTopNav } from '@/lib/orasage-app-shell/SiteTopNav';
 export function CmsPlatformShell({ children }: { children: ReactNode }) {
   return (
     <div className="cms-platform-shell orasage-app-shell" data-theme="light">
-      <SiteTopNav locale="zh-CN" />
+      <SiteTopNav locale="zh-CN" context="portal" />
       <div className="orasage-portal-main cms-platform-main">{children}</div>
       <FixedBottomNav context="portal" locale="zh-CN" pathname="/cms" />
     </div>
