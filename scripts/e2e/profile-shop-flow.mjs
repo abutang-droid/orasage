@@ -114,11 +114,17 @@ async function waitForReportLink(token, { titleIncludes, maxWaitMs = 120000 } = 
 }
 
 async function checkProfileUI(page) {
-  await page.goto(`${BASE.main}/zh-CN/profile/readings`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => null);
-  const link = page.getByRole('link', { name: L.viewReport });
-  await link.first().waitFor({ timeout: 30000 });
-  return await link.first().getAttribute('href');
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await page.goto(`${BASE.main}/zh-CN/profile/readings`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => null);
+    const link = page.getByRole('link', { name: L.viewReport });
+    if ((await link.count()) > 0) {
+      await link.first().waitFor({ state: 'visible', timeout: 10000 });
+      return await link.first().getAttribute('href');
+    }
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  throw new Error('Profile view report link not visible after retries');
 }
 
 async function main() {

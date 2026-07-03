@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchReadings, type UserReading } from '@/lib/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 function formatDate(iso: string): string {
@@ -70,11 +71,14 @@ export function ReadingsList() {
                 <p className="mt-2 text-xs text-primary/90">{r.recommendationReason}</p>
               )}
               {r.reportUrl && (
-                <Button asChild variant="outline" size="sm" className="mt-4">
-                  <a href={r.reportUrl} target="_blank" rel="noopener noreferrer">
-                    {t('viewReport')}
-                  </a>
-                </Button>
+                <a
+                  href={r.reportUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'mt-4 inline-flex')}
+                >
+                  {t('viewReport')}
+                </a>
               )}
             </CardContent>
           </Card>
