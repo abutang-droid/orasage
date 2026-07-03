@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
@@ -140,16 +141,22 @@ export function ContentSections() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <div className="flex flex-col gap-4 sm:gap-6 md:grid md:grid-cols-2">
-        <div className="rounded-2xl border border-sage-border bg-sage-card/60 p-5 sm:p-8">
+        <Link
+          href="/famous"
+          className="group rounded-2xl border border-sage-border bg-sage-card/60 p-5 transition active:border-sage-gold/40 sm:p-8 md:hover:border-sage-gold/40"
+        >
           <h3 className="font-serif text-lg text-sage-gold sm:text-xl">{t('famous')}</h3>
           <p className="mt-2 text-sm leading-relaxed text-sage-muted">{t('famousDesc')}</p>
-          <p className="mt-3 text-xs text-sage-purple sm:mt-4">{t('comingSoon')}</p>
-        </div>
-        <div className="rounded-2xl border border-sage-border bg-sage-card/60 p-5 sm:p-8">
+          <p className="mt-3 text-sm text-sage-gold sm:mt-4">{t('explore')} →</p>
+        </Link>
+        <Link
+          href="/daozang"
+          className="group rounded-2xl border border-sage-border bg-sage-card/60 p-5 transition active:border-sage-gold/40 sm:p-8 md:hover:border-sage-gold/40"
+        >
           <h3 className="font-serif text-lg text-sage-gold sm:text-xl">{t('daozang')}</h3>
           <p className="mt-2 text-sm leading-relaxed text-sage-muted">{t('daozangDesc')}</p>
-          <p className="mt-3 text-xs text-sage-purple sm:mt-4">{t('comingSoon')}</p>
-        </div>
+          <p className="mt-3 text-sm text-sage-gold sm:mt-4">{t('explore')} →</p>
+        </Link>
       </div>
     </section>
   );
