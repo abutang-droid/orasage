@@ -3,6 +3,12 @@ import type { TranslationDict } from "./index";
 const ui: TranslationDict = {
   "brand.name": "OraSage",
   "brand.tagline": "輸入出生資訊，開啟您的命理之旅",
+  "home.eyebrow": "八字命理",
+  "home.title": "精準排盤，洞察五行",
+  "home.subtitle": "輸入出生資訊，即刻生成四柱命盤與免費解讀",
+  "feed.aria": "用戶動態與評價",
+  "feed.kind.order": "動態",
+  "feed.kind.review": "評價",
   "form.name.placeholder": "請輸入姓名",
   "form.gender.male": "男",
   "form.gender.female": "女",

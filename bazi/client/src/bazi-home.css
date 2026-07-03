@@ -1,0 +1,224 @@
+/* ══════════════════════════════════════════════════════════════
+   Bazi home — editorial paper layout (aligned with main portal)
+   ══════════════════════════════════════════════════════════════ */
+
+.bazi-home-page {
+  width: 100%;
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.bazi-home-hero {
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+}
+
+.bazi-home-eyebrow {
+  font-family: var(--font-serif);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--brand-gold) / 0.92);
+}
+
+.bazi-home-title {
+  margin-top: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  color: var(--heading);
+}
+
+.bazi-home-subtitle {
+  margin: 0.625rem auto 0;
+  max-width: 20rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted-text);
+}
+
+.bazi-home-card {
+  background: var(--bg-card);
+  border: 1px solid color-mix(in srgb, var(--border-color) 85%, transparent);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgb(var(--os-rgb-ink-950) / 0.06);
+  overflow: hidden;
+}
+
+.bazi-home-mode-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin: 1.25rem 1.25rem 0.5rem;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
+  background: rgb(var(--os-rgb-ivory-100) / 0.8);
+  border: 1px solid var(--border-color);
+}
+
+.bazi-home-mode-btn {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  border: none;
+  border-radius: 0.625rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-text);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bazi-home-mode-btn.is-active {
+  color: var(--heading);
+  background: var(--bg-white);
+  box-shadow: 0 1px 4px rgb(var(--os-rgb-ink-950) / 0.08);
+  font-weight: 600;
+}
+
+.bazi-home-person-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1.25rem 0.25rem;
+}
+
+.bazi-home-person-hint {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: var(--muted-text);
+}
+
+.bazi-home-person-tab {
+  padding: 0.375rem 1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-text);
+  background: transparent;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.bazi-home-person-tab.is-active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.bazi-home-field-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.bazi-home-segment {
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  border: 1.5px solid var(--border-color);
+}
+
+.bazi-home-segment-btn {
+  min-width: 2rem;
+  padding: 0.5rem 0.55rem;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--body);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.bazi-home-segment-btn.is-active {
+  color: var(--primary-foreground);
+  background: var(--gold);
+  font-weight: 600;
+}
+
+.bazi-home-submit {
+  margin: 0.5rem 1.25rem 1.25rem;
+  width: calc(100% - 2.5rem);
+}
+
+/* ── Scrolling feed ticker ── */
+.bazi-home-feed {
+  margin-top: 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.bazi-home-feed-mask {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 92%, rgb(var(--brand-gold) / 0.04));
+}
+
+.bazi-home-feed-track {
+  display: flex;
+  width: max-content;
+  gap: 2rem;
+  padding: 0.75rem 0;
+  animation: bazi-feed-scroll 48s linear infinite;
+}
+
+.bazi-home-feed-track:hover {
+  animation-play-state: paused;
+}
+
+.bazi-home-feed-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  color: var(--body);
+}
+
+.bazi-home-feed-text {
+  font-family: var(--font-sans);
+}
+
+.bazi-feed-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.bazi-feed-chip--order {
+  color: var(--primary);
+  background: rgb(var(--brand-primary) / 0.1);
+}
+
+.bazi-feed-chip--review {
+  color: rgb(var(--brand-gold) / 1);
+  background: rgb(var(--brand-gold) / 0.12);
+}
+
+@keyframes bazi-feed-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bazi-home-feed-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem 1.5rem;
+  }
+}

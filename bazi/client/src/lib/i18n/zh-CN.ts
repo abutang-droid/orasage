@@ -5,6 +5,16 @@ const ui: TranslationDict = {
   "brand.name": "OraSage",
   "brand.tagline": "输入出生信息，开启您的命理之旅",
 
+  /* ── 首页 Hero ── */
+  "home.eyebrow": "八字命理",
+  "home.title": "精准排盘，洞察五行",
+  "home.subtitle": "输入出生信息，即刻生成四柱命盘与免费解读",
+
+  /* ── 滚动信息流 ── */
+  "feed.aria": "用户动态与评价",
+  "feed.kind.order": "动态",
+  "feed.kind.review": "评价",
+
   /* ── 表单 ── */
   "form.name.placeholder": "请输入姓名",
   "form.gender.male": "男",

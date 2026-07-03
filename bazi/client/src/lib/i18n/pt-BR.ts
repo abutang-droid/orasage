@@ -3,6 +3,12 @@ import type { TranslationDict } from "./index";
 const ui: TranslationDict = {
   "brand.name": "OraSage",
   "brand.tagline": "Insira seus dados de nascimento e inicie sua jornada de destino",
+  "home.eyebrow": "BaZi",
+  "home.title": "Mapa preciso, insight dos Cinco Elementos",
+  "home.subtitle": "Insira os dados de nascimento para gerar o mapa dos Quatro Pilares e leitura gratuita",
+  "feed.aria": "Atividade e avaliações",
+  "feed.kind.order": "Atividade",
+  "feed.kind.review": "Avaliação",
   "form.name.placeholder": "Seu Nome",
   "form.gender.male": "M",
   "form.gender.female": "F",

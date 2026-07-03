@@ -3,6 +3,12 @@ import type { TranslationDict } from "./index";
 const ui: TranslationDict = {
   "brand.name": "OraSage",
   "brand.tagline": "Enter your birth info and begin your destiny journey",
+  "home.eyebrow": "BaZi",
+  "home.title": "Precise Chart, Five Elements Insight",
+  "home.subtitle": "Enter birth details to generate your Four Pillars chart and free reading",
+  "feed.aria": "Activity and reviews",
+  "feed.kind.order": "Activity",
+  "feed.kind.review": "Review",
   "form.name.placeholder": "Your Name",
   "form.gender.male": "M",
   "form.gender.female": "F",

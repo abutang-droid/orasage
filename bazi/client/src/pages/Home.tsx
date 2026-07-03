@@ -1,6 +1,6 @@
 /**
- * 八字排盘 — 主页面 v6
- * Design: OraSage · 浅紫薄雾 · 金色点缀
+ * 八字排盘 — 主页面
+ * Design: OraSage · 纸感编辑风（与主站一致）
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -15,13 +15,14 @@ import {
 } from "@/lib/bazi";
 import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziResult";
 import { DatePicker } from "@/components/WheelPicker";
+import { BaziHomeFeed } from "@/components/BaziHomeFeed";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
-import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, PRIMARY, PRIMARY_HOVER, HEADING, BODY_CLR, BG_PAGE, BG_CARD, SERIF_F, BORDER_CLR } from "@/theme";
+import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -73,25 +74,7 @@ type ResultData =
 // ─── 设计常量 ─────────────────────────
 const MUTED_CLR  = BODY_CLR;
 const SANS       = "'Noto Sans SC','PingFang SC',sans-serif";
-
-// ─── 太极 SVG ─────────────────────────
-function TaijiSVG({ size = 48 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
-      <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={GOLD_GHOST}/>
-      <circle cx="50" cy="27" r="11.5" fill={GOLD_GHOST} stroke={GOLD_FAINT} strokeWidth="1"/>
-      <circle cx="50" cy="73" r="11.5" fill="rgb(var(--brand-gold) / 0.04)" stroke={GOLD_FAINT} strokeWidth="1"/>
-      <circle cx="50" cy="27" r="4" fill="rgb(var(--brand-gold) / 0.75)"/>
-      <circle cx="50" cy="73" r="4" fill="rgb(var(--brand-gold) / 0.25)"/>
-      {[0,45,90,135,180,225,270,315].map((deg, i) => (
-        <g key={i} transform={`rotate(${deg} 50 50)`}>
-          <line x1="50" y1="2" x2="50" y2="10" stroke={GOLD} strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
-        </g>
-      ))}
-    </svg>
-  );
-}
+const SERIF_F    = "'Noto Serif SC','Source Han Serif SC',serif";
 
 // ─── 加载动画 ─────────────────────────
 function LoadingView() {
@@ -391,74 +374,46 @@ function PersonFormPanel({ form, onChange }: {
   // Field label helper
   const Label = ({ text, required }: { text: string; required?: boolean }) => (
     <div className="flex items-center gap-1 mb-2">
-      <span style={{ fontFamily: SANS, fontSize: "0.8125rem", fontWeight: 600, color: HEADING }}>{text}</span>
-      {required && <span style={{ color: '#f87171', fontSize: '0.75rem' }}>*</span>}
+      <span className="bazi-home-field-label">{text}</span>
+      {required && <span className="text-red-400 text-xs">*</span>}
     </div>
   );
 
   return (
-    <div className="flex flex-col px-5 py-3" style={{ gap: "1rem" }}>
+    <div className="flex flex-col px-5 py-3 gap-4">
 
       {/* 姓名 + 性别 + 历法 */}
       <div className="flex items-center gap-1.5">
-        {/* 姓名 */}
         <div className="flex-1">
           <input
-            type="text" value={form.name}
+            type="text"
+            value={form.name}
             onChange={(e) => onChange({ name: e.target.value })}
             placeholder={t('form.name.placeholder')}
-            style={{
-              width: "100%", background: BG_PAGE,
-              border: `1.5px solid ${BORDER_CLR}`, borderRadius: "12px",
-              color: HEADING, fontFamily: SANS, fontSize: "0.9375rem",
-              padding: "0.625rem 0.75rem", outline: "none", caretColor: GOLD,
-              transition: "border-color 0.2s, box-shadow 0.2s",
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = GOLD;
-              e.target.style.boxShadow = `0 0 0 3px ${GOLD_FAINT}`;
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = BORDER_CLR;
-              e.target.style.boxShadow = "none";
-            }}
+            className="ora-input !min-h-0 !py-2.5 !text-[0.9375rem]"
           />
         </div>
 
-        {/* 性别 - 胶囊按钮 */}
-        <div className="flex rounded-lg overflow-hidden shrink-0" style={{ border: `1.5px solid ${BORDER_CLR}` }}>
+        <div className="bazi-home-segment">
           {(["male", "female"] as const).map((g) => (
             <button
-              key={g} type="button"
+              key={g}
+              type="button"
               onClick={() => onChange({ gender: g })}
-              className="transition-all duration-200"
-              style={{
-                minWidth: "32px", padding: "0.5rem 0.55rem",
-                background: form.gender === g ? GOLD : "transparent",
-                color: form.gender === g ? "var(--primary-foreground)" : MUTED_CLR,
-                fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.gender === g ? 600 : 400,
-                border: "none", lineHeight: 1,
-              }}
+              className={`bazi-home-segment-btn${form.gender === g ? ' is-active' : ''}`}
             >
               {g === "male" ? (t('form.gender.male') || "男") : (t('form.gender.female') || "女")}
             </button>
           ))}
         </div>
 
-        {/* 历法 - 胶囊按钮 */}
-        <div className="flex rounded-lg overflow-hidden shrink-0" style={{ border: `1.5px solid ${BORDER_CLR}` }}>
+        <div className="bazi-home-segment">
           {(["solar", "lunar"] as const).map((c) => (
             <button
-              key={c} type="button"
+              key={c}
+              type="button"
               onClick={() => onChange({ calendar: c })}
-              className="transition-all duration-200"
-              style={{
-                minWidth: "32px", padding: "0.5rem 0.55rem",
-                background: form.calendar === c ? GOLD : "transparent",
-                color: form.calendar === c ? "var(--primary-foreground)" : MUTED_CLR,
-                fontFamily: SANS, fontSize: "0.75rem", fontWeight: form.calendar === c ? 600 : 400,
-                border: "none", lineHeight: 1,
-              }}
+              className={`bazi-home-segment-btn${form.calendar === c ? ' is-active' : ''}`}
             >
               {c === "solar" ? (t('form.calendar.solar') || "公") : (t('form.calendar.lunar') || "农")}
             </button>
@@ -729,72 +684,50 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full" style={{ background: "transparent" }}>
-      <div className="w-full mx-auto" style={{ maxWidth: "480px", background: "transparent", minHeight: "auto" }}>
+    <div className="w-full">
+      <div className="bazi-home-page px-4">
 
-        {/* ── 内容 ── */}
-        <div className="px-4">
+        {view === "loading" && <LoadingView />}
 
-          {view === "loading" && <LoadingView />}
+        {view === "result" && result && (
+          result.type === "single"
+            ? <SingleBaziResultView result={result.data} onBack={handleBack} onStartDouble={handleStartDouble} />
+            : <DoubleBaziResultView result={result.data} onBack={handleBack} />
+        )}
 
-          {view === "result" && result && (
-            result.type === "single"
-              ? <SingleBaziResultView result={result.data} onBack={handleBack} onStartDouble={handleStartDouble} />
-              : <DoubleBaziResultView result={result.data} onBack={handleBack} />
-          )}
+        {view === "form" && (
+          <>
+            <header className="bazi-home-hero animate-fade-in-up">
+              <p className="bazi-home-eyebrow">{t('home.eyebrow')}</p>
+              <h1 className="bazi-home-title">{t('home.title')}</h1>
+              <p className="bazi-home-subtitle">{t('home.subtitle')}</p>
+            </header>
 
-          {view === "form" && (
-            <div className="animate-fade-in-up" style={{
-              display: "flex", flexDirection: "column", gap: "0",
-              background: BG_CARD, borderRadius: "24px",
-              border: `1px solid ${BORDER_CLR}`,
-              boxShadow: "0 8px 32px rgba(46,41,91,0.10)",
-              overflow: "hidden",
-            }}>
-
-              {/* 模式切换 — 主级导航条 */}
-              <div className="mx-5 mt-5 mb-2">
-                <div className="flex p-1 gap-1" style={{ background: "rgb(var(--brand-gold) / 0.08)", borderRadius: "14px", border: "1px solid rgb(var(--brand-gold) / 0.12)" }}>
-                  {(["single", "couple"] as const).map((m) => (
-                    <button
-                      key={m} type="button"
-                      onClick={() => handleModeSwitch(m)}
-                      className="flex-1 flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
-                      style={{
-                        padding: "0.6rem 0", border: "none",
-                        background: mode === m ? `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)` : "transparent",
-                        color: mode === m ? "var(--primary-foreground)" : MUTED_CLR,
-                        fontFamily: SANS, fontSize: "0.875rem",
-                        fontWeight: mode === m ? 700 : 400,
-                        borderRadius: "11px",
-                        boxShadow: mode === m ? "0 3px 12px rgb(var(--brand-primary) / 0.28)" : "none",
-                      }}
-                    >
-                      {m === "single" ? t('form.mode.single') : t('form.mode.couple')}
-                    </button>
-                  ))}
-                </div>
+            <div className="bazi-home-card animate-fade-in-up">
+              <div className="bazi-home-mode-bar">
+                {(["single", "couple"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => handleModeSwitch(m)}
+                    className={`bazi-home-mode-btn${mode === m ? ' is-active' : ''}`}
+                  >
+                    {m === "single" ? t('form.mode.single') : t('form.mode.couple')}
+                  </button>
+                ))}
               </div>
 
-              {/* 双人 Tab — 次级标签，指示当前编辑人选 */}
               {mode === "couple" && (
-                <div className="flex items-center gap-2 mx-5 mb-1">
-                  <p className="text-[10px] shrink-0" style={{ color: MUTED_CLR, fontFamily: SANS, letterSpacing: "0.08em" }}>
+                <div className="bazi-home-person-tabs">
+                  <p className="bazi-home-person-hint">
                     {t('form.person.editing', '编辑')}
                   </p>
                   {([t('form.person.first'), t('form.person.second')] as const).map((label, idx) => (
                     <button
-                      key={idx} type="button"
+                      key={idx}
+                      type="button"
                       onClick={() => setActivePerson(idx as 0 | 1)}
-                      className="px-4 py-1.5 transition-all duration-200 text-xs font-medium"
-                      style={{
-                        border: "none",
-                        fontFamily: SANS,
-                        color: activePerson === idx ? GOLD : MUTED_CLR,
-                        background: "transparent",
-                        borderBottom: activePerson === idx ? `2px solid ${GOLD}` : "2px solid transparent",
-                        borderRadius: 0,
-                      }}
+                      className={`bazi-home-person-tab${activePerson === idx ? ' is-active' : ''}`}
                     >
                       {label}
                     </button>
@@ -804,7 +737,7 @@ export default function Home() {
 
               {savedProfiles.length > 0 && (
                 <div className="mx-5 mb-3">
-                  <label className="block text-[11px] mb-1.5" style={{ color: MUTED_CLR, fontFamily: SANS }}>
+                  <label className="block text-[11px] mb-1.5 text-muted-foreground">
                     {t('form.saved_profile')}
                   </label>
                   <select
@@ -817,8 +750,7 @@ export default function Home() {
                       }
                       e.target.value = '';
                     }}
-                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                    style={{ background: 'rgb(var(--brand-gold) / 0.06)', border: `1px solid ${BORDER_CLR}`, color: BODY_CLR, fontFamily: SANS }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none bg-secondary border border-border text-foreground"
                   >
                     <option value="">{t('form.saved_profile.placeholder')}</option>
                     {savedProfiles.map((p) => (
@@ -828,35 +760,23 @@ export default function Home() {
                 </div>
               )}
 
-              {/* 表单主体 */}
               <PersonFormPanel
                 form={forms[mode === "single" ? 0 : activePerson]}
                 onChange={(patch) => updateForm(mode === "single" ? 0 : activePerson, patch)}
               />
 
-              {/* 提交按钮 */}
               <button
-                type="button" onClick={handleSubmit}
-                className="mx-5 mt-2 mb-5 w-auto flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]"
-                style={{
-                  padding: "1.125rem 0", border: "none", borderRadius: "20px",
-                  background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_HOVER} 100%)`,
-                  color: "var(--primary-foreground)", fontFamily: SANS, fontSize: "1.125rem",
-                  fontWeight: 700, letterSpacing: "0.16em",
-                  boxShadow: "0 6px 24px rgb(var(--brand-primary) / 0.28)",
-                }}
+                type="button"
+                onClick={handleSubmit}
+                className="btn-primary bazi-home-submit"
               >
-                <svg width="18" height="18" viewBox="0 0 100 100" fill="none">
-                  <circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5"/>
-                  <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(255,255,255,0.12)"/>
-                  <circle cx="50" cy="28" r="4" fill="rgba(255,255,255,0.6)"/>
-                </svg>
                 {mode === "single" ? t('form.submit.single') : t('form.submit.couple')}
               </button>
-
             </div>
-          )}
-        </div>
+
+            <BaziHomeFeed />
+          </>
+        )}
       </div>
     </div>
   );

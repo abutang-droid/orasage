@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "../../../shared/design-tokens/orasage-tokens.css";
 @import "./assets/orasage-ui.css";
+@import "./bazi-home.css";
 
 @source "../../../packages/ui/src/**/*.{ts,tsx}";
 
