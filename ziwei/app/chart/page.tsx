@@ -15,7 +15,6 @@ import { syncBirthFormProfile } from '@/lib/profile-sync';
 import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
 import PaywallCard from '@/components/PaywallCard';
 import CrystalShopCard from '@/components/CrystalShopCard';
-import { AppBrandMark } from '@/lib/orasage-app-shell/AppBrandMark';
 import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
 
 // ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
@@ -45,36 +44,21 @@ function HemingPanel({
   const personLabels = [t('form.person.first'), t('form.person.second')] as const;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.08em', flexShrink: 0 }}>
-          {t('form.person.editing')}
-        </span>
-      </div>
-      <div style={{ display: 'flex', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-lg)', padding: '4px', gap: '4px' }}>
+    <div className="ziwei-calc-form">
+      <div className="ziwei-calc-person-tabs">
+        <span className="ziwei-calc-person-hint">{t('form.person.editing')}</span>
         {personLabels.map((label, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => setActivePerson(idx as 0 | 1)}
-            style={{
-              flex: 1,
-              height: '40px',
-              borderRadius: 'var(--r-md)',
-              border: 'none',
-              background: activePerson === idx ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'transparent',
-              color: activePerson === idx ? '#FFFFFF' : 'var(--tx-2)',
-              fontSize: '13px',
-              fontWeight: activePerson === idx ? 700 : 400,
-              cursor: 'pointer',
-              letterSpacing: '0.05em',
-            }}
+            className={`ziwei-calc-person-tab${activePerson === idx ? ' is-active' : ''}`}
           >
             {label}
           </button>
         ))}
       </div>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--bdr)', padding: '24px' }}>
+      <div className="ziwei-calc-card">
         <BirthForm
           key={activePerson}
           onSubmit={() => {}}
@@ -94,13 +78,7 @@ function HemingPanel({
         type="button"
         onClick={handleSubmit}
         disabled={!canSubmit || loading}
-        style={{
-          width: '100%', height: '52px',
-          background: canSubmit && !loading ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'var(--bdr-med)',
-          color: canSubmit && !loading ? '#FFFFFF' : 'var(--tx-3)',
-          border: 'none', borderRadius: 'var(--r-md)', fontSize: '15px', fontWeight: 700,
-          cursor: canSubmit && !loading ? 'pointer' : 'not-allowed', letterSpacing: '0.15em',
-        }}
+        className="ziwei-calc-submit"
       >
         {loading ? t('heming.submit.loading') : t('heming.submit')}
       </button>
@@ -185,49 +163,58 @@ export default function ChartPage() {
   // ═══ 表单视图 ═══
   if (!chart) {
     return (
-      <div style={{ background: 'var(--bg-0)', padding: '8px 0 16px' }} className="orasage-fade-in">
-        <AppBrandMark appId="ziwei" />
-        <div style={{ maxWidth: '480px', margin: '0 auto 24px', padding: '0 20px' }}>
-          <div style={{ display: 'flex', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-lg)', padding: '4px', gap: '4px' }}>
-            {(['single', 'heming'] as const).map(m => (
-              <button key={m} onClick={() => setMode(m)}
-                style={{ flex: 1, height: '40px', borderRadius: 'var(--r-md)', border: 'none', background: mode === m ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'transparent', color: mode === m ? '#FFFFFF' : 'var(--tx-2)', fontSize: '13px', fontWeight: mode === m ? 700 : 400, cursor: 'pointer', transition: 'all 0.2s', letterSpacing: '0.05em' }}>
-                {m === 'single' ? t('tab.single') : t('tab.heming')}
-              </button>
-            ))}
+      <div className="ziwei-chart-page orasage-fade-in">
+        <div className="ziwei-calc-mode-bar">
+          {(['single', 'heming'] as const).map(m => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`ziwei-calc-mode-btn${mode === m ? ' is-active' : ''}`}
+            >
+              {m === 'single' ? t('tab.single') : t('tab.heming')}
+            </button>
+          ))}
+        </div>
+
+        {mode === 'single' ? (
+          <div className="ziwei-calc-card">
+            <BirthForm key={formKey} onSubmit={handleSingleSubmit} loading={loading} initialData={savedForm ?? undefined}
+              onFormSave={form => { setSavedForm(form); if (form.year && form.month && form.day) { saveHistory(form); const params = formToSearchParams(form); if (typeof window !== 'undefined') window.history.replaceState({}, '', `/chart?${params.toString()}`); } }} />
           </div>
-        </div>
-        <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0 20px' }}>
-          {mode === 'single' ? (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--bdr)', padding: '24px' }}>
-              <BirthForm key={formKey} onSubmit={handleSingleSubmit} loading={loading} initialData={savedForm ?? undefined}
-                onFormSave={form => { setSavedForm(form); if (form.year && form.month && form.day) { saveHistory(form); const params = formToSearchParams(form); if (typeof window !== 'undefined') window.history.replaceState({}, '', `/chart?${params.toString()}`); } }} />
+        ) : (
+          <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
+        )}
+
+        {error && <div className="ziwei-calc-error">{error}</div>}
+
+        {mode === 'single' && history.length > 0 && (
+          <div className="ziwei-calc-history">
+            <div className="ziwei-calc-history-header">
+              <span className="ziwei-calc-history-label">{t('form.history')}</span>
+              <div className="ziwei-calc-history-line" />
             </div>
-          ) : (
-            <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
-          )}
-          {error && <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(168,50,40,0.06)', border: '1px solid rgba(168,50,40,0.2)', borderRadius: 'var(--r-md)', fontSize: '12px', color: '#c0392b', textAlign: 'center' }}>{error}</div>}
-          {mode === 'single' && history.length > 0 && (
-            <div style={{ marginTop: '36px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '10px', letterSpacing: '0.4em', color: 'var(--tx-3)' }}>{t('form.history')}</span>
-                <div style={{ flex: 1, height: '1px', background: 'var(--bdr)' }} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {history.map(entry => (
-                  <div key={entry.id} onClick={() => { setSavedForm(entry.form); handleSingleSubmit(formToBirthInfo(entry.form), entry.form); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-md)', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold-border)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr)'; }}>
-                    <span style={{ fontSize: '11px', color: 'var(--gold)', opacity: 0.5, flexShrink: 0 }}>✦</span>
-                    <span style={{ fontSize: '12px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--tx-2)' }}>{entry.label}</span>
-                    <button onClick={e => { e.stopPropagation(); removeHistory(entry.id); }} style={{ fontSize: '16px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1, opacity: 0.5, flexShrink: 0 }}>×</button>
-                  </div>
-                ))}
-              </div>
+            <div className="ziwei-calc-history-list">
+              {history.map(entry => (
+                <div
+                  key={entry.id}
+                  className="ziwei-calc-history-item"
+                  onClick={() => { setSavedForm(entry.form); handleSingleSubmit(formToBirthInfo(entry.form), entry.form); }}
+                >
+                  <span className="ziwei-calc-history-item-label">{entry.label}</span>
+                  <button
+                    type="button"
+                    className="ziwei-calc-history-item-remove"
+                    onClick={e => { e.stopPropagation(); removeHistory(entry.id); }}
+                    aria-label={t('common.close')}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }

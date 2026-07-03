@@ -140,6 +140,9 @@ const en: Record<string, string> = {
   'common.error': 'An error occurred',
   'common.retry': 'Retry',
   'common.close': 'Close',
+  'footer.portal.copyright': '© 2026 OraSage. All rights reserved.',
+  'footer.portal.privacy': 'Privacy Policy',
+  'footer.portal.terms': 'Terms of Service',
 };
 
 export default en;

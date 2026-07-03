@@ -132,6 +132,9 @@ const ptBR: Record<string, string> = {
   'common.error': 'Ocorreu um erro',
   'common.retry': 'Tentar novamente',
   'common.close': 'Fechar',
+  'footer.portal.copyright': '© 2026 OraSage. Todos os direitos reservados.',
+  'footer.portal.privacy': 'Política de Privacidade',
+  'footer.portal.terms': 'Termos de Serviço',
 };
 
 export default ptBR;
