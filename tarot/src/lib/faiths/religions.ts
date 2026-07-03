@@ -49,16 +49,22 @@ export function getMoreFaiths(): FaithOption[] {
   return WORLD_FAITHS.filter((f) => f.rank > TOP_FAITH_COUNT && f.rank < 98);
 }
 
-export function getFaithById(id: string): FaithOption | undefined {
+export function getFaithById(id: string, list?: FaithOption[]): FaithOption | undefined {
   if (id.startsWith('other:')) {
-    return { ...faithById.get('other')!, nameZh: id.slice(6) || '其他', nameEn: 'Other' };
+    const base = list?.find((f) => f.id === 'other') ?? faithById.get('other');
+    if (!base) return undefined;
+    return { ...base, id, nameZh: id.slice(6) || '其他', nameEn: 'Other' };
+  }
+  if (list) {
+    const found = list.find((f) => f.id === id);
+    if (found) return found;
   }
   return faithById.get(id);
 }
 
-export function formatFaithLabel(id: string | null | undefined): string {
+export function formatFaithLabel(id: string | null | undefined, list?: FaithOption[]): string {
   if (!id) return '';
-  const faith = getFaithById(id);
+  const faith = getFaithById(id, list);
   return faith?.nameZh ?? id;
 }
 

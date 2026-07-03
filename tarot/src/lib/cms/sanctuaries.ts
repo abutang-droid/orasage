@@ -1,15 +1,7 @@
 import { DEITIES, filterDeitiesByFaith, type Deity } from '@/lib/faiths/deities';
+import type { CmsFaith } from '@/lib/cms/faiths';
 
 const CMS_URL = process.env.CMS_URL || process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
-
-export type CmsFaith = {
-  id: number;
-  code: string;
-  nameZh: string;
-  nameEn: string;
-  emoji?: string | null;
-  rank?: number | null;
-};
 
 export type CmsSanctuary = {
   id: number;
@@ -107,16 +99,5 @@ export async function fetchSanctuariesByFaith(faithCode: string | null): Promise
   return fallback;
 }
 
-export async function fetchFaithsFromCms(): Promise<CmsFaith[]> {
-  const params = new URLSearchParams();
-  params.set('where[wpStatus][equals]', 'publish');
-  params.set('limit', '100');
-  params.set('sort', 'rank');
-
-  const res = await fetch(`${CMS_URL}/api/faiths?${params}`, {
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error(`CMS faiths fetch failed: ${res.status}`);
-  const data: CmsListResponse<CmsFaith> = await res.json();
-  return data.docs;
-}
+export type { CmsFaith } from '@/lib/cms/faiths';
+export { fetchFaithsFromCms } from '@/lib/cms/faiths';
