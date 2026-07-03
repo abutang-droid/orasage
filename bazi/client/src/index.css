@@ -30,17 +30,17 @@
   --brand-primary: var(--os-rgb-jade-500);
   --brand-gold: var(--os-rgb-brass-300);
 
-  --orasage-brand-primary: var(--os-color-jade-500);
-  --orasage-brand-primary-hover: var(--os-color-jade-600);
-  --orasage-brand-primary-active: var(--os-color-jade-700);
-  --orasage-brand-gold: var(--os-color-brass-300);
-  --orasage-brand-purple: var(--os-color-violet-500);
+  --orasage-brand-primary: rgb(var(--os-rgb-jade-500));
+  --orasage-brand-primary-hover: rgb(var(--os-rgb-jade-600));
+  --orasage-brand-primary-active: rgb(var(--os-rgb-jade-700));
+  --orasage-brand-gold: rgb(var(--os-rgb-brass-300));
+  --orasage-brand-purple: rgb(var(--os-rgb-violet-500));
   --orasage-background: rgb(var(--background));
   --orasage-surface: rgb(var(--card));
-  --orasage-text-primary: var(--os-color-ink-900);
-  --orasage-text-secondary: var(--os-color-ink-600);
-  --orasage-text-muted: var(--os-color-ink-500);
-  --orasage-focus-ring: var(--os-color-jade-500);
+  --orasage-text-primary: rgb(var(--os-rgb-ink-900));
+  --orasage-text-secondary: rgb(var(--os-rgb-ink-600));
+  --orasage-text-muted: rgb(var(--os-rgb-ink-500));
+  --orasage-focus-ring: rgb(var(--os-rgb-jade-500));
   --orasage-border: rgb(var(--border));
   --orasage-border-subtle: rgb(var(--os-rgb-ivory-100));
   --orasage-gold-light: var(--os-color-brass-200);
