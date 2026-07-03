@@ -157,6 +157,9 @@ const zhCN: Record<string, string> = {
   'plan.couple.premium.name': '双人终极礼盒',
   'plan.couple.premium.desc': '合盘报告 + 双人水晶礼盒',
   'plan.paid_success': '支付成功，正在解锁解读…',
+  'footer.portal.copyright': '© 2026 OraSage. 保留所有权利。',
+  'footer.portal.privacy': '隐私政策',
+  'footer.portal.terms': '服务条款',
 };
 
 export default zhCN;
