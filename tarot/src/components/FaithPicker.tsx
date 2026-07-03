@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   FAITH_STORAGE_KEY,
   formatFaithLabel,
@@ -9,6 +9,7 @@ import {
   getTopFaiths,
   type FaithOption,
 } from '@/lib/faiths/religions';
+import { splitFaithsByRank } from '@/lib/cms/faiths';
 
 type FaithPickerProps = {
   value?: string | null;
@@ -16,6 +17,13 @@ type FaithPickerProps = {
   title?: string;
   subtitle?: string;
   confirmLabel?: string;
+};
+
+type FaithApiResponse = {
+  faiths?: FaithOption[];
+  top?: FaithOption[];
+  more?: FaithOption[];
+  source?: 'cms' | 'fallback';
 };
 
 function FaithCard({
@@ -87,11 +95,43 @@ export function FaithPicker({
   const [showMore, setShowMore] = useState(false);
   const [otherText, setOtherText] = useState('');
   const [pending, setPending] = useState<string | null>(value ?? null);
+  const [faiths, setFaiths] = useState<FaithOption[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const topFaiths = useMemo(() => getTopFaiths(), []);
-  const moreFaiths = useMemo(() => getMoreFaiths(), []);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetch('/api/faiths')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: FaithApiResponse | null) => {
+        if (cancelled) return;
+        if (data?.faiths?.length) {
+          setFaiths(data.faiths);
+        } else {
+          setFaiths([...getTopFaiths(), ...getMoreFaiths()]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFaiths([...getTopFaiths(), ...getMoreFaiths()]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const selectedFaith = pending ? getFaithById(pending) : null;
+  const { top: topFaiths, more: moreFaiths } = useMemo(() => {
+    if (faiths.length === 0) {
+      return { top: getTopFaiths(), more: getMoreFaiths() };
+    }
+    return splitFaithsByRank(faiths);
+  }, [faiths]);
+
+  const selectedFaith = pending ? getFaithById(pending, faiths) : null;
   const isOther = pending === 'other' || pending?.startsWith('other:');
 
   function selectFaith(id: string) {
@@ -142,47 +182,32 @@ export function FaithPicker({
             color: 'var(--text-secondary)',
           }}
         >
-          当前：{formatFaithLabel(value)}
+          当前：{formatFaithLabel(value, faiths)}
         </div>
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 10,
-          marginBottom: 16,
-        }}
-      >
-        {topFaiths.map((faith) => (
-          <FaithCard
-            key={faith.id}
-            faith={faith}
-            selected={pending === faith.id}
-            onSelect={() => selectFaith(faith.id)}
-          />
-        ))}
-      </div>
-
-      {!showMore ? (
-        <button
-          type="button"
-          className="btn-outline"
-          style={{ width: '100%', marginBottom: 24 }}
-          onClick={() => setShowMore(true)}
+      {loading ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '32px 0',
+            color: 'var(--text-muted)',
+            fontSize: 13,
+          }}
         >
-          更多信仰 →
-        </button>
+          正在从 CMS 加载信仰列表…
+        </div>
       ) : (
-        <div style={{ marginBottom: 24 }}>
+        <>
           <div
-            className="section-label"
-            style={{ marginBottom: 12 }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 10,
+              marginBottom: 16,
+            }}
           >
-            更多信仰
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {moreFaiths.map((faith) => (
+            {topFaiths.map((faith) => (
               <FaithCard
                 key={faith.id}
                 faith={faith}
@@ -191,7 +216,34 @@ export function FaithPicker({
               />
             ))}
           </div>
-        </div>
+
+          {!showMore ? (
+            <button
+              type="button"
+              className="btn-outline"
+              style={{ width: '100%', marginBottom: 24 }}
+              onClick={() => setShowMore(true)}
+            >
+              更多信仰 →
+            </button>
+          ) : (
+            <div style={{ marginBottom: 24 }}>
+              <div className="section-label" style={{ marginBottom: 12 }}>
+                更多信仰
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {moreFaiths.map((faith) => (
+                  <FaithCard
+                    key={faith.id}
+                    faith={faith}
+                    selected={pending === faith.id}
+                    onSelect={() => selectFaith(faith.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {isOther && (
