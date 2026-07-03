@@ -13,7 +13,8 @@
   --bazi-control-bg: #fff;
   --bazi-control-border: rgb(var(--os-rgb-ink-500) / 0.26);
   --bazi-control-border-strong: rgb(var(--os-rgb-ink-600) / 0.32);
-  --bazi-placeholder: rgb(var(--os-rgb-ink-400) / 0.52);
+  /* 占位符：约为正文的 20% 视觉权重 */
+  --bazi-placeholder: rgb(var(--foreground) / 0.2);
 }
 
 /* ── Hero (CMS-configurable, mirrors main .home-hero) ── */
