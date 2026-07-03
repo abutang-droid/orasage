@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "../../../shared/design-tokens/orasage-tokens.css";
 
+@source "../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 
 /* ── Google Fonts 已在 index.html 中引入 ── */

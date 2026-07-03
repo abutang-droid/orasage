@@ -151,6 +151,7 @@ function vitePluginManusDebugCollector(): Plugin {
 }
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const SHARED_PACKAGES_DIR = path.resolve(PROJECT_ROOT, "..", "packages");
 
 export default defineConfig({
   plugins,
@@ -181,6 +182,7 @@ export default defineConfig({
     ],
     fs: {
       strict: true,
+      allow: [PROJECT_ROOT, SHARED_PACKAGES_DIR],
       deny: ["**/.*"],
     },
   },
