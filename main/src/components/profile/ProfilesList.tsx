@@ -8,6 +8,13 @@ import {
   fetchSavedProfiles,
   type SavedProfile,
 } from '@/lib/auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -80,84 +87,82 @@ export function ProfilesList() {
   }
 
   if (loading) {
-    return <p className="text-sm text-sage-muted">{t('loading')}</p>;
+    return <ProfileListSkeleton rows={2} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-sage-muted">{t('desc')}</p>
-        <button
-          type="button"
-          onClick={() => setShowForm(!showForm)}
-          className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold hover:bg-sage-gold/10"
-        >
+        <p className="text-sm text-muted-foreground">{t('desc')}</p>
+        <Button type="button" variant="outline" size="sm" onClick={() => setShowForm(!showForm)}>
           {showForm ? t('cancel') : t('add')}
-        </button>
+        </Button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="rounded-2xl border border-sage-border/60 bg-sage-card/30 p-4 space-y-3">
-          <label className="block text-sm">
-            <span className="text-sage-muted">{t('name')}</span>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary"
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-sage-muted">{t('label')}</span>
-            <input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder={t('labelPlaceholder')}
-              maxLength={50}
-              className="mt-1 w-full rounded-lg border border-sage-border bg-sage-bg px-3 py-2 text-sage-primary"
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-full border border-sage-gold/40 px-4 py-2 text-sm text-sage-gold disabled:opacity-50"
-          >
-            {saving ? t('saving') : t('save')}
-          </button>
-        </form>
+        <Card>
+          <CardContent className="space-y-4 p-4 sm:p-5">
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="profile-name">{t('name')}</Label>
+                <Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="profile-label">{t('label')}</Label>
+                <Input
+                  id="profile-label"
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  placeholder={t('labelPlaceholder')}
+                  maxLength={50}
+                />
+              </div>
+              <Button type="submit" disabled={saving} loading={saving} size="sm">
+                {saving ? t('saving') : t('save')}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {profiles.length === 0 ? (
-        <p className="text-sm text-sage-muted">{t('empty')}</p>
+        <p className="text-sm text-muted-foreground">{t('empty')}</p>
       ) : (
         <ul className="space-y-3">
           {profiles.map((p, i) => (
-            <li
-              key={p.id}
-              className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-sage-border/60 bg-sage-card/30 p-4"
-            >
-              <div>
-                <p className="font-medium text-sage-primary">
-                  <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-sage-gold/15 text-xs text-sage-gold">
-                    {profileLabel(p, i)}
-                  </span>
-                  {p.name}
-                </p>
-                <p className="mt-1 text-sm text-sage-muted">
-                  {formatBirth(p)}
-                  {p.birthPlaceCity ? ` · ${p.birthPlaceCity}` : ''}
-                  {p.sourceAppLabel ? ` · ${p.sourceAppLabel}` : ''}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(p.id)}
-                className="text-sm text-sage-muted hover:text-red-300"
-              >
-                {t('delete')}
-              </button>
+            <li key={p.id}>
+              <Card>
+                <CardContent className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5">
+                  <div>
+                    <p className="flex items-center gap-2 font-medium text-foreground">
+                      <Badge variant="secondary" className="size-6 justify-center rounded-full p-0">
+                        {profileLabel(p, i)}
+                      </Badge>
+                      {p.name}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {formatBirth(p)}
+                      {p.birthPlaceCity ? ` · ${p.birthPlaceCity}` : ''}
+                      {p.sourceAppLabel ? ` · ${p.sourceAppLabel}` : ''}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(p.id)}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    {t('delete')}
+                  </Button>
+                </CardContent>
+              </Card>
             </li>
           ))}
         </ul>
