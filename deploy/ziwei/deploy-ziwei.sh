@@ -64,6 +64,25 @@ deploy_native() {
       done
     fi
     grep -q '^AUTH_INTERNAL_URL=' "$APP_DIR/.env" || echo 'AUTH_INTERNAL_URL=http://127.0.0.1:3101' >> "$APP_DIR/.env"
+
+    # JWT_SECRET 必须与 auth-service 一致，否则 orasage_token 桥接始终为 null
+    jwt=$(grep '^JWT_SECRET=' "$APP_DIR/.env" 2>/dev/null | cut -d= -f2- || true)
+    if [ -z "$jwt" ] || [ "$jwt" = "change-me-to-a-random-string-at-least-32-chars" ]; then
+      for src in "$DEPLOY_DIR/auth-service/.env" "$DEPLOY_DIR/.env" "$DEPLOY_DIR/tarot/.env" "$DEPLOY_DIR/bazi/.env"; do
+        if [ -f "$src" ]; then
+          inherit=$(grep '^JWT_SECRET=' "$src" 2>/dev/null | cut -d= -f2- || true)
+          if [ -n "$inherit" ] && [ "$inherit" != "change-me-to-a-random-string-at-least-32-chars" ]; then
+            if grep -q '^JWT_SECRET=' "$APP_DIR/.env"; then
+              sed -i "s|^JWT_SECRET=.*|JWT_SECRET=${inherit}|" "$APP_DIR/.env"
+            else
+              echo "JWT_SECRET=${inherit}" >> "$APP_DIR/.env"
+            fi
+            log "已从 $(basename "$(dirname "$src")")/.env 继承 JWT_SECRET（orasage 桥接）"
+            break
+          fi
+        fi
+      done
+    fi
   fi
 
   cd "$APP_DIR"
