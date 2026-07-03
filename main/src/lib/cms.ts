@@ -64,7 +64,13 @@ export function decodeHtmlEntities(text: string): string {
 export function stripHtml(html: string, max = 140): string {
   const plain = decodeHtmlEntities(
     sanitizeLegacyHtml(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
-  );
+  )
+    .replace(/目录\s*/g, '')
+    .replace(/手机阅读\s*/g, '')
+    .replace(/扫码下载\/打开问真八字\s*/g, '')
+    .replace(/在手机上继续阅读本书\s*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return plain.length > max ? `${plain.slice(0, max)}…` : plain;
 }
 
