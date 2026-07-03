@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { getAuthUser } from '@/lib/auth';
 import { proxyShopCheckout, resolveAuthUserId } from '../../../../../shared/shop-checkout/server';
 
 const bodySchema = z.object({
@@ -18,12 +19,16 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = bodySchema.parse(await req.json());
+    const tarotUser = await getAuthUser();
+    const tarotTag = tarotUser ? `tarotUser:${tarotUser.userId}` : '';
+    const recommendationContext = [body.recommendationContext, tarotTag].filter(Boolean).join('|');
+
     const result = await proxyShopCheckout({
       userId,
       sku: body.sku,
       quantity: body.quantity,
       appSource: 'tarot',
-      recommendationContext: body.recommendationContext,
+      recommendationContext: recommendationContext || undefined,
       readingId: body.readingId,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,

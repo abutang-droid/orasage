@@ -244,11 +244,12 @@ function WorshipScreen({ deity, onComplete }: { deity: Deity; onComplete: (durat
 }
 
 // ─── Blessing End Screen ───────────────────────────────────────────
-function BlessingScreen({ deity, duration, stage, meritEarned, alreadyCheckedIn, levelUp, streakDays, onDone }: {
+function BlessingScreen({ deity, duration, stage, meritEarned, blessingText, alreadyCheckedIn, levelUp, streakDays, onDone }: {
   deity: Sanctuary
   duration: number
   stage: number
   meritEarned: number
+  blessingText?: string
   alreadyCheckedIn?: boolean
   levelUp?: boolean
   streakDays?: number
@@ -299,7 +300,7 @@ function BlessingScreen({ deity, duration, stage, meritEarned, alreadyCheckedIn,
           fontSize: 14, color: 'var(--text-primary)',
           lineHeight: 1.8, fontFamily: 'var(--font-serif)',
         }}>
-          {deity.blessingText ?? (
+          {blessingText ?? deity.blessingText ?? (
             <>
               她看见你心里的那团火——<br />
               那是还没说出口的话。<br />
@@ -328,7 +329,11 @@ function BlessingScreen({ deity, duration, stage, meritEarned, alreadyCheckedIn,
         }}>
           🔮 去占卜
         </Link>
-        <button className="btn-ghost" style={{ width: '100%' }}>
+        <button
+          className="btn-ghost"
+          style={{ width: '100%' }}
+          onClick={() => void fetch('/api/merit/share', { method: 'POST' })}
+        >
           📤 分享到 WhatsApp
         </button>
         <button onClick={onDone} style={{
@@ -356,6 +361,7 @@ export default function TemplePage() {
     duration: number
     stage: number
     meritEarned: number
+    blessingText?: string
     alreadyCheckedIn?: boolean
     levelUp?: boolean
     streakDays?: number
@@ -403,6 +409,11 @@ export default function TemplePage() {
   const handleFaithChange = useCallback(async (faithId: string) => {
     setSelectedFaith(faithId)
     await setFaith(faithId)
+    void fetch('/api/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: 'faith' }),
+    })
     setPhase("select")
   }, [setFaith])
 
@@ -411,6 +422,11 @@ export default function TemplePage() {
     localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
     setSavedDeity(deity)
     void setDeity(deity.id)
+    void fetch('/api/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: 'deity' }),
+    })
     setPhase("worship")
   }, [setDeity])
 
@@ -435,6 +451,7 @@ export default function TemplePage() {
         duration,
         stage,
         meritEarned: data?.meritEarned ?? (stage === 3 ? 10 : stage === 2 ? 5 : 1),
+        blessingText: data?.blessingText,
         alreadyCheckedIn: data?.alreadyCheckedIn,
         levelUp: data?.levelUp,
         streakDays: data?.streakDays ?? data?.summary?.streak,
@@ -634,6 +651,7 @@ export default function TemplePage() {
           duration={blessingData.duration}
           stage={blessingData.stage}
           meritEarned={blessingData.meritEarned}
+          blessingText={blessingData.blessingText}
           alreadyCheckedIn={blessingData.alreadyCheckedIn}
           levelUp={blessingData.levelUp}
           streakDays={blessingData.streakDays}

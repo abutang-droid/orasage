@@ -27,6 +27,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ records, total, page, totalPages: Math.ceil(total / limit) })
   }
 
+  if (type === "temple") {
+    const [records, total] = await Promise.all([
+      prisma.templeCheckin.findMany({
+        where: { userId: auth.userId },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          deityCode: true,
+          deityName: true,
+          faithCode: true,
+          worshipStage: true,
+          meritEarned: true,
+          durationSec: true,
+          checkinDate: true,
+          createdAt: true,
+        },
+      }),
+      prisma.templeCheckin.count({ where: { userId: auth.userId } }),
+    ])
+    return NextResponse.json({ records, total, page, totalPages: Math.ceil(total / limit) })
+  }
+
   const [records, total] = await Promise.all([
     prisma.readingRecord.findMany({ where: { userId: auth.userId }, orderBy: { createdAt: "desc" }, take: limit, skip }),
     prisma.readingRecord.count({ where: { userId: auth.userId } }),

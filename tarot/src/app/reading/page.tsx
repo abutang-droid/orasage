@@ -318,6 +318,11 @@ export default function ReadingPage() {
       crystalName: crystal.name,
       readingId,
     })
+    void fetch('/api/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: 'reading' }),
+    })
     setStep("blessing")
   }, [quizAnswers])
 

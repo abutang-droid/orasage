@@ -92,3 +92,48 @@ export function streakBonusMerit(streakDays: number): number {
   if (streakDays >= 7) return 3;
   return 0;
 }
+
+/** 初一/十五及固定节日 — 功德 ×2 */
+export function sacredDayMultiplier(date = new Date()): number {
+  const m = date.getUTCMonth() + 1;
+  const d = date.getUTCDate();
+  if (d === 1 || d === 15) return 2;
+  if (m === 12 && d === 25) return 2;
+  if (m === 1 && d === 1) return 2;
+  return 1;
+}
+
+export const OFFER_MERIT = {
+  paid_reading: 2,
+  crystal_purchase: 10,
+  crystal_gift: 25,
+} as const;
+
+export const SHARE_MERIT = {
+  link_click: 1,
+  daily_cap: 5,
+  referral_first_worship: 10,
+  referral_first_paid_reading: 50,
+  referral_crystal: 100,
+} as const;
+
+export const REFERRAL_LEVEL_BONUS: Record<number, number> = {
+  1: 200,
+  2: 500,
+};
+
+export const ONBOARDING_STEPS = ['welcome', 'reading', 'faith', 'deity', 'worship', 'done'] as const;
+export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
+
+export function nextOnboardingStep(step: string): OnboardingStep {
+  const i = ONBOARDING_STEPS.indexOf(step as OnboardingStep);
+  if (i < 0 || i >= ONBOARDING_STEPS.length - 1) return 'done';
+  return ONBOARDING_STEPS[i + 1];
+}
+
+export function onboardingDayBonus(checkinCount: number): number {
+  if (checkinCount === 1) return 5;
+  if (checkinCount === 3) return 10;
+  if (checkinCount === 7) return 30;
+  return 0;
+}
