@@ -191,9 +191,13 @@ flowchart TD
 
 ### 2.5 塔罗占卜（tarot）
 
-#### TC-TAROT-001：访客自动创建 + 每日一牌 `[P2]` `[M]`
+#### TC-TAROT-001：访客自动创建 + 每日一牌 `[P2]` `[A]`
 
-#### TC-TAROT-002：神庙供奉 + 功德累积 `[P2]` `[M]`
+**自动化：** `npm run test:tarot-daily`（`tarot-daily-card-guest.mjs`）
+
+#### TC-TAROT-002：神庙供奉 + 功德累积 `[P2]` `[A]`
+
+**自动化：** `npm run test:tarot-temple`（`tarot-temple-merit.mjs`）
 
 #### TC-TAROT-003：水晶购买触发功德 `[P1]` `[A]`
 
@@ -309,6 +313,8 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `ziwei-shop-flow.mjs` | `test:ziwei-flow` | TC-ZIWEI-002 | Browser | ✅ |
 | `tarot-offer-merit.mjs` | `test:tarot-offer` | TC-TAROT-003 | API | ✅ |
 | `tarot-free-readings.mjs` | `test:tarot-free` | tarot 免费次数 P2 | API | ✅ |
+| `tarot-daily-card-guest.mjs` | `test:tarot-daily` | TC-TAROT-001 | Browser | ✅ |
+| `tarot-temple-merit.mjs` | `test:tarot-temple` | TC-TAROT-002 | Browser | ✅ |
 | `verify-unify.mjs` | （手动 `node`） | App Shell 底栏一致性 | Browser | ✅ |
 | `auth-redirect-security.mjs` | `test:auth-redirect` | TC-AUTH-003 | Browser | ✅ |
 | `auth-cross-domain.mjs` | `test:auth-sso` | TC-AUTH-001 | Browser | ✅ |
@@ -333,7 +339,6 @@ npm run test:smoke-all
 
 | 用例 ID | 说明 |
 |---------|------|
-| TC-TAROT-001/002 | 访客 daily-card / temple 浏览器流 |
 | TC-ADMIN-* | admin 角色门控 |
 
 ---

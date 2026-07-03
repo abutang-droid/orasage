@@ -14,6 +14,8 @@ const STEPS = [
   'npm run test:auth-center',
   'npm run test:tarot-offer',
   'npm run test:tarot-free',
+  'npm run test:tarot-daily',
+  'npm run test:tarot-temple',
   'npm run test:shop-crystal',
   'npm run test:pay-double',
   'npm run test:pay-network',
