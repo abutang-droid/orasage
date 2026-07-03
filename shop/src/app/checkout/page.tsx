@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -11,13 +11,15 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const payingRef = useRef(false);
 
   useEffect(() => {
     if (!orderNo) setError('缺少订单号');
   }, [orderNo]);
 
   async function handlePay() {
-    if (!orderNo) return;
+    if (!orderNo || payingRef.current || done) return;
+    payingRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -34,6 +36,7 @@ function CheckoutContent() {
         setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 800);
       }
     } catch (err) {
+      payingRef.current = false;
       setError(err instanceof Error ? err.message : '支付失败');
     } finally {
       setLoading(false);

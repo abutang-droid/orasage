@@ -122,7 +122,7 @@ flowchart TD
 
 ### 2.1 统一认证（auth）
 
-#### TC-AUTH-001：新用户注册并跨子域保持登录 `[P0]` `[M]`
+#### TC-AUTH-001：新用户注册并跨子域保持登录 `[P0]` `[A]`
 
 | 字段 | 内容 |
 |------|------|
@@ -306,11 +306,16 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 | `platform-report-flow.mjs` | `test:platform-report` | TC-SHOP-002（API）、SKU 存在性 | API | ✅ |
 | `profile-shop-flow.mjs` | `test:shop-flow` | TC-BAZI-001、TC-MAIN-002（partial） | Browser | ✅ |
 | `ziwei-shop-flow.mjs` | `test:ziwei-flow` | TC-ZIWEI-002 | Browser | ✅ |
-| `tarot-offer-merit.mjs` | `test:tarot-offer` | TC-TAROT-003 | API | 需单独跑 |
-| `tarot-free-readings.mjs` | `test:tarot-free` | tarot 免费次数 P2 | API | 需单独跑 |
+| `tarot-offer-merit.mjs` | `test:tarot-offer` | TC-TAROT-003 | API | ✅ |
+| `tarot-free-readings.mjs` | `test:tarot-free` | tarot 免费次数 P2 | API | ✅ |
 | `verify-unify.mjs` | （手动 `node`） | App Shell 底栏一致性 | Browser | ✅ |
-| `auth-redirect-security.mjs` | `test:auth-redirect` | TC-AUTH-003 | Browser | 待跑 |
-| `shop-checkout-security.mjs` | `test:shop-security` | BIZ-003（+ BIZ-008 外网不可达时 skip） | API | 待跑 |
+| `auth-redirect-security.mjs` | `test:auth-redirect` | TC-AUTH-003 | Browser | ✅ |
+| `auth-cross-domain.mjs` | `test:auth-sso` | TC-AUTH-001 | Browser | ✅ |
+| `shop-checkout-security.mjs` | `test:shop-security` | BIZ-003 | API | ✅ |
+| `auth-internal-forbidden.mjs` | `test:auth-internal` | BIZ-004 | API | ✅ |
+| `shop-crystal-flow.mjs` | `test:shop-crystal` | TC-SHOP-001 | Browser | ✅ |
+| `pay-double-click.mjs` | `test:pay-double` | UI-001 | Browser | ✅ |
+| `run-smoke-all.mjs` | `test:smoke-all` | 全量生产冒烟（含 verify-unify） | mixed | ✅ |
 
 **一键生产冒烟（推荐 CI）：**
 
@@ -318,24 +323,17 @@ Payload 首次管理员；当前生产 cms 可能 502（见 backlog）。
 cd scripts/e2e
 npm install
 npx playwright install chromium
-npm run test:platform-report
-npm run test:shop-flow
-npm run test:ziwei-flow
-MAIN_URL=https://orasage.com SHOP_URL=https://shop.orasage.com \
-  ZIWEI_URL=https://ziwei.orasage.com AUTH_URL=https://auth.orasage.com \
-  node verify-unify.mjs
+npm run test:smoke-all
 ```
 
 ### 自动化缺口（待补脚本）
 
 | 用例 ID | 说明 |
 |---------|------|
-| TC-AUTH-001 | 跨子域 Cookie（可 Playwright + curl） |
-| TC-SHOP-001 | shop 前台水晶直购浏览器流 |
 | TC-AUTH-002 | auth `/center` → profile 302 |
-| UI-001 | 连续点击支付按钮 |
 | TC-TAROT-001/002 | 访客 daily-card / temple 浏览器流 |
 | TC-ADMIN-* | admin 角色门控 |
+| NET-002 | 支付中断网（需 Playwright 断网模拟） |
 
 ---
 
@@ -352,8 +350,8 @@ MAIN_URL=https://orasage.com SHOP_URL=https://shop.orasage.com \
 | report SKU 分级 | ✅ auth `0007_report_plan_skus.sql` + shop fallback |
 | Profile UI 统一 | ✅ Phase 2 已合入 main（`@orasage/ui`） |
 | bazi 本地 shadcn 53 文件 | ✅ 已删，改 `@orasage/ui`（PR #52） |
-| 命理 App 登录态 UI | ❌ 仍缺（README P1） |
-| Playwright 全链路 | ⚠️ 部分覆盖（见 §4） |
+| 命理 App 登录态 UI | ✅ `OrasageAuthChip` + ziwei `JWT_SECRET` 部署继承 |
+| Playwright 全链路 | ✅ `npm run test:smoke-all`（2026-07-03 全绿） |
 
 ---
 

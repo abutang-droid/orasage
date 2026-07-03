@@ -9,7 +9,12 @@
     "test:platform-report": "node platform-report-flow.mjs",
     "test:ziwei-flow": "node ziwei-shop-flow.mjs",
     "test:auth-redirect": "node auth-redirect-security.mjs",
-    "test:shop-security": "node shop-checkout-security.mjs"
+    "test:shop-security": "node shop-checkout-security.mjs",
+    "test:auth-sso": "node auth-cross-domain.mjs",
+    "test:shop-crystal": "node shop-crystal-flow.mjs",
+    "test:pay-double": "node pay-double-click.mjs",
+    "test:auth-internal": "node auth-internal-forbidden.mjs",
+    "test:smoke-all": "node run-smoke-all.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
