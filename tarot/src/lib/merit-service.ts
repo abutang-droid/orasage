@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   computeStreakAfterCheckin,
@@ -161,25 +162,36 @@ export async function awardMerit(input: {
   const newLevel = getMeritLevel(newTotal).level;
   const levelUp = newLevel > user.meritLevel;
 
-  await prisma.$transaction([
-    prisma.meritLog.create({
-      data: {
-        userId: input.userId,
-        path: input.path,
-        amount,
-        reason: input.reason,
-        idempotencyKey: input.idempotencyKey,
-      },
-    }),
-    prisma.user.update({
-      where: { id: input.userId },
-      data: {
-        meritTotal: newTotal,
-        meritLevel: newLevel,
-        [pathField]: newPathValue,
-      },
-    }),
-  ]);
+  try {
+    await prisma.$transaction([
+      prisma.meritLog.create({
+        data: {
+          userId: input.userId,
+          path: input.path,
+          amount,
+          reason: input.reason,
+          idempotencyKey: input.idempotencyKey,
+        },
+      }),
+      prisma.user.update({
+        where: { id: input.userId },
+        data: {
+          meritTotal: newTotal,
+          meritLevel: newLevel,
+          [pathField]: newPathValue,
+        },
+      }),
+    ]);
+  } catch (err) {
+    if (
+      input.idempotencyKey &&
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    ) {
+      return { ok: true, duplicate: true, awarded: 0 };
+    }
+    throw err;
+  }
 
   return { ok: true, awarded: amount, levelUp, newTotal, newLevel };
 }
@@ -258,8 +270,15 @@ export async function recordOfferMerit(
   kind: keyof typeof OFFER_MERIT,
   opts?: { orderNo?: string; amountCents?: number },
 ): Promise<AwardMeritResult> {
-  let amount = OFFER_MERIT[kind];
+  const amount = OFFER_MERIT[kind];
   const idempotencyKey = opts?.orderNo ? `offer:${kind}:${opts.orderNo}` : undefined;
+
+  if (!idempotencyKey) {
+    return { ok: false, reason: 'order_required' };
+  }
+
+  const existing = await prisma.meritLog.findUnique({ where: { idempotencyKey } });
+  if (existing) return { ok: true, duplicate: true, awarded: 0 };
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -267,11 +286,8 @@ export async function recordOfferMerit(
   });
   if (!user) return { ok: false, reason: 'user_not_found' };
 
-  const newSpent = user.totalSpentCents + (opts?.amountCents ?? 0);
-  await prisma.user.update({
-    where: { id: userId },
-    data: { totalSpentCents: newSpent },
-  });
+  const oldSpent = user.totalSpentCents;
+  const newSpent = oldSpent + (opts?.amountCents ?? 0);
 
   const result = await awardMerit({
     userId,
@@ -282,43 +298,50 @@ export async function recordOfferMerit(
     applySacredMultiplier: true,
   });
 
-  if (result.ok && !('duplicate' in result && result.duplicate)) {
-    if (user.referredByUserId) {
-      if (kind === 'paid_reading') {
-        await awardMerit({
-          userId: user.referredByUserId,
-          path: 'share',
-          amount: SHARE_MERIT.referral_first_paid_reading,
-          reason: 'referral_first_paid_reading',
-          idempotencyKey: `referral:paid_reading:${userId}`,
-        });
-      } else if (kind === 'crystal_purchase' || kind === 'crystal_gift') {
-        await awardMerit({
-          userId: user.referredByUserId,
-          path: 'share',
-          amount: SHARE_MERIT.referral_crystal,
-          reason: 'referral_crystal',
-          idempotencyKey: `referral:crystal:${userId}`,
-        });
-      }
-    }
+  if (!result.ok || ('duplicate' in result && result.duplicate)) {
+    return result;
+  }
 
-    const milestones: [number, number][] = [
-      [10000, 50],
-      [100000, 200],
-      [1000000, 2000],
-      [10000000, 10000],
-    ];
-    for (const [cents, bonus] of milestones) {
-      if (user.totalSpentCents < cents && newSpent >= cents) {
-        await awardMerit({
-          userId,
-          path: 'offer',
-          amount: bonus,
-          reason: `spent_milestone_${cents}`,
-          idempotencyKey: `offer:milestone:${userId}:${cents}`,
-        });
-      }
+  await prisma.user.update({
+    where: { id: userId },
+    data: { totalSpentCents: newSpent },
+  });
+
+  if (user.referredByUserId) {
+    if (kind === 'paid_reading') {
+      await awardMerit({
+        userId: user.referredByUserId,
+        path: 'share',
+        amount: SHARE_MERIT.referral_first_paid_reading,
+        reason: 'referral_first_paid_reading',
+        idempotencyKey: `referral:paid_reading:${userId}`,
+      });
+    } else if (kind === 'crystal_purchase' || kind === 'crystal_gift') {
+      await awardMerit({
+        userId: user.referredByUserId,
+        path: 'share',
+        amount: SHARE_MERIT.referral_crystal,
+        reason: 'referral_crystal',
+        idempotencyKey: `referral:crystal:${userId}`,
+      });
+    }
+  }
+
+  const milestones: [number, number][] = [
+    [10000, 50],
+    [100000, 200],
+    [1000000, 2000],
+    [10000000, 10000],
+  ];
+  for (const [cents, bonus] of milestones) {
+    if (oldSpent < cents && newSpent >= cents) {
+      await awardMerit({
+        userId,
+        path: 'offer',
+        amount: bonus,
+        reason: `spent_milestone_${cents}`,
+        idempotencyKey: `offer:milestone:${userId}:${cents}`,
+      });
     }
   }
 

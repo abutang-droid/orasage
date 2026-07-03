@@ -9,7 +9,7 @@ import {
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL || 'http://127.0.0.1:3101';
 
 export type ReadingAccess =
-  | { ok: true; source: 'free_credit' | 'paid_order' | 'guest'; remaining: number }
+  | { ok: true; source: 'free_credit' | 'paid_order'; remaining: number }
   | { ok: false; reason: 'paywall'; remaining: 0; sku: string };
 
 export async function getFreeReadingsRemaining(userId: string): Promise<number> {
@@ -180,7 +180,7 @@ export async function resolveReadingAccess(
   orderNo?: string | null,
 ): Promise<ReadingAccess> {
   if (!userId) {
-    return { ok: true, source: 'guest', remaining: 0 };
+    return { ok: false, reason: 'paywall', remaining: 0, sku: 'report-tarot' };
   }
 
   if (orderNo) {
