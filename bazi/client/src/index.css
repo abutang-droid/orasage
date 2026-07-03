@@ -11,42 +11,9 @@
 /* ── Google Fonts 已在 index.html 中引入 ── */
 
 /* ══════════════════════════════════════════════════════════════
-   OraSage Design System — 极简克制浅色
+   OraSage Design System v1.1 — 单色克制
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /*
-   * 八字独立主题：纸感暖底 + 翡翠主色 + 鎏金点缀
-   * 覆盖全局 DS v1.1 单色 token，与 main 门户一致
-   */
-  --background: var(--os-rgb-ivory-50);
-  --foreground: var(--os-rgb-ink-900);
-  --card: 251 248 241;
-  --card-foreground: var(--os-rgb-ink-900);
-  --primary: var(--os-rgb-jade-500);
-  --primary-foreground: var(--os-rgb-ivory-50);
-  --muted-foreground: var(--os-rgb-ink-500);
-  --border: var(--os-rgb-ivory-300);
-  --ring: var(--os-rgb-jade-500);
-  --brand-primary: var(--os-rgb-jade-500);
-  --brand-gold: var(--os-rgb-brass-300);
-
-  --orasage-brand-primary: rgb(var(--os-rgb-jade-500));
-  --orasage-brand-primary-hover: rgb(var(--os-rgb-jade-600));
-  --orasage-brand-primary-active: rgb(var(--os-rgb-jade-700));
-  --orasage-brand-gold: rgb(var(--os-rgb-brass-300));
-  --orasage-brand-purple: rgb(var(--os-rgb-violet-500));
-  --orasage-background: rgb(var(--background));
-  --orasage-surface: rgb(var(--card));
-  --orasage-text-primary: rgb(var(--os-rgb-ink-900));
-  --orasage-text-secondary: rgb(var(--os-rgb-ink-600));
-  --orasage-text-muted: rgb(var(--os-rgb-ink-500));
-  --orasage-focus-ring: rgb(var(--os-rgb-jade-500));
-  --orasage-border: rgb(var(--border));
-  --orasage-border-subtle: rgb(var(--os-rgb-ivory-100));
-  --orasage-gold-light: var(--os-color-brass-200);
-  --orasage-gold-pale: rgb(var(--os-rgb-brass-300) / 0.1);
-  --orasage-gold-border: rgb(var(--os-rgb-brass-400) / 0.28);
-
   --gold:          var(--orasage-brand-gold);
   --gold-light:    var(--orasage-gold-light);
   --gold-bright:   var(--orasage-brand-gold);
@@ -59,7 +26,7 @@
   --muted-text:    var(--orasage-text-muted);
 
   --ink-deep:      rgb(var(--os-rgb-ink-950));
-  --ink-border:    rgb(var(--brand-gold) / 0.2);
+  --ink-border:    var(--os-color-mono-gray-light);
 
   --bg-page:       var(--orasage-background);
   --bg-card:       var(--orasage-surface);
@@ -74,15 +41,15 @@
   --foreground:              var(--heading);
   --card:                    var(--bg-card);
   --card-foreground:         var(--heading);
-  --popover:                 rgb(var(--os-rgb-ivory-50));
+  --popover:                 var(--os-color-mono-white);
   --popover-foreground:      var(--heading);
   --primary:                 var(--orasage-brand-primary);
-  --primary-foreground:      rgb(var(--os-rgb-ivory-50));
-  --secondary:               rgb(var(--os-rgb-ivory-100));
+  --primary-foreground:      var(--os-color-mono-white);
+  --secondary:               var(--os-rgb-mono-bg);
   --secondary-foreground:    var(--heading);
-  --muted:                   rgb(var(--os-rgb-ivory-100));
+  --muted:                   var(--os-rgb-mono-bg);
   --muted-foreground:        var(--muted-text);
-  --accent:                  rgb(var(--os-rgb-brass-300));
+  --accent:                  var(--os-color-mono-gray-deep);
   --accent-foreground:       var(--heading);
   --destructive:             rgb(var(--os-rgb-status-error));
   --destructive-foreground:  rgb(var(--os-rgb-ink-900));
@@ -321,7 +288,7 @@
     transform: scale(0.97);
   }
 
-  /* ── 主按钮：鎏金实心 ── */
+  /* ── 主按钮：DS v1.1 黑底白字 ── */
   .btn-primary {
     width: 100%;
     padding: 0.875rem 1.5rem;
@@ -330,10 +297,10 @@
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.02em;
     border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 16px rgb(var(--brand-primary) / 0.2);
+    box-shadow: var(--os-shadow-surface-1);
     transition: all 0.18s cubic-bezier(0.23, 1, 0.32, 1);
     display: flex;
     align-items: center;
@@ -343,12 +310,12 @@
   }
   .btn-primary:hover {
     background: var(--orasage-brand-primary-hover);
-    box-shadow: 0 6px 20px rgb(var(--brand-primary) / 0.26);
+    box-shadow: var(--os-shadow-surface-2);
     transform: translateY(-1px);
   }
   .btn-primary:active {
     transform: scale(0.98) translateY(0);
-    box-shadow: 0 2px 10px rgb(var(--brand-primary) / 0.18);
+    box-shadow: var(--os-shadow-surface-1);
   }
 
   /* ── 模式标签（公历/农历 切换） ── */
