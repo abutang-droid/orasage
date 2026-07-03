@@ -1,38 +1,6 @@
 @import '../../../../shared/design-tokens/orasage-tokens.css';
 @import '../../lib/orasage-app-shell/app-shell.css';
 
-/* Main portal: monochrome (black / white / gray) on white canvas */
-:root {
-  --background: 255 255 255;
-  --foreground: var(--os-rgb-ink-900);
-  --card: 255 255 255;
-  --card-foreground: var(--os-rgb-ink-900);
-  --popover: 255 255 255;
-  --popover-foreground: var(--os-rgb-ink-900);
-  --primary: var(--os-rgb-ink-900);
-  --primary-foreground: 255 255 255;
-  --secondary: 245 245 245;
-  --secondary-foreground: var(--os-rgb-ink-900);
-  --muted: 245 245 245;
-  --muted-foreground: var(--os-rgb-ink-500);
-  --accent: var(--os-rgb-ink-600);
-  --accent-foreground: 255 255 255;
-  --border: 227 230 227;
-  --input: var(--os-rgb-ink-500);
-  --ring: var(--os-rgb-ink-600);
-  --brand-primary: var(--os-rgb-ink-900);
-  --brand-gold: var(--os-rgb-ink-900);
-  --brand-purple: var(--os-rgb-ink-600);
-  --orasage-brand-primary: var(--os-color-ink-900);
-  --orasage-brand-gold: var(--os-color-ink-900);
-  --orasage-surface-1: #ffffff;
-  --orasage-surface-2: #f5f5f5;
-  --orasage-surface-3: #ebebeb;
-  --orasage-selection: rgb(var(--os-rgb-ink-900) / 0.12);
-  --orasage-background: rgb(var(--background));
-  --orasage-primary: rgb(var(--foreground));
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -184,23 +152,13 @@
     @apply my-4 block max-w-full overflow-x-auto text-sm;
   }
 
-  /* ── Main portal home (monochrome editorial) ── */
-  .home-portal {
-    background: rgb(var(--background));
-    color: rgb(var(--foreground));
-  }
-
-  .home-hero {
-    border-bottom: 1px solid rgb(var(--border));
-  }
-
+  /* ── Main portal home (editorial paper layout) ── */
   .home-eyebrow {
-    font-family: var(--os-font-sans);
+    font-family: var(--os-font-serif-zh);
     font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: rgb(var(--muted-foreground));
+    color: rgb(var(--brand-gold) / 0.92);
   }
 
   .home-hero-inner {
@@ -209,16 +167,11 @@
   }
 
   .home-section {
-    @apply mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10;
-    border-bottom: 1px solid rgb(var(--border));
+    @apply mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8;
   }
 
   .home-section--tail {
-    @apply border-b-0 pb-10 sm:pb-12;
-  }
-
-  .home-section-title {
-    @apply mb-4 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:mb-5;
+    @apply pb-8 sm:pb-10;
   }
 
   .home-shop-toolbar {
@@ -226,19 +179,19 @@
   }
 
   .home-shop-more {
-    @apply border-foreground/20 font-medium text-foreground hover:bg-foreground hover:text-background;
+    @apply border-primary/35 font-medium text-primary hover:bg-primary/5;
   }
 
   .home-tool-card {
-    @apply border-border bg-background transition-colors hover:border-foreground/25 hover:bg-muted/60;
+    @apply border-border/80 bg-background;
   }
 
   .home-product-card {
-    @apply border-border bg-background transition-colors hover:border-foreground/25 hover:bg-muted/40;
+    @apply border-border/80 bg-background;
   }
 
   .home-editorial-card {
-    @apply relative overflow-hidden border-border bg-background transition-colors hover:border-foreground/25 hover:bg-muted/40;
+    @apply relative overflow-hidden border-border/80 bg-background;
   }
 
   .home-editorial-card::before {
@@ -248,7 +201,13 @@
     inset-inline-start: 0;
     width: 2px;
     border-radius: 999px;
-    background: rgb(var(--foreground));
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(var(--brand-gold) / 0.55) 30%,
+      rgb(var(--brand-primary) / 0.45) 70%,
+      transparent
+    );
     opacity: 0;
     transition: opacity var(--os-motion-fast) var(--os-ease-standard);
   }
