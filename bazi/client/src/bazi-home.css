@@ -365,6 +365,12 @@
   outline: none;
 }
 
+.bazi-date-input::placeholder {
+  color: var(--bazi-placeholder);
+  font-weight: 400;
+  opacity: 1;
+}
+
 /* ── Scrolling feed ticker ── */
 .bazi-home-feed {
   margin-top: 1.25rem;
