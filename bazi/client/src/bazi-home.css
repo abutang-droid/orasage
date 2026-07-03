@@ -347,6 +347,11 @@
   border-color: var(--bazi-control-border-strong);
 }
 
+.bazi-date-trigger--placeholder {
+  color: var(--bazi-placeholder);
+  font-weight: 400;
+}
+
 .bazi-date-input {
   width: 100%;
   padding: 0.625rem 0;

@@ -70,7 +70,7 @@ function closestOption(options: string[], raw: string): string {
 // DatePicker — 可点击下拉 + 可双击手动输入 + 即时校验
 // ════════════════════════════════════════════════════════════════════════
 export function DatePicker({
-  options, value, onChange, label, formatLabel,
+  options, value, onChange, label, formatLabel, kind: kindProp,
 }: WheelPickerProps & { kind?: FieldKind }) {
   const [open, setOpen] = useState(false);
   const [editValue, setEditValue] = useState("");
@@ -79,9 +79,10 @@ export function DatePicker({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const display = formatLabel ? formatLabel(value) : value;
+  const isEmpty = !value || value.trim() === "";
 
-  // 从 label 推断字段类型
-  const kind: FieldKind = (label === "年" ? "year" :
+  // 从 prop 或 label 推断字段类型
+  const kind: FieldKind = kindProp ?? (label === "年" ? "year" :
     label === "月" ? "month" :
     label === "日" ? "day" :
     label === "时" ? "hour" :
@@ -99,9 +100,9 @@ export function DatePicker({
     return () => document.removeEventListener("mousedown", handler);
   }, [open, isEditing]);
 
-  // 默认占位文本
+  // 未填写时显示的极淡占位数字
   const placeholders: Record<FieldKind, string> = {
-    year: "1900", month: "12", day: "31", hour: "23", minute: "59",
+    year: "1900", month: "01", day: "01", hour: "00", minute: "00",
   };
   const placeholder = placeholders[kind] || "";
 
@@ -181,9 +182,9 @@ export function DatePicker({
           <button
             type="button"
             onClick={handleClick}
-            className="bazi-date-trigger flex items-center justify-center"
+            className={`bazi-date-trigger flex items-center justify-center${isEmpty ? ' bazi-date-trigger--placeholder' : ''}`}
           >
-            {display}
+            {isEmpty ? placeholder : display}
           </button>
         )}
       </div>

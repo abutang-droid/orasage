@@ -45,9 +45,15 @@ interface PersonForm {
 }
 
 const emptyForm = (): PersonForm => ({
-  name: "", year: "1990", month: "01", day: "01", hour: "08", minute: "00",
-  gender: "", calendar: "solar",
-  birthplace: { city: "北京", country: "中国", lng: 116.4074, timezone: "+8" },
+  name: "",
+  year: "",
+  month: "",
+  day: "",
+  hour: "",
+  minute: "",
+  gender: "",
+  calendar: "solar",
+  birthplace: { city: "", country: "" },
 });
 
 function syncPersonProfile(form: PersonForm, label?: string | null) {
@@ -334,11 +340,12 @@ function PersonFormPanel({ form, onChange }: {
     return Array.from({ length: maxDayCount }, (_, i) => String(i + 1).padStart(2, "0"));
   }, [maxDayCount]);
 
-  // 自动修正超出范围的日期
+  // 自动修正超出范围的日期（空值保持占位，不预填）
   useEffect(() => {
+    if (!form.day) return;
     const dayNum = parseInt(form.day, 10);
     if (isNaN(dayNum) || dayNum < 1) {
-      onChange({ day: "01" });
+      onChange({ day: "" });
     } else if (dayNum > dynamicDayOptions.length) {
       onChange({ day: String(dynamicDayOptions.length).padStart(2, "0") });
     }
@@ -418,17 +425,18 @@ function PersonFormPanel({ form, onChange }: {
           <span className="text-red-500 text-xs">*</span>
         </div>
         <div className="flex gap-2">
-          <DatePicker label={t('date.year', '年')} options={YEARS} value={form.year} onChange={(v) => onChange({ year: v })} />
+          <DatePicker kind="year" label={t('date.year', '年')} options={YEARS} value={form.year} onChange={(v) => onChange({ year: v })} />
           <DatePicker
+            kind="month"
             label={t('date.month', '月')}
             options={isLunar ? lunarMonths : MONTHS}
             value={form.month}
             onChange={(v) => onChange({ month: v })}
             formatLabel={(v) => v.startsWith("L") ? (t('form.calendar.lunar_hint', '闰') || '闰') + parseInt(v.slice(1)) : v}
           />
-          <DatePicker label={t('date.day', '日')} options={dynamicDayOptions} value={form.day} onChange={(v) => onChange({ day: v })} />
-          <DatePicker label={t('date.hour', '时')} options={HOURS} value={form.hour} onChange={(v) => onChange({ hour: v })} />
-          <DatePicker label={t('date.minute', '分')} options={MINUTES} value={form.minute} onChange={(v) => onChange({ minute: v })} />
+          <DatePicker kind="day" label={t('date.day', '日')} options={dynamicDayOptions} value={form.day} onChange={(v) => onChange({ day: v })} />
+          <DatePicker kind="hour" label={t('date.hour', '时')} options={HOURS} value={form.hour} onChange={(v) => onChange({ hour: v })} />
+          <DatePicker kind="minute" label={t('date.minute', '分')} options={MINUTES} value={form.minute} onChange={(v) => onChange({ minute: v })} />
         </div>
         <DayTimeHint />
       </div>
@@ -552,12 +560,14 @@ export default function Home() {
     if (!f0.year || parseInt(f0.year) < 1900 || parseInt(f0.year) > 2100) { toast.error(t('form.error.year')); return; }
     if (!f0.month || parseInt(f0.month) < 1 || parseInt(f0.month) > 12) { toast.error(t('form.error.month')); return; }
     if (!f0.day || parseInt(f0.day) < 1 || parseInt(f0.day) > 31) { toast.error(t('form.error.day')); return; }
+    if (!f0.birthplace.city?.trim()) { toast.error(t('form.error.city')); return; }
     if (mode === "couple") {
       const f1 = forms[1];
       if (!f1.gender) { toast.error(t('form.error.gender_second')); return; }
       if (!f1.year || parseInt(f1.year) < 1900 || parseInt(f1.year) > 2100) { toast.error(t('form.error.year_second')); return; }
       if (!f1.month || parseInt(f1.month) < 1 || parseInt(f1.month) > 12) { toast.error(t('form.error.month_second')); return; }
       if (!f1.day || parseInt(f1.day) < 1 || parseInt(f1.day) > 31) { toast.error(t('form.error.day_second')); return; }
+      if (!f1.birthplace.city?.trim()) { toast.error(t('form.error.city_second')); return; }
     }
 
     // 自动填充默认值并同步到 state
