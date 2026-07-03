@@ -1,0 +1,6 @@
+@import '../../../tokens/src/orasage-tokens.css';
+
+/* shadcn semantic vars — sourced from OraSage tokens */
+:root {
+  --radius: var(--orasage-radius-md);
+}

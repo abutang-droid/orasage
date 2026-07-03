@@ -25,6 +25,7 @@ function layout(title: string, body: string, locale = "zh-CN"): string {
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="theme-color" content="#fafaf8">
   <title>${title} — OraSage</title>
+  <link rel="stylesheet" href="/assets/orasage-ui.css">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/app-shell.css">
 </head>
@@ -49,10 +50,16 @@ pagesRouter.get("/login", (req, res) => {
       <h1>登录</h1>
       <p class="subtitle">登录后查看测试记录与订单</p>
       <form id="login-form" data-redirect="${esc(redirect)}">
-        <label>邮箱<input type="email" name="email" required autocomplete="email"></label>
-        <label>密码<input type="password" name="password" required autocomplete="current-password"></label>
-        <p id="form-error" class="error" hidden></p>
-        <button type="submit" class="btn-primary">登录</button>
+        <div class="oui-field">
+          <label for="login-email">邮箱</label>
+          <input id="login-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
+        </div>
+        <div class="oui-field">
+          <label for="login-password">密码</label>
+          <input id="login-password" class="oui-input" data-size="md" type="password" name="password" required autocomplete="current-password">
+        </div>
+        <p id="form-error" class="oui-field-error" hidden></p>
+        <button type="submit" class="oui-btn oui-btn--default" data-size="md">登录</button>
       </form>
       <p class="auth-switch">没有账号？<a href="/register?redirect=${encodeURIComponent(redirect)}">立即注册</a></p>
     </main>`));
@@ -69,11 +76,20 @@ pagesRouter.get("/register", (req, res) => {
       <h1>注册</h1>
       <p class="subtitle">创建账号，同步命理测试与订单</p>
       <form id="register-form" data-redirect="${esc(redirect)}">
-        <label>邮箱<input type="email" name="email" required autocomplete="email"></label>
-        <label>昵称<input type="text" name="nickname" placeholder="可选"></label>
-        <label>密码<input type="password" name="password" required minlength="6" autocomplete="new-password"></label>
-        <p id="form-error" class="error" hidden></p>
-        <button type="submit" class="btn-primary">注册</button>
+        <div class="oui-field">
+          <label for="reg-email">邮箱</label>
+          <input id="reg-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
+        </div>
+        <div class="oui-field">
+          <label for="reg-nickname">昵称</label>
+          <input id="reg-nickname" class="oui-input" data-size="md" type="text" name="nickname" placeholder="可选">
+        </div>
+        <div class="oui-field">
+          <label for="reg-password">密码</label>
+          <input id="reg-password" class="oui-input" data-size="md" type="password" name="password" required minlength="6" autocomplete="new-password">
+        </div>
+        <p id="form-error" class="oui-field-error" hidden></p>
+        <button type="submit" class="oui-btn oui-btn--default" data-size="md">注册</button>
       </form>
       <p class="auth-switch">已有账号？<a href="/login?redirect=${encodeURIComponent(redirect)}">去登录</a></p>
     </main>`));

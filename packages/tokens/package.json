@@ -1,0 +1,14 @@
+{
+  "name": "@orasage/tokens",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./src/orasage-tokens.css",
+    "./tailwind-preset": "./src/tailwind-preset.ts"
+  },
+  "files": [
+    "src"
+  ]
+}

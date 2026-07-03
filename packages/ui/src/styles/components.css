@@ -1,0 +1,153 @@
+/**
+ * Static HTML/CSS layer for non-React apps (auth-service pilot).
+ * Class names mirror @orasage/ui React components — use data-size="sm|md|lg" only.
+ */
+@import '../../../tokens/src/orasage-tokens.css';
+
+.oui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 500;
+  font-family: var(--orasage-font-sans);
+  transition: background-color 0.15s var(--orasage-ease-organic), opacity 0.15s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.oui-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+.oui-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.oui-btn--default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.oui-btn--default:active { opacity: 0.85; }
+.oui-btn--outline {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+.oui-btn--ghost {
+  background: transparent;
+  color: var(--foreground);
+}
+.oui-btn[data-size='sm'] {
+  min-height: var(--orasage-control-h-sm);
+  height: var(--orasage-control-h-sm);
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+.oui-btn[data-size='md'] {
+  min-height: var(--orasage-control-h-md);
+  height: var(--orasage-control-h-md);
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+}
+.oui-btn[data-size='lg'] {
+  min-height: var(--orasage-control-h-lg);
+  height: var(--orasage-control-h-lg);
+  padding: 0 1.5rem;
+  font-size: 1rem;
+}
+
+.oui-input,
+.oui-select {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--orasage-radius-md);
+  background: var(--input);
+  color: var(--foreground);
+  font-family: var(--orasage-font-sans);
+  transition: box-shadow 0.15s;
+}
+.oui-input:focus,
+.oui-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+.oui-input:disabled,
+.oui-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.oui-input[aria-invalid='true'],
+.oui-select[aria-invalid='true'] {
+  border-color: var(--destructive);
+}
+.oui-input[data-size='sm'],
+.oui-select[data-size='sm'] {
+  min-height: var(--orasage-control-h-sm);
+  height: var(--orasage-control-h-sm);
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+.oui-input[data-size='md'],
+.oui-select[data-size='md'] {
+  min-height: var(--orasage-control-h-md);
+  height: var(--orasage-control-h-md);
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+.oui-input[data-size='lg'],
+.oui-select[data-size='lg'] {
+  min-height: var(--orasage-control-h-lg);
+  height: var(--orasage-control-h-lg);
+  padding: 0 1rem;
+  font-size: 1rem;
+}
+
+.oui-field { margin-bottom: 1rem; }
+.oui-field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.oui-field-error {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--destructive);
+}
+.oui-field-hint {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.oui-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--primary);
+}
+
+.oui-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 50;
+}
+.oui-dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 51;
+  width: calc(100% - 2rem);
+  max-width: 28rem;
+  transform: translate(-50%, -50%);
+  border-radius: var(--orasage-radius-lg);
+  border: 1px solid var(--border);
+  background: var(--popover);
+  padding: 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
