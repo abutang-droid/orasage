@@ -37,13 +37,32 @@
     "title": "能量商城",
     "subtitle": "命理解读推荐 · 水晶手串 · 数字报告",
     "cta": "进入商城",
-    "hint": "完成命理解读后，可一键购买推荐水晶",
     "products": {
-      "wood": { "name": "绿幽灵", "element": "木", "desc": "招财旺运" },
-      "fire": { "name": "红玛瑙", "element": "火", "desc": "补火平衡" },
-      "earth": { "name": "黄水晶", "element": "土", "desc": "稳固根基" },
-      "metal": { "name": "白水晶", "element": "金", "desc": "净化能量" },
-      "water": { "name": "黑曜石", "element": "水", "desc": "辟邪护身" }
+      "wood": {
+        "name": "绿幽灵",
+        "element": "木",
+        "desc": "招财旺运"
+      },
+      "fire": {
+        "name": "红玛瑙",
+        "element": "火",
+        "desc": "补火平衡"
+      },
+      "earth": {
+        "name": "黄水晶",
+        "element": "土",
+        "desc": "稳固根基"
+      },
+      "metal": {
+        "name": "白水晶",
+        "element": "金",
+        "desc": "净化能量"
+      },
+      "water": {
+        "name": "黑曜石",
+        "element": "水",
+        "desc": "辟邪护身"
+      }
     },
     "categories": {
       "crystal": "水晶手串",
