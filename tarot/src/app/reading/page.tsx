@@ -164,7 +164,38 @@ export default function ReadingPage() {
   const cardsRef = useRef<CardData[]>([])
   const synthesisRef = useRef("")
   const readingIdRef = useRef("")
+  const interpretRef = useRef<{
+    cards: Array<{ interpretation: string; mantra: string }>
+    synthesis: string
+    suggestions: string[]
+    affirmation: string
+    llm: boolean
+  } | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  const fetchInterpret = useCallback((cardList: CardData[]) => {
+    interpretRef.current = null
+    fetch("/api/reading/interpret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: "",
+        spreadType: "three",
+        cards: cardList.map(c => ({
+          position: c.position,
+          positionLabel: c.position === "past" ? "过去" : c.position === "present" ? "现在" : c.position === "future" ? "未来" : "此刻",
+          cardName: c.cardName,
+          cardNameEn: c.cardNameEn,
+          cardId: c.cardId,
+          orientation: c.orientation,
+          element: c.element,
+        })),
+      }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.cards) interpretRef.current = data })
+      .catch(() => {})
+  }, [])
 
   // Determine if user has a saved profile (check both server + localStorage)
   const alreadySaved = user
@@ -221,8 +252,10 @@ export default function ReadingPage() {
         return r.json()
       })
       .then(data => {
-        setCards(data.cards.map((c: any) => ({ ...c, revealed: false, interpretation: "", mantra: "" })))
+        const mapped = data.cards.map((c: any) => ({ ...c, revealed: false, interpretation: "", mantra: "" }))
+        setCards(mapped)
         setReadingId(data.readingId)
+        fetchInterpret(mapped)
         setStep("revealing")
       })
       .catch(() => setError("连接星象失败，请重试"))
@@ -236,14 +269,15 @@ export default function ReadingPage() {
     setStep("interpreting")
 
     const card = updated[cardIndex]
+    const llmCard = interpretRef.current?.cards[cardIndex]
     const elemMap: Record<string, string> = { "火": "行动与激情", "水": "情感与直觉", "风": "思维与沟通", "土": "稳固与现实" }
     const elemWord = elemMap[card.element] || "命运的流转"
     const posWord = card.position === "past" ? "过去位" : card.position === "present" ? "现在位" : "未来位"
-    const interpretation = card.orientation === "正位"
+    const interpretation = llmCard?.interpretation ?? (card.orientation === "正位"
       ? `${card.cardName}在${posWord}——正位的力量正在顺畅地流动。这张牌暗示着${elemWord}正在主导这个阶段。今天的能量偏向积极进取，适合做出决定。`
-      : `${card.cardName}的逆位出现在${posWord}。逆位不是坏消息——它提醒你有些能量正在被压抑。${card.element === "火" ? "热情可能需要换个方向释放" : card.element === "水" ? "情绪或许需要一个出口" : card.element === "风" ? "想法可能需要重新整理" : card.element === "土" ? "根基可能需要在另一个方向重建" : "命运正在转弯"}。今天多给自己一点安静的时间。`
+      : `${card.cardName}的逆位出现在${posWord}。逆位不是坏消息——它提醒你有些能量正在被压抑。${card.element === "火" ? "热情可能需要换个方向释放" : card.element === "水" ? "情绪或许需要一个出口" : card.element === "风" ? "想法可能需要重新整理" : card.element === "土" ? "根基可能需要在另一个方向重建" : "命运正在转弯"}。今天多给自己一点安静的时间。`)
 
-    const mantra = card.orientation === "正位" ? "顺势而行，不必强求。" : "有时候后退一步，是为了看清全貌。"
+    const mantra = llmCard?.mantra ?? (card.orientation === "正位" ? "顺势而行，不必强求。" : "有时候后退一步，是为了看清全貌。")
 
     setTimeout(() => {
       const final = [...cards]
@@ -286,9 +320,9 @@ export default function ReadingPage() {
     const c1 = currentCards[1] || { cardName: "?", orientation: "正位" as const }
     const c2 = currentCards[2] || { cardName: "?", orientation: "正位" as const }
 
-    setSynthesisText(`${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`)
-    synthesisRef.current = `${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`
-    setSuggestions([
+    setSynthesisText(interpretRef.current?.synthesis ?? `${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`)
+    synthesisRef.current = interpretRef.current?.synthesis ?? `${c0.cardName}在${c0.orientation === "正位" ? "顺流" : "提醒"}中指向你的过往——那段经历至今仍在塑造着你的选择。${c1.cardName}代表此刻的能量，${c1.orientation === "正位" ? "它正推动你向前" : "它在温柔地劝你慢下来"}。${c2.cardName}已经在地平线上展开了未来的可能——${c2.orientation === "正位" ? "那是一条清晰的路" : "那是一条藏在迷雾中的路，需要你多一分耐心"}。`
+    setSuggestions(interpretRef.current?.suggestions ?? [
       c0.orientation === "正位" ? "把过去的经验当成指南，而非包袱。" : "有些旧事不需要现在解决——允许自己放一放。",
       "接下来的三天里，做一件你一直拖着的小事。不为什么，就是为了证明给自己看。",
       c2.orientation === "正位" ? "信任你第一直觉给的方向——那就是对的。" : "在迷雾中，最好的策略不是乱冲，是站定了等风来。",
@@ -315,11 +349,11 @@ export default function ReadingPage() {
     setBlessing({
       wuxing,
       crystalName: crystal.name,
-      affirmation: wuxing === "木" ? "我允许自己生长，以我的速度。"
+      affirmation: interpretRef.current?.affirmation ?? (wuxing === "木" ? "我允许自己生长，以我的速度。"
         : wuxing === "火" ? "我的热情足够温暖自己，也能照亮别人。"
         : wuxing === "土" ? "我站得很稳。没有什么能动摇我。"
         : wuxing === "金" ? "清晰即力量。我知道自己在做什么。"
-        : "我的平静比任何风暴都更有力量。",
+        : "我的平静比任何风暴都更有力量。"),
     })
     void syncTarotReading(cardsRef.current, {
       synthesisText: synthesisRef.current,

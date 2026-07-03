@@ -378,7 +378,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
   });
   if (!user) return { ok: false, reason: 'user_not_found' };
 
-  const { generateBlessingText } = await import('@/lib/temple/blessing');
+  const { generateBlessingTextAsync } = await import('@/lib/temple/blessing');
 
   const existing = await prisma.templeCheckin.findUnique({
     where: { userId_checkinDate: { userId: input.userId, checkinDate: today } },
@@ -387,7 +387,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
   if (existing) {
     const summary = await getMeritSummary(input.userId);
     if (!summary) return { ok: false, reason: 'user_not_found' };
-    const blessingText = generateBlessingText({
+    const blessingText = await generateBlessingTextAsync({
       deityName: input.deityName,
       deityCode: input.deityCode,
       faithCode: input.faithCode,
@@ -476,7 +476,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
   const summary = await getMeritSummary(input.userId);
   if (!summary) return { ok: false, reason: 'user_not_found' };
 
-  const blessingText = generateBlessingText({
+  const blessingText = await generateBlessingTextAsync({
     deityName: input.deityName,
     deityCode: input.deityCode,
     faithCode: input.faithCode,
