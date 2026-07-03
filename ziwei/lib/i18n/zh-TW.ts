@@ -1,4 +1,7 @@
 const zhTW: Record<string, string> = {
+  'home.eyebrow': '紫微斗數',
+  'home.title': '紫微排盤，洞察命盤十二宮',
+  'home.subtitle': '輸入出生資訊，即刻生成紫微命盤與 AI 解讀',
   'tab.single': '單人解盤',
   'tab.heming': '合盤分析',
   'form.title': '── 輸入生辰八字 ──',

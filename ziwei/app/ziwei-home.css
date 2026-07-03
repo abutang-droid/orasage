@@ -1,20 +1,91 @@
 /* ══════════════════════════════════════════════════════════════
-   Ziwei chart form + 合盘 — DS v1.1 Revised (monochrome)
+   Ziwei chart form — aligned with bazi calculator shell
+   Page bg: paper · white input surfaces · CMS hero
    ══════════════════════════════════════════════════════════════ */
 
 .ziwei-chart-page {
   width: 100%;
   max-width: 28rem;
   margin-inline: auto;
-  padding: 0.5rem 1.25rem 1rem;
+  padding: 0 1rem 0.5rem;
 
-  --ziwei-control-bg: var(--os-color-mono-white);
-  --ziwei-control-border: var(--os-color-mono-gray-light);
+  --ziwei-control-bg: #fff;
+  --ziwei-control-border: rgb(var(--os-rgb-ink-500) / 0.26);
+  --ziwei-placeholder: rgb(var(--foreground) / 0.2);
 }
 
+/* ── Hero (CMS-configurable, mirrors bazi .bazi-hero) ── */
+.ziwei-hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.ziwei-hero-video {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ziwei-hero-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
+
+.ziwei-hero-inner {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 0.25rem 1rem;
+}
+
+.ziwei-hero-eyebrow {
+  font-family: var(--font-serif);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--brand-gold) / 0.92);
+}
+
+.ziwei-hero-title {
+  margin-top: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: rgb(var(--foreground));
+}
+
+.ziwei-hero-subtitle,
+.ziwei-hero-body {
+  margin: 0.75rem auto 0;
+  max-width: 22rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: rgb(var(--muted-foreground));
+}
+
+.ziwei-hero-image {
+  margin: 1rem auto 0;
+  max-height: 13rem;
+  width: auto;
+  max-width: 100%;
+  border-radius: var(--radius-md, 12px);
+  object-fit: contain;
+}
+
+/* ── Calculator form (no card shell — transparent on page bg) ── */
 .ziwei-calc-form {
   display: flex;
   flex-direction: column;
+  gap: 0;
+}
+
+.ziwei-calc-section {
+  padding-top: 0.25rem;
 }
 
 .ziwei-calc-mode-bar {
@@ -22,9 +93,9 @@
   gap: 0.35rem;
   margin-bottom: 0.75rem;
   padding: 0.3rem;
-  border-radius: var(--os-radius-btn);
+  border-radius: var(--radius-md, 12px);
   background: var(--ziwei-control-bg);
-  border: 1px solid var(--ziwei-control-border);
+  border: 1.5px solid var(--ziwei-control-border);
   box-shadow: var(--os-shadow-surface-1);
 }
 
@@ -32,20 +103,21 @@
   flex: 1;
   padding: 0.625rem 0.5rem;
   border: 1px solid transparent;
-  border-radius: calc(var(--os-radius-btn) - 3px);
+  border-radius: calc(var(--radius-md, 12px) - 3px);
   font-family: var(--font);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--os-color-mono-gray-deep);
-  background: var(--os-color-mono-bg);
-  transition: background var(--os-motion-fast), color var(--os-motion-fast), border-color var(--os-motion-fast);
+  color: rgb(var(--os-rgb-ink-600));
+  background: rgb(var(--os-rgb-ivory-100) / 0.65);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   cursor: pointer;
 }
 
 .ziwei-calc-mode-btn.is-active {
-  color: var(--os-color-mono-white);
-  background: var(--os-color-mono-black);
-  border-color: var(--os-color-mono-black);
+  color: rgb(var(--primary-foreground));
+  background: rgb(var(--primary));
+  border-color: rgb(var(--primary));
+  box-shadow: 0 2px 6px rgb(var(--os-rgb-jade-600) / 0.22);
   font-weight: 600;
 }
 
@@ -59,8 +131,8 @@
 .ziwei-calc-person-hint {
   flex-shrink: 0;
   font-size: 0.625rem;
-  letter-spacing: var(--os-letter-wide);
-  color: var(--os-color-mono-gray-mid);
+  letter-spacing: 0.08em;
+  color: rgb(var(--muted-foreground));
 }
 
 .ziwei-calc-person-tab {
@@ -70,24 +142,16 @@
   border-radius: 0;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--os-color-mono-gray-deep);
+  color: rgb(var(--muted-foreground));
   background: transparent;
-  transition: color var(--os-motion-fast), border-color var(--os-motion-fast);
+  transition: color 0.18s ease, border-color 0.18s ease;
   cursor: pointer;
 }
 
 .ziwei-calc-person-tab.is-active {
-  color: var(--os-color-mono-black);
-  border-bottom-color: var(--os-color-mono-black);
+  color: rgb(var(--primary));
+  border-bottom-color: rgb(var(--primary));
   font-weight: 600;
-}
-
-.ziwei-calc-card {
-  background: var(--ziwei-control-bg);
-  border: 1px solid var(--ziwei-control-border);
-  border-radius: var(--os-radius-card);
-  padding: 1.5rem;
-  box-shadow: var(--os-shadow-surface-1);
 }
 
 .ziwei-calc-submit {
@@ -95,32 +159,30 @@
   width: 100%;
   min-height: 3rem;
   padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: var(--os-radius-btn);
-  background: var(--os-color-mono-black);
-  color: var(--os-color-mono-white);
+  border: 1.5px solid rgb(var(--os-rgb-jade-600) / 0.35);
+  border-radius: var(--radius-md, 12px);
+  background: rgb(var(--primary));
+  color: rgb(var(--primary-foreground));
   font-family: var(--font);
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: var(--os-letter-wide);
-  box-shadow: var(--os-shadow-surface-1);
-  transition: background var(--os-motion-fast), transform var(--os-motion-fast), box-shadow var(--os-motion-fast);
+  letter-spacing: 0.06em;
+  box-shadow: 0 3px 10px rgb(var(--os-rgb-jade-600) / 0.22);
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
   cursor: pointer;
 }
 
 .ziwei-calc-submit:hover:not(:disabled) {
-  background: var(--os-color-mono-black-hover);
-  box-shadow: var(--os-shadow-surface-2);
-  transform: translateY(-1px);
+  background: var(--orasage-brand-primary-hover, rgb(var(--primary)));
+  box-shadow: 0 4px 14px rgb(var(--os-rgb-jade-600) / 0.28);
 }
 
 .ziwei-calc-submit:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .ziwei-calc-submit:disabled {
-  background: var(--os-color-mono-gray-light);
-  color: var(--os-color-mono-gray-mid);
+  opacity: 0.55;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -128,11 +190,11 @@
 .ziwei-calc-error {
   margin-top: 0.75rem;
   padding: 0.75rem 1rem;
-  border-radius: var(--os-radius-btn);
-  border: 1px solid rgb(var(--os-rgb-mono-gray-deep) / 0.2);
-  background: rgb(var(--os-rgb-mono-gray-deep) / 0.04);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid rgb(var(--os-rgb-ink-500) / 0.2);
+  background: rgb(var(--os-rgb-ink-500) / 0.04);
   font-size: 0.75rem;
-  color: var(--os-color-mono-gray-deep);
+  color: rgb(var(--muted-foreground));
   text-align: center;
 }
 
@@ -151,7 +213,7 @@
   flex-shrink: 0;
   font-size: 0.625rem;
   letter-spacing: 0.4em;
-  color: var(--os-color-mono-gray-mid);
+  color: rgb(var(--muted-foreground));
 }
 
 .ziwei-calc-history-line {
@@ -173,13 +235,13 @@
   padding: 0.625rem 0.875rem;
   background: var(--ziwei-control-bg);
   border: 1px solid var(--ziwei-control-border);
-  border-radius: var(--os-radius-btn);
+  border-radius: var(--radius-md, 12px);
   cursor: pointer;
-  transition: border-color var(--os-motion-fast);
+  transition: border-color 0.18s ease;
 }
 
 .ziwei-calc-history-item:hover {
-  border-color: var(--os-color-mono-black);
+  border-color: rgb(var(--primary));
 }
 
 .ziwei-calc-history-item-label {
@@ -188,7 +250,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.75rem;
-  color: var(--os-color-mono-gray-deep);
+  color: rgb(var(--muted-foreground));
 }
 
 .ziwei-calc-history-item-remove {
@@ -197,7 +259,7 @@
   background: transparent;
   font-size: 1rem;
   line-height: 1;
-  color: var(--os-color-mono-gray-mid);
+  color: rgb(var(--muted-foreground));
   opacity: 0.5;
   cursor: pointer;
   padding: 0;

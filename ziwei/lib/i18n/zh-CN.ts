@@ -1,4 +1,7 @@
 const zhCN: Record<string, string> = {
+  'home.eyebrow': '紫微斗数',
+  'home.title': '紫微排盘，洞察命盘十二宫',
+  'home.subtitle': '输入出生信息，即刻生成紫微命盘与 AI 解读',
   'tab.single': '单人排盘',
   'tab.heming': '双人合盘',
   'form.person.editing': '编辑',

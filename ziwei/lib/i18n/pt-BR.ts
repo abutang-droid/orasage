@@ -1,4 +1,7 @@
 const ptBR: Record<string, string> = {
+  'home.eyebrow': 'Zi Wei Dou Shu',
+  'home.title': 'Mapa Zi Wei, leitura dos doze palácios',
+  'home.subtitle': 'Insira os dados de nascimento para gerar o mapa Zi Wei e leitura por IA',
   'tab.single': 'Mapa Individual',
   'tab.heming': 'Compatibilidade',
   'form.title': '── Informações de Nascimento ──',
