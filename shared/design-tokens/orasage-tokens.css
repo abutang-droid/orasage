@@ -1,55 +1,367 @@
 /**
- * OraSage Design Tokens — 极致克制版 (Minimal Refinement)
- * 无色胜有色 · 宋体衬线 + 无衬线混搭 · 纸质留白
+ * OraSage Design Tokens v1.1
+ * Runtime source for Tailwind and shadcn/ui.
+ *
+ * Source baseline:
+ * docs/design-system/tokens/OraSage_Brand_Design_Tokens_v1.1.md
  */
 :root {
-  --orasage-background: #fafaf8;
-  --orasage-surface: #ffffff;
-  --orasage-primary: #171717;
-  --orasage-secondary: #6b7280;
-  --orasage-muted: #9ca3af;
-  --orasage-border: #e7e5e4;
-  --orasage-border-subtle: #f1f1ef;
+  color-scheme: light;
 
-  /* 品牌点缀金 — 仅用于 CTA / 导航高亮，不做五行配色 */
-  --orasage-gold: #b8943f;
-  --orasage-gold-light: #d4b86a;
-  --orasage-gold-pale: rgba(184, 148, 63, 0.08);
-  --orasage-gold-border: rgba(184, 148, 63, 0.22);
+  /* Primitive colors */
+  --os-color-ink-1000: #070908;
+  --os-color-ink-950: #0b0e0d;
+  --os-color-ink-900: #111615;
+  --os-color-ink-850: #161d1b;
+  --os-color-ink-800: #1d2623;
+  --os-color-ink-700: #2a3531;
+  --os-color-ink-600: #3a4742;
+  --os-color-ink-500: #59645f;
+  --os-color-ink-450: #626d68;
+  --os-color-ink-400: #7a837e;
+  --os-color-ink-300: #a3aaa5;
+  --os-color-ink-200: #c8cdc8;
+  --os-color-ink-100: #e3e6e2;
+  --os-color-ink-50: #f5f6f4;
 
-  --orasage-font-sans: 'Inter', 'Noto Sans SC', 'PingFang SC', sans-serif;
-  --orasage-font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+  --os-color-ivory-50: #f7f3ea;
+  --os-color-ivory-100: #efe8db;
+  --os-color-ivory-200: #ded4c3;
+  --os-color-ivory-300: #c8bdaa;
+  --os-color-ivory-400: #afa28d;
+  --os-color-ivory-500: #8e816d;
 
-  --orasage-letter-tight: -0.02em;
-  --orasage-letter-wide: 0.05em;
+  --os-color-brass-50: #f8f2e5;
+  --os-color-brass-100: #efe2c5;
+  --os-color-brass-200: #dfc997;
+  --os-color-brass-300: #d0b47a;
+  --os-color-brass-400: #be9e60;
+  --os-color-brass-500: #a88445;
+  --os-color-brass-600: #806431;
+  --os-color-brass-700: #5d4825;
 
-  --orasage-ease-organic: cubic-bezier(0.4, 0, 0.2, 1);
-  --orasage-radius-sm: 8px;
-  --orasage-radius-md: 12px;
-  --orasage-radius-lg: 18px;
+  --os-color-jade-50: #ecf3f0;
+  --os-color-jade-100: #d1e1db;
+  --os-color-jade-200: #a6c6ba;
+  --os-color-jade-300: #79aa98;
+  --os-color-jade-400: #4b8c79;
+  --os-color-jade-500: #2f6b5c;
+  --os-color-jade-600: #255448;
+  --os-color-jade-700: #1a3e35;
+  --os-color-jade-800: #112b25;
+  --os-color-jade-900: #0b1e1a;
 
+  --os-color-violet-200: #c7bce5;
+  --os-color-violet-300: #a795d4;
+  --os-color-violet-400: #8d77c5;
+  --os-color-violet-500: #6f5aa8;
+  --os-color-violet-550: #725caf;
+  --os-color-violet-600: #584786;
+  --os-color-violet-700: #413563;
+  --os-color-violet-800: #2d2545;
+
+  --os-color-element-wood: #7fb08a;
+  --os-color-element-fire: #d98278;
+  --os-color-element-earth: #c4a665;
+  --os-color-element-metal: #bcc3c0;
+  --os-color-element-water: #7da3c0;
+
+  --os-color-status-success: #73b68d;
+  --os-color-status-warning: #e7b66d;
+  --os-color-status-error: #e4877e;
+  --os-color-status-info: #76a7d7;
+
+  /* RGB primitives for Tailwind opacity modifiers */
+  --os-rgb-ink-950: 11 14 13;
+  --os-rgb-ink-900: 17 22 21;
+  --os-rgb-ink-850: 22 29 27;
+  --os-rgb-ink-800: 29 38 35;
+  --os-rgb-ink-600: 58 71 66;
+  --os-rgb-ink-500: 89 100 95;
+  --os-rgb-ink-450: 98 109 104;
+  --os-rgb-ink-300: 163 170 165;
+  --os-rgb-ivory-50: 247 243 234;
+  --os-rgb-ivory-100: 239 232 219;
+  --os-rgb-ivory-200: 222 212 195;
+  --os-rgb-ivory-300: 200 189 170;
+  --os-rgb-ivory-400: 175 162 141;
+  --os-rgb-brass-300: 208 180 122;
+  --os-rgb-brass-400: 190 158 96;
+  --os-rgb-brass-600: 128 100 49;
+  --os-rgb-jade-400: 75 140 121;
+  --os-rgb-jade-500: 47 107 92;
+  --os-rgb-jade-600: 37 84 72;
+  --os-rgb-violet-500: 111 90 168;
+  --os-rgb-violet-600: 88 71 134;
+  --os-rgb-violet-700: 65 53 99;
+  --os-rgb-status-error: 228 135 126;
+  --brand-primary: var(--os-rgb-jade-500);
+  --brand-gold: var(--os-rgb-brass-300);
+  --brand-purple: var(--os-rgb-violet-500);
+
+  /* Typography */
+  --os-font-serif-zh: "Source Han Serif SC", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", serif;
+  --os-font-serif-latin: "Source Serif 4", "Times New Roman", serif;
+  --os-font-sans: "Inter", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --os-font-numeric: "Inter", "IBM Plex Sans", "Source Han Sans SC", sans-serif;
+
+  --os-font-weight-regular: 400;
+  --os-font-weight-medium: 500;
+  --os-font-weight-semibold: 600;
+  --os-font-weight-bold: 700;
+
+  --os-font-display-1: clamp(2.75rem, 5vw, 4.5rem);
+  --os-font-display-2: clamp(2.375rem, 4vw, 3.5rem);
+  --os-font-heading-1: clamp(2rem, 3.2vw, 2.75rem);
+  --os-font-heading-2: clamp(1.75rem, 2.6vw, 2.25rem);
+  --os-font-heading-3: clamp(1.5rem, 2vw, 1.75rem);
+  --os-font-heading-4: clamp(1.25rem, 1.6vw, 1.375rem);
+  --os-font-body-lg: 1.125rem;
+  --os-font-body-md: 1rem;
+  --os-font-body-sm: 0.875rem;
+  --os-font-label-md: 0.875rem;
+  --os-font-label-sm: 0.75rem;
+
+  --os-line-display-1: 1.1;
+  --os-line-display-2: 1.14;
+  --os-line-heading-1: 1.2;
+  --os-line-heading-2: 1.25;
+  --os-line-heading-3: 1.3;
+  --os-line-heading-4: 1.35;
+  --os-line-body: 1.7;
+  --os-line-label: 1.4;
+
+  --os-letter-tight: -0.01em;
+  --os-letter-normal: 0;
+  --os-letter-wide: 0.04em;
+  --os-letter-eyebrow: 0.12em;
+
+  /* Spacing and layout */
+  --os-space-0: 0;
+  --os-space-1: 0.25rem;
+  --os-space-2: 0.5rem;
+  --os-space-3: 0.75rem;
+  --os-space-4: 1rem;
+  --os-space-5: 1.25rem;
+  --os-space-6: 1.5rem;
+  --os-space-8: 2rem;
+  --os-space-10: 2.5rem;
+  --os-space-12: 3rem;
+  --os-space-16: 4rem;
+  --os-space-20: 5rem;
+  --os-space-24: 6rem;
+  --os-space-30: 7.5rem;
+  --os-space-36: 9rem;
+  --os-space-40: 10rem;
+  --os-page-inline: max(2rem, calc((100vw - 80rem) / 2));
+  --os-section-block: clamp(4.5rem, 10vh, 9rem);
+  --os-section-compact: clamp(3.5rem, 7vh, 5rem);
+  --os-card-padding: clamp(1.5rem, 3vw, 2rem);
+  --os-card-gap: clamp(1rem, 2vw, 1.5rem);
+  --os-content-max-line: 68ch;
+  --os-container-max: 80rem;
+  --os-container-content: 75rem;
+  --os-container-reading: 47.5rem;
+  --os-container-report: 60rem;
+
+  /* Radius, border, shadow, motion */
+  --os-radius-none: 0;
+  --os-radius-xs: 0.25rem;
+  --os-radius-sm: 0.5rem;
+  --os-radius-md: 0.75rem;
+  --os-radius-lg: 1rem;
+  --os-radius-xl: 1.5rem;
+  --os-radius-pill: 999px;
+
+  --os-border-hairline: 1px;
+  --os-border-control: 1px;
+  --os-border-focus: 2px;
+  --os-border-emphasis: 2px;
+
+  --os-shadow-none: none;
+  --os-shadow-surface-1: 0 1px 2px rgb(0 0 0 / 0.18);
+  --os-shadow-surface-2: 0 12px 32px rgb(0 0 0 / 0.2);
+  --os-shadow-surface-3: 0 24px 64px rgb(0 0 0 / 0.28);
+  --os-shadow-focus: 0 0 0 3px rgb(208 180 122 / 0.34);
+  --os-shadow-image: 0 24px 60px rgb(0 0 0 / 0.3);
+
+  --os-motion-instant: 80ms;
+  --os-motion-fast: 140ms;
+  --os-motion-normal: 220ms;
+  --os-motion-slow: 360ms;
+  --os-motion-scene: 600ms;
+  --os-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --os-ease-enter: cubic-bezier(0, 0, 0, 1);
+  --os-ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --os-ease-emphasis: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --os-opacity-disabled: 0.48;
+  --os-opacity-muted: 0.68;
+  --os-opacity-decorative: 0.18;
+  --os-opacity-texture: 0.035;
+
+  --os-size-target-minimum: 24px;
+  --os-size-target-preferred: 44px;
+  --os-size-button-sm: 36px;
+  --os-size-button-md: 44px;
+  --os-size-button-lg: 48px;
+  --os-size-input-md: 44px;
+  --os-size-icon-sm: 16px;
+  --os-size-icon-md: 20px;
+  --os-size-icon-lg: 24px;
+
+  /* Semantic tokens: default paper editorial runtime mode */
+  --background: var(--os-rgb-ivory-50);
+  --foreground: var(--os-rgb-ink-900);
+  --card: 251 248 241;
+  --card-foreground: var(--os-rgb-ink-900);
+  --popover: 251 248 241;
+  --popover-foreground: var(--os-rgb-ink-900);
+  --primary: var(--os-rgb-jade-500);
+  --primary-foreground: var(--os-rgb-ivory-50);
+  --secondary: var(--os-rgb-ivory-100);
+  --secondary-foreground: var(--os-rgb-ink-900);
+  --muted: var(--os-rgb-ivory-100);
+  --muted-foreground: var(--os-rgb-ink-500);
+  --accent: var(--os-rgb-brass-300);
+  --accent-foreground: var(--os-rgb-ink-900);
+  --destructive: var(--os-rgb-status-error);
+  --destructive-foreground: var(--os-rgb-ink-900);
+  --border: var(--os-rgb-ivory-300);
+  --input: var(--os-rgb-ink-500);
+  --ring: var(--os-rgb-jade-500);
+  --radius: var(--os-radius-md);
+  --radius-sm: var(--os-radius-sm);
+  --radius-md: var(--os-radius-md);
+  --radius-lg: var(--os-radius-lg);
+  --radius-xl: var(--os-radius-xl);
+
+  /* OraSage semantic aliases */
+  --orasage-brand-primary: var(--os-color-jade-500);
+  --orasage-brand-primary-hover: var(--os-color-jade-600);
+  --orasage-brand-primary-active: var(--os-color-jade-700);
+  --orasage-brand-gold: var(--os-color-brass-300);
+  --orasage-brand-purple: var(--os-color-violet-500);
+  --orasage-surface-1: #fbf8f1;
+  --orasage-surface-2: var(--os-color-ivory-100);
+  --orasage-surface-3: var(--os-color-ivory-200);
+  --orasage-text-primary: var(--os-color-ink-900);
+  --orasage-text-secondary: var(--os-color-ink-600);
+  --orasage-text-muted: var(--os-color-ink-500);
+  --orasage-focus-ring: var(--os-color-jade-500);
+  --orasage-selection: rgb(var(--os-rgb-jade-400) / 0.22);
+  --orasage-overlay-scrim: rgb(var(--os-rgb-ink-950) / 0.58);
+
+  /* Deprecated legacy aliases kept for current pages */
+  --orasage-background: rgb(var(--background));
+  --orasage-surface: rgb(var(--card));
+  --orasage-primary: rgb(var(--foreground));
+  --orasage-secondary: rgb(var(--os-rgb-ink-600));
+  --orasage-muted: rgb(var(--muted-foreground));
+  --orasage-border: rgb(var(--border));
+  --orasage-border-subtle: rgb(var(--os-rgb-ivory-100));
+  --orasage-gold: var(--orasage-brand-gold);
+  --orasage-gold-light: var(--os-color-brass-200);
+  --orasage-gold-pale: rgb(var(--os-rgb-brass-300) / 0.1);
+  --orasage-gold-border: rgb(var(--os-rgb-brass-400) / 0.28);
+  --orasage-purple: var(--orasage-brand-purple);
+  --orasage-font-sans: var(--os-font-sans);
+  --orasage-font-serif: var(--os-font-serif-zh);
+  --orasage-letter-tight: var(--os-letter-tight);
+  --orasage-letter-wide: var(--os-letter-wide);
+  --orasage-ease-organic: var(--os-ease-standard);
+  --orasage-radius-sm: var(--os-radius-sm);
+  --orasage-radius-md: var(--os-radius-md);
+  --orasage-radius-lg: var(--os-radius-lg);
+  --orasage-control-h-sm: var(--os-size-button-sm);
+  --orasage-control-h-md: var(--os-size-button-md);
+  --orasage-control-h-lg: var(--os-size-button-lg);
   --orasage-shell-top-h: 52px;
   --orasage-shell-bottom-h: 56px;
-
-  /* Control sizes — @orasage/ui sm | md | lg */
-  --orasage-control-h-sm: 36px;
-  --orasage-control-h-md: 44px;
-  --orasage-control-h-lg: 48px;
 }
 
-/* 极淡纸质噪点 */
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: var(--os-rgb-ink-950);
+  --foreground: var(--os-rgb-ivory-50);
+  --card: var(--os-rgb-ink-900);
+  --card-foreground: var(--os-rgb-ivory-50);
+  --popover: var(--os-rgb-ink-850);
+  --popover-foreground: var(--os-rgb-ivory-50);
+  --primary: var(--os-rgb-jade-400);
+  --primary-foreground: var(--os-rgb-ink-950);
+  --secondary: var(--os-rgb-ink-800);
+  --secondary-foreground: var(--os-rgb-ivory-50);
+  --muted: var(--os-rgb-ink-800);
+  --muted-foreground: var(--os-rgb-ivory-300);
+  --accent: var(--os-rgb-brass-300);
+  --accent-foreground: var(--os-rgb-ink-950);
+  --destructive: var(--os-rgb-status-error);
+  --destructive-foreground: var(--os-rgb-ink-950);
+  --border: var(--os-rgb-ink-500);
+  --input: var(--os-rgb-ink-450);
+  --ring: var(--os-rgb-brass-300);
+  --brand-primary: var(--os-rgb-jade-400);
+  --brand-gold: var(--os-rgb-brass-300);
+  --brand-purple: var(--os-rgb-violet-500);
+
+  --orasage-brand-primary: var(--os-color-jade-400);
+  --orasage-brand-primary-hover: var(--os-color-jade-300);
+  --orasage-brand-primary-active: var(--os-color-jade-500);
+  --orasage-surface-1: var(--os-color-ink-900);
+  --orasage-surface-2: var(--os-color-ink-850);
+  --orasage-surface-3: var(--os-color-ink-800);
+  --orasage-text-primary: var(--os-color-ivory-50);
+  --orasage-text-secondary: var(--os-color-ivory-200);
+  --orasage-text-muted: var(--os-color-ivory-400);
+  --orasage-focus-ring: var(--os-color-brass-300);
+  --orasage-selection: rgb(var(--os-rgb-violet-500) / 0.28);
+  --orasage-overlay-scrim: rgb(var(--os-rgb-ink-950) / 0.72);
+
+  --orasage-background: rgb(var(--background));
+  --orasage-surface: rgb(var(--card));
+  --orasage-primary: rgb(var(--foreground));
+  --orasage-secondary: rgb(var(--os-rgb-ivory-200));
+  --orasage-muted: rgb(var(--muted-foreground));
+  --orasage-border: rgb(var(--border));
+  --orasage-border-subtle: rgb(var(--os-rgb-ink-600));
+}
+
+[data-theme="paper"] {
+  color-scheme: light;
+  --background: var(--os-rgb-ivory-50);
+  --foreground: var(--os-rgb-ink-900);
+  --card: 251 248 241;
+  --card-foreground: var(--os-rgb-ink-900);
+  --popover: 251 248 241;
+  --popover-foreground: var(--os-rgb-ink-900);
+  --primary: var(--os-rgb-jade-500);
+  --primary-foreground: var(--os-rgb-ivory-50);
+  --secondary: var(--os-rgb-ivory-100);
+  --secondary-foreground: var(--os-rgb-ink-900);
+  --muted: var(--os-rgb-ivory-100);
+  --muted-foreground: var(--os-rgb-ink-500);
+  --accent: var(--os-rgb-brass-600);
+  --accent-foreground: var(--os-rgb-ivory-50);
+  --border: var(--os-rgb-ivory-300);
+  --input: var(--os-rgb-ink-500);
+  --ring: var(--os-rgb-jade-500);
+}
+
+/* Subtle paper texture utility retained for legacy surfaces. */
 .orasage-grain::before {
-  content: '';
+  content: "";
   pointer-events: none;
   position: fixed;
   inset: 0;
   z-index: 0;
-  opacity: 0.025;
+  opacity: var(--os-opacity-texture);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .orasage-fade-in {
-  animation: orasage-fade-in 0.45s var(--orasage-ease-organic) both;
+  animation: orasage-fade-in 450ms var(--os-ease-standard) both;
 }
 
 @keyframes orasage-fade-in {
@@ -60,5 +372,12 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orasage-fade-in {
+    animation-duration: 1ms;
+    transform: none;
   }
 }
