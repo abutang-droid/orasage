@@ -1,22 +1,12 @@
 "use client"
 import { useState, useRef, useCallback, useEffect } from "react"
 import Link from "next/link"
+import { FaithPicker, loadStoredFaith } from "@/components/FaithPicker"
+import { formatFaithLabel } from "@/lib/faiths/religions"
+import { DEITIES, filterDeitiesByFaith, type Deity } from "@/lib/faiths/deities"
+import { useUser } from "@/lib/user"
 
-// ─── Deity Data ────────────────────────────────────────────────────
-const DEITIES = [
-  // Latin America
-  { id: "aparecida", name: "Aparecida", nameEN: "Nossa Senhora Aparecida", tradition: "latin", region: "Brazil", domains: ["奇迹","母爱","庇护"], color: "#1A3A5C", gradient: "linear-gradient(160deg, #1A3A5C, #2A4A6C)", imageUrl: "/gods/Aparecida.webp" },
-  { id: "guadalupe", name: "Guadalupe", nameEN: "Virgen de Guadalupe", tradition: "latin", region: "Mexico/CentralAmerica", domains: ["慈悲","家庭","底层守护"], color: "#8B2E3A", gradient: "linear-gradient(160deg, #5B1A25, #8B2E3A)", imageUrl: "/gods/Guadalupe.webp" },
-  { id: "lujan", name: "Luján", nameEN: "Nuestra Señora de Luján", tradition: "latin", region: "Argentina", domains: ["旅人保护","平安","方向"], color: "#5B8FA6", gradient: "linear-gradient(160deg, #3A6070, #5B8FA6)", imageUrl: "/gods/Luján.webp" },
-  { id: "santonino", name: "Santo Niño", nameEN: "Santo Niño de Cebú", tradition: "latin", region: "Philippines", domains: ["奇迹","希望","孩子"], color: "#8B2020", gradient: "linear-gradient(160deg, #5B1010, #8B2020)", imageUrl: "/gods/Santo Niño.webp" },
-  // Southeast Asia
-  { id: "guanyin", name: "观音", nameEN: "Guan Yin", tradition: "seasia", region: "Thailand/ChineseDiaspora", domains: ["慈悲","救苦","子嗣"], color: "#D4C8C0", gradient: "linear-gradient(160deg, #B8ACA4, #F0E8E0)", imageUrl: "/gods/观音.webp" },
-  { id: "brahma", name: "四面佛", nameEN: "Brahma", tradition: "seasia", region: "Thailand", domains: ["全能护佑","事业","财运"], color: "#C9954A", gradient: "linear-gradient(160deg, #A67A38, #D4A853)", imageUrl: "/gods/四面佛.webp" },
-  { id: "ganesha", name: "象神", nameEN: "Ganesha", tradition: "seasia", region: "India/Thailand", domains: ["除障","智慧","学业"], color: "#D4782A", gradient: "linear-gradient(160deg, #B06020, #E89040)", imageUrl: "/gods/象神.webp" },
-  { id: "mazu", name: "妈祖", nameEN: "Mazu", tradition: "seasia", region: "ChineseDiaspora", domains: ["出海平安","女性力量"], color: "#8B2020", gradient: "linear-gradient(160deg, #5B1010, #A03030)", imageUrl: "/gods/妈祖.webp" },
-]
-
-type Deity = typeof DEITIES[number]
+type TemplePhase = "faith" | "select" | "worship" | "blessing"
 
 // ─── Worship Halo Animation ────────────────────────────────────────
 function HaloRings({ stage, deityColor }: { stage: number; deityColor: string }) {
@@ -342,13 +332,22 @@ function BlessingScreen({ deity, duration, stage, onDone }: {
 
 // ─── Main Temple Page ──────────────────────────────────────────────
 export default function TemplePage() {
+  const { user, setFaith } = useUser()
+  const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
   const [selectedDeity, setSelectedDeity] = useState<Deity | null>(null)
   const [savedDeity, setSavedDeity] = useState<Deity | null>(null)
-  const [phase, setPhase] = useState<"select" | "worship" | "blessing">("select")
+  const [phase, setPhase] = useState<TemplePhase>("faith")
   const [blessingData, setBlessingData] = useState<{ duration: number; stage: number } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
-  // Load saved deity from localStorage on mount
+  useEffect(() => {
+    const storedFaith = loadStoredFaith() || user?.faith || null
+    if (storedFaith) {
+      setSelectedFaith(storedFaith)
+      setPhase("select")
+    }
+  }, [user?.faith])
+
   useEffect(() => {
     const saved = localStorage.getItem("manto:deity")
     if (saved) {
@@ -359,6 +358,12 @@ export default function TemplePage() {
       } catch {}
     }
   }, [])
+
+  const handleFaithChange = useCallback(async (faithId: string) => {
+    setSelectedFaith(faithId)
+    await setFaith(faithId)
+    setPhase("select")
+  }, [setFaith])
 
   const handleSelectDeity = useCallback((deity: Deity) => {
     setSelectedDeity(deity)
@@ -378,20 +383,53 @@ export default function TemplePage() {
     setBlessingData(null)
   }, [])
 
-  const filteredDeities = DEITIES.filter(d =>
+  const faithDeities = filterDeitiesByFaith(selectedFaith)
+  const filteredDeities = faithDeities.filter(d =>
     !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // ── Select Deity ──
+  // ── Faith selection ──
+  if (phase === "faith") {
+    return (
+      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ paddingTop: 32, paddingBottom: 32 }}>
+          <FaithPicker
+            value={selectedFaith}
+            onChange={(id) => void handleFaithChange(id)}
+            title="第一步 · 选择信仰"
+            subtitle="全球主要信仰按信众规模排列；更多选项在下方"
+            confirmLabel="下一步 · 选择圣地"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // ── Select Deity (sanctuary) ──
   if (phase === "select") {
     return (
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32 }}>
           <div className="page-header" style={{ padding: '16px 0' }}>
             <span className="label">🛐 每日拜神</span>
-            <h1>谁在守护你？</h1>
-            <p>选择你的守护神，把手指放在神像上</p>
+            <h1>选择朝拜圣地</h1>
+            <p>
+              {selectedFaith
+                ? `信仰：${formatFaithLabel(selectedFaith)} · 选择守护神`
+                : '选择你的守护神，把手指放在神像上'}
+            </p>
           </div>
+
+          {selectedFaith && (
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
+              onClick={() => setPhase('faith')}
+            >
+              ← 更换信仰（当前：{formatFaithLabel(selectedFaith)}）
+            </button>
+          )}
 
           {/* Saved deity — quick re-worship */}
           {!searchQuery && savedDeity && (

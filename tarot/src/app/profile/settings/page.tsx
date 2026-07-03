@@ -1,6 +1,8 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { useLang, type Lang } from "@/lib/i18n/context"
+import { useUser } from "@/lib/user"
+import { formatFaithLabel } from "@/lib/faiths/religions"
 
 const LANG_OPTIONS: { lang: Lang; native: string; emoji: string }[] = [
   { lang: "zh", native: "简体中文", emoji: "🇨🇳" },

@@ -9,6 +9,7 @@ const profileSchema = z.object({
   gender: z.string().optional(),
   occupation: z.string().optional(),
   preferredDeity: z.string().optional(),
+  faith: z.string().max(80).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
     if (data.gender) update.gender = data.gender
     if (data.occupation) update.occupation = data.occupation
     if (data.preferredDeity) update.preferredDeity = data.preferredDeity
+    if (data.faith) update.faith = data.faith
 
     if (Object.keys(update).length === 0) {
       return NextResponse.json({ saved: false, reason: "no fields to update" })

@@ -18,6 +18,7 @@ model User {
   externalId String?  @unique @db.VarChar(100)
   occupation String?  @db.VarChar(50)
   preferredDeity String? @db.VarChar(50)
+  faith      String?  @db.VarChar(80)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

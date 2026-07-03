@@ -17,6 +17,7 @@ export interface UserData {
   gender?: string | null
   occupation?: string | null
   preferredDeity?: string | null
+  faith?: string | null
 }
 
 interface UserCtx {
@@ -24,12 +25,14 @@ interface UserCtx {
   loading: boolean
   saveProfile: (fields: Partial<Pick<UserData, "nickname" | "birthday" | "gender" | "occupation">>) => Promise<boolean>
   setDeity: (deity: string) => Promise<boolean>
+  setFaith: (faith: string) => Promise<boolean>
 }
 
 const UserContext = createContext<UserCtx>({
   user: null, loading: true,
   saveProfile: async () => false,
   setDeity: async () => false,
+  setFaith: async () => false,
 })
 
 const LS_KEY = "manto:user"
@@ -57,6 +60,7 @@ function merge(server: UserData, local: UserData | null): UserData {
     gender: server.gender || local?.gender || null,
     occupation: server.occupation || local?.occupation || null,
     preferredDeity: server.preferredDeity || local?.preferredDeity || null,
+    faith: server.faith || local?.faith || null,
   }
 }
 
@@ -132,8 +136,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } catch { return false }
   }, [user])
 
+  const setFaith = useCallback(async (faith: string) => {
+    if (!user) return false
+    try {
+      const res = await fetch("/api/profile/save", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ faith }),
+      })
+      const data = await res.json()
+      if (data.saved) {
+        const updated = { ...user, faith }
+        setUser(updated)
+        cacheUser(updated)
+        return true
+      }
+      return false
+    } catch { return false }
+  }, [user])
+
   return (
-    <UserContext.Provider value={{ user, loading, saveProfile, setDeity }}>
+    <UserContext.Provider value={{ user, loading, saveProfile, setDeity, setFaith }}>
       {children}
     </UserContext.Provider>
   )
