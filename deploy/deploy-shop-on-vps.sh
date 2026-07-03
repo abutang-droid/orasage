@@ -114,6 +114,7 @@ cd "$DEPLOY_DIR/main"
 
 log "构建 main..."
 export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+rm -rf .next
 "$NPM_BIN" run build
 
 log "配置 orasage-main 服务..."
