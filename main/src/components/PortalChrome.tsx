@@ -14,7 +14,12 @@ export async function PortalChrome({ children, locale }: { children: ReactNode; 
       <div
         className="orasage-app-shell"
         data-theme="light"
-        style={{ minHeight: 0, background: 'transparent' }}
+        style={{
+          minHeight: 0,
+          background: 'transparent',
+          // 与 main 页面 bg-sage-bg（#f7f3ea）一致，底栏不形成色块
+          ['--shell-bg' as string]: 'rgb(247, 243, 234)',
+        }}
       >
         <FixedBottomNav context="portal" locale={locale} pathname={pathname} />
       </div>
