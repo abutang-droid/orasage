@@ -120,12 +120,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** 商城前台购买 — 需登录 */
+/** 商城前台购买 — 登录用户同步订单；未登录可走 Stripe 访客结账 */
 export async function PUT(req: NextRequest) {
   const user = await getAuthUser();
-  if (!user) {
-    return NextResponse.json({ error: '请先登录', loginUrl: `${ENV.authUrl}/login?redirect=${encodeURIComponent(ENV.shopUrl)}` }, { status: 401 });
-  }
 
   try {
     const { sku, quantity = 1, currency: requestedCurrency } = z.object({
@@ -143,23 +140,36 @@ export async function PUT(req: NextRequest) {
     const orderNo = makeOrderNo();
     const amountCents = product.priceCents * quantity;
 
-    await syncOrderToAuth({
-      userId: user.id,
-      orderNo,
-      title: quantity > 1 ? `${product.name} ×${quantity}` : product.name,
-      sku: product.sku,
-      amountCents,
-      status: 'pending',
-      appSource: 'shop',
-    });
-
     const stripe = getStripe();
+
+    if (user) {
+      await syncOrderToAuth({
+        userId: user.id,
+        orderNo,
+        title: quantity > 1 ? `${product.name} ×${quantity}` : product.name,
+        sku: product.sku,
+        amountCents,
+        status: 'pending',
+        appSource: 'shop',
+      });
+    } else if (!stripe) {
+      return NextResponse.json({
+        error: '请先登录',
+        loginUrl: `${ENV.authUrl}/login?redirect=${encodeURIComponent(`${ENV.shopUrl}/?sku=${sku}`)}`,
+      }, { status: 401 });
+    }
+
     if (stripe) {
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         success_url: `${ENV.shopUrl}/success?order=${orderNo}`,
         cancel_url: `${ENV.shopUrl}/?sku=${sku}`,
-        metadata: { orderNo, userId: String(user.id), currency },
+        metadata: {
+          orderNo,
+          userId: user ? String(user.id) : 'guest',
+          sku: product.sku,
+          currency,
+        },
         line_items: [{
           quantity,
           price_data: (() => {

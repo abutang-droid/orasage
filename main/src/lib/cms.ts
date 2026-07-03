@@ -62,8 +62,47 @@ export function decodeHtmlEntities(text: string): string {
 }
 
 export function stripHtml(html: string, max = 140): string {
-  const plain = decodeHtmlEntities(html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+  const plain = decodeHtmlEntities(
+    sanitizeLegacyHtml(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+  );
   return plain.length > max ? `${plain.slice(0, max)}…` : plain;
+}
+
+/** 清洗 WordPress 迁移正文：去二维码/外链推广/脚本，修复常见乱码 */
+export function sanitizeLegacyHtml(html: string): string {
+  let out = html;
+
+  // 移除脚本、嵌入、二维码图片、常见推广块
+  out = out
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed[\s\S]*?>/gi, '')
+    .replace(/<img[^>]*(qr|qrcode|weixin|wechat|wx\.|mp\.weixin|公众号|扫码)[^>]*>/gi, '')
+    .replace(/<img[^>]*(wp-content\/uploads\/[^"']*qr[^"']*|barcode)[^>]*>/gi, '')
+    .replace(/<a[^>]*(weixin|wechat|mp\.weixin|javascript:)[^>]*>[\s\S]*?<\/a>/gi, '')
+    .replace(/<div[^>]*(qr|qrcode|wechat|weixin|related|share|social|promo|广告)[^>]*>[\s\S]*?<\/div>/gi, '')
+    .replace(/<p[^>]*(qr|qrcode|wechat|weixin|扫码|关注公众号)[^>]*>[\s\S]*?<\/p>/gi, '');
+
+  // 移除孤立小尺寸图片（常见二维码 80–400px）
+  out = out.replace(/<img[^>]*width=["']?\d{2,3}["']?[^>]*height=["']?\d{2,3}["']?[^>]*>/gi, (tag) => {
+    if (/qr|qrcode|weixin|wechat|扫码/i.test(tag)) return '';
+    return tag;
+  });
+
+  // 常见 UTF-8 被误读为 Latin-1 的乱码（如 Ã©、â€œ）
+  if (/Ã.|Â.|â./.test(out)) {
+    try {
+      const bytes = Uint8Array.from([...out].map((c) => c.charCodeAt(0) & 0xff));
+      const fixed = new TextDecoder('utf-8').decode(bytes);
+      if (fixed && !fixed.includes('\uFFFD')) out = fixed;
+    } catch {
+      // keep original
+    }
+  }
+
+  return out.replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function buildWhere(section: PublishSection, locale?: string): URLSearchParams {

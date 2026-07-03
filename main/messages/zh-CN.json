@@ -113,6 +113,9 @@
   "profile": {
     "title": "我的",
     "desc": "个人资料、测试对象与订单在此统一管理。",
+    "guestDesc": "登录后可同步测试对象、占卜记录与订单；也可先浏览下方说明与条款。",
+    "loginRequired": "登录后可查看此内容",
+    "loginCta": "登录 / 注册",
     "loading": "正在验证登录状态…",
     "accountTitle": "账户信息",
     "displayName": "显示名称",

@@ -61,6 +61,14 @@
     @apply my-4 max-w-full rounded-lg;
   }
 
+  .legacy-html-article :where(img[width], img[height]) {
+    max-height: 0;
+    overflow: hidden;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .prose-sage :where(table) {
     @apply my-4 block max-w-full overflow-x-auto text-sm;
   }

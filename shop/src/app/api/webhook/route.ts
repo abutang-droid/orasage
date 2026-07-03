@@ -27,12 +27,13 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const orderNo = session.metadata?.orderNo;
-    if (orderNo) {
+    const userId = session.metadata?.userId;
+    if (orderNo && userId && userId !== 'guest') {
       try {
         await updateOrderStatus(orderNo, 'paid');
         await dispatchReportJob({
           orderNo,
-          userId: Number(session.metadata?.userId),
+          userId: Number(userId),
           sku: session.metadata?.sku,
           readingId: session.metadata?.readingId,
         });

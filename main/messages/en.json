@@ -113,6 +113,9 @@
   "profile": {
     "title": "My Account",
     "desc": "Manage your profile, saved charts, and orders in one place.",
+    "guestDesc": "Sign in to sync profiles, readings, and orders. You can still browse help and legal pages below.",
+    "loginRequired": "Sign in to view this section",
+    "loginCta": "Sign In / Register",
     "loading": "Checking sign-in…",
     "accountTitle": "Account",
     "displayName": "Display name",
