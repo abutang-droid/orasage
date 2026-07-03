@@ -14,7 +14,7 @@ import {
 import { pickLabel, SHELL_LABELS } from './labels';
 
 function NavIcon({ name, active }: { name: string; active: boolean }) {
-  const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
+  const color = active ? 'var(--shell-primary)' : 'var(--shell-muted)';
   const icons: Record<string, ReactNode> = {
     home: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">

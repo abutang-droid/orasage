@@ -5,6 +5,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 import { HeaderAuthButton } from '@/components/HeaderAuthButton';
 import { getPortalSectionKey, shouldShowPortalBack } from '@/lib/portal-header';
+import { ArrowLeft, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const SECTION_TITLE_KEYS: Record<string, string> = {
@@ -48,9 +49,9 @@ export function Header() {
 
   if (!isHome) {
     return (
-      <header className="safe-top border-b border-sage-border/40 bg-sage-bg">
-        <div className="safe-x mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <span className="font-serif text-base tracking-wide text-sage-gold sm:text-lg">
+      <header className="safe-top border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+        <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <span className="font-serif text-base tracking-wide text-brand-gold sm:text-lg">
             {sectionTitle ?? 'OraSage'}
           </span>
           {showBack && <HeaderBackButton />}
@@ -60,9 +61,12 @@ export function Header() {
   }
 
   return (
-    <header className="safe-top border-b border-sage-border/40 bg-sage-bg">
+    <header className="safe-top border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
-        <Link href="/" className="font-serif text-lg tracking-widest text-sage-gold sm:text-xl">
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center rounded-sm font-serif text-lg tracking-widest text-brand-gold transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-xl"
+        >
           OraSage
         </Link>
 
@@ -72,7 +76,7 @@ export function Header() {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm text-sage-muted transition hover:text-sage-primary"
+                className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {item.label}
               </a>
@@ -80,7 +84,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-sage-muted transition hover:text-sage-primary"
+                className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {item.label}
               </Link>
@@ -93,19 +97,12 @@ export function Header() {
           <HeaderAuthButton className="px-3 py-2 text-xs" />
           <button
             type="button"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-sage-muted active:bg-sage-card"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground active:bg-primary/10 active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
             aria-expanded={open}
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={open ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
-              />
-            </svg>
+            {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
           </button>
         </div>
       </div>
@@ -113,17 +110,17 @@ export function Header() {
       {open && (
         <>
           <div
-            className="fixed inset-0 top-14 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 top-14 z-40 bg-foreground/40 lg:hidden"
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <nav className="safe-bottom fixed inset-x-0 top-14 z-50 max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-b border-sage-border bg-sage-bg px-4 py-3 lg:hidden">
+          <nav className="safe-bottom fixed inset-x-0 top-14 z-50 max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-b border-border bg-background px-4 py-3 shadow-surface-2 lg:hidden">
             {navItems.map((item) =>
               'external' in item && item.external ? (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-sage-primary"
+                  className="flex min-h-12 items-center border-b border-border/60 text-base text-muted-foreground transition-colors active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
@@ -132,7 +129,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex min-h-[48px] items-center border-b border-sage-border/40 text-base text-sage-muted active:text-sage-primary"
+                  className="flex min-h-12 items-center border-b border-border/60 text-base text-muted-foreground transition-colors active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
@@ -153,11 +150,9 @@ function HeaderBackButton() {
     <button
       type="button"
       onClick={() => window.history.back()}
-      className="inline-flex min-h-[44px] items-center gap-1 text-sm text-sage-muted transition hover:text-sage-gold"
+      className="inline-flex min-h-11 items-center gap-1 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-primary active:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
+      <ArrowLeft className="h-[18px] w-[18px] rtl:rotate-180" aria-hidden />
       {t('back')}
     </button>
   );
