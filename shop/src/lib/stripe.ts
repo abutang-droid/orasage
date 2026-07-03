@@ -1,10 +1,12 @@
 import Stripe from 'stripe';
-import { ENV, hasStripe } from './env';
+import { ENV } from './env';
+import { paymentsUseStripe } from './payment-mode';
 
 let stripe: Stripe | null = null;
 
-export function getStripe() {
-  if (!hasStripe()) return null;
+export function getStripe(): Stripe | null {
+  if (!paymentsUseStripe()) return null;
+  if (!ENV.stripeSecretKey) return null;
   if (!stripe) {
     stripe = new Stripe(ENV.stripeSecretKey);
   }

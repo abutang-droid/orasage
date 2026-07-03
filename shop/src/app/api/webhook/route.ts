@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
+import { paymentsUseStripe } from '@/lib/payment-mode';
 import { updateOrderStatus } from '@/lib/orders';
 import { dispatchReportJob } from '@/lib/reportJob';
 
 export async function POST(req: NextRequest) {
+  if (!paymentsUseStripe()) {
+    return NextResponse.json({ error: 'webhook disabled in mock payment mode' }, { status: 503 });
+  }
+
   const stripe = getStripe();
   if (!stripe || !ENV.stripeWebhookSecret) {
     return NextResponse.json({ error: 'webhook not configured' }, { status: 503 });

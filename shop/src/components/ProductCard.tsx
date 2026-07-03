@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
         return;
       }
 
-      if (data.provider === 'demo' && data.orderNo) {
+      if ((data.provider === 'mock' || data.provider === 'demo') && data.orderNo) {
         const payRes = await fetch(`/api/pay?order=${encodeURIComponent(data.orderNo)}`, {
           method: 'POST',
           credentials: 'include',

@@ -1,3 +1,5 @@
+import { paymentsUseStripe } from './payment-mode';
+
 const DEV_JWT_SECRET = 'dev-secret-change-in-production-32chars';
 
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
@@ -14,9 +16,11 @@ export const ENV = {
   ziweiInternalUrl: process.env.ZIWEI_INTERNAL_URL ?? 'http://127.0.0.1:3111',
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+  paymentMode: process.env.PAYMENT_MODE ?? 'mock',
   isProduction: process.env.NODE_ENV === 'production',
 };
 
+/** @deprecated Use paymentsUseStripe() — Stripe keys alone do not enable live payments */
 export function hasStripe() {
-  return Boolean(ENV.stripeSecretKey);
+  return paymentsUseStripe();
 }

@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { getProduct } from '@/lib/products';
 import { makeOrderNo, syncOrderToAuth } from '@/lib/orders';
-import { ENV, hasStripe } from '@/lib/env';
+import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
+import { paymentsUseStripe } from '@/lib/payment-mode';
 import { isLocalRequest } from '@/lib/internal';
 import { detectCurrency, toStripeAmount, type ShopCurrency } from '@/lib/currency';
 
@@ -22,6 +23,14 @@ const checkoutSchema = z.object({
   planType: z.string().max(32).optional(),
   currency: z.enum(['cny', 'usd']).optional(),
 });
+
+function mockCheckoutUrl(orderNo: string, successUrl?: string): string {
+  let url = `${ENV.shopUrl}/checkout?order=${encodeURIComponent(orderNo)}`;
+  if (successUrl) {
+    url += `&return=${encodeURIComponent(successUrl)}`;
+  }
+  return url;
+}
 
 /** 内网结账 API — 供八字/紫微/塔罗等 App 调用 */
 export async function POST(req: NextRequest) {
@@ -65,49 +74,48 @@ export async function POST(req: NextRequest) {
       ? `${body.successUrl}${body.successUrl.includes('?') ? '&' : '?'}order=${encodeURIComponent(orderNo)}`
       : `${ENV.shopUrl}/success?order=${orderNo}`;
     const cancelUrl = body.cancelUrl ?? `${ENV.shopUrl}/?cancelled=1`;
-    const stripeMeta: Record<string, string> = {
-      orderNo,
-      userId: String(body.userId),
-      sku: primarySku,
-      currency,
-    };
-    if (body.appSource) stripeMeta.appSource = body.appSource;
-    if (body.readingId) stripeMeta.readingId = body.readingId;
-    if (body.planType) stripeMeta.planType = body.planType;
-    if (body.recommendationContext) {
-      stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
+
+    if (paymentsUseStripe()) {
+      const stripe = getStripe();
+      if (stripe) {
+        const stripeMeta: Record<string, string> = {
+          orderNo,
+          userId: String(body.userId),
+          sku: primarySku,
+          currency,
+        };
+        if (body.appSource) stripeMeta.appSource = body.appSource;
+        if (body.readingId) stripeMeta.readingId = body.readingId;
+        if (body.planType) stripeMeta.planType = body.planType;
+        if (body.recommendationContext) {
+          stripeMeta.recommendationContext = body.recommendationContext.slice(0, 500);
+        }
+
+        const session = await stripe.checkout.sessions.create({
+          mode: 'payment',
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          metadata: stripeMeta,
+          line_items: lineItems.map((li) => {
+            const charge = toStripeAmount(li.product.priceCents, currency);
+            return {
+              quantity: li.quantity,
+              price_data: {
+                currency: charge.currency,
+                unit_amount: charge.unit_amount,
+                product_data: { name: li.product.name, description: li.product.desc },
+              },
+            };
+          }),
+        });
+        return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
+      }
     }
 
-    const stripe = getStripe();
-    if (stripe) {
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: stripeMeta,
-        line_items: lineItems.map((li) => {
-          const charge = toStripeAmount(li.product.priceCents, currency);
-          return {
-            quantity: li.quantity,
-            price_data: {
-              currency: charge.currency,
-              unit_amount: charge.unit_amount,
-              product_data: { name: li.product.name, description: li.product.desc },
-            },
-          };
-        }),
-      });
-      return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
-    }
-
-    let demoCheckoutUrl = `${ENV.shopUrl}/checkout?order=${encodeURIComponent(orderNo)}`;
-    if (body.successUrl) {
-      demoCheckoutUrl += `&return=${encodeURIComponent(successUrl)}`;
-    }
     return NextResponse.json({
       orderNo,
-      checkoutUrl: demoCheckoutUrl,
-      provider: 'demo',
+      checkoutUrl: mockCheckoutUrl(orderNo, successUrl),
+      provider: 'mock',
       amountCents,
       title,
     });
@@ -120,7 +128,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** 商城前台购买 — 登录用户同步订单；未登录可走 Stripe 访客结账 */
+/** 商城前台购买 — 登录用户同步订单；mock 模式下未登录也可走模拟收银台 */
 export async function PUT(req: NextRequest) {
   const user = await getAuthUser();
 
@@ -139,8 +147,7 @@ export async function PUT(req: NextRequest) {
 
     const orderNo = makeOrderNo();
     const amountCents = product.priceCents * quantity;
-
-    const stripe = getStripe();
+    const useStripe = paymentsUseStripe();
 
     if (user) {
       await syncOrderToAuth({
@@ -152,45 +159,51 @@ export async function PUT(req: NextRequest) {
         status: 'pending',
         appSource: 'shop',
       });
-    } else if (!stripe) {
+    } else if (useStripe) {
+      // Stripe guest checkout — order sync happens in webhook when configured
+    } else {
       return NextResponse.json({
         error: '请先登录',
         loginUrl: `${ENV.authUrl}/login?redirect=${encodeURIComponent(`${ENV.shopUrl}/?sku=${sku}`)}`,
       }, { status: 401 });
     }
 
-    if (stripe) {
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        success_url: `${ENV.shopUrl}/success?order=${orderNo}`,
-        cancel_url: `${ENV.shopUrl}/?sku=${sku}`,
-        metadata: {
-          orderNo,
-          userId: user ? String(user.id) : 'guest',
-          sku: product.sku,
-          currency,
-        },
-        line_items: [{
-          quantity,
-          price_data: (() => {
-            const charge = toStripeAmount(product.priceCents, currency);
-            return {
-              currency: charge.currency,
-              unit_amount: charge.unit_amount,
-              product_data: { name: product.name, description: product.desc },
-            };
-          })(),
-        }],
-      });
-      return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
+    if (useStripe) {
+      const stripe = getStripe();
+      if (stripe) {
+        const session = await stripe.checkout.sessions.create({
+          mode: 'payment',
+          success_url: `${ENV.shopUrl}/success?order=${orderNo}`,
+          cancel_url: `${ENV.shopUrl}/?sku=${sku}`,
+          metadata: {
+            orderNo,
+            userId: user ? String(user.id) : 'guest',
+            sku: product.sku,
+            currency,
+          },
+          line_items: [{
+            quantity,
+            price_data: (() => {
+              const charge = toStripeAmount(product.priceCents, currency);
+              return {
+                currency: charge.currency,
+                unit_amount: charge.unit_amount,
+                product_data: { name: product.name, description: product.desc },
+              };
+            })(),
+          }],
+        });
+        return NextResponse.json({ orderNo, checkoutUrl: session.url, provider: 'stripe' });
+      }
     }
 
     return NextResponse.json({
       orderNo,
-      provider: 'demo',
+      provider: 'mock',
       amountCents,
       title: product.name,
-      demoPayUrl: `/api/pay?order=${orderNo}`,
+      checkoutUrl: mockCheckoutUrl(orderNo),
+      mockPayUrl: `/api/pay?order=${orderNo}`,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {

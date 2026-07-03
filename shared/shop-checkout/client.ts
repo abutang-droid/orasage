@@ -37,7 +37,7 @@ export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppChe
   return data as AppCheckoutResponse;
 }
 
-/** 根据结账结果跳转 Stripe 或演示支付页 */
+/** 根据结账结果跳转 Stripe 或模拟支付页 */
 export function redirectAfterCheckout(result: AppCheckoutResponse) {
   if (result.checkoutUrl) {
     window.location.href = result.checkoutUrl;
@@ -46,4 +46,8 @@ export function redirectAfterCheckout(result: AppCheckoutResponse) {
   if (result.orderNo) {
     window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}`;
   }
+}
+
+export function isMockCheckoutProvider(provider: string): boolean {
+  return provider === 'mock' || provider === 'demo';
 }

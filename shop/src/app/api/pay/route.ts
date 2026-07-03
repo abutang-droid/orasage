@@ -3,7 +3,7 @@ import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo, updateOrderStatus } from '@/lib/orders';
 import { dispatchReportJob } from '@/lib/reportJob';
 
-/** 演示支付 — 无 Stripe 密钥时完成订单（需登录，且订单必须属于当前用户） */
+/** 模拟支付 — PAYMENT_MODE=mock 时完成订单（需登录，且订单必须属于当前用户） */
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
   if (!user) {

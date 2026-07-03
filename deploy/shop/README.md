@@ -15,7 +15,8 @@ cd /opt/orasage/shop && npm install && npm run build
 # JWT_SECRET=<与 auth 相同>
 # AUTH_INTERNAL_URL=http://127.0.0.1:3101
 # SHOP_URL=https://shop.orasage.com
-# STRIPE_SECRET_KEY=sk_...（可选，未配置则使用演示支付）
+# PAYMENT_MODE=mock（默认，模拟支付）| stripe（需密钥）
+# STRIPE_SECRET_KEY=sk_...（仅 PAYMENT_MODE=stripe 时生效）
 
 # 3. auth 数据库迁移（新增 shop app_source）
 psql orasage_auth -f /opt/orasage/auth-service/drizzle/0002_add_shop_source.sql
@@ -47,8 +48,11 @@ Content-Type: application/json
 
 支付完成后订单自动同步到 `auth.orasage.com/center` → 我的订单。
 
-## Stripe（生产）
+## Stripe（正式上线）
 
-1. 在 Stripe Dashboard 配置 Webhook：`https://shop.orasage.com/api/webhook`
-2. 事件：`checkout.session.completed`
-3. 设置 `STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`
+1. 设置 `PAYMENT_MODE=stripe`
+2. 在 Stripe Dashboard 配置 Webhook：`https://shop.orasage.com/api/webhook`
+3. 事件：`checkout.session.completed`
+4. 设置 `STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`
+
+风控审核期间保持 `PAYMENT_MODE=mock`（默认），无需配置 Stripe。

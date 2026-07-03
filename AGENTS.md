@@ -53,6 +53,10 @@ units, and remote deploy scripts targeting a single production VPS.
 - Each is a standalone Next.js app: `npm install && npm run build && npm start`.
 - `shop` needs `JWT_SECRET` (must match auth-service) and `AUTH_INTERNAL_URL`
   (defaults to `http://127.0.0.1:3101`) to sync orders with auth-service.
+- **Payments:** `PAYMENT_MODE` defaults to `mock` in dev and production (risk
+  review / flow testing). Set `PAYMENT_MODE=stripe` plus `STRIPE_SECRET_KEY`
+  and `STRIPE_WEBHOOK_SECRET` for live Stripe checkout. Logic lives in
+  `shared/payments/mode.ts` and `shop/src/lib/payment-mode.ts`.
 - `admin` needs `JWT_SECRET` matching auth-service; gate logic requires the
   JWT's `role` claim to be `admin`.
 

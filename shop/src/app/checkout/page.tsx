@@ -54,11 +54,11 @@ function CheckoutContent() {
           onClick={() => void handlePay()}
           className="mt-8 rounded-full border border-amber-500/40 px-8 py-3 text-amber-200 transition hover:bg-amber-500/10 disabled:opacity-50"
         >
-          {loading ? '处理中…' : '演示支付（完成订单）'}
+          {loading ? '处理中…' : '模拟支付（完成订单）'}
         </button>
       )}
       <p className="mt-6 text-center text-xs text-stone-500">
-        生产环境将跳转 Stripe 收银台；当前为演示模式。
+        当前为模拟支付模式，用于产品流程测试与风控审核。正式上线前将切换至 Stripe。
       </p>
     </main>
   );

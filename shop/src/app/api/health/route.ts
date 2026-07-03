@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
-import { ENV } from '@/lib/env';
+import { paymentsUseStripe, resolvePaymentMode } from '@/lib/payment-mode';
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', service: 'orasage-shop', port: 3102, stripe: Boolean(ENV.stripeSecretKey) });
+  const paymentMode = resolvePaymentMode();
+  return NextResponse.json({
+    status: 'ok',
+    service: 'orasage-shop',
+    port: 3102,
+    paymentMode,
+    stripeEnabled: paymentsUseStripe(),
+  });
 }
