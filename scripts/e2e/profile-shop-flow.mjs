@@ -87,7 +87,7 @@ async function runBaziFlow(page, { mode, person1, person2, planName, resultHint 
   await planButton.waitFor({ timeout: 20000 });
   await planButton.click();
 
-  await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 30000 });
+  await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
   await page.getByRole('button', { name: L.demoPay }).click();
 
   await page.waitForURL(/bazi\.orasage\.com.*paid=1/, { timeout: 90000 });

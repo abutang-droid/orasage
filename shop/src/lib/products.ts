@@ -94,7 +94,9 @@ export async function fetchProducts(): Promise<Product[]> {
 
 export async function getProduct(sku: string): Promise<Product | null> {
   const list = await fetchProducts();
-  return list.find((p) => p.sku === sku) ?? null;
+  const found = list.find((p) => p.sku === sku);
+  if (found) return found;
+  return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
 }
 
 export async function getProductByElement(element: string): Promise<Product | null> {
