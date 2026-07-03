@@ -11,6 +11,7 @@ const STEPS = [
   'npm run test:auth-internal',
   'npm run test:auth-redirect',
   'npm run test:auth-sso',
+  'npm run test:auth-center',
   'npm run test:tarot-offer',
   'npm run test:tarot-free',
   'npm run test:shop-crystal',

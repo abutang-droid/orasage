@@ -11,6 +11,7 @@
     "test:auth-redirect": "node auth-redirect-security.mjs",
     "test:shop-security": "node shop-checkout-security.mjs",
     "test:auth-sso": "node auth-cross-domain.mjs",
+    "test:auth-center": "node auth-center-redirect.mjs",
     "test:shop-crystal": "node shop-crystal-flow.mjs",
     "test:pay-double": "node pay-double-click.mjs",
     "test:pay-network": "node pay-network-retry.mjs",
