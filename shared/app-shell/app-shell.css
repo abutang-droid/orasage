@@ -1,3 +1,8 @@
+:root {
+  --shell-top-h: 52px;
+  --shell-bottom-h: 56px;
+}
+
 .orasage-app-shell {
   --shell-bg: #0f0e17;
   --shell-surface: rgba(21, 18, 42, 0.96);
@@ -125,7 +130,7 @@
   flex: 1;
   position: relative;
   z-index: 1;
-  padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 .orasage-app-main--no-bottomnav {
@@ -133,7 +138,7 @@
 }
 
 .orasage-portal-main {
-  padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 @media (min-width: 1024px) {
