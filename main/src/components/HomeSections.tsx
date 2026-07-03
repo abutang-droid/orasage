@@ -15,56 +15,19 @@ const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
 const toolUrls = { bazi: externalUrls.bazi, ziwei: externalUrls.ziwei, tarot: externalUrls.tarot };
 const icons = { bazi: '☯', ziwei: '✦', tarot: '🌙' };
 
-const ELEMENT_STYLES: Record<string, CSSProperties> = {
-  木: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-wood) 18%, transparent)',
-    color: 'var(--os-color-element-wood)',
-  },
-  火: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-fire) 18%, transparent)',
-    color: 'var(--os-color-element-fire)',
-  },
-  土: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-earth) 18%, transparent)',
-    color: 'var(--os-color-element-earth)',
-  },
-  金: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-metal) 22%, transparent)',
-    color: 'var(--os-color-ink-600)',
-  },
-  水: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-water) 20%, transparent)',
-    color: 'var(--os-color-element-water)',
-  },
-};
-
-const CATEGORY_STYLES: Record<ProductCategory, CSSProperties> = {
-  crystal: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-element-wood) 14%, transparent)',
-    color: 'var(--os-color-jade-600)',
-  },
-  report: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-violet-500) 14%, transparent)',
-    color: 'var(--os-color-violet-600)',
-  },
-  service: {
-    backgroundColor: 'color-mix(in srgb, var(--os-color-brass-300) 16%, transparent)',
-    color: 'var(--os-color-brass-600)',
-  },
-};
+/** Grayscale badge tones — no element/category color on home preview */
+const GRAY_BADGE_STYLES: CSSProperties[] = [
+  { backgroundColor: 'rgb(var(--foreground) / 0.06)', color: 'rgb(var(--foreground))' },
+  { backgroundColor: 'rgb(var(--foreground) / 0.1)', color: 'rgb(var(--muted-foreground))' },
+  { backgroundColor: 'rgb(var(--foreground) / 0.14)', color: 'rgb(var(--foreground))' },
+];
 
 function ModuleTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="mb-3 font-serif text-lg font-medium tracking-wide text-foreground sm:mb-4 sm:text-xl">
-      {children}
-    </h2>
-  );
+  return <h2 className="home-section-title">{children}</h2>;
 }
 
-function productBadgeStyle(element?: string | null, category?: ProductCategory): CSSProperties {
-  if (element && ELEMENT_STYLES[element]) return ELEMENT_STYLES[element];
-  if (category && CATEGORY_STYLES[category]) return CATEGORY_STYLES[category];
-  return CATEGORY_STYLES.crystal;
+function productBadgeStyle(index: number): CSSProperties {
+  return GRAY_BADGE_STYLES[index % GRAY_BADGE_STYLES.length];
 }
 
 function productBadgeLabel(
@@ -94,15 +57,15 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
         />
       ) : null}
 
-      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-8 pt-6 text-center sm:px-6 sm:pb-10 sm:pt-8">
+      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-10 pt-8 text-center sm:px-6 sm:pb-12 sm:pt-10">
         {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="mt-2 font-serif text-[1.65rem] font-light leading-[1.2] tracking-wide text-foreground sm:mt-3 sm:text-[2.5rem] md:text-[2.75rem]">
+        <h1 className="mt-3 font-serif text-[1.75rem] font-normal leading-[1.15] tracking-tight text-foreground sm:mt-4 sm:text-[2.5rem] md:text-[2.85rem]">
           {hero.headline}
         </h1>
 
         {hero.subtitle ? (
-          <p className="mx-auto mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:text-base">
             {hero.subtitle}
           </p>
         ) : null}
@@ -112,12 +75,12 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
           <img
             src={hero.imageUrl!}
             alt=""
-            className="mx-auto mt-4 max-h-52 w-auto max-w-full rounded-lg object-contain sm:mt-5"
+            className="mx-auto mt-6 max-h-52 w-auto max-w-full rounded-md border border-border object-contain grayscale sm:mt-7"
           />
         ) : null}
 
         {hero.bodyText ? (
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
             {hero.bodyText}
           </p>
         ) : null}
@@ -144,7 +107,7 @@ export function ToolCards() {
           >
             <div className="flex items-start gap-3 sm:block">
               <span
-                className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-xl text-brand-gold transition-colors duration-fast group-hover:bg-primary/10 group-hover:text-primary sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
+                className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-lg text-foreground transition-colors duration-fast group-hover:border-foreground/30 group-hover:bg-foreground group-hover:text-background sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
                 aria-hidden
               >
                 {icons[key]}
@@ -152,14 +115,14 @@ export function ToolCards() {
               <div className="flex-1 sm:mt-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="text-base font-medium text-foreground sm:text-lg">{t(`${key}.name`)}</h3>
-                  <span className="hidden font-serif text-[10px] tracking-widest text-muted-foreground/60 sm:inline">
+                  <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground/70 sm:inline">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">{t(`${key}.desc`)}</p>
               </div>
             </div>
-            <span className="self-center text-lg text-primary/70 transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-primary sm:hidden" aria-hidden>
+            <span className="self-center text-lg text-muted-foreground transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-foreground sm:hidden" aria-hidden>
               ›
             </span>
           </a>
@@ -187,7 +150,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
     <section id="shop" className="home-section">
       <ModuleTitle>{t('title')}</ModuleTitle>
 
-      <div className="home-shop-toolbar mb-4 flex items-center gap-3 sm:mb-5">
+      <div className="home-shop-toolbar mb-5 flex items-center gap-3 sm:mb-6">
         <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => {
             const active = currentCategory === cat.id;
@@ -199,6 +162,9 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
                 className={cn(
                   badgeVariants({ variant: active ? 'default' : 'outline' }),
                   'min-h-9 shrink-0 cursor-pointer rounded-full px-4 text-xs tracking-wide',
+                  active
+                    ? 'border-foreground bg-foreground text-background hover:bg-foreground/90'
+                    : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
                 )}
               >
                 {t(`categories.${cat.id}`)}
@@ -218,7 +184,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-4">
-        {visible.map((item) => (
+        {visible.map((item, index) => (
           <a
             key={item.sku}
             href={item.shopUrl}
@@ -229,7 +195,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
           >
             <span
               className="inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm"
-              style={productBadgeStyle(item.element, item.category)}
+              style={productBadgeStyle(index)}
             >
               {productBadgeLabel(item.element, item.category, item.categoryLabel)}
             </span>
@@ -240,7 +206,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
               {item.desc}
             </p>
             {item.priceDisplay ? (
-              <p className="mt-auto pt-2 text-sm font-medium text-brand-gold">{item.priceDisplay}</p>
+              <p className="mt-auto pt-2 text-sm font-medium text-foreground">{item.priceDisplay}</p>
             ) : null}
           </a>
         ))}
@@ -265,7 +231,7 @@ export function ContentSections() {
         >
           <h3 className="font-serif text-lg text-foreground">{t('famous')}</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('famousDesc')}</p>
-          <p className="mt-4 text-sm font-medium text-primary transition-transform duration-fast group-hover:translate-x-0.5">
+          <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
             {t('explore')} →
           </p>
         </Link>
@@ -278,7 +244,7 @@ export function ContentSections() {
         >
           <h3 className="font-serif text-lg text-foreground">{t('daozang')}</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t('daozangDesc')}</p>
-          <p className="mt-4 text-sm font-medium text-primary transition-transform duration-fast group-hover:translate-x-0.5">
+          <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
             {t('explore')} →
           </p>
         </Link>

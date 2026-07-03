@@ -11,7 +11,7 @@ export function HomeHeroVideo({ src, poster, autoplay = true }: Props) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       <video
-        className="h-full w-full object-cover opacity-30"
+        className="h-full w-full object-cover opacity-20 grayscale"
         src={src}
         poster={poster ?? undefined}
         autoPlay={autoplay}

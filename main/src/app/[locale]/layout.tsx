@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover',
-  themeColor: '#fafaf8',
+  themeColor: '#ffffff',
 };
 
 export function generateStaticParams() {
@@ -65,7 +65,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <body className="flex min-h-screen flex-col bg-sage-bg text-sage-primary antialiased">
+      <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
         <NextIntlClientProvider messages={messages}>
           <Header />
           <PortalChrome locale={locale}>{children}</PortalChrome>
