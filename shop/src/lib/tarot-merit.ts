@@ -11,7 +11,12 @@ export async function notifyTarotOfferMerit(opts: {
 
   const tarotUserId = match[1];
   const sku = (opts.sku ?? '').toLowerCase();
-  const kind = sku.includes('crystal') ? 'crystal_purchase' : 'paid_reading';
+  const kind =
+    sku.includes('crystal') && sku.includes('gift')
+      ? 'crystal_gift'
+      : sku.includes('crystal')
+        ? 'crystal_purchase'
+        : 'paid_reading';
 
   const base = process.env.TAROT_INTERNAL_URL || 'http://127.0.0.1:3112';
   const secret = process.env.TAROT_INTERNAL_SECRET || process.env.JWT_SECRET || '';

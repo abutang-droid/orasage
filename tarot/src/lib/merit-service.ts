@@ -259,7 +259,7 @@ export async function recordOfferMerit(
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { totalSpentCents: true },
+    select: { totalSpentCents: true, referredByUserId: true },
   });
   if (!user) return { ok: false, reason: 'user_not_found' };
 
@@ -279,6 +279,26 @@ export async function recordOfferMerit(
   });
 
   if (result.ok && !('duplicate' in result && result.duplicate)) {
+    if (user.referredByUserId) {
+      if (kind === 'paid_reading') {
+        await awardMerit({
+          userId: user.referredByUserId,
+          path: 'share',
+          amount: SHARE_MERIT.referral_first_paid_reading,
+          reason: 'referral_first_paid_reading',
+          idempotencyKey: `referral:paid_reading:${userId}`,
+        });
+      } else if (kind === 'crystal_purchase' || kind === 'crystal_gift') {
+        await awardMerit({
+          userId: user.referredByUserId,
+          path: 'share',
+          amount: SHARE_MERIT.referral_crystal,
+          reason: 'referral_crystal',
+          idempotencyKey: `referral:crystal:${userId}`,
+        });
+      }
+    }
+
     const milestones: [number, number][] = [
       [10000, 50],
       [100000, 200],
