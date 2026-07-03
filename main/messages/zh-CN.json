@@ -36,7 +36,7 @@
   "shop": {
     "title": "能量商城",
     "subtitle": "命理解读推荐 · 水晶手串 · 数字报告",
-    "cta": "进入商城",
+    "cta": "更多商品",
     "products": {
       "wood": {
         "name": "绿幽灵",
@@ -76,7 +76,8 @@
     "daozang": "道藏精选",
     "daozangDesc": "道家经典，智慧传承",
     "comingSoon": "内容即将上线",
-    "explore": "进入阅读"
+    "explore": "进入阅读",
+    "moduleTitle": "精选阅读"
   },
   "footer": {
     "privacy": "隐私政策",

@@ -163,39 +163,28 @@
     @apply mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8;
   }
 
-  .home-section--band {
-    @apply relative max-w-none px-0 py-7 sm:py-9;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgb(var(--muted) / 0.35) 12%,
-      rgb(var(--muted) / 0.35) 88%,
-      transparent 100%
-    );
-  }
-
-  .home-section--band > *:not([aria-hidden]) {
-    @apply mx-auto max-w-6xl px-4 sm:px-6;
-  }
-
   .home-section--tail {
     @apply pb-8 sm:pb-10;
   }
 
-  .home-section-head {
-    @apply text-center;
+  .home-shop-toolbar {
+    @apply items-stretch sm:items-center;
+  }
+
+  .home-shop-more {
+    @apply border-primary/35 font-medium text-primary hover:bg-primary/5;
   }
 
   .home-tool-card {
-    @apply border-border/80 bg-card/90 backdrop-blur-[2px];
+    @apply border-border/80 bg-background;
   }
 
   .home-product-card {
-    @apply border-border/70 bg-card;
+    @apply border-border/80 bg-background;
   }
 
   .home-editorial-card {
-    @apply relative overflow-hidden border-border/80 bg-card/95;
+    @apply relative overflow-hidden border-border/80 bg-background;
   }
 
   .home-editorial-card::before {

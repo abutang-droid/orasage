@@ -10,6 +10,7 @@ import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Faiths } from './collections/Faiths';
 import { Sanctuaries } from './collections/Sanctuaries';
+import { HomeHero } from './globals/HomeHero';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -22,6 +23,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, Faiths, Sanctuaries],
+  globals: [HomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

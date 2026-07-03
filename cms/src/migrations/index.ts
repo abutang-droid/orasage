@@ -2,6 +2,7 @@ import * as migration_20260701_135144_initial from './20260701_135144_initial';
 import * as migration_20260702_120000_wp_import_fields from './20260702_120000_wp_import_fields';
 import * as migration_20260702_140000_add_daozang_publish_sections from './20260702_140000_add_daozang_publish_sections';
 import * as migration_20260703_045532_faiths_sanctuaries from './20260703_045532_faiths_sanctuaries';
+import * as migration_20260703_150000_home_hero_global from './20260703_150000_home_hero_global';
 
 export const migrations = [
   {
@@ -23,5 +24,10 @@ export const migrations = [
     up: migration_20260703_045532_faiths_sanctuaries.up,
     down: migration_20260703_045532_faiths_sanctuaries.down,
     name: '20260703_045532_faiths_sanctuaries'
+  },
+  {
+    up: migration_20260703_150000_home_hero_global.up,
+    down: migration_20260703_150000_home_hero_global.down,
+    name: '20260703_150000_home_hero_global',
   },
 ];
