@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { APP_BRANDS, type AppId } from './config';
+import { appBrandLabel, type AppId } from './config';
 
 const MARKS: Record<AppId, ReactNode> = {
   bazi: (
@@ -24,11 +24,12 @@ const MARKS: Record<AppId, ReactNode> = {
 };
 
 /** 应用首页左上角品牌图形（非固定顶栏） */
-export function AppBrandMark({ appId }: { appId: AppId }) {
+export function AppBrandMark({ appId, locale = 'zh-CN' }: { appId: AppId; locale?: string }) {
+  const label = appBrandLabel(appId, locale);
   return (
-    <div className="orasage-app-brand-mark" aria-label={APP_BRANDS[appId]}>
+    <div className="orasage-app-brand-mark" aria-label={label}>
       {MARKS[appId]}
-      <span className="orasage-app-brand-mark-label">{APP_BRANDS[appId]}</span>
+      <span className="orasage-app-brand-mark-label">{label}</span>
     </div>
   );
 }
