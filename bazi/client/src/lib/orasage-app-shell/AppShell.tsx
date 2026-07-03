@@ -36,7 +36,7 @@ export function AppShell({
   const brandLabel = appBrandLabel(appId, locale);
 
   return (
-    <div className="orasage-app-shell orasage-grain" data-theme={theme}>
+    <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
       <SiteTopNav locale={locale} context={appId} />
 
       <header className="orasage-site-mobile-bar lg:hidden">

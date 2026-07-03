@@ -26,6 +26,26 @@
   --shell-gold: var(--orasage-brand-gold, #d0b47a);
 }
 
+/* 八字页：顶栏品牌/登录与纸底拉开对比 */
+.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-mobile-bar-brand,
+.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-site-topnav-brand {
+  color: rgb(var(--os-rgb-ink-900));
+  font-weight: 500;
+}
+
+.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip {
+  color: rgb(var(--os-rgb-jade-600));
+  border-color: rgb(var(--os-rgb-jade-500) / 0.45);
+  background: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.06);
+}
+
+.orasage-app-shell[data-app='bazi'][data-theme='light'] .orasage-auth-chip:hover {
+  border-color: rgb(var(--os-rgb-jade-500) / 0.7);
+  background: rgb(var(--os-rgb-jade-500) / 0.08);
+}
+
 .orasage-app-topbar-start {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════
    Bazi home — aligned with main portal (orasage.com)
-   Page bg: #f7f3ea · inputs on card surface · jade primary
+   Page bg: #f7f3ea · white input/button surfaces for contrast
    ══════════════════════════════════════════════════════════════ */
 
 .bazi-home-page {
@@ -8,6 +8,12 @@
   max-width: 28rem;
   margin-inline: auto;
   padding-bottom: 0.5rem;
+
+  /* 控件面色：纯白 + 清晰描边，与纸底 #f7f3ea 拉开层次 */
+  --bazi-control-bg: #fff;
+  --bazi-control-border: rgb(var(--os-rgb-ink-500) / 0.26);
+  --bazi-control-border-strong: rgb(var(--os-rgb-ink-600) / 0.32);
+  --bazi-placeholder: rgb(var(--os-rgb-ink-400) / 0.52);
 }
 
 /* ── Hero (CMS-configurable, mirrors main .home-hero) ── */
@@ -91,33 +97,36 @@
   padding-top: 0.25rem;
 }
 
+/* 模式切换：白底胶囊条，选中项翡翠实心 */
 .bazi-calc-mode-bar {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.35rem;
   margin-bottom: 0.75rem;
-  padding: 0.25rem;
+  padding: 0.3rem;
   border-radius: var(--radius-md);
-  background: rgb(var(--muted));
-  border: 1px solid rgb(var(--border) / 0.65);
+  background: var(--bazi-control-bg);
+  border: 1.5px solid var(--bazi-control-border);
+  box-shadow: var(--os-shadow-surface-1);
 }
 
 .bazi-calc-mode-btn {
   flex: 1;
-  padding: 0.6rem 0.5rem;
-  border: none;
-  border-radius: calc(var(--radius-md) - 2px);
+  padding: 0.625rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-md) - 3px);
   font-family: var(--font-sans);
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgb(var(--muted-foreground));
-  background: transparent;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  color: rgb(var(--os-rgb-ink-600));
+  background: rgb(var(--os-rgb-ivory-100) / 0.65);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .bazi-calc-mode-btn.is-active {
-  color: rgb(var(--foreground));
-  background: rgb(var(--card));
-  box-shadow: var(--os-shadow-surface-1);
+  color: rgb(var(--primary-foreground));
+  background: rgb(var(--primary));
+  border-color: rgb(var(--primary));
+  box-shadow: 0 2px 6px rgb(var(--os-rgb-jade-600) / 0.22);
   font-weight: 600;
 }
 
@@ -148,8 +157,9 @@
 }
 
 .bazi-calc-person-tab.is-active {
-  color: rgb(var(--brand-primary));
-  border-bottom-color: rgb(var(--brand-primary));
+  color: rgb(var(--primary));
+  border-bottom-color: rgb(var(--primary));
+  font-weight: 600;
 }
 
 .bazi-calc-field-label {
@@ -159,68 +169,87 @@
   color: rgb(var(--foreground));
 }
 
-/* Input surface — distinct from page bg (#f7f3ea) */
+/* 输入区：白底 + 清晰描边；占位符极淡 */
+.bazi-field-input,
+.bazi-field-select,
+.bazi-city-field,
+.bazi-date-trigger,
+.bazi-date-input {
+  background: var(--bazi-control-bg);
+  border: 1.5px solid var(--bazi-control-border);
+  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.04);
+}
+
 .bazi-field-input {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.625rem 0.875rem;
-  border: 1px solid rgb(var(--border));
   border-radius: var(--radius-md);
-  background: rgb(var(--card));
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
   font-size: 0.9375rem;
+  font-weight: 400;
   outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
   caret-color: rgb(var(--ring));
 }
 
-.bazi-field-input::placeholder {
-  color: rgb(var(--muted-foreground));
+.bazi-field-input::placeholder,
+.bazi-city-field input::placeholder {
+  color: var(--bazi-placeholder);
+  font-weight: 400;
+  opacity: 1;
 }
 
-.bazi-field-input:focus {
+.bazi-field-input:focus,
+.bazi-field-select:focus,
+.bazi-city-field.is-focused,
+.bazi-date-input:focus {
   border-color: rgb(var(--ring));
-  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.16), 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.05);
 }
 
 .bazi-field-select {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.625rem 0.875rem;
-  border: 1px solid rgb(var(--border));
   border-radius: var(--radius-md);
-  background: rgb(var(--card));
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
   font-size: 0.875rem;
   outline: none;
 }
 
-.bazi-field-select:focus {
-  border-color: rgb(var(--ring));
-  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
+.bazi-field-select option[value=''] {
+  color: var(--bazi-placeholder);
 }
 
+/* 性别 / 历法分段按钮 */
 .bazi-calc-segment {
   display: flex;
   overflow: hidden;
   flex-shrink: 0;
   border-radius: var(--radius-md);
-  border: 1px solid rgb(var(--border));
-  background: rgb(var(--card));
+  border: 1.5px solid var(--bazi-control-border);
+  background: var(--bazi-control-bg);
+  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.04);
 }
 
 .bazi-calc-segment-btn {
   min-width: 2rem;
-  padding: 0.5rem 0.55rem;
+  padding: 0.5rem 0.6rem;
   border: none;
   font-family: var(--font-sans);
   font-size: 0.75rem;
   line-height: 1;
-  color: rgb(var(--muted-foreground));
-  background: transparent;
+  font-weight: 500;
+  color: rgb(var(--os-rgb-ink-600));
+  background: rgb(var(--os-rgb-ivory-100) / 0.5);
   transition: background 0.18s ease, color 0.18s ease;
+}
+
+.bazi-calc-segment-btn + .bazi-calc-segment-btn {
+  border-left: 1px solid var(--bazi-control-border);
 }
 
 .bazi-calc-segment-btn.is-active {
@@ -234,7 +263,7 @@
   width: 100%;
   min-height: 3rem;
   padding: 0.875rem 1.5rem;
-  border: none;
+  border: 1.5px solid rgb(var(--os-rgb-jade-600) / 0.35);
   border-radius: var(--radius-md);
   background: rgb(var(--primary));
   color: rgb(var(--primary-foreground));
@@ -242,12 +271,13 @@
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  box-shadow: var(--os-shadow-surface-1);
+  box-shadow: 0 3px 10px rgb(var(--os-rgb-jade-600) / 0.22);
   transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .bazi-calc-submit:hover {
   background: var(--orasage-brand-primary-hover);
+  box-shadow: 0 4px 14px rgb(var(--os-rgb-jade-600) / 0.28);
 }
 
 .bazi-calc-submit:active {
@@ -259,15 +289,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.875rem;
-  border: 1px solid rgb(var(--border));
   border-radius: var(--radius-md);
-  background: rgb(var(--card));
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.bazi-city-field.is-focused {
-  border-color: rgb(var(--ring));
-  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
 }
 
 .bazi-city-field input {
@@ -278,6 +301,7 @@
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
   font-size: 0.9375rem;
+  font-weight: 400;
   caret-color: rgb(var(--ring));
 }
 
@@ -289,8 +313,8 @@
   z-index: 50;
   overflow: hidden;
   border-radius: var(--radius-md);
-  border: 1px solid rgb(var(--border));
-  background: rgb(var(--card));
+  border: 1.5px solid var(--bazi-control-border);
+  background: var(--bazi-control-bg);
   box-shadow: var(--os-shadow-surface-2);
 }
 
@@ -298,7 +322,7 @@
   width: 100%;
   padding: 0.625rem 1rem;
   border: none;
-  border-bottom: 1px solid rgb(var(--border) / 0.5);
+  border-bottom: 1px solid rgb(var(--border) / 0.45);
   text-align: left;
   background: transparent;
   transition: background 0.15s ease;
@@ -311,9 +335,7 @@
 .bazi-date-trigger {
   width: 100%;
   padding: 0.625rem 0;
-  border: 1px solid rgb(var(--border));
   border-radius: var(--radius-md);
-  background: rgb(var(--card));
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
   font-size: 0.875rem;
@@ -322,22 +344,19 @@
 }
 
 .bazi-date-trigger:hover {
-  border-color: rgb(var(--ring) / 0.5);
+  border-color: var(--bazi-control-border-strong);
 }
 
 .bazi-date-input {
   width: 100%;
   padding: 0.625rem 0;
   border-radius: var(--radius-md);
-  border: 1px solid rgb(var(--ring));
-  background: rgb(var(--card));
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
   font-size: 0.875rem;
   font-weight: 500;
   text-align: center;
   outline: none;
-  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.18);
 }
 
 /* ── Scrolling feed ticker ── */
@@ -348,8 +367,9 @@
 .bazi-home-feed-mask {
   overflow: hidden;
   border-radius: var(--radius-md);
-  border: 1px solid rgb(var(--border) / 0.65);
-  background: rgb(var(--card) / 0.55);
+  border: 1.5px solid var(--bazi-control-border);
+  background: var(--bazi-control-bg);
+  box-shadow: 0 1px 2px rgb(var(--os-rgb-ink-950) / 0.04);
 }
 
 .bazi-home-feed-track {
