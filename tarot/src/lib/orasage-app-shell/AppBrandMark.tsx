@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { appBrandLabel, type AppId } from './config';
+import { APP_BRANDS, type AppId } from './config';
 
 const MARKS: Record<AppId, ReactNode> = {
   bazi: (
@@ -21,15 +21,21 @@ const MARKS: Record<AppId, ReactNode> = {
       <path d="M6 10h12v10H6z" stroke="var(--shell-gold)" strokeWidth="1.4" fill="var(--shell-gold)" fillOpacity="0.08" />
     </svg>
   ),
+  shop: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M6 6h15l-1.5 9h-12z" stroke="var(--shell-gold)" strokeWidth="1.4" />
+      <circle cx="9" cy="19" r="1.5" fill="var(--shell-gold)" />
+      <circle cx="18" cy="19" r="1.5" fill="var(--shell-gold)" />
+    </svg>
+  ),
 };
 
 /** 应用首页左上角品牌图形（非固定顶栏） */
-export function AppBrandMark({ appId, locale = 'zh-CN' }: { appId: AppId; locale?: string }) {
-  const label = appBrandLabel(appId, locale);
+export function AppBrandMark({ appId }: { appId: AppId }) {
   return (
-    <div className="orasage-app-brand-mark" aria-label={label}>
+    <div className="orasage-app-brand-mark" aria-label={APP_BRANDS[appId]}>
       {MARKS[appId]}
-      <span className="orasage-app-brand-mark-label">{label}</span>
+      <span className="orasage-app-brand-mark-label">{APP_BRANDS[appId]}</span>
     </div>
   );
 }

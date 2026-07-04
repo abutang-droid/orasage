@@ -22,7 +22,7 @@ export type AppShellProps = {
   children: ReactNode;
 };
 
-/** 命理 App 外壳：PC 顶栏 + 移动顶栏品牌/登录 + 移动底栏 5 键 */
+/** 子应用外壳：PC 顶栏 + 移动顶栏品牌/登录 + 移动底栏 5 键 */
 export function AppShell({
   appId,
   locale = 'zh-CN',
