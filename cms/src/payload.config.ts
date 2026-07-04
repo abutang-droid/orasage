@@ -13,6 +13,7 @@ import { Sanctuaries } from './collections/Sanctuaries';
 import { HomeHero } from './globals/HomeHero';
 import { BaziHomeHero } from './globals/BaziHomeHero';
 import { ZiweiHomeHero } from './globals/ZiweiHomeHero';
+import { ShopHomeHero } from './globals/ShopHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 import { ZiweiFeed } from './collections/ZiweiFeed';
 
@@ -27,7 +28,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed, ZiweiFeed],
-  globals: [HomeHero, BaziHomeHero, ZiweiHomeHero],
+  globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

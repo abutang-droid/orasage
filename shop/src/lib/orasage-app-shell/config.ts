@@ -1,4 +1,6 @@
-export type AppId = 'bazi' | 'ziwei' | 'tarot';
+import { pickLabel, SHELL_LABELS } from './labels';
+
+export type AppId = 'bazi' | 'ziwei' | 'tarot' | 'shop';
 
 /** Main 门户子页使用 portal 上下文 */
 export type NavContext = AppId | 'portal';
@@ -12,7 +14,16 @@ export const APP_BRANDS: Record<AppId, string> = {
   bazi: 'BaZi',
   ziwei: 'ZiWei',
   tarot: 'ManTo',
+  shop: 'Energy',
 };
+
+/** 子应用品牌名（随 locale；中文商城用「能量商城」） */
+export function appBrandLabel(appId: AppId, locale: string): string {
+  if (appId === 'shop') {
+    return pickLabel(SHELL_LABELS.energyShop, locale, APP_BRANDS.shop);
+  }
+  return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
+}
 
 export const ORASAGE_URLS = {
   main: 'https://orasage.com',
@@ -44,6 +55,7 @@ export const APP_HOME_PATH: Record<AppId, string> = {
   bazi: '/',
   ziwei: '/chart',
   tarot: '/',
+  shop: '/',
 };
 
 /** 子页面路径前缀 — 显示顶栏返回按钮 */
@@ -51,6 +63,7 @@ export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
   bazi: ['/history'],
   ziwei: ['/knowledge', '/library', '/heming'],
   tarot: ['/reading', '/crystal', '/temple', '/history'],
+  shop: ['/success'],
 };
 
 export function isAppSubpage(appId: AppId, pathname: string): boolean {
