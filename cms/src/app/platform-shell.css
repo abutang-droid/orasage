@@ -1,10 +1,3 @@
 @import '../../../shared/design-tokens/orasage-tokens.css';
 @import '../../../shared/admin-backend/admin-backend.css';
 @import '../lib/orasage-app-shell/app-shell.css';
-
-/* Payload 管理区在移动底栏之上留出空间 */
-@media (max-width: 1023px) {
-  .admin-backend-content--wide .payload-admin {
-    padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px));
-  }
-}

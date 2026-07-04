@@ -126,6 +126,58 @@
   padding-left: 0 !important;
 }
 
+/* Payload CMS：在统一后台右侧铺满可用区域（禁用内置 grid 侧栏列） */
+.admin-backend-content--wide {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.admin-backend-content--wide .template-default,
+.admin-backend-content--wide .template-default--nav-hydrated,
+.admin-backend-content--wide .template-default--nav-open,
+.admin-backend-content--wide .template-default--nav-hydrated.template-default--nav-open {
+  display: flex !important;
+  flex: 1 1 auto;
+  grid-template-columns: unset !important;
+  width: 100% !important;
+  min-width: 0;
+  min-height: 0;
+}
+
+.admin-backend-content--wide .template-default > .nav,
+.admin-backend-content--wide .template-default nav.nav {
+  display: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  border: none !important;
+}
+
+.admin-backend-content--wide .template-default__wrap {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.admin-backend-content--wide .template-default__nav-toggler-wrapper,
+.admin-backend-content--wide .template-default__nav-overlay {
+  display: none !important;
+}
+
+.admin-backend-content--wide .collection-list,
+.admin-backend-content--wide .collection-list__wrap,
+.admin-backend-content--wide .dashboard {
+  width: 100%;
+  max-width: none;
+}
+
 /* 后台页脚 — 版权与协议同一行（与 shared/app-shell 门户页脚一致） */
 .orasage-portal-footer {
   display: none;

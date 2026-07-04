@@ -1,1 +1,53 @@
-/* Payload 面板样式覆盖见 shared/admin-backend/admin-backend.css */
+/* Payload 面板：在统一后台右侧全宽展示（须在 @payloadcms/next/css 之后加载） */
+@import '../platform-shell.css';
+
+.admin-backend-content--wide .template-default,
+.admin-backend-content--wide .template-default--nav-hydrated,
+.admin-backend-content--wide .template-default--nav-open,
+.admin-backend-content--wide .template-default--nav-hydrated.template-default--nav-open {
+  display: flex !important;
+  flex: 1 1 auto;
+  grid-template-columns: unset !important;
+  width: 100% !important;
+  min-width: 0;
+  min-height: calc(100dvh - var(--shell-top-h, 52px));
+}
+
+.admin-backend-content--wide .template-default > .nav,
+.admin-backend-content--wide .template-default nav.nav {
+  display: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  border: none !important;
+}
+
+.admin-backend-content--wide .template-default__wrap {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.admin-backend-content--wide .template-default__nav-toggler-wrapper,
+.admin-backend-content--wide .template-default__nav-overlay {
+  display: none !important;
+}
+
+.admin-backend-content--wide .collection-list,
+.admin-backend-content--wide .collection-list__wrap,
+.admin-backend-content--wide .dashboard {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 1023px) {
+  .admin-backend-content--wide .payload-admin {
+    padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px));
+  }
+}
