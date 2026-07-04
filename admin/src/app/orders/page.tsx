@@ -2,6 +2,7 @@ import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getOrders } from '@/lib/api';
 import { updateOrderStatusAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
+import { formatShippingDisplay } from '../../../../shared/shop-fulfillment/index';
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
 
@@ -34,6 +35,7 @@ export default async function OrdersPage() {
                 <th>SKU</th>
                 <th>金额</th>
                 <th>来源</th>
+                <th>收货信息</th>
                 <th>状态</th>
                 <th>时间</th>
                 <th>操作</th>
@@ -41,7 +43,7 @@ export default async function OrdersPage() {
             </thead>
             <tbody>
               {orders.length === 0 ? (
-                <tr><td colSpan={9} className="muted">暂无订单</td></tr>
+                <tr><td colSpan={10} className="muted">暂无订单</td></tr>
               ) : orders.map((o) => (
                 <tr key={o.orderNo}>
                   <td><code>{o.orderNo}</code></td>
@@ -50,6 +52,11 @@ export default async function OrdersPage() {
                   <td>{o.sku ? <code>{o.sku}</code> : '—'}</td>
                   <td>{o.amountDisplay}</td>
                   <td>{o.appLabel ?? '—'}</td>
+                  <td className="shipping-cell">
+                    {o.shippingAddress
+                      ? formatShippingDisplay(o.shippingAddress)
+                      : '—'}
+                  </td>
                   <td><span className="badge">{o.statusLabel}</span></td>
                   <td>{new Date(o.createdAt).toLocaleString('zh-CN')}</td>
                   <td>

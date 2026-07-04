@@ -76,6 +76,7 @@ export default async function ProductsPage() {
           <label>价格 USD（美元）<input name="priceUsd" type="number" step="0.01" min="0" required placeholder="17.99" /></label>
           <label>排序<input name="sortOrder" type="number" defaultValue={0} /></label>
           <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked /> 上架</label>
+          <label className="checkbox-label"><input name="requiresShipping" type="checkbox" defaultChecked /> 需要收货地址（实体发货）</label>
           <label className="full-width">描述<textarea name="description" rows={2} required placeholder="招财旺运 · 五行补木" /></label>
           <button type="submit" className="btn-primary">添加商品</button>
         </form>
@@ -91,6 +92,7 @@ export default async function ProductsPage() {
                 <th>名称</th>
                 <th>五行</th>
                 <th>分类</th>
+                <th>实体</th>
                 <th>价格 CNY</th>
                 <th>价格 USD</th>
                 <th>状态</th>
@@ -104,6 +106,7 @@ export default async function ProductsPage() {
                   <td>{p.name}</td>
                   <td>{p.element ?? '—'}</td>
                   <td>{p.categoryLabel}</td>
+                  <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
                   <td>{p.priceDisplayUsd ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
@@ -122,6 +125,7 @@ export default async function ProductsPage() {
                         <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
                         <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
                         <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
+                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需要收货</label>
                         <textarea name="description" rows={2} defaultValue={p.desc} required />
                         <button type="submit" className="btn-small">保存</button>
                       </form>

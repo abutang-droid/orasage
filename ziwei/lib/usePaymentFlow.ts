@@ -64,6 +64,7 @@ export function usePaymentFlow(mode: 'single' | 'couple' = 'single') {
         planType: plan,
         readingId,
         recommendationContext: `紫微${plan}报告`,
+        shippingMode: mode === 'couple' ? 'couple' : 'single',
         successUrl: returnBase,
       });
       if (result.checkoutUrl) {
@@ -76,7 +77,7 @@ export function usePaymentFlow(mode: 'single' | 'couple' = 'single') {
       console.error('[ziwei/pay]', err);
       window.alert(err instanceof Error ? err.message : '结账失败');
     }
-  }, [shopPayments]);
+  }, [shopPayments, mode]);
 
   const setUnlocked = useCallback((v: boolean) => {
     setState((prev) => ({ ...prev, unlocked: v }));

@@ -14,6 +14,7 @@ export interface SyncOrderInput {
   appSource?: AppSource;
   recommendationContext?: string;
   readingId?: string;
+  shippingAddress?: string;
 }
 
 export function makeOrderNo() {
@@ -47,6 +48,7 @@ export interface AuthOrder {
   sku?: string | null;
   readingId?: string | null;
   recommendationContext?: string | null;
+  shippingAddress?: string | null;
 }
 
 export async function getOrderByNo(orderNo: string): Promise<AuthOrder | null> {
@@ -72,4 +74,17 @@ export async function updateOrderStatus(orderNo: string, status: OrderStatus) {
     throw new Error(data.error || `更新订单失败 (${res.status})`);
   }
   return data as { success: boolean; orderNo: string; status: OrderStatus };
+}
+
+export async function updateOrderShipping(orderNo: string, shippingAddress: string) {
+  const res = await fetch(`${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ shippingAddress }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `保存收货信息失败 (${res.status})`);
+  }
+  return data as { success: boolean; orderNo: string; shippingAddress: string };
 }

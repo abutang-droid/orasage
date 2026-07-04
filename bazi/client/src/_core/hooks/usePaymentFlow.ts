@@ -136,6 +136,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
           planType: plan,
           readingId,
           recommendationContext: `八字${planNameMap[plan] || plan}报告`,
+          shippingMode: mode === 'couple' ? 'couple' : 'single',
           successUrl: returnBase,
         });
         if (result.checkoutUrl) {

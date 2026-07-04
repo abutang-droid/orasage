@@ -1,3 +1,5 @@
+import { inferRequiresShipping, inferRequiresWristSize } from '../../../shared/shop-fulfillment/index';
+
 export type ProductCategory = 'crystal' | 'report' | 'service';
 
 export interface Product {
@@ -11,6 +13,8 @@ export interface Product {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  requiresShipping?: boolean;
+  requiresWristSize?: boolean;
 }
 
 /** 静态兜底（auth-service 不可用时） */
@@ -58,9 +62,12 @@ interface ApiProduct {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  requiresShipping?: boolean;
+  requiresWristSize?: boolean;
 }
 
 function mapApiProduct(p: ApiProduct): Product {
+  const fulfillment = { category: p.category, sku: p.sku, requiresShipping: p.requiresShipping };
   return {
     sku: p.sku,
     name: p.name,
@@ -72,6 +79,8 @@ function mapApiProduct(p: ApiProduct): Product {
     currency: p.currency,
     priceDisplay: p.priceDisplay,
     category: p.category,
+    requiresShipping: p.requiresShipping ?? inferRequiresShipping(fulfillment),
+    requiresWristSize: p.requiresWristSize ?? inferRequiresWristSize(fulfillment),
   };
 }
 
