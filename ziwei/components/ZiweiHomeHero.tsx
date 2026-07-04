@@ -59,6 +59,12 @@ export function ZiweiHomeHero() {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
+  const mediaOnly =
+    Boolean(showImage || showVideo) &&
+    !hero.headline &&
+    !hero.eyebrow &&
+    !hero.subtitle &&
+    !hero.bodyText;
 
   return (
     <section className="ziwei-hero">
@@ -70,15 +76,15 @@ export function ZiweiHomeHero() {
         />
       ) : null}
 
-      <div className="ziwei-hero-inner orasage-fade-in">
+      <div className={`ziwei-hero-inner orasage-fade-in${mediaOnly ? ' ziwei-hero-inner--media-only' : ''}`}>
         {hero.eyebrow ? <p className="ziwei-hero-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="ziwei-hero-title">{hero.headline}</h1>
+        {hero.headline ? <h1 className="ziwei-hero-title">{hero.headline}</h1> : null}
 
         {hero.subtitle ? <p className="ziwei-hero-subtitle">{hero.subtitle}</p> : null}
 
         {showImage ? (
-          <img src={hero.imageUrl!} alt="" className="ziwei-hero-image" />
+          <img src={hero.imageUrl!} alt={hero.imageAlt ?? ''} className="ziwei-hero-image" />
         ) : null}
 
         {hero.bodyText ? <p className="ziwei-hero-body">{hero.bodyText}</p> : null}

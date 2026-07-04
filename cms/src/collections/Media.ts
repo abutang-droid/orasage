@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload';
 import { MEDIA_LIBRARY_SPEC } from '../lib/media-specs';
-import { requiredText } from '../lib/validators';
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -21,12 +20,11 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      label: '替代文字（alt）',
-      required: true,
+      label: '替代文字（alt，可选）',
       admin: {
-        description: '必填。描述图片/视频内容，用于无障碍阅读与 SEO，例如「绿幽灵水晶手串产品图」',
+        description:
+          '可选。描述图片/视频内容，用于无障碍阅读与 SEO；纯媒体 Hero 可不填',
       },
-      validate: (value: unknown) => requiredText(value, '请填写替代文字，说明该媒体的内容'),
     },
   ],
   upload: {

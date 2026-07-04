@@ -177,6 +177,22 @@
   .home-hero-inner {
     position: relative;
     z-index: 1;
+    max-width: 62.4rem; /* 较原 max-w-3xl (48rem) 加宽 30% */
+    margin-inline: auto;
+  }
+
+  .home-hero-image {
+    max-height: 16.9rem; /* 较原 13rem 加高 30%，横向展示区域同步放大 */
+  }
+
+  .home-hero-inner--media-only {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .home-hero-inner--media-only .home-hero-image {
+    margin-top: 0;
+    max-height: 20rem;
   }
 
   .home-section {

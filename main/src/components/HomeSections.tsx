@@ -79,6 +79,12 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
+  const mediaOnly =
+    Boolean(showImage || showVideo) &&
+    !hero.headline &&
+    !hero.eyebrow &&
+    !hero.subtitle &&
+    !hero.bodyText;
 
   return (
     <section className="home-hero relative overflow-hidden">
@@ -90,12 +96,16 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
         />
       ) : null}
 
-      <div className="home-hero-inner orasage-fade-in relative mx-auto max-w-3xl px-5 pb-10 pt-8 text-center sm:px-6 sm:pb-12 sm:pt-10">
+      <div
+        className={`home-hero-inner orasage-fade-in relative mx-auto px-5 pb-10 pt-8 text-center sm:px-6 sm:pb-12 sm:pt-10${mediaOnly ? ' home-hero-inner--media-only' : ''}`}
+      >
         {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="mt-3 font-serif text-[1.75rem] font-bold leading-[var(--os-line-heading-1)] tracking-[var(--os-letter-tight)] text-foreground sm:mt-4 sm:text-heading-1">
-          {hero.headline}
-        </h1>
+        {hero.headline ? (
+          <h1 className="mt-3 font-serif text-[1.75rem] font-bold leading-[var(--os-line-heading-1)] tracking-[var(--os-letter-tight)] text-foreground sm:mt-4 sm:text-heading-1">
+            {hero.headline}
+          </h1>
+        ) : null}
 
         {hero.subtitle ? (
           <p className="mx-auto mt-4 max-w-lg text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-base">
@@ -107,8 +117,8 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={hero.imageUrl!}
-            alt=""
-            className="mx-auto mt-6 max-h-52 w-auto max-w-full rounded-[var(--os-radius-card)] border border-border object-contain sm:mt-7"
+            alt={hero.imageAlt ?? ''}
+            className="home-hero-image mx-auto mt-6 w-auto max-w-full rounded-[var(--os-radius-card)] border border-border object-contain sm:mt-7"
           />
         ) : null}
 

@@ -12,6 +12,12 @@ export type HomeHeroDefaults = {
   subtitle: string;
 };
 
+type HeroSiblingData = {
+  displayMode?: 'text' | 'image' | 'video' | null;
+  videoExternalUrl?: string | null;
+  heroVideo?: unknown;
+};
+
 /** 四站 Hero Global 共用字段（中文标注 + 媒体规格提示） */
 export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
   return [
@@ -37,17 +43,24 @@ export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
       name: 'headline',
       type: 'text',
       label: '主标题',
-      required: true,
       defaultValue: defaults.headline,
-      validate: (value: unknown) => requiredText(value, '请填写主标题'),
+      admin: {
+        description: '纯文字模式必填；图片/视频模式可留空，仅展示媒体',
+      },
+      validate: (value: unknown, { siblingData }: { siblingData?: HeroSiblingData }) => {
+        if (siblingData?.displayMode === 'text') {
+          return requiredText(value, '纯文字模式请填写主标题');
+        }
+        return true;
+      },
     },
     {
       name: 'subtitle',
       type: 'textarea',
-      label: '副标题',
+      label: '副标题（可选）',
       defaultValue: defaults.subtitle,
       admin: {
-        description: '主标题下方的说明文字，建议一两句话',
+        description: '主标题下方的说明文字，可留空',
       },
     },
     {
@@ -62,7 +75,8 @@ export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
         { label: '视频', value: 'video' },
       ],
       admin: {
-        description: '纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放',
+        description:
+          '纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填',
       },
     },
     {
@@ -75,6 +89,12 @@ export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
           siblingData?.displayMode === 'image' || siblingData?.displayMode === 'video',
         description: HERO_IMAGE_SPEC,
       },
+      validate: (value: unknown, { siblingData }: { siblingData?: HeroSiblingData }) => {
+        if (siblingData?.displayMode === 'image' && !value) {
+          return '图片模式请选择 Hero 图片';
+        }
+        return true;
+      },
     },
     {
       name: 'heroVideo',
@@ -85,6 +105,14 @@ export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
         condition: (_, siblingData) => siblingData?.displayMode === 'video',
         description: HERO_VIDEO_UPLOAD_SPEC,
       },
+      validate: (value: unknown, { siblingData }: { siblingData?: HeroSiblingData }) => {
+        if (siblingData?.displayMode !== 'video') return true;
+        const hasExternal = Boolean(String(siblingData?.videoExternalUrl ?? '').trim());
+        if (!value && !hasExternal) {
+          return '视频模式请上传视频或填写外部视频 URL';
+        }
+        return true;
+      },
     },
     {
       name: 'videoExternalUrl',
@@ -93,6 +121,15 @@ export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
       admin: {
         condition: (_, siblingData) => siblingData?.displayMode === 'video',
         description: HERO_VIDEO_URL_SPEC,
+      },
+      validate: (value: unknown, { siblingData }: { siblingData?: HeroSiblingData }) => {
+        if (siblingData?.displayMode !== 'video') return true;
+        const hasExternal = Boolean(String(value ?? '').trim());
+        const hasUpload = Boolean(siblingData?.heroVideo);
+        if (!hasExternal && !hasUpload) {
+          return '视频模式请上传视频或填写外部视频 URL';
+        }
+        return true;
       },
     },
     {
