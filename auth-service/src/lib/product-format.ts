@@ -1,4 +1,11 @@
 import type { products } from "../db/schema.ts";
+import {
+  currencyForLocale,
+  detectShopLocale,
+  formatShopPrice,
+  resolvePriceCents,
+  type ShopCurrency,
+} from "../../../shared/shop-locale/index.ts";
 
 export type ProductRow = typeof products.$inferSelect;
 
@@ -16,7 +23,22 @@ export const CATEGORY_LABELS: Record<string, string> = {
   service: "能量咨询",
 };
 
-export function formatProduct(p: ProductRow) {
+export function resolveProductLocale(req?: {
+  queryLocale?: string | null;
+  acceptLanguage?: string | null;
+  cookieLocale?: string | null;
+}): string {
+  return detectShopLocale(req);
+}
+
+export function formatProduct(p: ProductRow, options?: { locale?: string }) {
+  const locale = options?.locale ?? "zh-CN";
+  const currency: ShopCurrency = currencyForLocale(locale);
+  const resolvedCents = resolvePriceCents(
+    { priceCents: p.priceCents, priceCentsUsd: p.priceCentsUsd },
+    currency,
+  );
+
   return {
     id: p.id,
     sku: p.sku,
@@ -25,7 +47,15 @@ export function formatProduct(p: ProductRow) {
     desc: p.description,
     description: p.description,
     priceCents: p.priceCents,
-    priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
+    priceCentsUsd: p.priceCentsUsd,
+    currency,
+    priceCentsResolved: resolvedCents,
+    priceDisplay: formatShopPrice(resolvedCents, currency),
+    priceDisplayCny: formatShopPrice(p.priceCents, "cny"),
+    priceDisplayUsd: formatShopPrice(
+      resolvePriceCents({ priceCents: p.priceCents, priceCentsUsd: p.priceCentsUsd }, "usd"),
+      "usd",
+    ),
     category: p.category,
     categoryLabel: CATEGORY_LABELS[p.category] ?? p.category,
     active: p.active,

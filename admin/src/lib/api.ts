@@ -37,7 +37,10 @@ export interface AdminProduct {
   element?: string | null;
   desc: string;
   priceCents: number;
+  priceCentsUsd?: number | null;
   priceDisplay: string;
+  priceDisplayCny?: string;
+  priceDisplayUsd?: string;
   category: 'crystal' | 'report' | 'service';
   categoryLabel: string;
   active: boolean;

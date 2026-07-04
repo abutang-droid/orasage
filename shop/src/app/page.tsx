@@ -1,21 +1,18 @@
 import { Suspense } from 'react';
 import { ShopHeader } from '@/components/ShopHeader';
 import { ProductCatalog } from '@/components/ProductCatalog';
-import { CurrencyToggle } from '@/components/CurrencyToggle';
 import { fetchProducts } from '@/lib/products';
 import { getAuthUser } from '@/lib/auth';
+import { getServerShopLocale } from '@/lib/currency-server';
 
 export default async function ShopPage() {
-  const [user, products] = await Promise.all([getAuthUser(), fetchProducts()]);
+  const locale = await getServerShopLocale();
+  const [user, products] = await Promise.all([getAuthUser(), fetchProducts(locale)]);
 
   return (
     <>
       <ShopHeader />
       <main className="shop-page safe-bottom flex-1">
-        <div className="shop-desktop-toolbar">
-          <CurrencyToggle />
-        </div>
-
         <div className="shop-hero">
           <h1 className="shop-hero-title">能量商城</h1>
           <p className="shop-hero-subtitle">命理解读推荐 · 水晶手串 · 数字报告</p>

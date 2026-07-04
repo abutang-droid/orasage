@@ -1,28 +1,29 @@
-export type ShopCurrency = 'cny' | 'usd';
+import type { ShopCurrency } from '../../../shared/shop-locale/index';
+import {
+  currencyForLocale,
+  detectShopLocale,
+  formatShopPrice,
+  resolvePriceCents,
+} from '../../../shared/shop-locale/index';
 
-const CNY_TO_USD_RATE = Number(process.env.CNY_TO_USD_RATE ?? '7.2');
+export type { ShopCurrency };
 
-export function isShopCurrency(value: string): value is ShopCurrency {
-  return value === 'cny' || value === 'usd';
+export {
+  currencyForLocale,
+  detectShopLocale,
+  formatShopPrice,
+  resolvePriceCents,
+};
+
+/** @deprecated use formatShopPrice */
+export function formatProductPrice(cents: number, currency: ShopCurrency): string {
+  return formatShopPrice(cents, currency);
 }
 
-export function detectCurrency(acceptLanguage?: string | null): ShopCurrency {
-  if (!acceptLanguage) return 'cny';
-  const lang = acceptLanguage.toLowerCase();
-  if (lang.startsWith('en') || lang.startsWith('pt') || lang.includes('us')) return 'usd';
-  return 'cny';
-}
-
-/** Stripe charge amount in the requested currency's smallest unit */
-export function toStripeAmount(cnyCents: number, currency: ShopCurrency): { currency: ShopCurrency; unit_amount: number } {
-  if (currency === 'cny') {
-    return { currency: 'cny', unit_amount: cnyCents };
-  }
-  const usdCents = Math.max(50, Math.round((cnyCents / 100 / CNY_TO_USD_RATE) * 100));
-  return { currency: 'usd', unit_amount: usdCents };
-}
-
-export function formatProductPrice(cnyCents: number, currency: ShopCurrency): string {
-  if (currency === 'cny') return `¥${(cnyCents / 100).toFixed(2)}`;
-  return `$${(cnyCents / 100 / CNY_TO_USD_RATE).toFixed(2)}`;
+export function toStripeAmount(
+  pricing: { priceCents: number; priceCentsUsd?: number | null },
+  currency: ShopCurrency,
+): { currency: ShopCurrency; unit_amount: number } {
+  const unit_amount = resolvePriceCents(pricing, currency);
+  return { currency, unit_amount };
 }

@@ -10,11 +10,12 @@ export async function saveProductAction(formData: FormData) {
   const element = String(formData.get('element') ?? '').trim();
   const category = String(formData.get('category') ?? 'crystal') as 'crystal' | 'report' | 'service';
   const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
+  const priceCentsUsd = Math.round(Number(formData.get('priceUsd') ?? 0) * 100);
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
   const isEdit = formData.get('isEdit') === '1';
 
-  if (!sku || !name || !description || priceCents < 0) {
+  if (!sku || !name || !description || priceCents < 0 || priceCentsUsd < 0) {
     throw new Error('请填写完整商品信息');
   }
 
@@ -25,6 +26,7 @@ export async function saveProductAction(formData: FormData) {
     element: element || null,
     category,
     priceCents,
+    priceCentsUsd: priceCentsUsd > 0 ? priceCentsUsd : null,
     sortOrder,
     active,
   };

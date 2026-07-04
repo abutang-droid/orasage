@@ -1,21 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { CurrencyToggle } from '@/components/CurrencyToggle';
 
 type Props = {
   title?: string;
   showBack?: boolean;
 };
 
-/** 商店顶栏：仅移动端显示（PC 由 SiteTopNav + 页内工具栏承担） */
+/** 商店顶栏：仅移动端显示（PC 由 SiteTopNav 承担） */
 export function ShopHeader({ title = '能量商城', showBack = false }: Props) {
   return (
     <header className="safe-top border-b border-sage-border bg-sage-bg lg:hidden">
       <div className="safe-x mx-auto flex h-12 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <span className="shrink-0 font-serif text-base tracking-wide text-sage-primary sm:text-lg">{title}</span>
         <div className="flex items-center gap-2">
-          {!showBack && <CurrencyToggle />}
           {showBack ? (
             <button
               type="button"

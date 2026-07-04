@@ -2,21 +2,20 @@
 
 import { useState } from 'react';
 import type { Product } from '@/lib/products';
-import { useShopCurrency } from '@/components/CurrencyProvider';
-import { formatProductPrice } from '@/lib/currency';
-
-const elementLabels: Record<string, string> = {
-  '木': '木',
-  '火': '火',
-  '土': '土',
-  '金': '金',
-  '水': '水',
-};
+import { useShopLocale } from '@/components/ShopLocaleProvider';
+import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
 
 export function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { currency } = useShopCurrency();
+  const { currency } = useShopLocale();
+
+  const displayCents = product.priceCentsResolved
+    ?? resolvePriceCents(
+      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
+      currency,
+    );
+  const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
 
   async function handleBuy() {
     setLoading(true);
@@ -26,7 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ sku: product.sku, currency }),
+        body: JSON.stringify({ sku: product.sku }),
       });
       const data = await res.json();
       if (res.status === 401) {
@@ -56,7 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
     }
   }
 
-  const badgeLabel = product.element ? elementLabels[product.element] ?? product.element : '✦';
+  const badgeLabel = product.element ?? '✦';
 
   return (
     <article className="shop-product-card">
@@ -64,7 +63,7 @@ export function ProductCard({ product }: { product: Product }) {
       <h3 className="shop-product-name">{product.name}</h3>
       <p className="shop-product-desc">{product.desc}</p>
       <div className="mt-4 flex items-center justify-between gap-2">
-        <span className="shop-product-price">{formatProductPrice(product.priceCents, currency)}</span>
+        <span className="shop-product-price">{displayPrice}</span>
         <button
           type="button"
           onClick={handleBuy}

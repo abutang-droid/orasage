@@ -54,19 +54,6 @@
   color: var(--os-color-mono-gray-mid, #9ca3af);
 }
 
-.shop-desktop-toolbar {
-  display: none;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-
-@media (min-width: 1024px) {
-  .shop-desktop-toolbar {
-    display: flex;
-  }
-}
-
 .shop-category-pill {
   display: inline-flex;
   shrink: 0;
@@ -174,30 +161,6 @@
 .shop-btn-secondary:hover {
   color: var(--os-color-mono-black, #171717);
   border-color: var(--os-color-mono-gray-deep, #6b7280);
-}
-
-.shop-currency-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  border-radius: 999px;
-  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
-  background: var(--os-color-mono-white, #fff);
-  padding: 0.25rem;
-  font-size: 0.75rem;
-}
-
-.shop-currency-btn {
-  border-radius: 999px;
-  padding: 0.375rem 0.75rem;
-  font-weight: 500;
-  color: var(--os-color-mono-gray-deep, #6b7280);
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.shop-currency-btn[data-active='true'] {
-  background: var(--os-color-mono-black, #171717);
-  color: var(--os-color-mono-white, #fff);
 }
 
 .shop-footer-note {

@@ -97,6 +97,7 @@ export const products = pgTable("products", {
   element: varchar("element", { length: 10 }),
   description: text("description").notNull(),
   priceCents: integer("price_cents").notNull(),
+  priceCentsUsd: integer("price_cents_usd"),
   category: productCategoryEnum("category").notNull(),
   active: boolean("active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
