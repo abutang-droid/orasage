@@ -1,6 +1,14 @@
 const CMS_URL =
   import.meta.env.VITE_CMS_URL || 'https://cms.orasage.com';
 
+/** 浏览器走同源代理，避免跨域 CORS 导致拉取失败后误用 enabled:true 的 fallback */
+function heroApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    return '/api/cms/bazi-home-hero';
+  }
+  return `${CMS_URL}/api/globals/bazi-home-hero?depth=1`;
+}
+
 export type BaziHeroDisplayMode = 'text' | 'image' | 'video';
 
 export type BaziHomeHeroContent = {
@@ -68,7 +76,7 @@ function mapBaziHero(data: CmsBaziHeroRaw): BaziHomeHeroContent | null {
 
 export async function fetchBaziHomeHero(): Promise<BaziHomeHeroContent | null> {
   try {
-    const res = await fetch(`${CMS_URL}/api/globals/bazi-home-hero?depth=1`, {
+    const res = await fetch(heroApiUrl(), {
       cache: 'no-store',
     });
     if (!res.ok) return null;

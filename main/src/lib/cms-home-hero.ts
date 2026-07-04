@@ -68,7 +68,7 @@ function mapHomeHero(data: CmsHomeHeroRaw): HomeHeroContent | null {
 export async function fetchHomeHero(_locale: string): Promise<HomeHeroContent | null> {
   try {
     const res = await fetch(`${CMS_URL}/api/globals/home-hero?depth=1`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
     if (!res.ok) return null;
     const data = (await res.json()) as CmsHomeHeroRaw;

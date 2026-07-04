@@ -1,6 +1,14 @@
 const CMS_URL =
   process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
 
+/** 浏览器走同源 API 路由，避免跨域 CORS 导致拉取失败后误用 enabled:true 的 fallback */
+function heroApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    return '/api/cms/ziwei-home-hero';
+  }
+  return `${CMS_URL}/api/globals/ziwei-home-hero?depth=1`;
+}
+
 export type ZiweiHeroDisplayMode = 'text' | 'image' | 'video';
 
 export type ZiweiHomeHeroContent = {
@@ -68,7 +76,7 @@ function mapZiweiHero(data: CmsZiweiHeroRaw): ZiweiHomeHeroContent | null {
 
 export async function fetchZiweiHomeHero(): Promise<ZiweiHomeHeroContent | null> {
   try {
-    const res = await fetch(`${CMS_URL}/api/globals/ziwei-home-hero?depth=1`, {
+    const res = await fetch(heroApiUrl(), {
       cache: 'no-store',
     });
     if (!res.ok) return null;
