@@ -34,21 +34,27 @@ function loginCardHtml(locale: string, redirect: string): string {
   return `
     <main class="auth-page">
       <div class="auth-card">
-        <h1 class="auth-card-title">${c.loginTitle}</h1>
-        <p class="auth-card-lead">${c.loginLead}</p>
-        <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}">
-          <div class="oui-field">
-            <label for="login-email">${c.email}</label>
-            <input id="login-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
-          </div>
-          <div class="oui-field">
-            <label for="login-password">${c.password}</label>
-            <input id="login-password" class="oui-input" data-size="md" type="password" name="password" required autocomplete="current-password">
-          </div>
-          <p id="form-error" class="oui-field-error" hidden></p>
-          <button type="submit" class="oui-btn oui-btn--default" data-size="lg">${c.loginBtn}</button>
-        </form>
-        <p class="auth-switch">${c.loginSwitch}<a href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+        <header class="auth-card-header">
+          <h1 class="auth-card-title">${c.loginTitle}</h1>
+          <p class="auth-card-lead">${c.loginLead}</p>
+        </header>
+        <div class="auth-card-body">
+          <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}">
+            <div class="auth-field">
+              <label class="auth-label" for="login-email">${c.email}</label>
+              <input id="login-email" class="auth-input" type="email" name="email" required autocomplete="email" placeholder="${esc(c.emailPlaceholder)}">
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="login-password">${c.password}</label>
+              <input id="login-password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="${esc(c.passwordPlaceholder)}">
+            </div>
+            <p id="form-error" class="auth-error" role="alert" hidden></p>
+            <button type="submit" class="auth-submit">${c.loginBtn}</button>
+          </form>
+          <footer class="auth-card-footer">
+            <p class="auth-switch">${c.loginSwitch}<a href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+          </footer>
+        </div>
       </div>
     </main>`;
 }
@@ -58,25 +64,31 @@ function registerCardHtml(locale: string, redirect: string): string {
   return `
     <main class="auth-page">
       <div class="auth-card">
-        <h1 class="auth-card-title">${c.registerTitle}</h1>
-        <p class="auth-card-lead">${c.registerLead}</p>
-        <form id="register-form" class="auth-form" data-redirect="${esc(redirect)}">
-          <div class="oui-field">
-            <label for="reg-email">${c.email}</label>
-            <input id="reg-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
-          </div>
-          <div class="oui-field">
-            <label for="reg-nickname">${c.nickname}</label>
-            <input id="reg-nickname" class="oui-input" data-size="md" type="text" name="nickname" placeholder="${esc(c.nicknamePlaceholder)}" autocomplete="nickname">
-          </div>
-          <div class="oui-field">
-            <label for="reg-password">${c.password}</label>
-            <input id="reg-password" class="oui-input" data-size="md" type="password" name="password" required minlength="6" autocomplete="new-password">
-          </div>
-          <p id="form-error" class="oui-field-error" hidden></p>
-          <button type="submit" class="oui-btn oui-btn--default" data-size="lg">${c.registerBtn}</button>
-        </form>
-        <p class="auth-switch">${c.registerSwitch}<a href="/login?redirect=${encodeURIComponent(redirect)}">${c.registerSwitchLink}</a></p>
+        <header class="auth-card-header">
+          <h1 class="auth-card-title">${c.registerTitle}</h1>
+          <p class="auth-card-lead">${c.registerLead}</p>
+        </header>
+        <div class="auth-card-body">
+          <form id="register-form" class="auth-form" data-redirect="${esc(redirect)}">
+            <div class="auth-field">
+              <label class="auth-label" for="reg-email">${c.email}</label>
+              <input id="reg-email" class="auth-input" type="email" name="email" required autocomplete="email" placeholder="${esc(c.emailPlaceholder)}">
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="reg-nickname">${c.nickname}</label>
+              <input id="reg-nickname" class="auth-input" type="text" name="nickname" placeholder="${esc(c.nicknamePlaceholder)}" autocomplete="nickname">
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="reg-password">${c.password}</label>
+              <input id="reg-password" class="auth-input" type="password" name="password" required minlength="6" autocomplete="new-password" placeholder="${esc(c.passwordPlaceholder)}">
+            </div>
+            <p id="form-error" class="auth-error" role="alert" hidden></p>
+            <button type="submit" class="auth-submit">${c.registerBtn}</button>
+          </form>
+          <footer class="auth-card-footer">
+            <p class="auth-switch">${c.registerSwitch}<a href="/login?redirect=${encodeURIComponent(redirect)}">${c.registerSwitchLink}</a></p>
+          </footer>
+        </div>
       </div>
     </main>`;
 }

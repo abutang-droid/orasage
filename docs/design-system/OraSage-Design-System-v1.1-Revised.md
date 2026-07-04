@@ -238,8 +238,20 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 | :--- | :--- |
 | PC 顶栏 | `topNavHtml` — 品牌 + 全站导航 + `OrasageAuthChip` |
 | 移动顶栏 | `mobileNavHtml` — 品牌 + `OrasageAuthChip`（`data-hydrate-auth`） |
-| 内容 | `auth-card` 衬线标题 + 说明 + 表单，对齐 `ProfileLoginCard` |
+| 内容 | `auth-card` 分区：标题区（白底）+ 表单区（`#FAFAF8` 底） |
 | PC 页脚 | `footerHtml` — §7 版权 / 隐私 / 用户协议 |
 | 禁止 | 页内 `page-header` 重复品牌条 |
 
-实现：`auth-service/src/lib/site-chrome-html.ts`、`auth-service/src/routes/pages.ts`
+**表单区（`auth-*` 类，DS §3.1 / §3.2）**
+
+| 元素 | 规范 |
+| :--- | :--- |
+| 标签 | `auth-label` — 14px Medium `#171717`，与输入框间距 8px |
+| 输入框 | `auth-input` — 高 44px，白底，`1px #E7E5E4` 边框，圆角 12px；focus 黑边 |
+| 主按钮 | `auth-submit` — 高 48px，全宽，`#171717` 底 / 白字，圆角 12px |
+| 字段间距 | 相邻 `auth-field` 间距 20px；按钮上方 24px |
+| 切换链接 | `auth-card-footer` 顶部分割线，与表单区隔开 |
+
+静态页须使用显式 hex 色值（`auth-*`），不可依赖 `rgb(var(--token))` 未解析的 `oui-*` 类。
+
+实现：`auth-service/src/lib/site-chrome-html.ts`、`auth-service/src/routes/pages.ts`、`auth-service/public/assets/style.css`
