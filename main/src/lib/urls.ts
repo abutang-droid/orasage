@@ -5,5 +5,5 @@ export const externalUrls = {
   shop: 'https://shop.orasage.com',
   auth: 'https://auth.orasage.com/center',
   authLogin: 'https://auth.orasage.com/login',
-  cms: 'https://cms.orasage.com',
+  cms: 'https://admin.orasage.com/cms',
 } as const;

@@ -1,4 +1,5 @@
-const CMS_URL = process.env.CMS_URL || process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
 
 export type PublishSection =
   | 'daozang'
@@ -151,7 +152,7 @@ export async function fetchCmsPages(options: {
   params.set('depth', '0');
   params.set('sort', 'title');
 
-  const res = await fetch(`${CMS_URL}/api/pages?${params}`, {
+  const res = await fetch(`${CMS_INTERNAL_URL}/api/pages?${params}`, {
     next: { revalidate: 120 },
   });
   if (!res.ok) {
@@ -168,7 +169,7 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
   params.set('limit', '1');
   params.set('depth', '0');
 
-  const res = await fetch(`${CMS_URL}/api/pages?${params}`, {
+  const res = await fetch(`${CMS_INTERNAL_URL}/api/pages?${params}`, {
     next: { revalidate: 120 },
   });
   if (!res.ok) return null;

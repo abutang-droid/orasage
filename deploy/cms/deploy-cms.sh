@@ -52,7 +52,8 @@ ensure_env() {
     log "错误: cms/.env 缺少有效的 PAYLOAD_SECRET（至少 32 位随机字符串）"
     exit 1
   fi
-  export NEXT_PUBLIC_SERVER_URL="${NEXT_PUBLIC_SERVER_URL:-https://cms.orasage.com}"
+  export NEXT_PUBLIC_SERVER_URL="${NEXT_PUBLIC_SERVER_URL:-https://admin.orasage.com/cms}"
+  export CMS_BASE_PATH="${CMS_BASE_PATH:-/cms}"
   set -u
 }
 
@@ -114,10 +115,12 @@ ensure_nginx() {
 
 verify() {
   sleep 3
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:3120/admin || echo "000")
-  log "  127.0.0.1:3120/admin → HTTP $code"
-  ext_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://cms.orasage.com/admin || echo "000")
-  log "  https://cms.orasage.com/admin → HTTP $ext_code"
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:3120/cms/admin || echo "000")
+  log "  127.0.0.1:3120/cms/admin → HTTP $code"
+  blocked=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://cms.orasage.com/admin || echo "000")
+  log "  https://cms.orasage.com/admin → HTTP $blocked (期望 403)"
+  admin_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://admin.orasage.com/cms/admin || echo "000")
+  log "  https://admin.orasage.com/cms/admin → HTTP $admin_code"
 }
 
 # ── main ──────────────────────────────────────────────────────
@@ -130,4 +133,4 @@ try_create_database
 deploy_native
 ensure_nginx
 verify
-log "cms 部署完成 → https://cms.orasage.com/admin（首次访问创建管理员账号）"
+log "cms 部署完成 → https://admin.orasage.com/cms/admin（cms.orasage.com 公网已封禁）"

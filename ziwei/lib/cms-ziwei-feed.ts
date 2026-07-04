@@ -1,5 +1,13 @@
-const CMS_URL =
-  process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+
+/** 同源代理 CMS 公开读接口，避免浏览器跨域请求被拦截 */
+function feedApiUrl(query: string): string {
+  if (typeof window !== 'undefined') {
+    return `/api/cms/ziwei-feed?${query}`;
+  }
+  return `${CMS_INTERNAL_URL}/api/ziwei-feed?${query}`;
+}
 
 export type ZiweiFeedKind = 'order' | 'review';
 
@@ -46,7 +54,7 @@ export async function fetchZiweiFeed(locale: string): Promise<ZiweiFeedItem[]> {
   });
 
   try {
-    const res = await fetch(`${CMS_URL}/api/ziwei-feed?${params.toString()}`, {
+    const res = await fetch(feedApiUrl(params.toString()), {
       cache: 'no-store',
     });
     if (!res.ok) {

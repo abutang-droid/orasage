@@ -1,7 +1,7 @@
 {
   "name": "orasage-cms",
   "version": "1.0.0",
-  "description": "OraSage 内容管理（Payload CMS），运行于 cms.orasage.com",
+  "description": "OraSage 内容管理（Payload CMS），运行于 admin.orasage.com/cms",
   "license": "MIT",
   "type": "module",
   "scripts": {

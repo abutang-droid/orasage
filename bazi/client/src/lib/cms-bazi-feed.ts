@@ -1,5 +1,12 @@
-const CMS_URL =
-  import.meta.env.VITE_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+
+function feedApiUrl(query: string): string {
+  if (typeof window !== 'undefined') {
+    return `/api/cms/bazi-feed?${query}`;
+  }
+  return `${CMS_INTERNAL_URL}/api/bazi-feed?${query}`;
+}
 
 export type BaziFeedKind = 'order' | 'review';
 
@@ -46,7 +53,7 @@ export async function fetchBaziFeed(locale: string): Promise<BaziFeedItem[]> {
   });
 
   try {
-    const res = await fetch(`${CMS_URL}/api/bazi-feed?${params.toString()}`, {
+    const res = await fetch(feedApiUrl(params.toString()), {
       cache: 'no-store',
     });
     if (!res.ok) {

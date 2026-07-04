@@ -4,7 +4,8 @@ import {
   type FaithOption,
 } from '@/lib/faiths/religions';
 
-const CMS_URL = process.env.CMS_URL || process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
 
 export type CmsFaith = {
   id: number;
@@ -54,7 +55,7 @@ export async function fetchFaithsFromCms(): Promise<CmsFaith[]> {
   params.set('limit', '100');
   params.set('sort', 'rank');
 
-  const res = await fetch(`${CMS_URL}/api/faiths?${params}`, {
+  const res = await fetch(`${CMS_INTERNAL_URL}/api/faiths?${params}`, {
     next: { revalidate: 300 },
   });
   if (!res.ok) throw new Error(`CMS faiths fetch failed: ${res.status}`);
