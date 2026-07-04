@@ -250,25 +250,4 @@
   .portal-subpage-body :where(li) {
     @apply my-2;
   }
-
-  /* Profile PC footer — center user info between copyright and legal links */
-  .profile-footer-user {
-    margin: 0;
-    max-width: 20rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: rgb(var(--muted-foreground));
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-  }
-
-  @media (min-width: 640px) {
-    .profile-footer-user {
-      font-size: 0.875rem;
-      max-width: 24rem;
-    }
-  }
 }
