@@ -60,7 +60,7 @@ openssl rand -hex 32
 各消费 App 在根 `.env` 中配置：
 
 ```
-CMS_INTERNAL_URL=http://127.0.0.1:3120
+CMS_INTERNAL_URL=http://127.0.0.1:3120/cms
 CMS_PUBLIC_URL=https://admin.orasage.com/cms
 ```
 
@@ -88,7 +88,7 @@ sudo systemctl status orasage-cms
 之后可：
 - 在 **Pages** 里新建内容（slug、appSource、富文本）
 - 在 **Media** 上传图片
-- 各 App 通过内网 `http://127.0.0.1:3120/api/*` 读取内容
+- 各 App 通过内网 `http://127.0.0.1:3120/cms/api/*` 读取内容
 
 ## 故障排查
 

@@ -1,5 +1,5 @@
 const CMS_INTERNAL_URL =
-  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 export type PublishSection =
   | 'daozang'

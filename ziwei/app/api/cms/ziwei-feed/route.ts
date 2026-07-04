@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const CMS_INTERNAL_URL =
-  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 /** 同源代理 CMS 紫微信息流，避免公网封禁后浏览器直连失败 */
 export async function GET(request: NextRequest) {

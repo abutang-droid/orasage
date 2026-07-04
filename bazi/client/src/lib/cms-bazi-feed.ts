@@ -1,5 +1,5 @@
 const CMS_INTERNAL_URL =
-  import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 function feedApiUrl(query: string): string {
   if (typeof window !== 'undefined') {

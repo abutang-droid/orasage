@@ -2,7 +2,7 @@ import { DEITIES, filterDeitiesByFaith, type Deity } from '@/lib/faiths/deities'
 import type { CmsFaith } from '@/lib/cms/faiths';
 
 const CMS_INTERNAL_URL =
-  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 export type CmsSanctuary = {
   id: number;
