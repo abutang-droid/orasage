@@ -1,7 +1,8 @@
 import { DEITIES, filterDeitiesByFaith, type Deity } from '@/lib/faiths/deities';
 import type { CmsFaith } from '@/lib/cms/faiths';
 
-const CMS_URL = process.env.CMS_URL || process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
 
 export type CmsSanctuary = {
   id: number;
@@ -65,7 +66,7 @@ export async function fetchSanctuariesFromCms(faithCode?: string | null): Promis
   params.set('depth', '1');
   params.set('sort', 'sortOrder');
 
-  const res = await fetch(`${CMS_URL}/api/sanctuaries?${params}`, {
+  const res = await fetch(`${CMS_INTERNAL_URL}/api/sanctuaries?${params}`, {
     next: { revalidate: 120 },
   });
 

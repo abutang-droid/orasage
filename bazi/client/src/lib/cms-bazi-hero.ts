@@ -1,12 +1,14 @@
-const CMS_URL =
-  import.meta.env.VITE_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+const CMS_PUBLIC_URL =
+  import.meta.env.VITE_CMS_PUBLIC_URL || 'https://admin.orasage.com/cms';
 
 /** 浏览器走同源代理，避免跨域 CORS 导致拉取失败后误用 enabled:true 的 fallback */
 function heroApiUrl(): string {
   if (typeof window !== 'undefined') {
     return '/api/cms/bazi-home-hero';
   }
-  return `${CMS_URL}/api/globals/bazi-home-hero?depth=1`;
+  return `${CMS_INTERNAL_URL}/api/globals/bazi-home-hero?depth=1`;
 }
 
 export type BaziHeroDisplayMode = 'text' | 'image' | 'video';
@@ -47,7 +49,7 @@ function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | 
   const url = media.url;
   if (!url) return null;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${CMS_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 function mapBaziHero(data: CmsBaziHeroRaw): BaziHomeHeroContent | null {

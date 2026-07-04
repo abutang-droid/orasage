@@ -1,4 +1,9 @@
-const CMS_URL = process.env.CMS_URL || process.env.NEXT_PUBLIC_CMS_URL || 'https://cms.orasage.com';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+const CMS_PUBLIC_URL =
+  process.env.CMS_PUBLIC_URL ||
+  process.env.NEXT_PUBLIC_CMS_URL ||
+  'https://admin.orasage.com/cms';
 
 export type ShopHeroDisplayMode = 'text' | 'image' | 'video';
 
@@ -38,7 +43,7 @@ function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | 
   const url = media.url;
   if (!url) return null;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${CMS_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 function mapShopHero(data: CmsShopHeroRaw): ShopHomeHeroContent | null {
@@ -67,7 +72,7 @@ function mapShopHero(data: CmsShopHeroRaw): ShopHomeHeroContent | null {
 
 export async function fetchShopHomeHero(): Promise<ShopHomeHeroContent | null> {
   try {
-    const res = await fetch(`${CMS_URL}/api/globals/shop-home-hero?depth=1`, {
+    const res = await fetch(`${CMS_INTERNAL_URL}/api/globals/shop-home-hero?depth=1`, {
       cache: 'no-store',
     });
     if (!res.ok) return null;
