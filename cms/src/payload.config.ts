@@ -20,7 +20,30 @@ import { ZiweiFeed } from './collections/ZiweiFeed';
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+/** 允许各子站浏览器直连 CMS 公开读接口（globals / collections GET） */
+const CMS_CORS_ORIGINS = [
+  'https://orasage.com',
+  'https://www.orasage.com',
+  'https://shop.orasage.com',
+  'https://auth.orasage.com',
+  'https://admin.orasage.com',
+  'https://bazi.orasage.com',
+  'https://ziwei.orasage.com',
+  'https://tarot.orasage.com',
+  'http://localhost:3000',
+  'http://localhost:3102',
+  'http://localhost:3110',
+  'http://localhost:3111',
+  'http://localhost:3112',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3102',
+  'http://127.0.0.1:3110',
+  'http://127.0.0.1:3111',
+  'http://127.0.0.1:3112',
+];
+
 export default buildConfig({
+  cors: CMS_CORS_ORIGINS,
   admin: {
     user: Users.slug,
     importMap: {
