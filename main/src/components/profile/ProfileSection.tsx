@@ -13,7 +13,7 @@ export function ProfileSection({ title, description, children, className }: Prof
   return (
     <section className={cn('space-y-5 sm:space-y-6', className)}>
       <header>
-        <h2 className="font-serif text-heading-2 font-bold tracking-[-0.01em] text-foreground">{title}</h2>
+        <h1 className="font-serif text-heading-2 font-bold tracking-[-0.01em] text-foreground">{title}</h1>
         {description ? (
           <p className="mt-2 text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-[15px]">
             {description}

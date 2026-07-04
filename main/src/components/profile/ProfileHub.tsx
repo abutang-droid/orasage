@@ -1,11 +1,11 @@
 'use client';
 
-import { Button, Card, CardContent } from '@orasage/ui';
+import { Card } from '@orasage/ui';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { profileLoginUrl } from '@/lib/auth';
 import { useProfileAuth } from './ProfileAuth';
 import { ProfileAccountCard } from './ProfileAccountCard';
+import { ProfileLoginCard } from './ProfileLoginCard';
 
 type MenuItem = {
   href: string;
@@ -33,18 +33,7 @@ export function ProfileHub({ locale }: { locale: string }) {
 
   return (
     <div className="space-y-6">
-      {!user ? (
-        <Card>
-          <CardContent className="p-6 text-center sm:p-8">
-            <p className="text-sm leading-relaxed text-muted-foreground">{t('guestDesc')}</p>
-            <Button asChild size="lg" className="mt-5">
-              <a href={profileLoginUrl(locale)}>{t('loginCta')}</a>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <ProfileAccountCard />
-      )}
+      {!user ? <ProfileLoginCard locale={locale} variant="hub" /> : <ProfileAccountCard />}
 
       <Card className="overflow-hidden p-0">
         <nav aria-label={t('title')}>

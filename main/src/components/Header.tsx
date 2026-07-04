@@ -1,13 +1,14 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
-import { HeaderAuthButton } from '@/components/HeaderAuthButton';
+import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
 
-/** 门户顶栏：PC 左品牌 + 右导航（旧版样式）；移动仅 Logo + 登录 */
+/** 门户顶栏：PC 左品牌 + 右导航；移动左品牌 + 右登录芯片（与子应用一致） */
 export function Header() {
   const tNav = useTranslations('nav');
+  const locale = useLocale();
 
   const navItems: Array<
     | { href: '/' | '/famous' | '/daozang'; label: string }
@@ -27,7 +28,7 @@ export function Header() {
         <Link href="/" className="orasage-site-mobile-bar-brand font-serif text-lg tracking-wide text-foreground">
           OraSage
         </Link>
-        <HeaderAuthButton className="px-3 py-2 text-xs" />
+        <OrasageAuthChip locale={locale} />
       </header>
 
       <header className="safe-top hidden border-b border-border/80 bg-background lg:block">
@@ -59,7 +60,7 @@ export function Header() {
                 </Link>
               ),
             )}
-            <HeaderAuthButton />
+            <OrasageAuthChip locale={locale} />
           </nav>
         </div>
       </header>

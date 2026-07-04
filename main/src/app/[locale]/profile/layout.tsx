@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { PageShell, PageTitle } from '@/components/PageShell';
 import { ProfileAuthProvider } from '@/components/profile/ProfileAuth';
+import { ProfileShell } from '@/components/profile/ProfileShell';
 
 type Props = {
   children: ReactNode;
@@ -14,11 +14,8 @@ export default async function ProfileLayout({ children, params }: Props) {
   const t = await getTranslations('profile');
 
   return (
-    <PageShell>
-      <PageTitle>{t('title')}</PageTitle>
-      <ProfileAuthProvider loadingLabel={t('loading')}>
-        <div className="mt-6">{children}</div>
-      </ProfileAuthProvider>
-    </PageShell>
+    <ProfileShell>
+      <ProfileAuthProvider loadingLabel={t('loading')}>{children}</ProfileAuthProvider>
+    </ProfileShell>
   );
 }
