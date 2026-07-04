@@ -93,6 +93,7 @@ adminApiRouter.post("/products", async (req, res) => {
       element: body.element ?? null,
       description: body.description,
       priceCents: body.priceCents,
+      priceCentsUsd: body.priceCentsUsd ?? null,
       category: body.category,
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
@@ -123,6 +124,7 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.element !== undefined) updates.element = body.element;
     if (body.description !== undefined) updates.description = body.description;
     if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
+    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
     if (body.category !== undefined) updates.category = body.category;
     if (body.active !== undefined) updates.active = body.active;
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;

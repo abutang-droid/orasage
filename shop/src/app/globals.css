@@ -1,5 +1,6 @@
 @import '../../../shared/design-tokens/orasage-tokens.css';
 @import '../lib/orasage-app-shell/app-shell.css';
+@import './shop-home.css';
 
 @tailwind base;
 @tailwind components;
@@ -9,16 +10,35 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    scroll-padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-bottom: 0;
+    }
   }
 
   body {
+    @apply bg-sage-bg text-sage-primary font-sans;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
   }
 
   a,
   button {
     touch-action: manipulation;
+  }
+
+  ::selection {
+    background: var(--orasage-selection);
+    color: var(--orasage-primary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--orasage-focus-ring);
+    outline-offset: 3px;
   }
 }
 

@@ -6,26 +6,30 @@ export interface Product {
   element?: string;
   desc: string;
   priceCents: number;
+  priceCentsUsd?: number | null;
+  priceCentsResolved?: number;
+  currency?: 'cny' | 'usd';
+  priceDisplay?: string;
   category: ProductCategory;
 }
 
 /** 静态兜底（auth-service 不可用时） */
 export const FALLBACK_PRODUCTS: Product[] = [
-  { sku: 'crystal-wood', name: '绿幽灵手串', element: '木', desc: '招财旺运 · 五行补木', priceCents: 12800, category: 'crystal' },
-  { sku: 'crystal-fire', name: '红玛瑙手串', element: '火', desc: '补火平衡 · 增强活力', priceCents: 9800, category: 'crystal' },
-  { sku: 'crystal-earth', name: '黄水晶手串', element: '土', desc: '稳固根基 · 聚财守正', priceCents: 10800, category: 'crystal' },
-  { sku: 'crystal-metal', name: '白水晶手串', element: '金', desc: '净化能量 · 清晰思绪', priceCents: 8800, category: 'crystal' },
-  { sku: 'crystal-water', name: '黑曜石手串', element: '水', desc: '辟邪护身 · 吸收负能量', priceCents: 11800, category: 'crystal' },
-  { sku: 'report-bazi', name: '八字深度报告', desc: '完整命盘解析 · PDF 交付', priceCents: 6800, category: 'report' },
-  { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, category: 'report' },
-  { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, category: 'report' },
-  { sku: 'report-bazi-premium', name: '八字终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, category: 'report' },
-  { sku: 'report-ziwei', name: '紫微深度报告', desc: '十二宫详解 · 流年运势', priceCents: 7800, category: 'report' },
-  { sku: 'report-ziwei-basic', name: '紫微深度解读', desc: '命盘 AI 解读报告', priceCents: 990, category: 'report' },
-  { sku: 'report-ziwei-advanced', name: '紫微报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, category: 'report' },
-  { sku: 'report-ziwei-premium', name: '紫微终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, category: 'report' },
-  { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 4800, category: 'report' },
-  { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, category: 'service' },
+  { sku: 'crystal-wood', name: '绿幽灵手串', element: '木', desc: '招财旺运 · 五行补木', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
+  { sku: 'crystal-fire', name: '红玛瑙手串', element: '火', desc: '补火平衡 · 增强活力', priceCents: 9800, priceCentsUsd: 1361, category: 'crystal' },
+  { sku: 'crystal-earth', name: '黄水晶手串', element: '土', desc: '稳固根基 · 聚财守正', priceCents: 10800, priceCentsUsd: 1500, category: 'crystal' },
+  { sku: 'crystal-metal', name: '白水晶手串', element: '金', desc: '净化能量 · 清晰思绪', priceCents: 8800, priceCentsUsd: 1222, category: 'crystal' },
+  { sku: 'crystal-water', name: '黑曜石手串', element: '水', desc: '辟邪护身 · 吸收负能量', priceCents: 11800, priceCentsUsd: 1639, category: 'crystal' },
+  { sku: 'report-bazi', name: '八字深度报告', desc: '完整命盘解析 · PDF 交付', priceCents: 6800, priceCentsUsd: 944, category: 'report' },
+  { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
+  { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, priceCentsUsd: 1375, category: 'report' },
+  { sku: 'report-bazi-premium', name: '八字终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, priceCentsUsd: 4153, category: 'report' },
+  { sku: 'report-ziwei', name: '紫微深度报告', desc: '十二宫详解 · 流年运势', priceCents: 7800, priceCentsUsd: 1083, category: 'report' },
+  { sku: 'report-ziwei-basic', name: '紫微深度解读', desc: '命盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
+  { sku: 'report-ziwei-advanced', name: '紫微报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, priceCentsUsd: 1375, category: 'report' },
+  { sku: 'report-ziwei-premium', name: '紫微终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, priceCentsUsd: 4153, category: 'report' },
+  { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 4800, priceCentsUsd: 667, category: 'report' },
+  { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, priceCentsUsd: 2750, category: 'service' },
 ];
 
 export const ELEMENT_TO_SKU: Record<string, string> = {
@@ -35,10 +39,6 @@ export const ELEMENT_TO_SKU: Record<string, string> = {
   金: 'crystal-metal',
   水: 'crystal-water',
 };
-
-export function formatPrice(cents: number) {
-  return `¥${(cents / 100).toFixed(2)}`;
-}
 
 export const categoryLabels: Record<ProductCategory, string> = {
   crystal: '水晶手串',
@@ -53,6 +53,10 @@ interface ApiProduct {
   desc?: string;
   description?: string;
   priceCents: number;
+  priceCentsUsd?: number | null;
+  priceCentsResolved?: number;
+  currency?: 'cny' | 'usd';
+  priceDisplay?: string;
   category: ProductCategory;
 }
 
@@ -63,28 +67,34 @@ function mapApiProduct(p: ApiProduct): Product {
     element: p.element ?? undefined,
     desc: p.desc ?? p.description ?? '',
     priceCents: p.priceCents,
+    priceCentsUsd: p.priceCentsUsd,
+    priceCentsResolved: p.priceCentsResolved,
+    currency: p.currency,
+    priceDisplay: p.priceDisplay,
     category: p.category,
   };
 }
 
 let cachedProducts: Product[] | null = null;
 let cacheExpiry = 0;
+let cacheLocale = '';
 const CACHE_TTL_MS = 60_000;
 
-export async function fetchProducts(): Promise<Product[]> {
-  if (cachedProducts && Date.now() < cacheExpiry) {
+export async function fetchProducts(locale = 'zh-CN'): Promise<Product[]> {
+  if (cachedProducts && Date.now() < cacheExpiry && cacheLocale === locale) {
     return cachedProducts;
   }
 
   const { ENV } = await import('./env');
   try {
-    const res = await fetch(`${ENV.authInternalUrl}/api/products`, {
+    const res = await fetch(`${ENV.authInternalUrl}/api/products?locale=${encodeURIComponent(locale)}`, {
       next: { revalidate: 60 },
     } as RequestInit);
     if (!res.ok) throw new Error(`products API ${res.status}`);
     const data = await res.json() as { products: ApiProduct[] };
     cachedProducts = data.products.map(mapApiProduct);
     cacheExpiry = Date.now() + CACHE_TTL_MS;
+    cacheLocale = locale;
     return cachedProducts;
   } catch (err) {
     console.warn('[shop] fetchProducts fallback:', err);
@@ -92,17 +102,17 @@ export async function fetchProducts(): Promise<Product[]> {
   }
 }
 
-export async function getProduct(sku: string): Promise<Product | null> {
-  const list = await fetchProducts();
+export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product | null> {
+  const list = await fetchProducts(locale);
   const found = list.find((p) => p.sku === sku);
   if (found) return found;
   return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
 }
 
-export async function getProductByElement(element: string): Promise<Product | null> {
+export async function getProductByElement(element: string, locale = 'zh-CN'): Promise<Product | null> {
   const sku = ELEMENT_TO_SKU[element];
   if (!sku) return null;
-  return getProduct(sku);
+  return getProduct(sku, locale);
 }
 
 /** @deprecated 使用 fetchProducts()；保留兼容旧 import */

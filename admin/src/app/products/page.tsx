@@ -72,7 +72,8 @@ export default async function ProductsPage() {
               {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </label>
-          <label>价格（元）<input name="priceYuan" type="number" step="0.01" min="0" required placeholder="128" /></label>
+          <label>价格 CNY（元）<input name="priceYuan" type="number" step="0.01" min="0" required placeholder="128" /></label>
+          <label>价格 USD（美元）<input name="priceUsd" type="number" step="0.01" min="0" required placeholder="17.99" /></label>
           <label>排序<input name="sortOrder" type="number" defaultValue={0} /></label>
           <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked /> 上架</label>
           <label className="full-width">描述<textarea name="description" rows={2} required placeholder="招财旺运 · 五行补木" /></label>
@@ -90,7 +91,8 @@ export default async function ProductsPage() {
                 <th>名称</th>
                 <th>五行</th>
                 <th>分类</th>
-                <th>价格</th>
+                <th>价格 CNY</th>
+                <th>价格 USD</th>
                 <th>状态</th>
                 <th>操作</th>
               </tr>
@@ -102,7 +104,8 @@ export default async function ProductsPage() {
                   <td>{p.name}</td>
                   <td>{p.element ?? '—'}</td>
                   <td>{p.categoryLabel}</td>
-                  <td>{p.priceDisplay}</td>
+                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
+                  <td>{p.priceDisplayUsd ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td>
                     <details>
@@ -116,6 +119,7 @@ export default async function ProductsPage() {
                           {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
                         <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
+                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
                         <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
                         <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
                         <textarea name="description" rows={2} defaultValue={p.desc} required />

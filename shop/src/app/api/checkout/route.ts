@@ -7,7 +7,14 @@ import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { paymentsUseStripe } from '@/lib/payment-mode';
 import { isLocalRequest } from '@/lib/internal';
-import { detectCurrency, toStripeAmount, type ShopCurrency } from '@/lib/currency';
+import {
+  currencyForLocale,
+  detectShopLocale,
+  resolvePriceCents,
+  toStripeAmount,
+  type ShopCurrency,
+} from '@/lib/currency';
+import { SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../shared/shop-locale/index';
 import { resolveAuthUserId } from '../../../../../shared/shop-checkout/server';
 
 const checkoutSchema = z.object({
@@ -22,8 +29,25 @@ const checkoutSchema = z.object({
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
   planType: z.string().max(32).optional(),
-  currency: z.enum(['cny', 'usd']).optional(),
+  locale: z.string().max(16).optional(),
 });
+
+function localeFromRequest(req: NextRequest, explicit?: string | null): string {
+  if (explicit) return detectShopLocale({ queryLocale: explicit });
+  const cookie = req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value
+    ?? req.cookies.get(SHOP_LOCALE_COOKIE)?.value;
+  return detectShopLocale({
+    cookieLocale: cookie,
+    acceptLanguage: req.headers.get('accept-language'),
+  });
+}
+
+function unitPrice(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>, currency: ShopCurrency): number {
+  return resolvePriceCents(
+    { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
+    currency,
+  );
+}
 
 function mockCheckoutUrl(orderNo: string, successUrl?: string): string {
   let url = `${ENV.shopUrl}/checkout?order=${encodeURIComponent(orderNo)}`;
@@ -49,18 +73,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'userId 与登录凭证不一致' }, { status: 403 });
     }
 
-    const currency: ShopCurrency = body.currency ?? detectCurrency(req.headers.get('accept-language'));
+    const locale = localeFromRequest(req, body.locale);
+    const currency: ShopCurrency = currencyForLocale(locale);
     const lineItems: Array<{ product: NonNullable<Awaited<ReturnType<typeof getProduct>>>; quantity: number }> = [];
 
     for (const item of body.items) {
-      const product = await getProduct(item.sku);
+      const product = await getProduct(item.sku, locale);
       if (!product) {
         return NextResponse.json({ error: `商品不存在: ${item.sku}` }, { status: 400 });
       }
       lineItems.push({ product, quantity: item.quantity });
     }
 
-    const amountCents = lineItems.reduce((sum, li) => sum + li.product.priceCents * li.quantity, 0);
+    const amountCents = lineItems.reduce(
+      (sum, li) => sum + unitPrice(li.product, currency) * li.quantity,
+      0,
+    );
     const title = lineItems.length === 1
       ? lineItems[0].product.name
       : `${lineItems[0].product.name} 等 ${lineItems.length} 件`;
@@ -106,7 +134,10 @@ export async function POST(req: NextRequest) {
           cancel_url: cancelUrl,
           metadata: stripeMeta,
           line_items: lineItems.map((li) => {
-            const charge = toStripeAmount(li.product.priceCents, currency);
+            const charge = toStripeAmount(
+              { priceCents: li.product.priceCents, priceCentsUsd: li.product.priceCentsUsd },
+              currency,
+            );
             return {
               quantity: li.quantity,
               price_data: {
@@ -142,20 +173,20 @@ export async function PUT(req: NextRequest) {
   const user = await getAuthUser();
 
   try {
-    const { sku, quantity = 1, currency: requestedCurrency } = z.object({
+    const { sku, quantity = 1 } = z.object({
       sku: z.string().min(1),
       quantity: z.number().int().positive().max(10).default(1),
-      currency: z.enum(['cny', 'usd']).optional(),
     }).parse(await req.json());
 
-    const currency: ShopCurrency = requestedCurrency ?? detectCurrency(req.headers.get('accept-language'));
-    const product = await getProduct(sku);
+    const locale = localeFromRequest(req);
+    const currency: ShopCurrency = currencyForLocale(locale);
+    const product = await getProduct(sku, locale);
     if (!product) {
       return NextResponse.json({ error: '商品不存在' }, { status: 404 });
     }
 
     const orderNo = makeOrderNo();
-    const amountCents = product.priceCents * quantity;
+    const amountCents = unitPrice(product, currency) * quantity;
     const useStripe = paymentsUseStripe();
 
     if (user) {
@@ -193,7 +224,10 @@ export async function PUT(req: NextRequest) {
           line_items: [{
             quantity,
             price_data: (() => {
-              const charge = toStripeAmount(product.priceCents, currency);
+              const charge = toStripeAmount(
+                { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
+                currency,
+              );
               return {
                 currency: charge.currency,
                 unit_amount: charge.unit_amount,

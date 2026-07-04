@@ -11,11 +11,9 @@ export default async function SuccessPage({
   return (
     <>
       <ShopHeader showBack />
-      <main className="safe-bottom mx-auto flex min-h-[60dvh] max-w-lg flex-col items-center justify-center px-4 py-12 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl">
-          ✓
-        </div>
-        <h1 className="font-serif text-2xl text-sage-gold">支付成功</h1>
+      <main className="shop-page safe-bottom mx-auto flex min-h-[60dvh] max-w-lg flex-1 flex-col items-center justify-center py-12 text-center">
+        <div className="shop-success-icon">✓</div>
+        <h1 className="mt-4 font-serif text-2xl text-sage-primary">支付成功</h1>
         {order && (
           <p className="mt-3 text-sm text-sage-muted">
             订单号：<span className="text-sage-primary">{order}</span>
@@ -23,16 +21,10 @@ export default async function SuccessPage({
         )}
         <p className="mt-2 text-sm text-sage-muted">订单已同步到您的用户中心</p>
         <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
-          <a
-            href="https://auth.orasage.com/center"
-            className="flex min-h-[48px] items-center justify-center rounded-full bg-sage-gold/15 text-sage-gold"
-          >
+          <a href="https://auth.orasage.com/center" className="shop-btn-primary w-full">
             查看我的订单
           </a>
-          <Link
-            href="/"
-            className="flex min-h-[48px] items-center justify-center rounded-full border border-sage-border text-sage-muted"
-          >
+          <Link href="/" className="shop-btn-secondary w-full">
             继续购物
           </Link>
         </div>
