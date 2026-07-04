@@ -8,6 +8,7 @@ const bodySchema = z.object({
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
   planType: z.enum(['basic', 'advanced', 'premium']).optional(),
+  shippingMode: z.enum(['single', 'couple']).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 });
@@ -29,6 +30,7 @@ export function registerCheckoutRoute(app: Express) {
         recommendationContext: body.recommendationContext,
         readingId: body.readingId,
         planType: body.planType,
+        shippingMode: body.shippingMode,
         successUrl: body.successUrl,
         cancelUrl: body.cancelUrl,
         cookieHeader: req.headers.cookie ?? null,

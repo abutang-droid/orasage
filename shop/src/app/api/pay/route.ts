@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo, updateOrderStatus } from '@/lib/orders';
+import { getProduct } from '@/lib/products';
 import { dispatchReportJob } from '@/lib/reportJob';
 import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
+import { inferRequiresShipping, parseShippingAddress } from '../../../../../shared/shop-fulfillment/index';
 
 /** 模拟支付 — PAYMENT_MODE=mock 时完成订单（需登录，且订单必须属于当前用户） */
 export async function POST(req: NextRequest) {
@@ -26,6 +28,14 @@ export async function POST(req: NextRequest) {
     }
     if (order.status !== 'pending') {
       return NextResponse.json({ error: '订单状态不允许支付' }, { status: 409 });
+    }
+
+    if (order.sku) {
+      const product = await getProduct(order.sku);
+      const needsShipping = product && (product.requiresShipping ?? inferRequiresShipping(product));
+      if (needsShipping && !parseShippingAddress(order.shippingAddress)) {
+        return NextResponse.json({ error: '请先填写收货信息' }, { status: 400 });
+      }
     }
 
     await updateOrderStatus(orderNo, 'paid');

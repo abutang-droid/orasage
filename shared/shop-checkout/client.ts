@@ -4,6 +4,7 @@ export type AppCheckoutRequest = {
   recommendationContext?: string;
   readingId?: string;
   planType?: string;
+  shippingMode?: 'single' | 'couple';
   successUrl?: string;
   cancelUrl?: string;
 };

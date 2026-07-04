@@ -6,6 +6,7 @@ import {
   resolvePriceCents,
   type ShopCurrency,
 } from "../../../shared/shop-locale/index.ts";
+import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/shop-fulfillment/index.ts";
 
 export type ProductRow = typeof products.$inferSelect;
 
@@ -58,6 +59,16 @@ export function formatProduct(p: ProductRow, options?: { locale?: string }) {
     ),
     category: p.category,
     categoryLabel: CATEGORY_LABELS[p.category] ?? p.category,
+    requiresShipping: inferRequiresShipping({
+      category: p.category,
+      sku: p.sku,
+      requiresShipping: p.requiresShipping,
+    }),
+    requiresWristSize: inferRequiresWristSize({
+      category: p.category,
+      sku: p.sku,
+      requiresShipping: p.requiresShipping,
+    }),
     active: p.active,
     sortOrder: p.sortOrder,
     shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,

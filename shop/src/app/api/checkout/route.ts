@@ -16,6 +16,7 @@ import {
 } from '@/lib/currency';
 import { SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../shared/shop-locale/index';
 import { resolveAuthUserId } from '../../../../../shared/shop-checkout/server';
+import { inferRequiresShipping } from '../../../../../shared/shop-fulfillment/index';
 
 const checkoutSchema = z.object({
   userId: z.number().int().positive(),
@@ -29,6 +30,7 @@ const checkoutSchema = z.object({
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
   planType: z.string().max(32).optional(),
+  shippingMode: z.enum(['single', 'couple']).optional(),
   locale: z.string().max(16).optional(),
 });
 
@@ -49,12 +51,15 @@ function unitPrice(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>,
   );
 }
 
-function mockCheckoutUrl(orderNo: string, successUrl?: string): string {
-  let url = `${ENV.shopUrl}/checkout?order=${encodeURIComponent(orderNo)}`;
-  if (successUrl) {
-    url += `&return=${encodeURIComponent(successUrl)}`;
+function mockCheckoutUrl(orderNo: string, successUrl?: string, extra?: Record<string, string>): string {
+  const params = new URLSearchParams({ order: orderNo });
+  if (successUrl) params.set('return', successUrl);
+  if (extra) {
+    for (const [key, value] of Object.entries(extra)) {
+      if (value) params.set(key, value);
+    }
   }
-  return url;
+  return `${ENV.shopUrl}/checkout?${params.toString()}`;
 }
 
 /** 内网结账 API — 供八字/紫微/塔罗等 App 调用 */
@@ -94,6 +99,11 @@ export async function POST(req: NextRequest) {
       : `${lineItems[0].product.name} 等 ${lineItems.length} 件`;
     const orderNo = makeOrderNo();
     const primarySku = lineItems[0].product.sku;
+    const needsShipping = lineItems.some((li) => li.product.requiresShipping ?? inferRequiresShipping(li.product));
+    const checkoutExtras: Record<string, string> = {};
+    if (needsShipping && body.shippingMode === 'couple') {
+      checkoutExtras.shipping = 'couple';
+    }
 
     await syncOrderToAuth({
       userId: body.userId,
@@ -112,7 +122,7 @@ export async function POST(req: NextRequest) {
       : `${ENV.shopUrl}/success?order=${orderNo}`;
     const cancelUrl = body.cancelUrl ?? `${ENV.shopUrl}/?cancelled=1`;
 
-    if (paymentsUseStripe()) {
+    if (paymentsUseStripe() && !needsShipping) {
       const stripe = getStripe();
       if (stripe) {
         const stripeMeta: Record<string, string> = {
@@ -154,7 +164,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       orderNo,
-      checkoutUrl: mockCheckoutUrl(orderNo, successUrl),
+      checkoutUrl: mockCheckoutUrl(orderNo, body.successUrl, checkoutExtras),
       provider: 'mock',
       amountCents,
       title,
@@ -187,7 +197,8 @@ export async function PUT(req: NextRequest) {
 
     const orderNo = makeOrderNo();
     const amountCents = unitPrice(product, currency) * quantity;
-    const useStripe = paymentsUseStripe();
+    const needsShipping = product.requiresShipping ?? inferRequiresShipping(product);
+    const useStripe = paymentsUseStripe() && !needsShipping;
 
     if (user) {
       await syncOrderToAuth({

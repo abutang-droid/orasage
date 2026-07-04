@@ -7,6 +7,7 @@ const bodySchema = z.object({
   quantity: z.number().int().positive().max(10).optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
+  shippingMode: z.enum(['single', 'couple']).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 });
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
       appSource: 'ziwei',
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
+      shippingMode: body.shippingMode,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,
       cookieHeader: req.headers.get('cookie'),

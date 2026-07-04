@@ -131,7 +131,6 @@ accountRouter.get("/orders", async (req, res) => {
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
       shippingAddress: o.shippingAddress,
-      sku: o.sku,
       recommendationContext: o.recommendationContext,
       readingId: o.readingId,
       createdAt: o.createdAt,
@@ -416,13 +415,15 @@ const orderSchema = z.object({
   status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]).optional(),
   appSource: z.enum(["bazi", "ziwei", "tarot", "shop"]).optional(),
   shippingAddress: z.string().max(2000).optional(),
-  sku: z.string().max(100).optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
 });
 
 const orderUpdateSchema = z.object({
-  status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]),
+  status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]).optional(),
+  shippingAddress: z.string().max(2000).optional(),
+}).refine((b) => b.status !== undefined || b.shippingAddress !== undefined, {
+  message: "至少提供一个更新字段",
 });
 
 export const internalRouter = Router();
@@ -568,8 +569,15 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
       res.status(404).json({ error: "订单不存在" });
       return;
     }
-    await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, orderNo));
-    res.json({ success: true, orderNo, status: body.status });
+    const updates: Record<string, unknown> = {};
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.shippingAddress !== undefined) updates.shippingAddress = body.shippingAddress;
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "没有需要更新的字段" });
+      return;
+    }
+    await db.update(userOrders).set(updates).where(eq(userOrders.orderNo, orderNo));
+    res.json({ success: true, orderNo, ...updates });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });

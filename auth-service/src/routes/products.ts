@@ -92,6 +92,7 @@ const productBodySchema = z.object({
   priceCents: z.number().int().nonnegative(),
   priceCentsUsd: z.number().int().nonnegative().optional().nullable(),
   category: z.enum(["crystal", "report", "service"]),
+  requiresShipping: z.boolean().optional(),
   active: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 });

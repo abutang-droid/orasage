@@ -95,6 +95,7 @@ adminApiRouter.post("/products", async (req, res) => {
       priceCents: body.priceCents,
       priceCentsUsd: body.priceCentsUsd ?? null,
       category: body.category,
+      requiresShipping: body.requiresShipping ?? false,
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
@@ -126,6 +127,7 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
     if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
     if (body.category !== undefined) updates.category = body.category;
+    if (body.requiresShipping !== undefined) updates.requiresShipping = body.requiresShipping;
     if (body.active !== undefined) updates.active = body.active;
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
@@ -158,6 +160,7 @@ adminApiRouter.get("/orders", async (req, res) => {
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
+      shippingAddress: o.shippingAddress,
       createdAt: o.createdAt,
     })),
   });

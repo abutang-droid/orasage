@@ -99,6 +99,7 @@ export const products = pgTable("products", {
   priceCents: integer("price_cents").notNull(),
   priceCentsUsd: integer("price_cents_usd"),
   category: productCategoryEnum("category").notNull(),
+  requiresShipping: boolean("requires_shipping").notNull().default(false),
   active: boolean("active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -43,6 +43,7 @@ export interface AdminProduct {
   priceDisplayUsd?: string;
   category: 'crystal' | 'report' | 'service';
   categoryLabel: string;
+  requiresShipping: boolean;
   active: boolean;
   sortOrder: number;
   shopUrl: string;
@@ -60,6 +61,7 @@ export interface AdminOrder {
   statusLabel: string;
   appSource?: string | null;
   appLabel?: string | null;
+  shippingAddress?: string | null;
   createdAt: string;
 }
 

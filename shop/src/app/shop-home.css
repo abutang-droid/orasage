@@ -219,6 +219,86 @@
   text-underline-offset: 2px;
 }
 
+/* ── 收货表单（结账 Step 1） ── */
+.shop-shipping-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shop-shipping-title {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--os-color-mono-black, #171717);
+  text-align: center;
+}
+
+.shop-shipping-subtitle,
+.shop-shipping-note {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-shipping-note {
+  font-size: 0.75rem;
+  color: var(--os-color-mono-gray-mid, #9ca3af);
+}
+
+.shop-shipping-fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shop-shipping-legend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  margin-bottom: 0.25rem;
+}
+
+.shop-shipping-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-shipping-input,
+.shop-shipping-textarea {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+  background: var(--os-color-mono-white, #fff);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-shipping-textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.shop-shipping-error {
+  font-size: 0.875rem;
+  color: #dc2626;
+  text-align: center;
+}
+
+.shop-shipping-submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
 .shop-success-icon {
   display: flex;
   height: 4rem;

@@ -13,6 +13,7 @@ export async function saveProductAction(formData: FormData) {
   const priceCentsUsd = Math.round(Number(formData.get('priceUsd') ?? 0) * 100);
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
+  const requiresShipping = formData.get('requiresShipping') === 'on';
   const isEdit = formData.get('isEdit') === '1';
 
   if (!sku || !name || !description || priceCents < 0 || priceCentsUsd < 0) {
@@ -29,6 +30,7 @@ export async function saveProductAction(formData: FormData) {
     priceCentsUsd: priceCentsUsd > 0 ? priceCentsUsd : null,
     sortOrder,
     active,
+    requiresShipping,
   };
 
   if (isEdit) {
