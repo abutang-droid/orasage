@@ -11,6 +11,37 @@ async function api(path, options = {}) {
 const qs = (s) => document.querySelector(s);
 const qsa = (s) => document.querySelectorAll(s);
 
+async function hydrateAuthChips() {
+  const chips = qsa(".orasage-auth-chip[data-hydrate-auth]");
+  if (!chips.length) return;
+
+  let user = null;
+  try {
+    const data = await api("/auth/me");
+    user = data.user;
+  } catch {
+    user = null;
+  }
+
+  const lang = document.documentElement.lang || "zh-CN";
+  const loginLabel = lang.startsWith("zh") ? "登录" : "Login";
+
+  chips.forEach((chip) => {
+    chip.classList.remove("orasage-auth-chip--loading");
+    if (user) {
+      chip.href = chip.dataset.profileUrl || "/center";
+      chip.textContent = user.displayName;
+      chip.classList.add("orasage-auth-chip--signed-in");
+      chip.title = user.email;
+    } else {
+      chip.href = chip.dataset.loginUrl || "/login";
+      chip.textContent = loginLabel;
+    }
+  });
+}
+
+hydrateAuthChips();
+
 const loginForm = qs("#login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {

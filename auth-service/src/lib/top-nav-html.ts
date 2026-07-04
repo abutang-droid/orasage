@@ -14,6 +14,8 @@ export function topNavHtml(locale = 'zh-CN'): string {
     .map((item) => `<a href="${item.href}" class="orasage-site-topnav-link">${item.label}</a>`)
     .join('\n          ');
   const login = locale.startsWith('zh') ? '登录' : 'Login';
+  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
+  const profile = `${main}/profile`;
 
   return `
 <header class="orasage-site-topnav">
@@ -21,7 +23,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
     <nav class="orasage-site-topnav-menu" aria-label="Site navigation">
           ${links}
-      <a href="https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}" class="orasage-auth-chip" id="orasage-topnav-login">${login}</a>
+      <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${login}</a>
     </nav>
   </div>
 </header>`;
