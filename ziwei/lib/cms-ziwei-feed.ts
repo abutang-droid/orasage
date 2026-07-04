@@ -1,5 +1,5 @@
 const CMS_INTERNAL_URL =
-  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 /** 同源代理 CMS 公开读接口，避免浏览器跨域请求被拦截 */
 function feedApiUrl(query: string): string {

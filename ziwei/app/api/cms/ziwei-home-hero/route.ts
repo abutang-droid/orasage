@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const CMS_INTERNAL_URL =
-  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120';
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
 /** 同源代理 CMS 紫微 Hero，供客户端组件拉取（避免跨域 CORS 拦截） */
 export async function GET() {
