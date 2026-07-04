@@ -30,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <Link href="/">概览</Link>
                   <Link href="/products">商品</Link>
                   <Link href="/orders">订单</Link>
+                  <a href="/cms/admin">内容管理</a>
                   <a href="https://shop.orasage.com" target="_blank" rel="noreferrer">商城</a>
                   <a href="https://auth.orasage.com/center">用户中心</a>
                 </div>

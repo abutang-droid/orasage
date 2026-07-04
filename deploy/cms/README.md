@@ -1,6 +1,13 @@
 # cms 部署说明（Payload CMS）
 
-管理后台地址：**https://admin.orasage.com/cms/admin**（方案 B：`cms.orasage.com` 公网已封禁）
+管理入口（两个后台，同域不同路径）：
+
+| 后台 | 地址 | 用途 |
+|------|------|------|
+| **运营后台** | **https://admin.orasage.com** | 商品、订单、用户统计（需 `role=admin`） |
+| **内容管理 CMS** | **https://admin.orasage.com/cms/admin** | Hero、页面、媒体、信息流 |
+
+旧域名 `cms.orasage.com` 会自动重定向至上述地址。
 
 当前 Collections：**Users**、**Media**、**Pages**、**Faiths**（宗教）、**Sanctuaries**（圣地，关联宗教自动匹配）。
 
@@ -79,7 +86,7 @@ curl -sI https://admin.orasage.com/cms/admin | head -3
 sudo systemctl status orasage-cms
 ```
 
-期望：`cms.orasage.com` 返回 **403**，`admin.orasage.com/cms/admin` 可访问。
+期望：`cms.orasage.com/admin` 重定向至 **admin.orasage.com/cms/admin**；`admin.orasage.com/cms/admin` 可访问。
 
 ### 5. 首次登录
 

@@ -117,8 +117,8 @@ verify() {
   sleep 3
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:3120/cms/admin || echo "000")
   log "  127.0.0.1:3120/cms/admin → HTTP $code"
-  blocked=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://cms.orasage.com/admin || echo "000")
-  log "  https://cms.orasage.com/admin → HTTP $blocked (期望 403)"
+  blocked=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -L https://cms.orasage.com/admin || echo "000")
+  log "  https://cms.orasage.com/admin → HTTP $blocked (期望 301 链至 admin/cms/admin)"
   admin_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://admin.orasage.com/cms/admin || echo "000")
   log "  https://admin.orasage.com/cms/admin → HTTP $admin_code"
 }
