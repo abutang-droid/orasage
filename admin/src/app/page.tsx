@@ -10,10 +10,16 @@ export default async function AdminHome() {
       <main className="admin-shell">
         <div className="login-card">
           <h1>OraSage 管理后台</h1>
-          <p>需要管理员账号登录后才能访问。</p>
+          <p>需要管理员账号登录后才能访问运营功能（商品、订单、用户统计）。</p>
           <a className="btn-primary" href={loginUrl()}>
-            登录
+            登录运营后台
           </a>
+          <p className="muted" style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
+            内容管理（Hero、页面、媒体）请访问{' '}
+            <a href="/cms/admin" style={{ color: 'var(--orasage-gold, #b8943f)', textDecoration: 'underline' }}>
+              CMS 后台
+            </a>
+          </p>
         </div>
       </main>
     );
@@ -55,6 +61,7 @@ export default async function AdminHome() {
       <section className="quick-links">
         <Link href="/products" className="btn-secondary">管理商品</Link>
         <Link href="/orders" className="btn-secondary">查看订单</Link>
+        <a href="/cms/admin" className="btn-secondary">内容管理（CMS）</a>
         <a href="https://shop.orasage.com/api/products" className="btn-secondary" target="_blank" rel="noreferrer">
           商品 JSON API
         </a>
