@@ -9,6 +9,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) },
     { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) },
     { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) },
+    { href: ORASAGE_URLS.shop, label: pickLabel(SHELL_LABELS.shop, locale) },
     { href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) },
     { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) },
   ];
