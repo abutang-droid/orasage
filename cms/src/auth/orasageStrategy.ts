@@ -1,78 +1,52 @@
-import { jwtVerify } from 'jose';
 import type { AuthStrategy } from 'payload';
+import { generatePayloadCookie, getFieldsToSign, jwtSign } from 'payload';
 
-const COOKIE_NAME = process.env.JWT_COOKIE_NAME || 'orasage_token';
+import { readCookie, resolveUserFromOrasageToken } from './orasageSso';
 
-function readCookie(cookieHeader: string, name: string): string | null {
-  for (const part of cookieHeader.split(';')) {
-    const [key, ...rest] = part.trim().split('=');
-    if (key === name && rest.length > 0) {
-      return decodeURIComponent(rest.join('='));
-    }
-  }
-  return null;
-}
-
-function jwtSecretKey(): Uint8Array | null {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) return null;
-  return new TextEncoder().encode(secret);
-}
+const JWT_COOKIE = process.env.JWT_COOKIE_NAME || 'orasage_token';
 
 /** 使用 orasage_token（auth-service 签发，role=admin）单点登录 CMS */
 export const orasageAuthStrategy: AuthStrategy = {
   name: 'orasage-jwt',
-  authenticate: async ({ payload, headers }) => {
-    const secret = jwtSecretKey();
-    if (!secret) return { user: null };
+  authenticate: async ({ canSetHeaders, headers, payload }) => {
+    const token = readCookie(headers.get('cookie') ?? '', JWT_COOKIE);
+    const doc = await resolveUserFromOrasageToken(payload, token);
+    if (!doc) return { user: null };
 
-    const token = readCookie(headers.get('cookie') ?? '', COOKIE_NAME);
-    if (!token) return { user: null };
+    const user = {
+      ...doc,
+      collection: 'users',
+    };
 
-    try {
-      const { payload: claims } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
-      const sub = claims.sub;
-      const role = claims.role;
-      if (typeof sub !== 'string' || role !== 'admin') return { user: null };
+    const usersConfig = payload.collections.users.config;
+    const fieldsToSign = getFieldsToSign({
+      collectionConfig: usersConfig,
+      email: typeof doc.email === 'string' ? doc.email : '',
+      user: user as Parameters<typeof getFieldsToSign>[0]['user'],
+    });
+    const { token: payloadToken } = await jwtSign({
+      fieldsToSign,
+      secret: payload.secret,
+      tokenExpiration: usersConfig.auth.tokenExpiration,
+    });
 
-      const orasageUserId = Number(sub);
-      if (!Number.isFinite(orasageUserId)) return { user: null };
-
-      const existing = await payload.find({
-        collection: 'users',
-        where: { orasageUserId: { equals: orasageUserId } },
-        limit: 1,
-        overrideAccess: true,
-      });
-
-      if (existing.docs[0]) {
-        const doc = existing.docs[0];
-        return {
-          user: {
-            ...doc,
-            collection: 'users',
-          },
-        };
-      }
-
-      const email = `orasage-admin-${orasageUserId}@internal.orasage.local`;
-      const created = await payload.create({
-        collection: 'users',
-        data: {
-          email,
-          orasageUserId,
-        } as Record<string, unknown>,
-        overrideAccess: true,
-      });
-
-      return {
-        user: {
-          ...created,
-          collection: 'users',
-        },
-      };
-    } catch {
-      return { user: null };
+    if (!canSetHeaders || !payloadToken) {
+      return { user: user as AuthStrategyResultUser };
     }
+
+    const cookie = generatePayloadCookie({
+      collectionAuthConfig: usersConfig.auth,
+      cookiePrefix: payload.config.cookiePrefix,
+      token: payloadToken,
+    });
+    const responseHeaders = new Headers();
+    responseHeaders.append('Set-Cookie', cookie);
+
+    return { user: user as AuthStrategyResultUser, responseHeaders };
   },
 };
+
+type AuthStrategyResultUser = Extract<
+  Awaited<ReturnType<NonNullable<AuthStrategy['authenticate']>>>,
+  { user: unknown }
+>['user'];

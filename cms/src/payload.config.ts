@@ -45,6 +45,7 @@ const CMS_CORS_ORIGINS = [
 ];
 
 export default buildConfig({
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   cors: CMS_CORS_ORIGINS,
   i18n: {
     supportedLanguages: { zh },
