@@ -21,6 +21,13 @@ const MARKS: Record<AppId, ReactNode> = {
       <path d="M6 10h12v10H6z" stroke="var(--shell-gold)" strokeWidth="1.4" fill="var(--shell-gold)" fillOpacity="0.08" />
     </svg>
   ),
+  shop: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M6 6h15l-1.5 9h-12z" stroke="var(--shell-gold)" strokeWidth="1.4" />
+      <circle cx="9" cy="19" r="1.5" fill="var(--shell-gold)" />
+      <circle cx="18" cy="19" r="1.5" fill="var(--shell-gold)" />
+    </svg>
+  ),
 };
 
 /** 应用首页左上角品牌图形（非固定顶栏） */

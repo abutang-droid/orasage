@@ -11,6 +11,7 @@ type LabelSet = {
   bazi: Record<string, string>;
   ziwei: Record<string, string>;
   tarot: Record<string, string>;
+  energyShop: Record<string, string>;
   famous: Record<string, string>;
   daozang: Record<string, string>;
 };
@@ -87,6 +88,12 @@ export const SHELL_LABELS: LabelSet = {
     en: 'Tarot',
     'zh-TW': '塔羅牌',
     'pt-BR': 'Tarô',
+  },
+  energyShop: {
+    'zh-CN': '能量商城',
+    en: 'Energy Shop',
+    'zh-TW': '能量商城',
+    'pt-BR': 'Loja de Energia',
   },
   famous: {
     'zh-CN': '名人案例',
