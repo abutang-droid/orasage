@@ -97,7 +97,7 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
       ) : null}
 
       <div
-        className={`home-hero-inner orasage-fade-in relative mx-auto px-5 pb-10 pt-8 text-center sm:px-6 sm:pb-12 sm:pt-10${mediaOnly ? ' home-hero-inner--media-only' : ''}`}
+        className={`home-hero-inner orasage-fade-in relative pb-10 pt-8 text-center sm:pb-12 sm:pt-10${mediaOnly ? ' home-hero-inner--media-only' : ''}`}
       >
         {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
@@ -118,7 +118,7 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
           <img
             src={hero.imageUrl!}
             alt={hero.imageAlt ?? ''}
-            className="home-hero-image mx-auto mt-6 w-auto max-w-full rounded-[var(--os-radius-card)] border border-border object-contain sm:mt-7"
+            className="home-hero-image border border-border"
           />
         ) : null}
 

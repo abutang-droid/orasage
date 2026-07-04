@@ -18,10 +18,7 @@
   position: relative;
   overflow: hidden;
   text-align: center;
-  width: 130%;
-  max-width: 36.4rem; /* 28rem * 1.3 */
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
 }
 
 .ziwei-hero-video {
@@ -66,7 +63,7 @@
 .ziwei-hero-subtitle,
 .ziwei-hero-body {
   margin: 0.75rem auto 0;
-  max-width: 28.6rem; /* 22rem * 1.3 */
+  max-width: 100%;
   font-size: 0.875rem;
   line-height: var(--os-line-body, 1.6);
   letter-spacing: var(--os-letter-wide, 0.02em);
@@ -74,13 +71,13 @@
 }
 
 .ziwei-hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
   margin: 1rem auto 0;
-  max-height: 16.9rem; /* 13rem * 1.3 */
-  width: auto;
-  max-width: 100%;
   border-radius: var(--os-radius-card);
   border: 1px solid var(--os-color-mono-gray-light);
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .ziwei-hero-inner--media-only {
@@ -90,7 +87,6 @@
 
 .ziwei-hero-inner--media-only .ziwei-hero-image {
   margin-top: 0;
-  max-height: 20rem;
 }
 
 /* ── Calculator shell ── */
