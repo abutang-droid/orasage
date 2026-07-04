@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { zh } from '@payloadcms/translations/languages/zh';
 import path from 'path';
 import { buildConfig } from 'payload';
 import { fileURLToPath } from 'url';
@@ -16,6 +17,7 @@ import { ZiweiHomeHero } from './globals/ZiweiHomeHero';
 import { ShopHomeHero } from './globals/ShopHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 import { ZiweiFeed } from './collections/ZiweiFeed';
+import { cmsZhTranslations } from './lib/cms-zh';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -44,8 +46,18 @@ const CMS_CORS_ORIGINS = [
 
 export default buildConfig({
   cors: CMS_CORS_ORIGINS,
+  i18n: {
+    supportedLanguages: { zh },
+    fallbackLanguage: 'zh',
+    translations: cmsZhTranslations,
+  },
   admin: {
     user: Users.slug,
+    meta: {
+      title: 'OraSage 内容管理',
+      titleSuffix: ' · CMS',
+      description: '全站 Hero、内容页面、媒体库与塔罗祈福数据管理',
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },

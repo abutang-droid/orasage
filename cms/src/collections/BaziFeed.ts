@@ -1,15 +1,21 @@
 import type { CollectionConfig } from 'payload';
+import { requiredText } from '../lib/validators';
 
 /** 八字首页滚动信息流 — 订单动态与用户评价，供 bazi.orasage.com 首页展示 */
 export const BaziFeed: CollectionConfig = {
   slug: 'bazi-feed',
+  labels: {
+    singular: '八字信息流',
+    plural: '八字首页信息流',
+  },
   access: {
     read: () => true,
   },
   admin: {
     useAsTitle: 'message',
     defaultColumns: ['kind', 'message', 'locale', 'sort', 'enabled'],
-    description: '八字计算器下方的滚动信息流。kind=order 显示为订单动态，kind=review 显示为用户评价。',
+    description:
+      '八字计算器下方的滚动信息流。「订单动态」与「用户评价」交替展示；取消「启用」后该条不显示。',
   },
   fields: [
     {
@@ -31,6 +37,7 @@ export const BaziFeed: CollectionConfig = {
       admin: {
         description: '滚动条中显示的完整句子，如「张** 刚刚完成了八字排盘」',
       },
+      validate: (value: unknown) => requiredText(value, '请填写展示文案'),
     },
     {
       name: 'locale',
@@ -57,7 +64,10 @@ export const BaziFeed: CollectionConfig = {
       label: '启用',
       type: 'checkbox',
       defaultValue: true,
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description: '取消勾选后该条不会出现在前台滚动条',
+      },
     },
   ],
 };
