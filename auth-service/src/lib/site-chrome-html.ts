@@ -68,7 +68,6 @@ export function authPageLayout(title: string, body: string, locale: string): str
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="theme-color" content="#fafaf8">
   <title>${title} — OraSage</title>
-  <link rel="stylesheet" href="/assets/orasage-ui.css">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/app-shell.css">
 </head>

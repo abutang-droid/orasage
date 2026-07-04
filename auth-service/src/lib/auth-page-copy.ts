@@ -13,6 +13,8 @@ export type AuthPageCopy = {
   password: string;
   nickname: string;
   nicknamePlaceholder: string;
+  emailPlaceholder: string;
+  passwordPlaceholder: string;
 };
 
 export function authPageCopy(locale: string): AuthPageCopy {
@@ -32,13 +34,15 @@ export function authPageCopy(locale: string): AuthPageCopy {
       email: '邮箱',
       password: '密码',
       nickname: '昵称',
-      nicknamePlaceholder: '可选',
+      nicknamePlaceholder: '可选，用于显示名称',
+      emailPlaceholder: 'name@example.com',
+      passwordPlaceholder: '至少 6 位',
     };
   }
   return {
     loginTitle: 'Sign in to continue',
     loginLead: 'Sign in to sync profiles, readings, and orders',
-    loginBtn: 'Sign In',
+    loginBtn: 'Sign in',
     loginSwitch: 'No account?',
     loginSwitchLink: 'Register',
     registerTitle: 'Create account',
@@ -49,6 +53,8 @@ export function authPageCopy(locale: string): AuthPageCopy {
     email: 'Email',
     password: 'Password',
     nickname: 'Nickname',
-    nicknamePlaceholder: 'Optional',
+    nicknamePlaceholder: 'Optional display name',
+    emailPlaceholder: 'name@example.com',
+    passwordPlaceholder: 'At least 6 characters',
   };
 }
