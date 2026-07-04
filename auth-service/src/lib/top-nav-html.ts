@@ -1,22 +1,22 @@
-import { daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS } from './config';
-import { pickLabel, SHELL_LABELS } from './labels';
-
-/** 静态页 PC 顶栏 HTML（auth-service 等无 React 环境） */
+/** 静态页 PC 顶栏 HTML（与 shared/app-shell/top-nav-html 保持一致） */
 export function topNavHtml(locale = 'zh-CN'): string {
-  const main = mainPortalUrl(locale);
+  const main = `https://orasage.com/${locale}`;
+  const homeLabel = locale.startsWith('zh') ? '首页' : 'Home';
   const items = [
-    { href: main, label: pickLabel(SHELL_LABELS.home, locale) },
-    { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) },
-    { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) },
-    { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) },
-    { href: ORASAGE_URLS.shop, label: pickLabel(SHELL_LABELS.shop, locale) },
-    { href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) },
-    { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) },
+    { href: main, label: homeLabel },
+    { href: 'https://bazi.orasage.com', label: locale.startsWith('zh') ? '八字' : 'BaZi' },
+    { href: 'https://ziwei.orasage.com', label: locale.startsWith('zh') ? '紫微' : 'Zi Wei' },
+    { href: 'https://tarot.orasage.com', label: locale.startsWith('zh') ? '塔罗牌' : 'Tarot' },
+    { href: 'https://shop.orasage.com', label: locale.startsWith('zh') ? '商店' : 'Shop' },
+    { href: `${main}/famous`, label: locale.startsWith('zh') ? '名人案例' : 'Famous Cases' },
+    { href: `${main}/daozang`, label: locale.startsWith('zh') ? '道藏' : 'Dao Canon' },
   ];
   const links = items
     .map((item) => `<a href="${item.href}" class="orasage-site-topnav-link">${item.label}</a>`)
     .join('\n          ');
-  const login = pickLabel(SHELL_LABELS.login, locale);
+  const login = locale.startsWith('zh') ? '登录' : 'Login';
+  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
+  const profile = `${main}/profile`;
 
   return `
 <header class="orasage-site-topnav">
@@ -24,7 +24,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
     <nav class="orasage-site-topnav-menu" aria-label="Site navigation">
           ${links}
-      <a href="${ORASAGE_URLS.authLogin}?redirect=${encodeURIComponent(main)}" class="orasage-auth-chip" id="orasage-topnav-login">${login}</a>
+      <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${login}</a>
     </nav>
   </div>
 </header>`;
