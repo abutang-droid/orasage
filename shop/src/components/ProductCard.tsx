@@ -5,12 +5,12 @@ import type { Product } from '@/lib/products';
 import { useShopCurrency } from '@/components/CurrencyProvider';
 import { formatProductPrice } from '@/lib/currency';
 
-const elementColors: Record<string, string> = {
-  '木': 'bg-emerald-500/15 text-emerald-700',
-  '火': 'bg-red-500/15 text-red-700',
-  '土': 'bg-amber-500/15 text-amber-800',
-  '金': 'bg-slate-400/15 text-slate-700',
-  '水': 'bg-indigo-500/15 text-indigo-700',
+const elementLabels: Record<string, string> = {
+  '木': '木',
+  '火': '火',
+  '土': '土',
+  '金': '金',
+  '水': '水',
 };
 
 export function ProductCard({ product }: { product: Product }) {
@@ -56,34 +56,25 @@ export function ProductCard({ product }: { product: Product }) {
     }
   }
 
+  const badgeLabel = product.element ? elementLabels[product.element] ?? product.element : '✦';
+
   return (
-    <article className="flex flex-col rounded-2xl border border-sage-border bg-sage-card p-4">
-      {product.element && (
-        <span
-          className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${elementColors[product.element] ?? 'bg-sage-gold/15 text-sage-gold'}`}
-        >
-          {product.element}
-        </span>
-      )}
-      {!product.element && (
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sage-gold/15 text-sm text-sage-gold">
-          ✦
-        </span>
-      )}
-      <h3 className="mt-3 text-base font-medium text-sage-primary">{product.name}</h3>
-      <p className="mt-1 flex-1 text-xs text-sage-muted">{product.desc}</p>
+    <article className="shop-product-card">
+      <span className="shop-product-badge">{badgeLabel}</span>
+      <h3 className="shop-product-name">{product.name}</h3>
+      <p className="shop-product-desc">{product.desc}</p>
       <div className="mt-4 flex items-center justify-between gap-2">
-        <span className="text-lg font-medium text-sage-gold">{formatProductPrice(product.priceCents, currency)}</span>
+        <span className="shop-product-price">{formatProductPrice(product.priceCents, currency)}</span>
         <button
           type="button"
           onClick={handleBuy}
           disabled={loading}
-          className="min-h-[44px] rounded-full bg-sage-gold/15 px-4 text-sm font-medium text-sage-gold active:bg-sage-gold/25 disabled:opacity-50"
+          className="shop-btn-primary"
         >
           {loading ? '处理中…' : '购买'}
         </button>
       </div>
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </article>
   );
 }

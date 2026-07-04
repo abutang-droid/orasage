@@ -54,23 +54,23 @@ function CheckoutContent() {
   }
 
   return (
-    <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 py-16">
-      <h1 className="font-serif text-2xl text-amber-200">确认支付</h1>
-      <p className="mt-3 text-sm text-stone-400">订单号：{orderNo || '—'}</p>
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+    <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
+      <h1 className="font-serif text-2xl text-sage-primary">确认支付</h1>
+      <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo || '—'}</p>
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       {done ? (
-        <p className="mt-6 text-sm text-green-400">支付成功，正在跳转…</p>
+        <p className="mt-6 text-sm text-sage-primary">支付成功，正在跳转…</p>
       ) : (
         <button
           type="button"
           disabled={loading || !orderNo}
           onClick={() => void handlePay()}
-          className="mt-8 rounded-full border border-amber-500/40 px-8 py-3 text-amber-200 transition hover:bg-amber-500/10 disabled:opacity-50"
+          className="shop-btn-primary mt-8 px-8"
         >
           {loading ? '处理中…' : '模拟支付（完成订单）'}
         </button>
       )}
-      <p className="mt-6 text-center text-xs text-stone-500">
+      <p className="mt-6 max-w-sm text-xs text-sage-muted">
         当前为模拟支付模式，用于产品流程测试与风控审核。正式上线前将切换至 Stripe。
       </p>
     </main>
@@ -79,7 +79,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<main className="p-16 text-center text-stone-400">加载中…</main>}>
+    <Suspense fallback={<main className="shop-page p-16 text-center text-sage-muted">加载中…</main>}>
       <CheckoutContent />
     </Suspense>
   );

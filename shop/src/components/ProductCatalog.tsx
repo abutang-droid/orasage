@@ -20,16 +20,13 @@ export function ProductCatalog({ products }: { products: Product[] }) {
 
   return (
     <>
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-center">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden">
         {categories.map((cat) => (
           <a
             key={cat}
             href={cat === 'all' ? '/' : `/?cat=${cat}`}
-            className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${
-              activeCategory === cat
-                ? 'border-sage-gold/50 bg-sage-gold/10 text-sage-gold'
-                : 'border-sage-border bg-sage-card text-sage-muted'
-            }`}
+            data-active={activeCategory === cat}
+            className="shop-category-pill"
           >
             {cat === 'all' ? '全部' : categoryLabels[cat]}
           </a>
@@ -41,7 +38,7 @@ export function ProductCatalog({ products }: { products: Product[] }) {
           <div
             key={product.sku}
             id={product.sku}
-            className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-gold/60' : ''}
+            className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
           >
             <ProductCard product={product} />
           </div>
