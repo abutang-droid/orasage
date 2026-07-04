@@ -20,3 +20,11 @@ cp shared/app-shell/app-shell.css auth-service/public/assets/app-shell.css
 - **移动（<1024px）**：`FixedBottomNav` 5 键底栏
 
 CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断首页/子页。
+
+## PC 页脚
+
+见 [`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../../docs/design-system/OraSage-Design-System-v1.1-Revised.md) §7。
+
+- 子应用使用 `PortalFooter` + `.orasage-portal-footer*`（`app-shell.css`）
+- 仅展示版权 / 隐私政策 / 用户协议，**禁止**展示登录用户名或邮箱
+- 法律链接统一指向主站 `/{locale}/privacy` 与 `/{locale}/terms`

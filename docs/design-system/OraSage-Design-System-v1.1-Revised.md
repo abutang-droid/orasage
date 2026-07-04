@@ -126,3 +126,58 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 1.  **静谧**：不通过颜色抢夺注意力，让命理内容本身说话。
 2.  **秩序**：通过严谨的对齐与栅格，体现“工具书”的逻辑感。
 3.  **人文**：利用宋体的衬线细节，平衡科技带来的冰冷感。
+
+---
+
+## 7. PC 页脚 (Site Footer)
+
+全站统一的桌面端页脚组件，**格式与样式必须一致**，不得在各 App 自行增删内容或改写布局。
+
+### 7.1 展示范围
+
+| 视口 | 行为 |
+| :--- | :--- |
+| **PC（≥1024px）** | 页面底部固定展示页脚 |
+| **移动端（<1024px）** | **隐藏**；导航与法律入口由底栏 / 页面内菜单承担 |
+
+### 7.2 内容（仅此三项）
+
+1. **版权信息** — i18n `footer.copyright`，例：`© 2026 OraSage. All rights reserved.`
+2. **隐私政策** — i18n `footer.privacy`，链接至主站 `/{locale}/privacy`
+3. **用户协议（服务条款）** — i18n `footer.terms`，链接至主站 `/{locale}/terms`
+
+**禁止**在页脚展示登录用户名、邮箱或其他账户 PII。账户信息仅在顶栏登录芯片、「我的」账户卡片等专用区域展示。
+
+### 7.3 布局与样式
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  © 2026 OraSage …          隐私政策    服务条款              │
+│  （左对齐版权）              （右对齐链接，gap 24–32px）      │
+└──────────────────────────────────────────────────────────────┘
+         max-width: 72rem (max-w-6xl) · padding: py-8 px-5/6
+```
+
+| 属性 | 规范 |
+| :--- | :--- |
+| 容器 | `safe-bottom mt-auto hidden lg:block` |
+| 内层 | `max-w-6xl`，`flex`，`sm:flex-row sm:justify-between`，`gap-20px` |
+| 版权文字 | `text-xs sm:text-sm`，`text-muted-foreground` |
+| 链接 | `text-sm text-muted-foreground`，`min-height: 44px`，hover → `text-primary` |
+| 链接间距 | 移动端 `gap-32px`，桌面 `gap-24px` |
+
+### 7.4 实现引用
+
+| App |  canonical 实现 |
+| :--- | :--- |
+| **main 门户** | `main/src/components/Footer.tsx` |
+| **子应用**（八字 / 紫微 / 塔罗 / 商城） | `PortalFooter` + `shared/app-shell/app-shell.css` 中 `.orasage-portal-footer*`；链接指向主站 `/{locale}/privacy` 与 `/{locale}/terms` |
+
+子应用页脚须在视觉上与 main `Footer` 等效（左右分栏、相同字号与灰度），不得引入额外栏目或用户信息。
+
+### 7.5 门禁检查
+
+- [ ] PC 页脚仅含版权 + 隐私 + 用户协议
+- [ ] 移动端页脚隐藏
+- [ ] 无登录态相关的用户名 / 邮箱展示
+- [ ] 各 App 链接均指向主站统一法律页面
