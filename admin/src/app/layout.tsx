@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import './globals.css';
-import { AdminShell } from '@/components/AdminShell';
+import { AdminPlatformShell } from '@/components/AdminPlatformShell';
 import { buildOrasageMetadata } from '@/lib/orasage-seo';
 import { getAdminUser } from '@/lib/auth';
 
@@ -21,26 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         data-theme="light"
         style={{ background: 'var(--orasage-background, #fafaf8)', color: 'var(--orasage-primary, #171717)' }}
       >
-        <AdminShell>
-          {admin ? (
-            <div className="admin-layout">
-              <nav className="admin-nav">
-                <Link href="/" className="admin-logo">OraSage Admin</Link>
-                <div className="admin-nav-links">
-                  <Link href="/">概览</Link>
-                  <Link href="/products">商品</Link>
-                  <Link href="/orders">订单</Link>
-                  <a href="/cms/admin">内容管理</a>
-                  <a href="https://shop.orasage.com" target="_blank" rel="noreferrer">商城</a>
-                  <a href="https://auth.orasage.com/center">用户中心</a>
-                </div>
-              </nav>
-              <main className="admin-main">{children}</main>
-            </div>
-          ) : (
-            <main className="admin-main">{children}</main>
-          )}
-        </AdminShell>
+        <AdminPlatformShell showSidebar={!!admin}>{children}</AdminPlatformShell>
       </body>
     </html>
   );

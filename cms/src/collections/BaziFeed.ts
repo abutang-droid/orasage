@@ -12,6 +12,7 @@ export const BaziFeed: CollectionConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     useAsTitle: 'message',
     defaultColumns: ['kind', 'message', 'locale', 'sort', 'enabled'],
     description:

@@ -47,15 +47,19 @@ cp cms/.env.example cms/.env
 nano cms/.env
 ```
 
-写入（**PAYLOAD_SECRET 单独生成，不要用 JWT_SECRET**）：
+写入（**PAYLOAD_SECRET 单独生成，不要用 JWT_SECRET**；**JWT_SECRET 必须与 auth-service 相同**）：
 
 ```
 NODE_ENV=production
 PORT=3120
 DATABASE_URL=postgresql://orasage:你的密码@127.0.0.1:5432/orasage_cms
 PAYLOAD_SECRET=随机32位以上字符串
+JWT_SECRET=与_auth-service_相同的密钥
+JWT_COOKIE_NAME=orasage_token
 CMS_BASE_PATH=/cms
 NEXT_PUBLIC_SERVER_URL=https://admin.orasage.com/cms
+NEXT_PUBLIC_AUTH_URL=https://auth.orasage.com
+NEXT_PUBLIC_ADMIN_URL=https://admin.orasage.com
 ```
 
 生成 PAYLOAD_SECRET：

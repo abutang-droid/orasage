@@ -4,7 +4,7 @@ import type { ServerFunctionClient } from 'payload';
 import { handleServerFunctions, RootLayout } from '@payloadcms/next/layouts';
 import React from 'react';
 
-import { CmsPlatformShell } from '@/components/CmsPlatformShell';
+import { CmsAdminPlatformShell } from '@/components/CmsAdminPlatformShell';
 import { importMap } from './admin/importMap';
 import './custom.scss';
 
@@ -23,7 +23,7 @@ const serverFunction: ServerFunctionClient = async function (args) {
 
 const Layout = ({ children }: Args) => (
   <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
-    <CmsPlatformShell>{children}</CmsPlatformShell>
+    <CmsAdminPlatformShell>{children}</CmsAdminPlatformShell>
   </RootLayout>
 );
 

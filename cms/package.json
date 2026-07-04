@@ -20,6 +20,7 @@
     "@payloadcms/richtext-lexical": "^3.85.1",
     "cross-env": "^7.0.3",
     "graphql": "^16.9.0",
+    "jose": "^6.2.3",
     "next": ">=15.4.11 <15.5.0",
     "payload": "^3.85.1",
     "react": "^19.0.0",

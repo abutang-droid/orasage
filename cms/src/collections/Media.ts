@@ -12,6 +12,7 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'mimeType', 'filesize', 'updatedAt'],
     description: MEDIA_LIBRARY_SPEC,

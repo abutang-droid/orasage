@@ -8,6 +8,7 @@ export const HomeHero: GlobalConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     description:
       '配置 orasage.com 门户首页顶部 Hero 区。保存后约 1 分钟内各前台生效；「启用」取消勾选可隐藏整段 Hero。',
   },

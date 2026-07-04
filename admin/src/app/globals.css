@@ -1,4 +1,5 @@
 @import '../../../shared/design-tokens/orasage-tokens.css';
+@import '../../../shared/admin-backend/admin-backend.css';
 @import '../lib/orasage-app-shell/app-shell.css';
 
 * {
@@ -23,38 +24,11 @@ a {
   min-height: 100vh;
 }
 
-.admin-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--orasage-border, #e7e5e4);
-  background: var(--orasage-surface, #ffffff);
-}
-
-.admin-logo {
-  font-weight: 600;
-  color: var(--orasage-gold, #b8943f);
-}
-
-.admin-nav-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-  color: var(--orasage-secondary, #6b7280);
-}
-
-.admin-nav-links a:hover {
-  color: var(--orasage-primary, #171717);
-}
-
 .admin-main,
 .admin-shell {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 0;
 }
 
 .admin-page .page-header {
@@ -161,9 +135,46 @@ a {
 }
 
 .login-card {
-  max-width: 360px;
-  margin: 20vh auto;
+  max-width: 400px;
+  margin: 10vh auto;
   text-align: center;
+}
+
+.entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.entry-card {
+  display: block;
+  background: var(--orasage-surface, #ffffff);
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: border-color 0.15s ease;
+}
+
+.entry-card:hover {
+  border-color: var(--orasage-gold, #b8943f);
+}
+
+.entry-card h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.35rem;
+}
+
+.entry-card p {
+  font-size: 0.85rem;
+  color: var(--orasage-secondary, #6b7280);
+  margin-bottom: 0.75rem;
+}
+
+.entry-cta {
+  font-size: 0.85rem;
+  color: var(--orasage-gold, #b8943f);
+  font-weight: 600;
 }
 
 .login-card .btn-primary {

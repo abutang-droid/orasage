@@ -7,21 +7,13 @@ export default async function AdminHome() {
 
   if (!admin) {
     return (
-      <main className="admin-shell">
-        <div className="login-card">
-          <h1>OraSage 管理后台</h1>
-          <p>需要管理员账号登录后才能访问运营功能（商品、订单、用户统计）。</p>
-          <a className="btn-primary" href={loginUrl()}>
-            登录运营后台
-          </a>
-          <p className="muted" style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
-            内容管理（Hero、页面、媒体）请访问{' '}
-            <a href="/cms/admin" style={{ color: 'var(--orasage-gold, #b8943f)', textDecoration: 'underline' }}>
-              CMS 后台
-            </a>
-          </p>
-        </div>
-      </main>
+      <div className="login-card">
+        <h1>OraSage 管理后台</h1>
+        <p>使用 orasage 管理员账号登录，即可管理商品、订单与全站内容。</p>
+        <a className="btn-primary" href={loginUrl()}>
+          登录
+        </a>
+      </div>
     );
   }
 
@@ -35,9 +27,22 @@ export default async function AdminHome() {
   return (
     <div className="admin-page">
       <header className="page-header">
-        <h1>运营概览</h1>
-        <p className="muted">商品与订单数据来自 auth-service 统一数据源</p>
+        <h1>后台首页</h1>
+        <p className="muted">左侧导航可在「运营」与「内容」之间切换；无需重复登录。</p>
       </header>
+
+      <section className="entry-grid">
+        <Link href="/products" className="entry-card">
+          <h2>运营管理</h2>
+          <p>商品目录、订单履约、用户与测算统计</p>
+          <span className="entry-cta">进入商品管理 →</span>
+        </Link>
+        <Link href="/cms/admin" className="entry-card">
+          <h2>内容管理</h2>
+          <p>全站 Hero、页面、媒体库与各 App 信息流</p>
+          <span className="entry-cta">进入 CMS →</span>
+        </Link>
+      </section>
 
       <section className="card-grid">
         <div className="card">
@@ -56,15 +61,6 @@ export default async function AdminHome() {
           <h2>在售商品</h2>
           <div className="value">{stats.products}</div>
         </div>
-      </section>
-
-      <section className="quick-links">
-        <Link href="/products" className="btn-secondary">管理商品</Link>
-        <Link href="/orders" className="btn-secondary">查看订单</Link>
-        <a href="/cms/admin" className="btn-secondary">内容管理（CMS）</a>
-        <a href="https://shop.orasage.com/api/products" className="btn-secondary" target="_blank" rel="noreferrer">
-          商品 JSON API
-        </a>
       </section>
     </div>
   );
