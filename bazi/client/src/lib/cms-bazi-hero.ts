@@ -3,7 +3,7 @@ import {
   type CmsHeroRaw,
   type HeroDisplayMode,
   type MappedHeroContent,
-} from '../../../shared/hero/map-cms-hero';
+} from '../../../../shared/hero/map-cms-hero';
 
 const CMS_INTERNAL_URL =
   import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
