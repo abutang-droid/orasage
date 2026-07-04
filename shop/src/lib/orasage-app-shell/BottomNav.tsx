@@ -2,8 +2,8 @@
 
 import { type ReactNode } from 'react';
 import {
-  APP_BRANDS,
   ORASAGE_URLS,
+  appBrandLabel,
   appHomeUrl,
   mainPortalUrl,
   profileUrl,
@@ -60,13 +60,14 @@ export type FixedBottomNavProps = {
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const isPortal = context === 'portal';
   const appId = isPortal ? null : context;
-  const brand = isPortal ? 'OraSage' : APP_BRANDS[appId as AppId];
+  const brand = isPortal ? 'OraSage' : appBrandLabel(appId as AppId, locale);
   const portalHref = mainPortalUrl(locale);
   const appHref = isPortal ? portalHref : appHomeUrl(appId as AppId);
   const onAppHome = isPortal
     ? false
     : isCurrentAppHome(appId as AppId, pathname);
   const onTemple = appId === 'tarot' && (pathname === '/temple' || pathname.startsWith('/temple/'));
+  const onShop = appId === 'shop' && onAppHome;
 
   return (
     <nav className="orasage-app-bottomnav" aria-label="App navigation">
@@ -90,8 +91,8 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
           <span>{pickLabel(SHELL_LABELS.blessing, locale)}</span>
         </a>
 
-        <a href={ORASAGE_URLS.shop} className="orasage-app-nav-item" data-active="false">
-          <NavIcon name="shop" active={false} />
+        <a href={ORASAGE_URLS.shop} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>
+          <NavIcon name="shop" active={onShop} />
           <span>{pickLabel(SHELL_LABELS.shop, locale)}</span>
         </a>
 

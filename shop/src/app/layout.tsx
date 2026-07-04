@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <body className="orasage-app-shell min-h-dvh bg-sage-bg text-sage-primary antialiased" data-theme="light">
+      <body className="min-h-dvh bg-sage-bg text-sage-primary antialiased">
         <ShopShell>{children}</ShopShell>
       </body>
     </html>

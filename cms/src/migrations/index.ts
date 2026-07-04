@@ -10,6 +10,8 @@ import * as migration_20260703_191000_bazi_home_hero_locked_docs_rels from './20
 import * as migration_20260703_200000_ziwei_home_hero_global from './20260703_200000_ziwei_home_hero_global';
 import * as migration_20260703_201000_ziwei_home_hero_locked_docs_rels from './20260703_201000_ziwei_home_hero_locked_docs_rels';
 import * as migration_20260703_210000_ziwei_feed from './20260703_210000_ziwei_feed';
+import * as migration_20260704_050000_shop_home_hero_global from './20260704_050000_shop_home_hero_global';
+import * as migration_20260704_051000_shop_home_hero_locked_docs_rels from './20260704_051000_shop_home_hero_locked_docs_rels';
 
 export const migrations = [
   {
@@ -71,5 +73,15 @@ export const migrations = [
     up: migration_20260703_210000_ziwei_feed.up,
     down: migration_20260703_210000_ziwei_feed.down,
     name: '20260703_210000_ziwei_feed',
+  },
+  {
+    up: migration_20260704_050000_shop_home_hero_global.up,
+    down: migration_20260704_050000_shop_home_hero_global.down,
+    name: '20260704_050000_shop_home_hero_global',
+  },
+  {
+    up: migration_20260704_051000_shop_home_hero_locked_docs_rels.up,
+    down: migration_20260704_051000_shop_home_hero_locked_docs_rels.down,
+    name: '20260704_051000_shop_home_hero_locked_docs_rels',
   },
 ];
