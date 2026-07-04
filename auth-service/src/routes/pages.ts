@@ -5,7 +5,15 @@ import { authPageLayout, localeFromRedirect } from "../lib/site-chrome-html.ts";
 
 export const pagesRouter = Router();
 
-const ALLOWED_HOSTS = ["orasage.com", "auth.orasage.com", "shop.orasage.com", "bazi.orasage.com", "ziwei.orasage.com", "tarot.orasage.com"];
+const ALLOWED_HOSTS = [
+  "orasage.com",
+  "auth.orasage.com",
+  "admin.orasage.com",
+  "shop.orasage.com",
+  "bazi.orasage.com",
+  "ziwei.orasage.com",
+  "tarot.orasage.com",
+];
 
 function safeRedirect(url?: string): string {
   if (!url) return "https://orasage.com/zh-CN/profile";
