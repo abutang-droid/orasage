@@ -1,3 +1,10 @@
+import {
+  mapCmsHeroContent,
+  type CmsHeroRaw,
+  type HeroDisplayMode,
+  type MappedHeroContent,
+} from '../../../shared/hero/map-cms-hero';
+
 const CMS_INTERNAL_URL =
   import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 const CMS_PUBLIC_URL =
@@ -11,37 +18,13 @@ function heroApiUrl(): string {
   return `${CMS_INTERNAL_URL}/api/globals/bazi-home-hero?depth=1`;
 }
 
-export type BaziHeroDisplayMode = 'text' | 'image' | 'video';
-
-export type BaziHomeHeroContent = {
-  enabled: boolean;
-  eyebrow?: string | null;
-  headline: string;
-  subtitle?: string | null;
-  displayMode: BaziHeroDisplayMode;
-  imageUrl?: string | null;
-  videoUrl?: string | null;
-  videoPosterUrl?: string | null;
-  videoAutoplay: boolean;
-  bodyText?: string | null;
-};
+export type BaziHeroDisplayMode = HeroDisplayMode;
+export type BaziHomeHeroContent = MappedHeroContent;
 
 type CmsMedia = {
   url?: string | null;
+  alt?: string | null;
   mimeType?: string | null;
-};
-
-type CmsBaziHeroRaw = {
-  enabled?: boolean | null;
-  eyebrow?: string | null;
-  headline?: string | null;
-  subtitle?: string | null;
-  displayMode?: BaziHeroDisplayMode | null;
-  heroImage?: CmsMedia | number | null;
-  heroVideo?: CmsMedia | number | null;
-  videoExternalUrl?: string | null;
-  videoAutoplay?: boolean | null;
-  bodyText?: string | null;
 };
 
 function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | null {
@@ -52,28 +35,8 @@ function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | 
   return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
-function mapBaziHero(data: CmsBaziHeroRaw): BaziHomeHeroContent | null {
-  if (!data.headline?.trim()) return null;
-  const displayMode = data.displayMode ?? 'text';
-  const imageUrl = resolveMediaUrl(
-    typeof data.heroImage === 'object' ? data.heroImage : null,
-  );
-  const uploadedVideoUrl = resolveMediaUrl(
-    typeof data.heroVideo === 'object' ? data.heroVideo : null,
-  );
-
-  return {
-    enabled: data.enabled !== false,
-    eyebrow: data.eyebrow,
-    headline: data.headline.trim(),
-    subtitle: data.subtitle,
-    displayMode,
-    imageUrl,
-    videoUrl: data.videoExternalUrl?.trim() || uploadedVideoUrl,
-    videoPosterUrl: imageUrl,
-    videoAutoplay: data.videoAutoplay !== false,
-    bodyText: data.bodyText,
-  };
+function mapBaziHero(data: CmsHeroRaw): BaziHomeHeroContent | null {
+  return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
 export async function fetchBaziHomeHero(): Promise<BaziHomeHeroContent | null> {
@@ -82,7 +45,7 @@ export async function fetchBaziHomeHero(): Promise<BaziHomeHeroContent | null> {
       cache: 'no-store',
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as CmsBaziHeroRaw;
+    const data = (await res.json()) as CmsHeroRaw;
     return mapBaziHero(data);
   } catch {
     return null;

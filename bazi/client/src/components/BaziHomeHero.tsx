@@ -56,6 +56,12 @@ export function BaziHomeHero() {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
+  const mediaOnly =
+    Boolean(showImage || showVideo) &&
+    !hero.headline &&
+    !hero.eyebrow &&
+    !hero.subtitle &&
+    !hero.bodyText;
 
   return (
     <section className="bazi-hero">
@@ -67,15 +73,15 @@ export function BaziHomeHero() {
         />
       ) : null}
 
-      <div className="bazi-hero-inner animate-fade-in-up">
+      <div className={`bazi-hero-inner animate-fade-in-up${mediaOnly ? ' bazi-hero-inner--media-only' : ''}`}>
         {hero.eyebrow ? <p className="bazi-hero-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="bazi-hero-title">{hero.headline}</h1>
+        {hero.headline ? <h1 className="bazi-hero-title">{hero.headline}</h1> : null}
 
         {hero.subtitle ? <p className="bazi-hero-subtitle">{hero.subtitle}</p> : null}
 
         {showImage ? (
-          <img src={hero.imageUrl!} alt="" className="bazi-hero-image" />
+          <img src={hero.imageUrl!} alt={hero.imageAlt ?? ''} className="bazi-hero-image" />
         ) : null}
 
         {hero.bodyText ? <p className="bazi-hero-body">{hero.bodyText}</p> : null}

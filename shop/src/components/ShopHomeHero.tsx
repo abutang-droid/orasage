@@ -46,6 +46,12 @@ export async function ShopHomeHero({ loggedIn }: Props) {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
+  const mediaOnly =
+    Boolean(showImage || showVideo) &&
+    !hero.headline &&
+    !hero.eyebrow &&
+    !hero.subtitle &&
+    !hero.bodyText;
 
   return (
     <section className="shop-hero">
@@ -57,15 +63,15 @@ export async function ShopHomeHero({ loggedIn }: Props) {
         />
       ) : null}
 
-      <div className="shop-hero-inner">
+      <div className={`shop-hero-inner${mediaOnly ? ' shop-hero-inner--media-only' : ''}`}>
         {hero.eyebrow ? <p className="shop-hero-eyebrow">{hero.eyebrow}</p> : null}
 
-        <h1 className="shop-hero-title">{hero.headline}</h1>
+        {hero.headline ? <h1 className="shop-hero-title">{hero.headline}</h1> : null}
 
         {hero.subtitle ? <p className="shop-hero-subtitle">{hero.subtitle}</p> : null}
 
         {showImage ? (
-          <img src={hero.imageUrl!} alt="" className="shop-hero-image" />
+          <img src={hero.imageUrl!} alt={hero.imageAlt ?? ''} className="shop-hero-image" />
         ) : null}
 
         {hero.bodyText ? <p className="shop-hero-body">{hero.bodyText}</p> : null}
