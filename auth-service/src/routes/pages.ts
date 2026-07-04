@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getAuthUser } from "../lib/auth-user.ts";
-import { bottomNavHtml } from "../lib/bottom-nav-html.ts";
-import { topNavHtml } from "../lib/top-nav-html.ts";
+import { authPageCopy } from "../lib/auth-page-copy.ts";
+import { authPageLayout, localeFromRedirect } from "../lib/site-chrome-html.ts";
 
 export const pagesRouter = Router();
 
@@ -18,82 +18,85 @@ function safeRedirect(url?: string): string {
   return "https://orasage.com/zh-CN/profile";
 }
 
-function layout(title: string, body: string, locale = "zh-CN"): string {
-  return `<!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-  <meta name="theme-color" content="#fafaf8">
-  <title>${title} — OraSage</title>
-  <link rel="stylesheet" href="/assets/orasage-ui.css">
-  <link rel="stylesheet" href="/assets/style.css">
-  <link rel="stylesheet" href="/assets/app-shell.css">
-</head>
-<body class="orasage-auth-body">${topNavHtml(locale)}<div class="app-shell orasage-auth-content">${body}</div>${bottomNavHtml(locale)}<script src="/assets/app.js" defer></script></body>
-</html>`;
-}
-
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function redirectParam(req: Request): string | undefined {
+  return (
+    (typeof req.query.redirect === "string" ? req.query.redirect : undefined) ||
+    (typeof req.query.returnUrl === "string" ? req.query.returnUrl : undefined)
+  );
+}
+
+function loginCardHtml(locale: string, redirect: string): string {
+  const c = authPageCopy(locale);
+  return `
+    <main class="auth-page">
+      <div class="auth-card">
+        <h1 class="auth-card-title">${c.loginTitle}</h1>
+        <p class="auth-card-lead">${c.loginLead}</p>
+        <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}">
+          <div class="oui-field">
+            <label for="login-email">${c.email}</label>
+            <input id="login-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
+          </div>
+          <div class="oui-field">
+            <label for="login-password">${c.password}</label>
+            <input id="login-password" class="oui-input" data-size="md" type="password" name="password" required autocomplete="current-password">
+          </div>
+          <p id="form-error" class="oui-field-error" hidden></p>
+          <button type="submit" class="oui-btn oui-btn--default" data-size="lg">${c.loginBtn}</button>
+        </form>
+        <p class="auth-switch">${c.loginSwitch}<a href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+      </div>
+    </main>`;
+}
+
+function registerCardHtml(locale: string, redirect: string): string {
+  const c = authPageCopy(locale);
+  return `
+    <main class="auth-page">
+      <div class="auth-card">
+        <h1 class="auth-card-title">${c.registerTitle}</h1>
+        <p class="auth-card-lead">${c.registerLead}</p>
+        <form id="register-form" class="auth-form" data-redirect="${esc(redirect)}">
+          <div class="oui-field">
+            <label for="reg-email">${c.email}</label>
+            <input id="reg-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
+          </div>
+          <div class="oui-field">
+            <label for="reg-nickname">${c.nickname}</label>
+            <input id="reg-nickname" class="oui-input" data-size="md" type="text" name="nickname" placeholder="${esc(c.nicknamePlaceholder)}" autocomplete="nickname">
+          </div>
+          <div class="oui-field">
+            <label for="reg-password">${c.password}</label>
+            <input id="reg-password" class="oui-input" data-size="md" type="password" name="password" required minlength="6" autocomplete="new-password">
+          </div>
+          <p id="form-error" class="oui-field-error" hidden></p>
+          <button type="submit" class="oui-btn oui-btn--default" data-size="lg">${c.registerBtn}</button>
+        </form>
+        <p class="auth-switch">${c.registerSwitch}<a href="/login?redirect=${encodeURIComponent(redirect)}">${c.registerSwitchLink}</a></p>
+      </div>
+    </main>`;
 }
 
 pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 
 pagesRouter.get("/login", (req, res) => {
-  const redirectParam =
-    (typeof req.query.redirect === "string" ? req.query.redirect : undefined) ||
-    (typeof req.query.returnUrl === "string" ? req.query.returnUrl : undefined);
-  const redirect = safeRedirect(redirectParam);
-  res.send(layout("登录", `
-    <header class="page-header"><a href="https://orasage.com" class="logo">OraSage</a></header>
-    <main class="auth-card">
-      <h1>登录</h1>
-      <p class="subtitle">登录后查看测试记录与订单</p>
-      <form id="login-form" data-redirect="${esc(redirect)}">
-        <div class="oui-field">
-          <label for="login-email">邮箱</label>
-          <input id="login-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
-        </div>
-        <div class="oui-field">
-          <label for="login-password">密码</label>
-          <input id="login-password" class="oui-input" data-size="md" type="password" name="password" required autocomplete="current-password">
-        </div>
-        <p id="form-error" class="oui-field-error" hidden></p>
-        <button type="submit" class="oui-btn oui-btn--default" data-size="md">登录</button>
-      </form>
-      <p class="auth-switch">没有账号？<a href="/register?redirect=${encodeURIComponent(redirect)}">立即注册</a></p>
-    </main>`));
+  const redirectParamValue = redirectParam(req);
+  const redirect = safeRedirect(redirectParamValue);
+  const locale = localeFromRedirect(redirectParamValue ?? redirect);
+  const c = authPageCopy(locale);
+  res.send(authPageLayout(c.loginTitle, loginCardHtml(locale, redirect), locale));
 });
 
 pagesRouter.get("/register", (req, res) => {
-  const redirectParam =
-    (typeof req.query.redirect === "string" ? req.query.redirect : undefined) ||
-    (typeof req.query.returnUrl === "string" ? req.query.returnUrl : undefined);
-  const redirect = safeRedirect(redirectParam);
-  res.send(layout("注册", `
-    <header class="page-header"><a href="https://orasage.com" class="logo">OraSage</a></header>
-    <main class="auth-card">
-      <h1>注册</h1>
-      <p class="subtitle">创建账号，同步命理测试与订单</p>
-      <form id="register-form" data-redirect="${esc(redirect)}">
-        <div class="oui-field">
-          <label for="reg-email">邮箱</label>
-          <input id="reg-email" class="oui-input" data-size="md" type="email" name="email" required autocomplete="email">
-        </div>
-        <div class="oui-field">
-          <label for="reg-nickname">昵称</label>
-          <input id="reg-nickname" class="oui-input" data-size="md" type="text" name="nickname" placeholder="可选">
-        </div>
-        <div class="oui-field">
-          <label for="reg-password">密码</label>
-          <input id="reg-password" class="oui-input" data-size="md" type="password" name="password" required minlength="6" autocomplete="new-password">
-        </div>
-        <p id="form-error" class="oui-field-error" hidden></p>
-        <button type="submit" class="oui-btn oui-btn--default" data-size="md">注册</button>
-      </form>
-      <p class="auth-switch">已有账号？<a href="/login?redirect=${encodeURIComponent(redirect)}">去登录</a></p>
-    </main>`));
+  const redirectParamValue = redirectParam(req);
+  const redirect = safeRedirect(redirectParamValue);
+  const locale = localeFromRedirect(redirectParamValue ?? redirect);
+  const c = authPageCopy(locale);
+  res.send(authPageLayout(c.registerTitle, registerCardHtml(locale, redirect), locale));
 });
 
 pagesRouter.get("/center", async (req, res) => {

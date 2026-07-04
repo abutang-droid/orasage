@@ -229,3 +229,17 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 - [ ] 移动顶栏仅品牌 + `OrasageAuthChip`
 - [ ] 未登录 hub / 门禁页使用 `ProfileLoginCard`
 - [ ] PC 底栏展示 §7 标准页脚
+
+### 8.6 Auth 登录 / 注册页（`auth.orasage.com`）
+
+静态页与「我的」模块遵循同一壳层规范：
+
+| 元素 | 实现 |
+| :--- | :--- |
+| PC 顶栏 | `topNavHtml` — 品牌 + 全站导航 + `OrasageAuthChip` |
+| 移动顶栏 | `mobileNavHtml` — 品牌 + `OrasageAuthChip`（`data-hydrate-auth`） |
+| 内容 | `auth-card` 衬线标题 + 说明 + 表单，对齐 `ProfileLoginCard` |
+| PC 页脚 | `footerHtml` — §7 版权 / 隐私 / 用户协议 |
+| 禁止 | 页内 `page-header` 重复品牌条 |
+
+实现：`auth-service/src/lib/site-chrome-html.ts`、`auth-service/src/routes/pages.ts`
