@@ -26,6 +26,7 @@ export const Pages: CollectionConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     useAsTitle: 'title',
     defaultColumns: ['title', 'appSource', 'wpType', 'wpStatus', 'locale', 'updatedAt'],
     description: '「发布栏目」决定内容出现在哪个前台位置。WordPress 导入正文见「原文预览」。',

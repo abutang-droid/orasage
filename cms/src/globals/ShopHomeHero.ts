@@ -8,6 +8,7 @@ export const ShopHomeHero: GlobalConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     description:
       '配置 shop.orasage.com 商城首页顶部 Hero。顶栏品牌名「能量商城」不受此配置影响。',
   },

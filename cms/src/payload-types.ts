@@ -72,6 +72,8 @@ export interface Config {
     pages: Page;
     faiths: Faith;
     sanctuaries: Sanctuary;
+    'bazi-feed': BaziFeed;
+    'ziwei-feed': ZiweiFeed;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     faiths: FaithsSelect<false> | FaithsSelect<true>;
     sanctuaries: SanctuariesSelect<false> | SanctuariesSelect<true>;
+    'bazi-feed': BaziFeedSelect<false> | BaziFeedSelect<true>;
+    'ziwei-feed': ZiweiFeedSelect<false> | ZiweiFeedSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -93,8 +97,18 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'home-hero': HomeHero;
+    'bazi-home-hero': BaziHomeHero;
+    'ziwei-home-hero': ZiweiHomeHero;
+    'shop-home-hero': ShopHomeHero;
+  };
+  globalsSelect: {
+    'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
+    'bazi-home-hero': BaziHomeHeroSelect<false> | BaziHomeHeroSelect<true>;
+    'ziwei-home-hero': ZiweiHomeHeroSelect<false> | ZiweiHomeHeroSelect<true>;
+    'shop-home-hero': ShopHomeHeroSelect<false> | ShopHomeHeroSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -124,36 +138,36 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * 由 orasage 统一登录自动同步，无需单独设置 CMS 密码
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
+  /**
+   * auth-service 用户 ID，SSO 自动写入
+   */
+  orasageUserId?: number | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
   collection: 'users';
 }
 /**
+ * 【媒体库通用规范】
+ * · 图片：WebP / JPG / PNG，单张建议 ≤ 2 MB
+ * · 视频：MP4 / WebM，单条建议 ≤ 15 MB
+ * · 替代文字（alt）必填，用于无障碍与 SEO
+ * · 上传后可在各 Hero / 圣地等字段中引用
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  /**
+   * 必填。描述图片/视频内容，用于无障碍阅读与 SEO，例如「绿幽灵水晶手串产品图」
+   */
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -176,6 +190,9 @@ export interface Media {
 export interface Page {
   id: number;
   title: string;
+  /**
+   * 前台 URL 路径，仅小写字母、数字与连字符，例如 daozang-intro
+   */
   slug: string;
   /**
    * 选择该内容在前台的展示位置（主站道藏、名人案例，或各命理 App）
@@ -223,13 +240,22 @@ export interface Page {
 export interface Faith {
   id: number;
   /**
-   * 稳定标识，如 christianity、buddhism、taoism
+   * 稳定标识，仅小写英文与连字符，如 christianity、buddhism、taoism
    */
   code: string;
   nameZh: string;
   nameEn: string;
+  /**
+   * 列表中展示的小图标，如 ☸️、✝️（可选）
+   */
   emoji?: string | null;
+  /**
+   * 数值越小排序越靠前
+   */
   rank?: number | null;
+  /**
+   * 全球信众约数，单位：百万人
+   */
   adherentsM?: number | null;
   wpStatus?: ('publish' | 'draft') | null;
   updatedAt: string;
@@ -250,23 +276,43 @@ export interface Sanctuary {
   nameZh: string;
   nameEn: string;
   /**
-   * 用户选择对应信仰时展示此圣地
+   * 用户选择对应信仰时展示此圣地，至少选择一项
    */
   faiths: (number | Faith)[];
   tradition?: ('latin' | 'seasia' | 'global') | null;
+  /**
+   * 如「中国东南沿海」「印度」
+   */
   region?: string | null;
+  /**
+   * 如健康、姻缘、出行等，将显示在圣地卡片上
+   */
   domains?:
     | {
         label: string;
         id?: string | null;
       }[]
     | null;
+  /**
+   * 十六进制色值，如 #b8943f（品牌金色）
+   */
   color?: string | null;
+  /**
+   * 卡片背景渐变，如 linear-gradient(135deg, #1a1a2e, #16213e)
+   */
   gradient?: string | null;
   /**
-   * 塔罗静态资源路径，如 /gods/观音.webp；也可填 CDN 绝对地址
+   * 塔罗静态资源路径，如 /gods/观音.webp；也可填 CDN 绝对地址。与下方上传二选一
    */
   imageUrl?: string | null;
+  /**
+   * 【圣地图片规格】
+   * · 格式：WebP（推荐）/ PNG（透明底可用）
+   * · 比例：1:1 方图或 4:5 竖图（塔罗卡片人像）
+   * · 尺寸：建议 512×512 或 512×640 px
+   * · 体积：≤ 300 KB
+   * · 也可填写下方「图片 URL」指向 tarot 静态资源
+   */
   image?: (number | null) | Media;
   /**
    * 参拜完成后展示的指引文案
@@ -287,8 +333,55 @@ export interface Sanctuary {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * 数值越小排序越靠前
+   */
   sortOrder?: number | null;
   wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 八字计算器下方的滚动信息流。「订单动态」与「用户评价」交替展示；取消「启用」后该条不显示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bazi-feed".
+ */
+export interface BaziFeed {
+  id: number;
+  kind: 'order' | 'review';
+  /**
+   * 滚动条中显示的完整句子，如「张** 刚刚完成了八字排盘」
+   */
+  message: string;
+  locale?: ('zh-CN' | 'zh-TW' | 'en' | 'pt-BR') | null;
+  sort?: number | null;
+  /**
+   * 取消勾选后该条不会出现在前台滚动条
+   */
+  enabled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 紫微计算器下方的滚动信息流。「订单动态」与「用户评价」交替展示；取消「启用」后该条不显示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-feed".
+ */
+export interface ZiweiFeed {
+  id: number;
+  kind: 'order' | 'review';
+  /**
+   * 滚动条中显示的完整句子，如「张** 刚刚完成了紫微排盘」
+   */
+  message: string;
+  locale?: ('zh-CN' | 'zh-TW' | 'en' | 'pt-BR') | null;
+  sort?: number | null;
+  /**
+   * 取消勾选后该条不会出现在前台滚动条
+   */
+  enabled?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -335,6 +428,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sanctuaries';
         value: number | Sanctuary;
+      } | null)
+    | ({
+        relationTo: 'bazi-feed';
+        value: number | BaziFeed;
+      } | null)
+    | ({
+        relationTo: 'ziwei-feed';
+        value: number | ZiweiFeed;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -383,22 +484,9 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  orasageUserId?: T;
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -481,6 +569,32 @@ export interface SanctuariesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bazi-feed_select".
+ */
+export interface BaziFeedSelect<T extends boolean = true> {
+  kind?: T;
+  message?: T;
+  locale?: T;
+  sort?: T;
+  enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-feed_select".
+ */
+export interface ZiweiFeedSelect<T extends boolean = true> {
+  kind?: T;
+  message?: T;
+  locale?: T;
+  sort?: T;
+  enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -518,6 +632,318 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * 配置 orasage.com 门户首页顶部 Hero 区。保存后约 1 分钟内各前台生效；「启用」取消勾选可隐藏整段 Hero。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-hero".
+ */
+export interface HomeHero {
+  id: number;
+  /**
+   * 取消勾选后，对应站点首页 Hero 区域将完全不显示
+   */
+  enabled?: boolean | null;
+  /**
+   * 主标题上方的小字标签，如品牌名或栏目名
+   */
+  eyebrow?: string | null;
+  headline: string;
+  /**
+   * 主标题下方的说明文字，建议一两句话
+   */
+  subtitle?: string | null;
+  /**
+   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   */
+  displayMode: 'text' | 'image' | 'video';
+  /**
+   * 【Hero 主图规格】
+   * · 格式：WebP（推荐）/ JPG / PNG
+   * · 比例：16:9 或 3:2 横图
+   * · 尺寸：建议 1200×675 px（宽 1200–1600 px）
+   * · 体积：≤ 500 KB（过大请用 squoosh.app 等压缩后上传）
+   * · 展示：前台最高约 208 px，居中 contain，圆角卡片
+   * · 用途：图片模式主图；视频模式作封面 poster
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * 【Hero 视频规格】
+   * · 格式：MP4（H.264，推荐）或 WebM
+   * · 比例：16:9 横屏
+   * · 尺寸：建议 1920×1080 或 1280×720
+   * · 体积：≤ 15 MB
+   * · 播放：前台静音循环、约 30% 透明度作背景
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * 填写 .mp4 或 .webm 直链（大文件建议放 CDN）；若填写则优先于上方上传文件。
+   */
+  videoExternalUrl?: string | null;
+  /**
+   * 符合浏览器自动播放策略：须静音；用户可在部分浏览器手动控制
+   */
+  videoAutoplay?: boolean | null;
+  /**
+   * 显示在副标题下方的额外说明，一般可留空
+   */
+  bodyText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * 配置 bazi.orasage.com 计算器表单页顶部 Hero。字段与主站首页 Hero 一致；仅「未出盘」时显示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bazi-home-hero".
+ */
+export interface BaziHomeHero {
+  id: number;
+  /**
+   * 取消勾选后，对应站点首页 Hero 区域将完全不显示
+   */
+  enabled?: boolean | null;
+  /**
+   * 主标题上方的小字标签，如品牌名或栏目名
+   */
+  eyebrow?: string | null;
+  headline: string;
+  /**
+   * 主标题下方的说明文字，建议一两句话
+   */
+  subtitle?: string | null;
+  /**
+   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   */
+  displayMode: 'text' | 'image' | 'video';
+  /**
+   * 【Hero 主图规格】
+   * · 格式：WebP（推荐）/ JPG / PNG
+   * · 比例：16:9 或 3:2 横图
+   * · 尺寸：建议 1200×675 px（宽 1200–1600 px）
+   * · 体积：≤ 500 KB（过大请用 squoosh.app 等压缩后上传）
+   * · 展示：前台最高约 208 px，居中 contain，圆角卡片
+   * · 用途：图片模式主图；视频模式作封面 poster
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * 【Hero 视频规格】
+   * · 格式：MP4（H.264，推荐）或 WebM
+   * · 比例：16:9 横屏
+   * · 尺寸：建议 1920×1080 或 1280×720
+   * · 体积：≤ 15 MB
+   * · 播放：前台静音循环、约 30% 透明度作背景
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * 填写 .mp4 或 .webm 直链（大文件建议放 CDN）；若填写则优先于上方上传文件。
+   */
+  videoExternalUrl?: string | null;
+  /**
+   * 符合浏览器自动播放策略：须静音；用户可在部分浏览器手动控制
+   */
+  videoAutoplay?: boolean | null;
+  /**
+   * 显示在副标题下方的额外说明，一般可留空
+   */
+  bodyText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * 配置 ziwei.orasage.com 计算器表单页顶部 Hero。字段与八字首页 Hero 一致；仅「未出盘」时显示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-home-hero".
+ */
+export interface ZiweiHomeHero {
+  id: number;
+  /**
+   * 取消勾选后，对应站点首页 Hero 区域将完全不显示
+   */
+  enabled?: boolean | null;
+  /**
+   * 主标题上方的小字标签，如品牌名或栏目名
+   */
+  eyebrow?: string | null;
+  headline: string;
+  /**
+   * 主标题下方的说明文字，建议一两句话
+   */
+  subtitle?: string | null;
+  /**
+   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   */
+  displayMode: 'text' | 'image' | 'video';
+  /**
+   * 【Hero 主图规格】
+   * · 格式：WebP（推荐）/ JPG / PNG
+   * · 比例：16:9 或 3:2 横图
+   * · 尺寸：建议 1200×675 px（宽 1200–1600 px）
+   * · 体积：≤ 500 KB（过大请用 squoosh.app 等压缩后上传）
+   * · 展示：前台最高约 208 px，居中 contain，圆角卡片
+   * · 用途：图片模式主图；视频模式作封面 poster
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * 【Hero 视频规格】
+   * · 格式：MP4（H.264，推荐）或 WebM
+   * · 比例：16:9 横屏
+   * · 尺寸：建议 1920×1080 或 1280×720
+   * · 体积：≤ 15 MB
+   * · 播放：前台静音循环、约 30% 透明度作背景
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * 填写 .mp4 或 .webm 直链（大文件建议放 CDN）；若填写则优先于上方上传文件。
+   */
+  videoExternalUrl?: string | null;
+  /**
+   * 符合浏览器自动播放策略：须静音；用户可在部分浏览器手动控制
+   */
+  videoAutoplay?: boolean | null;
+  /**
+   * 显示在副标题下方的额外说明，一般可留空
+   */
+  bodyText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * 配置 shop.orasage.com 商城首页顶部 Hero。顶栏品牌名「能量商城」不受此配置影响。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-home-hero".
+ */
+export interface ShopHomeHero {
+  id: number;
+  /**
+   * 取消勾选后，对应站点首页 Hero 区域将完全不显示
+   */
+  enabled?: boolean | null;
+  /**
+   * 主标题上方的小字标签，如品牌名或栏目名
+   */
+  eyebrow?: string | null;
+  headline: string;
+  /**
+   * 主标题下方的说明文字，建议一两句话
+   */
+  subtitle?: string | null;
+  /**
+   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   */
+  displayMode: 'text' | 'image' | 'video';
+  /**
+   * 【Hero 主图规格】
+   * · 格式：WebP（推荐）/ JPG / PNG
+   * · 比例：16:9 或 3:2 横图
+   * · 尺寸：建议 1200×675 px（宽 1200–1600 px）
+   * · 体积：≤ 500 KB（过大请用 squoosh.app 等压缩后上传）
+   * · 展示：前台最高约 208 px，居中 contain，圆角卡片
+   * · 用途：图片模式主图；视频模式作封面 poster
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * 【Hero 视频规格】
+   * · 格式：MP4（H.264，推荐）或 WebM
+   * · 比例：16:9 横屏
+   * · 尺寸：建议 1920×1080 或 1280×720
+   * · 体积：≤ 15 MB
+   * · 播放：前台静音循环、约 30% 透明度作背景
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * 填写 .mp4 或 .webm 直链（大文件建议放 CDN）；若填写则优先于上方上传文件。
+   */
+  videoExternalUrl?: string | null;
+  /**
+   * 符合浏览器自动播放策略：须静音；用户可在部分浏览器手动控制
+   */
+  videoAutoplay?: boolean | null;
+  /**
+   * 显示在副标题下方的额外说明，一般可留空
+   */
+  bodyText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-hero_select".
+ */
+export interface HomeHeroSelect<T extends boolean = true> {
+  enabled?: T;
+  eyebrow?: T;
+  headline?: T;
+  subtitle?: T;
+  displayMode?: T;
+  heroImage?: T;
+  heroVideo?: T;
+  videoExternalUrl?: T;
+  videoAutoplay?: T;
+  bodyText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bazi-home-hero_select".
+ */
+export interface BaziHomeHeroSelect<T extends boolean = true> {
+  enabled?: T;
+  eyebrow?: T;
+  headline?: T;
+  subtitle?: T;
+  displayMode?: T;
+  heroImage?: T;
+  heroVideo?: T;
+  videoExternalUrl?: T;
+  videoAutoplay?: T;
+  bodyText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-home-hero_select".
+ */
+export interface ZiweiHomeHeroSelect<T extends boolean = true> {
+  enabled?: T;
+  eyebrow?: T;
+  headline?: T;
+  subtitle?: T;
+  displayMode?: T;
+  heroImage?: T;
+  heroVideo?: T;
+  videoExternalUrl?: T;
+  videoAutoplay?: T;
+  bodyText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-home-hero_select".
+ */
+export interface ShopHomeHeroSelect<T extends boolean = true> {
+  enabled?: T;
+  eyebrow?: T;
+  headline?: T;
+  subtitle?: T;
+  displayMode?: T;
+  heroImage?: T;
+  heroVideo?: T;
+  videoExternalUrl?: T;
+  videoAutoplay?: T;
+  bodyText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

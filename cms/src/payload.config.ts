@@ -61,6 +61,13 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      views: {
+        login: {
+          Component: '/components/OrasageLoginRedirect#OrasageLoginRedirect',
+        },
+      },
+    },
   },
   collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed, ZiweiFeed],
   globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero],

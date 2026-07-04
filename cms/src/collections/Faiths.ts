@@ -13,6 +13,7 @@ export const Faiths: CollectionConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     useAsTitle: 'nameZh',
     defaultColumns: ['code', 'nameZh', 'nameEn', 'rank', 'wpStatus'],
     description: '宗教分类。code 与塔罗 App 信仰 ID 一致，圣地通过关联自动匹配。',

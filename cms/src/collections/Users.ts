@@ -1,15 +1,32 @@
 import type { CollectionConfig } from 'payload';
 
+import { orasageAuthStrategy } from '../auth/orasageStrategy';
+
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: {
     singular: '后台用户',
     plural: '后台用户',
   },
-  auth: true,
+  auth: {
+    disableLocalStrategy: true,
+    strategies: [orasageAuthStrategy],
+  },
   admin: {
     useAsTitle: 'email',
-    description: 'CMS 后台登录账号，仅运维与编辑人员使用',
+    hidden: true,
+    description: '由 orasage 统一登录自动同步，无需单独设置 CMS 密码',
   },
-  fields: [],
+  fields: [
+    {
+      name: 'orasageUserId',
+      type: 'number',
+      unique: true,
+      index: true,
+      admin: {
+        readOnly: true,
+        description: 'auth-service 用户 ID，SSO 自动写入',
+      },
+    },
+  ],
 };

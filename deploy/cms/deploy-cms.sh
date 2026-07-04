@@ -52,6 +52,9 @@ ensure_env() {
     log "错误: cms/.env 缺少有效的 PAYLOAD_SECRET（至少 32 位随机字符串）"
     exit 1
   fi
+  if [ -z "${JWT_SECRET:-}" ]; then
+    log "警告: cms/.env 缺少 JWT_SECRET（需与 auth-service 相同，用于 SSO）"
+  fi
   export NEXT_PUBLIC_SERVER_URL="${NEXT_PUBLIC_SERVER_URL:-https://admin.orasage.com/cms}"
   export CMS_BASE_PATH="${CMS_BASE_PATH:-/cms}"
   set -u

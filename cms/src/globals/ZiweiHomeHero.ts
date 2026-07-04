@@ -8,6 +8,7 @@ export const ZiweiHomeHero: GlobalConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     description:
       '配置 ziwei.orasage.com 计算器表单页顶部 Hero。字段与八字首页 Hero 一致；仅「未出盘」时显示。',
   },

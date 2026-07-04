@@ -14,6 +14,7 @@ export const Sanctuaries: CollectionConfig = {
     read: () => true,
   },
   admin: {
+    group: false,
     useAsTitle: 'nameZh',
     defaultColumns: ['code', 'nameZh', 'region', 'wpStatus', 'sortOrder'],
     description: '塔罗祈福圣地。关联宗教后，用户选择信仰即可看到匹配的圣地列表。',
