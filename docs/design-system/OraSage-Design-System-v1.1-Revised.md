@@ -137,8 +137,10 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 
 | 视口 | 行为 |
 | :--- | :--- |
-| **PC（≥1024px）** | 页面底部固定展示页脚 |
+| **PC（≥1024px）** | 主站首页、`/profile` 及子页等指定路由底部展示页脚 |
 | **移动端（<1024px）** | **隐藏**；导航与法律入口由底栏 / 页面内菜单承担 |
+
+主站 `ConditionalFooter` 在门户首页与「我的」模块（`isOnProfile`）渲染同一 `Footer` 组件。
 
 ### 7.2 内容（仅此三项）
 
@@ -181,3 +183,49 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 - [ ] 移动端页脚隐藏
 - [ ] 无登录态相关的用户名 / 邮箱展示
 - [ ] 各 App 链接均指向主站统一法律页面
+
+---
+
+## 8. 「我的」模块 (Profile Module)
+
+用户中心路由为 `/{locale}/profile` 及其子页。模块**不得**自建顶栏或页内返回条，全站壳层统一承担导航与登录态展示。
+
+### 8.1 顶栏与登录态（与子应用一致）
+
+| 视口 | 左 | 右 |
+| :--- | :--- | :--- |
+| **PC（≥1024px）** | `OraSage` 品牌 | 全站导航链接 + `OrasageAuthChip`（登录 / 用户名） |
+| **移动（<1024px）** | `OraSage` 品牌 | `OrasageAuthChip`（登录 / 用户名） |
+
+- 实现：`main/src/components/Header.tsx` + `shared/app-shell/OrasageAuthChip.tsx`
+- **禁止**在 profile 布局内重复渲染标题栏、`PageTitle`「我的」或 `PortalBackToolbar` 返回条
+- 当前页身份由底栏「我的」高亮 + 子页 `ProfileSection` 标题表达
+
+### 8.2 未登录引导（Login Card）
+
+统一组件 `ProfileLoginCard`（`main/src/components/profile/ProfileLoginCard.tsx`）：
+
+| 元素 | 规范 |
+| :--- | :--- |
+| 容器 | `@orasage/ui` `Card`，内容区 `py-10` / `sm:py-12`，居中 |
+| 标题 | 衬线 `text-heading-3`，i18n `profile.loginTitle` |
+| 说明 | `text-sm text-muted-foreground`，hub 用 `guestDesc`，门禁页用 `loginRequired` |
+| 主操作 | Primary `Button` `size="lg"` → 外链 auth 登录 |
+| 次操作 | 仅 gate 变体：返回概览链接 |
+
+### 8.3 内容区
+
+- 容器：`ProfileShell`（`max-w-3xl`，无 back toolbar）
+- 子页标题：`ProfileSection` 内单一 `h1` + 可选描述
+- 已登录账户编辑：`ProfileAccountCard`（昵称、退出等）
+
+### 8.4 PC 页脚
+
+「我的」模块各页须展示 §7 统一 `Footer`（`ConditionalFooter` + `isOnProfile`），不得另写页脚变体。
+
+### 8.5 门禁检查
+
+- [ ] profile 布局无 `PageTitle` / `PortalBackToolbar`
+- [ ] 移动顶栏仅品牌 + `OrasageAuthChip`
+- [ ] 未登录 hub / 门禁页使用 `ProfileLoginCard`
+- [ ] PC 底栏展示 §7 标准页脚

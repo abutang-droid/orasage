@@ -1,10 +1,9 @@
 'use client';
 
-import { Button, Card, CardContent, Skeleton } from '@orasage/ui';
+import { Skeleton } from '@orasage/ui';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { fetchMe, profileLoginUrl, type AuthUser } from '@/lib/auth';
+import { fetchMe, type AuthUser } from '@/lib/auth';
+import { ProfileLoginCard } from './ProfileLoginCard';
 
 const ProfileAuthContext = createContext<{
   user: AuthUser | null;
@@ -66,25 +65,10 @@ export function ProfileAuthProvider({ children, loadingLabel }: { children: Reac
 }
 
 export function RequireProfileAuth({ locale, children }: { locale: string; children: ReactNode }) {
-  const t = useTranslations('profile');
   const { user } = useProfileAuth();
 
   if (!user) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <p className="text-sm text-muted-foreground">{t('loginRequired')}</p>
-          <Button asChild variant="outline" size="default" className="mt-5">
-            <a href={profileLoginUrl(locale)}>{t('loginCta')}</a>
-          </Button>
-          <p className="mt-5">
-            <Link href="/profile" className="text-xs text-muted-foreground transition-colors hover:text-primary">
-              ← {t('nav.overview')}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return <ProfileLoginCard locale={locale} variant="gate" />;
   }
 
   return <>{children}</>;

@@ -135,6 +135,7 @@
     "title": "My Account",
     "desc": "Manage your profile, saved charts, and orders in one place.",
     "guestDesc": "Sign in to sync profiles, readings, and orders. You can still browse help and legal pages below.",
+    "loginTitle": "Sign in to continue",
     "loginRequired": "Sign in to view this section",
     "loginCta": "Sign In / Register",
     "loading": "Checking sign-in…",
