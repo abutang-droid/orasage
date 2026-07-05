@@ -66,6 +66,7 @@ export type UserReading = {
   recommendationReason: string | null;
   crystalSku: string | null;
   reportUrl: string | null;
+  detailUrl: string | null;
   createdAt: string;
 };
 
