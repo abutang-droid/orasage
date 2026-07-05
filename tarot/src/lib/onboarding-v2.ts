@@ -5,6 +5,7 @@ export const GENDER_OPTIONS = ['女', '男', '非二元', '不想说'] as const;
 export type GenderOption = (typeof GENDER_OPTIONS)[number];
 
 export type OnboardingDraft = {
+  nickname: string;
   birthdate: string;
   gender: GenderOption | '';
   occupation: OccupationOption | '';
@@ -12,6 +13,7 @@ export type OnboardingDraft = {
 };
 
 export type OnboardingPrefill = {
+  nickname: string;
   birthdate: string;
   gender: GenderOption | '';
   occupation: OccupationOption | '';
@@ -19,6 +21,22 @@ export type OnboardingPrefill = {
   sourceApp: string | null;
   sourceLabel: string | null;
 };
+
+export function normalizeNickname(value: string | null | undefined): string {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed || trimmed === '旅人') return '';
+  return trimmed;
+}
+
+export function formatPrefillSummary(prefill: OnboardingPrefill): string {
+  const rows: string[] = [];
+  if (prefill.birthdate) rows.push(`生日：${prefill.birthdate}`);
+  if (prefill.gender) rows.push(`性别：${prefill.gender}`);
+  if (prefill.occupation) rows.push(`工作状态：${prefill.occupation}`);
+  if (prefill.faith) rows.push(`信仰：${prefill.faith}`);
+  if (prefill.sourceLabel) rows.push(`来源：${prefill.sourceLabel} 档案`);
+  return rows.join('\n');
+}
 
 export function genderToAuth(gender: GenderOption | ''): 'male' | 'female' | null {
   if (gender === '男') return 'male';

@@ -7,7 +7,9 @@ import { FaithPicker } from '@/components/FaithPicker';
 import {
   GENDER_OPTIONS,
   OCCUPATION_OPTIONS,
+  formatPrefillSummary,
   hasPrefillData,
+  normalizeNickname,
   type GenderOption,
   type OccupationOption,
   type OnboardingDraft,
@@ -22,6 +24,7 @@ type ChatLine = { role: 'mentor' | 'user'; text: string };
 
 type Step =
   | 'intro'
+  | 'nickname'
   | 'prefill_confirm'
   | 'birthday'
   | 'gender'
@@ -101,10 +104,13 @@ export function OnboardingFlow() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const prefillPushedRef = useRef(false);
   const [prefill, setPrefill] = useState<OnboardingPrefill | null>(null);
   const [hasExternal, setHasExternal] = useState(false);
+  const [prefillLoaded, setPrefillLoaded] = useState(false);
   const [step, setStep] = useState<Step>('intro');
   const [draft, setDraft] = useState<OnboardingDraft>({
+    nickname: '',
     birthdate: '',
     gender: '',
     occupation: '',
@@ -133,6 +139,12 @@ export function OnboardingFlow() {
       router.replace('/');
       return;
     }
+
+    const localNickname = normalizeNickname(user?.nickname);
+    if (localNickname) {
+      setDraft((d) => ({ ...d, nickname: d.nickname || localNickname }));
+    }
+
     void fetch('/api/onboarding/prefill', { credentials: 'include', cache: 'no-store' })
       .then((r) => r.json())
       .then((data: { prefill?: OnboardingPrefill; hasExternal?: boolean }) => {
@@ -140,16 +152,18 @@ export function OnboardingFlow() {
         setPrefill(p);
         setHasExternal(Boolean(data.hasExternal));
         if (p) {
-          setDraft({
+          setDraft((d) => ({
+            nickname: d.nickname || p.nickname,
             birthdate: p.birthdate,
             gender: p.gender,
             occupation: p.occupation,
             faith: p.faith,
-          });
+          }));
         }
       })
-      .catch(() => {});
-  }, [userLoading, user?.onboardingCompleted, router]);
+      .catch(() => {})
+      .finally(() => setPrefillLoaded(true));
+  }, [userLoading, user?.onboardingCompleted, user?.nickname, router]);
 
   const introText = useMemo(() => {
     if (hasExternal && prefill?.sourceLabel) {
@@ -158,15 +172,39 @@ export function OnboardingFlow() {
     return '你好，我是 Manto，你的塔罗引导者。\n\n在翻开第一张牌之前，我想先认识你一点点——不会很久，就像老朋友聊天那样。';
   }, [hasExternal, prefill?.sourceLabel]);
 
+  const commitIntroToChat = useCallback(() => {
+    pushMentor(introText);
+    setIntroDone(true);
+  }, [introText, pushMentor]);
+
   const goAfterIntro = useCallback(() => {
-    if (hasExternal && prefill && hasPrefillData(prefill)) {
-      setStep('prefill_confirm');
+    setStep('nickname');
+    pushMentor('首先，我该怎么称呼你？');
+  }, [pushMentor]);
+
+  const showPrefillConfirm = useCallback(
+    (source: OnboardingPrefill) => {
+      if (prefillPushedRef.current) return;
+      prefillPushedRef.current = true;
+      const summary = formatPrefillSummary(source);
+      if (summary) pushMentor(summary);
       pushMentor('这是我目前了解到的你，确认一下好吗？');
+      setStep('prefill_confirm');
+    },
+    [pushMentor],
+  );
+
+  const onNicknameNext = () => {
+    const nickname = draft.nickname.trim();
+    if (!nickname) return;
+    pushUser(nickname);
+    if (hasExternal && prefill && hasPrefillData(prefill)) {
+      showPrefillConfirm(prefill);
       return;
     }
     setStep('birthday');
-    pushMentor('你的生日是哪一天？我会据此调整运势解读的语气与节奏。');
-  }, [hasExternal, prefill, pushMentor]);
+    pushMentor('很高兴认识你。你的生日是哪一天？我会据此调整运势解读的语气与节奏。');
+  };
 
   const acceptPrefill = () => {
     pushUser('信息没错，继续吧');
@@ -209,7 +247,10 @@ export function OnboardingFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(finalDraft),
+        body: JSON.stringify({
+          ...finalDraft,
+          nickname: finalDraft.nickname.trim(),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((data as { error?: string }).error || '保存失败');
@@ -250,7 +291,7 @@ export function OnboardingFlow() {
     void finishOnboarding(next);
   };
 
-  if (userLoading) {
+  if (userLoading || !prefillLoaded) {
     return (
       <div className="onboarding-page">
         <div className="onboarding-loading">
@@ -276,7 +317,7 @@ export function OnboardingFlow() {
             )}
 
             {step === 'intro' && !introDone && (
-              <TypewriterBubble text={introText} onDone={() => setIntroDone(true)} />
+              <TypewriterBubble text={introText} onDone={commitIntroToChat} />
             )}
 
             <div ref={chatEndRef} />
@@ -291,28 +332,42 @@ export function OnboardingFlow() {
               </div>
             )}
 
-            {step === 'prefill_confirm' && prefill && (
+            {step === 'nickname' && (
               <>
-                <div className="onboarding-prefill-card">
-                  {prefill.birthdate ? <div>生日：{prefill.birthdate}</div> : null}
-                  {prefill.gender ? <div>性别：{prefill.gender}</div> : null}
-                  {prefill.occupation ? <div>工作状态：{prefill.occupation}</div> : null}
-                  {prefill.faith ? <div>信仰：{prefill.faith}</div> : null}
-                  {prefill.sourceLabel ? (
-                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>
-                      来源：{prefill.sourceLabel} 档案
-                    </div>
-                  ) : null}
-                </div>
+                <input
+                  type="text"
+                  className="onboarding-text-input"
+                  placeholder="你的昵称"
+                  value={draft.nickname}
+                  maxLength={50}
+                  autoFocus
+                  onChange={(e) => setDraft((d) => ({ ...d, nickname: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && draft.nickname.trim()) onNicknameNext();
+                  }}
+                />
                 <div className="onboarding-actions">
-                  <button type="button" className="onboarding-btn-primary" onClick={acceptPrefill}>
-                    确认，继续
-                  </button>
-                  <button type="button" className="onboarding-btn-ghost" onClick={editPrefill}>
-                    我要修改
+                  <button
+                    type="button"
+                    className="onboarding-btn-primary"
+                    disabled={!draft.nickname.trim()}
+                    onClick={onNicknameNext}
+                  >
+                    继续
                   </button>
                 </div>
               </>
+            )}
+
+            {step === 'prefill_confirm' && (
+              <div className="onboarding-actions">
+                <button type="button" className="onboarding-btn-primary" onClick={acceptPrefill}>
+                  确认，继续
+                </button>
+                <button type="button" className="onboarding-btn-ghost" onClick={editPrefill}>
+                  我要修改
+                </button>
+              </div>
             )}
 
             {step === 'birthday' && (

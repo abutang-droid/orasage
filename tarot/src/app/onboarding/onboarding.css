@@ -191,7 +191,8 @@
   cursor: pointer;
 }
 
-.onboarding-date {
+.onboarding-date,
+.onboarding-text-input {
   width: 100%;
   max-width: 280px;
   margin: 0 auto;
@@ -202,6 +203,10 @@
   background: #fff;
   font-size: 16px;
   color: var(--text-primary);
+}
+
+.onboarding-text-input {
+  text-align: center;
 }
 
 .onboarding-prefill-card {

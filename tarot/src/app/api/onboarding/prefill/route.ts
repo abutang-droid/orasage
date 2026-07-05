@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import {
   birthFromParts,
   genderFromAuth,
+  normalizeNickname,
   type OnboardingPrefill,
   SOURCE_APP_LABELS,
 } from '@/lib/onboarding-v2';
@@ -22,6 +23,7 @@ type AuthProfile = {
 export async function GET(req: NextRequest) {
   const auth = await getAuthUser();
   const empty: OnboardingPrefill = {
+    nickname: '',
     birthdate: '',
     gender: '',
     occupation: '',
@@ -34,10 +36,11 @@ export async function GET(req: NextRequest) {
   if (auth) {
     const user = await prisma.user.findUnique({
       where: { id: auth.userId },
-      select: { birthday: true, gender: true, occupation: true, faith: true },
+      select: { nickname: true, birthday: true, gender: true, occupation: true, faith: true },
     });
     if (user) {
       local = {
+        nickname: normalizeNickname(user.nickname),
         birthdate: user.birthday ? user.birthday.toISOString().slice(0, 10) : '',
         gender: genderFromAuth(user.gender),
         occupation: (user.occupation as OnboardingPrefill['occupation']) || '',
@@ -63,6 +66,7 @@ export async function GET(req: NextRequest) {
         if (preferred) {
           const app = preferred.sourceApp ?? null;
           external = {
+            nickname: normalizeNickname(preferred.name),
             birthdate: birthFromParts(preferred.birthYear, preferred.birthMonth, preferred.birthDay),
             gender: genderFromAuth(preferred.gender),
             occupation: '',
@@ -79,6 +83,7 @@ export async function GET(req: NextRequest) {
 
   const merged: OnboardingPrefill = external
     ? {
+        nickname: external.nickname || local.nickname,
         birthdate: external.birthdate || local.birthdate,
         gender: external.gender || local.gender,
         occupation: local.occupation || external.occupation,
@@ -90,6 +95,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     prefill: merged,
-    hasExternal: Boolean(external?.birthdate || external?.gender),
+    hasExternal: Boolean(external?.birthdate || external?.gender || external?.nickname),
   });
 }

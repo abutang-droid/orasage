@@ -6,6 +6,7 @@ import { genderToAuth, OCCUPATION_OPTIONS, GENDER_OPTIONS } from '@/lib/onboardi
 import { syncSavedProfile } from '@/lib/profile-sync';
 
 const bodySchema = z.object({
+  nickname: z.string().trim().min(1).max(50),
   birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   gender: z.enum(GENDER_OPTIONS),
   occupation: z.enum(OCCUPATION_OPTIONS),
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
     await prisma.user.update({
       where: { id: ensured.userId },
       data: {
+        nickname: body.nickname,
         birthday: new Date(body.birthdate),
         gender: body.gender,
         occupation: body.occupation,
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     const cookie = req.headers.get('cookie');
     if (cookie?.includes('orasage_token')) {
       void syncSavedProfile({
-        name: '旅人',
+        name: body.nickname,
         gender: genderToAuth(body.gender),
         birthYear: y,
         birthMonth: m,
