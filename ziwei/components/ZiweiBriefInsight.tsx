@@ -5,9 +5,10 @@ import type { ZiweiChart } from '@/lib/ziwei/types';
 
 type Props = {
   chart: ZiweiChart;
+  minorMode?: boolean;
 };
 
-export function ZiweiBriefInsight({ chart }: Props) {
+export function ZiweiBriefInsight({ chart, minorMode = false }: Props) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ export function ZiweiBriefInsight({ chart }: Props) {
         const res = await fetch('/api/insight/preview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chart }),
+          body: JSON.stringify({ chart, minorMode }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || '生成失败');
@@ -35,11 +36,11 @@ export function ZiweiBriefInsight({ chart }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [chart]);
+  }, [chart, minorMode]);
 
   return (
     <section className="ziwei-brief-insight">
-      <h2 className="ziwei-section-title">命理简读</h2>
+      <h2 className="ziwei-section-title">{minorMode ? '命理简读（青少年版）' : '命理简读'}</h2>
       {loading ? (
         <p className="ziwei-brief-muted">正在生成简读…</p>
       ) : error ? (

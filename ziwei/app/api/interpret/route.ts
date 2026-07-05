@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
 import { authCookieHeader, resolveAuthUserIdFromCookies } from '@/lib/auth-user-server';
+import { ADULT_INTERPRET_SYSTEM, MINOR_INTERPRET_SYSTEM } from '@/lib/ai-prompts';
 
 export const runtime = 'nodejs';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL || 'http://127.0.0.1:3101';
-
-const SYSTEM_PROMPT = `你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识，同时融合现代心理学视角。
-你的解读风格：
-- 温暖、专业、有洞察力
-- 用现代语言诠释传统命理，避免晦涩术语
-- 结合心理学视角，帮助用户理解自身特质
-- 客观中立，不做绝对化预言
-- 中文回答，语言流畅自然`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, chartData, mode, readingId } = body;
+    const { messages, chartData, mode, readingId, minorMode } = body;
 
     if (!readingId || typeof readingId !== 'string') {
       return NextResponse.json({ error: '缺少 readingId' }, { status: 400 });
@@ -82,10 +75,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 构建系统提示（附带命盘数据）
-    let systemContent = SYSTEM_PROMPT;
+    let systemContent = minorMode ? MINOR_INTERPRET_SYSTEM : ADULT_INTERPRET_SYSTEM;
     if (chartData) {
-      const modeLabel = mode === 'heming' ? '合盘（两人缘分）' : '单人命盘';
+      const modeLabel = minorMode
+        ? (mode === 'heming' ? '合盘（含未成年人，整体按青少年保护解读）' : '单人命盘（未成年人）')
+        : (mode === 'heming' ? '合盘（两人缘分）' : '单人命盘');
       systemContent += `\n\n当前解读模式：${modeLabel}\n命盘数据：\n${JSON.stringify(chartData, null, 2)}`;
     }
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useT } from '@/lib/i18n';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
-import type { BirthInfo, ZiweiChart, Star, Palace } from '@/lib/ziwei/types';
+import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/ziwei/share';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import { syncBirthFormProfile } from '@/lib/profile-sync';
@@ -14,12 +14,14 @@ import { ZiweiHomeFeed } from '@/components/ZiweiHomeFeed';
 import { ZiweiBriefInsight } from '@/components/ZiweiBriefInsight';
 import { ZiweiOrasageChat } from '@/components/ZiweiOrasageChat';
 import { ZiweiRecommendCard } from '@/components/ZiweiRecommendCard';
-import { getLastReadingId, saveLastReadingId } from '@/lib/ziwei-reading-session';
-
-type FocusState =
-  | { type: 'star'; label: string; star: Star; palace: Palace }
-  | { type: 'palace'; label: string; palace: Palace }
-  | { type: 'sihua'; label: string; siHua: string };
+import {
+  clearChartSession,
+  getLastReadingId,
+  loadChartSession,
+  saveChartSession,
+  saveLastReadingId,
+} from '@/lib/ziwei-reading-session';
+import { isMinorChartPair } from '@/lib/minor';
 
 const emptyBirthForm = (): BirthFormState => ({
   name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0',
@@ -81,6 +83,13 @@ function HemingPanel({
   );
 }
 
+function persistChartUrl(form: BirthFormState, opts: { readingId: string; mode?: 'single' | 'heming' }) {
+  const params = formToSearchParams(form, { readingId: opts.readingId, mode: opts.mode });
+  if (typeof window !== 'undefined') {
+    window.history.replaceState({}, '', `/chart?${params.toString()}`);
+  }
+}
+
 export default function ChartPage() {
   const t = useT();
   const [mode, setMode] = useState<'single' | 'heming'>('single');
@@ -90,11 +99,14 @@ export default function ChartPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [savedForm, setSavedForm] = useState<BirthFormState | null>(null);
+  const [savedFormB, setSavedFormB] = useState<BirthFormState | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [hemingTab, setHemingTab] = useState<'A' | 'B'>('A');
   const [loggedIn, setLoggedIn] = useState(false);
   const [recommendDismissed, setRecommendDismissed] = useState(false);
   const [chatSessionKey, setChatSessionKey] = useState(0);
+  const [postPaidFocus, setPostPaidFocus] = useState(false);
+  const chatAnchorRef = useRef<HTMLDivElement>(null);
 
   const refreshAuth = useCallback(() => {
     void fetch('/api/auth/me', { credentials: 'include' })
@@ -103,36 +115,20 @@ export default function ChartPage() {
       .catch(() => setLoggedIn(false));
   }, []);
 
-  useEffect(() => {
-    refreshAuth();
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'heming') setMode('heming');
-    if (params.get('paid') === '1') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('paid');
-      url.searchParams.delete('order');
-      window.history.replaceState({}, '', url.pathname + url.search);
-      refreshAuth();
-    }
-    const formData = searchParamsToForm(params);
-    if (!formData?.year) return;
-    const fullForm: BirthFormState = {
-      ...emptyBirthForm(),
-      ...formData,
-    };
-    setSavedForm(fullForm);
-    void handleSingleSubmit(formToBirthInfo(fullForm), fullForm);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const bindReading = (id: string) => {
+  const bindReading = (id: string, opts?: { resetChat?: boolean }) => {
     setReadingId(id);
     saveLastReadingId(id);
     setRecommendDismissed(false);
-    setChatSessionKey((k) => k + 1);
+    if (opts?.resetChat !== false) {
+      setChatSessionKey((k) => k + 1);
+    }
   };
 
-  const handleSingleSubmit = async (info: BirthInfo, form?: BirthFormState) => {
+  const handleSingleSubmit = async (
+    info: BirthInfo,
+    form?: BirthFormState,
+    existingReadingId?: string,
+  ) => {
     setLoading(true);
     setError('');
     try {
@@ -141,8 +137,13 @@ export default function ChartPage() {
       setChartB(null);
       const syncForm = form ?? savedForm;
       if (syncForm) void syncBirthFormProfile(syncForm);
-      const id = syncZiweiReading(data);
-      bindReading(id);
+      const rid = existingReadingId ?? getLastReadingId() ?? undefined;
+      const id = syncZiweiReading(data, { existingReadingId: rid });
+      bindReading(id, { resetChat: !existingReadingId });
+      if (syncForm) {
+        saveChartSession({ readingId: id, mode: 'single', form: syncForm });
+        persistChartUrl(syncForm, { readingId: id });
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t('insight.error'));
     } finally {
@@ -155,6 +156,7 @@ export default function ChartPage() {
     infoB: BirthInfo,
     formA: BirthFormState,
     formB: BirthFormState,
+    existingReadingId?: string,
   ) => {
     setLoading(true);
     setError('');
@@ -164,10 +166,14 @@ export default function ChartPage() {
       setChart(dataA);
       setChartB(dataB);
       setHemingTab('A');
+      setSavedFormB(formB);
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
-      const id = syncZiweiReading(dataA, { couplePartner: dataB });
-      bindReading(id);
+      const rid = existingReadingId ?? getLastReadingId() ?? undefined;
+      const id = syncZiweiReading(dataA, { couplePartner: dataB, existingReadingId: rid });
+      bindReading(id, { resetChat: !existingReadingId });
+      saveChartSession({ readingId: id, mode: 'heming', form: formA, formB });
+      persistChartUrl(formA, { readingId: id, mode: 'heming' });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t('insight.error'));
     } finally {
@@ -175,19 +181,102 @@ export default function ChartPage() {
     }
   };
 
+  useEffect(() => {
+    refreshAuth();
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlMode = params.get('mode');
+    if (urlMode === 'heming') setMode('heming');
+
+    const paidReturn = params.get('paid') === '1';
+    const focusChat = params.get('focus') === 'chat' || paidReturn;
+    if (paidReturn) setPostPaidFocus(true);
+
+    const rid = params.get('rid') || getLastReadingId() || undefined;
+    const session = loadChartSession();
+    const formData = searchParamsToForm(params);
+
+    const restore = async () => {
+      if (formData?.year) {
+        const fullForm: BirthFormState = { ...emptyBirthForm(), ...formData };
+        setSavedForm(fullForm);
+        if (urlMode === 'heming' && session?.formB) {
+          setSavedFormB(session.formB);
+          await handleHemingSubmit(
+            formToBirthInfo(fullForm),
+            formToBirthInfo(session.formB),
+            fullForm,
+            session.formB,
+            rid,
+          );
+        } else {
+          await handleSingleSubmit(formToBirthInfo(fullForm), fullForm, rid);
+        }
+        return;
+      }
+
+      if (session?.form?.year) {
+        setSavedForm(session.form);
+        if (session.mode === 'heming' && session.formB) {
+          setMode('heming');
+          setSavedFormB(session.formB);
+          await handleHemingSubmit(
+            formToBirthInfo(session.form),
+            formToBirthInfo(session.formB),
+            session.form,
+            session.formB,
+            session.readingId || rid,
+          );
+        } else {
+          await handleSingleSubmit(
+            formToBirthInfo(session.form),
+            session.form,
+            session.readingId || rid,
+          );
+        }
+      }
+    };
+
+    void restore().finally(() => {
+      if (paidReturn || focusChat) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('paid');
+        url.searchParams.delete('order');
+        url.searchParams.delete('focus');
+        window.history.replaceState({}, '', url.pathname + url.search);
+        if (paidReturn) refreshAuth();
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!chart || !postPaidFocus) return;
+    const timer = window.setTimeout(() => {
+      chatAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setPostPaidFocus(false);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [chart, postPaidFocus]);
+
   const handleReset = () => {
     setChart(null);
     setChartB(null);
     setReadingId(null);
     setError('');
     setSavedForm(null);
+    setSavedFormB(null);
     setFormKey((k) => k + 1);
     setRecommendDismissed(false);
+    clearChartSession();
     if (typeof window !== 'undefined') window.history.replaceState({}, '', '/chart');
   };
 
   const activeChart = mode === 'heming' && hemingTab === 'B' && chartB ? chartB : chart;
   const activeReadingId = readingId ?? getLastReadingId() ?? '';
+  const minorMode = chart
+    ? isMinorChartPair(chart, mode === 'heming' ? chartB : null)
+    : false;
 
   if (!chart) {
     return (
@@ -209,7 +298,7 @@ export default function ChartPage() {
           {mode === 'single' ? (
             <BirthForm
               key={formKey}
-              onSubmit={handleSingleSubmit}
+              onSubmit={(info, form) => void handleSingleSubmit(info, form)}
               loading={loading}
               initialData={savedForm ?? undefined}
               onFormSave={(form) => {
@@ -223,7 +312,7 @@ export default function ChartPage() {
               }}
             />
           ) : (
-            <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
+            <HemingPanel onSubmit={(a, b, fa, fb) => void handleHemingSubmit(a, b, fa, fb)} loading={loading} />
           )}
           {error && <div className="ziwei-calc-error">{error}</div>}
         </div>
@@ -263,25 +352,35 @@ export default function ChartPage() {
         )}
       </div>
 
+      {minorMode ? (
+        <div className="ziwei-minor-banner" role="status">
+          当前为未成年人命盘（未满 16 周岁），解读内容仅包含基础命格、健康、学业与未来方向。
+        </div>
+      ) : null}
+
       <div className="ziwei-result-stack">
-        <div className="ziwei-result-chart">
+        <div className="ziwei-result-chart ziwei-chart-rice-paper">
           <ChartBoard chart={activeChart ?? chart} />
         </div>
 
-        <ZiweiBriefInsight chart={activeChart ?? chart} />
+        <ZiweiBriefInsight chart={activeChart ?? chart} minorMode={minorMode} />
 
         {activeReadingId ? (
-          <ZiweiOrasageChat
-            key={`${activeReadingId}-${chatSessionKey}`}
-            chart={activeChart ?? chart}
-            chartData={chartData}
-            mode={mode === 'heming' ? 'heming' : 'single'}
-            readingId={activeReadingId}
-            loggedIn={loggedIn}
-          />
+          <div ref={chatAnchorRef} id="ziwei-orasage-chat">
+            <ZiweiOrasageChat
+              key={`${activeReadingId}-${chatSessionKey}`}
+              chart={activeChart ?? chart}
+              chartData={chartData}
+              mode={mode === 'heming' ? 'heming' : 'single'}
+              readingId={activeReadingId}
+              loggedIn={loggedIn}
+              minorMode={minorMode}
+              postPaidRefresh={postPaidFocus}
+            />
+          </div>
         ) : null}
 
-        {activeReadingId ? (
+        {activeReadingId && !minorMode ? (
           <ZiweiRecommendCard
             readingId={activeReadingId}
             sessionKey={`${activeReadingId}-${chatSessionKey}`}

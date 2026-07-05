@@ -70,64 +70,94 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
   const sanFangSet = sanFangBranches ? new Set(sanFangBranches) : null;
 
   return (
-    <div className="w-full select-none">
+    <div className="w-full select-none ziwei-chart-board">
       <TimeNav chart={chart} view={timeView} liunianYear={liunianYear} onViewChange={setTimeView} onYearChange={setLiunianYear} />
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-3">
-        <div className="text-[10px] tracking-[0.5em] uppercase mb-1" style={{ color: 'var(--t-faint)' }}>Zi Wei Dou Shu</div>
-        <h2 className="text-sm tracking-[0.25em] font-medium" style={{ color: 'var(--t-gold)' }}>{chart.birthInfo.name ? `${chart.birthInfo.name} · ` : ''}紫微斗数命盘</h2>
-      </motion.div>
-      <div className="grid rounded-xl overflow-hidden relative" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, auto)', gap: '1px', background: 'var(--t-border)', border: '1px solid var(--t-border)', boxShadow: '0 4px 32px rgba(0,0,0,0.15)' }}>
+      <div className="ziwei-chart-heading">
+        <div className="ziwei-chart-heading-en">Zi Wei Dou Shu</div>
+        <h2 className="ziwei-chart-heading-title">
+          {chart.birthInfo.name ? `${chart.birthInfo.name} · ` : ''}紫微斗数命盘
+        </h2>
+      </div>
+      <div className="ziwei-chart-grid">
         {ANIMATION_ORDER.map((branch, i) => {
           const [row, col] = BRANCH_GRID_POS[branch];
           const palace = palaceMap[branch];
           if (!palace) return null;
-          return (<div key={branch} style={{ gridRow: row, gridColumn: col, background: 'var(--t-bg)' }}>
-            <PalaceCell palace={palace} onClick={() => handlePalaceClick(branch)} onStarClick={(star) => onStarSelect?.(star, palace)}
-              isSelected={selectedBranch === branch} isSanFang={!!(sanFangSet?.has(branch) && selectedBranch !== branch)} delay={i * 0.04}
-              overlayStarSiHua={Object.keys(overlayData).length > 0 ? overlayData : undefined} overlayLabel={overlayLabel}
-              onSiHuaClick={(starName, siHua) => onSiHuaClick?.(starName, siHua, timeView)} />
-          </div>);
-        })}
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}
-          className="flex flex-col items-center justify-center p-4 gap-3" style={{ gridRow: '2 / 4', gridColumn: '2 / 4', background: 'var(--t-bg)' }}>
-          <div className="text-5xl select-none leading-none" style={{ color: 'var(--t-gold)', opacity: 0.12, filter: 'drop-shadow(0 0 12px rgba(180,120,30,0.15))' }}>☯</div>
-          <div className="text-center space-y-1">
-            <div className="text-[9px] tracking-[0.3em] font-medium" style={{ color: 'var(--t-gold)' }}>{t('chart.center.title')}</div>
-            <div className="text-[10px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
-              <div>{t('chart.center.minggong')} <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{BRANCHES[chart.mingGongBranch]}</span></div>
-              <div>{t('chart.center.shengong')} <span className="text-sky-500/70">{BRANCHES[chart.shenGongBranch]}</span></div>
-              <div className="text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{chart.wuxingJuName}</div>
+          return (
+            <div key={branch} className="ziwei-chart-grid-cell" style={{ gridRow: row, gridColumn: col }}>
+              <PalaceCell
+                palace={palace}
+                onClick={() => handlePalaceClick(branch)}
+                onStarClick={(star) => onStarSelect?.(star, palace)}
+                isSelected={selectedBranch === branch}
+                isSanFang={!!(sanFangSet?.has(branch) && selectedBranch !== branch)}
+                delay={i * 0.03}
+                overlayStarSiHua={Object.keys(overlayData).length > 0 ? overlayData : undefined}
+                overlayLabel={overlayLabel}
+                onSiHuaClick={(starName, siHua) => onSiHuaClick?.(starName, siHua, timeView)}
+              />
             </div>
+          );
+        })}
+        <div className="ziwei-chart-center" style={{ gridRow: '2 / 4', gridColumn: '2 / 4' }}>
+          <div className="ziwei-chart-center-symbol">命</div>
+          <div className="ziwei-chart-center-meta">
+            <div className="ziwei-chart-center-label">{t('chart.center.title')}</div>
+            <div>{t('chart.center.minggong')} {BRANCHES[chart.mingGongBranch]}</div>
+            <div>{t('chart.center.shengong')} {BRANCHES[chart.shenGongBranch]}</div>
+            <div className="ziwei-chart-center-ju">{chart.wuxingJuName}</div>
           </div>
-          {chart.currentDaXianIndex >= 0 && (() => {
+          {chart.currentDaXianIndex >= 0 ? (() => {
             const dx = chart.daXians[chart.currentDaXianIndex];
-            return (<div className="border border-purple-500/30 rounded-lg px-3 py-1.5 text-center" style={{ background: 'rgba(147,51,234,0.06)' }}>
-              <div className="text-[8px] text-purple-500/80 mb-0.5 tracking-wider">{t('chart.center.currentDaxian')}</div>
-              <div className="text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}–{dx.endAge}{t('chart.center.years')}</div>
-              <div className="text-[9px] text-purple-500/60">{dx.palaceName}</div>
-            </div>);
-          })()}
-          <div className="text-[8px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? '闰' : ''}{chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}</div>
-        </motion.div>
-        <AnimatePresence>{sanFangBranches !== null && (<motion.div key={`sf-${selectedBranch}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="pointer-events-none" style={{ position: 'absolute', inset: 0, zIndex: 20 }}>
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>{(() => {
-            const p0 = BRANCH_SVG_POS[sanFangBranches[0]];
-            const p1 = BRANCH_SVG_POS[sanFangBranches[1]];
-            const p2 = BRANCH_SVG_POS[sanFangBranches[2]];
-            const p3 = BRANCH_SVG_POS[sanFangBranches[3]];
-            const dash = "6,5"; const stroke = "rgba(37,99,235,0.55)"; const sw = "1.5";
-            return (<><line x1={`${p0[0]}%`} y1={`${p0[1]}%`} x2={`${p1[0]}%`} y2={`${p1[1]}%`} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} strokeLinecap="round" />
-              <line x1={`${p0[0]}%`} y1={`${p0[1]}%`} x2={`${p2[0]}%`} y2={`${p2[1]}%`} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} strokeLinecap="round" />
-              <line x1={`${p2[0]}%`} y1={`${p2[1]}%`} x2={`${p3[0]}%`} y2={`${p3[1]}%`} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} strokeLinecap="round" />
-              <line x1={`${p3[0]}%`} y1={`${p3[1]}%`} x2={`${p0[0]}%`} y2={`${p0[1]}%`} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} strokeLinecap="round" />
-              {[p0, p1, p2, p3].map((p, i) => (<circle key={i} cx={`${p[0]}%`} cy={`${p[1]}%`} r="3" fill={i === 0 ? 'rgba(37,99,235,0.8)' : 'rgba(37,99,235,0.45)'} />))}</>);
-          })()}</svg></motion.div>)}</AnimatePresence>
+            return (
+              <div className="ziwei-chart-center-dx">
+                <div className="ziwei-chart-center-dx-label">{t('chart.center.currentDaxian')}</div>
+                <div className="ziwei-chart-center-dx-age">{dx.startAge}–{dx.endAge}{t('chart.center.years')}</div>
+                <div className="ziwei-chart-center-dx-palace">{dx.palaceName}</div>
+              </div>
+            );
+          })() : null}
+          <div className="ziwei-chart-center-lunar">
+            {chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? '闰' : ''}{chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}
+          </div>
+        </div>
+        <AnimatePresence>
+          {sanFangBranches !== null ? (
+            <motion.div
+              key={`sf-${selectedBranch}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="ziwei-chart-sanfang-overlay pointer-events-none"
+            >
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                {(() => {
+                  const p0 = BRANCH_SVG_POS[sanFangBranches[0]];
+                  const p1 = BRANCH_SVG_POS[sanFangBranches[1]];
+                  const p2 = BRANCH_SVG_POS[sanFangBranches[2]];
+                  const p3 = BRANCH_SVG_POS[sanFangBranches[3]];
+                  const stroke = '#8b4513';
+                  return (
+                    <>
+                      <line x1={`${p0[0]}%`} y1={`${p0[1]}%`} x2={`${p1[0]}%`} y2={`${p1[1]}%`} stroke={stroke} strokeWidth="1.2" strokeDasharray="4,4" />
+                      <line x1={`${p0[0]}%`} y1={`${p0[1]}%`} x2={`${p2[0]}%`} y2={`${p2[1]}%`} stroke={stroke} strokeWidth="1.2" strokeDasharray="4,4" />
+                      <line x1={`${p2[0]}%`} y1={`${p2[1]}%`} x2={`${p3[0]}%`} y2={`${p3[1]}%`} stroke={stroke} strokeWidth="1.2" strokeDasharray="4,4" />
+                      <line x1={`${p3[0]}%`} y1={`${p3[1]}%`} x2={`${p0[0]}%`} y2={`${p0[1]}%`} stroke={stroke} strokeWidth="1.2" strokeDasharray="4,4" />
+                    </>
+                  );
+                })()}
+              </svg>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="mt-3 flex items-center justify-center gap-2 text-[9px] flex-wrap">
-        {[{ h: '化禄', c: 'text-emerald-500 border-emerald-500/30' }, { h: '化权', c: 'text-blue-500 border-blue-500/30' }, { h: '化科', c: 'text-yellow-500 border-yellow-500/30' }, { h: '化忌', c: 'text-red-500 border-red-500/30' }]
-          .map(({ h, c }) => (<span key={h} className={`border px-1.5 py-0.5 rounded-full font-medium ${c}`}>{h}</span>))}
-        <span className="px-1.5 py-0.5 rounded-full" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}>{t('chart.legend.sihua')}</span>
-      </motion.div>
+      <div className="ziwei-chart-legend">
+        {['禄', '权', '科', '忌'].map((h) => (
+          <span key={h} className={`ziwei-sihua-legend ziwei-sihua-${h}`}>化{h}</span>
+        ))}
+        <span className="ziwei-sihua-legend is-muted">{t('chart.legend.sihua')}</span>
+      </div>
     </div>
   );
 }

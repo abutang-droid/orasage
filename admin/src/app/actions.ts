@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts } from '@/lib/api';
 
@@ -88,6 +89,12 @@ export async function saveZiweiRecommendProductsAction(formData: FormData) {
     const sku = String(formData.get(`ziwei_rec_${i}`) ?? '').trim();
     if (sku) skus.push(sku);
   }
-  await saveZiweiRecommendProducts(skus);
-  revalidatePath('/products');
+  try {
+    await saveZiweiRecommendProducts(skus);
+    revalidatePath('/products');
+    redirect('/products?ziwei_rec=ok');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : '保存失败';
+    redirect(`/products?ziwei_rec_err=${encodeURIComponent(msg)}`);
+  }
 }

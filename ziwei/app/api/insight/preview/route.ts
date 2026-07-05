@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { ZiweiChart } from '@/lib/ziwei/types';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
+import type { ZiweiChart } from '@/lib/ziwei/types';
+import {
+  ADULT_PREVIEW_SYSTEM,
+  MINOR_PREVIEW_SYSTEM,
+} from '@/lib/ai-prompts';
 
 export const runtime = 'nodejs';
 
-function ruleBasedPreview(chart: ZiweiChart): string {
+function ruleBasedPreview(chart: ZiweiChart, minorMode: boolean): string {
   const ming = chart.palaces.find((p) => p.name === '命宫');
   const major = ming?.stars.filter((s) => s.type === 'major').map((s) => s.name).join('、') || '空宫借星';
   const name = chart.birthInfo.name?.trim() || '命主';
+
+  if (minorMode) {
+    return `【${name}】${chart.wuxingJuName}命盘
+
+命宫主星：${major}
+
+这是一份面向青少年的基础命格简读。从命盘可见性格底色与学习习惯方面的特点，健康上宜保持规律作息与适度运动。学业可发挥命宫主星优势，循序渐进。未来方向宜从兴趣与特长出发探索，家长可陪伴引导。
+
+登录后可向 Orasage 提问（每份排盘赠送 5 次免费对话），内容将限定在健康、学业与未来方向。`;
+  }
+
   const dx = chart.daXians[chart.currentDaXianIndex];
   return `【${name}】${chart.wuxingJuName}命盘
 
@@ -18,7 +33,7 @@ function ruleBasedPreview(chart: ZiweiChart): string {
 登录后可向 Orasage 提问，获取针对你命盘的具体解读（每份排盘赠送 5 次免费对话）。`;
 }
 
-async function llmPreview(chart: ZiweiChart): Promise<string | null> {
+async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string | null> {
   const apiKey =
     process.env.MANUS_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
@@ -45,7 +60,7 @@ async function llmPreview(chart: ZiweiChart): Promise<string | null> {
       messages: [
         {
           role: 'system',
-          content: '你是紫微斗数命理师。用温暖专业的中文写一段约300字的命盘简读，含命格定性、命宫主星、当前大限一句、一句建议。不要 markdown 标题。',
+          content: minorMode ? MINOR_PREVIEW_SYSTEM : ADULT_PREVIEW_SYSTEM,
         },
         {
           role: 'user',
@@ -70,10 +85,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const chart = body.chart as ZiweiChart | undefined;
+    const minorMode = Boolean(body.minorMode);
     if (!chart?.palaces?.length) {
       return NextResponse.json({ error: '缺少命盘数据' }, { status: 400 });
     }
-    const text = (await llmPreview(chart)) ?? ruleBasedPreview(chart);
+    const text = (await llmPreview(chart, minorMode)) ?? ruleBasedPreview(chart, minorMode);
     return NextResponse.json({ text });
   } catch (err) {
     console.error('[insight/preview]', err);

@@ -27,9 +27,15 @@ const ZIWEI_CHAT_SKUS = [
 
 const ZIWEI_REC_SLOTS = 6;
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ziwei_rec?: string; ziwei_rec_err?: string }>;
+}) {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
+
+  const sp = (await searchParams) ?? {};
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
@@ -194,6 +200,14 @@ export default async function ProductsPage() {
         <p className="muted" style={{ marginBottom: '1rem' }}>
           配置多个候选 SKU，前台每次排盘按 readingId 轮换展示一个推荐卡片（用户可关闭，仅当前对话隐藏）。
         </p>
+        {sp.ziwei_rec === 'ok' ? (
+          <p className="muted" style={{ color: '#166534', marginBottom: '0.75rem' }}>紫微推荐配置已保存。</p>
+        ) : null}
+        {sp.ziwei_rec_err ? (
+          <p className="muted" style={{ color: '#b91c1c', marginBottom: '0.75rem' }}>
+            保存失败：{decodeURIComponent(sp.ziwei_rec_err)}
+          </p>
+        ) : null}
         <form action={saveZiweiRecommendProductsAction} className="form-grid">
           {Array.from({ length: ZIWEI_REC_SLOTS }, (_, i) => (
             <label key={i}>

@@ -7,12 +7,29 @@ import {
   type ZiweiChatProduct,
   type ZiweiChatQuota,
 } from '@/lib/ziwei-chat-client';
+import { formToSearchParams } from '@/lib/ziwei/share';
+import { loadChartSession } from '@/lib/ziwei-reading-session';
 
 type Props = {
   readingId: string;
   quota: ZiweiChatQuota | null;
   onPurchased?: () => void;
 };
+
+function buildPaidReturnUrl(readingId: string): string {
+  const session = loadChartSession();
+  const base = typeof window !== 'undefined' ? window.location.origin : 'https://ziwei.orasage.com';
+  if (session?.form?.year) {
+    const params = formToSearchParams(session.form, {
+      readingId,
+      mode: session.mode === 'heming' ? 'heming' : undefined,
+    });
+    params.set('paid', '1');
+    params.set('focus', 'chat');
+    return `${base}/chart?${params.toString()}`;
+  }
+  return `${base}/chart?rid=${encodeURIComponent(readingId)}&paid=1&focus=chat`;
+}
 
 export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
   const [products, setProducts] = useState<ZiweiChatProduct[]>([]);
@@ -27,7 +44,7 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
     setLoadingSku(sku);
     setError('');
     try {
-      const returnBase = `${window.location.origin}/chart?paid=1`;
+      const returnBase = buildPaidReturnUrl(readingId);
       const result = await startAppCheckout({
         sku,
         readingId,
@@ -50,9 +67,10 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
     <div className="ziwei-chat-paywall">
       <p className="ziwei-chat-paywall-title">问答次数已用完</p>
       <p className="ziwei-chat-paywall-sub">
-        本盘免费 {quota?.freePerReading ?? 5} 次已用尽
-        {quota && quota.packCredits > 0 ? `，账户加量余额 ${quota.packCredits} 次` : ''}
-        。选择方案继续向 Orasage 提问：
+        {quota && quota.freeRemaining <= 0 && quota.packCredits > 0
+          ? `加量包余额 ${quota.packCredits} 次已用尽。`
+          : `本盘免费 ${quota?.freePerReading ?? 5} 次已用尽。`}
+        选择方案继续向 Orasage 提问：
       </p>
       <div className="ziwei-chat-paywall-plans">
         {products.map((plan) => (
