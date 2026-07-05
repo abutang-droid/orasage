@@ -1,11 +1,68 @@
-.onboarding-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
+.onboarding-page {
+  flex: 1;
+  display: flex;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #faf8f4 0%, #f3efe6 45%, #faf8f4 100%);
+}
+
+.onboarding-layout {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #faf8f4 0%, #f3efe6 45%, #faf8f4 100%);
-  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.onboarding-hero {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 20px 12px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(201, 168, 76, 0.18), transparent 70%),
+    linear-gradient(180deg, rgba(184, 148, 63, 0.08) 0%, transparent 100%);
+}
+
+.onboarding-hero-portrait {
+  width: min(220px, 58vw);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 20px;
+  border: 2px solid rgba(184, 148, 63, 0.35);
+  box-shadow:
+    0 16px 48px rgba(42, 33, 24, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+.onboarding-hero-caption {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.onboarding-mentor-name {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.onboarding-mentor-role {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.onboarding-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 16px max(16px, env(safe-area-inset-bottom));
 }
 
 .onboarding-chat {
@@ -18,17 +75,45 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.onboarding-bubble {
+.onboarding-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+  animation: onboarding-fade-in 0.35s ease;
+}
+
+.onboarding-row--mentor {
+  align-self: flex-start;
+  max-width: 92%;
+}
+
+.onboarding-row--user {
+  align-self: flex-end;
+  justify-content: flex-end;
   max-width: 88%;
+}
+
+.onboarding-row-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 1px solid rgba(184, 148, 63, 0.35);
+  box-shadow: 0 4px 12px rgba(42, 33, 24, 0.08);
+}
+
+.onboarding-bubble {
   padding: 12px 14px;
   border-radius: 18px;
   font-size: 15px;
   line-height: 1.65;
-  animation: onboarding-fade-in 0.35s ease;
+  white-space: pre-wrap;
 }
 
 .onboarding-bubble--mentor {
-  align-self: flex-start;
   background: #fff;
   border: 1px solid rgba(184, 148, 63, 0.22);
   color: var(--text-primary);
@@ -37,46 +122,9 @@
 }
 
 .onboarding-bubble--user {
-  align-self: flex-end;
   background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%);
   color: #fff;
   border-bottom-right-radius: 6px;
-}
-
-.onboarding-bubble--mentor strong {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.onboarding-mentor-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.onboarding-mentor-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, rgba(184,148,63,0.15), rgba(184,148,63,0.05));
-  border: 1px solid rgba(184, 148, 63, 0.35);
-  font-size: 20px;
-}
-
-.onboarding-mentor-name {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.onboarding-mentor-role {
-  font-size: 11px;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
 }
 
 .onboarding-panel {
@@ -172,19 +220,48 @@
   overflow-y: auto;
 }
 
+.onboarding-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @keyframes onboarding-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (min-width: 768px) {
-  .onboarding-screen {
-    position: relative;
-    inset: auto;
-    min-height: calc(100dvh - var(--shell-top-h, 0px));
-    max-width: 520px;
+@media (min-width: 900px) {
+  .onboarding-layout {
+    flex-direction: row;
+    align-items: stretch;
+    max-width: 1080px;
     margin: 0 auto;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(42, 33, 24, 0.08);
+    min-height: 100dvh;
+  }
+
+  .onboarding-hero {
+    flex: 0 0 38%;
+    max-width: 400px;
+    padding: 32px 28px;
+    border-right: 1px solid rgba(184, 148, 63, 0.12);
+  }
+
+  .onboarding-hero-portrait {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 3 / 4;
+  }
+
+  .onboarding-stage {
+    flex: 1;
+    min-width: 0;
+    max-width: 640px;
+    padding: 28px 32px 24px;
+  }
+
+  .onboarding-faith-wrap {
+    max-height: 50vh;
   }
 }

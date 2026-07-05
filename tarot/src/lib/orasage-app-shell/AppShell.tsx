@@ -19,6 +19,8 @@ export type AppShellProps = {
   pathname?: string;
   showBottomNav?: boolean;
   showMobileBar?: boolean;
+  showSiteTopNav?: boolean;
+  immersive?: boolean;
   footer?: ReactNode;
   children: ReactNode;
 };
@@ -31,15 +33,17 @@ export function AppShell({
   pathname = '/',
   showBottomNav = true,
   showMobileBar = true,
+  showSiteTopNav = true,
+  immersive = false,
   footer = null,
   children,
 }: AppShellProps) {
-  const showBack = isAppSubpage(appId, pathname);
+  const showBack = isAppSubpage(appId, pathname) && !immersive;
   const brandLabel = appBrandLabel(appId, locale);
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
-      <SiteTopNav locale={locale} context={appId} />
+      {showSiteTopNav && <SiteTopNav locale={locale} context={appId} />}
 
       {showMobileBar && (
         <header className="orasage-site-mobile-bar lg:hidden">
@@ -50,7 +54,7 @@ export function AppShell({
         </header>
       )}
 
-      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}`}>
+      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
         {showBack && (
           <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
             <button
