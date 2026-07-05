@@ -1,7 +1,7 @@
 /**
  * usePaymentFlow — OraSage 支付流程 Hook
  *
- * 优先走 shop 内网结账（orasage.com 生态），legacy WC iframe 作为回退。
+ * 优先跳转 shop 访客结账页（orasage.com 生态），legacy WC iframe 作为回退。
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -9,8 +9,7 @@ import { toast } from "sonner";
 import type { PlanType } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
-import { startAppCheckout } from "@/lib/shop-checkout";
-import { planToReportSku } from "@/lib/reading-sync";
+import { buildShopCheckoutUrl, baziSkusForMode } from "@/lib/plan-products";
 
 const READING_ID_KEY = "bazi:lastReadingId";
 const PLAN_KEY = "bazi:lastPurchasedPlan";
@@ -70,6 +69,8 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     buyerEmail: '',
     buyerName: '',
   });
+  const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
+  const [payLoading, setPayLoading] = useState(false);
 
   const buyPlanMutation = trpc.bazi.buyPlan.useMutation({
     onSuccess: (data) => {
@@ -123,31 +124,23 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  const openDirectPayment = useCallback(async (plan: PlanType) => {
-    setState(prev => ({ ...prev, purchasedPlan: plan }));
-
+  const openShopCheckout = useCallback((plan: PlanType) => {
     if (shopPayments) {
+      setPayLoading(true);
+      setState(prev => ({ ...prev, purchasedPlan: plan }));
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
       const returnBase = `${window.location.origin}${window.location.pathname}?paid=1`;
-      try {
-        sessionStorage.setItem(PLAN_KEY, plan);
-        const result = await startAppCheckout({
-          sku: planToReportSku(plan),
-          planType: plan,
-          readingId,
-          recommendationContext: `八字${planNameMap[plan] || plan}报告`,
-          shippingMode: mode === 'couple' ? 'couple' : 'single',
-          successUrl: returnBase,
-        });
-        if (result.checkoutUrl) {
-          window.location.href = result.checkoutUrl;
-        } else {
-          const returnUrl = encodeURIComponent(`${returnBase}&order=${encodeURIComponent(result.orderNo)}`);
-          window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}&return=${returnUrl}`;
-        }
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : t('checkout.error', '结账失败'));
-      }
+      sessionStorage.setItem(PLAN_KEY, plan);
+      const sku = baziSkusForMode(mode)[plan];
+      const checkoutUrl = buildShopCheckoutUrl({
+        sku,
+        returnUrl: returnBase,
+        readingId,
+        planType: plan,
+        mode,
+        context: `八字${planNameMap[plan] || plan}报告`,
+      });
+      window.location.href = checkoutUrl;
       return;
     }
 
@@ -159,7 +152,20 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         window.top.postMessage({ action: 'OPEN_WP_PAYMENT', productId: pid }, '*');
       }
     } catch { /* ignore */ }
-  }, [mode, shopPayments, planNameMap, t]);
+  }, [mode, shopPayments, planNameMap]);
+
+  const handlePaySelected = useCallback(() => {
+    if (!selectedPlan) {
+      toast.error(t('paywall.select_plan', '请先选择方案'));
+      return;
+    }
+    openShopCheckout(selectedPlan);
+  }, [selectedPlan, openShopCheckout, t]);
+
+  const openDirectPayment = useCallback((plan: PlanType) => {
+    setSelectedPlan(plan);
+    openShopCheckout(plan);
+  }, [openShopCheckout]);
 
   const handlePlanSelect = useCallback((plan: PlanType, orderId?: string) => {
     setState(prev => ({
@@ -202,7 +208,12 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
 
   return {
     ...state,
+    selectedPlan,
+    setSelectedPlan,
+    payLoading,
     openDirectPayment,
+    openShopCheckout,
+    handlePaySelected,
     handlePlanSelect,
     pushReportToWordPress,
     setUnlocked,

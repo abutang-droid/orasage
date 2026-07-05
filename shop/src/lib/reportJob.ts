@@ -1,8 +1,9 @@
 import { ENV } from './env';
 
 function planTypeFromBaziSku(sku: string | null | undefined): string {
-  if (sku === 'report-bazi-basic') return 'basic';
-  if (sku === 'report-bazi-premium') return 'premium';
+  if (!sku) return 'advanced';
+  if (sku.includes('-basic')) return 'basic';
+  if (sku.includes('-premium')) return 'premium';
   return 'advanced';
 }
 

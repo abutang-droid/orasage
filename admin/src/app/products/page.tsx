@@ -11,6 +11,15 @@ const CATEGORIES = [
 
 const HOMEPAGE_SLOTS = 6;
 
+const BAZI_BILLING_SKUS = [
+  'report-bazi-basic',
+  'report-bazi-advanced',
+  'report-bazi-premium',
+  'report-bazi-couple-basic',
+  'report-bazi-couple-advanced',
+  'report-bazi-couple-premium',
+] as const;
+
 export default async function ProductsPage() {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
@@ -29,6 +38,9 @@ export default async function ProductsPage() {
   }
 
   const activeProducts = products.filter((p) => p.active);
+  const baziBillingProducts = BAZI_BILLING_SKUS
+    .map((sku) => products.find((p) => p.sku === sku))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   return (
     <div className="admin-page">
@@ -36,6 +48,66 @@ export default async function ProductsPage() {
         <h1>商品管理</h1>
         <p className="muted">全平台统一商品目录，shop / bazi / tarot / main 共用 SKU</p>
       </header>
+
+      <section className="panel">
+        <h2>八字计费商品（6 个固定 SKU）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          八字单人/合盘三档报告的价格、描述与发货配置。修改后 bazi 付费墙与 shop 结账页同步生效。
+        </p>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>名称</th>
+                <th>实体</th>
+                <th>价格 CNY</th>
+                <th>价格 USD</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {baziBillingProducts.map((p) => (
+                <tr key={p.sku}>
+                  <td><code>{p.sku}</code></td>
+                  <td>{p.name}</td>
+                  <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
+                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
+                  <td>{p.priceDisplayUsd ?? '—'}</td>
+                  <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
+                  <td>
+                    <details>
+                      <summary>编辑</summary>
+                      <form action={saveProductAction} className="inline-form">
+                        <input type="hidden" name="isEdit" value="1" />
+                        <input type="hidden" name="sku" value={p.sku} />
+                        <input name="name" defaultValue={p.name} required />
+                        <input name="element" defaultValue={p.element ?? ''} placeholder="五行" />
+                        <select name="category" defaultValue={p.category}>
+                          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                        </select>
+                        <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
+                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
+                        <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
+                        <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
+                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需要收货</label>
+                        <textarea name="description" rows={2} defaultValue={p.desc} required />
+                        <button type="submit" className="btn-small">保存</button>
+                      </form>
+                    </details>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {baziBillingProducts.length < BAZI_BILLING_SKUS.length ? (
+          <p className="muted" style={{ marginTop: '1rem' }}>
+            部分合盘 SKU 尚未入库，请执行 auth-service 迁移 0012 或在下方通用商品区手动添加。
+          </p>
+        ) : null}
+      </section>
 
       <section className="panel">
         <h2>首页展示商品（最多 {HOMEPAGE_SLOTS} 个）</h2>

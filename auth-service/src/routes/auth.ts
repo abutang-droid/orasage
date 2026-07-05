@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema.ts";
@@ -20,6 +21,10 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+});
+
+const checkoutEmailSchema = z.object({
+  email: z.string().email().max(320),
 });
 
 const profileSchema = z.object({
@@ -126,6 +131,76 @@ authRouter.get("/me", async (req: Request, res: Response) => {
     user = (await getAuthUser(req))!;
   }
   res.json({ user: publicUser(user) });
+});
+
+// ── POST /auth/checkout-register ──
+/** 结账页静默注册：新邮箱自动建号并登录；已注册则返回 exists */
+authRouter.post("/checkout-register", async (req: Request, res: Response) => {
+  try {
+    const body = checkoutEmailSchema.parse(req.body);
+    const existing = await db.select().from(users).where(eq(users.email, body.email)).limit(1);
+    if (existing.length > 0) {
+      res.json({ exists: true });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10);
+    const displayId = await generateUniqueDisplayId();
+    const [user] = await db.insert(users).values({
+      email: body.email,
+      passwordHash,
+      displayId,
+      nickname: body.email.split("@")[0],
+    }).returning();
+
+    const token = await signToken({ sub: String(user.id), role: user.role });
+    const cookieOpts = getCookieOptions();
+    res.cookie(cookieOpts.name, token, cookieOpts);
+
+    res.status(201).json({
+      exists: false,
+      token,
+      user: publicUser(user),
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[auth] checkout-register error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+// ── POST /auth/checkout-bind ──
+/** 结账页「直接使用」已注册邮箱：无密码验证，签发登录态 */
+authRouter.post("/checkout-bind", async (req: Request, res: Response) => {
+  try {
+    const body = checkoutEmailSchema.parse(req.body);
+    const [user] = await db.select().from(users).where(eq(users.email, body.email)).limit(1);
+    if (!user) {
+      res.status(404).json({ error: "邮箱未注册" });
+      return;
+    }
+
+    await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
+
+    const token = await signToken({ sub: String(user.id), role: user.role });
+    const cookieOpts = getCookieOptions();
+    res.cookie(cookieOpts.name, token, cookieOpts);
+
+    res.json({
+      token,
+      user: publicUser(user),
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[auth] checkout-bind error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 // ── POST /auth/logout ──

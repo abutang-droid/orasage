@@ -1,61 +1,48 @@
 /**
  * PaywallCard — OraSage 计费方案卡片组件
  *
- * 纵向展示 basic / advanced / premium 三个方案，点击调用 onPay() 回调。
- * 墨金配色，纯 UI，不含任何业务逻辑。
- *
- * Props:
- *   onPay(planType)  — 点击方案按钮时触发
- *   mode             — "single"（默认）或 "couple"，影响方案名/描述/价格
- *   className        — 可选外部 class
+ * 纵向展示 basic / advanced / premium 三个方案，先选中再点支付。
  */
 
 import type { PlanType } from "@shared/types";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
-import { usePriceFetcher } from "@/lib/priceFetcher";
+import { fetchBaziPlanProducts, type PlanProductInfo } from "@/lib/plan-products";
 import {
   GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER,
 } from "@/theme";
 
-interface PlanConfig {
-  type: PlanType;
-  price: string;
-  highlight?: boolean;
-  nameKey: string;
-  descKey: string;
-}
-
-const SINGLE_PLANS: PlanConfig[] = [
-  { type: "basic",    price: "", nameKey: "plan.basic.name",    descKey: "plan.basic.desc" },
-  { type: "advanced", price: "", nameKey: "plan.advanced.name", descKey: "plan.advanced.desc", highlight: true },
-  { type: "premium",  price: "", nameKey: "plan.premium.name",  descKey: "plan.premium.desc" },
-];
-
-const COUPLE_PLANS: PlanConfig[] = [
-  { type: "basic",    price: "", nameKey: "plan.couple.basic.name",    descKey: "plan.couple.basic.desc" },
-  { type: "advanced", price: "", nameKey: "plan.couple.advanced.name", descKey: "plan.couple.advanced.desc", highlight: true },
-  { type: "premium",  price: "", nameKey: "plan.couple.premium.name",  descKey: "plan.couple.premium.desc" },
-];
-
 interface PaywallCardProps {
-  onPay: (planType: PlanType) => void;
+  selectedPlan: PlanType | null;
+  onSelectPlan: (planType: PlanType) => void;
+  onPay: () => void;
+  payLoading?: boolean;
   mode?: "single" | "couple";
   className?: string;
 }
 
-export function PaywallCard({ onPay, mode = "single", className }: PaywallCardProps) {
+export function PaywallCard({
+  selectedPlan,
+  onSelectPlan,
+  onPay,
+  payLoading = false,
+  mode = "single",
+  className,
+}: PaywallCardProps) {
   const { t } = useT();
-  const { prices, loading } = usePriceFetcher();
+  const [plans, setPlans] = useState<PlanProductInfo[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const planList: PlanConfig[] = useMemo(() => {
-    const base = mode === "couple" ? COUPLE_PLANS : SINGLE_PLANS;
-    if (!prices) return base;
-    return base.map(p => ({
-      ...p,
-      price: prices[p.type]?.[mode] ?? p.price,
-    }));
-  }, [mode, prices]);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchBaziPlanProducts(mode).then((list) => {
+      if (!cancelled) {
+        setPlans(list);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [mode]);
 
   return (
     <div
@@ -72,69 +59,94 @@ export function PaywallCard({ onPay, mode = "single", className }: PaywallCardPr
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        {planList.map((plan) => (
-          <button
-            key={plan.type}
-            type="button"
-            onClick={() => onPay(plan.type)}
-            style={{
-              width: "100%",
-              borderRadius: 12,
-              padding: "0.75rem 1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              background: plan.highlight ? BG_CARD : BG_PAGE,
-              border: plan.highlight ? `1px solid ${GOLD}` : `1px solid ${CARD_BORDER}`,
-              transition: "all 0.15s ease",
-              cursor: "pointer",
-              outline: "none",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-            }}
-          >
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span
-                  style={{
-                    color: plan.highlight ? GOLD_LIGHT : HEADING,
-                    fontFamily: SANS_F,
-                    fontSize: "0.875rem",
-                    fontWeight: 700,
-                  }}
-                >
-                  {t(plan.nameKey)}
-                </span>
-                {plan.highlight && (
+        {plans.map((plan) => {
+          const isSelected = selectedPlan === plan.type;
+          const isHighlight = plan.highlight;
+          return (
+            <button
+              key={plan.type}
+              type="button"
+              onClick={() => onSelectPlan(plan.type)}
+              style={{
+                width: "100%",
+                borderRadius: 12,
+                padding: "0.75rem 1rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: isSelected ? BG_CARD : isHighlight ? BG_CARD : BG_PAGE,
+                border: isSelected
+                  ? `2px solid ${GOLD}`
+                  : isHighlight
+                    ? `1px solid ${GOLD}`
+                    : `1px solid ${CARD_BORDER}`,
+                transition: "all 0.15s ease",
+                cursor: "pointer",
+                outline: "none",
+              }}
+            >
+              <div style={{ textAlign: "left" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <span
                     style={{
-                      background: GOLD,
-                      color: "#ffffff",
+                      color: isHighlight || isSelected ? GOLD_LIGHT : HEADING,
                       fontFamily: SANS_F,
-                      fontSize: "0.625rem",
-                      fontWeight: 600,
-                      padding: "0.125rem 0.5rem",
-                      borderRadius: 999,
+                      fontSize: "0.875rem",
+                      fontWeight: 700,
                     }}
                   >
-                    {t('plan.popular')}
+                    {plan.name || t(`plan.${mode === 'couple' ? 'couple.' : ''}${plan.type}.name`)}
                   </span>
-                )}
+                  {isHighlight && (
+                    <span
+                      style={{
+                        background: GOLD,
+                        color: "#ffffff",
+                        fontFamily: SANS_F,
+                        fontSize: "0.625rem",
+                        fontWeight: 600,
+                        padding: "0.125rem 0.5rem",
+                        borderRadius: 999,
+                      }}
+                    >
+                      {t('plan.popular')}
+                    </span>
+                  )}
+                </div>
+                <p style={{ color: BODY_CLR, fontSize: "0.75rem", marginTop: "0.25rem" }}>
+                  {plan.desc || t(`plan.${mode === 'couple' ? 'couple.' : ''}${plan.type}.desc`)}
+                </p>
               </div>
-              <p style={{ color: plan.highlight ? BODY_CLR : MUTED_CLR, fontSize: "0.75rem", marginTop: "0.25rem" }}>
-                {t(plan.descKey)}
-              </p>
-            </div>
-            <span style={{ color: GOLD, fontFamily: SERIF_F, fontSize: "1rem", fontWeight: 700 }}>
-              {plan.price}
-            </span>
-          </button>
-        ))}
+              <span style={{ color: GOLD, fontFamily: SERIF_F, fontSize: "1rem", fontWeight: 700 }}>
+                {loading ? '…' : plan.priceDisplay}
+              </span>
+            </button>
+          );
+        })}
       </div>
+
+      <button
+        type="button"
+        disabled={!selectedPlan || payLoading}
+        onClick={onPay}
+        style={{
+          width: "100%",
+          marginTop: "0.75rem",
+          borderRadius: 12,
+          padding: "0.75rem 1rem",
+          background: selectedPlan ? GOLD : "rgba(184,148,63,0.25)",
+          color: "#ffffff",
+          fontFamily: SERIF_F,
+          fontSize: "0.875rem",
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          border: "none",
+          cursor: selectedPlan && !payLoading ? "pointer" : "not-allowed",
+          opacity: payLoading ? 0.7 : 1,
+        }}
+      >
+        {payLoading ? t('checkout.loading', '正在跳转…') : t('paywall.pay', '去支付')}
+      </button>
     </div>
   );
 }

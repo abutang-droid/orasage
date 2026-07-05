@@ -27,10 +27,7 @@ export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppChe
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) {
-    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com';
-    const redirect = encodeURIComponent(window.location.href);
-    window.location.href = `${authUrl}/login?redirect=${redirect}`;
-    throw new Error('请先登录');
+    throw new Error(data.error || '请先完成邮箱验证');
   }
   if (!res.ok) {
     throw new Error(data.error || `结账失败 (${res.status})`);

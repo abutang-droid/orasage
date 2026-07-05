@@ -36,8 +36,15 @@ export const PLAN_REPORT_SKU: Record<string, string> = {
   premium: 'report-bazi-premium',
 };
 
-export function planToReportSku(plan: string): string {
-  return PLAN_REPORT_SKU[plan] ?? 'report-bazi-advanced';
+export const PLAN_COUPLE_REPORT_SKU: Record<string, string> = {
+  basic: 'report-bazi-couple-basic',
+  advanced: 'report-bazi-couple-advanced',
+  premium: 'report-bazi-couple-premium',
+};
+
+export function planToReportSku(plan: string, mode: 'single' | 'couple' = 'single'): string {
+  const map = mode === 'couple' ? PLAN_COUPLE_REPORT_SKU : PLAN_REPORT_SKU;
+  return map[plan] ?? (mode === 'couple' ? 'report-bazi-couple-advanced' : 'report-bazi-advanced');
 }
 
 export function syncBaziDoubleReading(

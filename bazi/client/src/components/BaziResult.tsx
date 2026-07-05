@@ -20,8 +20,6 @@ import { useT } from "@/lib/i18n";
 import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import type { BraceletRecommendation } from "@/lib/bazi";
-import { braceletToCrystalSku } from "@/lib/reading-sync";
-import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -1900,56 +1898,6 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
   );
 }
 
-function CrystalShopCard({ braceletRec }: { braceletRec: BraceletRecommendation | null }) {
-  const { t } = useT();
-  const [loading, setLoading] = useState(false);
-  const crystalSku = braceletToCrystalSku(braceletRec);
-  if (!braceletRec || !crystalSku) return null;
-  const sku = crystalSku;
-
-  async function handleBuy() {
-    setLoading(true);
-    try {
-      const result = await startAppCheckout({
-        sku,
-        recommendationContext: braceletRec!.reason,
-      });
-      redirectAfterCheckout(result);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('checkout.error', '结账失败'));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="rounded-xl p-5" style={{
-      background: CARD_GRADIENT_SOFT,
-      border: `1px solid ${GOLD_FAINT}`,
-    }}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">📿</span>
-        <p className="text-sm font-bold" style={{ color: HEADING, fontFamily: SERIF_F }}>
-          {t('crystal.shop.title', '能量水晶推荐')}
-        </p>
-      </div>
-      <p className="text-xs mb-3" style={{ color: BODY_CLR, lineHeight: 1.6 }}>
-        {braceletRec.reason}
-      </p>
-      <button type="button" disabled={loading} onClick={() => void handleBuy()}
-        className="w-full py-2.5 rounded-xl text-sm font-bold tracking-widest transition-all active:scale-[0.98]"
-        style={{
-          background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-          color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
-          border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
-          opacity: loading ? 0.7 : 1,
-        }}>
-        {loading ? t('checkout.loading', '正在跳转…') : t('crystal.shop.buy', '去能量商城请一条')}
-      </button>
-    </div>
-  );
-}
-
 function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onReportReady }: {
   result: SingleBaziResult;
   purchasedPlan: PlanType | null;
@@ -2060,10 +2008,13 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
       <FreeBaziInsight result={result} />
 
       {/* 计费墙：未付费时展示 */}
-      {!payment.unlocked && <PaywallCard onPay={payment.openDirectPayment} />}
-
-      {!payment.unlocked && braceletRec && (
-        <CrystalShopCard braceletRec={braceletRec} />
+      {!payment.unlocked && (
+        <PaywallCard
+          selectedPlan={payment.selectedPlan}
+          onSelectPlan={payment.setSelectedPlan}
+          onPay={payment.handlePaySelected}
+          payLoading={payment.payLoading}
+        />
       )}
 
       {/* 已解锁内容 */}
@@ -2297,8 +2248,14 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
           </button>
         </>
       ) : (
-        /* 合盘计费墙：同单人，直接调起支付 */
-        <PaywallCard onPay={payment.openDirectPayment} mode="couple" />
+        /* 合盘计费墙 */
+        <PaywallCard
+          selectedPlan={payment.selectedPlan}
+          onSelectPlan={payment.setSelectedPlan}
+          onPay={payment.handlePaySelected}
+          payLoading={payment.payLoading}
+          mode="couple"
+        />
       )}
       {/* 付费方案选择弹窗：保留供升级按钮复用 */}
       {showPlans && (
