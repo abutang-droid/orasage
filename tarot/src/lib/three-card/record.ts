@@ -41,6 +41,7 @@ function mapRecord(row: {
   fullReport: string | null;
   paidTier: string | null;
   orderNo: string | null;
+  readingSyncId: string | null;
   createdAt: Date;
 }): ThreeCardRecordDto {
   return {
@@ -52,6 +53,7 @@ function mapRecord(row: {
     fullReport: parseFullReport(row.fullReport),
     paidTier: row.paidTier,
     orderNo: row.orderNo,
+    readingSyncId: row.readingSyncId,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -115,6 +117,14 @@ export async function saveThreeCardFullReport(
       paidTier,
       orderNo,
     },
+  });
+  return row.count > 0;
+}
+
+export async function saveThreeCardReadingSyncId(id: string, userId: string, readingSyncId: string) {
+  const row = await prisma.threeCardReading.updateMany({
+    where: { id, userId },
+    data: { readingSyncId },
   });
   return row.count > 0;
 }

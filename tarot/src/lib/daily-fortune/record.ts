@@ -26,6 +26,7 @@ function mapRecord(row: {
   briefText: string | null;
   fullReport: unknown;
   accessSource: string;
+  readingSyncId: string | null;
   createdAt: Date;
 }): DailyFortuneRecordDto {
   return {
@@ -38,6 +39,7 @@ function mapRecord(row: {
     briefText: row.briefText,
     fullReport: (row.fullReport as DailyFortuneFullReport | null) ?? null,
     accessSource: row.accessSource,
+    readingSyncId: row.readingSyncId,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -84,4 +86,12 @@ export async function createDailyFortuneRecord(input: {
     },
   });
   return mapRecord(row);
+}
+
+export async function saveDailyFortuneReadingSyncId(id: string, userId: string, readingSyncId: string) {
+  const row = await prisma.dailyFortuneRecord.updateMany({
+    where: { id, userId },
+    data: { readingSyncId },
+  });
+  return row.count > 0;
 }

@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { generateThreeCardBrief } from '@/lib/three-card/brief';
 import { getThreeCardReading, saveThreeCardBrief } from '@/lib/three-card/record';
+import { maybeSyncThreeCardReading } from '@/lib/three-card/sync';
 import type { ThreeCardAnswer } from '@/lib/three-card/types';
+import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
+import { prisma } from '@/lib/prisma';
 
 const bodySchema = z.object({
   readingId: z.string().uuid(),
@@ -13,6 +16,11 @@ export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
     const body = bodySchema.parse(await req.json());
+    const user = await prisma.user.findUnique({
+      where: { id: ensured.userId },
+      select: { email: true },
+    });
+    const loggedIn = await isOrasageLoggedIn(user?.email);
 
     const record = await getThreeCardReading(ensured.userId, body.readingId);
     if (!record) {
@@ -20,7 +28,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (record.briefText) {
-      const res = NextResponse.json({ ok: true, brief: record.briefText });
+      const synced = await maybeSyncThreeCardReading(
+        req.headers.get('cookie'),
+        ensured.userId,
+        record,
+        loggedIn,
+      );
+      const res = NextResponse.json({ ok: true, brief: synced.briefText });
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
       return res;
     }
@@ -33,7 +47,17 @@ export async function POST(req: NextRequest) {
 
     await saveThreeCardBrief(record.id, ensured.userId, brief);
 
-    const res = NextResponse.json({ ok: true, brief });
+    const updated = await getThreeCardReading(ensured.userId, body.readingId);
+    const synced = updated
+      ? await maybeSyncThreeCardReading(
+          req.headers.get('cookie'),
+          ensured.userId,
+          { ...updated, briefText: brief },
+          loggedIn,
+        )
+      : null;
+
+    const res = NextResponse.json({ ok: true, brief, readingSyncId: synced?.readingSyncId ?? null });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;
   } catch (err) {

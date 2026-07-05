@@ -43,5 +43,6 @@ export type ThreeCardRecordDto = {
   fullReport: ThreeCardFullReport | null;
   paidTier: string | null;
   orderNo: string | null;
+  readingSyncId: string | null;
   createdAt: string;
 };

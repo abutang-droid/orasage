@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import TarotCard from '@/components/TarotCard';
+import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
+import { buildLoginUrl } from '@/lib/login-url';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
@@ -240,6 +242,10 @@ export function ThreeCardFlow() {
   const currentQ = questions[qIndex];
   const reportProduct = session?.billing.threeCardReport;
   const bundleProduct = session?.billing.threeCardBundle;
+  const readingReturnPath = readingId
+    ? `/reading?readingId=${encodeURIComponent(readingId)}`
+    : '/reading';
+  const loginHref = buildLoginUrl(readingReturnPath);
 
   if (step === 'loading') {
     return (
@@ -412,9 +418,9 @@ export function ThreeCardFlow() {
           </div>
 
           <div className="card three-card-unlock-cta">
-            <p>完整详读包含逐牌深度解读、行动建议与肯定语，登录后可购买解锁。</p>
+            <p>完整详读包含逐牌深度解读、行动建议与肯定语，登录后可购买解锁并保存到用户中心。</p>
             {!isLoggedIn ? (
-              <Link href="/login" className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
+              <Link href={loginHref} className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
                 登录解锁完整报告
               </Link>
             ) : (
@@ -429,15 +435,13 @@ export function ThreeCardFlow() {
       {step === 'paywall' && (
         <div className="three-card-paywall animate-fade-in-up">
           {!isLoggedIn ? (
-            <div className="card daily-fortune-paywall">
-              <h2 className="daily-fortune-section-title">登录后购买完整报告</h2>
-              <p className="daily-fortune-paywall-desc">
-                访客可免费完成问答、抽牌与简读。完整详读与支付需先登录账号。
-              </p>
-              <Link href="/login" className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
-                去登录
-              </Link>
-            </div>
+            <GuestLoginWall
+              title="登录后购买完整报告"
+              message="访客可免费完成问答、抽牌与简读。完整详读与支付需先登录账号。"
+              hint="登录后将自动回到本页，已抽的牌与简读不会丢失。"
+              ctaLabel="去登录"
+              returnPath={readingReturnPath}
+            />
           ) : (
             <>
               <div className="card three-card-tier">

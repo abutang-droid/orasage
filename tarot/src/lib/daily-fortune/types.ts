@@ -39,5 +39,6 @@ export type DailyFortuneRecordDto = {
   briefText: string | null;
   fullReport: DailyFortuneFullReport | null;
   accessSource: string;
+  readingSyncId: string | null;
   createdAt: string;
 };

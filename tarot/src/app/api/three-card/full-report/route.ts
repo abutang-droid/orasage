@@ -4,6 +4,7 @@ import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { generateThreeCardFullReport } from '@/lib/three-card/full-report';
 import { getThreeCardReading, saveThreeCardFullReport } from '@/lib/three-card/record';
+import { maybeSyncThreeCardReading } from '@/lib/three-card/sync';
 import type { ThreeCardAnswer } from '@/lib/three-card/types';
 import { resolveThreeCardReportAccess } from '@/lib/three-card-access';
 import { prisma } from '@/lib/prisma';
@@ -35,11 +36,18 @@ export async function POST(req: NextRequest) {
     }
 
     if (record.fullReport && record.paidTier) {
+      const synced = await maybeSyncThreeCardReading(
+        req.headers.get('cookie'),
+        ensured.userId,
+        record,
+        loggedIn,
+      );
       const res = NextResponse.json({
         ok: true,
-        fullReport: record.fullReport,
-        tier: record.paidTier,
-        orderNo: record.orderNo,
+        fullReport: synced.fullReport,
+        tier: synced.paidTier,
+        orderNo: synced.orderNo,
+        readingSyncId: synced.readingSyncId,
       });
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
       return res;
@@ -70,11 +78,27 @@ export async function POST(req: NextRequest) {
       access.orderNo,
     );
 
+    const updated = await getThreeCardReading(ensured.userId, body.readingId);
+    const synced = updated
+      ? await maybeSyncThreeCardReading(
+          req.headers.get('cookie'),
+          ensured.userId,
+          {
+            ...updated,
+            fullReport,
+            paidTier: access.tier,
+            orderNo: access.orderNo,
+          },
+          loggedIn,
+        )
+      : null;
+
     const res = NextResponse.json({
       ok: true,
       fullReport,
       tier: access.tier,
       orderNo: access.orderNo,
+      readingSyncId: synced?.readingSyncId ?? null,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;

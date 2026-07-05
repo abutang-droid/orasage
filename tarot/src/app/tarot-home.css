@@ -964,3 +964,51 @@
 .three-card-bundle-note p {
   margin: 0;
 }
+
+.guest-login-wall {
+  text-align: center;
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(184, 148, 63, 0.08) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(184, 148, 63, 0.22);
+}
+
+.guest-login-wall-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.guest-login-wall-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.guest-login-wall-message {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.guest-login-wall-hint {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.guest-login-wall-cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.guest-login-wall-preview {
+  margin-top: 14px;
+  filter: blur(4px);
+  opacity: 0.55;
+  pointer-events: none;
+}
