@@ -71,24 +71,29 @@ export function DailyFortuneFlow() {
   const [drawLoading, setDrawLoading] = useState(false);
 
   const loadSession = useCallback(async () => {
-    const orderParam =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('order')
-        : null;
+    const params =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const orderParam = params?.get('order') ?? null;
+    const recordIdParam = params?.get('recordId') ?? null;
     if (orderParam) setPendingOrderNo(orderParam);
 
     const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
     const data = (await res.json()) as SessionPayload;
     setSession(data);
     setIsLoggedIn(data.isLoggedIn);
+
+    const resumeRecord =
+      (recordIdParam ? data.records.find((r) => r.id === recordIdParam) : null) ?? data.latest;
+
+    if (resumeRecord) {
+      hydrateReport(resumeRecord, data.isLoggedIn);
+      setStep('report');
+      return;
+    }
+
     if (data.quota.remaining <= 0 && !orderParam) {
       setPaywallSku('tarot-daily-draw');
       setStep('paywall');
-      return;
-    }
-    if (data.latest) {
-      hydrateReport(data.latest, data.isLoggedIn);
-      setStep('report');
       return;
     }
     setStep('start');
@@ -368,7 +373,11 @@ export function DailyFortuneFlow() {
                 message="登录后可查看爱情、事业、财运等完整解读，并同步保存到用户中心。"
                 hint="访客仍可查看今日简报；登录后记录会出现在 auth.orasage.com 的占卜历史中。"
                 ctaLabel="登录查看完整报告"
-                returnPath="/daily-fortune"
+                returnPath={
+                  record
+                    ? `/daily-fortune?recordId=${encodeURIComponent(record.id)}`
+                    : '/daily-fortune'
+                }
               >
                 {record?.fullReport ? (
                   <div className="daily-fortune-dim-grid daily-fortune-dim-grid--blurred">
