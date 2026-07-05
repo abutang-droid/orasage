@@ -61,6 +61,11 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.includes('/globals/ziwei-home-hero'),
   },
   {
+    label: '塔罗 Hero',
+    href: '/cms/admin/globals/tarot-home-hero',
+    isActive: (p) => p.includes('/globals/tarot-home-hero'),
+  },
+  {
     label: '八字信息流',
     href: '/cms/admin/collections/bazi-feed',
     isActive: (p) => p.includes('/collections/bazi-feed'),
