@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation"
 import { AppShell as OraSageAppShell } from "@/lib/orasage-app-shell"
 import { useLang, type Lang } from "@/lib/i18n/context"
+import { OnboardingGate } from "@/components/OnboardingGate"
+import { PortalFooter } from "@/components/PortalFooter"
 
 const LANG_TO_LOCALE: Record<Lang, string> = {
   zh: "zh-CN",
@@ -11,22 +13,25 @@ const LANG_TO_LOCALE: Record<Lang, string> = {
   es: "es",
 }
 
-import { PortalFooter } from "@/components/PortalFooter"
-
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { lang } = useLang()
   const locale = LANG_TO_LOCALE[lang] ?? "zh-CN"
+  const isOnboarding = pathname.startsWith("/onboarding")
 
   return (
-    <OraSageAppShell
-      appId="tarot"
-      locale={locale}
-      theme="light"
-      pathname={pathname}
-      footer={<PortalFooter />}
-    >
-      {children}
-    </OraSageAppShell>
+    <OnboardingGate>
+      <OraSageAppShell
+        appId="tarot"
+        locale={locale}
+        theme="light"
+        pathname={pathname}
+        showBottomNav={!isOnboarding}
+        showMobileBar={!isOnboarding}
+        footer={isOnboarding ? null : <PortalFooter />}
+      >
+        {children}
+      </OraSageAppShell>
+    </OnboardingGate>
   )
 }
