@@ -221,6 +221,10 @@
 }
 
 .onboarding-faith-wrap {
+  overflow: visible;
+}
+
+.onboarding-faith-wrap:not(:has(.faith-picker--collapsed)) {
   max-height: 42vh;
   overflow-y: auto;
 }
@@ -266,7 +270,7 @@
     padding: 28px 32px 24px;
   }
 
-  .onboarding-faith-wrap {
+  .onboarding-faith-wrap:not(:has(.faith-picker--collapsed)) {
     max-height: 50vh;
   }
 }

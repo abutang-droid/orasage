@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import TarotCard from '@/components/TarotCard';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
+import { MantoThinking } from '@/components/MantoThinking';
+import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type {
@@ -65,6 +66,8 @@ export function DailyFortuneFlow() {
   const [paywallSku, setPaywallSku] = useState<string | null>(null);
   const [pendingOrderNo, setPendingOrderNo] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [drawLoading, setDrawLoading] = useState(false);
 
   const loadSession = useCallback(async () => {
     const orderParam =
@@ -130,12 +133,20 @@ export function DailyFortuneFlow() {
     setStep('questions');
     setQIndex(0);
     setAnswers([]);
-    const res = await fetch('/api/daily-fortune/questions', {
-      method: 'POST',
-      credentials: 'include',
-    });
-    const data = await res.json();
-    setQuestions(data.questions ?? []);
+    setQuestionsLoading(true);
+    try {
+      const res = await fetch('/api/daily-fortune/questions', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      setQuestions(data.questions ?? []);
+    } catch {
+      setError('问题加载失败，请重试');
+      setStep('start');
+    } finally {
+      setQuestionsLoading(false);
+    }
   };
 
   const pickAnswer = (answer: string) => {
@@ -155,6 +166,9 @@ export function DailyFortuneFlow() {
 
   const submitDraw = async (finalAnswers: DailyFortuneAnswer[]) => {
     setStep('drawing');
+    setFlipped(false);
+    setCard(null);
+    setDrawLoading(true);
     setError('');
     try {
       const res = await fetch('/api/daily-fortune/draw', {
@@ -183,12 +197,14 @@ export function DailyFortuneFlow() {
         s ? { ...s, quota: data.quota, isLoggedIn: data.isLoggedIn } : s,
       );
       setPendingOrderNo(null);
-      setTimeout(() => setFlipped(true), 400);
+      setDrawLoading(false);
+      setTimeout(() => setFlipped(true), 500);
       setTimeout(() => {
         setStep('report');
         void loadRecommend(data.record.id);
-      }, 1200);
+      }, 1400);
     } catch (err) {
+      setDrawLoading(false);
       setError(err instanceof Error ? err.message : '抽取失败');
       setStep('questions');
     }
@@ -258,7 +274,11 @@ export function DailyFortuneFlow() {
         </div>
       )}
 
-      {step === 'questions' && currentQ && (
+      {step === 'questions' && questionsLoading && (
+        <MantoThinking message="Manto 正在为你准备今日问题…" hint="AI 正在感知你的状态，请稍候" />
+      )}
+
+      {step === 'questions' && !questionsLoading && currentQ && (
         <div className="daily-fortune-panel card animate-fade-in-up">
           <div className="daily-fortune-q-progress">
             问题 {qIndex + 1} / {questions.length}
@@ -279,24 +299,26 @@ export function DailyFortuneFlow() {
         </div>
       )}
 
-      {step === 'drawing' && card && cardMeta && (
+      {step === 'drawing' && (
         <div className="daily-fortune-draw card animate-fade-in-up">
-          <p className="daily-fortune-draw-hint">正在翻开今日主牌…</p>
-          <div className="daily-fortune-draw-card">
-            <TarotCard
-              name={cardMeta.name}
-              nameEn={cardMeta.nameEn}
-              arcana={cardMeta.arcana}
-              suit={cardMeta.suit}
-              number={cardMeta.number}
-              symbol={cardMeta.symbol}
-              orientation={card.orientation}
-              keywords={cardMeta.keywords.join(' · ')}
-              flipped={flipped}
-              glowing
-              size="lg"
-            />
-          </div>
+          {drawLoading || !card || !cardMeta ? (
+            <MantoThinking message="正在为你抽取今日主牌…" hint="牌阵能量汇聚中，马上揭晓" />
+          ) : (
+            <>
+              <p className="daily-fortune-draw-hint">
+                {flipped ? '今日主牌已翻开' : '正在翻开今日主牌…'}
+              </p>
+              <div className="daily-fortune-draw-card">
+                <TarotFlipCard
+                  card={cardMeta}
+                  flipped={flipped}
+                  glowing
+                  size="lg"
+                  orientation={card.orientation}
+                />
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -304,22 +326,14 @@ export function DailyFortuneFlow() {
         <div className="daily-fortune-report animate-fade-in-up">
           <div className="card daily-fortune-draw" style={{ marginBottom: 16 }}>
             <div className="daily-fortune-draw-card">
-              <TarotCard
-                name={cardMeta.name}
-                nameEn={cardMeta.nameEn}
-                arcana={cardMeta.arcana}
-                suit={cardMeta.suit}
-                number={cardMeta.number}
-                symbol={cardMeta.symbol}
-                orientation={card.orientation}
-                keywords={cardMeta.keywords.join(' · ')}
+              <TarotFlipCard
+                card={cardMeta}
                 flipped
                 size="md"
+                orientation={card.orientation}
+                caption={`${card.name} · ${card.orientation}`}
               />
             </div>
-            <p className="daily-fortune-card-caption">
-              {card.name} · {card.orientation}
-            </p>
           </div>
 
           <div className="card daily-fortune-brief">

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import TarotCard from '@/components/TarotCard';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
+import { MantoThinking } from '@/components/MantoThinking';
+import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { buildLoginUrl } from '@/lib/login-url';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
@@ -52,6 +53,8 @@ export function ThreeCardFlow() {
   const [checkoutSku, setCheckoutSku] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [briefLoading, setBriefLoading] = useState(false);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [drawLoading, setDrawLoading] = useState(false);
 
   const sortedCards = [...cards].sort(
     (a, b) => POSITION_ORDER.indexOf(a.positionLabel) - POSITION_ORDER.indexOf(b.positionLabel),
@@ -134,14 +137,22 @@ export function ThreeCardFlow() {
     setStep('questions');
     setQIndex(0);
     setAnswers([]);
-    const res = await fetch('/api/three-card/questions', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: question.trim() || undefined }),
-    });
-    const data = await res.json();
-    setQuestions(data.questions ?? []);
+    setQuestionsLoading(true);
+    try {
+      const res = await fetch('/api/three-card/questions', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question.trim() || undefined }),
+      });
+      const data = await res.json();
+      setQuestions(data.questions ?? []);
+    } catch {
+      setError('问题加载失败，请重试');
+      setStep('intro');
+    } finally {
+      setQuestionsLoading(false);
+    }
   };
 
   const pickAnswer = (answer: string) => {
@@ -159,6 +170,8 @@ export function ThreeCardFlow() {
   const submitStart = async (finalAnswers: ThreeCardAnswer[]) => {
     setStep('revealing');
     setRevealedCount(0);
+    setCards([]);
+    setDrawLoading(true);
     setError('');
     try {
       const res = await fetch('/api/three-card/start', {
@@ -177,6 +190,8 @@ export function ThreeCardFlow() {
     } catch (err) {
       setError(err instanceof Error ? err.message : '抽牌失败');
       setStep('questions');
+    } finally {
+      setDrawLoading(false);
     }
   };
 
@@ -295,7 +310,11 @@ export function ThreeCardFlow() {
         </div>
       )}
 
-      {step === 'questions' && currentQ && (
+      {step === 'questions' && questionsLoading && (
+        <MantoThinking message="Manto 正在感应你的问题…" hint="AI 正在准备引导问答，请稍候" />
+      )}
+
+      {step === 'questions' && !questionsLoading && currentQ && (
         <div className="daily-fortune-panel card animate-fade-in-up">
           <div className="daily-fortune-q-progress">
             问题 {qIndex + 1} / {questions.length}
@@ -316,60 +335,45 @@ export function ThreeCardFlow() {
         </div>
       )}
 
-      {step === 'revealing' && sortedCards.length > 0 && (
+      {step === 'revealing' && (
         <div className="three-card-reveal animate-fade-in-up">
-          <p className="daily-fortune-draw-hint">
-            {revealedCount < cards.length
-              ? `轻触翻开第 ${revealedCount + 1} 张牌`
-              : briefLoading
-                ? '正在生成简读…'
-                : '三张牌已全部翻开'}
-          </p>
-          <div className="three-card-grid">
-            {sortedCards.map((c, i) => {
-              const meta = getCardById(c.cardId);
-              const isRevealed = i < revealedCount;
-              return (
-                <div key={c.positionLabel} className="three-card-slot">
-                  <span className="three-card-position">{c.positionLabel}</span>
-                  <button
-                    type="button"
-                    className="three-card-tap"
-                    disabled={!isRevealed && i !== revealedCount}
-                    onClick={() => {
-                      if (i === revealedCount) revealNext();
-                    }}
-                    aria-label={isRevealed ? `${c.cardName} ${c.orientation}` : `翻开${c.positionLabel}`}
-                  >
-                    {meta ? (
-                      <TarotCard
-                        name={meta.name}
-                        nameEn={meta.nameEn}
-                        arcana={meta.arcana}
-                        suit={meta.suit}
-                        number={meta.number}
-                        symbol={meta.symbol}
-                        orientation={c.orientation}
-                        keywords={meta.keywords.join(' · ')}
+          {drawLoading || sortedCards.length === 0 ? (
+            <MantoThinking message="正在为你抽取三牌阵…" hint="过去 · 现在 · 未来，牌阵成形中" />
+          ) : (
+            <>
+              <p className="daily-fortune-draw-hint">
+                {revealedCount < cards.length
+                  ? `轻触翻开第 ${revealedCount + 1} 张牌`
+                  : briefLoading
+                    ? '正在生成简读…'
+                    : '三张牌已全部翻开'}
+              </p>
+              <div className="three-card-grid">
+                {sortedCards.map((c, i) => {
+                  const meta = getCardById(c.cardId);
+                  if (!meta) return null;
+                  const isRevealed = i < revealedCount;
+                  return (
+                    <div key={c.positionLabel} className="three-card-slot">
+                      <span className="three-card-position">{c.positionLabel}</span>
+                      <TarotFlipCard
+                        card={meta}
                         flipped={isRevealed}
                         glowing={i === revealedCount && !isRevealed}
                         size="sm"
+                        orientation={c.orientation}
+                        disabled={!isRevealed && i !== revealedCount}
+                        onClick={i === revealedCount && !isRevealed ? revealNext : undefined}
+                        caption={isRevealed ? `${c.cardName} · ${c.orientation}` : undefined}
                       />
-                    ) : null}
-                  </button>
-                  {isRevealed && (
-                    <p className="three-card-caption">
-                      {c.cardName} · {c.orientation}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {briefLoading && (
-            <div className="daily-fortune-quota-loading">
-              <div className="spinner" />
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {briefLoading && (
+                <MantoThinking message="Manto 正在撰写简读…" hint="结合你的回答与牌面，生成解读中" />
+              )}
+            </>
           )}
         </div>
       )}
@@ -382,22 +386,14 @@ export function ThreeCardFlow() {
               return (
                 <div key={c.positionLabel} className="three-card-slot">
                   {meta ? (
-                    <TarotCard
-                      name={meta.name}
-                      nameEn={meta.nameEn}
-                      arcana={meta.arcana}
-                      suit={meta.suit}
-                      number={meta.number}
-                      symbol={meta.symbol}
-                      orientation={c.orientation}
-                      keywords={meta.keywords.join(' · ')}
+                    <TarotFlipCard
+                      card={meta}
                       flipped
                       size="sm"
+                      orientation={c.orientation}
+                      caption={`${c.positionLabel} · ${c.cardName}`}
                     />
                   ) : null}
-                  <p className="three-card-caption">
-                    {c.positionLabel} · {c.cardName}
-                  </p>
                 </div>
               );
             })}
@@ -536,17 +532,11 @@ export function ThreeCardFlow() {
                 <div key={c.positionLabel} className="three-card-full-card card">
                   {meta ? (
                     <div className="three-card-full-card-visual">
-                      <TarotCard
-                        name={meta.name}
-                        nameEn={meta.nameEn}
-                        arcana={meta.arcana}
-                        suit={meta.suit}
-                        number={meta.number}
-                        symbol={meta.symbol}
-                        orientation={c.orientation}
-                        keywords={meta.keywords.join(' · ')}
+                      <TarotFlipCard
+                        card={meta}
                         flipped
                         size="sm"
+                        orientation={c.orientation}
                       />
                     </div>
                   ) : null}
