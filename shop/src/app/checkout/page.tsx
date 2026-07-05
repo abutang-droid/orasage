@@ -96,7 +96,9 @@ function CheckoutContent() {
   }, [coupleShipping]);
 
   const completePayment = useCallback(async (targetOrderNo: string) => {
-    if (payingRef.current) return;
+    if (payingRef.current) {
+      throw new Error('支付正在进行，请稍候');
+    }
     payingRef.current = true;
     setFlowPhase('paying');
     setPayError(null);
@@ -129,9 +131,9 @@ function CheckoutContent() {
   ) => {
     if (autoFlowOrderRef.current === targetOrderNo) return;
     autoFlowOrderRef.current = targetOrderNo;
+    setFlowPhase(needsShipping && !alreadyShipped ? 'shipping' : 'paying');
     try {
       if (needsShipping && !alreadyShipped) {
-        setFlowPhase('shipping');
         await submitMockShipping(targetOrderNo);
       }
       await completePayment(targetOrderNo);
@@ -173,7 +175,10 @@ function CheckoutContent() {
           if (!cancelled) setLoading(false);
         }
       })();
-      return () => { cancelled = true; };
+      return () => {
+        cancelled = true;
+        autoFlowOrderRef.current = null;
+      };
     }
 
     if (sku) {

@@ -39,11 +39,10 @@ export async function POST(req: NextRequest) {
     }
 
     await updateOrderStatus(orderNo, 'paid');
-    try {
-      await dispatchReportJob(order);
-    } catch (err) {
+    // 报告生成走后台，避免 LLM 耗时导致结账页卡在「处理中」
+    void dispatchReportJob(order).catch((err) => {
       console.error('[pay] report-job error:', err);
-    }
+    });
     if (order.appSource === 'tarot') {
       await notifyTarotOfferMerit({
         recommendationContext: order.recommendationContext,
