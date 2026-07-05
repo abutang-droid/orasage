@@ -14,11 +14,11 @@ const stepSchema = z.object({
 });
 
 const NEXT_URL: Record<OnboardingStep, string> = {
-  welcome: '/reading',
-  reading: '/temple',
-  faith: '/temple',
-  deity: '/temple',
-  worship: '/temple',
+  welcome: '/onboarding',
+  reading: '/onboarding',
+  faith: '/onboarding',
+  deity: '/onboarding',
+  worship: '/onboarding',
   done: '/',
 };
 
@@ -28,7 +28,7 @@ export async function GET() {
   if (!auth) {
     return NextResponse.json({
       step: 'welcome',
-      nextUrl: '/reading',
+      nextUrl: '/onboarding',
       completed: false,
     });
   }
@@ -38,7 +38,7 @@ export async function GET() {
     select: { onboardingStep: true, onboardingCompleted: true, referralCode: true },
   });
   if (!user) {
-    return NextResponse.json({ step: 'welcome', nextUrl: '/reading', completed: false });
+    return NextResponse.json({ step: 'welcome', nextUrl: '/onboarding', completed: false });
   }
 
   const step = (user.onboardingStep || 'welcome') as OnboardingStep;
