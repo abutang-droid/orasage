@@ -365,6 +365,15 @@ export default function ChartPage() {
 
         <ZiweiBriefInsight chart={activeChart ?? chart} minorMode={minorMode} />
 
+        {activeReadingId && !minorMode ? (
+          <ZiweiRecommendCard
+            readingId={activeReadingId}
+            sessionKey={`${activeReadingId}-${chatSessionKey}`}
+            dismissed={recommendDismissed}
+            onDismiss={() => setRecommendDismissed(true)}
+          />
+        ) : null}
+
         {activeReadingId ? (
           <div ref={chatAnchorRef} id="ziwei-orasage-chat">
             <ZiweiOrasageChat
@@ -378,15 +387,6 @@ export default function ChartPage() {
               postPaidRefresh={postPaidFocus}
             />
           </div>
-        ) : null}
-
-        {activeReadingId && !minorMode ? (
-          <ZiweiRecommendCard
-            readingId={activeReadingId}
-            sessionKey={`${activeReadingId}-${chatSessionKey}`}
-            dismissed={recommendDismissed}
-            onDismiss={() => setRecommendDismissed(true)}
-          />
         ) : null}
       </div>
     </div>

@@ -13,16 +13,23 @@ export async function GET(req: NextRequest) {
     { cache: 'no-store' },
   );
   if (!res.ok) {
-    return NextResponse.json(null, { status: res.status });
+    const errBody = await res.json().catch(() => ({}));
+    return NextResponse.json(
+      { error: (errBody as { error?: string }).error ?? '暂无推荐商品' },
+      { status: res.status },
+    );
   }
-  const data = await res.json();
+  const data = (await res.json()) as { product?: Record<string, unknown> };
   const p = data.product;
+  if (!p || typeof p.sku !== 'string') {
+    return NextResponse.json({ error: '暂无推荐商品' }, { status: 404 });
+  }
   return NextResponse.json({
     product: {
       sku: p.sku,
-      name: p.name,
-      desc: p.desc ?? p.description ?? '',
-      priceDisplay: p.priceDisplay ?? '',
+      name: typeof p.name === 'string' ? p.name : '',
+      desc: typeof p.desc === 'string' ? p.desc : typeof p.description === 'string' ? p.description : '',
+      priceDisplay: typeof p.priceDisplay === 'string' ? p.priceDisplay : '',
     },
   });
 }
