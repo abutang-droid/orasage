@@ -176,13 +176,9 @@ export async function isPaidReadingOrderUsed(orderNo: string): Promise<boolean> 
 }
 
 export async function resolveReadingAccess(
-  userId: string | null,
+  userId: string,
   orderNo?: string | null,
 ): Promise<ReadingAccess> {
-  if (!userId) {
-    return { ok: false, reason: 'paywall', remaining: 0, sku: 'report-tarot' };
-  }
-
   if (orderNo) {
     const valid = await verifyPaidTarotReadingOrder(orderNo, userId);
     if (!valid) return { ok: false, reason: 'paywall', remaining: 0, sku: 'report-tarot' };

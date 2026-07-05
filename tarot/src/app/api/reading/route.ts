@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { drawCards } from "@/lib/tarot/draw"
-import { getAuthUser } from "@/lib/auth"
+import { ensureAuthUser, getAuthUser, setAuthCookie } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getFreeReadingsRemaining, resolveReadingAccess } from "@/lib/free-readings"
+
+function jsonWithGuestCookie<T extends object>(payload: T, init?: { status?: number; newToken?: string }) {
+  const res = NextResponse.json(payload, { status: init?.status })
+  if (init?.newToken) res.cookies.set(setAuthCookie(init.newToken))
+  return res
+}
 
 export async function GET() {
   const auth = await getAuthUser()
@@ -18,16 +24,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { question = "", spreadType = "three", orderNo = null } = body
 
-    const auth = await getAuthUser()
-    const access = await resolveReadingAccess(auth?.userId ?? null, orderNo)
+    const ensured = await ensureAuthUser()
+    const access = await resolveReadingAccess(ensured.userId, orderNo)
     if (!access.ok) {
-      return NextResponse.json(
+      return jsonWithGuestCookie(
         {
           error: "paywall",
           freeReadingsRemaining: 0,
           sku: access.sku,
         },
-        { status: 402 },
+        { status: 402, newToken: ensured.newToken },
       )
     }
 
@@ -52,25 +58,26 @@ export async function POST(req: NextRequest) {
 
     const readingId = `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
-    if (auth) {
-      await prisma.readingRecord.create({
-        data: {
-          userId: auth.userId,
-          spreadType: spreadKey,
-          question: question || "今日整体运势",
-          cards,
-        },
-      })
-    }
-
-    return NextResponse.json({
-      readingId,
-      cards,
-      question: question || "今日整体运势",
-      free: access.source !== "paid_order",
-      accessSource: access.source,
-      freeReadingsRemaining: auth ? access.remaining : null,
+    await prisma.readingRecord.create({
+      data: {
+        userId: ensured.userId,
+        spreadType: spreadKey,
+        question: question || "今日整体运势",
+        cards,
+      },
     })
+
+    return jsonWithGuestCookie(
+      {
+        readingId,
+        cards,
+        question: question || "今日整体运势",
+        free: access.source !== "paid_order",
+        accessSource: access.source,
+        freeReadingsRemaining: access.remaining,
+      },
+      { newToken: ensured.newToken },
+    )
   } catch (error) {
     console.error("Reading API error:", error)
     return NextResponse.json({ error: "Failed to start reading" }, { status: 500 })
