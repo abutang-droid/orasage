@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaithPicker } from '@/components/FaithPicker';
@@ -14,6 +15,8 @@ import {
 } from '@/lib/onboarding-v2';
 import { useUser } from '@/lib/user';
 
+const MANTO_PORTRAIT = '/images/manto-mentor.png';
+
 type ChatLine = { role: 'mentor' | 'user'; text: string };
 
 type Step =
@@ -24,6 +27,30 @@ type Step =
   | 'occupation'
   | 'faith'
   | 'saving';
+
+function MentorRow({ text }: { text: string }) {
+  return (
+    <div className="onboarding-row onboarding-row--mentor">
+      <Image
+        src={MANTO_PORTRAIT}
+        alt=""
+        width={36}
+        height={36}
+        className="onboarding-row-avatar"
+        aria-hidden
+      />
+      <div className="onboarding-bubble onboarding-bubble--mentor">{text}</div>
+    </div>
+  );
+}
+
+function UserRow({ text }: { text: string }) {
+  return (
+    <div className="onboarding-row onboarding-row--user">
+      <div className="onboarding-bubble onboarding-bubble--user">{text}</div>
+    </div>
+  );
+}
 
 function TypewriterBubble({ text, onDone }: { text: string; onDone?: () => void }) {
   const [shown, setShown] = useState('');
@@ -47,7 +74,26 @@ function TypewriterBubble({ text, onDone }: { text: string; onDone?: () => void 
     return () => window.clearInterval(timer);
   }, [text, onDone]);
 
-  return <div className="onboarding-bubble onboarding-bubble--mentor">{shown}</div>;
+  return <MentorRow text={shown} />;
+}
+
+function MantoHero() {
+  return (
+    <aside className="onboarding-hero">
+      <Image
+        src={MANTO_PORTRAIT}
+        alt="Manto，你的塔罗引导者"
+        width={320}
+        height={427}
+        className="onboarding-hero-portrait"
+        priority
+      />
+      <div className="onboarding-hero-caption">
+        <div className="onboarding-mentor-name">Manto</div>
+        <div className="onboarding-mentor-role">你的塔罗引导者</div>
+      </div>
+    </aside>
+  );
 }
 
 export function OnboardingFlow() {
@@ -204,147 +250,146 @@ export function OnboardingFlow() {
 
   if (userLoading) {
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div className="spinner" />
+      <div className="onboarding-page">
+        <div className="onboarding-loading">
+          <div className="spinner" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="onboarding-screen">
-      <div className="onboarding-mentor-head">
-        <div className="onboarding-mentor-avatar" aria-hidden>✦</div>
-        <div>
-          <div className="onboarding-mentor-name">Manto</div>
-          <div className="onboarding-mentor-role">你的塔罗引导者</div>
-        </div>
-      </div>
+    <div className="onboarding-page">
+      <div className="onboarding-layout">
+        <MantoHero />
 
-      <div className="onboarding-chat">
-        {lines.map((line, i) => (
-          <div
-            key={`${line.role}-${i}`}
-            className={`onboarding-bubble onboarding-bubble--${line.role}`}
-          >
-            {line.text}
+        <div className="onboarding-stage">
+          <div className="onboarding-chat">
+            {lines.map((line, i) =>
+              line.role === 'mentor' ? (
+                <MentorRow key={`${line.role}-${i}`} text={line.text} />
+              ) : (
+                <UserRow key={`${line.role}-${i}`} text={line.text} />
+              ),
+            )}
+
+            {step === 'intro' && !introDone && (
+              <TypewriterBubble text={introText} onDone={() => setIntroDone(true)} />
+            )}
+
+            <div ref={chatEndRef} />
           </div>
-        ))}
 
-        {step === 'intro' && !introDone && (
-          <TypewriterBubble text={introText} onDone={() => setIntroDone(true)} />
-        )}
+          <div className="onboarding-panel">
+            {step === 'intro' && introDone && (
+              <div className="onboarding-actions">
+                <button type="button" className="onboarding-btn-primary" onClick={goAfterIntro}>
+                  开始吧
+                </button>
+              </div>
+            )}
 
-        <div ref={chatEndRef} />
-      </div>
-
-      <div className="onboarding-panel">
-        {step === 'intro' && introDone && (
-          <div className="onboarding-actions">
-            <button type="button" className="onboarding-btn-primary" onClick={goAfterIntro}>
-              开始吧
-            </button>
-          </div>
-        )}
-
-        {step === 'prefill_confirm' && prefill && (
-          <>
-            <div className="onboarding-prefill-card">
-              {prefill.birthdate ? <div>生日：{prefill.birthdate}</div> : null}
-              {prefill.gender ? <div>性别：{prefill.gender}</div> : null}
-              {prefill.occupation ? <div>工作状态：{prefill.occupation}</div> : null}
-              {prefill.faith ? <div>信仰：{prefill.faith}</div> : null}
-              {prefill.sourceLabel ? (
-                <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>
-                  来源：{prefill.sourceLabel} 档案
+            {step === 'prefill_confirm' && prefill && (
+              <>
+                <div className="onboarding-prefill-card">
+                  {prefill.birthdate ? <div>生日：{prefill.birthdate}</div> : null}
+                  {prefill.gender ? <div>性别：{prefill.gender}</div> : null}
+                  {prefill.occupation ? <div>工作状态：{prefill.occupation}</div> : null}
+                  {prefill.faith ? <div>信仰：{prefill.faith}</div> : null}
+                  {prefill.sourceLabel ? (
+                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>
+                      来源：{prefill.sourceLabel} 档案
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
-            <div className="onboarding-actions">
-              <button type="button" className="onboarding-btn-primary" onClick={acceptPrefill}>
-                确认，继续
-              </button>
-              <button type="button" className="onboarding-btn-ghost" onClick={editPrefill}>
-                我要修改
-              </button>
-            </div>
-          </>
-        )}
+                <div className="onboarding-actions">
+                  <button type="button" className="onboarding-btn-primary" onClick={acceptPrefill}>
+                    确认，继续
+                  </button>
+                  <button type="button" className="onboarding-btn-ghost" onClick={editPrefill}>
+                    我要修改
+                  </button>
+                </div>
+              </>
+            )}
 
-        {step === 'birthday' && (
-          <>
-            <input
-              type="date"
-              className="onboarding-date"
-              value={draft.birthdate}
-              max={new Date().toISOString().slice(0, 10)}
-              onChange={(e) => setDraft((d) => ({ ...d, birthdate: e.target.value }))}
-            />
-            <div className="onboarding-actions">
-              <button
-                type="button"
-                className="onboarding-btn-primary"
-                disabled={!draft.birthdate}
-                onClick={onBirthdayNext}
-              >
-                继续
-              </button>
-            </div>
-          </>
-        )}
+            {step === 'birthday' && (
+              <>
+                <input
+                  type="date"
+                  className="onboarding-date"
+                  value={draft.birthdate}
+                  max={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setDraft((d) => ({ ...d, birthdate: e.target.value }))}
+                />
+                <div className="onboarding-actions">
+                  <button
+                    type="button"
+                    className="onboarding-btn-primary"
+                    disabled={!draft.birthdate}
+                    onClick={onBirthdayNext}
+                  >
+                    继续
+                  </button>
+                </div>
+              </>
+            )}
 
-        {step === 'gender' && (
-          <div className="onboarding-options">
-            {GENDER_OPTIONS.map((g) => (
-              <button
-                key={g}
-                type="button"
-                className={`onboarding-option${draft.gender === g ? ' is-selected' : ''}`}
-                onClick={() => onGenderPick(g)}
-              >
-                {g}
-              </button>
-            ))}
+            {step === 'gender' && (
+              <div className="onboarding-options">
+                {GENDER_OPTIONS.map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    className={`onboarding-option${draft.gender === g ? ' is-selected' : ''}`}
+                    onClick={() => onGenderPick(g)}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {step === 'occupation' && (
+              <div className="onboarding-options">
+                {OCCUPATION_OPTIONS.map((o) => (
+                  <button
+                    key={o}
+                    type="button"
+                    className={`onboarding-option${draft.occupation === o ? ' is-selected' : ''}`}
+                    onClick={() => onOccupationPick(o)}
+                  >
+                    {o}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {step === 'faith' && (
+              <div className="onboarding-faith-wrap">
+                <FaithPicker
+                  value={draft.faith}
+                  onChange={onFaithPick}
+                  title=""
+                  subtitle=""
+                  confirmLabel="确认信仰"
+                />
+              </div>
+            )}
+
+            {step === 'saving' && (
+              <div className="onboarding-actions">
+                <button type="button" className="onboarding-btn-primary" disabled>
+                  {saving ? '正在保存…' : '完成'}
+                </button>
+              </div>
+            )}
+
+            {error ? (
+              <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 10 }}>{error}</p>
+            ) : null}
           </div>
-        )}
-
-        {step === 'occupation' && (
-          <div className="onboarding-options">
-            {OCCUPATION_OPTIONS.map((o) => (
-              <button
-                key={o}
-                type="button"
-                className={`onboarding-option${draft.occupation === o ? ' is-selected' : ''}`}
-                onClick={() => onOccupationPick(o)}
-              >
-                {o}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {step === 'faith' && (
-          <div className="onboarding-faith-wrap">
-            <FaithPicker
-              value={draft.faith}
-              onChange={onFaithPick}
-              title=""
-              subtitle=""
-              confirmLabel="确认信仰"
-            />
-          </div>
-        )}
-
-        {step === 'saving' && (
-          <div className="onboarding-actions">
-            <button type="button" className="onboarding-btn-primary" disabled>
-              {saving ? '正在保存…' : '完成'}
-            </button>
-          </div>
-        )}
-
-        {error ? (
-          <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 10 }}>{error}</p>
-        ) : null}
+        </div>
       </div>
     </div>
   );
