@@ -40,6 +40,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
         currency: order.currency,
         status: order.status,
         shippingAddress: order.shippingAddress,
+        appSource: order.appSource,
       },
       fulfillment,
     });

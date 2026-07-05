@@ -13,6 +13,7 @@ type CheckoutOrder = {
   currency: string;
   status: string;
   shippingAddress?: string | null;
+  appSource?: string | null;
 };
 
 type Fulfillment = {
@@ -67,11 +68,13 @@ function CheckoutContent() {
 
   const [flowPhase, setFlowPhase] = useState<'idle' | 'shipping' | 'paying' | 'done' | 'error'>('idle');
   const [payError, setPayError] = useState<string | null>(null);
+  const [orderAppSource, setOrderAppSource] = useState<string | null>(null);
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
-  const autoFlowRef = useRef(false);
+  const autoFlowOrderRef = useRef<string | null>(null);
 
-  const isReportAppCheckout = REPORT_APP_SOURCES.has(appSource);
+  const effectiveAppSource = orderAppSource ?? appSource;
+  const isReportAppCheckout = REPORT_APP_SOURCES.has(effectiveAppSource);
 
   const submitMockShipping = useCallback(async (targetOrderNo: string): Promise<void> => {
     const recipients = coupleShipping
@@ -124,16 +127,19 @@ function CheckoutContent() {
     needsShipping: boolean,
     alreadyShipped: boolean,
   ) => {
-    if (autoFlowRef.current) return;
-    autoFlowRef.current = true;
+    if (autoFlowOrderRef.current === targetOrderNo) return;
+    autoFlowOrderRef.current = targetOrderNo;
     try {
       if (needsShipping && !alreadyShipped) {
         setFlowPhase('shipping');
         await submitMockShipping(targetOrderNo);
       }
       await completePayment(targetOrderNo);
-    } catch {
-      autoFlowRef.current = false;
+    } catch (err) {
+      autoFlowOrderRef.current = null;
+      payingRef.current = false;
+      setFlowPhase('error');
+      setPayError(err instanceof Error ? err.message : '结账失败');
     }
   }, [submitMockShipping, completePayment]);
 
@@ -150,10 +156,11 @@ function CheckoutContent() {
           const loadedFulfillment = data.fulfillment as Fulfillment;
           setOrder(loadedOrder);
           setFulfillment(loadedFulfillment);
+          if (loadedOrder.appSource) setOrderAppSource(loadedOrder.appSource);
           const hasShipping = Boolean(parseShippingAddress(loadedOrder.shippingAddress));
           setShippingDone(hasShipping || !loadedFulfillment.requiresShipping);
 
-          if (isReportAppCheckout && loadedOrder.status === 'pending') {
+          if (REPORT_APP_SOURCES.has(loadedOrder.appSource ?? appSource) && loadedOrder.status === 'pending') {
             void runReportAutoCheckout(
               orderNo,
               loadedFulfillment.requiresShipping,
@@ -234,6 +241,9 @@ function CheckoutContent() {
 
       const params = new URLSearchParams({ order: data.orderNo });
       if (returnUrl) params.set('return', returnUrl);
+      if (appSource) params.set('appSource', appSource);
+      if (planType) params.set('planType', planType);
+      if (readingId) params.set('readingId', readingId);
       if (coupleShipping) params.set('shipping', 'couple');
       router.replace(`/checkout?${params.toString()}`);
       return true;
@@ -408,8 +418,10 @@ function CheckoutContent() {
               type="button"
               className="shop-btn-primary mt-6 px-8"
               onClick={() => {
-                autoFlowRef.current = false;
+                autoFlowOrderRef.current = null;
                 payingRef.current = false;
+                setFlowPhase('idle');
+                setPayError(null);
                 void runReportAutoCheckout(
                   orderNo,
                   fulfillment?.requiresShipping ?? false,

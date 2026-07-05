@@ -86,6 +86,9 @@ export async function createCheckoutOrder(
   const orderNo = makeOrderNo();
   const needsShipping = product.requiresShipping ?? inferRequiresShipping(product);
   const checkoutExtras: Record<string, string> = {};
+  if (input.appSource) checkoutExtras.appSource = input.appSource;
+  if (input.planType) checkoutExtras.planType = input.planType;
+  if (input.readingId) checkoutExtras.readingId = input.readingId;
   if (needsShipping && input.shippingMode === 'couple') {
     checkoutExtras.shipping = 'couple';
   }

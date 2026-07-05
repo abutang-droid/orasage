@@ -71,7 +71,11 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
   });
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>("advanced");
   const selectedPlanRef = useRef<PlanType | null>("advanced");
-  selectedPlanRef.current = selectedPlan;
+
+  const selectPlan = useCallback((plan: PlanType) => {
+    selectedPlanRef.current = plan;
+    setSelectedPlan(plan);
+  }, []);
 
   useEffect(() => {
     const resetPayLoading = () => setPayLoading(false);
@@ -170,15 +174,15 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       toast.error(t('paywall.select_plan', '请先选择方案'));
       return;
     }
-    setSelectedPlan(target);
+    selectPlan(target);
     setPayLoading(true);
     openShopCheckout(target);
-  }, [openShopCheckout, t]);
+  }, [openShopCheckout, selectPlan, t]);
 
   const openDirectPayment = useCallback((plan: PlanType) => {
-    setSelectedPlan(plan);
+    selectPlan(plan);
     openShopCheckout(plan);
-  }, [openShopCheckout]);
+  }, [openShopCheckout, selectPlan]);
 
   const handlePlanSelect = useCallback((plan: PlanType, orderId?: string) => {
     setState(prev => ({
@@ -222,7 +226,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
   return {
     ...state,
     selectedPlan,
-    setSelectedPlan,
+    setSelectedPlan: selectPlan,
     payLoading,
     openDirectPayment,
     openShopCheckout,
