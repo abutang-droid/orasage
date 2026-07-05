@@ -29,6 +29,20 @@ type ProductPreview = {
 
 type GuestStep = 'email' | 'exists' | 'creating';
 
+const REPORT_APP_SOURCES = new Set(['bazi', 'ziwei', 'tarot']);
+
+function appendOrderToReturnUrl(returnUrl: string, orderNo: string): string {
+  try {
+    const url = new URL(returnUrl);
+    url.searchParams.set('order', orderNo);
+    if (!url.searchParams.has('paid')) url.searchParams.set('paid', '1');
+    return url.toString();
+  } catch {
+    const sep = returnUrl.includes('?') ? '&' : '?';
+    return `${returnUrl}${sep}order=${encodeURIComponent(orderNo)}`;
+  }
+}
+
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -56,6 +70,9 @@ function CheckoutContent() {
   const [done, setDone] = useState(false);
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
+  const autoFlowRef = useRef(false);
+
+  const isReportAppCheckout = REPORT_APP_SOURCES.has(appSource);
 
   useEffect(() => {
     if (orderNo) {
@@ -221,6 +238,27 @@ function CheckoutContent() {
     return err instanceof Error ? err.message : '支付失败';
   }
 
+  async function submitMockShipping(): Promise<boolean> {
+    if (!orderNo) return false;
+    const recipients = coupleShipping
+      ? [
+          { name: '收货人甲', phone: '13800000001', address: '模拟地址甲', wristCm: '16' },
+          { name: '收货人乙', phone: '13800000002', address: '模拟地址乙', wristCm: '17' },
+        ]
+      : [{ name: '收货人', phone: '13800000000', address: '模拟收货地址', wristCm: '16' }];
+    const shipUrl = `/api/orders/${encodeURIComponent(orderNo)}/shipping${coupleShipping ? '?shipping=couple' : ''}`;
+    const res = await fetch(shipUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipients }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || '保存收货信息失败');
+    setShippingDone(true);
+    return true;
+  }
+
   async function handlePay() {
     if (!orderNo || payingRef.current || done) return;
     payingRef.current = true;
@@ -235,9 +273,10 @@ function CheckoutContent() {
       if (!res.ok) throw new Error(data.error || '支付失败');
       setDone(true);
       if (returnUrl) {
-        setTimeout(() => { window.location.href = returnUrl; }, 800);
+        const target = appendOrderToReturnUrl(returnUrl, orderNo);
+        setTimeout(() => { window.location.href = target; }, 600);
       } else {
-        setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 800);
+        setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 600);
       }
     } catch (err) {
       payingRef.current = false;
@@ -247,8 +286,34 @@ function CheckoutContent() {
     }
   }
 
+  // 命理 App 访客结账：mock 模式下自动填收货并模拟支付，减少流程中断
+  useEffect(() => {
+    if (!isReportAppCheckout || loading || !order || done || payError || payLoading) return;
+    if (autoFlowRef.current) return;
+
+    const runAutoFlow = async () => {
+      autoFlowRef.current = true;
+      try {
+        if (fulfillment?.requiresShipping && !shippingDone) {
+          await submitMockShipping();
+        }
+        await handlePay();
+      } catch (err) {
+        autoFlowRef.current = false;
+        setPayError(err instanceof Error ? err.message : '自动支付失败');
+      }
+    };
+
+    void runAutoFlow();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReportAppCheckout, loading, order, fulfillment, shippingDone, done, payError, payLoading, orderNo]);
+
   if (loading) {
-    return <main className="shop-page p-16 text-center text-sage-muted">加载订单…</main>;
+    return (
+      <main className="shop-page p-16 text-center text-sage-muted">
+        {isReportAppCheckout ? '正在解锁报告…' : '加载订单…'}
+      </main>
+    );
   }
 
   if (loadError && !order && !productPreview) {
@@ -262,7 +327,7 @@ function CheckoutContent() {
   // SKU 访客结账：邮箱收集
   if (!orderNo && productPreview) {
     if (guestStep === 'creating') {
-      return <main className="shop-page p-16 text-center text-sage-muted">正在创建订单…</main>;
+      return <main className="shop-page p-16 text-center text-sage-muted">正在准备订单…</main>;
     }
 
     return (
@@ -358,18 +423,24 @@ function CheckoutContent() {
 
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
-      <h1 className="font-serif text-2xl text-sage-primary">确认支付</h1>
+      <h1 className="font-serif text-2xl text-sage-primary">
+        {isReportAppCheckout ? '正在解锁报告' : '确认支付'}
+      </h1>
       <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
       <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
-      <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
+      {!isReportAppCheckout ? (
+        <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
+      ) : null}
       {fulfillment?.requiresShipping && order.shippingAddress ? (
         <p className="mt-4 max-w-sm text-left text-xs text-sage-muted">
           收货信息已确认，支付后将安排发货
         </p>
       ) : null}
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
-      {done ? (
-        <p className="mt-6 text-sm text-sage-primary">支付成功，正在跳转…</p>
+      {done || payLoading ? (
+        <p className="mt-6 text-sm text-sage-primary">
+          {done ? '解锁成功，正在返回…' : '模拟支付处理中…'}
+        </p>
       ) : (
         <button
           type="button"
@@ -377,12 +448,14 @@ function CheckoutContent() {
           onClick={() => void handlePay()}
           className="shop-btn-primary mt-8 px-8"
         >
-          {payLoading ? '处理中…' : '模拟支付（完成订单）'}
+          模拟支付（完成订单）
         </button>
       )}
-      <p className="mt-6 max-w-sm text-xs text-sage-muted">
-        当前为模拟支付模式，用于产品流程测试与风控审核。正式上线前将切换至 Stripe。
-      </p>
+      {!isReportAppCheckout ? (
+        <p className="mt-6 max-w-sm text-xs text-sage-muted">
+          当前为模拟支付模式，用于产品流程测试与风控审核。正式上线前将切换至 Stripe。
+        </p>
+      ) : null}
     </main>
   );
 }

@@ -90,8 +90,14 @@ const ui: TranslationDict = {
   "paywall.couple.subtitle": "选择方案，立即查看完整合盘分析",
   "paywall.couple.hook": "评分只显示了表面契合度，真正的缘分密码藏在五行气的微观互动中——谁在关系中消耗能量、谁在滋养对方？完整合盘报告将逐层剖析这些看不见但决定关系质量的关键因素。",
   "paywall.couple.hook_label": "解锁完整合盘 · 了解真正的缘分",
+  "paywall.choose_tier": "选择报告方案",
+  "paywall.unlock_report": "解锁报告",
+  "paywall.unlocking": "正在解锁…",
 
   /* ── 付费方案 ── */
+  "plan.tier.basic": "基础版",
+  "plan.tier.advanced": "进阶版",
+  "plan.tier.premium": "尊享版",
   "plan.basic.name": "OraSage 深度解读",
   "plan.basic.desc": "完整命理解读报告",
   "plan.advanced.name": "定制专属能量手串",

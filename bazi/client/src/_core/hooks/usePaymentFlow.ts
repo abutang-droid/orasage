@@ -69,7 +69,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     buyerEmail: '',
     buyerName: '',
   });
-  const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType | null>("advanced");
   const [payLoading, setPayLoading] = useState(false);
 
   const buyPlanMutation = trpc.bazi.buyPlan.useMutation({
@@ -86,7 +86,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("paid") !== "1") return;
-    const orderNo = params.get("order");
+    const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder");
     if (!orderNo) return;
     const storedPlan = sessionStorage.getItem(PLAN_KEY) as PlanType | null;
     setState((prev) => ({
@@ -96,6 +96,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       purchasedPlan: prev.purchasedPlan ?? storedPlan ?? "advanced",
     }));
     sessionStorage.removeItem(PLAN_KEY);
+    sessionStorage.removeItem("bazi:lastShopOrder");
     toast.success(t('plan.paid_success', '支付成功，正在生成报告…'));
     const url = new URL(window.location.href);
     url.searchParams.delete("paid");
