@@ -12,6 +12,10 @@ import {
   setBaziElementRecommendations,
   type BaziElement,
 } from "../lib/bazi-recommend-products.ts";
+import {
+  listZiweiRecommendRows,
+  setZiweiRecommendSkus,
+} from "../lib/ziwei-chat.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 
 export const adminApiRouter = Router();
@@ -144,6 +148,39 @@ adminApiRouter.put("/bazi-recommend-products", async (req, res) => {
       return;
     }
     console.error("[admin] bazi-recommend-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const ziweiRecommendSchema = z.object({
+  skus: z.array(z.string().min(1).max(100)),
+});
+
+adminApiRouter.get("/ziwei-recommend-products", async (_req, res) => {
+  try {
+    const rows = await listZiweiRecommendRows();
+    res.json({ skus: rows.map((r) => r.sku), rows });
+  } catch (err) {
+    console.error("[admin] ziwei-recommend-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/ziwei-recommend-products", async (req, res) => {
+  try {
+    const body = ziweiRecommendSchema.parse(req.body);
+    const rows = await setZiweiRecommendSkus(body.skus);
+    res.json({ skus: rows.map((r) => r.sku), rows });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] ziwei-recommend-products:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

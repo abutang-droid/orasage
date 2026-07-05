@@ -107,7 +107,7 @@ accountRouter.get("/readings", async (req, res) => {
       summary: r.summary,
       recommendationReason: r.recommendationReason,
       crystalSku: r.crystalSku,
-      reportUrl: r.reportUrl,
+      reportUrl: r.appSource === "ziwei" ? null : r.reportUrl,
       createdAt: r.createdAt,
     })),
   });

@@ -625,3 +625,365 @@ a:hover { color: var(--gold-light); }
   align-items: center;
   gap: 16px;
 }
+
+/* ─── 排盘结果：移动优先单列 ───────────────────────────── */
+.ziwei-result-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 12px calc(24px + var(--shell-bottom-h, 56px));
+}
+
+.ziwei-result-chart {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ziwei-section-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tx-0);
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+}
+
+.ziwei-brief-insight,
+.ziwei-orasage-chat {
+  background: var(--bg-card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+.ziwei-brief-body {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--tx-1);
+  white-space: pre-wrap;
+}
+
+.ziwei-brief-muted {
+  font-size: 13px;
+  color: var(--tx-3);
+}
+
+.ziwei-brief-error {
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.ziwei-orasage-chat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ziwei-orasage-chat-sub {
+  font-size: 12px;
+  color: var(--tx-3);
+  margin: 4px 0 0;
+}
+
+.ziwei-quota-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-pale);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.ziwei-login-gate {
+  text-align: center;
+  padding: 20px 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--tx-2);
+}
+
+.ziwei-login-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ziwei-orasage-messages {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ziwei-msg {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.ziwei-msg-user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+}
+
+.ziwei-msg-ai {
+  align-self: flex-start;
+  background: var(--bg-0);
+  border: 1px solid var(--bdr);
+  color: var(--tx-1);
+}
+
+.ziwei-msg-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.ziwei-preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ziwei-preset-btn {
+  text-align: left;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--bdr);
+  background: transparent;
+  color: var(--tx-2);
+  cursor: pointer;
+}
+
+.ziwei-chat-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ziwei-chat-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--bg-0);
+}
+
+.ziwei-chat-send {
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 0 16px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ziwei-chat-paywall {
+  border-top: 1px dashed var(--bdr);
+  padding-top: 14px;
+}
+
+.ziwei-chat-paywall-title {
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 6px;
+  color: var(--tx-0);
+}
+
+.ziwei-chat-paywall-sub {
+  font-size: 12px;
+  text-align: center;
+  color: var(--tx-3);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.ziwei-chat-paywall-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ziwei-chat-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--bdr);
+  background: var(--bg-0);
+  cursor: pointer;
+  text-align: left;
+}
+
+.ziwei-chat-plan.is-featured {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+}
+
+.ziwei-chat-plan strong {
+  display: block;
+  font-size: 14px;
+  color: var(--tx-0);
+}
+
+.ziwei-chat-plan span {
+  display: block;
+  font-size: 11px;
+  color: var(--tx-3);
+  margin-top: 2px;
+}
+
+.ziwei-chat-plan em {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ziwei-recommend-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(184,148,63,0.08) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+.ziwei-recommend-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--tx-3);
+  cursor: pointer;
+}
+
+.ziwei-recommend-label {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  margin: 0 0 6px;
+}
+
+.ziwei-recommend-name {
+  font-size: 15px;
+  margin: 0 0 6px;
+  color: var(--tx-0);
+}
+
+.ziwei-recommend-desc {
+  font-size: 13px;
+  color: var(--tx-2);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.ziwei-recommend-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ziwei-recommend-price {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ziwei-recommend-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.ziwei-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--tx-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.ziwei-chart-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--bdr-med);
+}
+
+.ziwei-chart-label {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+}
+
+.ziwei-heming-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-md);
+  padding: 3px;
+}
+
+.ziwei-heming-tab {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--tx-2);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ziwei-heming-tab.is-active {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .ziwei-result-stack {
+    padding: 16px 20px 32px;
+    max-width: 840px;
+  }
+  .ziwei-orasage-messages {
+    max-height: 480px;
+  }
+}

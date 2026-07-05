@@ -136,3 +136,19 @@ export function saveBaziRecommendProducts(items: Record<string, {
     body: JSON.stringify({ items }),
   });
 }
+
+export interface ZiweiRecommendProductsConfig {
+  skus: string[];
+  rows: Array<{ id: number; sku: string; sortOrder: number; active: boolean }>;
+}
+
+export function getZiweiRecommendProducts() {
+  return adminFetch<ZiweiRecommendProductsConfig>('/ziwei-recommend-products');
+}
+
+export function saveZiweiRecommendProducts(skus: string[]) {
+  return adminFetch<ZiweiRecommendProductsConfig>('/ziwei-recommend-products', {
+    method: 'PUT',
+    body: JSON.stringify({ skus }),
+  });
+}

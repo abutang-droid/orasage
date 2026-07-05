@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
+import { authCookieHeader, resolveAuthUserIdFromCookies } from '@/lib/auth-user-server';
 
 export const runtime = 'nodejs';
+
+const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL || 'http://127.0.0.1:3101';
 
 const SYSTEM_PROMPT = `你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识，同时融合现代心理学视角。
 你的解读风格：
@@ -13,25 +16,50 @@ const SYSTEM_PROMPT = `你是一位精通紫微斗数的命理师，拥有深厚
 
 export async function POST(req: NextRequest) {
   try {
-    // 此接口此前完全无鉴权、无限流，任何人都能无限调用消耗第三方 AI API 额度。
-    // 加一层按 IP 的简单限流作为最低成本的防护（10 次/分钟）。
     const ip = clientIp(req);
-    const { ok } = rateLimit(`interpret:${ip}`, 10, 60_000);
+    const { ok } = rateLimit(`interpret:${ip}`, 20, 60_000);
     if (!ok) {
       return NextResponse.json(
         { error: '请求过于频繁，请稍后再试。' },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
+    const userId = await resolveAuthUserIdFromCookies();
+    if (!userId) {
+      return NextResponse.json({ error: '请先登录后再提问', code: 'auth_required' }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { messages, chartData, mode } = body;
+    const { messages, chartData, mode, readingId } = body;
+
+    if (!readingId || typeof readingId !== 'string') {
+      return NextResponse.json({ error: '缺少 readingId' }, { status: 400 });
+    }
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return NextResponse.json({ error: '参数错误：messages 无效' }, { status: 400 });
     }
 
-    // 优先使用 Manus 代理接口，其次 DeepSeek，最后 OpenAI
+    const cookie = await authCookieHeader();
+    const consumeRes = await fetch(`${AUTH_INTERNAL}/api/ziwei/chat/consume`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', cookie },
+      body: JSON.stringify({ readingId }),
+      cache: 'no-store',
+    });
+    const consumeData = await consumeRes.json().catch(() => ({}));
+    if (!consumeRes.ok) {
+      return NextResponse.json(
+        {
+          error: consumeData.error === 'quota_exhausted' ? '问答次数已用完，请购买加量包或年卡' : '额度校验失败',
+          code: consumeData.error ?? 'quota_error',
+          quota: consumeData.quota,
+        },
+        { status: consumeRes.status },
+      );
+    }
+
     const apiKey =
       process.env.MANUS_API_KEY ||
       process.env.DEEPSEEK_API_KEY ||
@@ -129,6 +157,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
+        'X-Ziwei-Quota': JSON.stringify(consumeData.quota ?? {}),
       },
     });
   } catch (e) {

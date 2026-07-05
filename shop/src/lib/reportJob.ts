@@ -1,4 +1,30 @@
 import { ENV } from './env';
+import { isZiweiChatSku } from '../../../shared/ziwei-chat/skus';
+
+async function grantZiweiChatCredits(order: {
+  orderNo: string;
+  userId: number;
+  sku?: string | null;
+}) {
+  const sku = order.sku ?? '';
+  if (!isZiweiChatSku(sku)) return;
+  const res = await fetch(`${ENV.authInternalUrl}/internal/ziwei/chat/grant`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-real-ip': '127.0.0.1',
+    },
+    body: JSON.stringify({
+      userId: order.userId,
+      sku,
+      orderNo: order.orderNo,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`ziwei chat grant failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+}
 
 function planTypeFromBaziSku(sku: string | null | undefined): string {
   if (!sku) return 'advanced';
@@ -67,7 +93,7 @@ export async function dispatchZiweiReportJob(order: {
   }
 }
 
-/** 根据 SKU 前缀分发报告生成任务 */
+/** 根据 SKU 前缀分发报告生成任务（紫微问答 SKU 不走报告） */
 export async function dispatchReportJob(order: {
   orderNo: string;
   userId: number;
@@ -75,9 +101,22 @@ export async function dispatchReportJob(order: {
   readingId?: string | null;
 }) {
   const sku = order.sku ?? '';
+  if (isZiweiChatSku(sku)) {
+    await grantZiweiChatCredits(order);
+    return;
+  }
   if (sku.startsWith('report-bazi')) {
     await dispatchBaziReportJob(order);
   } else if (sku.startsWith('report-ziwei')) {
     await dispatchZiweiReportJob(order);
   }
+}
+
+export async function dispatchPostPaymentJob(order: {
+  orderNo: string;
+  userId: number;
+  sku?: string | null;
+  readingId?: string | null;
+}) {
+  await dispatchReportJob(order);
 }

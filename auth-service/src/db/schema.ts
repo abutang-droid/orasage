@@ -123,6 +123,33 @@ export const baziElementRecommendations = pgTable("bazi_element_recommendations"
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+/** 紫微对话页底部商品推荐（多 SKU 轮换，前台单卡片展示） */
+export const ziweiProductRecommendations = pgTable("ziwei_product_recommendations", {
+  id: serial("id").primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 账户级紫微问答额度（加量包余额 + 年卡到期） */
+export const ziweiChatAccounts = pgTable("ziwei_chat_accounts", {
+  userId: integer("user_id").primaryKey(),
+  packCredits: integer("pack_credits").notNull().default(0),
+  yearlyExpiresAt: timestamp("yearly_expires_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 每份排盘 readingId 的免费问答消耗 */
+export const ziweiReadingChat = pgTable("ziwei_reading_chat", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  readingId: varchar("reading_id", { length: 100 }).notNull(),
+  freeQuestionsUsed: integer("free_questions_used").notNull().default(0),
+  totalQuestionsUsed: integer("total_questions_used").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const userRecommendations = pgTable("user_recommendations", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),

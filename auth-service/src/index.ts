@@ -11,6 +11,7 @@ import { internalRouter } from "./routes/account.ts";
 import { productsRouter } from "./routes/products.ts";
 import { adminApiRouter } from "./routes/admin-api.ts";
 import { citiesRouter } from "./routes/cities.ts";
+import { ziweiChatRouter, ziweiChatInternalRouter } from "./routes/ziwei-chat.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,8 +26,10 @@ app.use(pagesRouter);
 app.use("/auth", authRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/cities", citiesRouter);
+app.use("/api/ziwei/chat", ziweiChatRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/internal", internalOnly, internalRouter);
+app.use("/internal/ziwei/chat", internalOnly, ziweiChatInternalRouter);
 app.use(healthRouter);
 
 // 裸机部署默认只监听 127.0.0.1：对外统一由 Nginx 反代 auth.orasage.com，

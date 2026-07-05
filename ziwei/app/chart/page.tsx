@@ -1,25 +1,26 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { useT } from '@/lib/i18n';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
-import TimeNav, { type TimeView } from '@/components/TimeNav';
 import ChartBoard from '@/components/ChartBoard';
-import InsightPanel from '@/components/InsightPanel';
-import ChatPanel from '@/components/ChatPanel';
 import type { BirthInfo, ZiweiChart, Star, Palace } from '@/lib/ziwei/types';
 import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/ziwei/share';
-import { generateChart } from "@/lib/ziwei/algorithm";
+import { generateChart } from '@/lib/ziwei/algorithm';
 import { syncBirthFormProfile } from '@/lib/profile-sync';
-import { syncZiweiReading, ziweiCrystalRecommendation } from '@/lib/reading-sync';
-import PaywallCard from '@/components/PaywallCard';
-import CrystalShopCard from '@/components/CrystalShopCard';
+import { syncZiweiReading } from '@/lib/reading-sync';
 import { ZiweiHomeHero } from '@/components/ZiweiHomeHero';
 import { ZiweiHomeFeed } from '@/components/ZiweiHomeFeed';
-import { usePaymentFlow, saveLastReadingId } from '@/lib/usePaymentFlow';
+import { ZiweiBriefInsight } from '@/components/ZiweiBriefInsight';
+import { ZiweiOrasageChat } from '@/components/ZiweiOrasageChat';
+import { ZiweiRecommendCard } from '@/components/ZiweiRecommendCard';
+import { getLastReadingId, saveLastReadingId } from '@/lib/ziwei-reading-session';
 
-type FocusState = any;
+type FocusState =
+  | { type: 'star'; label: string; star: Star; palace: Palace }
+  | { type: 'palace'; label: string; palace: Palace }
+  | { type: 'sihua'; label: string; siHua: string };
 
-// ─── 合盘输入：两人 Tab 切换（与八字 Home 合盘 UI 一致）────────────────────
 const emptyBirthForm = (): BirthFormState => ({
   name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0',
   unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', calendar: 'solar',
@@ -39,24 +40,18 @@ function HemingPanel({
     forms[0].year && forms[0].month && forms[0].day &&
     forms[1].year && forms[1].month && forms[1].day;
 
-  const handleSubmit = () => {
-    onSubmit(formToBirthInfo(forms[0]), formToBirthInfo(forms[1]), forms[0], forms[1]);
-  };
-
-  const personLabels = [t('form.person.first'), t('form.person.second')] as const;
-
   return (
     <>
       <div className="ziwei-calc-person-tabs">
         <span className="ziwei-calc-person-hint">{t('form.person.editing')}</span>
-        {personLabels.map((label, idx) => (
+        {([0, 1] as const).map((idx) => (
           <button
             key={idx}
             type="button"
-            onClick={() => setActivePerson(idx as 0 | 1)}
+            onClick={() => setActivePerson(idx)}
             className={`ziwei-calc-person-tab${activePerson === idx ? ' is-active' : ''}`}
           >
-            {label}
+            {idx === 0 ? t('form.person.first') : t('form.person.second')}
           </button>
         ))}
       </div>
@@ -68,7 +63,7 @@ function HemingPanel({
         initialData={forms[activePerson]}
         onFormSave={(data) => {
           setForms((prev) => {
-            const next: [BirthFormState, BirthFormState] = [...prev] as [BirthFormState, BirthFormState];
+            const next = [...prev] as [BirthFormState, BirthFormState];
             next[activePerson] = data;
             return next;
           });
@@ -76,7 +71,7 @@ function HemingPanel({
       />
       <button
         type="button"
-        onClick={handleSubmit}
+        onClick={() => onSubmit(formToBirthInfo(forms[0]), formToBirthInfo(forms[1]), forms[0], forms[1])}
         disabled={!canSubmit || loading}
         className="ziwei-calc-submit"
       >
@@ -86,88 +81,121 @@ function HemingPanel({
   );
 }
 
-// ─── 主页面 ───────────────────────────────────────────────────────────────────
 export default function ChartPage() {
   const t = useT();
   const [mode, setMode] = useState<'single' | 'heming'>('single');
-  const payment = usePaymentFlow(mode === 'heming' ? 'couple' : 'single');
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [chartB, setChartB] = useState<ZiweiChart | null>(null);
+  const [readingId, setReadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [savedForm, setSavedForm] = useState<BirthFormState | null>(null);
   const [formKey, setFormKey] = useState(0);
-  const [view, setView] = useState<TimeView>('mingpan');
-  const [liunianYear, setLiunianYear] = useState(new Date().getFullYear());
-  const [focus, setFocus] = useState<FocusState | null>(null);
   const [hemingTab, setHemingTab] = useState<'A' | 'B'>('A');
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [recommendDismissed, setRecommendDismissed] = useState(false);
+  const [chatSessionKey, setChatSessionKey] = useState(0);
+
+  const refreshAuth = useCallback(() => {
+    void fetch('/api/auth/me', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d: { user?: unknown }) => setLoggedIn(Boolean(d.user)))
+      .catch(() => setLoggedIn(false));
+  }, []);
 
   useEffect(() => {
+    refreshAuth();
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'heming') {
-      setMode('heming');
+    if (params.get('mode') === 'heming') setMode('heming');
+    if (params.get('paid') === '1') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('paid');
+      url.searchParams.delete('order');
+      window.history.replaceState({}, '', url.pathname + url.search);
+      refreshAuth();
     }
     const formData = searchParamsToForm(params);
     if (!formData?.year) return;
-    const fullForm: BirthFormState = { name: '', year: '', month: '', day: '', clockHour: '8', clockMinute: '0', unknownTime: false, province: '', city: '', longitude: 120, gender: 'male', calendar: 'solar', ...formData };
+    const fullForm: BirthFormState = {
+      ...emptyBirthForm(),
+      ...formData,
+    };
     setSavedForm(fullForm);
-    handleSingleSubmit(formToBirthInfo(fullForm), fullForm);
+    void handleSingleSubmit(formToBirthInfo(fullForm), fullForm);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSingleSubmit = async (info: BirthInfo, form?: BirthFormState) => {
-    setLoading(true); setError('');
-    payment.setUnlocked(false);
-    try {
-      const data = generateChart(info);
-      setChart(data); setChartB(null); setFocus(null); setView('mingpan');
-      const syncForm = form ?? savedForm;
-      if (syncForm) void syncBirthFormProfile(syncForm);
-      const readingId = syncZiweiReading(data);
-      saveLastReadingId(readingId);
-    }
-    catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
-    finally { setLoading(false); }
+  const bindReading = (id: string) => {
+    setReadingId(id);
+    saveLastReadingId(id);
+    setRecommendDismissed(false);
+    setChatSessionKey((k) => k + 1);
   };
 
-  const handleHemingSubmit = async (infoA: BirthInfo, infoB: BirthInfo, formA: BirthFormState, formB: BirthFormState) => {
-    setLoading(true); setError('');
-    payment.setUnlocked(false);
+  const handleSingleSubmit = async (info: BirthInfo, form?: BirthFormState) => {
+    setLoading(true);
+    setError('');
     try {
-      const dataA = generateChart(infoA); const dataB = generateChart(infoB);
-      setChart(dataA); setChartB(dataB); setFocus(null); setView('mingpan'); setHemingTab('A');
+      const data = generateChart(info);
+      setChart(data);
+      setChartB(null);
+      const syncForm = form ?? savedForm;
+      if (syncForm) void syncBirthFormProfile(syncForm);
+      const id = syncZiweiReading(data);
+      bindReading(id);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : t('insight.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleHemingSubmit = async (
+    infoA: BirthInfo,
+    infoB: BirthInfo,
+    formA: BirthFormState,
+    formB: BirthFormState,
+  ) => {
+    setLoading(true);
+    setError('');
+    try {
+      const dataA = generateChart(infoA);
+      const dataB = generateChart(infoB);
+      setChart(dataA);
+      setChartB(dataB);
+      setHemingTab('A');
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
-      const readingId = syncZiweiReading(dataA, { couplePartner: dataB });
-      saveLastReadingId(readingId);
+      const id = syncZiweiReading(dataA, { couplePartner: dataB });
+      bindReading(id);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : t('insight.error'));
+    } finally {
+      setLoading(false);
     }
-    catch (e: unknown) { setError(e instanceof Error ? e.message : t('insight.error')); }
-    finally { setLoading(false); }
   };
 
   const handleReset = () => {
-    setChart(null); setChartB(null); setError(''); setFocus(null); setSavedForm(null); setFormKey(k => k + 1); setView('mingpan');
-    payment.setUnlocked(false);
-    payment.setPurchasedPlan(null);
+    setChart(null);
+    setChartB(null);
+    setReadingId(null);
+    setError('');
+    setSavedForm(null);
+    setFormKey((k) => k + 1);
+    setRecommendDismissed(false);
     if (typeof window !== 'undefined') window.history.replaceState({}, '', '/chart');
   };
 
-  const handleStarClick = (star: Star, palace: Palace) => setFocus({ type: 'star', label: `${star.name} · ${palace.name}`, star, palace });
-  const handlePalaceClick = (palace: Palace) => setFocus({ type: 'palace', label: palace.name, palace });
-  const handleSiHuaBadgeClick = (starName: string, siHua: string) => setFocus({ type: 'sihua', label: `${starName} 化${siHua}`, siHua });
-
   const activeChart = mode === 'heming' && hemingTab === 'B' && chartB ? chartB : chart;
-  const crystalRec = activeChart ? ziweiCrystalRecommendation(activeChart) : null;
+  const activeReadingId = readingId ?? getLastReadingId() ?? '';
 
-  // ═══ 表单视图 ═══
   if (!chart) {
     return (
       <div className="ziwei-chart-page orasage-fade-in">
         <ZiweiHomeHero />
-
         <div className="ziwei-calc-form ziwei-calc-section">
           <div className="ziwei-calc-mode-bar">
-            {(['single', 'heming'] as const).map(m => (
+            {(['single', 'heming'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
@@ -178,14 +206,13 @@ export default function ChartPage() {
               </button>
             ))}
           </div>
-
           {mode === 'single' ? (
             <BirthForm
               key={formKey}
               onSubmit={handleSingleSubmit}
               loading={loading}
               initialData={savedForm ?? undefined}
-              onFormSave={form => {
+              onFormSave={(form) => {
                 setSavedForm(form);
                 if (form.year && form.month && form.day) {
                   const params = formToSearchParams(form);
@@ -198,104 +225,71 @@ export default function ChartPage() {
           ) : (
             <HemingPanel onSubmit={handleHemingSubmit} loading={loading} />
           )}
-
           {error && <div className="ziwei-calc-error">{error}</div>}
         </div>
-
         <ZiweiHomeFeed />
       </div>
     );
   }
 
-  // ═══ 命盘视图 ═══
+  const chartData =
+    mode === 'heming' && chart && chartB
+      ? { chartA: chart, chartB }
+      : activeChart ?? chart;
+
   return (
-    <div style={{ background: 'var(--bg-0)' }} className="orasage-fade-in">
+    <div className="chart-page-root orasage-fade-in">
       <div className="ziwei-chart-toolbar">
-        <button onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', flexShrink: 0 }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--tx-1)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--tx-3)'; }}>
-          <span style={{ fontSize: '16px' }}>‹</span><span>{t('chart.reset')}</span>
+        <button type="button" onClick={handleReset} className="ziwei-reset-btn">
+          <span>‹</span>
+          {t('chart.reset')}
         </button>
-        <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
+        <div className="ziwei-chart-toolbar-sep" />
         {mode === 'heming' && chartB ? (
-          <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-card)', border: '1px solid var(--bdr)', borderRadius: 'var(--r-md)', padding: '3px' }}>
-            {(['A', 'B'] as const).map(tab => (
-              <button key={tab} onClick={() => setHemingTab(tab)}
-                style={{ padding: '4px 14px', borderRadius: '6px', border: 'none', background: hemingTab === tab ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)' : 'transparent', color: hemingTab === tab ? '#fff' : 'var(--tx-2)', fontSize: '12px', fontWeight: hemingTab === tab ? 700 : 400, cursor: 'pointer', transition: 'all 0.15s' }}>
+          <div className="ziwei-heming-tabs">
+            {(['A', 'B'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setHemingTab(tab)}
+                className={`ziwei-heming-tab${hemingTab === tab ? ' is-active' : ''}`}
+              >
                 {tab === 'A' ? `甲 · ${t('heming.person.a')}` : `乙 · ${t('heming.person.b')}`}
               </button>
             ))}
           </div>
         ) : (
-          <span style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '0.15em' }}>{t('chart.title')}</span>
+          <span className="ziwei-chart-label">{t('chart.title')}</span>
         )}
-        <div style={{ flex: 1 }} />
-        <TimeNav chart={activeChart ?? chart} view={view} liunianYear={liunianYear} onViewChange={setView} onYearChange={setLiunianYear} />
       </div>
 
-      {crystalRec && !payment.unlocked && (
-        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 20px 12px' }}>
-          <CrystalShopCard reason={crystalRec.reason} crystalSku={crystalRec.crystalSku} />
+      <div className="ziwei-result-stack">
+        <div className="ziwei-result-chart">
+          <ChartBoard chart={activeChart ?? chart} />
         </div>
-      )}
 
-      {!payment.unlocked && (
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 20px 16px' }}>
-          {mode === 'heming' && (
-            <div style={{
-              marginBottom: 12, padding: '14px 16px', borderRadius: 'var(--r-md)',
-              background: 'var(--bg-card)', border: '1px solid var(--bdr)',
-            }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-0)', fontFamily: 'var(--font-serif)', marginBottom: 6 }}>
-                {t('paywall.couple.hook_title')}
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--tx-2)', lineHeight: 1.6 }}>{t('paywall.couple.hook')}</p>
-            </div>
-          )}
-          <PaywallCard
-            mode={mode === 'heming' ? 'couple' : 'single'}
-            onPay={(plan) => void payment.openDirectPayment(plan)}
-          />
-        </div>
-      )}
+        <ZiweiBriefInsight chart={activeChart ?? chart} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '20px', padding: '20px', maxWidth: '1400px', margin: '0 auto' }} className="chart-workspace-grid">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
-          <ChartBoard
+        {activeReadingId ? (
+          <ZiweiOrasageChat
+            key={`${activeReadingId}-${chatSessionKey}`}
             chart={activeChart ?? chart}
-            onStarSelect={handleStarClick}
-            onPalaceSelect={handlePalaceClick}
-            onSiHuaClick={handleSiHuaBadgeClick}
+            chartData={chartData}
+            mode={mode === 'heming' ? 'heming' : 'single'}
+            readingId={activeReadingId}
+            loggedIn={loggedIn}
           />
-          {payment.unlocked && (
-            <InsightPanel
-              chart={activeChart ?? chart}
-              selectedPalace={focus?.type === 'palace' || focus?.type === 'star' ? focus.palace : null}
-              selectedSiHua={focus?.type === 'sihua' ? { starName: focus.label.split(' ')[0], siHua: focus.siHua, view } : null}
-            />
-          )}
-        </div>
-        {payment.unlocked ? (
-          <div className="ziwei-chart-chat">
-            <ChatPanel chart={activeChart ?? chart} mode={mode} chartData={mode === 'heming' && chart && chartB ? { chartA: chart, chartB } : (activeChart ?? chart)} />
-          </div>
-        ) : (
-          <div className="ziwei-chart-chat" style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 24, background: 'var(--bg-card)', border: '1px solid var(--bdr)',
-            borderRadius: 'var(--r-lg)', color: 'var(--tx-3)', fontSize: 13, textAlign: 'center',
-          }}>
-            {t('paywall.subtitle')}
-          </div>
-        )}
-      </div>
+        ) : null}
 
-      <style>{`
-        @media (max-width: 900px) {
-          .chart-workspace-grid { grid-template-columns: 1fr !important; }
-          .chart-workspace-grid > div:last-child { height: 480px !important; position: static !important; }
-        }
-      `}</style>
+        {activeReadingId ? (
+          <ZiweiRecommendCard
+            readingId={activeReadingId}
+            sessionKey={`${activeReadingId}-${chatSessionKey}`}
+            dismissed={recommendDismissed}
+            onDismiss={() => setRecommendDismissed(true)}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }
