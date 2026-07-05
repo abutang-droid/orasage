@@ -1735,43 +1735,8 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  付费后组件：手串升级钩子 / 解锁内容
+//  付费后组件：解锁内容
 // ════════════════════════════════════════════════════════════════════
-
-function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
-  const { t } = useT();
-  return (
-    <div className="rounded-xl p-5" style={{
-      background: CARD_GRADIENT_SOFT,
-      border: `1px solid ${GOLD_FAINT}`,
-    }}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">📿</span>
-        <p className="text-sm font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>{t('bracelet.title')}</p>
-      </div>
-      <p className="text-xs mb-3" style={{ color: BODY_CLR, lineHeight: 1.6 }}>
-        {t('bracelet.desc')}
-      </p>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {[t('bracelet.tag.natural'), t('bracelet.tag.handmade'), t('bracelet.tag.energy'), t('bracelet.tag.gift_box')].map(tag => (
-          <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full"
-            style={{ background: GOLD_GHOST, color: GOLD, fontFamily: SANS, border: `1px solid rgba(196,160,78,0.2)` }}>
-            {tag}
-          </span>
-        ))}
-      </div>
-      <button type="button" onClick={onUpgrade}
-        className="w-full py-2.5 rounded-xl text-sm font-bold tracking-widest transition-all active:scale-[0.98]"
-        style={{
-          background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-          color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.12em",
-          border: "none", boxShadow: `0 3px 12px rgba(196,160,78,0.3)`,
-        }}>
-        {t('bracelet.upgrade')}
-      </button>
-    </div>
-  );
-}
 
 function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onReportReady }: {
   result: SingleBaziResult;
@@ -1900,13 +1865,6 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
       {/* 付费后操作区 */}
       {payment.unlocked && (
         <div className="flex flex-col gap-3 pt-2">
-          {/* basic 用户：手串广告钩子 → 直接升级到 advanced */}
-          {payment.purchasedPlan === "basic" && (
-            <BraceletUpsell onUpgrade={() => {
-              payment.setPurchasedPlan("advanced");
-              toast.success(t('upgrade.basic_to_advanced'));
-            }} />
-          )}
           {onStartDouble && (
             <button type="button" onClick={onStartDouble}
               className="w-full py-3 rounded-2xl text-sm font-bold tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -2099,12 +2057,6 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
           />
 
           {/* 付费后操作区 */}
-          {payment.purchasedPlan === "basic" && (
-            <BraceletUpsell onUpgrade={() => {
-              payment.setPurchasedPlan("advanced");
-              toast.success(t('upgrade.basic_to_couple'));
-            }} />
-          )}
           {/* 升级按钮 */}
           {payment.purchasedPlan && payment.purchasedPlan !== "premium" && (
             <button type="button" onClick={() => setShowPlans(true)}
