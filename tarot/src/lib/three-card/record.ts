@@ -128,3 +128,24 @@ export async function saveThreeCardReadingSyncId(id: string, userId: string, rea
   });
   return row.count > 0;
 }
+
+export async function listUnsyncedThreeCardReadings(userId: string, limit = 30) {
+  const rows = await prisma.threeCardReading.findMany({
+    where: {
+      userId,
+      readingSyncId: null,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  return rows.map(mapRecord).filter((r) => r.cards.length > 0);
+}
+
+export async function countUnsyncedThreeCardReadings(userId: string) {
+  return prisma.threeCardReading.count({
+    where: {
+      userId,
+      readingSyncId: null,
+    },
+  });
+}

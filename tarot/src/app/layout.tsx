@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import AppShell from "@/components/AppShell"
+import { ReadingSyncBackfill } from "@/components/auth/ReadingSyncBackfill"
 import { LangProvider } from "@/lib/i18n/context"
 import { UserProvider } from "@/lib/user"
 import { buildOrasageMetadata, ORASAGE_URLS } from "@/lib/orasage-seo"
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <UserProvider>
           <LangProvider>
+            <ReadingSyncBackfill />
             <AppShell>
               {children}
             </AppShell>
