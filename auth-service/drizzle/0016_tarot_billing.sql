@@ -33,3 +33,7 @@ ON CONFLICT ("sku") DO UPDATE SET
   "category" = EXCLUDED."category",
   "requires_shipping" = EXCLUDED."requires_shipping",
   "active" = EXCLUDED."active";
+
+GRANT ALL ON TABLE "tarot_billing_config" TO orasage;
+GRANT ALL ON TABLE "tarot_daily_recommend_products" TO orasage;
+GRANT ALL ON SEQUENCE "tarot_daily_recommend_products_id_seq" TO orasage;
