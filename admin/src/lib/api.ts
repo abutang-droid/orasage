@@ -152,3 +152,33 @@ export function saveZiweiRecommendProducts(skus: string[]) {
     body: JSON.stringify({ skus }),
   });
 }
+
+export interface TarotBillingConfig {
+  dailyOverageSku: string;
+  threeCardReportSku: string;
+  threeCardBundleSku: string;
+  recommendSkus: string[];
+  recommendRows: Array<{ id: number; sku: string; sortOrder: number; active: boolean }>;
+}
+
+export function getTarotBillingConfig() {
+  return adminFetch<TarotBillingConfig>('/tarot-billing-config');
+}
+
+export function saveTarotBillingSkus(input: {
+  dailyOverageSku: string;
+  threeCardReportSku: string;
+  threeCardBundleSku: string;
+}) {
+  return adminFetch<{ skus: Pick<TarotBillingConfig, 'dailyOverageSku' | 'threeCardReportSku' | 'threeCardBundleSku'> }>(
+    '/tarot-billing-config',
+    { method: 'PUT', body: JSON.stringify(input) },
+  );
+}
+
+export function saveTarotDailyRecommendProducts(skus: string[]) {
+  return adminFetch<{ skus: string[]; rows: TarotBillingConfig['recommendRows'] }>(
+    '/tarot-daily-recommend-products',
+    { method: 'PUT', body: JSON.stringify({ skus }) },
+  );
+}

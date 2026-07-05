@@ -132,6 +132,24 @@ export const ziweiProductRecommendations = pgTable("ziwei_product_recommendation
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+/** 塔罗计费 SKU 配置（单行） */
+export const tarotBillingConfig = pgTable("tarot_billing_config", {
+  id: integer("id").primaryKey().default(1),
+  dailyOverageSku: varchar("daily_overage_sku", { length: 100 }).notNull().default("tarot-daily-draw"),
+  threeCardReportSku: varchar("three_card_report_sku", { length: 100 }).notNull().default("report-tarot"),
+  threeCardBundleSku: varchar("three_card_bundle_sku", { length: 100 }).notNull().default("report-tarot-bundle"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 塔罗每日运势报告后推荐商品（多 SKU 轮换） */
+export const tarotDailyRecommendProducts = pgTable("tarot_daily_recommend_products", {
+  id: serial("id").primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 /** 账户级紫微问答额度（加量包余额 + 年卡到期） */
 export const ziweiChatAccounts = pgTable("ziwei_chat_accounts", {
   userId: integer("user_id").primaryKey(),

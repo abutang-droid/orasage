@@ -1,6 +1,6 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
-import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts } from '@/lib/api';
-import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction } from '@/app/actions';
+import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts, getTarotBillingConfig } from '@/lib/api';
+import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -27,10 +27,18 @@ const ZIWEI_CHAT_SKUS = [
 
 const ZIWEI_REC_SLOTS = 6;
 
+const TAROT_BILLING_SKUS = [
+  'tarot-daily-draw',
+  'report-tarot',
+  'report-tarot-bundle',
+] as const;
+
+const TAROT_REC_SLOTS = 6;
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ ziwei_rec?: string; ziwei_rec_err?: string }>;
+  searchParams?: Promise<{ ziwei_rec?: string; ziwei_rec_err?: string; tarot_billing?: string; tarot_billing_err?: string }>;
 }) {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
@@ -42,6 +50,12 @@ export default async function ProductsPage({
   let baziRecommendSkus: Record<string, string> = {};
   let baziRecommendPrices: Record<string, { priceCents: number | null; priceCentsUsd: number | null }> = {};
   let ziweiRecommendSkus: string[] = [];
+  let tarotBilling = {
+    dailyOverageSku: 'tarot-daily-draw',
+    threeCardReportSku: 'report-tarot',
+    threeCardBundleSku: 'report-tarot-bundle',
+    recommendSkus: [] as string[],
+  };
   try {
     ({ products } = await getProducts());
   } catch (err) {
@@ -62,12 +76,20 @@ export default async function ProductsPage({
   } catch (err) {
     console.error('[admin/ziwei-recommend-products]', err);
   }
+  try {
+    tarotBilling = await getTarotBillingConfig();
+  } catch (err) {
+    console.error('[admin/tarot-billing-config]', err);
+  }
 
   const activeProducts = products.filter((p) => p.active);
   const baziBillingProducts = BAZI_BILLING_SKUS
     .map((sku) => products.find((p) => p.sku === sku))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const ziweiChatProducts = ZIWEI_CHAT_SKUS
+    .map((sku) => products.find((p) => p.sku === sku))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const tarotBillingProducts = TAROT_BILLING_SKUS
     .map((sku) => products.find((p) => p.sku === sku))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
@@ -193,6 +215,85 @@ export default async function ProductsPage({
             问答 SKU 尚未入库，请执行 auth-service 迁移 0015 或在下方通用商品区手动添加。
           </p>
         ) : null}
+      </section>
+
+      <section className="panel">
+        <h2>塔罗计费与推荐（V2）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          每日运势超额加抽、三牌阵两档付费 SKU，以及每日运势报告后的能量场推荐商品（可多 SKU 轮换）。
+        </p>
+        {sp.tarot_billing === 'ok' ? (
+          <p className="muted" style={{ color: '#166534', marginBottom: '0.75rem' }}>塔罗计费配置已保存。</p>
+        ) : null}
+        {sp.tarot_billing_err ? (
+          <p className="muted" style={{ color: '#b91c1c', marginBottom: '0.75rem' }}>
+            保存失败：{decodeURIComponent(sp.tarot_billing_err)}
+          </p>
+        ) : null}
+        <div className="table-wrap" style={{ marginBottom: '1rem' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>名称</th>
+                <th>价格 CNY</th>
+                <th>实体</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tarotBillingProducts.map((p) => (
+                <tr key={p.sku}>
+                  <td><code>{p.sku}</code></td>
+                  <td>{p.name}</td>
+                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
+                  <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
+                  <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <form action={saveTarotBillingConfigAction} className="form-grid">
+          <label>
+            每日运势 · 超额加抽 SKU
+            <select name="tarot_daily_overage_sku" defaultValue={tarotBilling.dailyOverageSku}>
+              {activeProducts.filter((p) => p.category === 'report' || p.category === 'service').map((p) => (
+                <option key={p.sku} value={p.sku}>{p.name} ({p.sku})</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            三牌阵 · 仅完整报告 SKU
+            <select name="tarot_three_report_sku" defaultValue={tarotBilling.threeCardReportSku}>
+              {activeProducts.filter((p) => p.category === 'report').map((p) => (
+                <option key={p.sku} value={p.sku}>{p.name} ({p.sku})</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            三牌阵 · 报告+法器合并 SKU
+            <select name="tarot_three_bundle_sku" defaultValue={tarotBilling.threeCardBundleSku}>
+              {activeProducts.filter((p) => p.category === 'report' || p.requiresShipping).map((p) => (
+                <option key={p.sku} value={p.sku}>{p.name} ({p.sku})</option>
+              ))}
+            </select>
+          </label>
+          {Array.from({ length: TAROT_REC_SLOTS }, (_, i) => (
+            <label key={i}>
+              每日运势推荐 {i + 1}
+              <select name={`tarot_rec_${i}`} defaultValue={tarotBilling.recommendSkus[i] ?? ''}>
+                <option value="">— 不配置 —</option>
+                {activeProducts.map((p) => (
+                  <option key={p.sku} value={p.sku}>
+                    {p.name} ({p.sku})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <button type="submit" className="btn-primary full-width">保存塔罗计费配置</button>
+        </form>
       </section>
 
       <section className="panel">

@@ -46,6 +46,9 @@ model User {
   dreamRecords    DreamRecord[]
   templeCheckins  TempleCheckin[]
   meritLogs       MeritLog[]
+  dailyFortuneDays DailyFortuneDay[]
+  dailyFortuneRecords DailyFortuneRecord[]
+  threeCardReadings ThreeCardReading[]
 }
 
 model DailyCardRecord {
@@ -178,4 +181,59 @@ model MeritLog {
   user User @relation(fields: [userId], references: [id])
   @@index([userId, createdAt])
   @@index([userId, path])
+}
+
+/** 每日运势额度（自然日 1 次 + 祈福最多 +1） */
+model DailyFortuneDay {
+  id                  String   @id @default(uuid())
+  userId              String
+  dateKey             String   @db.VarChar(10)
+  drawsUsed           Int      @default(0)
+  templeBonusGranted  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+/** 每日运势抽牌记录 */
+model DailyFortuneRecord {
+  id           String   @id @default(uuid())
+  userId       String
+  dateKey      String   @db.VarChar(10)
+  cardId       Int?
+  cardName     String?  @db.VarChar(80)
+  orientation  String?  @db.VarChar(10)
+  qaAnswers    Json?
+  briefText    String?  @db.Text
+  fullReport   Json?
+  accessSource String   @db.VarChar(20)
+  orderNo      String?  @db.VarChar(64)
+  readingSyncId String? @db.VarChar(100)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, dateKey])
+  @@index([userId, createdAt])
+}
+
+/** 三牌阵占卜记录（简读免费，详读付费） */
+model ThreeCardReading {
+  id            String   @id @default(uuid())
+  userId        String
+  question      String   @db.VarChar(500)
+  qaAnswers     Json?
+  cards         Json
+  briefText     String?  @db.Text
+  fullReport    String?  @db.Text
+  paidTier      String?  @db.VarChar(20)
+  orderNo       String?  @db.VarChar(64)
+  readingSyncId String?  @db.VarChar(100)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
 }

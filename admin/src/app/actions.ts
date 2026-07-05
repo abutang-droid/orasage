@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts } from '@/lib/api';
 
 export async function saveProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
@@ -102,4 +102,38 @@ export async function saveZiweiRecommendProductsAction(formData: FormData) {
     redirect(`/products?ziwei_rec_err=${encodeURIComponent(errorMsg)}`);
   }
   redirect('/products?ziwei_rec=ok');
+}
+
+const TAROT_REC_SLOTS = 6;
+
+const TAROT_BILLING_SKU_FIELDS = [
+  { key: 'dailyOverageSku', form: 'tarot_daily_overage_sku', label: '每日运势超额加抽' },
+  { key: 'threeCardReportSku', form: 'tarot_three_report_sku', label: '三牌阵 · 仅报告' },
+  { key: 'threeCardBundleSku', form: 'tarot_three_bundle_sku', label: '三牌阵 · 报告+法器' },
+] as const;
+
+export async function saveTarotBillingConfigAction(formData: FormData) {
+  const dailyOverageSku = String(formData.get('tarot_daily_overage_sku') ?? '').trim();
+  const threeCardReportSku = String(formData.get('tarot_three_report_sku') ?? '').trim();
+  const threeCardBundleSku = String(formData.get('tarot_three_bundle_sku') ?? '').trim();
+  const recommendSkus: string[] = [];
+  for (let i = 0; i < TAROT_REC_SLOTS; i += 1) {
+    const sku = String(formData.get(`tarot_rec_${i}`) ?? '').trim();
+    if (sku) recommendSkus.push(sku);
+  }
+  let errorMsg: string | null = null;
+  try {
+    if (!dailyOverageSku || !threeCardReportSku || !threeCardBundleSku) {
+      throw new Error('请选择三个计费 SKU');
+    }
+    await saveTarotBillingSkus({ dailyOverageSku, threeCardReportSku, threeCardBundleSku });
+    await saveTarotDailyRecommendProducts(recommendSkus);
+    revalidatePath('/products');
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '保存失败';
+  }
+  if (errorMsg) {
+    redirect(`/products?tarot_billing_err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect('/products?tarot_billing=ok');
 }
