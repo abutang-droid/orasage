@@ -16,3 +16,6 @@ CREATE TABLE IF NOT EXISTS "city_records" (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "city_records_place_uidx" ON "city_records" ("city", "province", "country");
+--> statement-breakpoint
+GRANT ALL ON TABLE "city_records" TO orasage;
+GRANT ALL ON SEQUENCE city_records_id_seq TO orasage;
