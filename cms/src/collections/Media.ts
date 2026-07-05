@@ -21,6 +21,7 @@ export const Media: CollectionConfig = {
       name: 'alt',
       type: 'text',
       label: '替代文字（alt，可选）',
+      defaultValue: '',
       admin: {
         description:
           '可选。描述图片/视频内容，用于无障碍阅读与 SEO；纯媒体 Hero 可不填',
