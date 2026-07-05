@@ -324,10 +324,10 @@ function BlessingScreen({ deity, duration, stage, meritEarned, blessingText, alr
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 300 }}>
-        <Link href="/reading" className="btn-primary" style={{
+        <Link href="/daily-fortune" className="btn-primary" style={{
           display: 'flex', justifyContent: 'center', textDecoration: 'none',
         }}>
-          🔮 去占卜
+          ✦ 去抽今日运势
         </Link>
         <button
           className="btn-ghost"
