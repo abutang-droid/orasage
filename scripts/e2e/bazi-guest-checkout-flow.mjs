@@ -103,6 +103,27 @@ async function guestCheckoutFlow({ sku, label }) {
   }
   console.log(`[guest-checkout] ${label}: order loaded (${orderData.order.title})`);
 
+  if (orderData.fulfillment?.requiresShipping) {
+    const couple = sku.includes('couple');
+    const recipients = couple
+      ? [
+          { name: 'E2E甲', phone: '13800000001', address: '测试地址甲', wristCm: '16' },
+          { name: 'E2E乙', phone: '13800000002', address: '测试地址乙', wristCm: '17' },
+        ]
+      : [{ name: 'E2E', phone: '13800000000', address: '测试地址', wristCm: '16' }];
+    const shipUrl = `${BASE.shop}/api/orders/${encodeURIComponent(startData.orderNo)}/shipping${couple ? '?shipping=couple' : ''}`;
+    const shipRes = await fetch(shipUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', cookie: cookieHeader(token) },
+      body: JSON.stringify({ recipients }),
+    });
+    const shipData = await shipRes.json().catch(() => ({}));
+    if (!shipRes.ok) {
+      throw new Error(`${label} shipping failed: ${shipRes.status} ${JSON.stringify(shipData)}`);
+    }
+    console.log(`[guest-checkout] ${label}: shipping saved`);
+  }
+
   const payRes = await fetch(`${BASE.shop}/api/pay?order=${encodeURIComponent(startData.orderNo)}`, {
     method: 'POST',
     headers: { cookie: cookieHeader(token) },
