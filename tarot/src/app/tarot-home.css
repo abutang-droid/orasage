@@ -542,3 +542,198 @@
   text-align: center;
   font-size: 13px;
 }
+
+.daily-fortune-panel {
+  padding: 20px 16px;
+  margin-bottom: 16px;
+}
+
+.daily-fortune-panel-lead {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.daily-fortune-panel-btn {
+  width: 100%;
+}
+
+.daily-fortune-q-progress {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+.daily-fortune-q-text {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.55;
+  margin: 0 0 16px;
+  color: var(--text-primary);
+}
+
+.daily-fortune-q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daily-fortune-q-option {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.daily-fortune-q-option:hover {
+  border-color: rgba(184, 148, 63, 0.45);
+  background: rgba(184, 148, 63, 0.06);
+  color: var(--text-primary);
+}
+
+.daily-fortune-draw {
+  padding: 20px 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.daily-fortune-draw-hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.daily-fortune-draw-card {
+  display: flex;
+  justify-content: center;
+}
+
+.daily-fortune-card-caption {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.daily-fortune-section-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.daily-fortune-brief {
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.daily-fortune-dims {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.daily-fortune-dim-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.daily-fortune-dim {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.daily-fortune-dim-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.daily-fortune-dim-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(184, 148, 63, 0.14);
+  color: #8a6d2b;
+}
+
+.daily-fortune-dim p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.daily-fortune-dim--summary {
+  background: rgba(184, 148, 63, 0.06);
+}
+
+.daily-fortune-guest-wall {
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.daily-fortune-guest-wall p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.daily-fortune-dim-grid--blurred {
+  filter: blur(4px);
+  opacity: 0.5;
+  pointer-events: none;
+  margin-top: 12px;
+}
+
+.daily-fortune-recommend {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.daily-fortune-recommend-name {
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.daily-fortune-recommend-desc {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.daily-fortune-recommend-price {
+  margin: 0;
+  font-size: 14px;
+  color: #b8943f;
+  font-weight: 600;
+}
+
+.daily-fortune-paywall {
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.daily-fortune-paywall-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
