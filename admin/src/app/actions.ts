@@ -83,18 +83,23 @@ export async function saveBaziRecommendProductsAction(formData: FormData) {
   revalidatePath('/products');
 }
 
+const ZIWEI_REC_SLOTS = 6;
+
 export async function saveZiweiRecommendProductsAction(formData: FormData) {
   const skus: string[] = [];
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < ZIWEI_REC_SLOTS; i += 1) {
     const sku = String(formData.get(`ziwei_rec_${i}`) ?? '').trim();
     if (sku) skus.push(sku);
   }
+  let errorMsg: string | null = null;
   try {
     await saveZiweiRecommendProducts(skus);
     revalidatePath('/products');
-    redirect('/products?ziwei_rec=ok');
   } catch (err) {
-    const msg = err instanceof Error ? err.message : '保存失败';
-    redirect(`/products?ziwei_rec_err=${encodeURIComponent(msg)}`);
+    errorMsg = err instanceof Error ? err.message : '保存失败';
   }
+  if (errorMsg) {
+    redirect(`/products?ziwei_rec_err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect('/products?ziwei_rec=ok');
 }
