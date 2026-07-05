@@ -1,12 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { useUser } from '@/lib/user';
-
-const MANTO_PORTRAIT = '/images/manto-mentor.png';
+import { useEffect, useState } from 'react';
+import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 
 type DailyQuota = {
   allowance?: number;
@@ -15,40 +12,9 @@ type DailyQuota = {
   templeBonusGranted?: boolean;
 };
 
-function timeGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 6) return '夜深了';
-  if (h < 12) return '早安';
-  if (h < 18) return '午安';
-  return '晚安';
-}
-
-function HeroCards() {
-  return (
-    <div className="tarot-home-hero-cards animate-float">
-      <div className="tarot-home-hero-card left">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">✦</div>
-      </div>
-      <div className="tarot-home-hero-card right">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☽</div>
-      </div>
-      <div className="tarot-home-hero-card center">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☀</div>
-      </div>
-    </div>
-  );
-}
-
 export function TarotHomeV2() {
   const router = useRouter();
-  const { user } = useUser();
   const [quota, setQuota] = useState<DailyQuota | null>(null);
-
-  const displayName = useMemo(() => {
-    const name = user?.nickname?.trim();
-    if (name && name !== '旅人') return name;
-    return null;
-  }, [user?.nickname]);
 
   useEffect(() => {
     void fetch('/api/daily-fortune/quota', { credentials: 'include', cache: 'no-store' })
@@ -62,34 +28,7 @@ export function TarotHomeV2() {
 
   return (
     <div className="tarot-home tarot-home-v2">
-      <section className="tarot-home-hero tarot-home-hero--v2 animate-fade-in-up">
-        <div className="tarot-home-hero-manto">
-          <Image
-            src={MANTO_PORTRAIT}
-            alt=""
-            width={56}
-            height={56}
-            className="tarot-home-hero-manto-img"
-            aria-hidden
-          />
-          <div>
-            <p className="tarot-home-hero-greeting">
-              {timeGreeting()}
-              {displayName ? `，${displayName}` : ''}
-            </p>
-            <p className="tarot-home-hero-manto-line">Manto 为你守望着今日的星途</p>
-          </div>
-        </div>
-
-        <HeroCards />
-
-        <h1 className="tarot-home-title">
-          翻一张牌
-          <br />
-          看看今天怎么走
-        </h1>
-        <p className="tarot-home-subtitle">每日运势与三牌占卜，都在这里开始</p>
-      </section>
+      <TarotHomeHero />
 
       <section className="tarot-home-v2-actions animate-fade-in-up delay-100">
         <Link href="/daily-fortune" className="tarot-home-v2-card tarot-home-v2-card--primary">
@@ -103,9 +42,7 @@ export function TarotHomeV2() {
             </div>
           </div>
           <div className="tarot-home-v2-card-meta">
-            <span className="tarot-home-v2-badge">
-              今日剩余 {remaining ?? 1} 次
-            </span>
+            <span className="tarot-home-v2-badge">今日剩余 {remaining ?? 1} 次</span>
             {!templeBonus ? (
               <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">祈福可 +1</span>
             ) : (

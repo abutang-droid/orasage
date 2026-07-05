@@ -15,6 +15,7 @@ import { HomeHero } from './globals/HomeHero';
 import { BaziHomeHero } from './globals/BaziHomeHero';
 import { ZiweiHomeHero } from './globals/ZiweiHomeHero';
 import { ShopHomeHero } from './globals/ShopHomeHero';
+import { TarotHomeHero } from './globals/TarotHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 import { ZiweiFeed } from './collections/ZiweiFeed';
 import { cmsZhTranslations } from './lib/cms-zh';
@@ -57,7 +58,7 @@ export default buildConfig({
     meta: {
       title: 'OraSage 内容管理',
       titleSuffix: ' · CMS',
-      description: '全站 Hero、内容页面、媒体库与塔罗祈福数据管理',
+      description: '全站 Hero（门户/八字/紫微/商城/塔罗）、内容页面、媒体库与塔罗祈福数据管理',
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -71,7 +72,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed, ZiweiFeed],
-  globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero],
+  globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero, TarotHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
