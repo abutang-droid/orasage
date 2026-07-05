@@ -314,14 +314,18 @@
 
 .tarot-home-hero-cms-image {
   display: block;
-  width: min(100%, 18rem);
+  width: 100%;
+  max-width: 100%;
+  height: auto;
   margin: 0 auto 0.75rem;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
+  object-fit: cover;
 }
 
 .tarot-home-hero-video {
-  width: min(100%, 20rem);
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto 0.75rem;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -331,7 +335,9 @@
 .tarot-home-hero-video video {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
+  vertical-align: middle;
 }
 
 .tarot-home-hero-card-inner--gold {
