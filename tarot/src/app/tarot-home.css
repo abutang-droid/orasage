@@ -264,3 +264,281 @@
     padding-bottom: 1.5rem;
   }
 }
+
+/* ── V2 homepage ── */
+.tarot-home-v2 .tarot-home-hero--v2 {
+  padding-bottom: 0.5rem;
+}
+
+.tarot-home-hero-manto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.tarot-home-hero-manto-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 2px solid rgba(184, 148, 63, 0.35);
+  flex-shrink: 0;
+}
+
+.tarot-home-hero-greeting {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tarot-home-hero-manto-line {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.tarot-home-hero-card-inner--gold {
+  font-size: 1.5rem;
+  color: #b8943f;
+  background: linear-gradient(180deg, #fff 0%, #faf8f4 100%);
+}
+
+.tarot-home-v2-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tarot-home-v2-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: var(--bg-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  color: inherit;
+}
+
+.tarot-home-v2-card--button {
+  font: inherit;
+}
+
+.tarot-home-v2-card:hover {
+  border-color: rgba(184, 148, 63, 0.45);
+  box-shadow: 0 8px 24px rgba(42, 33, 24, 0.06);
+  transform: translateY(-1px);
+}
+
+.tarot-home-v2-card--primary {
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.1) 0%, rgba(255, 255, 255, 0.96) 55%);
+  border-color: rgba(184, 148, 63, 0.28);
+}
+
+.tarot-home-v2-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tarot-home-v2-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(184, 148, 63, 0.12);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.tarot-home-v2-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-primary);
+}
+
+.tarot-home-v2-card-desc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tarot-home-v2-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tarot-home-v2-badge {
+  font-size: 0.6875rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(184, 148, 63, 0.14);
+  color: #8a6d2b;
+  font-weight: 600;
+}
+
+.tarot-home-v2-badge--muted {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tarot-home-v2-card-note {
+  margin: 0 0 12px;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.tarot-home-v2-card-cta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b8943f;
+}
+
+.tarot-home-v2-temple-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.tarot-home-v2-temple-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: border-color 0.2s ease;
+}
+
+.tarot-home-v2-temple-link:hover .tarot-home-v2-temple-inner {
+  border-color: rgba(184, 148, 63, 0.35);
+}
+
+.tarot-home-v2-temple-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.tarot-home-v2-temple-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarot-home-v2-temple-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.tarot-home-v2-temple-desc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.tarot-home-v2-temple-arrow {
+  color: var(--text-muted);
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.daily-fortune-page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px 24px;
+}
+
+.daily-fortune-quota {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.daily-fortune-quota-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.daily-fortune-quota-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.daily-fortune-quota-row:last-of-type {
+  border-bottom: none;
+}
+
+.daily-fortune-quota-row strong {
+  font-family: var(--font-serif);
+  color: var(--gold, #b8943f);
+}
+
+.daily-fortune-quota-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.daily-fortune-quota-hint a {
+  color: var(--gold, #b8943f);
+  text-decoration: none;
+}
+
+.daily-fortune-coming {
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.daily-fortune-coming-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.daily-fortune-coming-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.daily-fortune-coming-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.daily-fortune-coming-back {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+}
