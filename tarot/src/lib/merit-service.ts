@@ -494,6 +494,9 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
   await maybeGrantWorshipDay7FreeReading(input.userId, streakDays, priorCheckins + 1);
   await maybeGrantMonthlyLevelFreeReadings(input.userId);
 
+  const { grantDailyFortuneTempleBonus } = await import('@/lib/daily-fortune-quota');
+  await grantDailyFortuneTempleBonus(input.userId, today);
+
   await advanceOnboarding(input.userId, input.markOnboardingComplete ? 'done' : 'worship');
 
   const summary = await getMeritSummary(input.userId);

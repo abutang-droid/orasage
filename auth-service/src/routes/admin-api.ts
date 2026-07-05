@@ -16,6 +16,12 @@ import {
   listZiweiRecommendRows,
   setZiweiRecommendSkus,
 } from "../lib/ziwei-chat.ts";
+import {
+  getTarotBillingSkus,
+  listTarotDailyRecommendRows,
+  setTarotBillingSkus,
+  setTarotDailyRecommendSkus,
+} from "../lib/tarot-billing.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 
 export const adminApiRouter = Router();
@@ -181,6 +187,69 @@ adminApiRouter.put("/ziwei-recommend-products", async (req, res) => {
       return;
     }
     console.error("[admin] ziwei-recommend-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const tarotBillingSchema = z.object({
+  dailyOverageSku: z.string().min(1).max(100),
+  threeCardReportSku: z.string().min(1).max(100),
+  threeCardBundleSku: z.string().min(1).max(100),
+});
+
+adminApiRouter.get("/tarot-billing-config", async (_req, res) => {
+  try {
+    const skus = await getTarotBillingSkus();
+    const recommendRows = await listTarotDailyRecommendRows();
+    res.json({
+      ...skus,
+      recommendSkus: recommendRows.map((r) => r.sku),
+      recommendRows,
+    });
+  } catch (err) {
+    console.error("[admin] tarot-billing-config:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/tarot-billing-config", async (req, res) => {
+  try {
+    const body = tarotBillingSchema.parse(req.body);
+    const skus = await setTarotBillingSkus(body);
+    res.json({ skus });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] tarot-billing-config:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const tarotRecommendSchema = z.object({
+  skus: z.array(z.string().min(1).max(100)),
+});
+
+adminApiRouter.put("/tarot-daily-recommend-products", async (req, res) => {
+  try {
+    const body = tarotRecommendSchema.parse(req.body);
+    const rows = await setTarotDailyRecommendSkus(body.skus);
+    res.json({ skus: rows.map((r) => r.sku), rows });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] tarot-daily-recommend:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
