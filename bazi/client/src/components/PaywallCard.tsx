@@ -29,7 +29,7 @@ const PLAN_CARD_BG_SELECTED = "rgba(196, 160, 78, 0.10)";
 interface PaywallCardProps {
   selectedPlan: PlanType | null;
   onSelectPlan: (planType: PlanType) => void;
-  onPay: () => void;
+  onPay: (plan: PlanType) => void;
   payLoading?: boolean;
   mode?: "single" | "couple";
   className?: string;
@@ -187,6 +187,9 @@ export function PaywallCard({
                 }}>
                   {displayDesc}
                 </p>
+                <p style={{ color: MUTED_CLR, fontSize: "0.625rem", marginTop: "0.25rem" }}>
+                  {plan.sku}
+                </p>
               </div>
 
               <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -212,7 +215,7 @@ export function PaywallCard({
         type="button"
         data-testid="bazi-paywall-unlock"
         disabled={!selectedPlan || payLoading}
-        onClick={onPay}
+        onClick={() => { if (selectedPlan) onPay(selectedPlan); }}
         style={{
           width: "100%",
           marginTop: "0.875rem",

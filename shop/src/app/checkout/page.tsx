@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
 import { ShippingForm } from '@/components/ShippingForm';
 import { parseShippingAddress } from '../../../../shared/shop-fulfillment/index';
 
@@ -65,14 +65,77 @@ function CheckoutContent() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [guestLoading, setGuestLoading] = useState(false);
 
-  const [payLoading, setPayLoading] = useState(false);
+  const [flowPhase, setFlowPhase] = useState<'idle' | 'shipping' | 'paying' | 'done' | 'error'>('idle');
   const [payError, setPayError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
   const autoFlowRef = useRef(false);
 
   const isReportAppCheckout = REPORT_APP_SOURCES.has(appSource);
+
+  const submitMockShipping = useCallback(async (targetOrderNo: string): Promise<void> => {
+    const recipients = coupleShipping
+      ? [
+          { name: '收货人甲', phone: '13800000001', address: '模拟地址甲', wristCm: '16' },
+          { name: '收货人乙', phone: '13800000002', address: '模拟地址乙', wristCm: '17' },
+        ]
+      : [{ name: '收货人', phone: '13800000000', address: '模拟收货地址', wristCm: '16' }];
+    const shipUrl = `/api/orders/${encodeURIComponent(targetOrderNo)}/shipping${coupleShipping ? '?shipping=couple' : ''}`;
+    const res = await fetch(shipUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipients }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || '保存收货信息失败');
+    setShippingDone(true);
+  }, [coupleShipping]);
+
+  const completePayment = useCallback(async (targetOrderNo: string) => {
+    if (payingRef.current) return;
+    payingRef.current = true;
+    setFlowPhase('paying');
+    setPayError(null);
+    try {
+      const res = await fetch(`/api/pay?order=${encodeURIComponent(targetOrderNo)}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || '支付失败');
+      setFlowPhase('done');
+      if (returnUrl) {
+        const target = appendOrderToReturnUrl(returnUrl, targetOrderNo);
+        window.location.replace(target);
+      } else {
+        router.replace(`/success?order=${encodeURIComponent(targetOrderNo)}`);
+      }
+    } catch (err) {
+      payingRef.current = false;
+      setFlowPhase('error');
+      setPayError(err instanceof Error ? err.message : '支付失败');
+      throw err;
+    }
+  }, [returnUrl, router]);
+
+  const runReportAutoCheckout = useCallback(async (
+    targetOrderNo: string,
+    needsShipping: boolean,
+    alreadyShipped: boolean,
+  ) => {
+    if (autoFlowRef.current) return;
+    autoFlowRef.current = true;
+    try {
+      if (needsShipping && !alreadyShipped) {
+        setFlowPhase('shipping');
+        await submitMockShipping(targetOrderNo);
+      }
+      await completePayment(targetOrderNo);
+    } catch {
+      autoFlowRef.current = false;
+    }
+  }, [submitMockShipping, completePayment]);
 
   useEffect(() => {
     if (orderNo) {
@@ -83,10 +146,20 @@ function CheckoutContent() {
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || '加载订单失败');
           if (cancelled) return;
-          setOrder(data.order as CheckoutOrder);
-          setFulfillment(data.fulfillment as Fulfillment);
-          const hasShipping = Boolean(parseShippingAddress(data.order.shippingAddress));
-          setShippingDone(hasShipping || !data.fulfillment.requiresShipping);
+          const loadedOrder = data.order as CheckoutOrder;
+          const loadedFulfillment = data.fulfillment as Fulfillment;
+          setOrder(loadedOrder);
+          setFulfillment(loadedFulfillment);
+          const hasShipping = Boolean(parseShippingAddress(loadedOrder.shippingAddress));
+          setShippingDone(hasShipping || !loadedFulfillment.requiresShipping);
+
+          if (isReportAppCheckout && loadedOrder.status === 'pending') {
+            void runReportAutoCheckout(
+              orderNo,
+              loadedFulfillment.requiresShipping,
+              hasShipping,
+            );
+          }
         } catch (err) {
           if (!cancelled) setLoadError(err instanceof Error ? err.message : '加载失败');
         } finally {
@@ -113,7 +186,6 @@ function CheckoutContent() {
           });
           setLoading(false);
 
-          // 已登录则直接创建订单
           if (!guestStartedRef.current) {
             guestStartedRef.current = true;
             const started = await tryStartOrderFromSku();
@@ -230,84 +302,6 @@ function CheckoutContent() {
     }
   }
 
-  function formatPayError(err: unknown): string {
-    if (err instanceof TypeError) return '网络异常，请检查连接后重试';
-    if (err instanceof Error && /failed to fetch|networkerror|load failed/i.test(err.message)) {
-      return '网络异常，请检查连接后重试';
-    }
-    return err instanceof Error ? err.message : '支付失败';
-  }
-
-  async function submitMockShipping(): Promise<boolean> {
-    if (!orderNo) return false;
-    const recipients = coupleShipping
-      ? [
-          { name: '收货人甲', phone: '13800000001', address: '模拟地址甲', wristCm: '16' },
-          { name: '收货人乙', phone: '13800000002', address: '模拟地址乙', wristCm: '17' },
-        ]
-      : [{ name: '收货人', phone: '13800000000', address: '模拟收货地址', wristCm: '16' }];
-    const shipUrl = `/api/orders/${encodeURIComponent(orderNo)}/shipping${coupleShipping ? '?shipping=couple' : ''}`;
-    const res = await fetch(shipUrl, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipients }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || '保存收货信息失败');
-    setShippingDone(true);
-    return true;
-  }
-
-  async function handlePay() {
-    if (!orderNo || payingRef.current || done) return;
-    payingRef.current = true;
-    setPayLoading(true);
-    setPayError(null);
-    try {
-      const res = await fetch(`/api/pay?order=${encodeURIComponent(orderNo)}`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || '支付失败');
-      setDone(true);
-      if (returnUrl) {
-        const target = appendOrderToReturnUrl(returnUrl, orderNo);
-        setTimeout(() => { window.location.href = target; }, 600);
-      } else {
-        setTimeout(() => router.push(`/success?order=${encodeURIComponent(orderNo)}`), 600);
-      }
-    } catch (err) {
-      payingRef.current = false;
-      setPayError(formatPayError(err));
-    } finally {
-      setPayLoading(false);
-    }
-  }
-
-  // 命理 App 访客结账：mock 模式下自动填收货并模拟支付，减少流程中断
-  useEffect(() => {
-    if (!isReportAppCheckout || loading || !order || done || payError || payLoading) return;
-    if (autoFlowRef.current) return;
-
-    const runAutoFlow = async () => {
-      autoFlowRef.current = true;
-      try {
-        if (fulfillment?.requiresShipping && !shippingDone) {
-          await submitMockShipping();
-        }
-        await handlePay();
-      } catch (err) {
-        autoFlowRef.current = false;
-        setPayError(err instanceof Error ? err.message : '自动支付失败');
-      }
-    };
-
-    void runAutoFlow();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReportAppCheckout, loading, order, fulfillment, shippingDone, done, payError, payLoading, orderNo]);
-
   if (loading) {
     return (
       <main className="shop-page p-16 text-center text-sage-muted">
@@ -324,7 +318,6 @@ function CheckoutContent() {
     );
   }
 
-  // SKU 访客结账：邮箱收集
   if (!orderNo && productPreview) {
     if (guestStep === 'creating') {
       return <main className="shop-page p-16 text-center text-sage-muted">正在准备订单…</main>;
@@ -334,6 +327,7 @@ function CheckoutContent() {
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8 px-4">
         <h1 className="font-serif text-2xl text-sage-primary text-center">确认购买</h1>
         <div className="mt-6 rounded-xl border border-sage-border bg-white/60 p-5">
+          <p className="text-xs text-sage-muted mb-1">{productPreview.sku}</p>
           <p className="font-semibold text-sage-primary">{productPreview.name}</p>
           <p className="mt-1 text-sm text-sage-muted">{productPreview.desc}</p>
           <p className="mt-3 text-lg font-semibold text-sage-primary">{productPreview.priceDisplay}</p>
@@ -381,14 +375,10 @@ function CheckoutContent() {
             </label>
             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
             <button type="submit" disabled={guestLoading} className="shop-btn-primary mt-6 w-full">
-              {guestLoading ? '处理中…' : '继续支付'}
+              {guestLoading ? '处理中…' : '继续解锁'}
             </button>
           </form>
         )}
-
-        <p className="mt-6 text-xs text-center text-sage-muted">
-          无需提前注册。新邮箱将自动创建账号并绑定本次订单。
-        </p>
       </main>
     );
   }
@@ -401,8 +391,45 @@ function CheckoutContent() {
     );
   }
 
-  const needsShippingStep = fulfillment?.requiresShipping && !shippingDone;
+  const amountDisplay = order.currency?.toUpperCase() === 'USD'
+    ? `$${(order.amountCents / 100).toFixed(2)}`
+    : `¥${(order.amountCents / 100).toFixed(2)}`;
 
+  if (isReportAppCheckout) {
+    return (
+      <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center px-4">
+        <h1 className="font-serif text-2xl text-sage-primary">正在解锁报告</h1>
+        <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
+        <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
+        {payError ? (
+          <>
+            <p className="mt-4 text-sm text-red-600">{payError}</p>
+            <button
+              type="button"
+              className="shop-btn-primary mt-6 px-8"
+              onClick={() => {
+                autoFlowRef.current = false;
+                payingRef.current = false;
+                void runReportAutoCheckout(
+                  orderNo,
+                  fulfillment?.requiresShipping ?? false,
+                  shippingDone,
+                );
+              }}
+            >
+              重试
+            </button>
+          </>
+        ) : (
+          <p className="mt-6 text-sm text-sage-primary">
+            {flowPhase === 'shipping' ? '正在确认收货信息…' : flowPhase === 'done' ? '解锁成功，正在返回…' : '模拟支付处理中…'}
+          </p>
+        )}
+      </main>
+    );
+  }
+
+  const needsShippingStep = fulfillment?.requiresShipping && !shippingDone;
   if (needsShippingStep) {
     return (
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8">
@@ -417,45 +444,21 @@ function CheckoutContent() {
     );
   }
 
-  const amountDisplay = order.currency?.toUpperCase() === 'USD'
-    ? `$${(order.amountCents / 100).toFixed(2)}`
-    : `¥${(order.amountCents / 100).toFixed(2)}`;
-
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
-      <h1 className="font-serif text-2xl text-sage-primary">
-        {isReportAppCheckout ? '正在解锁报告' : '确认支付'}
-      </h1>
+      <h1 className="font-serif text-2xl text-sage-primary">确认支付</h1>
       <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
       <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
-      {!isReportAppCheckout ? (
-        <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
-      ) : null}
-      {fulfillment?.requiresShipping && order.shippingAddress ? (
-        <p className="mt-4 max-w-sm text-left text-xs text-sage-muted">
-          收货信息已确认，支付后将安排发货
-        </p>
-      ) : null}
+      <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
-      {done || payLoading ? (
-        <p className="mt-6 text-sm text-sage-primary">
-          {done ? '解锁成功，正在返回…' : '模拟支付处理中…'}
-        </p>
-      ) : (
-        <button
-          type="button"
-          disabled={payLoading || !orderNo}
-          onClick={() => void handlePay()}
-          className="shop-btn-primary mt-8 px-8"
-        >
-          模拟支付（完成订单）
-        </button>
-      )}
-      {!isReportAppCheckout ? (
-        <p className="mt-6 max-w-sm text-xs text-sage-muted">
-          当前为模拟支付模式，用于产品流程测试与风控审核。正式上线前将切换至 Stripe。
-        </p>
-      ) : null}
+      <button
+        type="button"
+        disabled={flowPhase === 'paying'}
+        onClick={() => void completePayment(orderNo)}
+        className="shop-btn-primary mt-8 px-8"
+      >
+        {flowPhase === 'paying' ? '处理中…' : '模拟支付（完成订单）'}
+      </button>
     </main>
   );
 }

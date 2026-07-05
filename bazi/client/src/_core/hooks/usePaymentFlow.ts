@@ -4,7 +4,7 @@
  * 优先跳转 shop 访客结账页（orasage.com 生态），legacy WC iframe 作为回退。
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import type { PlanType } from "@shared/types";
 import { trpc } from "@/lib/trpc";
@@ -70,6 +70,14 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     buyerName: '',
   });
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>("advanced");
+  const selectedPlanRef = useRef<PlanType | null>("advanced");
+  selectedPlanRef.current = selectedPlan;
+
+  useEffect(() => {
+    const resetPayLoading = () => setPayLoading(false);
+    window.addEventListener('pageshow', resetPayLoading);
+    return () => window.removeEventListener('pageshow', resetPayLoading);
+  }, []);
   const [payLoading, setPayLoading] = useState(false);
 
   const buyPlanMutation = trpc.bazi.buyPlan.useMutation({
@@ -128,12 +136,12 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
 
   const openShopCheckout = useCallback((plan: PlanType) => {
     if (shopPayments) {
-      setPayLoading(true);
       setState(prev => ({ ...prev, purchasedPlan: plan }));
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
       const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1`;
       sessionStorage.setItem(PLAN_KEY, plan);
       const sku = baziSkusForMode(mode)[plan];
+      sessionStorage.setItem('bazi:lastCheckoutSku', sku);
       const checkoutUrl = buildShopCheckoutUrl({
         sku,
         returnUrl: returnBase,
@@ -142,7 +150,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         mode,
         context: `八字${planNameMap[plan] || plan}报告`,
       });
-      window.location.href = checkoutUrl;
+      window.location.assign(checkoutUrl);
       return;
     }
 
@@ -156,13 +164,16 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     } catch { /* ignore */ }
   }, [mode, shopPayments, planNameMap]);
 
-  const handlePaySelected = useCallback(() => {
-    if (!selectedPlan) {
+  const handlePaySelected = useCallback((plan?: PlanType) => {
+    const target = plan ?? selectedPlanRef.current;
+    if (!target) {
       toast.error(t('paywall.select_plan', '请先选择方案'));
       return;
     }
-    openShopCheckout(selectedPlan);
-  }, [selectedPlan, openShopCheckout, t]);
+    setSelectedPlan(target);
+    setPayLoading(true);
+    openShopCheckout(target);
+  }, [openShopCheckout, t]);
 
   const openDirectPayment = useCallback((plan: PlanType) => {
     setSelectedPlan(plan);

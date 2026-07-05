@@ -45,36 +45,34 @@ export async function fetchBaziPlanProducts(mode: 'single' | 'couple', locale = 
 
   const skus = baziSkusForMode(mode);
   const plans: PlanType[] = ['basic', 'advanced', 'premium'];
-  const products: PlanProductInfo[] = [];
 
-  await Promise.all(plans.map(async (type) => {
+  const products = await Promise.all(plans.map(async (type) => {
     const sku = skus[type];
     try {
       const res = await fetch(`${AUTH_URL}/api/products/${encodeURIComponent(sku)}?locale=${encodeURIComponent(locale)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json() as { product: ApiProduct };
       const p = data.product;
-      products.push({
+      return {
         type,
         sku,
         name: p.name,
         desc: p.desc ?? p.description ?? '',
         priceDisplay: p.priceDisplay ?? '',
         highlight: type === 'advanced',
-      });
+      } satisfies PlanProductInfo;
     } catch {
-      products.push({
+      return {
         type,
         sku,
         name: type,
         desc: '',
         priceDisplay: '',
         highlight: type === 'advanced',
-      });
+      } satisfies PlanProductInfo;
     }
   }));
 
-  products.sort((a, b) => plans.indexOf(a.type) - plans.indexOf(b.type));
   cache = { mode, locale, products, expiry: Date.now() + 60_000 };
   return products;
 }
