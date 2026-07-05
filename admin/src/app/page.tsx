@@ -39,7 +39,7 @@ export default async function AdminHome() {
         </Link>
         <Link href="/cms/admin" className="entry-card">
           <h2>内容管理</h2>
-          <p>全站 Hero、页面、媒体库与各 App 信息流</p>
+          <p>全站 Hero（门户/八字/紫微/商城/塔罗）、页面、媒体库与各 App 信息流</p>
           <span className="entry-cta">进入 CMS →</span>
         </Link>
       </section>

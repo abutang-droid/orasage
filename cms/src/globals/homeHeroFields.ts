@@ -18,7 +18,7 @@ type HeroSiblingData = {
   heroVideo?: unknown;
 };
 
-/** 四站 Hero Global 共用字段（中文标注 + 媒体规格提示） */
+/** 五站 Hero Global 共用字段（中文标注 + 媒体规格提示） */
 export function homeHeroFields(defaults: HomeHeroDefaults): Field[] {
   return [
     {

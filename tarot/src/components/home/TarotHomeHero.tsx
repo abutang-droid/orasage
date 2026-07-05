@@ -1,0 +1,181 @@
+'use client';
+
+import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  fallbackTarotHomeHero,
+  fetchTarotHomeHero,
+  type TarotHomeHeroContent,
+} from '@/lib/cms-tarot-hero';
+import { useUser } from '@/lib/user';
+
+const MANTO_PORTRAIT = '/images/manto-mentor.png';
+
+type FortuneDimension = { text: string; tag: string };
+type FortunePayload = {
+  love: FortuneDimension;
+  work: FortuneDimension;
+  wealth: FortuneDimension;
+  mood: FortuneDimension;
+};
+
+function timeGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 6) return '夜深了';
+  if (h < 12) return '早安';
+  if (h < 18) return '午安';
+  return '晚安';
+}
+
+function HeroCards() {
+  return (
+    <div className="tarot-home-hero-cards animate-float">
+      <div className="tarot-home-hero-card left">
+        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">✦</div>
+      </div>
+      <div className="tarot-home-hero-card right">
+        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☽</div>
+      </div>
+      <div className="tarot-home-hero-card center">
+        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☀</div>
+      </div>
+    </div>
+  );
+}
+
+function HeroVideo({
+  src,
+  poster,
+  autoplay = true,
+}: {
+  src: string;
+  poster?: string | null;
+  autoplay?: boolean;
+}) {
+  return (
+    <div className="tarot-home-hero-video" aria-hidden>
+      <video
+        src={src}
+        poster={poster ?? undefined}
+        autoPlay={autoplay}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      />
+    </div>
+  );
+}
+
+const ENERGY_ITEMS = [
+  { key: 'love' as const, label: '爱情', icon: '💕' },
+  { key: 'work' as const, label: '事业', icon: '⭐' },
+  { key: 'wealth' as const, label: '财运', icon: '💰' },
+  { key: 'mood' as const, label: '状态', icon: '✨' },
+];
+
+export function TarotHomeHero() {
+  const { user } = useUser();
+  const [hero, setHero] = useState<TarotHomeHeroContent | null>(null);
+  const [fortune, setFortune] = useState<FortunePayload | null>(null);
+
+  const displayName = useMemo(() => {
+    const name = user?.nickname?.trim();
+    if (name && name !== '旅人') return name;
+    return null;
+  }, [user?.nickname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchTarotHomeHero().then((content) => {
+      if (!cancelled) setHero(content ?? fallbackTarotHomeHero());
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch('/api/fortune', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: FortunePayload | null) => {
+        if (!cancelled && data) setFortune(data);
+      })
+      .catch(() => {
+        /* optional */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!hero?.enabled) return null;
+
+  const showImage = hero.displayMode === 'image' && hero.imageUrl;
+  const showVideo = hero.displayMode === 'video' && hero.videoUrl;
+  const mentorLine = hero.bodyText?.trim() || 'Manto 为你守望着今日的星途';
+
+  return (
+    <section className="tarot-home-hero tarot-home-hero--v2 animate-fade-in-up">
+      <div className="tarot-home-hero-manto">
+        <Image
+          src={MANTO_PORTRAIT}
+          alt=""
+          width={56}
+          height={56}
+          className="tarot-home-hero-manto-img"
+          aria-hidden
+        />
+        <div>
+          <p className="tarot-home-hero-greeting">
+            {timeGreeting()}
+            {displayName ? `，${displayName}` : ''}
+          </p>
+          <p className="tarot-home-hero-manto-line">{mentorLine}</p>
+        </div>
+      </div>
+
+      {showVideo ? (
+        <HeroVideo
+          src={hero.videoUrl!}
+          poster={hero.videoPosterUrl}
+          autoplay={hero.videoAutoplay}
+        />
+      ) : showImage ? (
+        <img
+          src={hero.imageUrl!}
+          alt={hero.imageAlt ?? ''}
+          className="tarot-home-hero-cms-image"
+        />
+      ) : (
+        <HeroCards />
+      )}
+
+      {hero.eyebrow ? <p className="tarot-home-hero-eyebrow">{hero.eyebrow}</p> : null}
+
+      {hero.headline ? (
+        <h1 className="tarot-home-title">{hero.headline}</h1>
+      ) : null}
+
+      {hero.subtitle ? <p className="tarot-home-subtitle">{hero.subtitle}</p> : null}
+
+      {fortune ? (
+        <div className="tarot-home-energy card animate-fade-in-up delay-100">
+          <h2 className="tarot-home-section-title">今日能量</h2>
+          <div className="tarot-home-stats">
+            {ENERGY_ITEMS.map(({ key, label, icon }) => (
+              <div key={key} className="tarot-home-stat">
+                <span className="tarot-home-stat-icon" aria-hidden>
+                  {icon}
+                </span>
+                <div className="tarot-home-stat-name">{label}</div>
+                <div className="tarot-home-stat-status">{fortune[key].tag}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}

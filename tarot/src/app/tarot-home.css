@@ -304,6 +304,48 @@
   letter-spacing: 0.04em;
 }
 
+.tarot-home-hero-eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold, #b8943f);
+}
+
+.tarot-home-hero-cms-image {
+  display: block;
+  width: min(100%, 18rem);
+  margin: 0 auto 0.75rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.tarot-home-hero-video {
+  width: min(100%, 20rem);
+  margin: 0 auto 0.75rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.tarot-home-hero-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tarot-home-energy {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  text-align: left;
+}
+
+.tarot-home-energy .tarot-home-section-title {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
 .tarot-home-hero-card-inner--gold {
   font-size: 1.5rem;
   color: #b8943f;
