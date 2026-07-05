@@ -7,6 +7,7 @@ import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { shopUrlForSku } from '@/lib/shop-products';
 import type {
   DailyFortuneAnswer,
   DailyFortuneFullReport,
@@ -391,7 +392,7 @@ export function DailyFortuneFlow() {
               <p className="daily-fortune-recommend-desc">{recommend.desc}</p>
               <p className="daily-fortune-recommend-price">{recommend.priceDisplay}</p>
               <a
-                href={`https://shop.orasage.com/products/${encodeURIComponent(recommend.sku)}`}
+                href={shopUrlForSku(recommend.sku)}
                 className="btn-outline"
                 style={{ display: 'block', textAlign: 'center', marginTop: 12 }}
               >
