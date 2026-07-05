@@ -170,11 +170,11 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     commonjsOptions: {
-      include: [/node_modules/, /packages\/ui/, /packages\/tokens/],
+      include: [/node_modules/, /packages\/ui/, /packages\/tokens/, /packages\/city/],
     },
   },
   optimizeDeps: {
-    include: ["@orasage/ui", "@orasage/tokens"],
+    include: ["@orasage/ui", "@orasage/tokens", "@orasage/city"],
   },
   server: {
     host: true,

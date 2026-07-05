@@ -4,7 +4,8 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { getCityCoords, preloadCityData, searchCities, getCityDataStatus, checkLooksOverseas, type CityRecord } from "@/lib/cityData";
+import { loadCityCatalog, matchLocalCity, toCityCoords } from "@orasage/city";
+import { CitySearchInput } from "@orasage/city/react";
 import { getLeapMonthOfYear, preloadDecade } from "@/lib/lunarData";
 import { toast } from "sonner";
 import {
@@ -41,7 +42,7 @@ interface PersonForm {
   minute: string;
   gender: "male" | "female" | "";
   calendar: "solar" | "lunar";
-  birthplace: { city: string; country: string; lng?: number; timezone?: string };
+  birthplace: { city: string; country: string; lng?: number; lat?: number; timezone?: string };
 }
 
 const emptyForm = (): PersonForm => ({
@@ -98,185 +99,6 @@ function LoadingView() {
         </svg>
       </div>
       <p style={{ fontFamily: SERIF_F, fontSize: "0.9rem", color: GOLD, letterSpacing: "0.15em" }}>{t('loading.calculating')}</p>
-    </div>
-  );
-}
-
-// ─── 城市搜索 ─────────────────────────
-function CitySearchInput({ value, onChange }: {
-  value: { city: string; country: string; lng?: number; timezone?: string };
-  onChange: (v: { city: string; country: string; lng?: number; timezone?: string }) => void;
-}) {
-  const { t } = useT();
-  const [query, setQuery] = useState(value.city || "");
-  const [open, setOpen] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<CityRecord[]>([]);
-  const [dataError, setDataError] = useState<string | null>(null);
-  const [aiSearching, setAiSearching] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // 外部 value 变化时同步输入框（如切换 Tab）
-  useEffect(() => {
-    const label = value.city
-      ? (value.country && value.country !== '中国' ? `${value.city} · ${value.country}` : value.city)
-      : '';
-    setQuery(label);
-  }, [value.city, value.country]);
-
-  useEffect(() => {
-    const status = getCityDataStatus();
-    if (status.failed) {
-      setDataError(t('form.city.failed'));
-    } else if (!status.loaded) {
-      setDataError(t('form.city.loading'));
-    }
-  }, []);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  // AI 城市匹配（延迟查询）
-  const triggerAiLookup = (q: string) => {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (q.length < 2) return;
-    searchTimeoutRef.current = setTimeout(async () => {
-      setAiSearching(true);
-      setDataError(null);
-      try {
-        const result = await getCityCoords(q);
-        if (result) {
-          const label = result.country && result.country !== '中国'
-            ? `${result.city} · ${result.country}` : result.city;
-          setQuery(label);
-          setOpen(false);
-          setDataError(null);
-          onChange({
-            city: result.city || q,
-            country: result.country || '',
-            lng: result.lng,
-            timezone: result.timezone,
-          });
-        } else if (checkLooksOverseas(q)) {
-          setDataError(t('form.city.overseas_hint'));
-        } else {
-          setDataError(t('form.city.not_found'));
-        }
-      } catch {
-        setDataError(t('form.city.failed'));
-      } finally {
-        setAiSearching(false);
-      }
-    }, 800);
-  };
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const q = e.target.value;
-    setQuery(q);
-    if (q.length >= 1) {
-      const results = searchCities(q, 8);
-      setSuggestions(results);
-      setOpen(results.length > 0);
-      const status = getCityDataStatus();
-      if (results.length > 0) {
-        setDataError(null);
-      } else if (status.failed) {
-        setDataError(t('form.city.failed'));
-      } else if (!status.loaded) {
-        setDataError(t('form.city.loading'));
-      } else if (checkLooksOverseas(q)) {
-        setDataError(t('form.city.overseas_hint'));
-      } else {
-        // 本地无匹配 → 触发 AI 查询
-        setDataError(null);
-        triggerAiLookup(q);
-      }
-    } else {
-      setSuggestions([]);
-      setOpen(false);
-      setDataError(null);
-      onChange({ city: '', country: '' });
-    }
-  };
-
-  const handleSelect = (city: CityRecord) => {
-    const label = city.country && city.country !== '中国'
-      ? `${city.city} · ${city.country}` : city.city;
-    setQuery(label);
-    setOpen(false);
-    onChange({ city: city.city, country: city.country || '', lng: city.lng, timezone: city.timezone });
-  };
-
-  const handleClear = () => {
-    setQuery(''); setSuggestions([]); setOpen(false);
-    onChange({ city: '', country: '' });
-  };
-
-  return (
-    <div className="relative" ref={containerRef}>
-      <div className={`bazi-city-field${focused ? ' is-focused' : ''}`}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
-          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-        </svg>
-        <input
-          type="text"
-          value={query}
-          onChange={handleInput}
-          onFocus={() => { setFocused(true); if (query.length >= 1) setOpen(suggestions.length > 0); }}
-          onBlur={() => setFocused(false)}
-          placeholder={t('form.city.placeholder')}
-        />
-        {aiSearching && (
-          <span className="text-xs text-primary/70 shrink-0">{t('form.city.ai_matching')}</span>
-        )}
-        {query && (
-          <button type="button" onClick={handleClear} className="text-muted-foreground text-base leading-none px-0.5">
-            ×
-          </button>
-        )}
-      </div>
-      {dataError && (
-        <p className="text-xs text-muted-foreground mt-1 px-1">{dataError}</p>
-      )}
-      {value.lng !== undefined && (
-        <div className="text-[0.6875rem] text-muted-foreground mt-1 px-1">
-          {value.lng > 0 ? t('city.longitude_east', '东经') + value.lng.toFixed(1) + '°' : t('city.longitude_west', '西经') + Math.abs(value.lng).toFixed(1) + '°'}
-          {' · '}{t('city.timezone', '时区')} UTC{value.timezone || '+8'}
-        </div>
-      )}
-      {open && suggestions.length > 0 && (
-        <div className="bazi-city-dropdown">
-          {suggestions.map((city, i) => (
-            <button
-              key={i}
-              type="button"
-              onMouseDown={(e) => { e.preventDefault(); handleSelect(city); }}
-              className="bazi-city-option"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{city.city}</span>
-                <span className="text-[0.7rem] text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                  {city.country && city.country !== '中国' ? city.country : city.province || ''}
-                </span>
-              </div>
-              {city.lng !== undefined && (
-                <div className="text-[0.65rem] text-muted-foreground mt-0.5">
-                  {city.lng > 0 ? t('city.longitude_east', '东经') + ' ' + city.lng.toFixed(2) + '°' : t('city.longitude_west', '西经') + ' ' + Math.abs(city.lng).toFixed(2) + '°'}
-                  {city.timezone && <span> · UTC{city.timezone}</span>}
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -452,6 +274,9 @@ function PersonFormPanel({ form, onChange }: {
         <CitySearchInput
           value={form.birthplace}
           onChange={(v) => onChange({ birthplace: v })}
+          fieldClassName="bazi-city-field"
+          dropdownClassName="bazi-city-dropdown"
+          optionClassName="bazi-city-option"
         />
       </div>
 
@@ -523,7 +348,7 @@ export default function Home() {
 
   useEffect(() => {
     loadLunarLib();
-    preloadCityData();
+    void loadCityCatalog();
   }, []);
 
   // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
@@ -599,9 +424,18 @@ export default function Home() {
       try {
         const toInput = async (f: PersonForm) => {
           const cityName = f.birthplace.city;
-          const coords = f.birthplace.lng !== undefined
-            ? { lng: f.birthplace.lng, lat: 0, timezone: f.birthplace.timezone || '+8' }
-            : (cityName ? await getCityCoords(cityName) : null);
+          let coords: { lng: number; lat: number; timezone: string } | null = null;
+          if (f.birthplace.lng !== undefined) {
+            coords = {
+              lng: f.birthplace.lng,
+              lat: f.birthplace.lat ?? 0,
+              timezone: f.birthplace.timezone || "+8",
+            };
+          } else if (cityName) {
+            const catalog = await loadCityCatalog();
+            const local = matchLocalCity(catalog, cityName);
+            if (local) coords = toCityCoords(local);
+          }
           const rawMonth = f.month;
           const isLeapMonth = rawMonth.startsWith('L');
           const monthNum = parseInt(isLeapMonth ? rawMonth.slice(1) : rawMonth);

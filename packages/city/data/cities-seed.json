@@ -1,0 +1,8220 @@
+[
+  {
+    "city": "迪拜",
+    "country": "阿联酋",
+    "province": "迪拜",
+    "lng": 55.2708,
+    "lat": 25.2048,
+    "timezone": "+4",
+    "pinyin": "DXB"
+  },
+  {
+    "city": "墨尔本",
+    "country": "澳大利亚",
+    "province": "维多利亚",
+    "lng": 144.9631,
+    "lat": -37.8136,
+    "timezone": "+10",
+    "pinyin": "MEL"
+  },
+  {
+    "city": "悉尼",
+    "country": "澳大利亚",
+    "province": "新南威尔士",
+    "lng": 151.2093,
+    "lat": -33.8688,
+    "timezone": "+10",
+    "pinyin": "SYDAU"
+  },
+  {
+    "city": "巴黎",
+    "country": "法国",
+    "province": "法兰西岛",
+    "lng": 2.3522,
+    "lat": 48.8566,
+    "timezone": "+1",
+    "pinyin": "PAR"
+  },
+  {
+    "city": "首尔",
+    "country": "韩国",
+    "province": "首都圈",
+    "lng": 126.978,
+    "lat": 37.5665,
+    "timezone": "+9",
+    "pinyin": "SEL"
+  },
+  {
+    "city": "多伦多",
+    "country": "加拿大",
+    "province": "安大略",
+    "lng": -79.3832,
+    "lat": 43.6532,
+    "timezone": "-5",
+    "pinyin": "TOR"
+  },
+  {
+    "city": "温哥华",
+    "country": "加拿大",
+    "province": "不列颠哥伦比亚",
+    "lng": -123.1216,
+    "lat": 49.2827,
+    "timezone": "-8",
+    "pinyin": "VAN"
+  },
+  {
+    "city": "蒙特利尔",
+    "country": "加拿大",
+    "province": "魁北克",
+    "lng": -73.5673,
+    "lat": 45.5017,
+    "timezone": "-5",
+    "pinyin": "MTL"
+  },
+  {
+    "city": "吉隆坡",
+    "country": "马来西亚",
+    "province": "联邦直辖区",
+    "lng": 101.6869,
+    "lat": 3.139,
+    "timezone": "+8",
+    "pinyin": "KUL"
+  },
+  {
+    "city": "休斯顿",
+    "country": "美国",
+    "province": "德克萨斯",
+    "lng": -95.3698,
+    "lat": 29.7604,
+    "timezone": "-6",
+    "pinyin": "HOU"
+  },
+  {
+    "city": "华盛顿",
+    "country": "美国",
+    "province": "哥伦比亚特区",
+    "lng": -77.0369,
+    "lat": 38.9072,
+    "timezone": "-5",
+    "pinyin": "DC"
+  },
+  {
+    "city": "西雅图",
+    "country": "美国",
+    "province": "华盛顿州",
+    "lng": -122.3321,
+    "lat": 47.6062,
+    "timezone": "-8",
+    "pinyin": "SEA"
+  },
+  {
+    "city": "旧金山",
+    "country": "美国",
+    "province": "加利福尼亚",
+    "lng": -122.4194,
+    "lat": 37.7749,
+    "timezone": "-8",
+    "pinyin": "SF",
+    "alias": [
+      "圣弗朗西斯科",
+      "三藩市"
+    ]
+  },
+  {
+    "city": "洛杉矶",
+    "country": "美国",
+    "province": "加利福尼亚",
+    "lng": -118.2437,
+    "lat": 34.0522,
+    "timezone": "-8",
+    "pinyin": "LA"
+  },
+  {
+    "city": "拉斯维加斯",
+    "country": "美国",
+    "province": "内华达",
+    "lng": -115.1398,
+    "lat": 36.1699,
+    "timezone": "-8",
+    "pinyin": "LV"
+  },
+  {
+    "city": "纽约",
+    "country": "美国",
+    "province": "纽约州",
+    "lng": -74.006,
+    "lat": 40.7128,
+    "timezone": "-5",
+    "pinyin": "NYC"
+  },
+  {
+    "city": "芝加哥",
+    "country": "美国",
+    "province": "伊利诺伊",
+    "lng": -87.6298,
+    "lat": 41.8781,
+    "timezone": "-6",
+    "pinyin": "CHI"
+  },
+  {
+    "city": "东京",
+    "country": "日本",
+    "province": "关东",
+    "lng": 139.6917,
+    "lat": 35.6895,
+    "timezone": "+9",
+    "pinyin": "TKY"
+  },
+  {
+    "city": "大阪",
+    "country": "日本",
+    "province": "关西",
+    "lng": 135.5023,
+    "lat": 34.6937,
+    "timezone": "+9",
+    "pinyin": "OSA"
+  },
+  {
+    "city": "曼谷",
+    "country": "泰国",
+    "province": "中部",
+    "lng": 100.5018,
+    "lat": 13.7563,
+    "timezone": "+7",
+    "pinyin": "BKK"
+  },
+  {
+    "city": "新加坡",
+    "country": "新加坡",
+    "province": "新加坡",
+    "lng": 103.8198,
+    "lat": 1.3521,
+    "timezone": "+8",
+    "pinyin": "SIN"
+  },
+  {
+    "city": "伦敦",
+    "country": "英国",
+    "province": "英格兰",
+    "lng": -0.1276,
+    "lat": 51.5074,
+    "timezone": "+0",
+    "pinyin": "LDN"
+  },
+  {
+    "city": "河内",
+    "country": "越南",
+    "province": "北部",
+    "lng": 105.8542,
+    "lat": 21.0278,
+    "timezone": "+7",
+    "pinyin": "HAN"
+  },
+  {
+    "city": "胡志明",
+    "country": "越南",
+    "province": "南部",
+    "lng": 106.6297,
+    "lat": 10.8231,
+    "timezone": "+7",
+    "pinyin": "SGN"
+  },
+  {
+    "city": "安庆",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "AQ",
+    "alias": [
+      "安庆市"
+    ]
+  },
+  {
+    "city": "蚌埠",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.3582,
+    "lat": 32.9371,
+    "timezone": "+8",
+    "pinyin": "BB"
+  },
+  {
+    "city": "亳州",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "BZ",
+    "alias": [
+      "亳州市"
+    ]
+  },
+  {
+    "city": "巢湖",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "CH",
+    "alias": [
+      "巢湖市"
+    ]
+  },
+  {
+    "city": "池州",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "池州市"
+    ]
+  },
+  {
+    "city": "滁州",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "滁州市"
+    ]
+  },
+  {
+    "city": "阜阳",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 115.811,
+    "lat": 32.8379,
+    "timezone": "+8",
+    "pinyin": "FY"
+  },
+  {
+    "city": "广德",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "GD",
+    "alias": [
+      "广德市"
+    ]
+  },
+  {
+    "city": "合肥",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "HF"
+  },
+  {
+    "city": "淮北",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "HB",
+    "alias": [
+      "淮北市"
+    ]
+  },
+  {
+    "city": "淮南",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "HN",
+    "alias": [
+      "淮南市"
+    ]
+  },
+  {
+    "city": "黄山",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 118.34,
+    "lat": 29.713,
+    "timezone": "+8",
+    "pinyin": "HS"
+  },
+  {
+    "city": "界首",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 115.811,
+    "lat": 32.8379,
+    "timezone": "+8",
+    "pinyin": "JS",
+    "alias": [
+      "界首市"
+    ]
+  },
+  {
+    "city": "六安",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "LA",
+    "alias": [
+      "六安市"
+    ]
+  },
+  {
+    "city": "马鞍山",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "MAS",
+    "alias": [
+      "马鞍山市"
+    ]
+  },
+  {
+    "city": "明光",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "MG",
+    "alias": [
+      "明光市"
+    ]
+  },
+  {
+    "city": "宁国",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "NG",
+    "alias": [
+      "宁国市"
+    ]
+  },
+  {
+    "city": "潜山",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "QS",
+    "alias": [
+      "潜山市"
+    ]
+  },
+  {
+    "city": "宿州",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "宿州市"
+    ]
+  },
+  {
+    "city": "天长",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "TC",
+    "alias": [
+      "天长市"
+    ]
+  },
+  {
+    "city": "桐城",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "TC",
+    "alias": [
+      "桐城市"
+    ]
+  },
+  {
+    "city": "铜陵",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "TL",
+    "alias": [
+      "铜陵市"
+    ]
+  },
+  {
+    "city": "无为",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 118.3755,
+    "lat": 31.3305,
+    "timezone": "+8",
+    "pinyin": "WW",
+    "alias": [
+      "无为市"
+    ]
+  },
+  {
+    "city": "芜湖",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 118.3755,
+    "lat": 31.3305,
+    "timezone": "+8",
+    "pinyin": "WH"
+  },
+  {
+    "city": "宣城",
+    "country": "中国",
+    "province": "安徽",
+    "lng": 117.2272,
+    "lat": 31.8206,
+    "timezone": "+8",
+    "pinyin": "XC",
+    "alias": [
+      "宣城市"
+    ]
+  },
+  {
+    "city": "澳门",
+    "country": "中国",
+    "province": "澳门",
+    "lng": 113.5439,
+    "lat": 22.1987,
+    "timezone": "+8",
+    "alias": [
+      "Macau"
+    ],
+    "pinyin": "AM"
+  },
+  {
+    "city": "北京",
+    "country": "中国",
+    "province": "北京",
+    "lng": 116.4074,
+    "lat": 39.9042,
+    "timezone": "+8",
+    "pinyin": "BJ"
+  },
+  {
+    "city": "重庆",
+    "country": "中国",
+    "province": "重庆",
+    "lng": 106.5516,
+    "lat": 29.563,
+    "timezone": "+8",
+    "pinyin": "CQ"
+  },
+  {
+    "city": "万州",
+    "country": "中国",
+    "province": "重庆",
+    "lng": 108.39,
+    "lat": 30.809,
+    "timezone": "+8",
+    "pinyin": "WZCQ"
+  },
+  {
+    "city": "福安",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "FA",
+    "alias": [
+      "福安市"
+    ]
+  },
+  {
+    "city": "福鼎",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "FD",
+    "alias": [
+      "福鼎市"
+    ]
+  },
+  {
+    "city": "福清",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "FQ",
+    "alias": [
+      "福清市"
+    ]
+  },
+  {
+    "city": "福州",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "FZ"
+  },
+  {
+    "city": "建瓯",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "JO",
+    "alias": [
+      "建瓯市"
+    ]
+  },
+  {
+    "city": "晋江",
+    "country": "中国",
+    "province": "福建",
+    "lng": 118.6757,
+    "lat": 24.908,
+    "timezone": "+8",
+    "pinyin": "JJ",
+    "alias": [
+      "晋江市"
+    ]
+  },
+  {
+    "city": "龙岩",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "龙岩市"
+    ]
+  },
+  {
+    "city": "南安",
+    "country": "中国",
+    "province": "福建",
+    "lng": 118.6757,
+    "lat": 24.908,
+    "timezone": "+8",
+    "pinyin": "NA",
+    "alias": [
+      "南安市"
+    ]
+  },
+  {
+    "city": "南平",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "NP",
+    "alias": [
+      "南平市"
+    ]
+  },
+  {
+    "city": "宁德",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "ND",
+    "alias": [
+      "宁德市"
+    ]
+  },
+  {
+    "city": "莆田",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.015,
+    "lat": 25.447,
+    "timezone": "+8",
+    "pinyin": "FT"
+  },
+  {
+    "city": "泉州",
+    "country": "中国",
+    "province": "福建",
+    "lng": 118.6757,
+    "lat": 24.908,
+    "timezone": "+8",
+    "pinyin": "Quanzhou"
+  },
+  {
+    "city": "三明",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "SM",
+    "alias": [
+      "三明市"
+    ]
+  },
+  {
+    "city": "厦门",
+    "country": "中国",
+    "province": "福建",
+    "lng": 118.0894,
+    "lat": 24.4798,
+    "timezone": "+8",
+    "pinyin": "XM"
+  },
+  {
+    "city": "邵武",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "SW",
+    "alias": [
+      "邵武市"
+    ]
+  },
+  {
+    "city": "石狮",
+    "country": "中国",
+    "province": "福建",
+    "lng": 118.6757,
+    "lat": 24.908,
+    "timezone": "+8",
+    "pinyin": "SS",
+    "alias": [
+      "石狮市"
+    ]
+  },
+  {
+    "city": "武夷山",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "WYS",
+    "alias": [
+      "武夷山市"
+    ]
+  },
+  {
+    "city": "永安",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "YA",
+    "alias": [
+      "永安市"
+    ]
+  },
+  {
+    "city": "漳平",
+    "country": "中国",
+    "province": "福建",
+    "lng": 119.2965,
+    "lat": 26.0745,
+    "timezone": "+8",
+    "pinyin": "ZP",
+    "alias": [
+      "漳平市"
+    ]
+  },
+  {
+    "city": "漳州",
+    "country": "中国",
+    "province": "福建",
+    "lng": 117.6322,
+    "lat": 24.513,
+    "timezone": "+8",
+    "pinyin": "ZZF"
+  },
+  {
+    "city": "白银",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "BY",
+    "alias": [
+      "白银市"
+    ]
+  },
+  {
+    "city": "定西",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "DX",
+    "alias": [
+      "定西市"
+    ]
+  },
+  {
+    "city": "敦煌",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "DH",
+    "alias": [
+      "敦煌市"
+    ]
+  },
+  {
+    "city": "甘南藏族自治州",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "GNZZZZZ",
+    "alias": [
+      "甘南藏族自治州市"
+    ]
+  },
+  {
+    "city": "合作",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "合作市"
+    ]
+  },
+  {
+    "city": "华亭",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "HT",
+    "alias": [
+      "华亭市"
+    ]
+  },
+  {
+    "city": "嘉峪关",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "JYG",
+    "alias": [
+      "嘉峪关市"
+    ]
+  },
+  {
+    "city": "金昌",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "JC",
+    "alias": [
+      "金昌市"
+    ]
+  },
+  {
+    "city": "酒泉",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "JQ",
+    "alias": [
+      "酒泉市"
+    ]
+  },
+  {
+    "city": "兰州",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "LZGS"
+  },
+  {
+    "city": "临夏",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "LX",
+    "alias": [
+      "临夏市"
+    ]
+  },
+  {
+    "city": "临夏回族自治州",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "LXHZZZZ",
+    "alias": [
+      "临夏回族自治州市"
+    ]
+  },
+  {
+    "city": "陇南",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "LN",
+    "alias": [
+      "陇南市"
+    ]
+  },
+  {
+    "city": "平凉",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "PL",
+    "alias": [
+      "平凉市"
+    ]
+  },
+  {
+    "city": "庆阳",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "QY",
+    "alias": [
+      "庆阳市"
+    ]
+  },
+  {
+    "city": "天水",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 105.728,
+    "lat": 34.5769,
+    "timezone": "+8",
+    "pinyin": "TS"
+  },
+  {
+    "city": "武威",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "WW",
+    "alias": [
+      "武威市"
+    ]
+  },
+  {
+    "city": "玉门",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "YM",
+    "alias": [
+      "玉门市"
+    ]
+  },
+  {
+    "city": "张掖",
+    "country": "中国",
+    "province": "甘肃",
+    "lng": 103.8236,
+    "lat": 36.058,
+    "timezone": "+8",
+    "pinyin": "ZY",
+    "alias": [
+      "张掖市"
+    ]
+  },
+  {
+    "city": "潮州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "潮州市"
+    ]
+  },
+  {
+    "city": "东莞",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.7518,
+    "lat": 23.0205,
+    "timezone": "+8",
+    "pinyin": "DG"
+  },
+  {
+    "city": "恩平",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "EP",
+    "alias": [
+      "恩平市"
+    ]
+  },
+  {
+    "city": "佛山",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.1219,
+    "lat": 23.0218,
+    "timezone": "+8",
+    "pinyin": "FS"
+  },
+  {
+    "city": "高州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.9254,
+    "lat": 21.6631,
+    "timezone": "+8",
+    "pinyin": "GZ",
+    "alias": [
+      "高州市"
+    ]
+  },
+  {
+    "city": "广州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "GZ"
+  },
+  {
+    "city": "河源",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "HY",
+    "alias": [
+      "河源市"
+    ]
+  },
+  {
+    "city": "鹤山",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "HS",
+    "alias": [
+      "鹤山市"
+    ]
+  },
+  {
+    "city": "化州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.9254,
+    "lat": 21.6631,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "化州市"
+    ]
+  },
+  {
+    "city": "惠州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 114.4165,
+    "lat": 23.0774,
+    "timezone": "+8",
+    "pinyin": "HZGD"
+  },
+  {
+    "city": "江门",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "JM",
+    "alias": [
+      "江门市"
+    ]
+  },
+  {
+    "city": "揭阳",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "JY",
+    "alias": [
+      "揭阳市"
+    ]
+  },
+  {
+    "city": "开平",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "KP",
+    "alias": [
+      "开平市"
+    ]
+  },
+  {
+    "city": "乐昌",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.5904,
+    "lat": 24.8105,
+    "timezone": "+8",
+    "pinyin": "LC",
+    "alias": [
+      "乐昌市"
+    ]
+  },
+  {
+    "city": "雷州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.3582,
+    "lat": 21.2701,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "雷州市"
+    ]
+  },
+  {
+    "city": "连州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "连州市"
+    ]
+  },
+  {
+    "city": "廉江",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.3582,
+    "lat": 21.2701,
+    "timezone": "+8",
+    "pinyin": "LJ",
+    "alias": [
+      "廉江市"
+    ]
+  },
+  {
+    "city": "陆丰",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "LF",
+    "alias": [
+      "陆丰市"
+    ]
+  },
+  {
+    "city": "罗定",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "LD",
+    "alias": [
+      "罗定市"
+    ]
+  },
+  {
+    "city": "茂名",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.9254,
+    "lat": 21.6631,
+    "timezone": "+8",
+    "pinyin": "MM"
+  },
+  {
+    "city": "梅州",
+    "country": "中国",
+    "province": "广东",
+    "lng": 116.1179,
+    "lat": 24.2883,
+    "timezone": "+8",
+    "pinyin": "MZ"
+  },
+  {
+    "city": "南雄",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.5904,
+    "lat": 24.8105,
+    "timezone": "+8",
+    "pinyin": "NX",
+    "alias": [
+      "南雄市"
+    ]
+  },
+  {
+    "city": "普宁",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "PN",
+    "alias": [
+      "普宁市"
+    ]
+  },
+  {
+    "city": "清远",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "QY",
+    "alias": [
+      "清远市"
+    ]
+  },
+  {
+    "city": "汕头",
+    "country": "中国",
+    "province": "广东",
+    "lng": 116.6814,
+    "lat": 23.354,
+    "timezone": "+8",
+    "pinyin": "ST"
+  },
+  {
+    "city": "汕尾",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "SW",
+    "alias": [
+      "汕尾市"
+    ]
+  },
+  {
+    "city": "韶关",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.5904,
+    "lat": 24.8105,
+    "timezone": "+8",
+    "pinyin": "SG"
+  },
+  {
+    "city": "深圳",
+    "country": "中国",
+    "province": "广东",
+    "lng": 114.0579,
+    "lat": 22.5431,
+    "timezone": "+8",
+    "pinyin": "SZ"
+  },
+  {
+    "city": "四会",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "四会市"
+    ]
+  },
+  {
+    "city": "台山",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "TS",
+    "alias": [
+      "台山市"
+    ]
+  },
+  {
+    "city": "吴川",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.3582,
+    "lat": 21.2701,
+    "timezone": "+8",
+    "pinyin": "WC",
+    "alias": [
+      "吴川市"
+    ]
+  },
+  {
+    "city": "信宜",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.9254,
+    "lat": 21.6631,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "信宜市"
+    ]
+  },
+  {
+    "city": "兴宁",
+    "country": "中国",
+    "province": "广东",
+    "lng": 116.1179,
+    "lat": 24.2883,
+    "timezone": "+8",
+    "pinyin": "XN",
+    "alias": [
+      "兴宁市"
+    ]
+  },
+  {
+    "city": "阳春",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "阳春市"
+    ]
+  },
+  {
+    "city": "阳江",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "YJ",
+    "alias": [
+      "阳江市"
+    ]
+  },
+  {
+    "city": "英德",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "YD",
+    "alias": [
+      "英德市"
+    ]
+  },
+  {
+    "city": "云浮",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "YF",
+    "alias": [
+      "云浮市"
+    ]
+  },
+  {
+    "city": "湛江",
+    "country": "中国",
+    "province": "广东",
+    "lng": 110.3582,
+    "lat": 21.2701,
+    "timezone": "+8",
+    "pinyin": "ZJ"
+  },
+  {
+    "city": "肇庆",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "ZQ",
+    "alias": [
+      "肇庆市"
+    ]
+  },
+  {
+    "city": "中山",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.2644,
+    "lat": 23.1291,
+    "timezone": "+8",
+    "pinyin": "ZS",
+    "alias": [
+      "中山市"
+    ]
+  },
+  {
+    "city": "珠海",
+    "country": "中国",
+    "province": "广东",
+    "lng": 113.5632,
+    "lat": 22.271,
+    "timezone": "+8",
+    "pinyin": "ZHU"
+  },
+  {
+    "city": "百色",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "BS",
+    "alias": [
+      "百色市"
+    ]
+  },
+  {
+    "city": "北海",
+    "country": "中国",
+    "province": "广西",
+    "lng": 109.1183,
+    "lat": 21.4826,
+    "timezone": "+8",
+    "pinyin": "BH"
+  },
+  {
+    "city": "北流",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "BL",
+    "alias": [
+      "北流市"
+    ]
+  },
+  {
+    "city": "岑溪",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "CX",
+    "alias": [
+      "岑溪市"
+    ]
+  },
+  {
+    "city": "崇左",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "崇左市"
+    ]
+  },
+  {
+    "city": "东兴",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "DX",
+    "alias": [
+      "东兴市"
+    ]
+  },
+  {
+    "city": "防城港",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "FCG",
+    "alias": [
+      "防城港市"
+    ]
+  },
+  {
+    "city": "贵港",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "GG",
+    "alias": [
+      "贵港市"
+    ]
+  },
+  {
+    "city": "桂林",
+    "country": "中国",
+    "province": "广西",
+    "lng": 110.2876,
+    "lat": 25.2736,
+    "timezone": "+8",
+    "pinyin": "GL"
+  },
+  {
+    "city": "桂平",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "GP",
+    "alias": [
+      "桂平市"
+    ]
+  },
+  {
+    "city": "合山",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "HS",
+    "alias": [
+      "合山市"
+    ]
+  },
+  {
+    "city": "河池",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "HC",
+    "alias": [
+      "河池市"
+    ]
+  },
+  {
+    "city": "贺州",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "贺州市"
+    ]
+  },
+  {
+    "city": "横州",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "横州市"
+    ]
+  },
+  {
+    "city": "靖西",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "JX",
+    "alias": [
+      "靖西市"
+    ]
+  },
+  {
+    "city": "来宾",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "LB",
+    "alias": [
+      "来宾市"
+    ]
+  },
+  {
+    "city": "荔浦",
+    "country": "中国",
+    "province": "广西",
+    "lng": 110.2876,
+    "lat": 25.2736,
+    "timezone": "+8",
+    "pinyin": "LP",
+    "alias": [
+      "荔浦市"
+    ]
+  },
+  {
+    "city": "柳州",
+    "country": "中国",
+    "province": "广西",
+    "lng": 109.4117,
+    "lat": 24.2784,
+    "timezone": "+8",
+    "pinyin": "Liuzhou"
+  },
+  {
+    "city": "南宁",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "NN"
+  },
+  {
+    "city": "平果",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "PG",
+    "alias": [
+      "平果市"
+    ]
+  },
+  {
+    "city": "凭祥",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "PX",
+    "alias": [
+      "凭祥市"
+    ]
+  },
+  {
+    "city": "钦州",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "QZ",
+    "alias": [
+      "钦州市"
+    ]
+  },
+  {
+    "city": "梧州",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "WZ",
+    "alias": [
+      "梧州市"
+    ]
+  },
+  {
+    "city": "玉林",
+    "country": "中国",
+    "province": "广西",
+    "lng": 108.3665,
+    "lat": 22.817,
+    "timezone": "+8",
+    "pinyin": "YL",
+    "alias": [
+      "玉林市"
+    ]
+  },
+  {
+    "city": "安顺",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "AS",
+    "alias": [
+      "安顺市"
+    ]
+  },
+  {
+    "city": "毕节",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "BJ",
+    "alias": [
+      "毕节市"
+    ]
+  },
+  {
+    "city": "赤水",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.937,
+    "lat": 27.7108,
+    "timezone": "+8",
+    "pinyin": "CS",
+    "alias": [
+      "赤水市"
+    ]
+  },
+  {
+    "city": "都匀",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "DY",
+    "alias": [
+      "都匀市"
+    ]
+  },
+  {
+    "city": "福泉",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "FQ",
+    "alias": [
+      "福泉市"
+    ]
+  },
+  {
+    "city": "贵阳",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "GY"
+  },
+  {
+    "city": "凯里",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "KL",
+    "alias": [
+      "凯里市"
+    ]
+  },
+  {
+    "city": "六盘水",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "LPS",
+    "alias": [
+      "六盘水市"
+    ]
+  },
+  {
+    "city": "盘州",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "PZ",
+    "alias": [
+      "盘州市"
+    ]
+  },
+  {
+    "city": "黔东南苗族侗族自治州",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "QDNMZDZZZZ",
+    "alias": [
+      "黔东南苗族侗族自治州市"
+    ]
+  },
+  {
+    "city": "黔南布依族苗族自治州",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "QNBYZMZZZZ",
+    "alias": [
+      "黔南布依族苗族自治州市"
+    ]
+  },
+  {
+    "city": "黔西",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "QX",
+    "alias": [
+      "黔西市"
+    ]
+  },
+  {
+    "city": "黔西南布依族苗族自治州",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "QXNBYZMZZZZ",
+    "alias": [
+      "黔西南布依族苗族自治州市"
+    ]
+  },
+  {
+    "city": "清镇",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "QZ",
+    "alias": [
+      "清镇市"
+    ]
+  },
+  {
+    "city": "仁怀",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.937,
+    "lat": 27.7108,
+    "timezone": "+8",
+    "pinyin": "RH",
+    "alias": [
+      "仁怀市"
+    ]
+  },
+  {
+    "city": "铜仁",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "TR",
+    "alias": [
+      "铜仁市"
+    ]
+  },
+  {
+    "city": "兴仁",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "XR",
+    "alias": [
+      "兴仁市"
+    ]
+  },
+  {
+    "city": "兴义",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.6302,
+    "lat": 26.647,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "兴义市"
+    ]
+  },
+  {
+    "city": "遵义",
+    "country": "中国",
+    "province": "贵州",
+    "lng": 106.937,
+    "lat": 27.7108,
+    "timezone": "+8",
+    "pinyin": "ZY"
+  },
+  {
+    "city": "儋州",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "DZ",
+    "alias": [
+      "儋州市"
+    ]
+  },
+  {
+    "city": "东方",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "DF",
+    "alias": [
+      "东方市"
+    ]
+  },
+  {
+    "city": "海口",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "HK"
+  },
+  {
+    "city": "琼海",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "QH",
+    "alias": [
+      "琼海市"
+    ]
+  },
+  {
+    "city": "三沙",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "SS",
+    "alias": [
+      "三沙市"
+    ]
+  },
+  {
+    "city": "三亚",
+    "country": "中国",
+    "province": "海南",
+    "lng": 109.509,
+    "lat": 18.2478,
+    "timezone": "+8",
+    "pinyin": "SY"
+  },
+  {
+    "city": "省直辖县级行政区划",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "SZXXJXZQH",
+    "alias": [
+      "省直辖县级行政区划市"
+    ]
+  },
+  {
+    "city": "万宁",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "WN",
+    "alias": [
+      "万宁市"
+    ]
+  },
+  {
+    "city": "文昌",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "WC",
+    "alias": [
+      "文昌市"
+    ]
+  },
+  {
+    "city": "五指山",
+    "country": "中国",
+    "province": "海南",
+    "lng": 110.3492,
+    "lat": 20.0174,
+    "timezone": "+8",
+    "pinyin": "WZS",
+    "alias": [
+      "五指山市"
+    ]
+  },
+  {
+    "city": "安国",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "AG",
+    "alias": [
+      "安国市"
+    ]
+  },
+  {
+    "city": "霸州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "BZ",
+    "alias": [
+      "霸州市"
+    ]
+  },
+  {
+    "city": "保定",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "BD",
+    "alias": [
+      "保定市"
+    ]
+  },
+  {
+    "city": "沧州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "沧州市"
+    ]
+  },
+  {
+    "city": "承德",
+    "country": "中国",
+    "province": "河北",
+    "lng": 117.9374,
+    "lat": 40.9686,
+    "timezone": "+8",
+    "pinyin": "CD"
+  },
+  {
+    "city": "定州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "DZ",
+    "alias": [
+      "定州市"
+    ]
+  },
+  {
+    "city": "高碑店",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "GBD",
+    "alias": [
+      "高碑店市"
+    ]
+  },
+  {
+    "city": "邯郸",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5322,
+    "lat": 36.6119,
+    "timezone": "+8",
+    "pinyin": "HD"
+  },
+  {
+    "city": "河间",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "HJ",
+    "alias": [
+      "河间市"
+    ]
+  },
+  {
+    "city": "衡水",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "HS",
+    "alias": [
+      "衡水市"
+    ]
+  },
+  {
+    "city": "黄骅",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "HH",
+    "alias": [
+      "黄骅市"
+    ]
+  },
+  {
+    "city": "晋州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "JZ",
+    "alias": [
+      "晋州市"
+    ]
+  },
+  {
+    "city": "廊坊",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "LF",
+    "alias": [
+      "廊坊市"
+    ]
+  },
+  {
+    "city": "滦州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 118.1841,
+    "lat": 39.6304,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "滦州市"
+    ]
+  },
+  {
+    "city": "南宫",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "NG",
+    "alias": [
+      "南宫市"
+    ]
+  },
+  {
+    "city": "平泉",
+    "country": "中国",
+    "province": "河北",
+    "lng": 117.9374,
+    "lat": 40.9686,
+    "timezone": "+8",
+    "pinyin": "PQ",
+    "alias": [
+      "平泉市"
+    ]
+  },
+  {
+    "city": "泊头",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "BT",
+    "alias": [
+      "泊头市"
+    ]
+  },
+  {
+    "city": "迁安",
+    "country": "中国",
+    "province": "河北",
+    "lng": 118.1841,
+    "lat": 39.6304,
+    "timezone": "+8",
+    "pinyin": "QA",
+    "alias": [
+      "迁安市"
+    ]
+  },
+  {
+    "city": "秦皇岛",
+    "country": "中国",
+    "province": "河北",
+    "lng": 119.6025,
+    "lat": 39.9338,
+    "timezone": "+8",
+    "pinyin": "QHD"
+  },
+  {
+    "city": "任丘",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "RQ",
+    "alias": [
+      "任丘市"
+    ]
+  },
+  {
+    "city": "三河",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "三河市"
+    ]
+  },
+  {
+    "city": "沙河",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "沙河市"
+    ]
+  },
+  {
+    "city": "深州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "深州市"
+    ]
+  },
+  {
+    "city": "石家庄",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "SJZ"
+  },
+  {
+    "city": "唐山",
+    "country": "中国",
+    "province": "河北",
+    "lng": 118.1841,
+    "lat": 39.6304,
+    "timezone": "+8",
+    "pinyin": "TS"
+  },
+  {
+    "city": "武安",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5322,
+    "lat": 36.6119,
+    "timezone": "+8",
+    "pinyin": "WA",
+    "alias": [
+      "武安市"
+    ]
+  },
+  {
+    "city": "辛集",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "XJ",
+    "alias": [
+      "辛集市"
+    ]
+  },
+  {
+    "city": "新乐",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "XL",
+    "alias": [
+      "新乐市"
+    ]
+  },
+  {
+    "city": "邢台",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "XT",
+    "alias": [
+      "邢台市"
+    ]
+  },
+  {
+    "city": "张家口",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.8803,
+    "lat": 40.7686,
+    "timezone": "+8",
+    "pinyin": "ZJK"
+  },
+  {
+    "city": "涿州",
+    "country": "中国",
+    "province": "河北",
+    "lng": 114.5149,
+    "lat": 38.0428,
+    "timezone": "+8",
+    "pinyin": "ZZ",
+    "alias": [
+      "涿州市"
+    ]
+  },
+  {
+    "city": "遵化",
+    "country": "中国",
+    "province": "河北",
+    "lng": 118.1841,
+    "lat": 39.6304,
+    "timezone": "+8",
+    "pinyin": "ZH",
+    "alias": [
+      "遵化市"
+    ]
+  },
+  {
+    "city": "安阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 114.361,
+    "lat": 36.1019,
+    "timezone": "+8",
+    "pinyin": "AY"
+  },
+  {
+    "city": "登封",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "DF",
+    "alias": [
+      "登封市"
+    ]
+  },
+  {
+    "city": "邓州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 112.5336,
+    "lat": 32.999,
+    "timezone": "+8",
+    "pinyin": "DZ",
+    "alias": [
+      "邓州市"
+    ]
+  },
+  {
+    "city": "巩义",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "GY",
+    "alias": [
+      "巩义市"
+    ]
+  },
+  {
+    "city": "鹤壁",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "HB",
+    "alias": [
+      "鹤壁市"
+    ]
+  },
+  {
+    "city": "辉县",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "HX",
+    "alias": [
+      "辉县市"
+    ]
+  },
+  {
+    "city": "济源",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "JY",
+    "alias": [
+      "济源市"
+    ]
+  },
+  {
+    "city": "焦作",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "JZ",
+    "alias": [
+      "焦作市"
+    ]
+  },
+  {
+    "city": "开封",
+    "country": "中国",
+    "province": "河南",
+    "lng": 114.3495,
+    "lat": 34.7971,
+    "timezone": "+8",
+    "pinyin": "KF"
+  },
+  {
+    "city": "林州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 114.361,
+    "lat": 36.1019,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "林州市"
+    ]
+  },
+  {
+    "city": "灵宝",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "LB",
+    "alias": [
+      "灵宝市"
+    ]
+  },
+  {
+    "city": "洛阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 112.4366,
+    "lat": 34.6631,
+    "timezone": "+8",
+    "pinyin": "LY"
+  },
+  {
+    "city": "漯河",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "LH",
+    "alias": [
+      "漯河市"
+    ]
+  },
+  {
+    "city": "孟州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "MZ",
+    "alias": [
+      "孟州市"
+    ]
+  },
+  {
+    "city": "南阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 112.5336,
+    "lat": 32.999,
+    "timezone": "+8",
+    "pinyin": "NY"
+  },
+  {
+    "city": "平顶山",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "PDS",
+    "alias": [
+      "平顶山市"
+    ]
+  },
+  {
+    "city": "濮阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "PY",
+    "alias": [
+      "濮阳市"
+    ]
+  },
+  {
+    "city": "沁阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "QY",
+    "alias": [
+      "沁阳市"
+    ]
+  },
+  {
+    "city": "汝州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "RZ",
+    "alias": [
+      "汝州市"
+    ]
+  },
+  {
+    "city": "三门峡",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "SMX",
+    "alias": [
+      "三门峡市"
+    ]
+  },
+  {
+    "city": "商丘",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "SQ",
+    "alias": [
+      "商丘市"
+    ]
+  },
+  {
+    "city": "省直辖县级行政区划",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "SZXXJXZQH",
+    "alias": [
+      "省直辖县级行政区划市"
+    ]
+  },
+  {
+    "city": "卫辉",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "WH",
+    "alias": [
+      "卫辉市"
+    ]
+  },
+  {
+    "city": "舞钢",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "WG",
+    "alias": [
+      "舞钢市"
+    ]
+  },
+  {
+    "city": "项城",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XC",
+    "alias": [
+      "项城市"
+    ]
+  },
+  {
+    "city": "新密",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XM",
+    "alias": [
+      "新密市"
+    ]
+  },
+  {
+    "city": "新乡",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XX",
+    "alias": [
+      "新乡市"
+    ]
+  },
+  {
+    "city": "新郑",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XZ",
+    "alias": [
+      "新郑市"
+    ]
+  },
+  {
+    "city": "信阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "信阳市"
+    ]
+  },
+  {
+    "city": "荥阳",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "荥阳市"
+    ]
+  },
+  {
+    "city": "许昌",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "XC",
+    "alias": [
+      "许昌市"
+    ]
+  },
+  {
+    "city": "义马",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "YM",
+    "alias": [
+      "义马市"
+    ]
+  },
+  {
+    "city": "永城",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "永城市"
+    ]
+  },
+  {
+    "city": "禹州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "YZ",
+    "alias": [
+      "禹州市"
+    ]
+  },
+  {
+    "city": "长葛",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "CG",
+    "alias": [
+      "长葛市"
+    ]
+  },
+  {
+    "city": "长垣",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "CY",
+    "alias": [
+      "长垣市"
+    ]
+  },
+  {
+    "city": "郑州",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "ZZ"
+  },
+  {
+    "city": "周口",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "ZK",
+    "alias": [
+      "周口市"
+    ]
+  },
+  {
+    "city": "驻马店",
+    "country": "中国",
+    "province": "河南",
+    "lng": 113.6253,
+    "lat": 34.7466,
+    "timezone": "+8",
+    "pinyin": "ZMD",
+    "alias": [
+      "驻马店市"
+    ]
+  },
+  {
+    "city": "安达",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "AD",
+    "alias": [
+      "安达市"
+    ]
+  },
+  {
+    "city": "北安",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "BA",
+    "alias": [
+      "北安市"
+    ]
+  },
+  {
+    "city": "大庆",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "DQ",
+    "alias": [
+      "大庆市"
+    ]
+  },
+  {
+    "city": "大兴安岭",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "DXAL",
+    "alias": [
+      "大兴安岭市"
+    ]
+  },
+  {
+    "city": "东宁",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "DN",
+    "alias": [
+      "东宁市"
+    ]
+  },
+  {
+    "city": "抚远",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "FY",
+    "alias": [
+      "抚远市"
+    ]
+  },
+  {
+    "city": "富锦",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "FJ",
+    "alias": [
+      "富锦市"
+    ]
+  },
+  {
+    "city": "哈尔滨",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "HRB"
+  },
+  {
+    "city": "海林",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "HL",
+    "alias": [
+      "海林市"
+    ]
+  },
+  {
+    "city": "海伦",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "HL",
+    "alias": [
+      "海伦市"
+    ]
+  },
+  {
+    "city": "鹤岗",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "HG",
+    "alias": [
+      "鹤岗市"
+    ]
+  },
+  {
+    "city": "黑河",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "HH",
+    "alias": [
+      "黑河市"
+    ]
+  },
+  {
+    "city": "虎林",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "HL",
+    "alias": [
+      "虎林市"
+    ]
+  },
+  {
+    "city": "鸡西",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "JX",
+    "alias": [
+      "鸡西市"
+    ]
+  },
+  {
+    "city": "佳木斯",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "JMS",
+    "alias": [
+      "佳木斯市"
+    ]
+  },
+  {
+    "city": "密山",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "MS",
+    "alias": [
+      "密山市"
+    ]
+  },
+  {
+    "city": "漠河",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "MH",
+    "alias": [
+      "漠河市"
+    ]
+  },
+  {
+    "city": "牡丹江",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "MDJ"
+  },
+  {
+    "city": "穆棱",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "ML",
+    "alias": [
+      "穆棱市"
+    ]
+  },
+  {
+    "city": "讷河",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 123.9597,
+    "lat": 47.3408,
+    "timezone": "+8",
+    "pinyin": "NH",
+    "alias": [
+      "讷河市"
+    ]
+  },
+  {
+    "city": "嫩江",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "NJ",
+    "alias": [
+      "嫩江市"
+    ]
+  },
+  {
+    "city": "宁安",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "NA",
+    "alias": [
+      "宁安市"
+    ]
+  },
+  {
+    "city": "七台河",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "QTH",
+    "alias": [
+      "七台河市"
+    ]
+  },
+  {
+    "city": "齐齐哈尔",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 123.9597,
+    "lat": 47.3408,
+    "timezone": "+8",
+    "pinyin": "QQHE"
+  },
+  {
+    "city": "尚志",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "尚志市"
+    ]
+  },
+  {
+    "city": "双鸭山",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "SYS",
+    "alias": [
+      "双鸭山市"
+    ]
+  },
+  {
+    "city": "绥芬河",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 129.6155,
+    "lat": 44.5762,
+    "timezone": "+8",
+    "pinyin": "SFH",
+    "alias": [
+      "绥芬河市"
+    ]
+  },
+  {
+    "city": "绥化",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "绥化市"
+    ]
+  },
+  {
+    "city": "铁力",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "TL",
+    "alias": [
+      "铁力市"
+    ]
+  },
+  {
+    "city": "同江",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "TJ",
+    "alias": [
+      "同江市"
+    ]
+  },
+  {
+    "city": "五常",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "WC",
+    "alias": [
+      "五常市"
+    ]
+  },
+  {
+    "city": "五大连池",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "WDLC",
+    "alias": [
+      "五大连池市"
+    ]
+  },
+  {
+    "city": "伊春",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "伊春市"
+    ]
+  },
+  {
+    "city": "肇东",
+    "country": "中国",
+    "province": "黑龙江",
+    "lng": 126.6424,
+    "lat": 45.7569,
+    "timezone": "+8",
+    "pinyin": "ZD",
+    "alias": [
+      "肇东市"
+    ]
+  },
+  {
+    "city": "安陆",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "AL",
+    "alias": [
+      "安陆市"
+    ]
+  },
+  {
+    "city": "赤壁",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "CB",
+    "alias": [
+      "赤壁市"
+    ]
+  },
+  {
+    "city": "大冶",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 115.225,
+    "lat": 30.2138,
+    "timezone": "+8",
+    "pinyin": "DY",
+    "alias": [
+      "大冶市"
+    ]
+  },
+  {
+    "city": "丹江口",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "DJK",
+    "alias": [
+      "丹江口市"
+    ]
+  },
+  {
+    "city": "当阳",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 111.2935,
+    "lat": 30.7012,
+    "timezone": "+8",
+    "pinyin": "DY",
+    "alias": [
+      "当阳市"
+    ]
+  },
+  {
+    "city": "鄂州",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "EZ",
+    "alias": [
+      "鄂州市"
+    ]
+  },
+  {
+    "city": "恩施",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "ES",
+    "alias": [
+      "恩施市"
+    ]
+  },
+  {
+    "city": "恩施土家族苗族自治州",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "ESTJZMZZZZ",
+    "alias": [
+      "恩施土家族苗族自治州市"
+    ]
+  },
+  {
+    "city": "广水",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "GS",
+    "alias": [
+      "广水市"
+    ]
+  },
+  {
+    "city": "汉川",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "HC",
+    "alias": [
+      "汉川市"
+    ]
+  },
+  {
+    "city": "洪湖",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.2369,
+    "lat": 30.324,
+    "timezone": "+8",
+    "pinyin": "HH",
+    "alias": [
+      "洪湖市"
+    ]
+  },
+  {
+    "city": "黄冈",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "HG",
+    "alias": [
+      "黄冈市"
+    ]
+  },
+  {
+    "city": "黄石",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 115.225,
+    "lat": 30.2138,
+    "timezone": "+8",
+    "pinyin": "HYS"
+  },
+  {
+    "city": "监利",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.2369,
+    "lat": 30.324,
+    "timezone": "+8",
+    "pinyin": "JL",
+    "alias": [
+      "监利市"
+    ]
+  },
+  {
+    "city": "京山",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "JS",
+    "alias": [
+      "京山市"
+    ]
+  },
+  {
+    "city": "荆门",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "JM",
+    "alias": [
+      "荆门市"
+    ]
+  },
+  {
+    "city": "荆州",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.2369,
+    "lat": 30.324,
+    "timezone": "+8",
+    "pinyin": "JZ"
+  },
+  {
+    "city": "老河口",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.1219,
+    "lat": 32.0071,
+    "timezone": "+8",
+    "pinyin": "LHK",
+    "alias": [
+      "老河口市"
+    ]
+  },
+  {
+    "city": "利川",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "LC",
+    "alias": [
+      "利川市"
+    ]
+  },
+  {
+    "city": "麻城",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "MC",
+    "alias": [
+      "麻城市"
+    ]
+  },
+  {
+    "city": "潜江",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "QJ",
+    "alias": [
+      "潜江市"
+    ]
+  },
+  {
+    "city": "省直辖县级行政区划",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "SZXXJXZQH",
+    "alias": [
+      "省直辖县级行政区划市"
+    ]
+  },
+  {
+    "city": "十堰",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "SY",
+    "alias": [
+      "十堰市"
+    ]
+  },
+  {
+    "city": "石首",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.4253,
+    "lat": 29.7205,
+    "timezone": "+8",
+    "alias": [
+      "石首市"
+    ],
+    "pinyin": "SS"
+  },
+  {
+    "city": "松滋",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.2369,
+    "lat": 30.324,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "松滋市"
+    ]
+  },
+  {
+    "city": "随州",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "随州市"
+    ]
+  },
+  {
+    "city": "天门",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "TM",
+    "alias": [
+      "天门市"
+    ]
+  },
+  {
+    "city": "武汉",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "WUH"
+  },
+  {
+    "city": "武穴",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "WX",
+    "alias": [
+      "武穴市"
+    ]
+  },
+  {
+    "city": "仙桃",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "XT",
+    "alias": [
+      "仙桃市"
+    ]
+  },
+  {
+    "city": "咸宁",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "XN",
+    "alias": [
+      "咸宁市"
+    ]
+  },
+  {
+    "city": "襄阳",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.1219,
+    "lat": 32.0071,
+    "timezone": "+8",
+    "pinyin": "XY"
+  },
+  {
+    "city": "孝感",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "XG",
+    "alias": [
+      "孝感市"
+    ]
+  },
+  {
+    "city": "宜昌",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 111.2935,
+    "lat": 30.7012,
+    "timezone": "+8",
+    "pinyin": "YIC"
+  },
+  {
+    "city": "宜城",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.1219,
+    "lat": 32.0071,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "宜城市"
+    ]
+  },
+  {
+    "city": "宜都",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 111.2935,
+    "lat": 30.7012,
+    "timezone": "+8",
+    "pinyin": "YD",
+    "alias": [
+      "宜都市"
+    ]
+  },
+  {
+    "city": "应城",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "应城市"
+    ]
+  },
+  {
+    "city": "枣阳",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 112.1219,
+    "lat": 32.0071,
+    "timezone": "+8",
+    "pinyin": "ZY",
+    "alias": [
+      "枣阳市"
+    ]
+  },
+  {
+    "city": "枝江",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 111.2935,
+    "lat": 30.7012,
+    "timezone": "+8",
+    "pinyin": "ZJ",
+    "alias": [
+      "枝江市"
+    ]
+  },
+  {
+    "city": "钟祥",
+    "country": "中国",
+    "province": "湖北",
+    "lng": 114.3054,
+    "lat": 30.5931,
+    "timezone": "+8",
+    "pinyin": "ZX",
+    "alias": [
+      "钟祥市"
+    ]
+  },
+  {
+    "city": "常德",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 111.6897,
+    "lat": 29.0336,
+    "timezone": "+8",
+    "pinyin": "CDH"
+  },
+  {
+    "city": "常宁",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.597,
+    "lat": 26.8939,
+    "timezone": "+8",
+    "pinyin": "CN",
+    "alias": [
+      "常宁市"
+    ]
+  },
+  {
+    "city": "郴州",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "郴州市"
+    ]
+  },
+  {
+    "city": "衡阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.597,
+    "lat": 26.8939,
+    "timezone": "+8",
+    "pinyin": "HY"
+  },
+  {
+    "city": "洪江",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "HJ",
+    "alias": [
+      "洪江市"
+    ]
+  },
+  {
+    "city": "怀化",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "HH",
+    "alias": [
+      "怀化市"
+    ]
+  },
+  {
+    "city": "吉首",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "JS",
+    "alias": [
+      "吉首市"
+    ]
+  },
+  {
+    "city": "津市",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 111.6897,
+    "lat": 29.0336,
+    "timezone": "+8",
+    "pinyin": "JS",
+    "alias": [
+      "津市市"
+    ]
+  },
+  {
+    "city": "耒阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.597,
+    "lat": 26.8939,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "耒阳市"
+    ]
+  },
+  {
+    "city": "冷水江",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "LSJ",
+    "alias": [
+      "冷水江市"
+    ]
+  },
+  {
+    "city": "醴陵",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "LL",
+    "alias": [
+      "醴陵市"
+    ]
+  },
+  {
+    "city": "涟源",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "涟源市"
+    ]
+  },
+  {
+    "city": "临湘",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 113.1107,
+    "lat": 29.3697,
+    "timezone": "+8",
+    "pinyin": "LX",
+    "alias": [
+      "临湘市"
+    ]
+  },
+  {
+    "city": "浏阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "浏阳市"
+    ]
+  },
+  {
+    "city": "娄底",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "LD",
+    "alias": [
+      "娄底市"
+    ]
+  },
+  {
+    "city": "汨罗",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 113.1107,
+    "lat": 29.3697,
+    "timezone": "+8",
+    "pinyin": "ML",
+    "alias": [
+      "汨罗市"
+    ]
+  },
+  {
+    "city": "宁乡",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "NX",
+    "alias": [
+      "宁乡市"
+    ]
+  },
+  {
+    "city": "祁阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "QY",
+    "alias": [
+      "祁阳市"
+    ]
+  },
+  {
+    "city": "韶山",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "SS",
+    "alias": [
+      "韶山市"
+    ]
+  },
+  {
+    "city": "邵东",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "SD",
+    "alias": [
+      "邵东市"
+    ]
+  },
+  {
+    "city": "邵阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "SY",
+    "alias": [
+      "邵阳市"
+    ]
+  },
+  {
+    "city": "武冈",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "WG",
+    "alias": [
+      "武冈市"
+    ]
+  },
+  {
+    "city": "湘潭",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "XT",
+    "alias": [
+      "湘潭市"
+    ]
+  },
+  {
+    "city": "湘西土家族苗族自治州",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "XXTJZMZZZZ",
+    "alias": [
+      "湘西土家族苗族自治州市"
+    ]
+  },
+  {
+    "city": "湘乡",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "XX",
+    "alias": [
+      "湘乡市"
+    ]
+  },
+  {
+    "city": "益阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "YY",
+    "alias": [
+      "益阳市"
+    ]
+  },
+  {
+    "city": "永州",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "YZ",
+    "alias": [
+      "永州市"
+    ]
+  },
+  {
+    "city": "沅江",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "YJ",
+    "alias": [
+      "沅江市"
+    ]
+  },
+  {
+    "city": "岳阳",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 113.1107,
+    "lat": 29.3697,
+    "timezone": "+8",
+    "pinyin": "YUE"
+  },
+  {
+    "city": "张家界",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 110.4639,
+    "lat": 29.122,
+    "timezone": "+8",
+    "pinyin": "ZJJ"
+  },
+  {
+    "city": "长沙",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "CS"
+  },
+  {
+    "city": "株洲",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "ZZ",
+    "alias": [
+      "株洲市"
+    ]
+  },
+  {
+    "city": "资兴",
+    "country": "中国",
+    "province": "湖南",
+    "lng": 112.9835,
+    "lat": 28.1941,
+    "timezone": "+8",
+    "pinyin": "ZX",
+    "alias": [
+      "资兴市"
+    ]
+  },
+  {
+    "city": "白城",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "BC",
+    "alias": [
+      "白城市"
+    ]
+  },
+  {
+    "city": "白山",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "BS",
+    "alias": [
+      "白山市"
+    ]
+  },
+  {
+    "city": "大安",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "DA",
+    "alias": [
+      "大安市"
+    ]
+  },
+  {
+    "city": "德惠",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "DH",
+    "alias": [
+      "德惠市"
+    ]
+  },
+  {
+    "city": "敦化",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "DH",
+    "alias": [
+      "敦化市"
+    ]
+  },
+  {
+    "city": "扶余",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "FY",
+    "alias": [
+      "扶余市"
+    ]
+  },
+  {
+    "city": "公主岭",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "GZL",
+    "alias": [
+      "公主岭市"
+    ]
+  },
+  {
+    "city": "和龙",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "HL",
+    "alias": [
+      "和龙市"
+    ]
+  },
+  {
+    "city": "桦甸",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "HD",
+    "alias": [
+      "桦甸市"
+    ]
+  },
+  {
+    "city": "珲春",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "HC",
+    "alias": [
+      "珲春市"
+    ]
+  },
+  {
+    "city": "吉林",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "JL",
+    "alias": [
+      "吉林市"
+    ]
+  },
+  {
+    "city": "吉林市",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 126.5478,
+    "lat": 43.8378,
+    "timezone": "+8",
+    "pinyin": "JLS"
+  },
+  {
+    "city": "集安",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "JA",
+    "alias": [
+      "集安市"
+    ]
+  },
+  {
+    "city": "蛟河",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "JH",
+    "alias": [
+      "蛟河市"
+    ]
+  },
+  {
+    "city": "辽源",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "辽源市"
+    ]
+  },
+  {
+    "city": "临江",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "LJ",
+    "alias": [
+      "临江市"
+    ]
+  },
+  {
+    "city": "龙井",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "LJ",
+    "alias": [
+      "龙井市"
+    ]
+  },
+  {
+    "city": "梅河口",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "MHK",
+    "alias": [
+      "梅河口市"
+    ]
+  },
+  {
+    "city": "磐石",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "PS",
+    "alias": [
+      "磐石市"
+    ]
+  },
+  {
+    "city": "舒兰",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "SL",
+    "alias": [
+      "舒兰市"
+    ]
+  },
+  {
+    "city": "双辽",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 124.223,
+    "lat": 43.1667,
+    "timezone": "+8",
+    "pinyin": "SL",
+    "alias": [
+      "双辽市"
+    ]
+  },
+  {
+    "city": "四平",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 124.223,
+    "lat": 43.1667,
+    "timezone": "+8",
+    "pinyin": "SPP"
+  },
+  {
+    "city": "松原",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "SY",
+    "alias": [
+      "松原市"
+    ]
+  },
+  {
+    "city": "洮南",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "TN",
+    "alias": [
+      "洮南市"
+    ]
+  },
+  {
+    "city": "通化",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "TH",
+    "alias": [
+      "通化市"
+    ]
+  },
+  {
+    "city": "图们",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "TM",
+    "alias": [
+      "图们市"
+    ]
+  },
+  {
+    "city": "延边朝鲜族自治州",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "YBCXZZZZ",
+    "alias": [
+      "延边朝鲜族自治州市"
+    ]
+  },
+  {
+    "city": "延吉",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 129.52,
+    "lat": 42.9018,
+    "timezone": "+8",
+    "pinyin": "YJ"
+  },
+  {
+    "city": "榆树",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "YS",
+    "alias": [
+      "榆树市"
+    ]
+  },
+  {
+    "city": "长春",
+    "country": "中国",
+    "province": "吉林",
+    "lng": 125.3235,
+    "lat": 43.8171,
+    "timezone": "+8",
+    "pinyin": "CC"
+  },
+  {
+    "city": "常熟",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.6196,
+    "lat": 31.2989,
+    "timezone": "+8",
+    "pinyin": "CS",
+    "alias": [
+      "常熟市"
+    ]
+  },
+  {
+    "city": "常州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.9741,
+    "lat": 31.8122,
+    "timezone": "+8",
+    "pinyin": "CZ"
+  },
+  {
+    "city": "丹阳",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.4258,
+    "lat": 32.1869,
+    "timezone": "+8",
+    "pinyin": "DY",
+    "alias": [
+      "丹阳市"
+    ]
+  },
+  {
+    "city": "东台",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.1541,
+    "lat": 33.3821,
+    "timezone": "+8",
+    "pinyin": "DT",
+    "alias": [
+      "东台市"
+    ]
+  },
+  {
+    "city": "高邮",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.421,
+    "lat": 32.3942,
+    "timezone": "+8",
+    "pinyin": "GY",
+    "alias": [
+      "高邮市"
+    ]
+  },
+  {
+    "city": "海安",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.8961,
+    "lat": 31.9881,
+    "timezone": "+8",
+    "pinyin": "HA",
+    "alias": [
+      "海安市"
+    ]
+  },
+  {
+    "city": "淮安",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.0134,
+    "lat": 33.4033,
+    "timezone": "+8",
+    "pinyin": "HA"
+  },
+  {
+    "city": "江阴",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.3118,
+    "lat": 31.4912,
+    "timezone": "+8",
+    "pinyin": "JY",
+    "alias": [
+      "江阴市"
+    ]
+  },
+  {
+    "city": "靖江",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "JJ",
+    "alias": [
+      "靖江市"
+    ]
+  },
+  {
+    "city": "句容",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.4258,
+    "lat": 32.1869,
+    "timezone": "+8",
+    "pinyin": "JR",
+    "alias": [
+      "句容市"
+    ]
+  },
+  {
+    "city": "昆山",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.6196,
+    "lat": 31.2989,
+    "timezone": "+8",
+    "pinyin": "KS",
+    "alias": [
+      "昆山市"
+    ]
+  },
+  {
+    "city": "溧阳",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.9741,
+    "lat": 31.8122,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "溧阳市"
+    ]
+  },
+  {
+    "city": "连云港",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.2169,
+    "lat": 34.5965,
+    "timezone": "+8",
+    "pinyin": "LYG"
+  },
+  {
+    "city": "南京",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "NJJ"
+  },
+  {
+    "city": "南通",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.8961,
+    "lat": 31.9881,
+    "timezone": "+8",
+    "pinyin": "NT"
+  },
+  {
+    "city": "邳州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 117.2848,
+    "lat": 34.2044,
+    "timezone": "+8",
+    "pinyin": "PZ",
+    "alias": [
+      "邳州市"
+    ]
+  },
+  {
+    "city": "启东",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.8961,
+    "lat": 31.9881,
+    "timezone": "+8",
+    "pinyin": "QD",
+    "alias": [
+      "启东市"
+    ]
+  },
+  {
+    "city": "如皋",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.8961,
+    "lat": 31.9881,
+    "timezone": "+8",
+    "pinyin": "RG",
+    "alias": [
+      "如皋市"
+    ]
+  },
+  {
+    "city": "苏州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.6196,
+    "lat": 31.2989,
+    "timezone": "+8",
+    "pinyin": "SZ"
+  },
+  {
+    "city": "宿迁",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "SQ",
+    "alias": [
+      "宿迁市"
+    ]
+  },
+  {
+    "city": "太仓",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.6196,
+    "lat": 31.2989,
+    "timezone": "+8",
+    "pinyin": "TC",
+    "alias": [
+      "太仓市"
+    ]
+  },
+  {
+    "city": "泰兴",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "TX",
+    "alias": [
+      "泰兴市"
+    ]
+  },
+  {
+    "city": "泰州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "TZ",
+    "alias": [
+      "泰州市"
+    ]
+  },
+  {
+    "city": "无锡",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.3118,
+    "lat": 31.4912,
+    "timezone": "+8",
+    "pinyin": "WX"
+  },
+  {
+    "city": "新沂",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 117.2848,
+    "lat": 34.2044,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "新沂市"
+    ]
+  },
+  {
+    "city": "兴化",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 118.7674,
+    "lat": 32.0415,
+    "timezone": "+8",
+    "pinyin": "XH",
+    "alias": [
+      "兴化市"
+    ]
+  },
+  {
+    "city": "徐州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 117.2848,
+    "lat": 34.2044,
+    "timezone": "+8",
+    "pinyin": "XZ"
+  },
+  {
+    "city": "盐城",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.1541,
+    "lat": 33.3821,
+    "timezone": "+8",
+    "pinyin": "YC"
+  },
+  {
+    "city": "扬中",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.4258,
+    "lat": 32.1869,
+    "timezone": "+8",
+    "pinyin": "YZ",
+    "alias": [
+      "扬中市"
+    ]
+  },
+  {
+    "city": "扬州",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.421,
+    "lat": 32.3942,
+    "timezone": "+8",
+    "pinyin": "YZ"
+  },
+  {
+    "city": "仪征",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.421,
+    "lat": 32.3942,
+    "timezone": "+8",
+    "pinyin": "YZ",
+    "alias": [
+      "仪征市"
+    ]
+  },
+  {
+    "city": "宜兴",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.3118,
+    "lat": 31.4912,
+    "timezone": "+8",
+    "pinyin": "YX",
+    "alias": [
+      "宜兴市"
+    ]
+  },
+  {
+    "city": "张家港",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 120.6196,
+    "lat": 31.2989,
+    "timezone": "+8",
+    "pinyin": "ZJG",
+    "alias": [
+      "张家港市"
+    ]
+  },
+  {
+    "city": "镇江",
+    "country": "中国",
+    "province": "江苏",
+    "lng": 119.4258,
+    "lat": 32.1869,
+    "timezone": "+8",
+    "pinyin": "ZJ"
+  },
+  {
+    "city": "德兴",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "DX",
+    "alias": [
+      "德兴市"
+    ]
+  },
+  {
+    "city": "丰城",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "FC",
+    "alias": [
+      "丰城市"
+    ]
+  },
+  {
+    "city": "抚州",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "FZ",
+    "alias": [
+      "抚州市"
+    ]
+  },
+  {
+    "city": "赣州",
+    "country": "中国",
+    "province": "江西",
+    "lng": 114.9335,
+    "lat": 25.8291,
+    "timezone": "+8",
+    "pinyin": "GZ"
+  },
+  {
+    "city": "高安",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "GA",
+    "alias": [
+      "高安市"
+    ]
+  },
+  {
+    "city": "共青城",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.977,
+    "lat": 29.708,
+    "timezone": "+8",
+    "pinyin": "GQC",
+    "alias": [
+      "共青城市"
+    ]
+  },
+  {
+    "city": "贵溪",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "GX",
+    "alias": [
+      "贵溪市"
+    ]
+  },
+  {
+    "city": "吉安",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "JA",
+    "alias": [
+      "吉安市"
+    ]
+  },
+  {
+    "city": "井冈山",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "JGS",
+    "alias": [
+      "井冈山市"
+    ]
+  },
+  {
+    "city": "景德镇",
+    "country": "中国",
+    "province": "江西",
+    "lng": 117.2125,
+    "lat": 29.3076,
+    "timezone": "+8",
+    "pinyin": "JDZ"
+  },
+  {
+    "city": "九江",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.977,
+    "lat": 29.708,
+    "timezone": "+8",
+    "pinyin": "JJ"
+  },
+  {
+    "city": "乐平",
+    "country": "中国",
+    "province": "江西",
+    "lng": 117.2125,
+    "lat": 29.3076,
+    "timezone": "+8",
+    "pinyin": "LP",
+    "alias": [
+      "乐平市"
+    ]
+  },
+  {
+    "city": "龙南",
+    "country": "中国",
+    "province": "江西",
+    "lng": 114.9335,
+    "lat": 25.8291,
+    "timezone": "+8",
+    "pinyin": "LN",
+    "alias": [
+      "龙南市"
+    ]
+  },
+  {
+    "city": "庐山",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.977,
+    "lat": 29.708,
+    "timezone": "+8",
+    "pinyin": "LS",
+    "alias": [
+      "庐山市"
+    ]
+  },
+  {
+    "city": "南昌",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "NC"
+  },
+  {
+    "city": "萍乡",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "PX",
+    "alias": [
+      "萍乡市"
+    ]
+  },
+  {
+    "city": "瑞昌",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.977,
+    "lat": 29.708,
+    "timezone": "+8",
+    "pinyin": "RC",
+    "alias": [
+      "瑞昌市"
+    ]
+  },
+  {
+    "city": "瑞金",
+    "country": "中国",
+    "province": "江西",
+    "lng": 114.9335,
+    "lat": 25.8291,
+    "timezone": "+8",
+    "pinyin": "RJ",
+    "alias": [
+      "瑞金市"
+    ]
+  },
+  {
+    "city": "上饶",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "SR",
+    "alias": [
+      "上饶市"
+    ]
+  },
+  {
+    "city": "新余",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "新余市"
+    ]
+  },
+  {
+    "city": "宜春",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "宜春市"
+    ]
+  },
+  {
+    "city": "鹰潭",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "YT",
+    "alias": [
+      "鹰潭市"
+    ]
+  },
+  {
+    "city": "樟树",
+    "country": "中国",
+    "province": "江西",
+    "lng": 115.8579,
+    "lat": 28.6829,
+    "timezone": "+8",
+    "pinyin": "ZS",
+    "alias": [
+      "樟树市"
+    ]
+  },
+  {
+    "city": "鞍山",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 122.9796,
+    "lat": 41.1142,
+    "timezone": "+8",
+    "pinyin": "AS"
+  },
+  {
+    "city": "北票",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "BP",
+    "alias": [
+      "北票市"
+    ]
+  },
+  {
+    "city": "北镇",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.1456,
+    "lat": 41.1082,
+    "timezone": "+8",
+    "pinyin": "BZ",
+    "alias": [
+      "北镇市"
+    ]
+  },
+  {
+    "city": "本溪",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "BX",
+    "alias": [
+      "本溪市"
+    ]
+  },
+  {
+    "city": "朝阳",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "CY",
+    "alias": [
+      "朝阳市"
+    ]
+  },
+  {
+    "city": "大连",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.6147,
+    "lat": 38.914,
+    "timezone": "+8",
+    "pinyin": "DL"
+  },
+  {
+    "city": "大石桥",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "DSQ",
+    "alias": [
+      "大石桥市"
+    ]
+  },
+  {
+    "city": "丹东",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 124.359,
+    "lat": 40.1264,
+    "timezone": "+8",
+    "pinyin": "DD"
+  },
+  {
+    "city": "灯塔",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "DT",
+    "alias": [
+      "灯塔市"
+    ]
+  },
+  {
+    "city": "调兵山",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "TBS",
+    "alias": [
+      "调兵山市"
+    ]
+  },
+  {
+    "city": "东港",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 124.359,
+    "lat": 40.1264,
+    "timezone": "+8",
+    "pinyin": "DG",
+    "alias": [
+      "东港市"
+    ]
+  },
+  {
+    "city": "凤城",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 124.359,
+    "lat": 40.1264,
+    "timezone": "+8",
+    "pinyin": "FC",
+    "alias": [
+      "凤城市"
+    ]
+  },
+  {
+    "city": "抚顺",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.9696,
+    "lat": 41.9026,
+    "timezone": "+8",
+    "pinyin": "FS"
+  },
+  {
+    "city": "阜新",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "FX",
+    "alias": [
+      "阜新市"
+    ]
+  },
+  {
+    "city": "盖州",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "GZ",
+    "alias": [
+      "盖州市"
+    ]
+  },
+  {
+    "city": "海城",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 122.9796,
+    "lat": 41.1142,
+    "timezone": "+8",
+    "pinyin": "HC",
+    "alias": [
+      "海城市"
+    ]
+  },
+  {
+    "city": "葫芦岛",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 120.8454,
+    "lat": 40.7168,
+    "timezone": "+8",
+    "pinyin": "HLDS"
+  },
+  {
+    "city": "锦州",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.1456,
+    "lat": 41.1082,
+    "timezone": "+8",
+    "pinyin": "JZ"
+  },
+  {
+    "city": "开原",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "KY",
+    "alias": [
+      "开原市"
+    ]
+  },
+  {
+    "city": "辽阳",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "辽阳市"
+    ]
+  },
+  {
+    "city": "凌海",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.1456,
+    "lat": 41.1082,
+    "timezone": "+8",
+    "pinyin": "LH",
+    "alias": [
+      "凌海市"
+    ]
+  },
+  {
+    "city": "凌源",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "LY",
+    "alias": [
+      "凌源市"
+    ]
+  },
+  {
+    "city": "盘锦",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "PJ",
+    "alias": [
+      "盘锦市"
+    ]
+  },
+  {
+    "city": "沈阳",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "SY"
+  },
+  {
+    "city": "铁岭",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "TL",
+    "alias": [
+      "铁岭市"
+    ]
+  },
+  {
+    "city": "瓦房店",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.6147,
+    "lat": 38.914,
+    "timezone": "+8",
+    "pinyin": "WFD",
+    "alias": [
+      "瓦房店市"
+    ]
+  },
+  {
+    "city": "新民",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "XM",
+    "alias": [
+      "新民市"
+    ]
+  },
+  {
+    "city": "兴城",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 120.8454,
+    "lat": 40.7168,
+    "timezone": "+8",
+    "pinyin": "XC",
+    "alias": [
+      "兴城市"
+    ]
+  },
+  {
+    "city": "营口",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 123.4328,
+    "lat": 41.8057,
+    "timezone": "+8",
+    "pinyin": "YK",
+    "alias": [
+      "营口市"
+    ]
+  },
+  {
+    "city": "庄河",
+    "country": "中国",
+    "province": "辽宁",
+    "lng": 121.6147,
+    "lat": 38.914,
+    "timezone": "+8",
+    "pinyin": "ZH",
+    "alias": [
+      "庄河市"
+    ]
+  },
+  {
+    "city": "阿尔山",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "AES",
+    "alias": [
+      "阿尔山市"
+    ]
+  },
+  {
+    "city": "阿拉善",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "ALS",
+    "alias": [
+      "阿拉善市"
+    ]
+  },
+  {
+    "city": "巴彦淖尔",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "BYNE",
+    "alias": [
+      "巴彦淖尔市"
+    ]
+  },
+  {
+    "city": "包头",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 109.8416,
+    "lat": 40.652,
+    "timezone": "+8",
+    "pinyin": "BT"
+  },
+  {
+    "city": "赤峰",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "CF",
+    "alias": [
+      "赤峰市"
+    ]
+  },
+  {
+    "city": "额尔古纳",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "EEGN",
+    "alias": [
+      "额尔古纳市"
+    ]
+  },
+  {
+    "city": "鄂尔多斯",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "EEDS",
+    "alias": [
+      "鄂尔多斯市"
+    ]
+  },
+  {
+    "city": "二连浩特",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "ELHT",
+    "alias": [
+      "二连浩特市"
+    ]
+  },
+  {
+    "city": "丰镇",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "FZ",
+    "alias": [
+      "丰镇市"
+    ]
+  },
+  {
+    "city": "根河",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "GH",
+    "alias": [
+      "根河市"
+    ]
+  },
+  {
+    "city": "呼和浩特",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "HHHT"
+  },
+  {
+    "city": "呼伦贝尔",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "HLBE"
+  },
+  {
+    "city": "霍林郭勒",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 122.265,
+    "lat": 43.6133,
+    "timezone": "+8",
+    "pinyin": "HLGL",
+    "alias": [
+      "霍林郭勒市"
+    ]
+  },
+  {
+    "city": "满洲里",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "MZL",
+    "alias": [
+      "满洲里市"
+    ]
+  },
+  {
+    "city": "通辽",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 122.265,
+    "lat": 43.6133,
+    "timezone": "+8",
+    "pinyin": "TL"
+  },
+  {
+    "city": "乌海",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "WH",
+    "alias": [
+      "乌海市"
+    ]
+  },
+  {
+    "city": "乌兰察布",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "WLCB",
+    "alias": [
+      "乌兰察布市"
+    ]
+  },
+  {
+    "city": "乌兰浩特",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "WLHT",
+    "alias": [
+      "乌兰浩特市"
+    ]
+  },
+  {
+    "city": "锡林郭勒",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "XLGL",
+    "alias": [
+      "锡林郭勒市"
+    ]
+  },
+  {
+    "city": "锡林浩特",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "XLHT",
+    "alias": [
+      "锡林浩特市"
+    ]
+  },
+  {
+    "city": "兴安",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 111.7491,
+    "lat": 40.8414,
+    "timezone": "+8",
+    "pinyin": "XA",
+    "alias": [
+      "兴安市"
+    ]
+  },
+  {
+    "city": "牙克石",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "YKS",
+    "alias": [
+      "牙克石市"
+    ]
+  },
+  {
+    "city": "扎兰屯",
+    "country": "中国",
+    "province": "内蒙古",
+    "lng": 119.7545,
+    "lat": 49.2187,
+    "timezone": "+8",
+    "pinyin": "ZLT",
+    "alias": [
+      "扎兰屯市"
+    ]
+  },
+  {
+    "city": "固原",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "GY",
+    "alias": [
+      "固原市"
+    ]
+  },
+  {
+    "city": "灵武",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "LW",
+    "alias": [
+      "灵武市"
+    ]
+  },
+  {
+    "city": "青铜峡",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "QTX",
+    "alias": [
+      "青铜峡市"
+    ]
+  },
+  {
+    "city": "石嘴山",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2628,
+    "lat": 39.026,
+    "timezone": "+8",
+    "pinyin": "SZS"
+  },
+  {
+    "city": "吴忠",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "WZ",
+    "alias": [
+      "吴忠市"
+    ]
+  },
+  {
+    "city": "银川",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "YCND"
+  },
+  {
+    "city": "中卫",
+    "country": "中国",
+    "province": "宁夏",
+    "lng": 106.2782,
+    "lat": 38.4872,
+    "timezone": "+8",
+    "pinyin": "ZW",
+    "alias": [
+      "中卫市"
+    ]
+  },
+  {
+    "city": "德令哈",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "DLH",
+    "alias": [
+      "德令哈市"
+    ]
+  },
+  {
+    "city": "格尔木",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "GEM",
+    "alias": [
+      "格尔木市"
+    ]
+  },
+  {
+    "city": "果洛藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "GLZZZZZ",
+    "alias": [
+      "果洛藏族自治州市"
+    ]
+  },
+  {
+    "city": "海北藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "HBZZZZZ",
+    "alias": [
+      "海北藏族自治州市"
+    ]
+  },
+  {
+    "city": "海东",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "HD",
+    "alias": [
+      "海东市"
+    ]
+  },
+  {
+    "city": "海南藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "HNZZZZZ",
+    "alias": [
+      "海南藏族自治州市"
+    ]
+  },
+  {
+    "city": "海西蒙古族藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "HXMGZZZZZZ",
+    "alias": [
+      "海西蒙古族藏族自治州市"
+    ]
+  },
+  {
+    "city": "黄南藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "HNZZZZZ",
+    "alias": [
+      "黄南藏族自治州市"
+    ]
+  },
+  {
+    "city": "茫崖",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "MY",
+    "alias": [
+      "茫崖市"
+    ]
+  },
+  {
+    "city": "同仁",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "TR",
+    "alias": [
+      "同仁市"
+    ]
+  },
+  {
+    "city": "西宁",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "XN"
+  },
+  {
+    "city": "玉树",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "YS",
+    "alias": [
+      "玉树市"
+    ]
+  },
+  {
+    "city": "玉树藏族自治州",
+    "country": "中国",
+    "province": "青海",
+    "lng": 101.7782,
+    "lat": 36.6171,
+    "timezone": "+8",
+    "pinyin": "YSZZZZZ",
+    "alias": [
+      "玉树藏族自治州市"
+    ]
+  },
+  {
+    "city": "大同",
+    "country": "中国",
+    "province": "山西",
+    "lng": 113.2968,
+    "lat": 40.093,
+    "timezone": "+8",
+    "pinyin": "DT"
+  },
+  {
+    "city": "汾阳",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "FY",
+    "alias": [
+      "汾阳市"
+    ]
+  },
+  {
+    "city": "高平",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "GP",
+    "alias": [
+      "高平市"
+    ]
+  },
+  {
+    "city": "古交",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "GJ",
+    "alias": [
+      "古交市"
+    ]
+  },
+  {
+    "city": "河津",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "HJ",
+    "alias": [
+      "河津市"
+    ]
+  },
+  {
+    "city": "侯马",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "HM",
+    "alias": [
+      "侯马市"
+    ]
+  },
+  {
+    "city": "怀仁",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "HR",
+    "alias": [
+      "怀仁市"
+    ]
+  },
+  {
+    "city": "霍州",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "霍州市"
+    ]
+  },
+  {
+    "city": "介休",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "JX",
+    "alias": [
+      "介休市"
+    ]
+  },
+  {
+    "city": "晋城",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "JC",
+    "alias": [
+      "晋城市"
+    ]
+  },
+  {
+    "city": "晋中",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "JZ",
+    "alias": [
+      "晋中市"
+    ]
+  },
+  {
+    "city": "临汾",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "LF",
+    "alias": [
+      "临汾市"
+    ]
+  },
+  {
+    "city": "吕梁",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "LL",
+    "alias": [
+      "吕梁市"
+    ]
+  },
+  {
+    "city": "朔州",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "朔州市"
+    ]
+  },
+  {
+    "city": "太原",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "TY"
+  },
+  {
+    "city": "孝义",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "孝义市"
+    ]
+  },
+  {
+    "city": "忻州",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "XZ",
+    "alias": [
+      "忻州市"
+    ]
+  },
+  {
+    "city": "阳泉",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "YQ",
+    "alias": [
+      "阳泉市"
+    ]
+  },
+  {
+    "city": "永济",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "YJ",
+    "alias": [
+      "永济市"
+    ]
+  },
+  {
+    "city": "原平",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "YP",
+    "alias": [
+      "原平市"
+    ]
+  },
+  {
+    "city": "运城",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "YC",
+    "alias": [
+      "运城市"
+    ]
+  },
+  {
+    "city": "长治",
+    "country": "中国",
+    "province": "山西",
+    "lng": 112.5489,
+    "lat": 37.8706,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "长治市"
+    ]
+  },
+  {
+    "city": "安康",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "AK",
+    "alias": [
+      "安康市"
+    ]
+  },
+  {
+    "city": "宝鸡",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 107.1476,
+    "lat": 34.3565,
+    "timezone": "+8",
+    "pinyin": "BJSC"
+  },
+  {
+    "city": "彬州",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.706,
+    "lat": 34.3372,
+    "timezone": "+8",
+    "pinyin": "BZ",
+    "alias": [
+      "彬州市"
+    ]
+  },
+  {
+    "city": "韩城",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "HC",
+    "alias": [
+      "韩城市"
+    ]
+  },
+  {
+    "city": "汉中",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "HZ",
+    "alias": [
+      "汉中市"
+    ]
+  },
+  {
+    "city": "华阴",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "HY",
+    "alias": [
+      "华阴市"
+    ]
+  },
+  {
+    "city": "商洛",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "SL",
+    "alias": [
+      "商洛市"
+    ]
+  },
+  {
+    "city": "神木",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 109.7297,
+    "lat": 38.284,
+    "timezone": "+8",
+    "pinyin": "SM",
+    "alias": [
+      "神木市"
+    ]
+  },
+  {
+    "city": "铜川",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "TC",
+    "alias": [
+      "铜川市"
+    ]
+  },
+  {
+    "city": "渭南",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "WN",
+    "alias": [
+      "渭南市"
+    ]
+  },
+  {
+    "city": "西安",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "XA"
+  },
+  {
+    "city": "咸阳",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.706,
+    "lat": 34.3372,
+    "timezone": "+8",
+    "pinyin": "XYSC"
+  },
+  {
+    "city": "兴平",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.706,
+    "lat": 34.3372,
+    "timezone": "+8",
+    "pinyin": "XP",
+    "alias": [
+      "兴平市"
+    ]
+  },
+  {
+    "city": "旬阳",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 108.9398,
+    "lat": 34.3416,
+    "timezone": "+8",
+    "pinyin": "XY",
+    "alias": [
+      "旬阳市"
+    ]
+  },
+  {
+    "city": "延安",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 109.4076,
+    "lat": 36.4215,
+    "timezone": "+8",
+    "pinyin": "YY"
+  },
+  {
+    "city": "榆林",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 109.7297,
+    "lat": 38.284,
+    "timezone": "+8",
+    "pinyin": "YL"
+  },
+  {
+    "city": "子长",
+    "country": "中国",
+    "province": "陕西",
+    "lng": 109.4076,
+    "lat": 36.4215,
+    "timezone": "+8",
+    "pinyin": "ZC",
+    "alias": [
+      "子长市"
+    ]
+  },
+  {
+    "city": "上海",
+    "country": "中国",
+    "province": "上海",
+    "lng": 121.4737,
+    "lat": 31.2304,
+    "timezone": "+8",
+    "pinyin": "SH"
+  },
+  {
+    "city": "阿坝藏族羌族自治州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "ABZZQZZZZ",
+    "alias": [
+      "阿坝藏族羌族自治州市"
+    ]
+  },
+  {
+    "city": "巴中",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "BZ",
+    "alias": [
+      "巴中市"
+    ]
+  },
+  {
+    "city": "成都",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "CD"
+  },
+  {
+    "city": "崇州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "CZ",
+    "alias": [
+      "崇州市"
+    ]
+  },
+  {
+    "city": "达州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "DZ",
+    "alias": [
+      "达州市"
+    ]
+  },
+  {
+    "city": "德阳",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.3978,
+    "lat": 31.125,
+    "timezone": "+8",
+    "pinyin": "DY"
+  },
+  {
+    "city": "都江堰",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "DJY",
+    "alias": [
+      "都江堰市"
+    ]
+  },
+  {
+    "city": "峨眉山",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "EMS",
+    "alias": [
+      "峨眉山市"
+    ]
+  },
+  {
+    "city": "甘孜藏族自治州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "GZZZZZZ",
+    "alias": [
+      "甘孜藏族自治州市"
+    ]
+  },
+  {
+    "city": "广安",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "GA",
+    "alias": [
+      "广安市"
+    ]
+  },
+  {
+    "city": "广汉",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.3978,
+    "lat": 31.125,
+    "timezone": "+8",
+    "pinyin": "GH",
+    "alias": [
+      "广汉市"
+    ]
+  },
+  {
+    "city": "广元",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "GY",
+    "alias": [
+      "广元市"
+    ]
+  },
+  {
+    "city": "华蓥",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "HY",
+    "alias": [
+      "华蓥市"
+    ]
+  },
+  {
+    "city": "会理",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "HL",
+    "alias": [
+      "会理市"
+    ]
+  },
+  {
+    "city": "简阳",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "JY",
+    "alias": [
+      "简阳市"
+    ]
+  },
+  {
+    "city": "江油",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.731,
+    "lat": 31.471,
+    "timezone": "+8",
+    "pinyin": "JY",
+    "alias": [
+      "江油市"
+    ]
+  },
+  {
+    "city": "康定",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "KD",
+    "alias": [
+      "康定市"
+    ]
+  },
+  {
+    "city": "阆中",
+    "country": "中国",
+    "province": "四川",
+    "lng": 106.1084,
+    "lat": 30.8219,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "阆中市"
+    ]
+  },
+  {
+    "city": "乐山",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "LS",
+    "alias": [
+      "乐山市"
+    ]
+  },
+  {
+    "city": "凉山彝族自治州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "LSYZZZZ",
+    "alias": [
+      "凉山彝族自治州市"
+    ]
+  },
+  {
+    "city": "隆昌",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "LC",
+    "alias": [
+      "隆昌市"
+    ]
+  },
+  {
+    "city": "泸州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 105.443,
+    "lat": 28.8718,
+    "timezone": "+8",
+    "pinyin": "LZ"
+  },
+  {
+    "city": "马尔康",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "MEK",
+    "alias": [
+      "马尔康市"
+    ]
+  },
+  {
+    "city": "眉山",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "MS",
+    "alias": [
+      "眉山市"
+    ]
+  },
+  {
+    "city": "绵阳",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.731,
+    "lat": 31.471,
+    "timezone": "+8",
+    "pinyin": "MY"
+  },
+  {
+    "city": "绵竹",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.3978,
+    "lat": 31.125,
+    "timezone": "+8",
+    "pinyin": "MZ",
+    "alias": [
+      "绵竹市"
+    ]
+  },
+  {
+    "city": "南充",
+    "country": "中国",
+    "province": "四川",
+    "lng": 106.1084,
+    "lat": 30.8219,
+    "timezone": "+8",
+    "pinyin": "NCSC"
+  },
+  {
+    "city": "内江",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "NJ",
+    "alias": [
+      "内江市"
+    ]
+  },
+  {
+    "city": "攀枝花",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "PZH",
+    "alias": [
+      "攀枝花市"
+    ]
+  },
+  {
+    "city": "彭州",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "PZ",
+    "alias": [
+      "彭州市"
+    ]
+  },
+  {
+    "city": "邛崃",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "QL",
+    "alias": [
+      "邛崃市"
+    ]
+  },
+  {
+    "city": "射洪",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "射洪市"
+    ]
+  },
+  {
+    "city": "什邡",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.3978,
+    "lat": 31.125,
+    "timezone": "+8",
+    "pinyin": "SF",
+    "alias": [
+      "什邡市"
+    ]
+  },
+  {
+    "city": "遂宁",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "SN",
+    "alias": [
+      "遂宁市"
+    ]
+  },
+  {
+    "city": "万源",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "WY",
+    "alias": [
+      "万源市"
+    ]
+  },
+  {
+    "city": "西昌",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "XC",
+    "alias": [
+      "西昌市"
+    ]
+  },
+  {
+    "city": "雅安",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "YA",
+    "alias": [
+      "雅安市"
+    ]
+  },
+  {
+    "city": "宜宾",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.5572,
+    "lat": 28.7536,
+    "timezone": "+8",
+    "pinyin": "YB"
+  },
+  {
+    "city": "资阳",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "ZY",
+    "alias": [
+      "资阳市"
+    ]
+  },
+  {
+    "city": "自贡",
+    "country": "中国",
+    "province": "四川",
+    "lng": 104.0665,
+    "lat": 30.5723,
+    "timezone": "+8",
+    "pinyin": "ZG",
+    "alias": [
+      "自贡市"
+    ]
+  },
+  {
+    "city": "高雄",
+    "country": "中国",
+    "province": "台湾",
+    "lng": 120.3014,
+    "lat": 22.6273,
+    "timezone": "+8",
+    "alias": [
+      "Kaohsiung"
+    ],
+    "pinyin": "GX"
+  },
+  {
+    "city": "台北",
+    "country": "中国",
+    "province": "台湾",
+    "lng": 121.5654,
+    "lat": 25.033,
+    "timezone": "+8",
+    "alias": [
+      "Taipei"
+    ],
+    "pinyin": "TB"
+  },
+  {
+    "city": "天津",
+    "country": "中国",
+    "province": "天津",
+    "lng": 117.1901,
+    "lat": 39.1256,
+    "timezone": "+8",
+    "pinyin": "TJ"
+  },
+  {
+    "city": "阿里",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "AL",
+    "alias": [
+      "阿里市"
+    ]
+  },
+  {
+    "city": "昌都",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "CD",
+    "alias": [
+      "昌都市"
+    ]
+  },
+  {
+    "city": "错那",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "CN",
+    "alias": [
+      "错那市"
+    ]
+  },
+  {
+    "city": "拉萨",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "LS"
+  },
+  {
+    "city": "林芝",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "LZ",
+    "alias": [
+      "林芝市"
+    ]
+  },
+  {
+    "city": "米林",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "ML",
+    "alias": [
+      "米林市"
+    ]
+  },
+  {
+    "city": "那曲",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "NQ",
+    "alias": [
+      "那曲市"
+    ]
+  },
+  {
+    "city": "日喀则",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "RKZ",
+    "alias": [
+      "日喀则市"
+    ]
+  },
+  {
+    "city": "山南",
+    "country": "中国",
+    "province": "西藏",
+    "lng": 91.1409,
+    "lat": 29.6456,
+    "timezone": "+8",
+    "pinyin": "SN",
+    "alias": [
+      "山南市"
+    ]
+  },
+  {
+    "city": "香港",
+    "country": "中国",
+    "province": "香港",
+    "lng": 114.1694,
+    "lat": 22.3193,
+    "timezone": "+8",
+    "alias": [
+      "Hong Kong"
+    ],
+    "pinyin": "XG"
+  },
+  {
+    "city": "阿克苏",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 80.263,
+    "lat": 41.1689,
+    "timezone": "+6",
+    "pinyin": "AKS"
+  },
+  {
+    "city": "阿拉尔",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "ALE",
+    "alias": [
+      "阿拉尔市"
+    ]
+  },
+  {
+    "city": "阿拉山口",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "ALSK",
+    "alias": [
+      "阿拉山口市"
+    ]
+  },
+  {
+    "city": "阿勒泰",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "ALT",
+    "alias": [
+      "阿勒泰市"
+    ]
+  },
+  {
+    "city": "阿图什",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "ATS",
+    "alias": [
+      "阿图什市"
+    ]
+  },
+  {
+    "city": "巴音郭楞蒙古自治州",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "BYGLMGZZZ",
+    "alias": [
+      "巴音郭楞蒙古自治州市"
+    ]
+  },
+  {
+    "city": "白杨",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "BY",
+    "alias": [
+      "白杨市"
+    ]
+  },
+  {
+    "city": "北屯",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "BT",
+    "alias": [
+      "北屯市"
+    ]
+  },
+  {
+    "city": "博尔塔拉蒙古自治州",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "BETLMGZZZ",
+    "alias": [
+      "博尔塔拉蒙古自治州市"
+    ]
+  },
+  {
+    "city": "博乐",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "BL",
+    "alias": [
+      "博乐市"
+    ]
+  },
+  {
+    "city": "昌吉",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "CJ",
+    "alias": [
+      "昌吉市"
+    ]
+  },
+  {
+    "city": "昌吉回族自治州",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "CJHZZZZ",
+    "alias": [
+      "昌吉回族自治州市"
+    ]
+  },
+  {
+    "city": "阜康",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "FK",
+    "alias": [
+      "阜康市"
+    ]
+  },
+  {
+    "city": "哈密",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "HM",
+    "alias": [
+      "哈密市"
+    ]
+  },
+  {
+    "city": "和田",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "HT",
+    "alias": [
+      "和田市"
+    ]
+  },
+  {
+    "city": "胡杨河",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "HYH",
+    "alias": [
+      "胡杨河市"
+    ]
+  },
+  {
+    "city": "霍尔果斯",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "HEGS",
+    "alias": [
+      "霍尔果斯市"
+    ]
+  },
+  {
+    "city": "喀什",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 75.9898,
+    "lat": 39.4677,
+    "timezone": "+6",
+    "pinyin": "KS"
+  },
+  {
+    "city": "可克达拉",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "KKDL",
+    "alias": [
+      "可克达拉市"
+    ]
+  },
+  {
+    "city": "克拉玛依",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "KLMY",
+    "alias": [
+      "克拉玛依市"
+    ]
+  },
+  {
+    "city": "克孜勒苏柯尔克孜自治州",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "KZLSKEKZZZZ",
+    "alias": [
+      "克孜勒苏柯尔克孜自治州市"
+    ]
+  },
+  {
+    "city": "库车",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 80.263,
+    "lat": 41.1689,
+    "timezone": "+6",
+    "pinyin": "KC",
+    "alias": [
+      "库车市"
+    ]
+  },
+  {
+    "city": "库尔勒",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 86.1475,
+    "lat": 41.7664,
+    "timezone": "+6",
+    "pinyin": "KELR"
+  },
+  {
+    "city": "奎屯",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "KT",
+    "alias": [
+      "奎屯市"
+    ]
+  },
+  {
+    "city": "昆玉",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "KY",
+    "alias": [
+      "昆玉市"
+    ]
+  },
+  {
+    "city": "沙湾",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "SW",
+    "alias": [
+      "沙湾市"
+    ]
+  },
+  {
+    "city": "石河子",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "SHZ",
+    "alias": [
+      "石河子市"
+    ]
+  },
+  {
+    "city": "双河",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "SH",
+    "alias": [
+      "双河市"
+    ]
+  },
+  {
+    "city": "塔城",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "TC",
+    "alias": [
+      "塔城市"
+    ]
+  },
+  {
+    "city": "铁门关",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "TMG",
+    "alias": [
+      "铁门关市"
+    ]
+  },
+  {
+    "city": "图木舒克",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "TMSK",
+    "alias": [
+      "图木舒克市"
+    ]
+  },
+  {
+    "city": "吐鲁番",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "TLF",
+    "alias": [
+      "吐鲁番市"
+    ]
+  },
+  {
+    "city": "乌鲁木齐",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "WMQ"
+  },
+  {
+    "city": "乌苏",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "WS",
+    "alias": [
+      "乌苏市"
+    ]
+  },
+  {
+    "city": "五家渠",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "WJQ",
+    "alias": [
+      "五家渠市"
+    ]
+  },
+  {
+    "city": "新星",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "XX",
+    "alias": [
+      "新星市"
+    ]
+  },
+  {
+    "city": "伊犁哈萨克自治州",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "YLHSKZZZ",
+    "alias": [
+      "伊犁哈萨克自治州市"
+    ]
+  },
+  {
+    "city": "伊宁",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "YN",
+    "alias": [
+      "伊宁市"
+    ]
+  },
+  {
+    "city": "自治区直辖县级行政区划",
+    "country": "中国",
+    "province": "新疆",
+    "lng": 87.6168,
+    "lat": 43.8256,
+    "timezone": "+8",
+    "pinyin": "ZZQZXXJXZQH",
+    "alias": [
+      "自治区直辖县级行政区划市"
+    ]
+  },
+  {
+    "city": "安宁",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "AN",
+    "alias": [
+      "安宁市"
+    ]
+  },
+  {
+    "city": "保山",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "BS",
+    "alias": [
+      "保山市"
+    ]
+  },
+  {
+    "city": "澄江",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "CJ",
+    "alias": [
+      "澄江市"
+    ]
+  },
+  {
+    "city": "楚雄",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "CX",
+    "alias": [
+      "楚雄市"
+    ]
+  },
+  {
+    "city": "楚雄彝族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "CXYZZZZ",
+    "alias": [
+      "楚雄彝族自治州市"
+    ]
+  },
+  {
+    "city": "大理",
+    "country": "中国",
+    "province": "云南",
+    "lng": 100.23,
+    "lat": 25.6069,
+    "timezone": "+8",
+    "pinyin": "DL"
+  },
+  {
+    "city": "大理白族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "DLBZZZZ",
+    "alias": [
+      "大理白族自治州市"
+    ]
+  },
+  {
+    "city": "德宏傣族景颇族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "DHDZJPZZZZ",
+    "alias": [
+      "德宏傣族景颇族自治州市"
+    ]
+  },
+  {
+    "city": "迪庆藏族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "DQZZZZZ",
+    "alias": [
+      "迪庆藏族自治州市"
+    ]
+  },
+  {
+    "city": "个旧",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "GJ",
+    "alias": [
+      "个旧市"
+    ]
+  },
+  {
+    "city": "红河哈尼族彝族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "HHHNZYZZZZ",
+    "alias": [
+      "红河哈尼族彝族自治州市"
+    ]
+  },
+  {
+    "city": "景洪",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "JH",
+    "alias": [
+      "景洪市"
+    ]
+  },
+  {
+    "city": "开远",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "KY",
+    "alias": [
+      "开远市"
+    ]
+  },
+  {
+    "city": "昆明",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "KM"
+  },
+  {
+    "city": "丽江",
+    "country": "中国",
+    "province": "云南",
+    "lng": 100.227,
+    "lat": 26.872,
+    "timezone": "+8",
+    "pinyin": "LJ"
+  },
+  {
+    "city": "临沧",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "LC",
+    "alias": [
+      "临沧市"
+    ]
+  },
+  {
+    "city": "泸水",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "LS",
+    "alias": [
+      "泸水市"
+    ]
+  },
+  {
+    "city": "禄丰",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "LF",
+    "alias": [
+      "禄丰市"
+    ]
+  },
+  {
+    "city": "芒",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "M",
+    "alias": [
+      "芒市"
+    ]
+  },
+  {
+    "city": "蒙自",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "MZ",
+    "alias": [
+      "蒙自市"
+    ]
+  },
+  {
+    "city": "弥勒",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "ML",
+    "alias": [
+      "弥勒市"
+    ]
+  },
+  {
+    "city": "怒江傈僳族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "NJLSZZZZ",
+    "alias": [
+      "怒江傈僳族自治州市"
+    ]
+  },
+  {
+    "city": "普洱",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "PE",
+    "alias": [
+      "普洱市"
+    ]
+  },
+  {
+    "city": "曲靖",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "QJ",
+    "alias": [
+      "曲靖市"
+    ]
+  },
+  {
+    "city": "瑞丽",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "RL",
+    "alias": [
+      "瑞丽市"
+    ]
+  },
+  {
+    "city": "水富",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "SF",
+    "alias": [
+      "水富市"
+    ]
+  },
+  {
+    "city": "腾冲",
+    "country": "中国",
+    "province": "云南",
+    "lng": 98.4996,
+    "lat": 25.286,
+    "timezone": "+8",
+    "pinyin": "TC"
+  },
+  {
+    "city": "文山",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "WS",
+    "alias": [
+      "文山市"
+    ]
+  },
+  {
+    "city": "文山壮族苗族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "WSZZMZZZZ",
+    "alias": [
+      "文山壮族苗族自治州市"
+    ]
+  },
+  {
+    "city": "西双版纳",
+    "country": "中国",
+    "province": "云南",
+    "lng": 100.7976,
+    "lat": 21.987,
+    "timezone": "+8",
+    "pinyin": "XSBN"
+  },
+  {
+    "city": "西双版纳傣族自治州",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "XSBNDZZZZ",
+    "alias": [
+      "西双版纳傣族自治州市"
+    ]
+  },
+  {
+    "city": "香格里拉",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "XGLL",
+    "alias": [
+      "香格里拉市"
+    ]
+  },
+  {
+    "city": "宣威",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "XW",
+    "alias": [
+      "宣威市"
+    ]
+  },
+  {
+    "city": "玉溪",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "YX",
+    "alias": [
+      "玉溪市"
+    ]
+  },
+  {
+    "city": "昭通",
+    "country": "中国",
+    "province": "云南",
+    "lng": 102.7103,
+    "lat": 25.0406,
+    "timezone": "+8",
+    "pinyin": "ZT",
+    "alias": [
+      "昭通市"
+    ]
+  },
+  {
+    "city": "慈溪",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.5495,
+    "lat": 29.8683,
+    "timezone": "+8",
+    "pinyin": "CX",
+    "alias": [
+      "慈溪市"
+    ]
+  },
+  {
+    "city": "东阳",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 119.6477,
+    "lat": 29.0791,
+    "timezone": "+8",
+    "pinyin": "DY",
+    "alias": [
+      "东阳市"
+    ]
+  },
+  {
+    "city": "海宁",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.7565,
+    "lat": 30.7467,
+    "timezone": "+8",
+    "pinyin": "HN",
+    "alias": [
+      "海宁市"
+    ]
+  },
+  {
+    "city": "杭州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.155,
+    "lat": 30.2741,
+    "timezone": "+8",
+    "pinyin": "HZ"
+  },
+  {
+    "city": "湖州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.0879,
+    "lat": 30.8697,
+    "timezone": "+8",
+    "pinyin": "HZH"
+  },
+  {
+    "city": "嘉兴",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.7565,
+    "lat": 30.7467,
+    "timezone": "+8",
+    "pinyin": "JX"
+  },
+  {
+    "city": "建德",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.155,
+    "lat": 30.2741,
+    "timezone": "+8",
+    "pinyin": "JD",
+    "alias": [
+      "建德市"
+    ]
+  },
+  {
+    "city": "江山",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 118.862,
+    "lat": 28.977,
+    "timezone": "+8",
+    "pinyin": "JS",
+    "alias": [
+      "江山市"
+    ]
+  },
+  {
+    "city": "金华",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 119.6477,
+    "lat": 29.0791,
+    "timezone": "+8",
+    "pinyin": "JH"
+  },
+  {
+    "city": "兰溪",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 119.6477,
+    "lat": 29.0791,
+    "timezone": "+8",
+    "pinyin": "LX",
+    "alias": [
+      "兰溪市"
+    ]
+  },
+  {
+    "city": "乐清",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.6994,
+    "lat": 27.9945,
+    "timezone": "+8",
+    "pinyin": "LQ",
+    "alias": [
+      "乐清市"
+    ]
+  },
+  {
+    "city": "丽水",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.155,
+    "lat": 30.2741,
+    "timezone": "+8",
+    "pinyin": "LS",
+    "alias": [
+      "丽水市"
+    ]
+  },
+  {
+    "city": "临海",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.42,
+    "lat": 28.6561,
+    "timezone": "+8",
+    "pinyin": "LH",
+    "alias": [
+      "临海市"
+    ]
+  },
+  {
+    "city": "龙港",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.6994,
+    "lat": 27.9945,
+    "timezone": "+8",
+    "pinyin": "LG",
+    "alias": [
+      "龙港市"
+    ]
+  },
+  {
+    "city": "龙泉",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.155,
+    "lat": 30.2741,
+    "timezone": "+8",
+    "pinyin": "LQ",
+    "alias": [
+      "龙泉市"
+    ]
+  },
+  {
+    "city": "宁波",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.5495,
+    "lat": 29.8683,
+    "timezone": "+8",
+    "pinyin": "NB"
+  },
+  {
+    "city": "平湖",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.7565,
+    "lat": 30.7467,
+    "timezone": "+8",
+    "pinyin": "PH",
+    "alias": [
+      "平湖市"
+    ]
+  },
+  {
+    "city": "衢州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 118.862,
+    "lat": 28.977,
+    "timezone": "+8",
+    "pinyin": "QZ"
+  },
+  {
+    "city": "瑞安",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.6994,
+    "lat": 27.9945,
+    "timezone": "+8",
+    "pinyin": "RA",
+    "alias": [
+      "瑞安市"
+    ]
+  },
+  {
+    "city": "绍兴",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.582,
+    "lat": 30.0381,
+    "timezone": "+8",
+    "pinyin": "SX"
+  },
+  {
+    "city": "嵊州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.582,
+    "lat": 30.0381,
+    "timezone": "+8",
+    "pinyin": "SZ",
+    "alias": [
+      "嵊州市"
+    ]
+  },
+  {
+    "city": "台州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.42,
+    "lat": 28.6561,
+    "timezone": "+8",
+    "pinyin": "TZ"
+  },
+  {
+    "city": "桐乡",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.7565,
+    "lat": 30.7467,
+    "timezone": "+8",
+    "pinyin": "TX",
+    "alias": [
+      "桐乡市"
+    ]
+  },
+  {
+    "city": "温岭",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.42,
+    "lat": 28.6561,
+    "timezone": "+8",
+    "pinyin": "WL",
+    "alias": [
+      "温岭市"
+    ]
+  },
+  {
+    "city": "温州",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.6994,
+    "lat": 27.9945,
+    "timezone": "+8",
+    "pinyin": "WZ"
+  },
+  {
+    "city": "义乌",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.0742,
+    "lat": 29.3062,
+    "timezone": "+8",
+    "alias": [
+      "义乌市"
+    ],
+    "pinyin": "YW"
+  },
+  {
+    "city": "永康",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 119.6477,
+    "lat": 29.0791,
+    "timezone": "+8",
+    "pinyin": "YK",
+    "alias": [
+      "永康市"
+    ]
+  },
+  {
+    "city": "余姚",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.5495,
+    "lat": 29.8683,
+    "timezone": "+8",
+    "pinyin": "YY",
+    "alias": [
+      "余姚市"
+    ]
+  },
+  {
+    "city": "玉环",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 121.42,
+    "lat": 28.6561,
+    "timezone": "+8",
+    "pinyin": "YH",
+    "alias": [
+      "玉环市"
+    ]
+  },
+  {
+    "city": "舟山",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 122.2072,
+    "lat": 29.9857,
+    "timezone": "+8",
+    "pinyin": "ZZ"
+  },
+  {
+    "city": "诸暨",
+    "country": "中国",
+    "province": "浙江",
+    "lng": 120.582,
+    "lat": 30.0381,
+    "timezone": "+8",
+    "pinyin": "ZJ",
+    "alias": [
+      "诸暨市"
+    ]
+  }
+]

@@ -19,4 +19,7 @@ export const ENV = {
   corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
   cookieDomain: process.env.COOKIE_DOMAIN || ".orasage.com",
   isProduction: process.env.NODE_ENV === "production",
+  deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
+  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",
+  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? process.env.VITE_AI_API_KEY ?? "",
 };

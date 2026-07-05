@@ -10,6 +10,7 @@ import { pagesRouter, internalOnly } from "./routes/pages.ts";
 import { internalRouter } from "./routes/account.ts";
 import { productsRouter } from "./routes/products.ts";
 import { adminApiRouter } from "./routes/admin-api.ts";
+import { citiesRouter } from "./routes/cities.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(pagesRouter);
 app.use("/auth", authRouter);
 app.use("/api/products", productsRouter);
+app.use("/api/cities", citiesRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/internal", internalOnly, internalRouter);
 app.use(healthRouter);

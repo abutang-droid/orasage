@@ -25,6 +25,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.64.0(react@19.2.1))
+      '@orasage/city':
+        specifier: file:../packages/city
+        version: file:../packages/city(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@orasage/tokens':
         specifier: file:../packages/tokens
         version: file:../packages/tokens
@@ -1197,6 +1200,12 @@ packages:
 
   '@nodable/entities@2.1.0':
     resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
+
+  '@orasage/city@file:../packages/city':
+    resolution: {directory: ../packages/city, type: directory}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
 
   '@orasage/tokens@file:../packages/tokens':
     resolution: {directory: ../packages/tokens, type: directory}
@@ -5659,6 +5668,12 @@ snapshots:
       langium: 3.3.1
 
   '@nodable/entities@2.1.0': {}
+
+  '@orasage/city@file:../packages/city(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+    dependencies:
+      pinyin-pro: 3.28.1
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
 
   '@orasage/tokens@file:../packages/tokens': {}
 

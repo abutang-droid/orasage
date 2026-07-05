@@ -124,3 +124,10 @@ export const userRecommendations = pgTable("user_recommendations", {
 });
 
 export type User = typeof users.$inferSelect;
+
+export {
+  cityRecordSourceEnum,
+  cityRecords,
+  type CityRecordRow,
+  type InsertCityRecordRow,
+} from "./city-schema.ts";

@@ -160,55 +160,6 @@ export const appRouter = router({
       return PLAN_OPTIONS;
     }),
 
-    /** AI 城市查询（公开接口） */
-    lookupCity: publicProcedure
-      .input(z.object({ query: z.string().min(1).max(200) }))
-      .mutation(async ({ input }) => {
-        const prompt = `用户输入了一个城市名称"${input.query}"，请识别这个城市并返回 JSON：
-
-{
-  "city": "城市中文名",
-  "country": "国家（如\"中国\"、\"美国\"）",
-  "province": "省份/州",
-  "lng": 经度数字（WGS84）,
-  "lat": 纬度数字（WGS84）,
-  "timezone": "时区偏移（如\"+8\"、\"-5\"）"
-}
-
-如果无法识别该城市，返回 null。
-只返回 JSON，不要其他文字。`;
-
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: "你是一个地理信息助手。只返回 JSON，不要解释。" },
-            { role: "user", content: prompt },
-          ],
-        });
-
-        const content = response.choices?.[0]?.message?.content;
-        if (!content) return null;
-
-        try {
-          const raw = typeof content === "string" ? content
-            : (content as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join("");
-          // 提取 JSON（LLM 可能包含 markdown 代码块）
-          const jsonMatch = raw.match(/\{[\s\S]*\}/);
-          if (!jsonMatch) return null;
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (!parsed || !parsed.city) return null;
-          return {
-            city: String(parsed.city),
-            country: String(parsed.country || "未知"),
-            province: String(parsed.province || ""),
-            lng: Number(parsed.lng),
-            lat: Number(parsed.lat),
-            timezone: String(parsed.timezone || "+8"),
-          };
-        } catch {
-          return null;
-        }
-      }),
-
     /** AI 解读（公开接口，无需登录） */
     analyze: publicProcedure
       .use(llmRateLimit)
