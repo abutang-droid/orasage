@@ -334,18 +334,6 @@
   height: auto;
 }
 
-.tarot-home-energy {
-  margin-top: 0.25rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  text-align: left;
-}
-
-.tarot-home-energy .tarot-home-section-title {
-  text-align: center;
-  margin-bottom: 0.75rem;
-}
-
 .tarot-home-hero-card-inner--gold {
   font-size: 1.5rem;
   color: #b8943f;

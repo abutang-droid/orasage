@@ -11,14 +11,6 @@ import { useUser } from '@/lib/user';
 
 const MANTO_PORTRAIT = '/images/manto-mentor.png';
 
-type FortuneDimension = { text: string; tag: string };
-type FortunePayload = {
-  love: FortuneDimension;
-  work: FortuneDimension;
-  wealth: FortuneDimension;
-  mood: FortuneDimension;
-};
-
 function timeGreeting(): string {
   const h = new Date().getHours();
   if (h < 6) return '夜深了';
@@ -67,17 +59,9 @@ function HeroVideo({
   );
 }
 
-const ENERGY_ITEMS = [
-  { key: 'love' as const, label: '爱情', icon: '💕' },
-  { key: 'work' as const, label: '事业', icon: '⭐' },
-  { key: 'wealth' as const, label: '财运', icon: '💰' },
-  { key: 'mood' as const, label: '状态', icon: '✨' },
-];
-
 export function TarotHomeHero() {
   const { user } = useUser();
   const [hero, setHero] = useState<TarotHomeHeroContent | null>(null);
-  const [fortune, setFortune] = useState<FortunePayload | null>(null);
 
   const displayName = useMemo(() => {
     const name = user?.nickname?.trim();
@@ -90,21 +74,6 @@ export function TarotHomeHero() {
     void fetchTarotHomeHero().then((content) => {
       if (!cancelled) setHero(content ?? fallbackTarotHomeHero());
     });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    void fetch('/api/fortune', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: FortunePayload | null) => {
-        if (!cancelled && data) setFortune(data);
-      })
-      .catch(() => {
-        /* optional */
-      });
     return () => {
       cancelled = true;
     };
@@ -159,23 +128,6 @@ export function TarotHomeHero() {
       ) : null}
 
       {hero.subtitle ? <p className="tarot-home-subtitle">{hero.subtitle}</p> : null}
-
-      {fortune ? (
-        <div className="tarot-home-energy card animate-fade-in-up delay-100">
-          <h2 className="tarot-home-section-title">今日能量</h2>
-          <div className="tarot-home-stats">
-            {ENERGY_ITEMS.map(({ key, label, icon }) => (
-              <div key={key} className="tarot-home-stat">
-                <span className="tarot-home-stat-icon" aria-hidden>
-                  {icon}
-                </span>
-                <div className="tarot-home-stat-name">{label}</div>
-                <div className="tarot-home-stat-status">{fortune[key].tag}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }
