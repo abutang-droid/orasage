@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose"
 import { cookies } from "next/headers"
+import { maybeMergeGuestSession } from "./guest-account-merge"
 import { prisma } from "./prisma"
 
 // JWT_SECRET 与 orasage 生态其他 App（auth-service/shop/main/...）共享同一个值，
@@ -87,13 +88,18 @@ async function getParentBridgedUser(): Promise<JwtPayload | null> {
 }
 
 export async function getAuthUser(): Promise<JwtPayload | null> {
-  const parentUser = await getParentBridgedUser()
-  if (parentUser) return parentUser
-
   const cookieStore = await cookies()
+  const parentUser = await getParentBridgedUser()
   const token = cookieStore.get(COOKIE_NAME)?.value
-  if (!token) return null
-  return verifyToken(token)
+  const guestUser = token ? await verifyToken(token) : null
+
+  if (parentUser) {
+    await maybeMergeGuestSession(guestUser, parentUser)
+    return parentUser
+  }
+
+  if (guestUser) return guestUser
+  return null
 }
 
 export type EnsuredAuth = JwtPayload & { newToken?: string }
