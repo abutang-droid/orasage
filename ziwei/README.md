@@ -165,7 +165,7 @@ npm run dev
 
 - **框架**：Next.js 14（App Router）
 - **语言**：TypeScript
-- **样式**：Tailwind CSS + CSS Variables 设计系统
+- **样式**：Tailwind CSS + DS v1.1（[`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../docs/design-system/OraSage-Design-System-v1.1-Revised.md)）
 - **排盘**：基于 [iztro](https://github.com/SylarLong/iztro) + lunar-javascript
 - **动画**：Framer Motion
 

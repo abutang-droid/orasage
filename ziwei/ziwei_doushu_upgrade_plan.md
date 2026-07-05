@@ -1,5 +1,7 @@
 # 紫微斗数应用改造开发文档
 
+> **UI / 视觉**：全站唯一设计规范为 [OraSage DS v1.1 Revised](../docs/design-system/OraSage-Design-System-v1.1-Revised.md)。下文「八字计算器风格」「深色主题」等早期描述已废止，实现以 DS v1.1 单色体系为准。
+
 **版本**: v1.0
 **作者**: Manus AI
 **日期**: 2026年6月12日

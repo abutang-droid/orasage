@@ -109,7 +109,7 @@ flowchart TD
 
 | 建议 | 说明 |
 |------|------|
-| 设计语言统一 | `shared/design-tokens/orasage-tokens.css`（v1.1 纸感 + jade/brass）；auth 静态 CSS sync |
+| 设计语言统一 | `shared/design-tokens/orasage-tokens.css`（DS v1.1 单色）；auth 静态 CSS sync |
 | 支付流程统一 | App 内浮层 + shop 内网 API，避免整页跳 shop |
 | 错误提示统一 | 网络/登录过期/支付失败同一套文案与重试 |
 | 回跳成功反馈 | Toast「支付成功，报告生成中…」+ 进度 |
@@ -366,6 +366,6 @@ npm run test:smoke-all
 
 - [`docs/HANDOFF-orasage-platform.md`](../HANDOFF-orasage-platform.md)
 - [`docs/mobile-first.md`](../mobile-first.md)
-- [`docs/design-system/ui-phase-2.md`](../design-system/ui-phase-2.md)
-- [`docs/plans/design-unify-backlog.md`](../plans/design-unify-backlog.md)
+- [`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../design-system/OraSage-Design-System-v1.1-Revised.md)
+- [`docs/design-system/README.md`](../design-system/README.md)
 - [`AGENTS.md`](../../AGENTS.md) — 本地运行与环境变量

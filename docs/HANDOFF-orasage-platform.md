@@ -5,11 +5,11 @@
 > **最新会话交接（P0 安全 + E2E 冒烟）：** [`HANDOFF-e2e-p0-2026-07-03.md`](./HANDOFF-e2e-p0-2026-07-03.md) ← **优先读这个**  
 > **塔罗功德后端 + 部署：** [`HANDOFF-agent-2026-07-03.md`](./HANDOFF-agent-2026-07-03.md)  
 > **产品体验与测试用例：** [`docs/testing/platform-ux-evaluation-and-test-cases.md`](./testing/platform-ux-evaluation-and-test-cases.md)  
-> 当前活跃分支：`main`（Phase 2 UI 三轨已合入）  
-> 待办清单：[`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md)
+> 当前活跃分支：`main`  
+> 设计规范：[`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](./design-system/OraSage-Design-System-v1.1-Revised.md)（唯一）
 
 **本轮新增（platform-unify）：**
-- 合并 `design-unify` 后推进全站浅色设计（Main/Shop/Auth/Admin/Tarot）
+- 全站接入 DS v1.1 单色设计令牌（`shared/design-tokens/orasage-tokens.css`）
 - 语言切换仅 Main 门户首页；命理 App 依赖 URL / 用户中心
 - Ziwei 合盘输入改为 Tab 切换；子页统一 App Shell 返回
 
@@ -47,7 +47,7 @@ VPS：`34.75.40.67`（GCP，`ubuntu`），代码目录 `/opt/orasage`。
 
 **共享层**
 
-- `shared/design-tokens/orasage-tokens.css` — 浅色 `#FAFAF8`，金色 `#B8943F`
+- `shared/design-tokens/orasage-tokens.css` — DS v1.1 单色（`#FAFAF8` / `#171717` / 灰阶）
 - `shared/app-shell/` — 子页「返回」、底部导航、标签文案；已 vendor 到 bazi/ziwei/tarot
 
 **Ziwei**
@@ -124,7 +124,8 @@ LLM 生成 Markdown → 写 public/reports/*.html → PATCH reading.report_url +
 
 ### 设计规范
 
-参考：`uploads/OraSage-Design-System-Minimal-Refinement_1d35.md`（浅色纸感、克制金色、无五行色块泛滥）
+唯一参考：[`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](./design-system/OraSage-Design-System-v1.1-Revised.md)  
+Token 实现：`shared/design-tokens/orasage-tokens.css`
 
 ---
 
@@ -160,7 +161,7 @@ LLM 生成 Markdown → 写 public/reports/*.html → PATCH reading.report_url +
 
 ## 6. 你接手后建议的第一步
 
-1. 读 [`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md) 的 **P0** 清单
+1. 读 [`docs/testing/platform-ux-evaluation-and-test-cases.md`](./testing/platform-ux-evaluation-and-test-cases.md) 的 **P0** 清单
 2. checkout `cursor/design-unify-ziwei-9ded`（或 PR 合并后的 `main`）
 3. 跑 / 扩展 `scripts/e2e/profile-shop-flow.mjs`，覆盖 Ziwei 付费+报告
 4. SSH VPS 确认 `ZIWEI_INTERNAL_URL` 与 AI Key 已配置
@@ -197,7 +198,7 @@ PR: https://github.com/abutang-droid/orasage/pull/21 (draft)
 ## 8. 联系人 / 资源
 
 - 仓库：`https://github.com/abutang-droid/orasage`
-- 设计稿 MD：工作区 `uploads/OraSage-Design-System-Minimal-Refinement_1d35.md`
+- 设计规范：[`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](./design-system/OraSage-Design-System-v1.1-Revised.md)
 - Tarot 独立交接（另一项目）：`tarot/HANDOFF.md`（Manto，非本 monorepo 主线）
 
 ---

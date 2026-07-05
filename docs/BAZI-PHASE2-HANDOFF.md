@@ -115,11 +115,11 @@ GET https://cms.orasage.com/api/globals/bazi-home-hero?depth=1
 GET https://cms.orasage.com/api/bazi-feed?where[enabled][equals]=true&where[locale][equals]=zh-CN&sort=sort
 ```
 
-### 设计参考（主站）
+### 设计参考
 
-- `main/src/components/HomeSections.tsx` — Hero 结构
-- `main/src/app/[locale]/globals.css` — `.home-eyebrow` 等
-- `shared/design-tokens/orasage-tokens.css` — 纸感色板
+- `docs/design-system/OraSage-Design-System-v1.1-Revised.md` — **唯一** UI 规范（DS v1.1 单色）
+- `shared/design-tokens/orasage-tokens.css` — Token 实现
+- `main/src/components/HomeSections.tsx` — Hero 结构参考（布局，非旧色板）
 
 ---
 
@@ -165,9 +165,9 @@ gender: ""
 
 ### 用户已提、未实现
 
-1. **Headless UI 状态分层**（参考 https://headlessui.tailwind.org.cn/）
-   - 输入 `data-hover:shadow-sm`、`data-focus` 时浅 jade 底（类似 `bg-blue-100`）
-   - 主按钮补 `active` 更深一档（jade-600）
+1. **Headless UI 状态分层**（参考 https://headlessui.tailwind.com/）
+   - 输入 `data-hover` / `data-focus` 按 DS v1.1：聚焦黑边、无彩色底
+   - 主按钮 `active` 使用 `--orasage-brand-primary-active`（`#262626`）
    - 可选：引入 `@headlessui/react` 的 `Field`/`Input`/`Button`（bazi 已有 `@orasage/ui` 依赖）
 
 2. **占位符 20% 微调**
@@ -185,19 +185,20 @@ gender: ""
 
 ---
 
-## 7. 样式令牌速查（八字页）
+## 7. 样式令牌速查（八字页 · DS v1.1）
 
 ```css
-/* bazi-home-page 内 */
---bazi-control-bg: #fff;
---bazi-control-border: rgb(var(--os-rgb-ink-500) / 0.26);
---bazi-placeholder: rgb(var(--foreground) / 0.2);
+/* bazi-home-page 内 — 见 bazi-home.css */
+--bazi-control-bg: var(--os-color-mono-white);
+--bazi-control-border: var(--os-color-mono-gray-light);
+--bazi-placeholder: var(--os-color-mono-gray-mid);
 
-/* 页面背景（与 main sage-bg 一致） */
---shell-bg: rgb(247, 243, 234);  /* app-shell light */
+/* App shell 浅色 */
+--shell-bg: #fafaf8;
 
 /* 主按钮 / 选中分段 */
-background: rgb(var(--primary));  /* jade */
+background: var(--os-color-mono-black);
+color: var(--os-color-mono-white);
 ```
 
 ---

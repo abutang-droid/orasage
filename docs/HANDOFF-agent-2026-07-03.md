@@ -252,7 +252,7 @@ tarot/.env.example / shop/.env.example      # TAROT_INTERNAL_*
 |------|------|
 | `docs/HANDOFF-orasage-platform.md` | 2026-07-02，design-unify 时代；架构大方向仍对，PR/部署状态过期 |
 | `tarot/HANDOFF.md` | 独立 tarot-mind 上游记忆，**非** monorepo `tarot/` 现状；功德系统以本文 §4 为准 |
-| `docs/plans/design-unify-backlog.md` | UI 统一 backlog；用户当前不想推进 |
+| `docs/design-system/OraSage-Design-System-v1.1-Revised.md` | 全站唯一 UI 设计规范 |
 
 ---
 

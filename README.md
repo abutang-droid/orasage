@@ -36,6 +36,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 - 所有 8 个 App 源码都在本仓库内（`main/` `auth-service/` `shop/` `admin/`
   `cms/` `bazi/` `ziwei/` `tarot/`），统一部署在同一台 VPS（`34.75.40.67`）
 - **移动优先**：手机显示优先，再兼容 PC（见 [`docs/mobile-first.md`](docs/mobile-first.md)）
+- **设计规范**：全站 UI 唯一规范为 [DS v1.1 Revised](docs/design-system/OraSage-Design-System-v1.1-Revised.md)（见 [`docs/design-system/README.md`](docs/design-system/README.md)）
 - 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT；bazi/ziwei/tarot
   各自新增了桥接逻辑，识别到该 cookie 时自动映射为已登录状态，**同时完全保留
   各自原有的登录方式**（bazi 的 Manus OAuth、ziwei 的匿名模式、tarot 的访客
@@ -186,4 +187,5 @@ deploy/
 ## 历史文档
 
 - [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md) — 产品方案总览
+- [`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](docs/design-system/OraSage-Design-System-v1.1-Revised.md) — 全站 UI 设计规范（唯一）
 - `产品方案整理.md` — Codex 对话还原 + 技术评估

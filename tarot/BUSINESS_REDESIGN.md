@@ -1,5 +1,7 @@
 # TarotMind 商业产品重构：情绪价值变现平台
 
+> **UI / 视觉**：全站唯一设计规范为 [OraSage DS v1.1 Revised](../docs/design-system/OraSage-Design-System-v1.1-Revised.md)（单色黑/白/灰）。本文档为商业与产品叙事；文中「视觉风格分线」等配色描述**不**作为实现依据，以 DS v1.1 与 `shared/design-tokens/orasage-tokens.css` 为准。
+
 > 从「功能玩具」到「信仰消费平台」
 > 2026-06-26 | 目标市场：南美 70% + 东南亚 30%
 

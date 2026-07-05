@@ -1,5 +1,8 @@
 # OraSage 前端设计规范
 
+> **视觉/UI 色板与组件**：唯一规范为 [DS v1.1 Revised](./design-system/OraSage-Design-System-v1.1-Revised.md)（单色黑/白/灰）。  
+> 本文档仅描述**布局与响应式**约定。
+
 > **移动优先（Mobile First）**：所有页面优先适配手机显示，再向上兼容平板与 PC。
 
 ## 核心原则
