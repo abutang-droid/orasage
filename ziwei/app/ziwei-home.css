@@ -315,6 +315,88 @@
   position: relative;
 }
 
+.ziwei-city-field,
+.ziwei-field-input,
+.ziwei-field-select {
+  background: var(--ziwei-control-bg);
+  border: 1px solid var(--ziwei-control-border);
+  box-shadow: var(--os-shadow-surface-1);
+}
+
+.ziwei-city-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--os-radius-btn);
+  transition: border-color var(--os-motion-fast);
+}
+
+.ziwei-city-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--os-color-mono-black);
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  caret-color: var(--os-color-mono-black);
+}
+
+.ziwei-city-field input::placeholder {
+  color: var(--ziwei-placeholder);
+  opacity: 1;
+}
+
+.ziwei-city-field.is-focused {
+  border-color: var(--os-color-mono-black);
+}
+
+.ziwei-city-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 50;
+  overflow: hidden;
+  border-radius: var(--os-radius-card);
+  border: 1px solid var(--ziwei-control-border);
+  background: var(--ziwei-control-bg);
+  box-shadow: var(--os-shadow-surface-2);
+}
+
+.ziwei-city-option {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: none;
+  border-bottom: 0.5px solid var(--ziwei-control-border);
+  text-align: left;
+  background: transparent;
+  color: var(--os-color-mono-black);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.ziwei-city-option:hover {
+  background: var(--os-color-mono-bg);
+}
+
+.ziwei-birthplace-wrap .orasage-city-meta,
+.ziwei-birthplace-wrap .orasage-city-error {
+  margin-top: 0.375rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.ziwei-birthplace-wrap .orasage-city-meta {
+  color: var(--os-color-mono-gray-mid);
+}
+
+.ziwei-birthplace-wrap .orasage-city-error {
+  color: rgb(var(--os-rgb-status-error));
+}
+
 .ziwei-birthplace-dropdown {
   position: absolute;
   left: 0;

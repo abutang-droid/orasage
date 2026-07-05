@@ -1,7 +1,7 @@
-import type { CityApiClient } from "./api.ts";
-import { getSeedCities } from "./seed.ts";
-import { mergeCityRecords } from "./search.ts";
-import type { CityRecord } from "./types.ts";
+import type { CityApiClient } from "./api";
+import { getSeedCities } from "./seed";
+import { mergeCityRecords } from "./search";
+import type { CityRecord } from "./types";
 
 let _api: CityApiClient | null = null;
 let _cities: CityRecord[] | null = null;

@@ -1,6 +1,6 @@
-import type { CityLookupResult } from "../types.ts";
-import { getCityMessages } from "../i18n.ts";
-import { formatCityLabel } from "../i18n.ts";
+import type { CityLookupResult } from "../types";
+import { getCityMessages } from "../i18n";
+import { formatCityLabel } from "../i18n";
 
 type Props = {
   result: CityLookupResult;

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import type { BirthplaceValue } from '@orasage/city';
+import { loadCityCatalog } from '@orasage/city';
+import { CitySearchInput } from '@orasage/city/react';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
-import { PROVINCES } from '@/lib/ziwei/cities';
-import { searchGlobalCities } from '@/lib/ziwei/globalCities';
 import { useT } from '@/lib/i18n';
 import { formToBirthInfo } from '@/lib/ziwei/share';
+import { birthplaceToFormFields, formFieldsToBirthplace } from '@/lib/birthplace';
 import { fetchSavedProfiles, profileDisplayLabel, savedProfileToBirthForm, type SavedProfile } from '@/lib/profile-sync';
 
 export interface BirthFormState {
@@ -32,13 +34,6 @@ interface BirthFormProps {
   hideSubmit?: boolean;
 }
 
-type BirthplaceOption = {
-  city: string;
-  province: string;
-  longitude: number;
-  label: string;
-};
-
 const SHICHEN_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 const YEARS = Array.from({ length: 127 }, (_, i) => String(2026 - i));
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1));
@@ -58,51 +53,6 @@ function isValidDate(y: number, m: number, d: number): boolean {
   if (!y || !m || !d) return false;
   const date = new Date(y, m - 1, d);
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
-}
-
-function searchBirthplaces(query: string): BirthplaceOption[] {
-  const q = query.trim();
-  if (!q) return [];
-  const lower = q.toLowerCase();
-  const results: BirthplaceOption[] = [];
-  const seen = new Set<string>();
-
-  for (const p of PROVINCES) {
-    for (const c of p.cities) {
-      if (c.name.includes(q) || p.name.includes(q)) {
-        const key = `${c.name}|${p.name}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          results.push({
-            city: c.name,
-            province: p.name,
-            longitude: c.longitude,
-            label: `${c.name} · ${p.name}`,
-          });
-        }
-      }
-    }
-  }
-
-  for (const g of searchGlobalCities(q)) {
-    const key = `${g.city}|${g.country}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      results.push({
-        city: g.city,
-        province: g.country,
-        longitude: g.longitude,
-        label: `${g.city} · ${g.country}`,
-      });
-    }
-  }
-
-  return results.filter((r) => r.label.toLowerCase().includes(lower) || r.city.includes(q)).slice(0, 8);
-}
-
-function birthplaceLabel(form: Pick<BirthFormState, 'city' | 'province'>) {
-  if (!form.city) return '';
-  return form.province && form.province !== form.city ? `${form.city} · ${form.province}` : form.city;
 }
 
 export default function BirthForm({ onSubmit, loading, initialData, onFormSave, hideSubmit }: BirthFormProps) {
@@ -126,25 +76,21 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>([]);
-  const [birthplaceQuery, setBirthplaceQuery] = useState(() => birthplaceLabel({
-    city: initialData?.city ?? '',
-    province: initialData?.province ?? '',
-  }));
-  const [birthplaceOpen, setBirthplaceOpen] = useState(false);
-  const birthplaceRef = useRef<HTMLDivElement>(null);
+  const [cityCatalog, setCityCatalog] = useState<Awaited<ReturnType<typeof loadCityCatalog>>>([]);
+  const [birthplace, setBirthplace] = useState<BirthplaceValue>(() =>
+    formFieldsToBirthplace({
+      city: initialData?.city ?? '',
+      province: initialData?.province ?? '',
+      longitude: initialData?.longitude ?? 120,
+    }),
+  );
 
   useEffect(() => {
-    void fetchSavedProfiles().then(setSavedProfiles);
+    void loadCityCatalog().then(setCityCatalog).catch(() => {});
   }, []);
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (birthplaceRef.current && !birthplaceRef.current.contains(e.target as Node)) {
-        setBirthplaceOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    void fetchSavedProfiles().then(setSavedProfiles);
   }, []);
 
   useEffect(() => {
@@ -152,10 +98,24 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
-  const birthplaceSuggestions = useMemo(
-    () => searchBirthplaces(birthplaceQuery),
-    [birthplaceQuery],
-  );
+  const handleBirthplaceChange = (value: BirthplaceValue) => {
+    setBirthplace(value);
+    const next = birthplaceToFormFields(value, cityCatalog);
+    setForm((prev) => ({
+      ...prev,
+      city: next.city,
+      province: next.province,
+      longitude: next.longitude,
+    }));
+  };
+
+  useEffect(() => {
+    if (!form.city || cityCatalog.length === 0 || form.province) return;
+    const next = birthplaceToFormFields(birthplace, cityCatalog);
+    if (next.province) {
+      setForm((prev) => ({ ...prev, province: next.province }));
+    }
+  }, [cityCatalog, form.city, form.province, birthplace]);
 
   const branch = useMemo(() => {
     if (form.unknownTime) return 0;
@@ -166,7 +126,6 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     );
   }, [form.clockHour, form.clockMinute, form.longitude, form.unknownTime]);
 
-  const offsetMin = Math.round((form.longitude - 120) * 4);
   const shichenInfo = SHICHEN[branch];
 
   const y = parseInt(form.year) || 0;
@@ -185,27 +144,6 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   };
   const hasError = Object.values(errors).some(Boolean);
   const showErr = (field: string) => touched[field] || submitAttempted;
-
-  const handleBirthplaceInput = (value: string) => {
-    setBirthplaceQuery(value);
-    setBirthplaceOpen(value.trim().length > 0);
-    if (!value.trim()) {
-      setForm((prev) => ({ ...prev, province: '', city: '', longitude: 120 }));
-    } else {
-      setForm((prev) => ({ ...prev, city: value.trim(), province: '' }));
-    }
-  };
-
-  const handleBirthplaceSelect = (opt: BirthplaceOption) => {
-    setBirthplaceQuery(opt.label);
-    setBirthplaceOpen(false);
-    setForm((prev) => ({
-      ...prev,
-      city: opt.city,
-      province: opt.province,
-      longitude: opt.longitude,
-    }));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,7 +168,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               if (picked) {
                 const next = { ...form, ...savedProfileToBirthForm(picked) };
                 setForm(next);
-                setBirthplaceQuery(birthplaceLabel(next));
+                setBirthplace(formFieldsToBirthplace(next));
               }
               e.target.value = '';
             }}
@@ -352,40 +290,20 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         </label>
       </div>
 
-      {/* 出生地 — 文本输入 */}
+      {/* 出生地 — 全站地址库 */}
       <div>
         <label className="ziwei-calc-field-label">{t('form.birth.place')}</label>
-        <div className="ziwei-birthplace-wrap" ref={birthplaceRef}>
-          <input
-            type="text"
-            className="ziwei-field-input"
-            value={birthplaceQuery}
-            onChange={(e) => handleBirthplaceInput(e.target.value)}
-            onFocus={() => { if (birthplaceQuery.trim()) setBirthplaceOpen(true); }}
-            placeholder={t('form.birthplace.placeholder')}
-          />
-          {birthplaceOpen && birthplaceSuggestions.length > 0 && (
-            <div className="ziwei-birthplace-dropdown">
-              {birthplaceSuggestions.map((opt) => (
-                <button
-                  key={`${opt.city}-${opt.province}`}
-                  type="button"
-                  className="ziwei-birthplace-option"
-                  onClick={() => handleBirthplaceSelect(opt)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {form.city ? (
-          <p className="ziwei-field-hint">
-            {form.city}{form.province ? ` · ${form.province}` : ''} · {t('form.longitude')} {form.longitude.toFixed(1)}° · {t('form.timezone')} {offsetMin > 0 ? '+' : ''}{offsetMin} {t('form.minutes')}
-          </p>
-        ) : (
+        <CitySearchInput
+          value={birthplace}
+          onChange={handleBirthplaceChange}
+          className="ziwei-birthplace-wrap"
+          fieldClassName="ziwei-city-field"
+          dropdownClassName="ziwei-city-dropdown"
+          optionClassName="ziwei-city-option"
+        />
+        {!form.city ? (
           <p className="ziwei-field-hint">{t('form.location.hint')}</p>
-        )}
+        ) : null}
       </div>
 
       {!hideSubmit && (

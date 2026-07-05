@@ -2,6 +2,7 @@
 @import '../../shared/design-tokens/orasage-tokens.css';
 @import './assets/orasage-ui.css';
 @import './ziwei-home.css';
+@import '@orasage/city/city.css';
 
 @tailwind base;
 @tailwind components;

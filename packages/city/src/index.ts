@@ -1,20 +1,20 @@
-export type { CityApiClient } from "./api.ts";
-export { createCityApiClient } from "./api.ts";
+export type { CityApiClient } from "./api";
+export { createCityApiClient } from "./api";
 export {
   addCityToCatalog,
   configureCityApi,
   getCityApi,
   getLoadedCities,
   loadCityCatalog,
-} from "./catalog.ts";
+} from "./catalog";
 export {
   cityRecordKey,
   matchLocalCity,
   mergeCityRecords,
   searchCities,
   toCityCoords,
-} from "./search.ts";
-export { getSeedCities } from "./seed.ts";
+} from "./search";
+export { getSeedCities } from "./seed";
 export type {
   BirthplaceValue,
   CityCoords,
@@ -23,4 +23,4 @@ export type {
   CityLookupResult,
   CityRecord,
   ConfirmCityPayload,
-} from "./types.ts";
+} from "./types";

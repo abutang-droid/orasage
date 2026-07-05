@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { matchLocalCity, searchCities } from "./search.ts";
-import type { CityRecord } from "./types.ts";
+import { matchLocalCity, searchCities } from "./search";
+import type { CityRecord } from "./types";
 
 const testData: CityRecord[] = [
   { city: "北京", province: "北京", country: "中国", lng: 116.4074, lat: 39.9042, timezone: "+8", pinyin: "BJ" },

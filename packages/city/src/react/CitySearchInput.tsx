@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { BirthplaceValue, CityLookupResult, CityRecord } from "../types.ts";
-import { addCityToCatalog, loadCityCatalog } from "../catalog.ts";
-import { matchLocalCity, searchCities, toCityCoords } from "../search.ts";
-import { formatCityLabel, getCityMessages } from "../i18n.ts";
-import { useCityContext } from "./CityProvider.tsx";
-import { CityConfirmCard } from "./CityConfirmCard.tsx";
+import type { BirthplaceValue, CityLookupResult, CityRecord } from "../types";
+import { addCityToCatalog, loadCityCatalog } from "../catalog";
+import { matchLocalCity, searchCities, toCityCoords } from "../search";
+import { formatCityLabel, getCityMessages } from "../i18n";
+import { useCityContext } from "./CityProvider";
+import { CityConfirmCard } from "./CityConfirmCard";
 
 export type CitySearchInputProps = {
   value: BirthplaceValue;
@@ -178,6 +178,7 @@ export function CitySearchInput({
     } catch {
       applyCity({
         city: pending.city,
+        province: pending.province,
         country: pending.country,
         lng: pending.lng,
         lat: pending.lat,

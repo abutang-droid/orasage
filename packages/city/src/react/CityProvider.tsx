@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
-import type { CityApiClient } from "../api.ts";
-import type { CityLocale } from "../i18n.ts";
+import type { CityApiClient } from "../api";
+import type { CityLocale } from "../i18n";
 
 export type CityProviderProps = {
   api: CityApiClient;
