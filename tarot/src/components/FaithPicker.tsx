@@ -43,48 +43,14 @@ function FaithCard({
     <button
       type="button"
       onClick={onSelect}
-      style={{
-        padding: '14px 12px',
-        background: selected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
-        border: `1px solid ${selected ? 'var(--border-focus)' : 'var(--border)'}`,
-        borderRadius: 'var(--radius-md)',
-        cursor: 'pointer',
-        textAlign: 'left',
-        color: 'var(--text-primary)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        transition: 'all 0.15s ease',
-        width: '100%',
-      }}
+      className={`faith-picker-card${selected ? ' is-selected' : ''}`}
     >
-      <span style={{ fontSize: 22, lineHeight: 1 }}>{faith.emoji}</span>
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span
-          style={{
-            display: 'block',
-            fontSize: 14,
-            fontWeight: selected ? 600 : 500,
-            fontFamily: 'var(--font-serif)',
-          }}
-        >
-          {faith.nameZh}
-        </span>
-        <span
-          style={{
-            display: 'block',
-            fontSize: 10,
-            color: 'var(--text-muted)',
-            marginTop: 2,
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
-          {faith.nameEn}
-        </span>
+      <span className="faith-picker-card-emoji">{faith.emoji}</span>
+      <span className="faith-picker-card-text">
+        <span className="faith-picker-card-name">{faith.nameZh}</span>
+        <span className="faith-picker-card-en">{faith.nameEn}</span>
       </span>
-      {selected && (
-        <span style={{ fontSize: 12, color: 'var(--gold-light)' }}>✓</span>
-      )}
+      {selected ? <span className="faith-picker-card-check">✓</span> : null}
     </button>
   );
 }
@@ -154,9 +120,11 @@ export function FaithPicker({
 
   const selectedFaith = pending ? getFaithById(pending, faiths) : null;
   const isOther = isCustomFaithId(pending);
+  const isCollapsed = Boolean(selectedFaith && !isOther);
 
   function selectFaith(id: string) {
     setPending(id);
+    setShowMore(false);
     if (!isCustomFaithId(id)) {
       try {
         localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id }));
@@ -164,6 +132,12 @@ export function FaithPicker({
         /* ignore */
       }
     }
+  }
+
+  function clearSelection() {
+    setPending(null);
+    setOtherText('');
+    setShowMore(false);
   }
 
   function confirmSelection() {
@@ -185,7 +159,7 @@ export function FaithPicker({
   }
 
   return (
-    <div>
+    <div className={`faith-picker${isCollapsed ? ' faith-picker--collapsed' : ''}`}>
       {(title || subtitle) && (
         <div className="page-header" style={{ padding: '16px 0' }}>
           <span className="label">信仰</span>
@@ -195,42 +169,29 @@ export function FaithPicker({
       )}
 
       {value && !pending && (
-        <div
-          style={{
-            marginBottom: 20,
-            padding: '12px 16px',
-            background: 'rgba(201,149,74,0.08)',
-            border: '1px solid var(--border-focus)',
-            borderRadius: 'var(--radius-md)',
-            fontSize: 13,
-            color: 'var(--text-secondary)',
-          }}
-        >
+        <div className="faith-picker-current">
           当前：{formatFaithLabel(value, faiths)}
         </div>
       )}
 
       {loading ? (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '32px 0',
-            color: 'var(--text-muted)',
-            fontSize: 13,
-          }}
-        >
-          正在从 CMS 加载信仰列表…
+        <div className="faith-picker-loading">正在加载信仰列表…</div>
+      ) : isCollapsed && selectedFaith ? (
+        <div className="faith-picker-confirm-panel">
+          <FaithCard faith={selectedFaith} selected onSelect={clearSelection} />
+          <p className="faith-picker-confirm-hint">
+            已选择 <strong>{selectedFaith.nameZh}</strong>，确认后将进入下一步
+          </p>
+          <button type="button" className="btn-primary faith-picker-confirm-btn" onClick={confirmSelection}>
+            {confirmLabel}
+          </button>
+          <button type="button" className="btn-ghost faith-picker-repick-btn" onClick={clearSelection}>
+            重新选择
+          </button>
         </div>
       ) : (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 10,
-              marginBottom: 16,
-            }}
-          >
+          <div className="faith-picker-grid">
             {topFaiths.map((faith) => (
               <FaithCard
                 key={faith.id}
@@ -241,7 +202,7 @@ export function FaithPicker({
             ))}
           </div>
 
-          <div style={{ marginBottom: 16 }}>
+          <div className="faith-picker-custom">
             <FaithCard
               faith={customFaith}
               selected={isOther}
@@ -253,20 +214,13 @@ export function FaithPicker({
           </div>
 
           {!showMore ? (
-            <button
-              type="button"
-              className="btn-outline"
-              style={{ width: '100%', marginBottom: 24 }}
-              onClick={() => setShowMore(true)}
-            >
+            <button type="button" className="btn-outline faith-picker-more-btn" onClick={() => setShowMore(true)}>
               更多信仰 →
             </button>
           ) : (
-            <div style={{ marginBottom: 24 }}>
-              <div className="section-label" style={{ marginBottom: 12 }}>
-                更多信仰
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="faith-picker-more-list">
+              <div className="section-label">更多信仰</div>
+              <div className="faith-picker-more-items">
                 {moreFaiths.map((faith) => (
                   <FaithCard
                     key={faith.id}
@@ -282,17 +236,8 @@ export function FaithPicker({
       )}
 
       {isOther && (
-        <div style={{ marginBottom: 20 }}>
-          <p
-            style={{
-              marginBottom: 10,
-              fontSize: 13,
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-            }}
-          >
-            写下你的信仰或精神归属名称
-          </p>
+        <div className="faith-picker-other">
+          <p className="faith-picker-other-lead">写下你的信仰或精神归属名称</p>
           <input
             className="input-field"
             placeholder="例如：妈祖、象头神、个人灵性修行…"
@@ -311,31 +256,6 @@ export function FaithPicker({
             {confirmLabel}
           </button>
         </div>
-      )}
-
-      {selectedFaith && !isOther && (
-        <button
-          type="button"
-          className="btn-primary"
-          style={{ width: '100%', marginTop: 16 }}
-          onClick={confirmSelection}
-        >
-          {confirmLabel}
-        </button>
-      )}
-
-      {selectedFaith && !isOther && pending && !isCustomFaithId(pending) && (
-        <p
-          style={{
-            marginTop: 12,
-            textAlign: 'center',
-            fontSize: 12,
-            color: 'var(--text-muted)',
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
-          已选择 {selectedFaith.nameZh}
-        </p>
       )}
     </div>
   );
