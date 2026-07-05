@@ -95,3 +95,26 @@ export async function saveDailyFortuneReadingSyncId(id: string, userId: string, 
   });
   return row.count > 0;
 }
+
+export async function listUnsyncedDailyFortuneRecords(userId: string, limit = 30) {
+  const rows = await prisma.dailyFortuneRecord.findMany({
+    where: {
+      userId,
+      readingSyncId: null,
+      briefText: { not: null },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  return rows.map(mapRecord);
+}
+
+export async function countUnsyncedDailyFortuneRecords(userId: string) {
+  return prisma.dailyFortuneRecord.count({
+    where: {
+      userId,
+      readingSyncId: null,
+      briefText: { not: null },
+    },
+  });
+}
