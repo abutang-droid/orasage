@@ -1,4 +1,4 @@
 const nextConfig = {
-  transpilePackages: ['lunar-javascript'],
+  transpilePackages: ['lunar-javascript', '@orasage/city'],
 };
 module.exports = nextConfig;

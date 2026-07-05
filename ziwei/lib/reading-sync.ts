@@ -62,15 +62,12 @@ export function syncZiweiReading(
   const title = options?.label
     ? `紫微合盘 · ${options.label} · ${name}`
     : `紫微排盘 · ${name}`;
-  const crystal = ziweiCrystalRecommendation(chart);
   const payloadJson = JSON.stringify({ type: 'single', chart });
   void syncReading({
     appSource: 'ziwei',
     readingId,
     title,
     summary: ziweiSummary(chart),
-    recommendationReason: crystal?.reason,
-    crystalSku: crystal?.crystalSku,
     payloadJson,
   });
   return readingId;

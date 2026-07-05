@@ -1,6 +1,6 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
-import { getHomepageProducts, getProducts, getBaziRecommendProducts } from '@/lib/api';
-import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction } from '@/app/actions';
+import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts } from '@/lib/api';
+import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -20,14 +20,28 @@ const BAZI_BILLING_SKUS = [
   'report-bazi-couple-premium',
 ] as const;
 
-export default async function ProductsPage() {
+const ZIWEI_CHAT_SKUS = [
+  'ziwei-chat-pack-10',
+  'ziwei-chat-yearly',
+] as const;
+
+const ZIWEI_REC_SLOTS = 6;
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ziwei_rec?: string; ziwei_rec_err?: string }>;
+}) {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
+
+  const sp = (await searchParams) ?? {};
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
   let baziRecommendSkus: Record<string, string> = {};
   let baziRecommendPrices: Record<string, { priceCents: number | null; priceCentsUsd: number | null }> = {};
+  let ziweiRecommendSkus: string[] = [];
   try {
     ({ products } = await getProducts());
   } catch (err) {
@@ -43,9 +57,17 @@ export default async function ProductsPage() {
   } catch (err) {
     console.error('[admin/bazi-recommend-products]', err);
   }
+  try {
+    ({ skus: ziweiRecommendSkus } = await getZiweiRecommendProducts());
+  } catch (err) {
+    console.error('[admin/ziwei-recommend-products]', err);
+  }
 
   const activeProducts = products.filter((p) => p.active);
   const baziBillingProducts = BAZI_BILLING_SKUS
+    .map((sku) => products.find((p) => p.sku === sku))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const ziweiChatProducts = ZIWEI_CHAT_SKUS
     .map((sku) => products.find((p) => p.sku === sku))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
@@ -114,6 +136,94 @@ export default async function ProductsPage() {
             部分合盘 SKU 尚未入库，请执行 auth-service 迁移 0012 或在下方通用商品区手动添加。
           </p>
         ) : null}
+      </section>
+
+      <section className="panel">
+        <h2>紫微问答商品（2 个固定 SKU）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          紫微 Orasage 对话加量包与年卡。不含报告、不需发货；支付成功后为用户账户增加问答次数或年卡权益。
+        </p>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>名称</th>
+                <th>价格 CNY</th>
+                <th>价格 USD</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ziweiChatProducts.map((p) => (
+                <tr key={p.sku}>
+                  <td><code>{p.sku}</code></td>
+                  <td>{p.name}</td>
+                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
+                  <td>{p.priceDisplayUsd ?? '—'}</td>
+                  <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
+                  <td>
+                    <details>
+                      <summary>编辑</summary>
+                      <form action={saveProductAction} className="inline-form">
+                        <input type="hidden" name="isEdit" value="1" />
+                        <input type="hidden" name="sku" value={p.sku} />
+                        <input name="name" defaultValue={p.name} required />
+                        <input name="element" defaultValue={p.element ?? ''} placeholder="五行" />
+                        <select name="category" defaultValue={p.category}>
+                          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                        </select>
+                        <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
+                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
+                        <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
+                        <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
+                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需发货</label>
+                        <button type="submit">保存</button>
+                      </form>
+                    </details>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {ziweiChatProducts.length < ZIWEI_CHAT_SKUS.length ? (
+          <p className="muted" style={{ marginTop: '1rem' }}>
+            问答 SKU 尚未入库，请执行 auth-service 迁移 0015 或在下方通用商品区手动添加。
+          </p>
+        ) : null}
+      </section>
+
+      <section className="panel">
+        <h2>紫微对话页商品推荐（单卡片轮换）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          配置多个候选 SKU，前台每次排盘按 readingId 轮换展示一个推荐卡片（用户可关闭，仅当前对话隐藏）。
+        </p>
+        {sp.ziwei_rec === 'ok' ? (
+          <p className="muted" style={{ color: '#166534', marginBottom: '0.75rem' }}>紫微推荐配置已保存。</p>
+        ) : null}
+        {sp.ziwei_rec_err ? (
+          <p className="muted" style={{ color: '#b91c1c', marginBottom: '0.75rem' }}>
+            保存失败：{decodeURIComponent(sp.ziwei_rec_err)}
+          </p>
+        ) : null}
+        <form action={saveZiweiRecommendProductsAction} className="form-grid">
+          {Array.from({ length: ZIWEI_REC_SLOTS }, (_, i) => (
+            <label key={i}>
+              候选 {i + 1}
+              <select name={`ziwei_rec_${i}`} defaultValue={ziweiRecommendSkus[i] ?? ''}>
+                <option value="">— 不配置 —</option>
+                {activeProducts.map((p) => (
+                  <option key={p.sku} value={p.sku}>
+                    {p.name} ({p.sku})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <button type="submit" className="btn-primary">保存紫微推荐</button>
+        </form>
       </section>
 
       <section className="panel">

@@ -1,4 +1,4 @@
-import type { CityCoords, CityRecord } from "./types.ts";
+import type { CityCoords, CityRecord } from "./types";
 
 function isChinese(ch: string): boolean {
   return /[\u4e00-\u9fff]/.test(ch);

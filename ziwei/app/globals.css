@@ -2,6 +2,7 @@
 @import '../../shared/design-tokens/orasage-tokens.css';
 @import './assets/orasage-ui.css';
 @import './ziwei-home.css';
+@import '@orasage/city/city.css';
 
 @tailwind base;
 @tailwind components;
@@ -624,4 +625,689 @@ a:hover { color: var(--gold-light); }
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+/* ─── 排盘结果：移动优先单列 ───────────────────────────── */
+.ziwei-result-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 12px calc(24px + var(--shell-bottom-h, 56px));
+}
+
+.ziwei-result-chart {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ziwei-section-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tx-0);
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+}
+
+.ziwei-brief-insight,
+.ziwei-orasage-chat {
+  background: var(--bg-card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+.ziwei-brief-body {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--tx-1);
+  white-space: pre-wrap;
+}
+
+.ziwei-brief-muted {
+  font-size: 13px;
+  color: var(--tx-3);
+}
+
+.ziwei-brief-error {
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.ziwei-orasage-chat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ziwei-orasage-chat-sub {
+  font-size: 12px;
+  color: var(--tx-3);
+  margin: 4px 0 0;
+}
+
+.ziwei-quota-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-pale);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.ziwei-login-gate {
+  text-align: center;
+  padding: 20px 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--tx-2);
+}
+
+.ziwei-login-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ziwei-orasage-messages {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ziwei-msg {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.ziwei-msg-user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+}
+
+.ziwei-msg-ai {
+  align-self: flex-start;
+  background: var(--bg-0);
+  border: 1px solid var(--bdr);
+  color: var(--tx-1);
+}
+
+.ziwei-msg-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.ziwei-preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ziwei-preset-btn {
+  text-align: left;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--bdr);
+  background: transparent;
+  color: var(--tx-2);
+  cursor: pointer;
+}
+
+.ziwei-chat-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ziwei-chat-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--bg-0);
+}
+
+.ziwei-chat-send {
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 0 16px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ziwei-chat-paywall {
+  border-top: 1px dashed var(--bdr);
+  padding-top: 14px;
+}
+
+.ziwei-chat-paywall-title {
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 6px;
+  color: var(--tx-0);
+}
+
+.ziwei-chat-paywall-sub {
+  font-size: 12px;
+  text-align: center;
+  color: var(--tx-3);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.ziwei-chat-paywall-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ziwei-chat-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--bdr);
+  background: var(--bg-0);
+  cursor: pointer;
+  text-align: left;
+}
+
+.ziwei-chat-plan.is-featured {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+}
+
+.ziwei-chat-plan strong {
+  display: block;
+  font-size: 14px;
+  color: var(--tx-0);
+}
+
+.ziwei-chat-plan span {
+  display: block;
+  font-size: 11px;
+  color: var(--tx-3);
+  margin-top: 2px;
+}
+
+.ziwei-chat-plan em {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ziwei-recommend-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(184,148,63,0.08) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+.ziwei-recommend-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--tx-3);
+  cursor: pointer;
+}
+
+.ziwei-recommend-label {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  margin: 0 0 6px;
+}
+
+.ziwei-recommend-name {
+  font-size: 15px;
+  margin: 0 0 6px;
+  color: var(--tx-0);
+}
+
+.ziwei-recommend-desc {
+  font-size: 13px;
+  color: var(--tx-2);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.ziwei-recommend-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ziwei-recommend-price {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ziwei-recommend-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.ziwei-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--tx-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.ziwei-chart-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--bdr-med);
+}
+
+.ziwei-chart-label {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+}
+
+.ziwei-heming-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-md);
+  padding: 3px;
+}
+
+.ziwei-heming-tab {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--tx-2);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ziwei-heming-tab.is-active {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .ziwei-result-stack {
+    padding: 16px 20px 32px;
+    max-width: 840px;
+  }
+  .ziwei-orasage-messages {
+    max-height: 480px;
+  }
+}
+
+/* ─── 命盘：宣纸白底黑字 ───────────────────────────────── */
+.ziwei-chart-rice-paper {
+  --zp-bg: #faf6ee;
+  --zp-paper: #fffdf8;
+  --zp-ink: #1a1a1a;
+  --zp-ink-muted: #5c5348;
+  --zp-border: #2a2118;
+  --zp-border-soft: #c4b59a;
+  --zp-accent: #8b2500;
+  background: var(--zp-bg);
+  border: 2px solid var(--zp-border);
+  border-radius: 4px;
+  padding: 12px 10px 14px;
+  box-shadow: inset 0 0 0 1px var(--zp-border-soft);
+}
+
+.ziwei-minor-banner {
+  max-width: 720px;
+  margin: 0 auto 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #7c4a03;
+  background: #fff8e8;
+  border: 1px solid #e8c878;
+  border-radius: 8px;
+}
+
+.ziwei-chart-heading {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.ziwei-chart-heading-en {
+  font-size: 10px;
+  letter-spacing: 0.45em;
+  color: var(--zp-ink-muted);
+  margin-bottom: 4px;
+}
+
+.ziwei-chart-heading-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--zp-ink);
+  margin: 0;
+}
+
+.ziwei-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, auto);
+  gap: 2px;
+  position: relative;
+  background: var(--zp-border);
+  border: 2px solid var(--zp-border);
+}
+
+.ziwei-chart-grid-cell {
+  background: var(--zp-paper);
+  min-height: 0;
+}
+
+.ziwei-palace-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 92px;
+  height: 100%;
+  padding: 6px 5px 5px;
+  cursor: pointer;
+  background: var(--zp-paper);
+  color: var(--zp-ink);
+  border: 1px solid transparent;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.ziwei-palace-cell.is-ming {
+  background: #fff9ef;
+  box-shadow: inset 0 0 0 1.5px var(--zp-accent);
+}
+
+.ziwei-palace-cell.is-shen {
+  box-shadow: inset 0 0 0 1px #4a5568;
+}
+
+.ziwei-palace-cell.is-daxian {
+  background: #f5f0e6;
+  box-shadow: inset 3px 0 0 var(--zp-accent);
+}
+
+.ziwei-palace-cell.is-selected {
+  background: #f0ebe0;
+  box-shadow: inset 0 0 0 2px var(--zp-border);
+}
+
+.ziwei-palace-cell.is-sanfang {
+  background: #f7f3ea;
+  box-shadow: inset 0 0 0 1px #8b7355;
+}
+
+.ziwei-palace-daxian-age {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-palace-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 28px;
+  margin-bottom: 2px;
+}
+
+.ziwei-palace-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--zp-ink);
+}
+
+.ziwei-palace-tag {
+  font-size: 8px;
+  padding: 0 3px;
+  border: 1px solid var(--zp-accent);
+  color: var(--zp-accent);
+  line-height: 1.3;
+}
+
+.ziwei-palace-tag.is-shen {
+  border-color: #4a5568;
+  color: #4a5568;
+}
+
+.ziwei-palace-ganzhi {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--zp-ink-muted);
+  margin-bottom: 4px;
+}
+
+.ziwei-palace-stars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.ziwei-palace-empty {
+  font-size: 10px;
+  color: var(--zp-ink-muted);
+  font-style: italic;
+}
+
+.ziwei-palace-major-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.ziwei-star-major {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--zp-ink);
+  letter-spacing: -0.02em;
+}
+
+.ziwei-star-major.is-bright { color: var(--zp-accent); }
+.ziwei-star-major.is-dim { color: #6b5a45; }
+
+.ziwei-palace-minor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 3px;
+}
+
+.ziwei-star-minor {
+  font-size: 9px;
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-star-minor.is-lucky { color: #2d4a6e; }
+.ziwei-star-minor.is-sha { color: #7a3030; }
+
+.ziwei-sihua-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  margin-left: 2px;
+  line-height: 1.3;
+}
+
+.ziwei-sihua-禄, .ziwei-sihua-badge.ziwei-sihua-禄 { color: #1d6b3a; }
+.ziwei-sihua-权, .ziwei-sihua-badge.ziwei-sihua-权 { color: #1e4a8c; }
+.ziwei-sihua-科, .ziwei-sihua-badge.ziwei-sihua-科 { color: #8a6d00; }
+.ziwei-sihua-忌, .ziwei-sihua-badge.ziwei-sihua-忌 { color: #9b1c1c; }
+
+.ziwei-sihua-badge.is-overlay {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.ziwei-chart-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  background: var(--zp-paper);
+  text-align: center;
+  border: 1px dashed var(--zp-border-soft);
+}
+
+.ziwei-chart-center-symbol {
+  font-family: var(--font-serif);
+  font-size: 42px;
+  line-height: 1;
+  color: var(--zp-ink);
+  opacity: 0.12;
+}
+
+.ziwei-chart-center-meta {
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-chart-center-label {
+  font-weight: 700;
+  color: var(--zp-ink);
+  letter-spacing: 0.2em;
+  margin-bottom: 2px;
+}
+
+.ziwei-chart-center-ju {
+  font-weight: 600;
+  color: var(--zp-ink);
+}
+
+.ziwei-chart-center-dx {
+  border: 1px solid var(--zp-border-soft);
+  padding: 6px 10px;
+  background: #fff9ef;
+}
+
+.ziwei-chart-center-dx-label {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-chart-center-dx-age {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--zp-ink);
+}
+
+.ziwei-chart-center-dx-palace {
+  font-size: 9px;
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-chart-center-lunar {
+  font-size: 8px;
+  font-family: var(--font-mono);
+  color: var(--zp-ink-muted);
+}
+
+.ziwei-chart-sanfang-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+}
+
+.ziwei-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 9px;
+}
+
+.ziwei-sihua-legend {
+  border: 1px solid currentColor;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.ziwei-sihua-legend.is-muted {
+  color: var(--zp-ink-muted);
+  border-color: var(--zp-border-soft);
+}
+
+.ziwei-preset-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4px 0;
+}
+
+@media (max-width: 420px) {
+  .ziwei-palace-cell {
+    min-height: 78px;
+    padding: 5px 4px;
+  }
+  .ziwei-star-major {
+    font-size: 12px;
+  }
 }

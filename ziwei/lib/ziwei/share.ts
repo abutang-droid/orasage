@@ -63,8 +63,8 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
   };
 }
 
-/** BirthFormState → URLSearchParams（用于分享链接） */
-export function formToSearchParams(form: BirthFormState): URLSearchParams {
+/** BirthFormState → URLSearchParams（用于分享链接与付费回跳） */
+export function formToSearchParams(form: BirthFormState, extras?: { readingId?: string; mode?: string }): URLSearchParams {
   const p = new URLSearchParams();
   if (form.name) p.set('n', form.name);
   p.set('y', form.year);
@@ -81,6 +81,8 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   if (form.longitude && form.longitude !== 120) p.set('lo', String(form.longitude));
   p.set('g', form.gender === 'male' ? 'm' : 'f');
   if (form.calendar === 'lunar') p.set('cal', 'lunar');
+  if (extras?.readingId) p.set('rid', extras.readingId);
+  if (extras?.mode === 'heming') p.set('mode', 'heming');
   return p;
 }
 

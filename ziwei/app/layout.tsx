@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { LocaleProvider } from '@/lib/i18n';
+import { CityProviderShell } from '@/components/CityProviderShell';
 import { OraSageAppShell } from '@/components/OraSageAppShell';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
         <LocaleProvider>
-          <OraSageAppShell>{children}</OraSageAppShell>
+          <CityProviderShell>
+            <OraSageAppShell>{children}</OraSageAppShell>
+          </CityProviderShell>
         </LocaleProvider>
       </body>
     </html>

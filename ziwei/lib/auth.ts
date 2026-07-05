@@ -1,5 +1,6 @@
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+export { loginUrl } from './login-url';
 
 /**
  * ziwei 本身没有账号体系（历史记录纯 localStorage），这里只桥接 orasage
@@ -34,10 +35,4 @@ export async function getOrasageUser(): Promise<OrasageUser | null> {
   } catch {
     return null;
   }
-}
-
-export function loginUrl(redirectPath = '/chart') {
-  const authUrl = process.env.AUTH_URL || 'https://auth.orasage.com';
-  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ziwei.orasage.com';
-  return `${authUrl}/login?redirect=${encodeURIComponent(`${appUrl}${redirectPath}`)}`;
 }

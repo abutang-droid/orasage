@@ -1,4 +1,4 @@
-import type { CityRecord } from "./types.ts";
+import type { CityRecord } from "./types";
 import seedData from "../data/cities-seed.json";
 
 export function getSeedCities(): CityRecord[] {

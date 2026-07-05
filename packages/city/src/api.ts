@@ -2,7 +2,7 @@ import type {
   CityLookupResponse,
   CityRecord,
   ConfirmCityPayload,
-} from "./types.ts";
+} from "./types";
 
 export interface CityApiClient {
   listCities(): Promise<CityRecord[]>;

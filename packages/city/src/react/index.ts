@@ -1,5 +1,5 @@
-export { CityProvider, useCityContext } from "./CityProvider.tsx";
-export type { CityProviderProps } from "./CityProvider.tsx";
-export { CitySearchInput, resolveCityCoords } from "./CitySearchInput.tsx";
-export type { CitySearchInputProps } from "./CitySearchInput.tsx";
-export { CityConfirmCard } from "./CityConfirmCard.tsx";
+export { CityProvider, useCityContext } from "./CityProvider";
+export type { CityProviderProps } from "./CityProvider";
+export { CitySearchInput, resolveCityCoords } from "./CitySearchInput";
+export type { CitySearchInputProps } from "./CitySearchInput";
+export { CityConfirmCard } from "./CityConfirmCard";
