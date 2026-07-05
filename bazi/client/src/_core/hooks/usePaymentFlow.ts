@@ -101,6 +101,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     const url = new URL(window.location.href);
     url.searchParams.delete("paid");
     url.searchParams.delete("order");
+    url.searchParams.delete("restore");
     window.history.replaceState({}, "", url.pathname + url.search);
   }, [t]);
 
@@ -130,7 +131,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       setPayLoading(true);
       setState(prev => ({ ...prev, purchasedPlan: plan }));
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
-      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1`;
+      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1`;
       sessionStorage.setItem(PLAN_KEY, plan);
       const sku = baziSkusForMode(mode)[plan];
       const checkoutUrl = buildShopCheckoutUrl({

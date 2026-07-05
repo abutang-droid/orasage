@@ -1,7 +1,7 @@
 /**
  * PaywallCard — OraSage 计费方案卡片组件
  *
- * 三档商品卡片：先选中，再点「解锁报告」跳转 shop 结账。
+ * 三档商品独立卡片：选中态 + 「解锁报告」跳转 shop 结账。
  */
 
 import type { PlanType } from "@shared/types";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { fetchBaziPlanProducts, type PlanProductInfo } from "@/lib/plan-products";
 import {
-  GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER, GOLD_FAINT,
+  GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, SERIF_F, SANS_F,
 } from "@/theme";
 
 const TIER_KEYS: Record<PlanType, string> = {
@@ -17,6 +17,14 @@ const TIER_KEYS: Record<PlanType, string> = {
   advanced: "plan.tier.advanced",
   premium: "plan.tier.premium",
 };
+
+const TIER_HINTS = ["数字报告", "报告 + 手串", "完整礼盒"] as const;
+
+/** 卡片底色/边框 — 不依赖 surface 变量，确保三档都清晰可见 */
+const PLAN_CARD_BG = "rgb(var(--popover))";
+const PLAN_CARD_BORDER = "rgba(184, 148, 63, 0.38)";
+const PLAN_CARD_BORDER_SELECTED = "rgb(196, 160, 78)";
+const PLAN_CARD_BG_SELECTED = "rgba(196, 160, 78, 0.10)";
 
 interface PaywallCardProps {
   selectedPlan: PlanType | null;
@@ -53,11 +61,13 @@ export function PaywallCard({
   return (
     <div
       className={className}
+      data-testid="bazi-paywall"
       style={{
         borderRadius: 16,
         padding: "1.25rem 1rem 1rem",
-        background: `linear-gradient(180deg, rgba(184,148,63,0.08) 0%, ${BG_PAGE} 100%)`,
-        border: `1px solid ${GOLD_FAINT}`,
+        background: "linear-gradient(180deg, rgba(184,148,63,0.10) 0%, rgb(var(--popover)) 100%)",
+        border: "1px solid rgba(184, 148, 63, 0.32)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       }}
     >
       <p style={{
@@ -69,24 +79,27 @@ export function PaywallCard({
         marginBottom: "0.25rem",
         letterSpacing: "0.06em",
       }}>
-        {t('paywall.choose_tier', '选择报告方案')}
+        {t("paywall.choose_tier", "选择报告方案")}
       </p>
       <p style={{ color: MUTED_CLR, fontSize: "0.75rem", textAlign: "center", marginBottom: "0.875rem" }}>
-        {mode === "couple" ? t('paywall.couple.subtitle') : t('paywall.subtitle')}
+        {mode === "couple" ? t("paywall.couple.subtitle") : t("paywall.subtitle")}
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+      <div role="radiogroup" aria-label={t("paywall.choose_tier", "选择报告方案")} style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
         {plans.map((plan, index) => {
           const isSelected = selectedPlan === plan.type;
           const isHighlight = plan.highlight;
-          const tierLabel = t(TIER_KEYS[plan.type]);
-          const displayName = plan.name || t(`plan.${mode === 'couple' ? 'couple.' : ''}${plan.type}.name`);
-          const displayDesc = plan.desc || t(`plan.${mode === 'couple' ? 'couple.' : ''}${plan.type}.desc`);
+          const tierLabel = t(TIER_KEYS[plan.type], plan.type);
+          const displayName = plan.name || t(`plan.${mode === "couple" ? "couple." : ""}${plan.type}.name`);
+          const displayDesc = plan.desc || t(`plan.${mode === "couple" ? "couple." : ""}${plan.type}.desc`);
 
           return (
             <button
               key={plan.type}
               type="button"
+              role="radio"
+              aria-checked={isSelected}
+              data-plan={plan.type}
               onClick={() => onSelectPlan(plan.type)}
               style={{
                 width: "100%",
@@ -97,33 +110,31 @@ export function PaywallCard({
                 gap: "0.75rem",
                 alignItems: "center",
                 textAlign: "left",
-                background: isSelected
-                  ? `linear-gradient(135deg, rgba(184,148,63,0.14) 0%, ${BG_CARD} 100%)`
-                  : BG_CARD,
+                background: isSelected ? PLAN_CARD_BG_SELECTED : PLAN_CARD_BG,
                 border: isSelected
-                  ? `2px solid ${GOLD}`
-                  : `1px solid ${isHighlight ? GOLD_FAINT : CARD_BORDER}`,
+                  ? `2px solid ${PLAN_CARD_BORDER_SELECTED}`
+                  : `1.5px solid ${isHighlight ? PLAN_CARD_BORDER_SELECTED : PLAN_CARD_BORDER}`,
                 boxShadow: isSelected
-                  ? "0 4px 16px rgba(184,148,63,0.18)"
-                  : "0 1px 4px rgba(0,0,0,0.04)",
+                  ? "0 4px 16px rgba(196,160,78,0.22)"
+                  : "0 1px 6px rgba(0,0,0,0.05)",
                 transition: "all 0.15s ease",
                 cursor: "pointer",
                 outline: "none",
               }}
             >
-              {/* 选中指示 */}
               <div
                 aria-hidden
                 style={{
-                  width: 20,
-                  height: 20,
+                  width: 22,
+                  height: 22,
                   borderRadius: "50%",
-                  border: `2px solid ${isSelected ? GOLD : CARD_BORDER}`,
-                  background: isSelected ? GOLD : "transparent",
+                  border: `2px solid ${isSelected ? GOLD : PLAN_CARD_BORDER}`,
+                  background: isSelected ? GOLD : PLAN_CARD_BG,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
+                  boxSizing: "border-box",
                 }}
               >
                 {isSelected ? (
@@ -138,7 +149,8 @@ export function PaywallCard({
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     color: isSelected || isHighlight ? GOLD : MUTED_CLR,
-                    background: isSelected ? "rgba(184,148,63,0.12)" : "rgba(0,0,0,0.04)",
+                    background: isSelected ? "rgba(184,148,63,0.16)" : "rgba(184,148,63,0.08)",
+                    border: `1px solid ${PLAN_CARD_BORDER}`,
                     padding: "0.125rem 0.5rem",
                     borderRadius: 999,
                     fontFamily: SANS_F,
@@ -163,7 +175,7 @@ export function PaywallCard({
                       padding: "0.125rem 0.5rem",
                       borderRadius: 999,
                     }}>
-                      {t('plan.popular')}
+                      {t("plan.popular")}
                     </span>
                   ) : null}
                 </div>
@@ -188,7 +200,7 @@ export function PaywallCard({
                   {loading ? "…" : plan.priceDisplay}
                 </span>
                 <p style={{ color: MUTED_CLR, fontSize: "0.625rem", marginTop: "0.125rem" }}>
-                  {index === 0 ? "数字报告" : index === 1 ? "报告 + 手串" : "完整礼盒"}
+                  {TIER_HINTS[index] ?? ""}
                 </p>
               </div>
             </button>
@@ -198,6 +210,7 @@ export function PaywallCard({
 
       <button
         type="button"
+        data-testid="bazi-paywall-unlock"
         disabled={!selectedPlan || payLoading}
         onClick={onPay}
         style={{
@@ -219,9 +232,7 @@ export function PaywallCard({
           opacity: payLoading ? 0.75 : 1,
         }}
       >
-        {payLoading
-          ? t('paywall.unlocking', '正在解锁…')
-          : t('paywall.unlock_report', '解锁报告')}
+        {payLoading ? t("paywall.unlocking", "正在解锁…") : "解锁报告"}
       </button>
     </div>
   );

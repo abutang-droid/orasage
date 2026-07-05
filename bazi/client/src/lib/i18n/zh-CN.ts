@@ -93,6 +93,7 @@ const ui: TranslationDict = {
   "paywall.choose_tier": "选择报告方案",
   "paywall.unlock_report": "解锁报告",
   "paywall.unlocking": "正在解锁…",
+  "paywall.restore_failed": "支付成功，请重新排盘后查看完整报告",
 
   /* ── 付费方案 ── */
   "plan.tier.basic": "基础版",

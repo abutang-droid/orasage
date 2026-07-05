@@ -31,7 +31,9 @@ sync_config_repo() {
   if [ -d "$DEPLOY_DIR/.git" ]; then
     git -C "$DEPLOY_DIR" fetch --all --prune
     git -C "$DEPLOY_DIR" checkout "${ORASAGE_REF:-main}" 2>/dev/null || git -C "$DEPLOY_DIR" checkout main
-    git -C "$DEPLOY_DIR" pull --ff-only || true
+    git -C "$DEPLOY_DIR" reset --hard "origin/${ORASAGE_REF:-main}" 2>/dev/null \
+      || git -C "$DEPLOY_DIR" pull --ff-only origin "${ORASAGE_REF:-main}" 2>/dev/null \
+      || git -C "$DEPLOY_DIR" pull --ff-only || true
   else
     git clone https://github.com/abutang-droid/orasage.git "$DEPLOY_DIR"
   fi
@@ -73,6 +75,8 @@ deploy_native() {
   unset VITE_OAUTH_PORTAL_URL VITE_APP_ID 2>/dev/null || true
 
   pnpm run build
+
+  log "构建版本: $(git -C "$DEPLOY_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 
   # sudo 部署时 build 产物归 root，但 systemd 以 ubuntu 运行
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"

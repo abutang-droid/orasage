@@ -24,6 +24,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedProfile } from "@/lib/profile-sync";
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
+import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -350,6 +351,32 @@ export default function Home() {
     loadLunarLib();
     void loadCityCatalog();
   }, []);
+
+  // 支付回跳：恢复排盘结果页（避免回到首页空白）
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
+
+    const snapshot = loadCheckoutSnapshot();
+    if (!snapshot) {
+      if (params.get('paid') === '1') {
+        toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+      }
+      return;
+    }
+
+    setResult(snapshot.result);
+    setMode(snapshot.mode);
+    setView('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [t]);
+
+  useEffect(() => {
+    if (result) {
+      saveCheckoutSnapshot(result, mode);
+    }
+  }, [result, mode]);
 
   // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
   useEffect(() => {
