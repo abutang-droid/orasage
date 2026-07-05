@@ -14,6 +14,7 @@ import * as migration_20260704_050000_shop_home_hero_global from './20260704_050
 import * as migration_20260704_051000_shop_home_hero_locked_docs_rels from './20260704_051000_shop_home_hero_locked_docs_rels';
 import * as migration_20260704_140000_users_orasage_user_id from './20260704_140000_users_orasage_user_id';
 import * as migration_20260705_110000_media_alt_nullable from './20260705_110000_media_alt_nullable';
+import * as migration_20260705_120000_home_hero_locked_docs_rels from './20260705_120000_home_hero_locked_docs_rels';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260705_110000_media_alt_nullable.up,
     down: migration_20260705_110000_media_alt_nullable.down,
     name: '20260705_110000_media_alt_nullable',
+  },
+  {
+    up: migration_20260705_120000_home_hero_locked_docs_rels.up,
+    down: migration_20260705_120000_home_hero_locked_docs_rels.down,
+    name: '20260705_120000_home_hero_locked_docs_rels',
   },
 ];
