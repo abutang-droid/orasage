@@ -118,6 +118,7 @@ export function saveHomepageProducts(skus: string[]) {
 export interface BaziRecommendProductsConfig {
   elements: string[];
   skuMap: Record<string, string>;
+  priceOverrides: Record<string, { priceCents: number | null; priceCentsUsd: number | null }>;
   recommendations: Record<string, AdminProduct | null>;
 }
 
@@ -125,9 +126,13 @@ export function getBaziRecommendProducts() {
   return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products');
 }
 
-export function saveBaziRecommendProducts(skuMap: Record<string, string>) {
+export function saveBaziRecommendProducts(items: Record<string, {
+  sku: string;
+  priceCents?: number | null;
+  priceCentsUsd?: number | null;
+}>) {
   return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products', {
     method: 'PUT',
-    body: JSON.stringify({ skuMap }),
+    body: JSON.stringify({ items }),
   });
 }

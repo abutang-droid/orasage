@@ -13,13 +13,14 @@ import {
   WU_XING_COLOR, WU_XING_BG, DI_ZHI_CANG_GAN,
   calcDailyFortune, recommendBracelet,
 } from "@/lib/bazi";
-import { shopUrlForElement, resolveShopUrlForElement, prefetchBaziRecommendSkus } from "@/lib/shop-products";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { PaywallCard } from "@/components/PaywallCard";
 import { useT } from "@/lib/i18n";
 import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import { extractSectionKeywords } from "@shared/section-keywords";
+import { sanitizeReportBrandText } from "@shared/report-brand";
+import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
 import type { BraceletRecommendation } from "@/lib/bazi";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
@@ -1199,7 +1200,7 @@ function SectionCard({
                 fontFamily: "'Noto Serif SC', serif",
                 letterSpacing: "0.04em",
               }}>
-                <Streamdown>{para}</Streamdown>
+                <Streamdown>{sanitizeReportBrandText(para)}</Streamdown>
               </div>
             </div>
           ))}
@@ -1237,126 +1238,6 @@ function SectionCard({
 
 
 
-// ── 手串推荐卡片（付费内容） ────────────────────────────────────────────────
-function BraceletRecommendCard({ recommendation, planType }: {
-  recommendation: import("@/lib/bazi").BraceletRecommendation;
-  planType: PlanType;
-}) {
-  const { t } = useT();
-  const b = recommendation.bracelet;
-  const [shopUrl, setShopUrl] = useState(() => shopUrlForElement(b.wuXing));
-
-  useEffect(() => {
-    prefetchBaziRecommendSkus();
-    void resolveShopUrlForElement(b.wuXing).then(setShopUrl);
-  }, [b.wuXing]);
-  const isPremium = planType === "premium";
-  return (
-    <div className="rounded-xl overflow-hidden" style={{
-      border: `1px solid rgba(196,160,78,0.2)`,
-      background: CARD_GRADIENT,
-    }}>
-      {/* 头部 */}
-      <div className="px-4 py-3 flex items-center justify-between"
-        style={{ borderBottom: "1px solid rgba(196,160,78,0.1)" }}>
-        <div className="flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-          </svg>
-          <span className="text-sm font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>
-            {t('bracelet.recommend')}
-          </span>
-        </div>
-        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
-          background: "rgba(196,160,78,0.1)",
-          color: GOLD,
-          border: `1px solid rgba(196,160,78,0.2)`,
-        }}>
-          {isPremium ? t('bracelet.premium_box') : t('bracelet.standard')}
-        </span>
-      </div>
-
-      {/* 手串信息 */}
-      <div className="px-4 py-3">
-        <div className="flex items-start gap-4 mb-3">
-          {/* 手串图标（五行颜色圆点） */}
-          <div className="shrink-0 w-16 h-16 rounded-full flex items-center justify-center"
-            style={{
-              background: `radial-gradient(circle, ${GOLD_FAINT} 0%, rgba(196,160,78,0.04) 100%)`,
-              border: `1px solid ${GOLD_FAINT}`,
-            }}>
-            <div className="flex flex-col items-center">
-              <span className="text-lg">{b.wuXing}</span>
-              <span className="text-[8px]" style={{ color: MUTED_CLR }}>{b.material}</span>
-            </div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-base font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>
-              {b.material}
-            </p>
-            <p className="text-xs mt-0.5" style={{ color: BODY_CLR }}>{b.effect} · {b.spec}</p>
-            <p className="text-[11px] mt-1 leading-relaxed" style={{ color: MUTED_CLR }}>
-              {b.description}
-            </p>
-          </div>
-        </div>
-
-        {/* 推荐理由 */}
-        <div className="rounded-lg px-3 py-2.5 mb-3"
-          style={{ background: "rgba(196,160,78,0.08)", border: `1px solid rgba(196,160,78,0.1)` }}>
-          <p className="text-[11px] leading-relaxed" style={{ color: BODY_CLR }}>
-            {recommendation.reason}
-          </p>
-        </div>
-
-        {/* 能量激活指南 */}
-        <details className="group">
-          <summary className="flex items-center gap-1.5 text-xs font-bold cursor-pointer list-none"
-            style={{ color: GOLD_DIM }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              className="transition-transform group-open:rotate-90">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-            {t('bracelet.energy_guide')}
-          </summary>
-          <div className="mt-2 flex flex-col gap-1.5">
-            {b.energyGuide.split("\n").map((line, i) => (
-              <div key={i} className="flex items-start gap-1.5">
-                <span className="text-[10px] shrink-0 mt-px" style={{ color: GOLD }}>·</span>
-                <span className="text-[10px] leading-relaxed" style={{ color: BODY_CLR }}>{line}</span>
-              </div>
-            ))}
-          </div>
-        </details>
-
-        <a
-          href={shopUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
-          style={{ background: GOLD, color: "#1a1528" }}
-        >
-          {t('bracelet.buy_shop')}
-        </a>
-      </div>
-
-      {/* 底部 - 礼盒版额外信息 */}
-      {isPremium && (
-        <div className="px-4 py-2.5 flex items-center gap-2"
-          style={{ borderTop: "1px solid rgba(196,160,78,0.08)", background: "rgba(196,160,78,0.02)" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={GOLD_DIM} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-            <line x1="12" y1="22.08" x2="12" y2="12"/>
-          </svg>
-          <span className="text-[10px]" style={{ color: MUTED_CLR }}>
-            {t('bracelet.premium_kit').replace('{spec}', b.spec)}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
 function AIAnalysisPanel({
   resultData,
   type,
@@ -1895,15 +1776,15 @@ function BraceletUpsell({ onUpgrade }: { onUpgrade: () => void }) {
 function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onReportReady }: {
   result: SingleBaziResult;
   purchasedPlan: PlanType | null;
-  braceletRec: any;
+  braceletRec: BraceletRecommendation | null;
   captureRef: React.RefObject<HTMLDivElement | null>;
   onReportReady?: (reportContent: string, sections: Array<{ title: string; content: string }>) => void;
 }) {
   return (
     <div ref={captureRef as any} className="flex flex-col gap-3">
       <AIAnalysisPanel resultData={result as unknown as Record<string, unknown>} type="single" autoTrigger onReportReady={onReportReady} />
-      {purchasedPlan === "basic" && braceletRec && (
-        <BraceletRecommendCard recommendation={braceletRec} planType={purchasedPlan} />
+      {purchasedPlan === "basic" && braceletRec?.deficiencyWx && (
+        <BaziConfiguredProductRecommend element={braceletRec.deficiencyWx} />
       )}
     </div>
   );

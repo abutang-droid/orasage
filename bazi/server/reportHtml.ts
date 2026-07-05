@@ -3,14 +3,23 @@
  */
 
 import { extractSectionKeywords } from "../shared/section-keywords.ts";
+import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 
 const CHAPTER_NUMERALS = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"];
+
+export type ReportProductRecommend = {
+  name: string;
+  desc: string;
+  priceDisplay: string;
+  shopUrl: string;
+  element?: string;
+};
 
 export type ReportSection = { title: string; content: string };
 
 /** 将一段 Markdown 文本转为安全的 HTML 片段 */
 export function renderMarkdown(md: string): string {
-  let html = md
+  let html = sanitizeReportBrandText(md)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
@@ -115,21 +124,37 @@ function renderSectionBlock(section: ReportSection, index: number): string {
 </article>`;
 }
 
+function renderProductRecommendBlock(product: ReportProductRecommend): string {
+  return `
+<section class="product-rec">
+  <p class="product-rec-label">能量好物推荐</p>
+  <h3 class="product-rec-name">${escapeHtml(product.name)}</h3>
+  <p class="product-rec-desc">${escapeHtml(product.desc)}</p>
+  <p class="product-rec-price">${escapeHtml(product.priceDisplay)}</p>
+  <a class="product-rec-btn" href="${escapeHtml(product.shopUrl)}" target="_blank" rel="noopener noreferrer">前往购买</a>
+</section>`;
+}
+
 export type ReportPageOptions = {
   planLabel: string;
   reportContent: string;
   subjectName?: string;
   generatedAt?: Date;
+  productRecommend?: ReportProductRecommend | null;
 };
 
 /** 生成完整静态报告 HTML 页面（用户中心 / 邮件链接） */
 export function buildReportPageHtml(options: ReportPageOptions): string {
   const date = options.generatedAt ?? new Date();
   const dateStr = date.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" });
-  const sections = parseReportSections(options.reportContent);
+  const brandedContent = sanitizeReportBrandText(options.reportContent);
+  const sections = parseReportSections(brandedContent);
   const sectionHtml = sections.length > 0
     ? sections.map((s, i) => renderSectionBlock(s, i)).join("\n")
-    : `<div class="section"><div class="section-body">${renderMarkdown(options.reportContent)}</div></div>`;
+    : `<div class="section"><div class="section-body">${renderMarkdown(brandedContent)}</div></div>`;
+  const productHtml = options.productRecommend
+    ? renderProductRecommendBlock(options.productRecommend)
+    : "";
   const subjectLine = options.subjectName
     ? `<p class="subject">${escapeHtml(options.subjectName)} 的命理报告</p>`
     : "";
@@ -165,6 +190,12 @@ body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC
 .section-body ul{padding-left:1.25rem;margin:0.5rem 0 0.75rem}
 .section-body li{margin-bottom:0.35rem}
 .section-body strong{color:var(--ink)}
+.product-rec{margin:0 1.75rem 1.75rem;padding:1.25rem 1.5rem;border-radius:16px;border:1px solid var(--border);background:linear-gradient(135deg,rgba(196,160,78,0.08),rgba(196,160,78,0.02))}
+.product-rec-label{font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;font-weight:700;margin-bottom:0.5rem;font-family:"Noto Sans SC",sans-serif}
+.product-rec-name{font-size:1.05rem;color:var(--ink);font-weight:700;margin-bottom:0.35rem}
+.product-rec-desc{font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6}
+.product-rec-price{font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:1rem}
+.product-rec-btn{display:inline-block;padding:0.55rem 1.25rem;border-radius:999px;background:var(--gold);color:#1a1528;text-decoration:none;font-size:0.85rem;font-weight:600;font-family:"Noto Sans SC",sans-serif}
 .footer{text-align:center;padding:2rem 1rem 0;font-size:0.7rem;color:var(--muted);font-family:"Noto Sans SC",sans-serif;line-height:1.8}
 .footer a{color:var(--gold);text-decoration:none}
 @media(max-width:640px){.wrap{padding:1rem 0.75rem 2rem}.section{padding:1.25rem 1rem}.hero h1{font-size:1.4rem}}
@@ -178,7 +209,7 @@ body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC
     ${subjectLine}
     <p class="meta">生成于 ${escapeHtml(dateStr)}</p>
   </header>
-  <main class="report-card">${sectionHtml}</main>
+  <main class="report-card">${sectionHtml}${productHtml}</main>
   <footer class="footer">
     <p>本报告由 OraSage 八字命理系统生成，内容仅供文化娱乐与自我探索参考。</p>
     <p><a href="https://orasage.com">orasage.com</a> · <a href="https://bazi.orasage.com">八字排盘</a></p>

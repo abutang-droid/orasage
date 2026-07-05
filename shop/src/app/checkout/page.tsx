@@ -54,6 +54,10 @@ function CheckoutContent() {
   const readingId = searchParams.get('readingId') ?? undefined;
   const planType = searchParams.get('planType') ?? undefined;
   const appSource = searchParams.get('appSource') ?? 'shop';
+  const priceCentsParam = searchParams.get('priceCents');
+  const priceCentsUsdParam = searchParams.get('priceCentsUsd');
+  const priceCents = priceCentsParam ? Number(priceCentsParam) : undefined;
+  const priceCentsUsd = priceCentsUsdParam ? Number(priceCentsUsdParam) : undefined;
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -188,13 +192,16 @@ function CheckoutContent() {
           const res = await fetch(`/api/products?sku=${encodeURIComponent(sku)}`, { credentials: 'include' });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || '加载商品失败');
-          const product = data.product as ProductPreview & { priceDisplay?: string };
+          const product = data.product as ProductPreview & { priceDisplay?: string; priceCents?: number };
           if (cancelled) return;
+          const displayPrice = priceCents && Number.isFinite(priceCents)
+            ? `¥${(priceCents / 100).toFixed(2)}`
+            : (product.priceDisplay ?? '');
           setProductPreview({
             sku: product.sku,
             name: product.name,
             desc: product.desc,
-            priceDisplay: product.priceDisplay ?? '',
+            priceDisplay: displayPrice,
           });
           setLoading(false);
 
@@ -235,6 +242,8 @@ function CheckoutContent() {
           shippingMode: coupleShipping ? 'couple' : 'single',
           successUrl: returnUrl ?? undefined,
           recommendationContext: searchParams.get('context') ?? undefined,
+          priceCents: priceCents && Number.isFinite(priceCents) ? priceCents : undefined,
+          priceCentsUsd: priceCentsUsd && Number.isFinite(priceCentsUsd) ? priceCentsUsd : undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));

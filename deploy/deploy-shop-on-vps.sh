@@ -78,7 +78,7 @@ AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:54
 if command -v psql >/dev/null 2>&1; then
   sudo -u postgres psql orasage_auth \
     -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || true
-  for mig in 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql; do
+  for mig in 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql; do
     if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
       log "  应用 $mig ..."
       psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \

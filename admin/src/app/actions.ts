@@ -66,11 +66,18 @@ export async function saveHomepageProductsAction(formData: FormData) {
 const BAZI_ELEMENTS = ['木', '火', '土', '金', '水'] as const;
 
 export async function saveBaziRecommendProductsAction(formData: FormData) {
-  const skuMap: Record<string, string> = {};
+  const items: Record<string, { sku: string; priceCents: number | null; priceCentsUsd: number | null }> = {};
   for (const element of BAZI_ELEMENTS) {
     const sku = String(formData.get(`bazi_rec_${element}`) ?? '').trim();
-    if (sku) skuMap[element] = sku;
+    if (!sku) continue;
+    const priceYuan = String(formData.get(`bazi_rec_price_cny_${element}`) ?? '').trim();
+    const priceUsd = String(formData.get(`bazi_rec_price_usd_${element}`) ?? '').trim();
+    items[element] = {
+      sku,
+      priceCents: priceYuan ? Math.round(Number(priceYuan) * 100) : null,
+      priceCentsUsd: priceUsd ? Math.round(Number(priceUsd) * 100) : null,
+    };
   }
-  await saveBaziRecommendProducts(skuMap);
+  await saveBaziRecommendProducts(items);
   revalidatePath('/products');
 }

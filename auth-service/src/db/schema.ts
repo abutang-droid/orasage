@@ -117,6 +117,9 @@ export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
 export const baziElementRecommendations = pgTable("bazi_element_recommendations", {
   element: varchar("element", { length: 10 }).primaryKey(),
   sku: varchar("sku", { length: 100 }).notNull(),
+  /** 报告推荐价（分）；为空则使用商城目录价 */
+  priceCents: integer("price_cents"),
+  priceCentsUsd: integer("price_cents_usd"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

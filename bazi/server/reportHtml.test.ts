@@ -63,7 +63,7 @@ describe("renderMarkdown", () => {
     const html = buildReportPageHtml({
       planLabel: "深度解读",
       reportContent: `### 命盘总览
-日主乙木，生于卯月，身强。
+算法依据：日主乙木，生于卯月，身强。
 
 ### 性格与天赋
 格局正印格，聪慧稳重。`,
@@ -73,5 +73,22 @@ describe("renderMarkdown", () => {
     expect(html).toContain("命盘总览");
     expect(html).toContain("class=\"kw\"");
     expect(html).not.toContain("算法依据");
+    expect(html).toContain("Orasage");
+  });
+
+  it("buildReportPageHtml renders single admin product recommend", () => {
+    const html = buildReportPageHtml({
+      planLabel: "深度解读",
+      reportContent: "### 开运建议\n佩戴水晶。",
+      productRecommend: {
+        name: "绿幽灵手串",
+        desc: "补木",
+        priceDisplay: "¥88.00",
+        shopUrl: "https://shop.orasage.com/checkout?sku=crystal-wood",
+      },
+    });
+    expect(html).toContain("绿幽灵手串");
+    expect(html).toContain("¥88.00");
+    expect((html.match(/class="product-rec"/g) || []).length).toBe(1);
   });
 });

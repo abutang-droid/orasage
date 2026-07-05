@@ -14,6 +14,8 @@ import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
 import { buildReportPageHtml } from "./reportHtml";
+import { fetchReportProductRecommend } from "./reportRecommend";
+import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
@@ -185,7 +187,7 @@ export const appRouter = router({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论必须有'算法依据'，语言犀利、一针见血。避免感性修饰词，使用'我们'或'OraSage'自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
+              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
             },
             { role: "user", content: prompt },
           ],
@@ -193,9 +195,11 @@ export const appRouter = router({
 
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error("LLM 返回内容为空");
-        const content = typeof rawContent === "string"
-          ? rawContent
-          : (rawContent as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join("");
+        const content = sanitizeReportBrandText(
+          typeof rawContent === "string"
+            ? rawContent
+            : (rawContent as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join(""),
+        );
 
         // 解析 Markdown 章节：按 ### 标题分割
         const sections = parseSections(content);
@@ -366,11 +370,18 @@ export const appRouter = router({
 
             const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
             const planLabel = planLabelMap[input.planType] || input.planType;
+            const summary = input.inputSummary as Record<string, unknown> | undefined;
+            const wuXing = summary?.wuXing as Record<string, number> | undefined;
+            const brandedReport = sanitizeReportBrandText(input.reportContent);
+            const productRecommend = input.planType === 'basic'
+              ? await fetchReportProductRecommend(wuXing)
+              : null;
 
             const staticHtml = buildReportPageHtml({
               planLabel,
-              reportContent: input.reportContent,
+              reportContent: brandedReport,
               subjectName: input.name || buyerName || undefined,
+              productRecommend,
             });
 
             const filePath = path.join(reportsDir, fileName);

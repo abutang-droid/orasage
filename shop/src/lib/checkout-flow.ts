@@ -26,6 +26,8 @@ export const startCheckoutSchema = z.object({
   readingId: z.string().max(100).optional(),
   planType: z.string().max(32).optional(),
   shippingMode: z.enum(['single', 'couple']).optional(),
+  priceCents: z.number().int().positive().optional(),
+  priceCentsUsd: z.number().int().positive().optional(),
   locale: z.string().max(16).optional(),
 });
 
@@ -51,7 +53,17 @@ export function localeFromCheckoutRequest(req: NextRequest, explicit?: string | 
   });
 }
 
-function unitPrice(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>, currency: ShopCurrency): number {
+function unitPrice(
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>,
+  currency: ShopCurrency,
+  override?: { priceCents?: number; priceCentsUsd?: number | null },
+): number {
+  if (override?.priceCents != null) {
+    return resolvePriceCents(
+      { priceCents: override.priceCents, priceCentsUsd: override.priceCentsUsd ?? product.priceCentsUsd },
+      currency,
+    );
+  }
   return resolvePriceCents(
     { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
     currency,
@@ -82,7 +94,10 @@ export async function createCheckoutOrder(
   }
 
   const quantity = input.quantity ?? 1;
-  const amountCents = unitPrice(product, currency) * quantity;
+  const amountCents = unitPrice(product, currency, {
+    priceCents: input.priceCents,
+    priceCentsUsd: input.priceCentsUsd,
+  }) * quantity;
   const orderNo = makeOrderNo();
   const needsShipping = product.requiresShipping ?? inferRequiresShipping(product);
   const checkoutExtras: Record<string, string> = {};
@@ -127,7 +142,10 @@ export async function createCheckoutOrder(
       }
 
       const charge = toStripeAmount(
-        { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
+        {
+          priceCents: input.priceCents ?? product.priceCents,
+          priceCentsUsd: input.priceCentsUsd ?? product.priceCentsUsd,
+        },
         currency,
       );
       const session = await stripe.checkout.sessions.create({

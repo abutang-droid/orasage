@@ -27,6 +27,7 @@ export default async function ProductsPage() {
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
   let baziRecommendSkus: Record<string, string> = {};
+  let baziRecommendPrices: Record<string, { priceCents: number | null; priceCentsUsd: number | null }> = {};
   try {
     ({ products } = await getProducts());
   } catch (err) {
@@ -38,7 +39,7 @@ export default async function ProductsPage() {
     console.error('[admin/homepage-products]', err);
   }
   try {
-    ({ skuMap: baziRecommendSkus } = await getBaziRecommendProducts());
+    ({ skuMap: baziRecommendSkus, priceOverrides: baziRecommendPrices } = await getBaziRecommendProducts());
   } catch (err) {
     console.error('[admin/bazi-recommend-products]', err);
   }
@@ -119,21 +120,56 @@ export default async function ProductsPage() {
         <h2>八字报告商品推荐（五行 → SKU）</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
           仅对购买<strong>基础版数字报告</strong>的用户展示推荐商品。进阶版/礼盒版已含实体商品，不再额外推荐。
+          推荐价可独立于商城目录价设置（留空则使用商城价格）。
         </p>
         <form action={saveBaziRecommendProductsAction} className="form-grid">
-          {(['木', '火', '土', '金', '水'] as const).map((element) => (
-            <label key={element}>
-              五行「{element}」推荐商品
-              <select name={`bazi_rec_${element}`} defaultValue={baziRecommendSkus[element] ?? ''}>
-                <option value="">— 默认 crystal-{element === '木' ? 'wood' : element === '火' ? 'fire' : element === '土' ? 'earth' : element === '金' ? 'metal' : 'water'} —</option>
-                {activeProducts.filter((p) => p.category === 'crystal').map((p) => (
-                  <option key={p.sku} value={p.sku}>
-                    {p.name} ({p.sku})
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
+          {(['木', '火', '土', '金', '水'] as const).map((element) => {
+            const catalog = activeProducts.find((p) => p.sku === (baziRecommendSkus[element] ?? ''));
+            const priceOverride = baziRecommendPrices[element];
+            const defaultCny = priceOverride?.priceCents != null
+              ? (priceOverride.priceCents / 100).toFixed(2)
+              : '';
+            const defaultUsd = priceOverride?.priceCentsUsd != null
+              ? (priceOverride.priceCentsUsd / 100).toFixed(2)
+              : '';
+            return (
+              <div key={element} className="full-width" style={{ display: 'grid', gap: '0.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', alignItems: 'end' }}>
+                <label>
+                  五行「{element}」推荐商品
+                  <select name={`bazi_rec_${element}`} defaultValue={baziRecommendSkus[element] ?? ''}>
+                    <option value="">— 默认 crystal-{element === '木' ? 'wood' : element === '火' ? 'fire' : element === '土' ? 'earth' : element === '金' ? 'metal' : 'water'} —</option>
+                    {activeProducts.filter((p) => p.category === 'crystal').map((p) => (
+                      <option key={p.sku} value={p.sku}>
+                        {p.name} ({p.sku}) · 商城 {p.priceDisplayCny ?? p.priceDisplay}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  推荐价 CNY（元）
+                  <input
+                    name={`bazi_rec_price_cny_${element}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder={catalog ? `商城 ${(catalog.priceCents / 100).toFixed(2)}` : '留空=商城价'}
+                    defaultValue={defaultCny}
+                  />
+                </label>
+                <label>
+                  推荐价 USD
+                  <input
+                    name={`bazi_rec_price_usd_${element}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder={catalog?.priceCentsUsd ? `商城 ${(catalog.priceCentsUsd / 100).toFixed(2)}` : '留空=商城价'}
+                    defaultValue={defaultUsd}
+                  />
+                </label>
+              </div>
+            );
+          })}
           <button type="submit" className="btn-primary full-width">保存八字推荐配置</button>
         </form>
       </section>

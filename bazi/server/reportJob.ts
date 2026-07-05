@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { buildReportPageHtml } from './reportHtml.ts';
 import { generateBaziReportContent } from './reportGenerator.ts';
+import { fetchReportProductRecommend } from './reportRecommend.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? 'https://bazi.orasage.com';
@@ -47,7 +48,11 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
-function writeReportHtml(planType: string, reportContent: string): string {
+async function writeReportHtml(
+  planType: string,
+  reportContent: string,
+  resultData?: Record<string, unknown>,
+): Promise<string> {
   const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const fileName = `${reportId}.html`;
   const reportsDir = process.env.NODE_ENV === 'development'
@@ -62,10 +67,16 @@ function writeReportHtml(planType: string, reportContent: string): string {
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';
 
+  const wuXing = resultData?.wuXing as Record<string, number> | undefined;
+  const productRecommend = planType === 'basic'
+    ? await fetchReportProductRecommend(wuXing)
+    : null;
+
   const staticHtml = buildReportPageHtml({
     planLabel,
     reportContent,
     generatedAt: new Date(),
+    productRecommend,
   });
 
   fs.writeFileSync(path.join(reportsDir, fileName), staticHtml, 'utf-8');
@@ -90,7 +101,7 @@ export async function runReportJob(input: ReportJobInput) {
 
   const planType = input.planType || 'advanced';
   const { report } = await generateBaziReportContent(payload.type, payload.resultData, payload.lang ?? 'zh-CN');
-  const reportUrl = writeReportHtml(planType, report);
+  const reportUrl = await writeReportHtml(planType, report, payload.resultData);
 
   await patchReading(input.readingId, { reportUrl, title: `${reading.title} · 报告` });
   await patchOrderStatus(input.orderNo, 'completed');

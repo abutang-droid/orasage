@@ -9,7 +9,7 @@ import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedS
 import {
   BAZI_ELEMENTS,
   resolveBaziElementRecommendations,
-  setBaziElementRecommendationSkus,
+  setBaziElementRecommendations,
   type BaziElement,
 } from "../lib/bazi-recommend-products.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
@@ -85,7 +85,21 @@ adminApiRouter.put("/homepage-products", async (req, res) => {
   }
 });
 
+const baziElementRecSchema = z.object({
+  sku: z.string().min(1).max(100),
+  priceCents: z.number().int().nonnegative().nullable().optional(),
+  priceCentsUsd: z.number().int().nonnegative().nullable().optional(),
+});
+
 const baziRecommendSchema = z.object({
+  items: z.object({
+    木: baziElementRecSchema,
+    火: baziElementRecSchema,
+    土: baziElementRecSchema,
+    金: baziElementRecSchema,
+    水: baziElementRecSchema,
+  }),
+}).or(z.object({
   skuMap: z.object({
     木: z.string().min(1).max(100),
     火: z.string().min(1).max(100),
@@ -93,7 +107,7 @@ const baziRecommendSchema = z.object({
     金: z.string().min(1).max(100),
     水: z.string().min(1).max(100),
   }),
-});
+}));
 
 adminApiRouter.get("/bazi-recommend-products", async (_req, res) => {
   try {
@@ -108,7 +122,17 @@ adminApiRouter.get("/bazi-recommend-products", async (_req, res) => {
 adminApiRouter.put("/bazi-recommend-products", async (req, res) => {
   try {
     const body = baziRecommendSchema.parse(req.body);
-    const data = await setBaziElementRecommendationSkus(body.skuMap as Partial<Record<BaziElement, string>>);
+    let input: Partial<Record<BaziElement, { sku: string; priceCents?: number | null; priceCentsUsd?: number | null }>>;
+    if ("items" in body) {
+      input = body.items as Partial<Record<BaziElement, { sku: string; priceCents?: number | null; priceCentsUsd?: number | null }>>;
+    } else {
+      input = {};
+      for (const element of BAZI_ELEMENTS) {
+        const sku = body.skuMap[element];
+        if (sku) input[element] = { sku };
+      }
+    }
+    const data = await setBaziElementRecommendations(input);
     res.json(data);
   } catch (err) {
     if (err instanceof z.ZodError) {
