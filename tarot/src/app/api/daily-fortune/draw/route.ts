@@ -6,6 +6,7 @@ import { generateDailyFortuneReport } from '@/lib/daily-fortune/report';
 import { createDailyFortuneRecord, drawDailyFortuneCard } from '@/lib/daily-fortune/record';
 import type { DailyFortuneAnswer } from '@/lib/daily-fortune/types';
 import { consumeDailyFortuneDraw, getDailyFortuneQuota } from '@/lib/daily-fortune-quota';
+import { maybeSyncDailyFortuneReading } from '@/lib/daily-fortune/sync';
 import { prisma } from '@/lib/prisma';
 
 const bodySchema = z.object({
@@ -70,11 +71,18 @@ export async function POST(req: NextRequest) {
       orderNo: body.orderNo?.trim() || null,
     });
 
+    const syncedRecord = await maybeSyncDailyFortuneReading(
+      req.headers.get('cookie'),
+      ensured.userId,
+      record,
+      loggedIn,
+    );
+
     const updatedQuota = await getDailyFortuneQuota(ensured.userId);
 
     const res = NextResponse.json({
       ok: true,
-      record,
+      record: syncedRecord,
       brief: report.brief,
       fullReport: loggedIn ? report.full : null,
       isLoggedIn: loggedIn,

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import TarotCard from '@/components/TarotCard';
+import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type {
@@ -347,15 +348,15 @@ export function DailyFortuneFlow() {
                 </div>
               </div>
             ) : (
-              <>
-                <div className="daily-fortune-guest-wall">
-                  <p>登录后可查看爱情、事业、财运等完整四维解读。</p>
-                  <Link href="/login" className="btn-primary">
-                    登录查看完整报告
-                  </Link>
-                </div>
-                {record?.fullReport && (
-                  <div className="daily-fortune-dim-grid daily-fortune-dim-grid--blurred" aria-hidden>
+              <GuestLoginWall
+                title="登录查看四维运势"
+                message="登录后可查看爱情、事业、财运等完整解读，并同步保存到用户中心。"
+                hint="访客仍可查看今日简报；登录后记录会出现在 auth.orasage.com 的占卜历史中。"
+                ctaLabel="登录查看完整报告"
+                returnPath="/daily-fortune"
+              >
+                {record?.fullReport ? (
+                  <div className="daily-fortune-dim-grid daily-fortune-dim-grid--blurred">
                     {(['work', 'love', 'career', 'wealth'] as const).map((key) => (
                       <div key={key} className="daily-fortune-dim">
                         <div className="daily-fortune-dim-head">
@@ -364,8 +365,8 @@ export function DailyFortuneFlow() {
                       </div>
                     ))}
                   </div>
-                )}
-              </>
+                ) : null}
+              </GuestLoginWall>
             )}
           </div>
 
