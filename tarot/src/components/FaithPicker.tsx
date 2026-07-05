@@ -2,11 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  CUSTOM_FAITH_ID,
   FAITH_STORAGE_KEY,
+  SPECIAL_FAITH_IDS,
   formatFaithLabel,
+  getCustomFaithOption,
   getFaithById,
   getMoreFaiths,
   getTopFaiths,
+  isCustomFaithId,
   type FaithOption,
 } from '@/lib/faiths/religions';
 import { splitFaithsByRank } from '@/lib/cms/faiths';
@@ -99,6 +103,14 @@ export function FaithPicker({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!value) return;
+    if (isCustomFaithId(value)) {
+      setPending(value);
+      if (value.startsWith('other:')) setOtherText(value.slice(6));
+    }
+  }, [value]);
+
+  useEffect(() => {
     let cancelled = false;
     setLoading(true);
     fetch('/api/faiths')
@@ -126,17 +138,26 @@ export function FaithPicker({
 
   const { top: topFaiths, more: moreFaiths } = useMemo(() => {
     if (faiths.length === 0) {
-      return { top: getTopFaiths(), more: getMoreFaiths() };
+      return {
+        top: getTopFaiths(),
+        more: getMoreFaiths(),
+      };
     }
-    return splitFaithsByRank(faiths);
+    const split = splitFaithsByRank(faiths);
+    return {
+      top: split.top.filter((f) => !SPECIAL_FAITH_IDS.has(f.id)),
+      more: split.more.filter((f) => !SPECIAL_FAITH_IDS.has(f.id)),
+    };
   }, [faiths]);
 
+  const customFaith = useMemo(() => getCustomFaithOption(faiths), [faiths]);
+
   const selectedFaith = pending ? getFaithById(pending, faiths) : null;
-  const isOther = pending === 'other' || pending?.startsWith('other:');
+  const isOther = isCustomFaithId(pending);
 
   function selectFaith(id: string) {
     setPending(id);
-    if (id !== 'other' && !id.startsWith('other:')) {
+    if (!isCustomFaithId(id)) {
       try {
         localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id }));
       } catch {
@@ -146,13 +167,14 @@ export function FaithPicker({
   }
 
   function confirmSelection() {
-    if (!pending || pending === 'other') return;
+    if (!pending || isCustomFaithId(pending)) return;
     onChange(pending);
   }
 
   function confirmOther() {
     const trimmed = otherText.trim();
-    const id = trimmed ? `other:${trimmed}` : 'other';
+    if (!trimmed) return;
+    const id = `other:${trimmed}`;
     setPending(id);
     onChange(id);
     try {
@@ -164,11 +186,13 @@ export function FaithPicker({
 
   return (
     <div>
-      <div className="page-header" style={{ padding: '16px 0' }}>
-        <span className="label">信仰</span>
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </div>
+      {(title || subtitle) && (
+        <div className="page-header" style={{ padding: '16px 0' }}>
+          <span className="label">信仰</span>
+          {title ? <h1>{title}</h1> : null}
+          {subtitle ? <p>{subtitle}</p> : null}
+        </div>
+      )}
 
       {value && !pending && (
         <div
@@ -217,6 +241,17 @@ export function FaithPicker({
             ))}
           </div>
 
+          <div style={{ marginBottom: 16 }}>
+            <FaithCard
+              faith={customFaith}
+              selected={isOther}
+              onSelect={() => {
+                selectFaith(CUSTOM_FAITH_ID);
+                setOtherText('');
+              }}
+            />
+          </div>
+
           {!showMore ? (
             <button
               type="button"
@@ -248,18 +283,30 @@ export function FaithPicker({
 
       {isOther && (
         <div style={{ marginBottom: 20 }}>
+          <p
+            style={{
+              marginBottom: 10,
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}
+          >
+            写下你的信仰或精神归属名称
+          </p>
           <input
             className="input-field"
-            placeholder="请写下你的信仰名称…"
+            placeholder="例如：妈祖、象头神、个人灵性修行…"
             value={otherText}
             onChange={(e) => setOtherText(e.target.value)}
             maxLength={40}
+            autoFocus
           />
           <button
             type="button"
             className="btn-primary"
             style={{ width: '100%', marginTop: 12 }}
             onClick={confirmOther}
+            disabled={!otherText.trim()}
           >
             {confirmLabel}
           </button>
@@ -277,7 +324,7 @@ export function FaithPicker({
         </button>
       )}
 
-      {selectedFaith && !isOther && pending && pending !== 'other' && (
+      {selectedFaith && !isOther && pending && !isCustomFaithId(pending) && (
         <p
           style={{
             marginTop: 12,

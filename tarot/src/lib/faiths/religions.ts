@@ -34,8 +34,11 @@ export const WORLD_FAITHS: FaithOption[] = [
   { id: 'afro_brazilian', nameZh: '非裔巴西宗教', nameEn: 'Afro-Brazilian Religions', emoji: '🌊', adherentsM: 2, rank: 19 },
   { id: 'tenrikyo', nameZh: '天理教', nameEn: 'Tenrikyo', emoji: '🌅', adherentsM: 2, rank: 20 },
   { id: 'none', nameZh: '无特定信仰', nameEn: 'No Specific Faith', emoji: '🌿', adherentsM: 0, rank: 98 },
-  { id: 'other', nameZh: '其他', nameEn: 'Other', emoji: '⋯', adherentsM: 0, rank: 99 },
+  { id: 'other', nameZh: '自定义', nameEn: '不在列表中？自行填写', emoji: '✍️', adherentsM: 0, rank: 99 },
 ].sort((a, b) => a.rank - b.rank);
+
+export const CUSTOM_FAITH_ID = 'other';
+export const SPECIAL_FAITH_IDS = new Set(['none', 'other']);
 
 export const TOP_FAITH_COUNT = 10;
 
@@ -49,11 +52,34 @@ export function getMoreFaiths(): FaithOption[] {
   return WORLD_FAITHS.filter((f) => f.rank > TOP_FAITH_COUNT && f.rank < 98);
 }
 
+export function getCustomFaithOption(list?: FaithOption[]): FaithOption {
+  const found = list?.find((f) => f.id === CUSTOM_FAITH_ID) ?? faithById.get(CUSTOM_FAITH_ID);
+  return (
+    found ?? {
+      id: CUSTOM_FAITH_ID,
+      nameZh: '自定义',
+      nameEn: '不在列表中？自行填写',
+      emoji: '✍️',
+      adherentsM: 0,
+      rank: 99,
+    }
+  );
+}
+
+export function isCustomFaithId(id: string | null | undefined): boolean {
+  return id === CUSTOM_FAITH_ID || Boolean(id?.startsWith('other:'));
+}
+
+export function customFaithDisplayName(id: string): string {
+  if (id.startsWith('other:')) return id.slice(6).trim() || '自定义';
+  return '自定义';
+}
+
 export function getFaithById(id: string, list?: FaithOption[]): FaithOption | undefined {
   if (id.startsWith('other:')) {
     const base = list?.find((f) => f.id === 'other') ?? faithById.get('other');
     if (!base) return undefined;
-    return { ...base, id, nameZh: id.slice(6) || '其他', nameEn: 'Other' };
+    return { ...base, id, nameZh: customFaithDisplayName(id), nameEn: 'Custom' };
   }
   if (list) {
     const found = list.find((f) => f.id === id);

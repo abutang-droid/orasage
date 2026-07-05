@@ -13,6 +13,7 @@ import {
   type OnboardingDraft,
   type OnboardingPrefill,
 } from '@/lib/onboarding-v2';
+import { customFaithDisplayName, formatFaithLabel, isCustomFaithId } from '@/lib/faiths/religions';
 import { useUser } from '@/lib/user';
 
 const MANTO_PORTRAIT = '/images/manto-mentor.png';
@@ -244,7 +245,8 @@ export function OnboardingFlow() {
   const onFaithPick = (faith: string) => {
     const next = { ...draft, faith };
     setDraft(next);
-    pushUser('已选择信仰');
+    const label = isCustomFaithId(faith) ? customFaithDisplayName(faith) : formatFaithLabel(faith);
+    pushUser(label || '已选择信仰');
     void finishOnboarding(next);
   };
 
