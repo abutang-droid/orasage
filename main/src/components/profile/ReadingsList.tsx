@@ -68,16 +68,28 @@ export function ReadingsList() {
               {r.recommendationReason && (
                 <p className="mt-2 text-xs text-primary/90">{r.recommendationReason}</p>
               )}
-              {r.reportUrl && (
-                <a
-                  href={r.reportUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'mt-4 inline-flex')}
-                >
-                  {t('viewReport')}
-                </a>
-              )}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {r.detailUrl && (
+                  <a
+                    href={r.detailUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
+                  >
+                    {t('viewDetail')}
+                  </a>
+                )}
+                {r.reportUrl && (
+                  <a
+                    href={r.reportUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
+                  >
+                    {t('viewReport')}
+                  </a>
+                )}
+              </div>
             </CardContent>
           </Card>
         </li>

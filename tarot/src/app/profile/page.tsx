@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useUser } from "@/lib/user"
+import { profileReadingsUrl } from "@/lib/profile-readings-url"
 
 type MeritSummary = {
   total: number
@@ -72,12 +73,23 @@ export default function ProfilePage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 32 }}>
           {[
-            { href: "/reading", emoji: "🔮", label: "占卜记录" },
+            { href: profileReadingsUrl(), emoji: "🔮", label: "占卜记录", external: true },
             { href: "/temple", emoji: "🛐", label: "拜神记录" },
             { href: "/crystal", emoji: "📿", label: "我的水晶" },
             { href: "/profile/merit", emoji: "✨", label: "功德详情" },
             { href: "/profile/settings", emoji: "⚙️", label: "设置" },
           ].map(item => (
+            item.external ? (
+              <a key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-focus)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)' }}>
+                  <span style={{ fontSize: 18 }}>{item.emoji}</span>
+                  <span style={{ flex: 1, fontSize: 14, color: 'var(--text-primary)' }}>{item.label}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
+                </div>
+              </a>
+            ) : (
             <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-focus)' }}
@@ -87,6 +99,7 @@ export default function ProfilePage() {
                 <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
               </div>
             </Link>
+            )
           ))}
         </div>
       </div>

@@ -203,7 +203,8 @@
       "loading": "加载中…",
       "loadError": "加载失败",
       "empty": "暂无占卜记录",
-      "viewReport": "查看报告"
+      "viewReport": "查看报告",
+      "viewDetail": "查看详情"
     },
     "recommendations": {
       "title": "能量推荐",

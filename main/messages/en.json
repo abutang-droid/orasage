@@ -203,7 +203,8 @@
       "loading": "Loading…",
       "loadError": "Failed to load",
       "empty": "No readings yet",
-      "viewReport": "View report"
+      "viewReport": "View report",
+      "viewDetail": "View details"
     },
     "recommendations": {
       "title": "Crystal picks",

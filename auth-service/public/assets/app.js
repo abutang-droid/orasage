@@ -117,7 +117,15 @@ async function loadReadings() {
       el.innerHTML = `<div class="empty"><p>暂无测试记录</p><p>完成八字、紫微或塔罗解读后会同步到这里</p><a href="https://bazi.orasage.com">去八字 →</a> <a href="https://tarot.orasage.com">去塔罗 →</a></div>`;
       return;
     }
-    el.innerHTML = readings.map((r) => `<article class="card"><div class="meta"><span class="badge">${esc(r.appLabel)}</span>${fmt(r.createdAt)}</div><h3>${esc(r.title)}</h3>${r.summary ? `<p>${esc(r.summary)}</p>` : ""}${r.recommendationReason ? `<p style="margin-top:0.5rem;color:#c9a962;font-size:0.8rem">💎 ${esc(r.recommendationReason)}</p>` : ""}</article>`).join("");
+    el.innerHTML = readings.map((r) => {
+      const detail = r.detailUrl
+        ? `<a href="${esc(r.detailUrl)}" class="btn-outline" style="display:inline-block;margin-top:0.75rem;font-size:0.8rem;padding:0.35rem 0.75rem;border-radius:999px;border:1px solid rgba(201,169,98,0.4);color:#c9a962;text-decoration:none">查看详情 →</a>`
+        : "";
+      const report = r.reportUrl
+        ? `<a href="${esc(r.reportUrl)}" target="_blank" rel="noopener" class="btn-outline" style="display:inline-block;margin-top:0.75rem;margin-left:0.5rem;font-size:0.8rem;padding:0.35rem 0.75rem;border-radius:999px;border:1px solid rgba(201,169,98,0.4);color:#c9a962;text-decoration:none">查看报告 →</a>`
+        : "";
+      return `<article class="card"><div class="meta"><span class="badge">${esc(r.appLabel)}</span>${fmt(r.createdAt)}</div><h3>${esc(r.title)}</h3>${r.summary ? `<p>${esc(r.summary)}</p>` : ""}${r.recommendationReason ? `<p style="margin-top:0.5rem;color:#c9a962;font-size:0.8rem">💎 ${esc(r.recommendationReason)}</p>` : ""}${detail}${report}</article>`;
+    }).join("");
   } catch { el.innerHTML = `<p class="empty">加载失败</p>`; }
 }
 

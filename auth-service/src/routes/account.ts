@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { savedProfiles, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
 import { getAuthUser } from "../lib/auth-user.ts";
+import { resolveReadingDetailUrl } from "../lib/reading-detail-url.ts";
 
 export const accountRouter = Router();
 
@@ -52,12 +53,30 @@ accountRouter.post("/readings/sync", async (req, res) => {
       .where(eq(userReadings.readingId, body.readingId))
       .limit(1);
     if (existing.length > 0) {
-      if (body.payloadJson && !existing[0].payloadJson) {
-        await db.update(userReadings)
-          .set({ payloadJson: body.payloadJson })
-          .where(eq(userReadings.id, existing[0].id));
+      const row = existing[0];
+      if (row.userId !== user.id) {
+        res.status(403).json({ error: "无权更新该记录" });
+        return;
       }
-      res.json({ success: true, id: existing[0].id, duplicate: true });
+      const updates: {
+        title?: string;
+        summary?: string | null;
+        recommendationReason?: string | null;
+        crystalSku?: string | null;
+        payloadJson?: string | null;
+      } = {};
+      if (body.title) updates.title = body.title;
+      if (body.summary !== undefined) updates.summary = body.summary ?? null;
+      if (body.recommendationReason !== undefined) {
+        updates.recommendationReason = body.recommendationReason ?? null;
+      }
+      if (body.crystalSku !== undefined) updates.crystalSku = body.crystalSku ?? null;
+      if (body.payloadJson) updates.payloadJson = body.payloadJson;
+
+      if (Object.keys(updates).length > 0) {
+        await db.update(userReadings).set(updates).where(eq(userReadings.id, row.id));
+      }
+      res.json({ success: true, id: row.id, duplicate: true });
       return;
     }
     const [row] = await db
@@ -108,6 +127,7 @@ accountRouter.get("/readings", async (req, res) => {
       recommendationReason: r.recommendationReason,
       crystalSku: r.crystalSku,
       reportUrl: r.appSource === "ziwei" ? null : r.reportUrl,
+      detailUrl: resolveReadingDetailUrl(r.appSource, r.payloadJson, r.reportUrl),
       createdAt: r.createdAt,
     })),
   });
