@@ -1,0 +1,430 @@
+'use client';
+
+import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
+import TarotCard from '@/components/TarotCard';
+import { getCardById } from '@/lib/tarot/cards';
+import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import type {
+  DailyFortuneAnswer,
+  DailyFortuneFullReport,
+  DailyFortuneQuestion,
+  DailyFortuneRecordDto,
+} from '@/lib/daily-fortune/types';
+import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
+
+type Quota = {
+  dateKey: string;
+  allowance: number;
+  remaining: number;
+  drawsUsed: number;
+  templeBonusGranted: boolean;
+};
+
+type SessionPayload = {
+  quota: Quota;
+  latest: DailyFortuneRecordDto | null;
+  records: DailyFortuneRecordDto[];
+  isLoggedIn: boolean;
+  nickname: string | null;
+};
+
+type DrawCard = {
+  id: number;
+  name: string;
+  nameEn: string;
+  symbol: string;
+  orientation: '正位' | '逆位';
+  element: string;
+};
+
+type Step = 'loading' | 'start' | 'questions' | 'drawing' | 'report' | 'paywall';
+
+const DIM_LABELS: Record<keyof DailyFortuneFullReport, string> = {
+  work: '工作',
+  love: '爱情',
+  career: '事业',
+  wealth: '财运',
+  summary: '综合',
+};
+
+export function DailyFortuneFlow() {
+  const [step, setStep] = useState<Step>('loading');
+  const [session, setSession] = useState<SessionPayload | null>(null);
+  const [questions, setQuestions] = useState<DailyFortuneQuestion[]>([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [answers, setAnswers] = useState<DailyFortuneAnswer[]>([]);
+  const [record, setRecord] = useState<DailyFortuneRecordDto | null>(null);
+  const [card, setCard] = useState<DrawCard | null>(null);
+  const [brief, setBrief] = useState('');
+  const [fullReport, setFullReport] = useState<DailyFortuneFullReport | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [recommend, setRecommend] = useState<TarotBillingProduct | null>(null);
+  const [paywallSku, setPaywallSku] = useState<string | null>(null);
+  const [pendingOrderNo, setPendingOrderNo] = useState<string | null>(null);
+  const [error, setError] = useState('');
+
+  const loadSession = useCallback(async () => {
+    const orderParam =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('order')
+        : null;
+    if (orderParam) setPendingOrderNo(orderParam);
+
+    const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
+    const data = (await res.json()) as SessionPayload;
+    setSession(data);
+    setIsLoggedIn(data.isLoggedIn);
+    if (data.quota.remaining <= 0 && !orderParam) {
+      setPaywallSku('tarot-daily-draw');
+      setStep('paywall');
+      return;
+    }
+    if (data.latest) {
+      hydrateReport(data.latest, data.isLoggedIn);
+      setStep('report');
+      return;
+    }
+    setStep('start');
+  }, []);
+
+  const hydrateReport = (rec: DailyFortuneRecordDto, loggedIn: boolean) => {
+    setRecord(rec);
+    setBrief(rec.briefText ?? '');
+    setFullReport(loggedIn ? rec.fullReport : null);
+    if (rec.cardId != null) {
+      const meta = getCardById(rec.cardId);
+      setCard({
+        id: rec.cardId,
+        name: rec.cardName ?? meta?.name ?? '',
+        nameEn: meta?.nameEn ?? '',
+        symbol: meta?.symbol ?? '',
+        orientation: (rec.orientation as '正位' | '逆位') ?? '正位',
+        element: meta?.element ?? '',
+      });
+      setFlipped(true);
+    }
+    void loadRecommend(rec.id);
+  };
+
+  const loadRecommend = async (seed: string) => {
+    try {
+      const res = await fetch(`/api/tarot/daily-recommend?seed=${encodeURIComponent(seed)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRecommend(data.product ?? null);
+      }
+    } catch {
+      /* optional */
+    }
+  };
+
+  useEffect(() => {
+    void loadSession().catch(() => setError('加载失败'));
+  }, [loadSession]);
+
+  const beginQuestions = async () => {
+    setError('');
+    setStep('questions');
+    setQIndex(0);
+    setAnswers([]);
+    const res = await fetch('/api/daily-fortune/questions', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    const data = await res.json();
+    setQuestions(data.questions ?? []);
+  };
+
+  const pickAnswer = (answer: string) => {
+    const q = questions[qIndex];
+    if (!q) return;
+    const nextAnswers = [
+      ...answers,
+      { questionId: q.id, question: q.text, answer },
+    ];
+    setAnswers(nextAnswers);
+    if (qIndex + 1 < questions.length) {
+      setQIndex(qIndex + 1);
+      return;
+    }
+    void submitDraw(nextAnswers);
+  };
+
+  const submitDraw = async (finalAnswers: DailyFortuneAnswer[]) => {
+    setStep('drawing');
+    setError('');
+    try {
+      const res = await fetch('/api/daily-fortune/draw', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answers: finalAnswers,
+          orderNo: pendingOrderNo ?? undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 402) {
+        setPaywallSku(data.sku ?? 'tarot-daily-draw');
+        setStep('paywall');
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || '抽取失败');
+
+      setRecord(data.record);
+      setCard(data.card);
+      setBrief(data.brief);
+      setFullReport(data.fullReport);
+      setIsLoggedIn(data.isLoggedIn);
+      setSession((s) =>
+        s ? { ...s, quota: data.quota, isLoggedIn: data.isLoggedIn } : s,
+      );
+      setPendingOrderNo(null);
+      setTimeout(() => setFlipped(true), 400);
+      setTimeout(() => {
+        setStep('report');
+        void loadRecommend(data.record.id);
+      }, 1200);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '抽取失败');
+      setStep('questions');
+    }
+  };
+
+  const handlePayCheckout = async () => {
+    if (!paywallSku) return;
+    try {
+      const result = await startAppCheckout({
+        sku: paywallSku,
+        successUrl: `${window.location.origin}/daily-fortune?paid=1`,
+        cancelUrl: `${window.location.origin}/daily-fortune`,
+      });
+      redirectAfterCheckout(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '结账失败');
+    }
+  };
+
+  const cardMeta = card ? getCardById(card.id) : null;
+  const currentQ = questions[qIndex];
+
+  if (step === 'loading') {
+    return (
+      <div className="daily-fortune-page">
+        <div className="daily-fortune-quota-loading" style={{ padding: '48px 0' }}>
+          <div className="spinner" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="daily-fortune-page">
+      <div className="page-header animate-fade-in-up">
+        <span className="label">每日运势</span>
+        <h1>今日四维运势</h1>
+        <p>
+          {session?.nickname && session.nickname !== '旅人'
+            ? `${session.nickname}，`
+            : ''}
+          工作 · 爱情 · 事业 · 财运
+        </p>
+      </div>
+
+      {session && step !== 'paywall' && (
+        <div className="daily-fortune-quota card animate-fade-in-up delay-100">
+          <div className="daily-fortune-quota-row">
+            <span>今日可抽</span>
+            <strong>{session.quota.allowance} 次</strong>
+          </div>
+          <div className="daily-fortune-quota-row">
+            <span>剩余次数</span>
+            <strong>{session.quota.remaining} 次</strong>
+          </div>
+        </div>
+      )}
+
+      {step === 'start' && (
+        <div className="daily-fortune-panel card animate-fade-in-up delay-200">
+          <p className="daily-fortune-panel-lead">
+            Manto 会先问你几个小问题，再为你翻开今日主牌，并生成四维运势解读。
+          </p>
+          <button type="button" className="btn-primary daily-fortune-panel-btn" onClick={() => void beginQuestions()}>
+            开始今日运势
+          </button>
+        </div>
+      )}
+
+      {step === 'questions' && currentQ && (
+        <div className="daily-fortune-panel card animate-fade-in-up">
+          <div className="daily-fortune-q-progress">
+            问题 {qIndex + 1} / {questions.length}
+          </div>
+          <p className="daily-fortune-q-text">{currentQ.text}</p>
+          <div className="daily-fortune-q-options">
+            {currentQ.options.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                className="daily-fortune-q-option"
+                onClick={() => pickAnswer(opt)}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {step === 'drawing' && card && cardMeta && (
+        <div className="daily-fortune-draw card animate-fade-in-up">
+          <p className="daily-fortune-draw-hint">正在翻开今日主牌…</p>
+          <div className="daily-fortune-draw-card">
+            <TarotCard
+              name={cardMeta.name}
+              nameEn={cardMeta.nameEn}
+              arcana={cardMeta.arcana}
+              suit={cardMeta.suit}
+              number={cardMeta.number}
+              symbol={cardMeta.symbol}
+              orientation={card.orientation}
+              keywords={cardMeta.keywords.join(' · ')}
+              flipped={flipped}
+              glowing
+              size="lg"
+            />
+          </div>
+        </div>
+      )}
+
+      {step === 'report' && card && cardMeta && (
+        <div className="daily-fortune-report animate-fade-in-up">
+          <div className="card daily-fortune-draw" style={{ marginBottom: 16 }}>
+            <div className="daily-fortune-draw-card">
+              <TarotCard
+                name={cardMeta.name}
+                nameEn={cardMeta.nameEn}
+                arcana={cardMeta.arcana}
+                suit={cardMeta.suit}
+                number={cardMeta.number}
+                symbol={cardMeta.symbol}
+                orientation={card.orientation}
+                keywords={cardMeta.keywords.join(' · ')}
+                flipped
+                size="md"
+              />
+            </div>
+            <p className="daily-fortune-card-caption">
+              {card.name} · {card.orientation}
+            </p>
+          </div>
+
+          <div className="card daily-fortune-brief">
+            <h2 className="daily-fortune-section-title">今日简报</h2>
+            <p>{brief}</p>
+          </div>
+
+          <div className="card daily-fortune-dims">
+            <h2 className="daily-fortune-section-title">四维运势</h2>
+            {fullReport ? (
+              <div className="daily-fortune-dim-grid">
+                {(['work', 'love', 'career', 'wealth'] as const).map((key) => (
+                  <div key={key} className="daily-fortune-dim">
+                    <div className="daily-fortune-dim-head">
+                      <span>{DIM_LABELS[key]}</span>
+                      <span className="daily-fortune-dim-tag">{fullReport[key].tag}</span>
+                    </div>
+                    <p>{fullReport[key].text}</p>
+                  </div>
+                ))}
+                <div className="daily-fortune-dim daily-fortune-dim--summary">
+                  <div className="daily-fortune-dim-head">
+                    <span>综合</span>
+                  </div>
+                  <p>{fullReport.summary}</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="daily-fortune-guest-wall">
+                  <p>登录后可查看爱情、事业、财运等完整四维解读。</p>
+                  <Link href="/login" className="btn-primary">
+                    登录查看完整报告
+                  </Link>
+                </div>
+                {record?.fullReport && (
+                  <div className="daily-fortune-dim-grid daily-fortune-dim-grid--blurred" aria-hidden>
+                    {(['work', 'love', 'career', 'wealth'] as const).map((key) => (
+                      <div key={key} className="daily-fortune-dim">
+                        <div className="daily-fortune-dim-head">
+                          <span>{DIM_LABELS[key]}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {recommend && (
+            <div className="card daily-fortune-recommend">
+              <h2 className="daily-fortune-section-title">今日推荐</h2>
+              <p className="daily-fortune-recommend-name">{recommend.name}</p>
+              <p className="daily-fortune-recommend-desc">{recommend.desc}</p>
+              <p className="daily-fortune-recommend-price">{recommend.priceDisplay}</p>
+              <a
+                href={`https://shop.orasage.com/products/${encodeURIComponent(recommend.sku)}`}
+                className="btn-outline"
+                style={{ display: 'block', textAlign: 'center', marginTop: 12 }}
+              >
+                去看看 →
+              </a>
+            </div>
+          )}
+
+          {session && session.quota.remaining > 0 && (
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ width: '100%', marginTop: 12 }}
+              onClick={() => {
+                setRecord(null);
+                setCard(null);
+                setFlipped(false);
+                void beginQuestions();
+              }}
+            >
+              再抽一次（剩余 {session.quota.remaining} 次）
+            </button>
+          )}
+        </div>
+      )}
+
+      {step === 'paywall' && (
+        <div className="card daily-fortune-paywall animate-fade-in-up">
+          <h2 className="daily-fortune-section-title">今日次数已用完</h2>
+          <p className="daily-fortune-paywall-desc">
+            每日免费 1 次，神庙祈福可额外 +1 次。如需继续抽取，可购买额外次数。
+          </p>
+          <Link href="/temple" className="btn-outline" style={{ display: 'block', marginBottom: 10, textAlign: 'center' }}>
+            去神庙祈福 +1
+          </Link>
+          <button type="button" className="btn-primary" style={{ width: '100%' }} onClick={() => void handlePayCheckout()}>
+            购买额外抽取
+          </button>
+        </div>
+      )}
+
+      {error ? (
+        <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
+      ) : null}
+
+      <Link href="/" className="btn-ghost daily-fortune-coming-back" style={{ marginTop: 20 }}>
+        返回首页
+      </Link>
+    </div>
+  );
+}
