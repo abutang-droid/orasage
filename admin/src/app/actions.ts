@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts, saveBaziRecommendProducts } from '@/lib/api';
 
 export async function saveProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
@@ -60,5 +60,17 @@ export async function saveHomepageProductsAction(formData: FormData) {
     if (sku) skus.push(sku);
   }
   await saveHomepageProducts(skus);
+  revalidatePath('/products');
+}
+
+const BAZI_ELEMENTS = ['木', '火', '土', '金', '水'] as const;
+
+export async function saveBaziRecommendProductsAction(formData: FormData) {
+  const skuMap: Record<string, string> = {};
+  for (const element of BAZI_ELEMENTS) {
+    const sku = String(formData.get(`bazi_rec_${element}`) ?? '').trim();
+    if (sku) skuMap[element] = sku;
+  }
+  await saveBaziRecommendProducts(skuMap);
   revalidatePath('/products');
 }

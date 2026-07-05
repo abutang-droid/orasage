@@ -114,3 +114,20 @@ export function saveHomepageProducts(skus: string[]) {
     body: JSON.stringify({ skus }),
   });
 }
+
+export interface BaziRecommendProductsConfig {
+  elements: string[];
+  skuMap: Record<string, string>;
+  recommendations: Record<string, AdminProduct | null>;
+}
+
+export function getBaziRecommendProducts() {
+  return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products');
+}
+
+export function saveBaziRecommendProducts(skuMap: Record<string, string>) {
+  return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products', {
+    method: 'PUT',
+    body: JSON.stringify({ skuMap }),
+  });
+}

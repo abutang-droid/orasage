@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderMarkdown } from "../reportHtml";
+import { renderMarkdown, buildReportPageHtml } from "./reportHtml.ts";
 
 describe("renderMarkdown", () => {
   it("escapes raw HTML", () => {
@@ -57,5 +57,21 @@ describe("renderMarkdown", () => {
     expect(out).toContain("<strong>正印格</strong>");
     expect(out).toContain("<li>优势一</li>");
     expect(out).toContain("<li>优势二</li>");
+  });
+
+  it("buildReportPageHtml renders styled sections with keywords", () => {
+    const html = buildReportPageHtml({
+      planLabel: "深度解读",
+      reportContent: `### 命盘总览
+日主乙木，生于卯月，身强。
+
+### 性格与天赋
+格局正印格，聪慧稳重。`,
+      subjectName: "张三",
+    });
+    expect(html).toContain("OraSage 命理报告");
+    expect(html).toContain("命盘总览");
+    expect(html).toContain("class=\"kw\"");
+    expect(html).not.toContain("算法依据");
   });
 });

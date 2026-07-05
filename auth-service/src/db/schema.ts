@@ -113,6 +113,13 @@ export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+/** 八字基础版报告内五行 → 推荐商品 SKU */
+export const baziElementRecommendations = pgTable("bazi_element_recommendations", {
+  element: varchar("element", { length: 10 }).primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const userRecommendations = pgTable("user_recommendations", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),

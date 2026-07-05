@@ -6,6 +6,12 @@ import { products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
 import { formatProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
+import {
+  BAZI_ELEMENTS,
+  resolveBaziElementRecommendations,
+  setBaziElementRecommendationSkus,
+  type BaziElement,
+} from "../lib/bazi-recommend-products.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 
 export const adminApiRouter = Router();
@@ -75,6 +81,45 @@ adminApiRouter.put("/homepage-products", async (req, res) => {
       return;
     }
     console.error("[admin] homepage-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const baziRecommendSchema = z.object({
+  skuMap: z.object({
+    木: z.string().min(1).max(100),
+    火: z.string().min(1).max(100),
+    土: z.string().min(1).max(100),
+    金: z.string().min(1).max(100),
+    水: z.string().min(1).max(100),
+  }),
+});
+
+adminApiRouter.get("/bazi-recommend-products", async (_req, res) => {
+  try {
+    const data = await resolveBaziElementRecommendations();
+    res.json(data);
+  } catch (err) {
+    console.error("[admin] bazi-recommend-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/bazi-recommend-products", async (req, res) => {
+  try {
+    const body = baziRecommendSchema.parse(req.body);
+    const data = await setBaziElementRecommendationSkus(body.skuMap as Partial<Record<BaziElement, string>>);
+    res.json(data);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] bazi-recommend-products:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

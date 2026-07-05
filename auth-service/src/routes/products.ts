@@ -5,6 +5,7 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { ELEMENT_TO_SKU, formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
+import { listBaziElementRecommendationSkus, resolveBaziElementRecommendations } from "../lib/bazi-recommend-products.ts";
 
 export const productsRouter = Router();
 
@@ -52,9 +53,21 @@ productsRouter.get("/homepage", async (_req, res) => {
   }
 });
 
+productsRouter.get("/recommend/bazi", async (req, res) => {
+  try {
+    const locale = localeFromRequest(req);
+    const data = await resolveBaziElementRecommendations(locale);
+    res.json(data);
+  } catch (err) {
+    console.error("[products] recommend/bazi:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
 productsRouter.get("/recommend/crystal", async (req, res) => {
   const element = typeof req.query.element === "string" ? req.query.element.trim() : "";
-  const sku = ELEMENT_TO_SKU[element];
+  const skuMap = await listBaziElementRecommendationSkus();
+  const sku = skuMap[element as keyof typeof skuMap] ?? ELEMENT_TO_SKU[element];
   if (!sku) {
     res.status(400).json({ error: "无效的五行元素", validElements: Object.keys(ELEMENT_TO_SKU) });
     return;

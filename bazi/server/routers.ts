@@ -13,7 +13,7 @@ import fs from "fs";
 import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
-import { renderMarkdown } from "./reportHtml";
+import { buildReportPageHtml } from "./reportHtml";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
@@ -366,45 +366,12 @@ export const appRouter = router({
 
             const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
             const planLabel = planLabelMap[input.planType] || input.planType;
-            const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-            const reportHtml = renderMarkdown(input.reportContent);
-
-            const staticHtml = `<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${planLabel} - OraSage</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Noto Serif SC",serif;background:#F7F4FA;color:#3D3852;line-height:1.8}
-.container{max-width:720px;margin:2rem auto;padding:0 1rem}
-.card{background:#FFF;border-radius:16px;padding:2.5rem;box-shadow:0 4px 24px rgba(46,41,91,0.06);border:1px solid #E7E1EE;margin-bottom:1.5rem}
-.header{text-align:center;padding:2.5rem 1rem 1.5rem}
-.header h1{font-family:"Noto Serif SC",serif;font-size:1.6rem;color:#2E295B;margin-bottom:0.25rem}
-.header .meta{font-size:0.8rem;color:#7B7488}
-.header .badge{display:inline-block;background:rgba(217,164,65,0.1);color:#D9A441;padding:0.2rem 0.75rem;border-radius:999px;font-size:0.75rem;font-weight:600;margin-bottom:0.5rem}
-.report-content h2{font-size:1.15rem;color:#2E295B;margin:1.75rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(217,164,65,0.15)}
-.report-content h3{font-size:1.05rem;color:#2E295B;margin:1.25rem 0 0.5rem}
-.report-content h1{font-size:1.25rem;color:#2E295B;margin:1.5rem 0 0.5rem}
-.report-content p{margin-bottom:0.75rem}
-.report-content ul{padding-left:1.5rem;margin-bottom:0.75rem}
-.report-content li{margin-bottom:0.25rem}
-.report-content strong{color:#2E295B}
-.footer{text-align:center;padding:1.5rem;font-size:0.7rem;color:#7B7488;font-family:"Noto Sans SC",sans-serif}
-.footer a{color:#D9A441;text-decoration:none}
-@media(max-width:640px){.card{padding:1.5rem}.container{margin:1rem auto}}
-</style>
-</head>
-<body>
-<div class="header"><div class="badge">${planLabel}</div><h1>OraSage 命理报告</h1>
-<p class="meta">生成于 ${dateStr}</p></div>
-<div class="container"><div class="card"><div class="report-content"><p>${reportHtml}</p></div></div></div>
-<div class="footer"><p>由 <a href="https://www.c2.pub">OraSage</a> 生成 · 仅供参考</p></div>
-</body>
-</html>`;
+            const staticHtml = buildReportPageHtml({
+              planLabel,
+              reportContent: input.reportContent,
+              subjectName: input.name || buyerName || undefined,
+            });
 
             const filePath = path.join(reportsDir, fileName);
             fs.writeFileSync(filePath, staticHtml, 'utf-8');

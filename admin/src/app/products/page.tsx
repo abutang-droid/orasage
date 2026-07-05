@@ -1,6 +1,6 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
-import { getHomepageProducts, getProducts } from '@/lib/api';
-import { saveHomepageProductsAction, saveProductAction } from '@/app/actions';
+import { getHomepageProducts, getProducts, getBaziRecommendProducts } from '@/lib/api';
+import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -26,6 +26,7 @@ export default async function ProductsPage() {
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
+  let baziRecommendSkus: Record<string, string> = {};
   try {
     ({ products } = await getProducts());
   } catch (err) {
@@ -35,6 +36,11 @@ export default async function ProductsPage() {
     ({ skus: homepageSkus } = await getHomepageProducts());
   } catch (err) {
     console.error('[admin/homepage-products]', err);
+  }
+  try {
+    ({ skuMap: baziRecommendSkus } = await getBaziRecommendProducts());
+  } catch (err) {
+    console.error('[admin/bazi-recommend-products]', err);
   }
 
   const activeProducts = products.filter((p) => p.active);
@@ -107,6 +113,29 @@ export default async function ProductsPage() {
             部分合盘 SKU 尚未入库，请执行 auth-service 迁移 0012 或在下方通用商品区手动添加。
           </p>
         ) : null}
+      </section>
+
+      <section className="panel">
+        <h2>八字报告商品推荐（五行 → SKU）</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          仅对购买<strong>基础版数字报告</strong>的用户展示推荐商品。进阶版/礼盒版已含实体商品，不再额外推荐。
+        </p>
+        <form action={saveBaziRecommendProductsAction} className="form-grid">
+          {(['木', '火', '土', '金', '水'] as const).map((element) => (
+            <label key={element}>
+              五行「{element}」推荐商品
+              <select name={`bazi_rec_${element}`} defaultValue={baziRecommendSkus[element] ?? ''}>
+                <option value="">— 默认 crystal-{element === '木' ? 'wood' : element === '火' ? 'fire' : element === '土' ? 'earth' : element === '金' ? 'metal' : 'water'} —</option>
+                {activeProducts.filter((p) => p.category === 'crystal').map((p) => (
+                  <option key={p.sku} value={p.sku}>
+                    {p.name} ({p.sku})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <button type="submit" className="btn-primary full-width">保存八字推荐配置</button>
+        </form>
       </section>
 
       <section className="panel">

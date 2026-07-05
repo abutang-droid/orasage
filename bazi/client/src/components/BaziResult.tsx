@@ -13,12 +13,13 @@ import {
   WU_XING_COLOR, WU_XING_BG, DI_ZHI_CANG_GAN,
   calcDailyFortune, recommendBracelet,
 } from "@/lib/bazi";
-import { shopUrlForElement } from "@/lib/shop-products";
+import { shopUrlForElement, resolveShopUrlForElement, prefetchBaziRecommendSkus } from "@/lib/shop-products";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { PaywallCard } from "@/components/PaywallCard";
 import { useT } from "@/lib/i18n";
 import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
+import { extractSectionKeywords } from "@shared/section-keywords";
 import type { BraceletRecommendation } from "@/lib/bazi";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
@@ -1035,26 +1036,9 @@ function getSectionIcon(title: string): React.ReactElement {
   return SECTION_ICONS.default;
 }
 
-/** 从内容中提取关键词标签 */
-function extractKeywords(content: string): string[] {
-  const matches: string[] = [];
-  const quoted = content.match(/[「」『』【】]([^「」『』【】]{2,8})[「」『』【】]/g);
-  if (quoted) {
-    quoted.slice(0, 3).forEach(m => {
-      const inner = m.replace(/[「」『』【】]/g, "").trim();
-      if (inner) matches.push(inner);
-    });
-  }
-  if (matches.length < 2) {
-    const firstLine = content.split("\n")[0];
-    const words = firstLine.match(/[\u4e00-\u9fa5]{2,4}/g);
-    if (words) {
-      words.slice(0, 3 - matches.length).forEach(w => {
-        if (!matches.includes(w)) matches.push(w);
-      });
-    }
-  }
-  return matches.slice(0, 3);
+/** 从内容中提取关键词标签 — 见 @shared/section-keywords */
+function extractKeywords(content: string, sectionTitle?: string): string[] {
+  return extractSectionKeywords(content, sectionTitle);
 }
 
 /** 从内容中提取引言（第一句话） */
@@ -1128,7 +1112,7 @@ function SectionCard({
   wuXing?: Record<string, number>;
 }) {
   const { t } = useT();
-  const keywords = extractKeywords(content);
+  const keywords = extractKeywords(content, title);
   const quote = extractQuote(content);
   const style = getSectionStyle(title);
   const numeral = CHAPTER_NUMERALS[index] || String(index + 1);
@@ -1222,14 +1206,18 @@ function SectionCard({
 
           {/* 关键词标签 → 轻量圆点 */}
           {keywords.length > 0 && (
-            <div className="flex items-center gap-3 flex-wrap" style={{ padding: "0.25rem 0" }}>
-              <span style={{ fontSize: "0.8rem", color: "rgba(93,89,115,0.35)" }}>{t('section.tags', '标签')}</span>
+            <div className="flex items-center gap-2 flex-wrap" style={{ padding: "0.25rem 0" }}>
               {keywords.map((kw, i) => (
                 <span key={i} style={{
-                  fontSize: "0.75rem", color: style.accent,
+                  fontSize: "0.6875rem",
+                  color: style.accent,
                   fontFamily: SERIF,
+                  padding: "0.125rem 0.5rem",
+                  borderRadius: 999,
+                  background: "rgba(196,160,78,0.08)",
+                  border: `1px solid rgba(196,160,78,0.18)`,
                 }}>
-                  · {kw}
+                  {kw}
                 </span>
               ))}
             </div>
@@ -1256,6 +1244,12 @@ function BraceletRecommendCard({ recommendation, planType }: {
 }) {
   const { t } = useT();
   const b = recommendation.bracelet;
+  const [shopUrl, setShopUrl] = useState(() => shopUrlForElement(b.wuXing));
+
+  useEffect(() => {
+    prefetchBaziRecommendSkus();
+    void resolveShopUrlForElement(b.wuXing).then(setShopUrl);
+  }, [b.wuXing]);
   const isPremium = planType === "premium";
   return (
     <div className="rounded-xl overflow-hidden" style={{
@@ -1336,7 +1330,7 @@ function BraceletRecommendCard({ recommendation, planType }: {
         </details>
 
         <a
-          href={shopUrlForElement(b.wuXing)}
+          href={shopUrl}
           target="_blank"
           rel="noreferrer"
           className="mt-3 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
@@ -1908,7 +1902,7 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
   return (
     <div ref={captureRef as any} className="flex flex-col gap-3">
       <AIAnalysisPanel resultData={result as unknown as Record<string, unknown>} type="single" autoTrigger onReportReady={onReportReady} />
-      {purchasedPlan && purchasedPlan !== "basic" && braceletRec && (
+      {purchasedPlan === "basic" && braceletRec && (
         <BraceletRecommendCard recommendation={braceletRec} planType={purchasedPlan} />
       )}
     </div>

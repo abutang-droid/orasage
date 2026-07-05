@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { renderMarkdown } from './reportHtml.ts';
+import { buildReportPageHtml } from './reportHtml.ts';
 import { generateBaziReportContent } from './reportGenerator.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
@@ -61,26 +61,12 @@ function writeReportHtml(planType: string, reportContent: string): string {
     premium: '终极能量礼盒',
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';
-  const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
-  const reportHtml = renderMarkdown(reportContent);
 
-  const staticHtml = `<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${planLabel} - OraSage</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-body{font-family:"Noto Serif SC",serif;background:#F7F4FA;color:#3D3852;line-height:1.8;margin:0}
-.container{max-width:720px;margin:2rem auto;padding:0 1rem}
-.card{background:#FFF;border-radius:16px;padding:2rem;box-shadow:0 4px 24px rgba(46,41,91,0.06)}
-</style>
-</head>
-<body>
-<div class="container"><div class="card"><h1>${planLabel}</h1><p style="color:#7B7488;font-size:0.85rem">生成于 ${dateStr}</p><div>${reportHtml}</div></div></div>
-</body>
-</html>`;
+  const staticHtml = buildReportPageHtml({
+    planLabel,
+    reportContent,
+    generatedAt: new Date(),
+  });
 
   fs.writeFileSync(path.join(reportsDir, fileName), staticHtml, 'utf-8');
   return `${BAZI_PUBLIC_URL}/reports/${fileName}`;
