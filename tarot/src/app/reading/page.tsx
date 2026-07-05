@@ -7,6 +7,7 @@ import { useUser } from "@/lib/user"
 import { syncSavedProfile } from "@/lib/profile-sync"
 import { syncTarotReading, WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
 import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
+import { TarotPaywallCard } from "@/components/TarotPaywallCard"
 
 const CACHE_KEY = "manto:profile"
 function loadCachedProfile(): Record<string, string> | null {
@@ -155,11 +156,13 @@ export default function ReadingPage() {
   const [blessing, setBlessing] = useState<{ wuxing: string; crystalName: string; affirmation: string } | null>(null)
   const [currentCardIdx, setCurrentCardIdx] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [paywall, setPaywall] = useState(false)
+  const [freeRemaining, setFreeRemaining] = useState<number | null>(null)
   const [quizStep, setQuizStep] = useState(0)
   const [quizAnswers, setQuizAnswers] = useState<{wuxing:string;label:string}[]>([])
   const [quizData, setQuizData] = useState<{questions:{question:string;options:{label:string;wuxing:string}[]}[]}|null>(null)
   const [profileStep, setProfileStep] = useState(0)
-  const { user, saveProfile } = useUser()
+  const { user, loading: userLoading, saveProfile } = useUser()
   const [profile, setProfile] = useState({ name: "", birthdate: "", gender: "", occupation: "" })
   const cardsRef = useRef<CardData[]>([])
   const synthesisRef = useRef("")
@@ -232,34 +235,51 @@ export default function ReadingPage() {
     "水": { name: "黑曜石", emoji: "💧" },
   }
 
-  // ── Auto-start ──────────────────────────────────────────────────
+  // ── Auto-start (wait for guest session, then draw cards) ───────
   const [started, setStarted] = useState(false)
-  useEffect(() => {
-    if (started) return
-    setStarted(true)
+  const startReading = useCallback(async () => {
+    setError(null)
+    setPaywall(false)
+    setStep("shuffle")
     const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
     const orderNo = params?.get("order")
-    fetch("/api/reading", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: "", spreadType: "three", ...(orderNo ? { orderNo } : {}) }),
-    })
-      .then(async r => {
-        if (r.status === 402) {
-          const data = await r.json().catch(() => ({}))
-          throw new Error(data.error === "paywall" ? "免费次数已用完，请购买深度解读" : "paywall")
-        }
-        if (!r.ok) throw new Error("")
-        return r.json()
+    try {
+      const res = await fetch("/api/reading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ question: "", spreadType: "three", ...(orderNo ? { orderNo } : {}) }),
       })
-      .then(data => {
-        const mapped = data.cards.map((c: any) => ({ ...c, revealed: false, interpretation: "", mantra: "" }))
-        setCards(mapped)
-        setReadingId(data.readingId)
-        fetchInterpret(mapped)
-        setStep("revealing")
-      })
-      .catch(() => setError("连接星象失败，请重试"))
-  }, [started, fetchInterpret])
+      if (res.status === 402) {
+        const data = await res.json().catch(() => ({}))
+        setFreeRemaining(typeof data.freeReadingsRemaining === "number" ? data.freeReadingsRemaining : 0)
+        setPaywall(true)
+        return
+      }
+      if (!res.ok) throw new Error("")
+      const data = await res.json()
+      const mapped = data.cards.map((c: CardData) => ({ ...c, revealed: false, interpretation: "", mantra: "" }))
+      setCards(mapped)
+      setReadingId(data.readingId)
+      readingIdRef.current = data.readingId
+      fetchInterpret(mapped)
+      setStep("revealing")
+      if (params?.get("paid") === "1") {
+        const url = new URL(window.location.href)
+        url.searchParams.delete("paid")
+        url.searchParams.delete("order")
+        window.history.replaceState({}, "", url.pathname + url.search)
+      }
+    } catch {
+      setError("连接星象失败，请重试")
+    }
+  }, [fetchInterpret])
+
+  useEffect(() => {
+    if (started || userLoading) return
+    setStarted(true)
+    void startReading()
+  }, [started, userLoading, startReading])
 
   // ── Reveal a card ───────────────────────────────────────────────
   const revealCard = useCallback((cardIndex: number) => {
@@ -393,8 +413,28 @@ export default function ReadingPage() {
     past: "过去", present: "现在", future: "未来", current: "此刻",
   }
 
-  // ── Loading state ───────────────────────────────────────────────
+  // ── Loading / paywall ───────────────────────────────────────────
   if (step === "shuffle") {
+    if (paywall) {
+      return (
+        <div style={{
+          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+          minHeight: '70dvh', padding: '24px 16px',
+        }}>
+          <TarotPaywallCard freeReadingsRemaining={freeRemaining ?? 0} />
+          <button
+            type="button"
+            onClick={() => void startReading()}
+            style={{
+              marginTop: 16, background: 'none', border: 'none',
+              color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer',
+            }}
+          >
+            刷新状态
+          </button>
+        </div>
+      )
+    }
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70dvh' }}>
         <div style={{ textAlign: 'center' }}>
@@ -402,7 +442,22 @@ export default function ReadingPage() {
           <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
             牌正在为你洗牌...
           </p>
-          {error && <div className="toast toast-info" style={{ position: 'relative', marginTop: 16, transform: 'none', left: 'auto' }}>{error}</div>}
+          {error && (
+            <div style={{ marginTop: 16 }}>
+              <div className="toast toast-info" style={{ position: 'relative', transform: 'none', left: 'auto' }}>{error}</div>
+              <button
+                type="button"
+                onClick={() => void startReading()}
+                style={{
+                  marginTop: 12, padding: '8px 16px', borderRadius: 999,
+                  border: '1px solid var(--border)', background: 'var(--bg-card)',
+                  color: 'var(--text-primary)', cursor: 'pointer',
+                }}
+              >
+                重试
+              </button>
+            </div>
+          )}
         </div>
       </div>
     )

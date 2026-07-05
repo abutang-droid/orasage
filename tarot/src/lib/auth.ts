@@ -96,6 +96,25 @@ export async function getAuthUser(): Promise<JwtPayload | null> {
   return verifyToken(token)
 }
 
+export type EnsuredAuth = JwtPayload & { newToken?: string }
+
+/**
+ * 保证存在可计费的本地用户（访客自动建档）。
+ * 与 /api/auth/me 行为一致，供 reading 等接口在 cookie 尚未写入时兜底。
+ */
+export async function ensureAuthUser(): Promise<EnsuredAuth> {
+  const existing = await getAuthUser()
+  if (existing) return existing
+
+  const randomId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const email = `${randomId}@manto.guest`
+  await prisma.user.create({
+    data: { id: randomId, nickname: "旅人", email },
+  })
+  const token = await createToken({ userId: randomId, email })
+  return { userId: randomId, email, newToken: token }
+}
+
 export function setAuthCookie(token: string) {
   return {
     name: COOKIE_NAME,
