@@ -240,8 +240,8 @@ function TemplePageContent() {
             <h1>选择守护神</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选定后与守护神绑定`
-                : '点选一位守护神，与之绑定后即可参拜'}
+                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选定守护神，即可开始参拜`
+                : '点选一位守护神，即可开始参拜'}
             </p>
           </div>
 
@@ -272,7 +272,7 @@ function TemplePageContent() {
           {!sanctuariesLoading && filteredDeities.length === 0 && !searchQuery && (
             <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
               <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-                该信仰暂无守护神，请在 CMS 后台添加或选择其他信仰。
+                此信仰暂未开放守护神，请先选择其他信仰。
               </div>
             </div>
           )}

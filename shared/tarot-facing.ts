@@ -26,14 +26,14 @@ export type WorshipFacingDefaults = {
   bearing: number;
 };
 
-/** 默认方位角（0=北，90=东）— 仅作 UI 罗盘示意 */
+/** 朝拜朝向（视觉示意，非 GPS 定位） */
 export const WORSHIP_FACING_DEFAULTS: Record<
   Exclude<WorshipFacingMode, 'none'>,
   WorshipFacingDefaults
 > = {
-  qibla: { labelZh: '面向麦加', labelEn: 'Toward Mecca', bearing: 52 },
-  east: { labelZh: '面向东方', labelEn: 'Facing East', bearing: 90 },
-  jerusalem: { labelZh: '面向耶路撒冷', labelEn: 'Toward Jerusalem', bearing: 48 },
+  qibla: { labelZh: '面朝克尔白，心怀敬意', labelEn: 'Toward Mecca with reverence', bearing: 52 },
+  east: { labelZh: '面朝东方，静默祈愿', labelEn: 'Facing east in quiet prayer', bearing: 90 },
+  jerusalem: { labelZh: '面朝耶路撒冷，默想上天的护佑', labelEn: 'Toward Jerusalem in contemplation', bearing: 48 },
 };
 
 export const FAITH_FACING_SEED: Partial<Record<string, WorshipFacingMode>> = {

@@ -85,7 +85,7 @@ export function TempleHome({
   return (
     <div className="temple-home">
       {donated && (
-        <div className="temple-donation-toast">乐捐成功，功德已计入供养之路。</div>
+        <div className="temple-donation-toast">乐捐成功，功德已计入您的修行记录。</div>
       )}
 
       <section className="temple-home-shrine" aria-label="我的守护神">
@@ -133,7 +133,7 @@ export function TempleHome({
               />
             </div>
             <div className="temple-home-merit-meta">
-              时间路 {summary?.meritTime ?? 0} · 供养路 {summary?.meritOffer ?? 0}
+              日积月累 {summary?.meritTime ?? 0} · 诚心供养 {summary?.meritOffer ?? 0}
               {summary?.streak && summary.streak > 1 ? ` · 连续 ${summary.streak} 天` : ''}
             </div>
             <Link href="/profile/merit" className="temple-home-merit-link">

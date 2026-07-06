@@ -53,8 +53,8 @@ export function resolveWorshipFacing(
     if (bearing == null) return null;
     return {
       mode: 'east',
-      labelZh: sanctuary?.facingLabelZh?.trim() || '面向圣地',
-      labelEn: sanctuary?.facingLabelEn?.trim() || 'Toward the sacred site',
+      labelZh: sanctuary?.facingLabelZh?.trim() || '心向圣境，恭敬参拜',
+      labelEn: sanctuary?.facingLabelEn?.trim() || 'Toward the sacred with reverence',
       bearing: Number(bearing),
     };
   }

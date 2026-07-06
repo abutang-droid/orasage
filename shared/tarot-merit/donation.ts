@@ -7,7 +7,7 @@ export const TEMPLE_DONATION = {
   meritMultiplierMin: 10,
   meritMultiplierMax: 100,
   explanationZh:
-    '自愿乐捐将用于 OraSage 祈福体系的日常维护、服务器与软硬件投入。乐捐功德计入供养之路。',
+    '自愿供养，用于庙宇日常护持；功德计入您的修行记录。',
 } as const;
 
 export function randomIntInclusive(min: number, max: number): number {

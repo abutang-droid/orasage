@@ -141,21 +141,21 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
       : elapsed < 1
         ? '按住以持续参拜'
         : elapsed < 3
-          ? `${Math.round(elapsed)}s · 光环渐起`
+          ? '静心参拜中…'
           : elapsed < 7
-            ? `${Math.round(elapsed)}s · 光环扩散`
+            ? '心诚渐深…'
             : elapsed < 10
-              ? `${Math.round(elapsed)}s · 圣光展开`
-              : '虔诚之巅 · 松手完成参拜';
+              ? '敬意渐浓…'
+              : '圆满在即，可松手礼成';
 
   const hintText =
     isPressed && elapsed >= 3
       ? stage >= 3
-        ? '虔诚之巅 ✦'
+        ? '礼成在即'
         : stage >= 2
-          ? '圣光展开中…'
-          : '光环渐起…'
-      : '把手指放在神像上，感受临在';
+          ? '心诚渐深…'
+          : '静心参拜中…'
+      : '轻按守护神像，静心参拜';
 
   return (
     <div className="temple-worship">
