@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { TEMPLE_DONATION, templeDonationMeritRange } from '@/lib/merit';
+import { TEMPLE_DONATION, templeDonationMeritRange, templeDonationQuantity } from '@/lib/merit';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import './temple.css';
 
@@ -29,7 +29,7 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
       const returnUrl = `${window.location.origin}/temple?donated=1`;
       const result = await startAppCheckout({
         sku: TEMPLE_DONATION.sku,
-        priceCentsUsd: amountCents,
+        quantity: templeDonationQuantity(amountCents),
         recommendationContext: deityName ? `祈福乐捐：${deityName}` : '祈福乐捐',
         successUrl: returnUrl,
         cancelUrl: returnUrl,

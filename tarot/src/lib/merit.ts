@@ -45,6 +45,8 @@ import {
   randomTempleDonationMultiplier,
   computeTempleDonationMerit,
   templeDonationMeritRange,
+  templeDonationQuantity,
+  isValidTempleDonationQuantity,
   resolveTarotOfferKind,
   type TarotOfferMeritKind,
 } from '../../../shared/tarot-merit/donation';
@@ -55,6 +57,8 @@ export {
   randomTempleDonationMultiplier,
   computeTempleDonationMerit,
   templeDonationMeritRange,
+  templeDonationQuantity,
+  isValidTempleDonationQuantity,
   type TarotOfferMeritKind,
   resolveTarotOfferKind,
 };

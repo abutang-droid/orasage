@@ -20,6 +20,10 @@ import {
   SHOP_CART_ORDER_SKU,
   type CartOrderLine,
 } from '../../../shared/shop-cart/cart-order';
+import {
+  isValidTempleDonationQuantity,
+  TEMPLE_DONATION,
+} from '../../../shared/tarot-merit/donation';
 
 export const cartCheckoutLineSchema = z.object({
   sku: z.string().min(1),
@@ -34,9 +38,9 @@ export const cartStartCheckoutSchema = z.object({
   locale: z.string().max(16).optional(),
 });
 
-export const startCheckoutSchema = z.object({
+export const startCheckoutBodySchema = z.object({
   sku: z.string().min(1),
-  quantity: z.number().int().positive().max(10).default(1),
+  quantity: z.number().int().positive().max(100).default(1),
   appSource: z.enum(['bazi', 'ziwei', 'tarot', 'shop']).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
@@ -47,6 +51,30 @@ export const startCheckoutSchema = z.object({
   priceCents: z.number().int().positive().optional(),
   priceCentsUsd: z.number().int().positive().optional(),
   locale: z.string().max(16).optional(),
+});
+
+export function validateCheckoutQuantity(sku: string, quantity: number, ctx: z.RefinementCtx): void {
+  if (sku === TEMPLE_DONATION.sku) {
+    if (!isValidTempleDonationQuantity(quantity)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '乐捐金额需在 $0.01–$1 之间',
+        path: ['quantity'],
+      });
+    }
+    return;
+  }
+  if (quantity > 10) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: '数量超出限制',
+      path: ['quantity'],
+    });
+  }
+}
+
+export const startCheckoutSchema = startCheckoutBodySchema.superRefine((body, ctx) => {
+  validateCheckoutQuantity(body.sku, body.quantity ?? 1, ctx);
 });
 
 export type CartStartCheckoutInput = z.infer<typeof cartStartCheckoutSchema> & { userId: number };
