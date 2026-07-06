@@ -1,5 +1,6 @@
 import { jwtVerify } from 'jose';
 import type { Payload } from 'payload';
+import type { User } from '../payload-types';
 
 const COOKIE_NAME = process.env.JWT_COOKIE_NAME || 'orasage_token';
 
@@ -89,7 +90,7 @@ export async function resolveOrasagePayloadUser(
       data: {
         email,
         orasageUserId,
-      } as Record<string, unknown>,
+      } satisfies Omit<User, 'id' | 'updatedAt' | 'createdAt' | 'collection'>,
       overrideAccess: true,
     });
     return created as unknown as Record<string, unknown>;
