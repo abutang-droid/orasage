@@ -9,12 +9,11 @@ export const externalUrls = {
   cms: 'https://admin.orasage.com/cms',
 } as const;
 
-/** 祈福 / 功德深链（tarot 子域） */
+/** 祈福 / 功德深链 */
 export function tarotBlessingUrls(locale = 'zh-CN') {
-  const base = externalUrls.tarot.replace(/\/$/, '');
   const portalBase = `https://orasage.com/${locale}`;
   return {
-    merit: `${base}/profile/merit`,
+    merit: `${portalBase}/profile/merit`,
     temple: externalUrls.temple,
     settings: `${portalBase}/profile/settings`,
     changeFaith: `${externalUrls.temple}?change=faith`,

@@ -240,6 +240,35 @@
       "privacy": "Privacy policy",
       "terms": "Terms of service",
       "noBody": "No content"
+    },
+    "merit": {
+      "title": "Merit details",
+      "desc": "Practice level, merit rules, and recent worship",
+      "loading": "Loading merit…",
+      "loadError": "Could not load merit data",
+      "notLinked": "No temple practice yet — worship your deity to earn merit",
+      "goTemple": "Go to temple",
+      "totalMerit": "Total merit",
+      "neededForNext": " · {count} merit to next level",
+      "maxLevel": " · Max level reached",
+      "timeMerit": "⏳ Time merit",
+      "timeMeta": "{checkins} worship days · {streak} day streak · best {longest}",
+      "offerMerit": "💰 Offering merit",
+      "spentTotal": "Total spent {amount}",
+      "shareMeritHistory": "📤 Share merit (historical)",
+      "shareActive": "Referral rewards active",
+      "sharePaused": "Share path paused; historical merit still counts",
+      "sacredNote": "Sacred days multiply all merit ×{multiplier}. Levels never decrease.",
+      "rulesTitle": "Merit rules",
+      "levelsTitle": "Levels & privileges",
+      "recentTitle": "Recent worship",
+      "recentEmpty": "No worship yet —",
+      "pathActive": "Active",
+      "pathPaused": "Paused",
+      "currentLevel": "Current",
+      "meritUnit": "merit",
+      "leaderboardOn": "On leaderboard",
+      "leaderboardOff": "Hidden from leaderboard"
     }
   }
 }

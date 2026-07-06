@@ -25,23 +25,105 @@ export type BlessingMeritSummary = {
   };
 };
 
-export async function fetchTarotMeritSummary(orasageUserId: number): Promise<BlessingMeritSummary> {
-  if (!TAROT_INTERNAL_SECRET) {
-    return { linked: false };
-  }
+export type MeritRuleRow = {
+  condition: string;
+  amount: string;
+  note?: string;
+};
+
+export type MeritDetailSummary = {
+  total: number;
+  level: number;
+  levelTitleZh: string;
+  levelTitleEn: string;
+  levelTitlePt: string;
+  streak: number;
+  streakLongest: number;
+  totalCheckins: number;
+  totalSpentCents: number;
+  rank: string;
+  progressInLevel: number;
+  neededForNext: number | null;
+  meritTime: number;
+  meritShare: number;
+  meritOffer: number;
+  sharePathEnabled: boolean;
+  prayedToday: boolean;
+};
+
+export type MeritDetailRules = {
+  sharePathEnabled: boolean;
+  sacredDayMultiplier: number;
+  levels: Array<{
+    level: number;
+    min: number;
+    max: number | null;
+    titleZh: string;
+    titleEn: string;
+    titlePt: string;
+    privileges: { leaderboard: boolean; unlocksZh: string[] };
+  }>;
+  time: {
+    label: string;
+    active: boolean;
+    rules: MeritRuleRow[];
+    interruptNote?: string;
+  };
+  share: {
+    label: string;
+    active: boolean;
+    pausedNote?: string;
+    rules: MeritRuleRow[];
+  };
+  offer: {
+    label: string;
+    active: boolean;
+    rules: MeritRuleRow[];
+  };
+};
+
+export type MeritCheckin = {
+  deityName: string;
+  worshipStage: number;
+  meritEarned: number;
+  checkinDate: string;
+};
+
+export type BlessingMeritDetail = {
+  linked: boolean;
+  summary?: MeritDetailSummary;
+  recentCheckins?: MeritCheckin[];
+  rules?: MeritDetailRules;
+};
+
+async function tarotInternalFetch(path: string): Promise<Response | null> {
+  if (!TAROT_INTERNAL_SECRET) return null;
   try {
-    const res = await fetch(
-      `${TAROT_INTERNAL_URL}/api/internal/merit/summary?orasageUserId=${orasageUserId}`,
-      {
-        headers: { 'x-tarot-internal-key': TAROT_INTERNAL_SECRET },
-        cache: 'no-store',
-      },
-    );
-    if (!res.ok) {
-      return { linked: false };
-    }
-    return (await res.json()) as BlessingMeritSummary;
+    return await fetch(`${TAROT_INTERNAL_URL}${path}`, {
+      headers: { 'x-tarot-internal-key': TAROT_INTERNAL_SECRET },
+      cache: 'no-store',
+    });
   } catch {
+    return null;
+  }
+}
+
+export async function fetchTarotMeritSummary(orasageUserId: number): Promise<BlessingMeritSummary> {
+  const res = await tarotInternalFetch(
+    `/api/internal/merit/summary?orasageUserId=${orasageUserId}`,
+  );
+  if (!res?.ok) {
     return { linked: false };
   }
+  return (await res.json()) as BlessingMeritSummary;
+}
+
+export async function fetchTarotMeritDetail(orasageUserId: number): Promise<BlessingMeritDetail> {
+  const res = await tarotInternalFetch(
+    `/api/internal/merit/detail?orasageUserId=${orasageUserId}`,
+  );
+  if (!res?.ok) {
+    return { linked: false };
+  }
+  return (await res.json()) as BlessingMeritDetail;
 }

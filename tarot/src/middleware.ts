@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 const MAIN_PROFILE = "https://orasage.com/zh-CN/profile"
 const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
+const MAIN_MERIT = "https://orasage.com/zh-CN/profile/merit"
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
@@ -12,6 +13,10 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === "/profile") {
     return NextResponse.redirect(MAIN_PROFILE)
+  }
+
+  if (pathname === "/profile/merit") {
+    return NextResponse.redirect(MAIN_MERIT)
   }
 
   if (pathname === "/profile/settings" || pathname === "/settings") {
@@ -27,6 +32,8 @@ export const config = {
     "/fortune/",
     "/profile",
     "/profile/",
+    "/profile/merit",
+    "/profile/merit/",
     "/profile/settings",
     "/profile/settings/",
     "/settings",

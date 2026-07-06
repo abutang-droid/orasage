@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { BlessingMeritSummary } from '@/lib/tarot-merit';
 import { tarotBlessingUrls } from '@/lib/urls';
 import { useProfileAuth } from './ProfileAuth';
@@ -101,12 +102,12 @@ export function BlessingMeritCard() {
           >
             {t('nav.myDeity')}
           </a>
-          <a
-            href={urls.merit}
+          <Link
+            href="/profile/merit"
             className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 sm:flex-none"
           >
             {t('nav.meritDetail')}
-          </a>
+          </Link>
         </div>
       </CardContent>
     </Card>
