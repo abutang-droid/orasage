@@ -4,6 +4,7 @@ import { Alert, AlertDescription, Badge, Card, CardContent } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOrders, type UserOrder } from '@/lib/auth';
+import { formatOrderProductTitle } from '../../../../shared/shop-cart/cart-order';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 import { formatShippingDisplay } from '../../../../shared/shop-fulfillment/index';
 
@@ -65,7 +66,7 @@ export function OrdersList() {
             <CardContent className="p-4 sm:p-5">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="font-medium text-foreground">{o.title}</p>
+                  <p className="font-medium text-foreground">{formatOrderProductTitle(o)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {o.orderNo}
                     {o.appLabel ? ` · ${o.appLabel}` : ''}
@@ -83,10 +84,6 @@ export function OrdersList() {
                   {t('shipping')}: {formatShippingDisplay(o.shippingAddress) || o.shippingAddress}
                 </p>
               )}
-              {o.recommendationContext && (
-                <p className="mt-2 text-xs text-primary/90">{o.recommendationContext}</p>
-              )}
-              {o.sku && <p className="mt-1 text-xs text-muted-foreground">SKU: {o.sku}</p>}
               <p className="mt-3">
                 <a
                   href={`https://shop.orasage.com/orders/${encodeURIComponent(o.orderNo)}`}

@@ -41,3 +41,18 @@ export function isCartOrder(order: { sku?: string | null; recommendationContext?
   if (order.sku === SHOP_CART_ORDER_SKU) return true;
   return parseCartOrderContext(order.recommendationContext) !== null;
 }
+
+/** 订单列表/详情展示用：购物车订单显示商品名称，不暴露 SKU / JSON */
+export function formatOrderProductTitle(order: {
+  title: string;
+  sku?: string | null;
+  recommendationContext?: string | null;
+}): string {
+  const cart = parseCartOrderContext(order.recommendationContext);
+  if (cart?.items.length) {
+    return cart.items
+      .map((item) => (item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name))
+      .join('、');
+  }
+  return order.title;
+}

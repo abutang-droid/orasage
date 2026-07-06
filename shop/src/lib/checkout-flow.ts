@@ -229,7 +229,6 @@ async function resolveCartLines(
   }
 
   const amountCents = lines.reduce((sum, line) => sum + line.unitCents * line.quantity, 0);
-  const totalQty = lines.reduce((sum, line) => sum + line.quantity, 0);
   const cartLines: CartOrderLine[] = lines.map((line) => ({
     sku: line.product.sku,
     quantity: line.quantity,
@@ -237,7 +236,9 @@ async function resolveCartLines(
   }));
   const title = lines.length === 1
     ? (lines[0].quantity > 1 ? `${lines[0].product.name} ×${lines[0].quantity}` : lines[0].product.name)
-    : `商城订单（${totalQty} 件）`;
+    : cartLines
+      .map((line) => (line.quantity > 1 ? `${line.name} ×${line.quantity}` : line.name))
+      .join('、');
 
   return { lines, cartLines, amountCents, title };
 }
