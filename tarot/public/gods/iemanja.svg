@@ -17,5 +17,5 @@
       <path d="M72 148c16 24 32 36 56 36s40-12 56-36" opacity="0.6" />
       <path d="M168 88a20 20 0 1 1-40 0 20 20 0 0 1 40 0z" />
   </g>
-  <text x="128" y="230" text-anchor="middle" font-family="Georgia, 'Noto Serif SC', serif" font-size="11" fill="rgba(255,255,255,0.55)">简图 · 待替换</text>
+  // watermark omitted — placeholder art only
 </svg>

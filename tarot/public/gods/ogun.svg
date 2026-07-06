@@ -17,5 +17,5 @@
       <path d="M88 176h80" stroke-width="6" />
       <path d="M96 168h64" opacity="0.5" />
   </g>
-  <text x="128" y="230" text-anchor="middle" font-family="Georgia, 'Noto Serif SC', serif" font-size="11" fill="rgba(255,255,255,0.55)">简图 · 待替换</text>
+  // watermark omitted — placeholder art only
 </svg>

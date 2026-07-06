@@ -268,7 +268,7 @@ export const MERIT_RULES = {
     privileges: LEVEL_PRIVILEGES[l.level],
   })),
   time: {
-    label: '时间之路',
+    label: '日积月累',
     accent: 'time' as const,
     active: true,
     rules: [
@@ -297,7 +297,7 @@ export const MERIT_RULES = {
     ] satisfies MeritRuleRow[],
   },
   offer: {
-    label: '供养之路',
+    label: '诚心供养',
     accent: 'offer' as const,
     active: true,
     rules: [
@@ -306,8 +306,8 @@ export const MERIT_RULES = {
       { condition: '为他人购买水晶（赠礼）', amount: `+${OFFER_MERIT.crystal_gift}` },
       {
         condition: '祈福乐捐',
-        amount: '金额(美元) × 随机倍数(10–100)',
-        note: `$${(TEMPLE_DONATION.minCentsUsd / 100).toFixed(2)}–$${(TEMPLE_DONATION.maxCentsUsd / 100).toFixed(2)}，计入供养功德`,
+        amount: '依金额计入供养功德',
+        note: `$${(TEMPLE_DONATION.minCentsUsd / 100).toFixed(2)}–$${(TEMPLE_DONATION.maxCentsUsd / 100).toFixed(2)} 自愿供养`,
       },
       { condition: '累计消费 $100', amount: '+50' },
       { condition: '累计消费 $1,000', amount: '+200' },

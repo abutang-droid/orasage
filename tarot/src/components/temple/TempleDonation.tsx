@@ -48,7 +48,6 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
       <p className="temple-donation-note">{TEMPLE_DONATION.explanationZh}</p>
       <p className="temple-donation-formula">
         预计功德 <span className="temple-donation-merit">{meritRange.min}–{meritRange.max}</span>
-        {' '}(金额 × 随机倍数 10–100)
       </p>
 
       <div className="temple-donation-presets">
