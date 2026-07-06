@@ -2,7 +2,7 @@ import type { Express } from 'express';
 import {
   fallbackBaziHomeHero,
   resolveBaziHeroFromRaw,
-} from '../client/src/lib/cms-bazi-hero';
+} from './cmsBaziHero';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
