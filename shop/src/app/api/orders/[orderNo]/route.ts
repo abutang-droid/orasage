@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo } from '@/lib/orders';
 import { resolveOrderFulfillment } from '@/lib/order-fulfillment';
-import { parseCartOrderContext } from '../../../../../../shared/shop-cart/cart-order';
+import { parseCartOrderContext, formatOrderProductTitle } from '../../../../../../shared/shop-cart/cart-order';
 import { proxyAuthMe } from '@/lib/auth-proxy';
 
 type RouteContext = { params: Promise<{ orderNo: string }> };
@@ -33,7 +33,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({
       order: {
         orderNo: order.orderNo,
-        title: order.title,
+        title: formatOrderProductTitle(order),
         sku: order.sku,
         amountCents: order.amountCents,
         currency: order.currency,
