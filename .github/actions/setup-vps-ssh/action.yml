@@ -1,0 +1,87 @@
+name: Setup VPS SSH
+description: Load deploy key and configure direct SSH or GCP IAP tunnel
+
+inputs:
+  ssh_host:
+    description: VPS host
+    required: false
+    default: '34.75.40.67'
+  ssh_user:
+    description: SSH user
+    required: false
+    default: ubuntu
+
+outputs:
+  mode:
+    description: direct or iap
+    value: ${{ steps.transport.outputs.mode }}
+
+runs:
+  using: composite
+  steps:
+    - name: Load SSH private key
+      shell: bash
+      env:
+        KEY1: ${{ secrets.SSH_PRIVATE_KEY }}
+        KEY2: ${{ secrets.SSH_KEY }}
+        KEY3: ${{ secrets.VPS_SSH_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        SSH_PRIVATE_KEY="${KEY1:-${KEY2:-$KEY3}}"
+        if [ -z "$SSH_PRIVATE_KEY" ]; then
+          echo "::error::未找到 SSH 私钥。请在 Settings → Secrets → Actions 添加 SSH_PRIVATE_KEY"
+          exit 1
+        fi
+        printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        if ! grep -q 'BEGIN.*PRIVATE KEY' ~/.ssh/deploy_key; then
+          echo "::error::SSH_PRIVATE_KEY 格式不正确"
+          exit 1
+        fi
+        ssh-keyscan -H "${{ inputs.ssh_host }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+        echo "SSH key loaded ($(wc -c < ~/.ssh/deploy_key) bytes)"
+
+    - name: Configure SSH transport
+      id: transport
+      shell: bash
+      env:
+        SSH_HOST: ${{ inputs.ssh_host }}
+        SSH_USER: ${{ inputs.ssh_user }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+        GCP_ZONE: ${{ secrets.GCP_ZONE }}
+        GCP_INSTANCE: ${{ secrets.GCP_INSTANCE }}
+      run: |
+        if timeout 25 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=20 \
+          -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "echo SSH_OK"; then
+          echo "mode=direct" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "::warning::直连 SSH 失败，尝试 GCP IAP..."
+
+        if [ -z "$GCP_SA_KEY" ]; then
+          echo "::error::无法 SSH 到 ${SSH_HOST}:22，且未配置 GCP_SA_KEY"
+          echo "::error::见 deploy/GITHUB-ACTIONS-SETUP.md"
+          exit 1
+        fi
+
+        if [ -z "$GCP_PROJECT" ] || [ -z "$GCP_ZONE" ] || [ -z "$GCP_INSTANCE" ]; then
+          echo "::error::GCP IAP 配置不完整（GCP_PROJECT / GCP_ZONE / GCP_INSTANCE）"
+          exit 1
+        fi
+
+        echo "$GCP_SA_KEY" > /tmp/gcp-sa.json
+        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq google-cloud-cli
+        gcloud auth activate-service-account --key-file=/tmp/gcp-sa.json
+        gcloud config set project "$GCP_PROJECT"
+        PROXY_CMD="gcloud compute start-iap-tunnel ${GCP_INSTANCE} 22 --listen-on-stdin --project=${GCP_PROJECT} --zone=${GCP_ZONE}"
+        echo "GCP_IAP_PROXY_COMMAND=$PROXY_CMD" >> "$GITHUB_ENV"
+        timeout 30 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=20 \
+          -o StrictHostKeyChecking=no \
+          -o "ProxyCommand=$PROXY_CMD" \
+          "${SSH_USER}@${SSH_HOST}" "echo IAP_SSH_OK"
+        echo "mode=iap" >> "$GITHUB_OUTPUT"
