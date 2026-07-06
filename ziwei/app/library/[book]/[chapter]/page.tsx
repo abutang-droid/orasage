@@ -14,7 +14,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ book: string; chapter: string }> }) {
   const { book: bookSlug, chapter: chIdx } = await params;
-  const result = getChapter(bookSlug, parseInt(chIdx));
+  const result = await getChapter(bookSlug, parseInt(chIdx));
   if (!result) return {};
   return {
     title: `${result.chapter.title} · 《${result.book.title}》· 紫微斗数古籍`,
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
 
 export default async function ChapterPage({ params }: { params: Promise<{ book: string; chapter: string }> }) {
   const { book: bookSlug, chapter: chIdx } = await params;
-  const result = getChapter(bookSlug, parseInt(chIdx));
+  const result = await getChapter(bookSlug, parseInt(chIdx));
   if (!result) notFound();
 
   const { book, chapter, chapterIdx } = result;

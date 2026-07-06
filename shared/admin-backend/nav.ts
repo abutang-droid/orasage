@@ -76,6 +76,15 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.includes('/collections/ziwei-feed'),
   },
   {
+    label: '紫微知识库',
+    href: '/cms/admin/collections/ziwei-classics-books',
+    isActive: (p) =>
+      p.includes('/collections/ziwei-classics-books') ||
+      p.includes('/collections/ziwei-classics-chapters') ||
+      p.includes('/collections/ziwei-knowledge-stars') ||
+      p.includes('/collections/ziwei-heming-stars'),
+  },
+  {
     label: '宗教 / 圣地',
     href: '/cms/admin/collections/faiths',
     isActive: (p) =>

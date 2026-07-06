@@ -21,6 +21,10 @@ import { ShopHomeHero } from './globals/ShopHomeHero';
 import { TarotHomeHero } from './globals/TarotHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 import { ZiweiFeed } from './collections/ZiweiFeed';
+import { ZiweiClassicsBooks } from './collections/ZiweiClassicsBooks';
+import { ZiweiClassicsChapters } from './collections/ZiweiClassicsChapters';
+import { ZiweiKnowledgeStars } from './collections/ZiweiKnowledgeStars';
+import { ZiweiHemingStars } from './collections/ZiweiHemingStars';
 import { ShopProductMedia } from './collections/ShopProductMedia';
 import { cmsZhTranslations } from './lib/cms-zh';
 
@@ -75,7 +79,23 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Media, Pages, Faiths, Sanctuaries, GeoRegions, GeoCountries, CountryFaiths, BaziFeed, ZiweiFeed, ShopProductMedia],
+  collections: [
+    Users,
+    Media,
+    Pages,
+    Faiths,
+    Sanctuaries,
+    GeoRegions,
+    GeoCountries,
+    CountryFaiths,
+    BaziFeed,
+    ZiweiFeed,
+    ZiweiClassicsBooks,
+    ZiweiClassicsChapters,
+    ZiweiKnowledgeStars,
+    ZiweiHemingStars,
+    ShopProductMedia,
+  ],
   globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero, TarotHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

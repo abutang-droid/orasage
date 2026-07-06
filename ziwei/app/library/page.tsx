@@ -5,7 +5,7 @@
  */
 
 import Link from 'next/link';
-import { ALL_BOOKS, TOTAL_PARAGRAPHS } from '@/lib/classics';
+import { loadAllBooks, getTotalParagraphs } from '@/lib/classics';
 import LibrarySearch from './LibrarySearch';
 
 export const metadata = {
@@ -13,7 +13,9 @@ export const metadata = {
   description: '紫微斗数权威古籍全文检索：《紫微斗数全集》《紫微斗数全书》《骨髓赋》倪海夏《天纪》引证来源',
 };
 
-export default function LibraryHomePage() {
+export default async function LibraryHomePage() {
+  const [books, totalParagraphs] = await Promise.all([loadAllBooks(), getTotalParagraphs()]);
+
   return (
     <div style={{ background: 'var(--bg-page)' }}>
 
@@ -29,7 +31,7 @@ export default function LibraryHomePage() {
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--tx-2)', letterSpacing: '0.1em', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
           紫微斗数权威古籍全文检索<br />
-          收录 <strong style={{ color: 'var(--ac)' }}>{ALL_BOOKS.length}</strong> 部古籍 · 共 <strong style={{ color: 'var(--ac)' }}>{TOTAL_PARAGRAPHS}</strong> 段精华
+          收录 <strong style={{ color: 'var(--ac)' }}>{books.length}</strong> 部古籍 · 共 <strong style={{ color: 'var(--ac)' }}>{totalParagraphs}</strong> 段精华
         </p>
       </div>
 
@@ -41,7 +43,7 @@ export default function LibraryHomePage() {
       {/* 古籍列表 */}
       <div className="max-w-5xl mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ALL_BOOKS.map(book => (
+          {books.map(book => (
             <Link
               key={book.slug}
               href={`/library/${book.slug}`}

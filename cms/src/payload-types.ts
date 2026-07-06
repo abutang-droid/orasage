@@ -77,6 +77,11 @@ export interface Config {
     'country-faiths': CountryFaith;
     'bazi-feed': BaziFeed;
     'ziwei-feed': ZiweiFeed;
+    'ziwei-classics-books': ZiweiClassicsBook;
+    'ziwei-classics-chapters': ZiweiClassicsChapter;
+    'ziwei-knowledge-stars': ZiweiKnowledgeStar;
+    'ziwei-heming-stars': ZiweiHemingStar;
+    'shop-product-images': ShopProductImage;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +99,11 @@ export interface Config {
     'country-faiths': CountryFaithsSelect<false> | CountryFaithsSelect<true>;
     'bazi-feed': BaziFeedSelect<false> | BaziFeedSelect<true>;
     'ziwei-feed': ZiweiFeedSelect<false> | ZiweiFeedSelect<true>;
+    'ziwei-classics-books': ZiweiClassicsBooksSelect<false> | ZiweiClassicsBooksSelect<true>;
+    'ziwei-classics-chapters': ZiweiClassicsChaptersSelect<false> | ZiweiClassicsChaptersSelect<true>;
+    'ziwei-knowledge-stars': ZiweiKnowledgeStarsSelect<false> | ZiweiKnowledgeStarsSelect<true>;
+    'ziwei-heming-stars': ZiweiHemingStarsSelect<false> | ZiweiHemingStarsSelect<true>;
+    'shop-product-images': ShopProductImagesSelect<false> | ShopProductImagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -501,6 +511,142 @@ export interface ZiweiFeed {
   createdAt: string;
 }
 /**
+ * 紫微斗数古籍原典书目。章节内容在「紫微古籍章节」中维护。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-classics-books".
+ */
+export interface ZiweiClassicsBook {
+  id: number;
+  /**
+   * 稳定标识，与 ziwei /library URL 一致，如 gusuifu、quanji
+   */
+  code: string;
+  title: string;
+  /**
+   * 如「明代」
+   */
+  dynasty?: string | null;
+  author?: string | null;
+  intro?: string | null;
+  wordCount?: number | null;
+  sortOrder?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 古籍章节原文。段落以 JSON 数组存储（id、idx、text、translation、niNote）。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-classics-chapters".
+ */
+export interface ZiweiClassicsChapter {
+  id: number;
+  /**
+   * 如 gusuifu-0（书目 code + 章节序号）
+   */
+  code: string;
+  /**
+   * 关联的古籍书目
+   */
+  book: number | ZiweiClassicsBook;
+  /**
+   * 从 0 开始，与 ziwei /library/[book]/[chapter] 一致
+   */
+  chapterIndex: number;
+  title: string;
+  subtitle?: string | null;
+  /**
+   * JSON 数组：[{ "id": "gsf-1-1", "idx": 1, "text": "原文…", "translation": "可选", "niNote": "可选" }]
+   */
+  paragraphs:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 十四主星一句话简介与属性标签，供紫微知识库首页展示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-knowledge-stars".
+ */
+export interface ZiweiKnowledgeStar {
+  id: number;
+  /**
+   * 拼音 slug，如 ziwei、tianji，与 /knowledge/{slug}/overview 一致
+   */
+  code: string;
+  starName: string;
+  brief: string;
+  /**
+   * 逗号分隔，如「帝星,尊贵,领导」
+   */
+  keywords?: string | null;
+  /**
+   * 如「阳土」
+   */
+  nature?: string | null;
+  /**
+   * 如「尊」
+   */
+  element?: string | null;
+  sortOrder?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 十四主星在夫妻宫的合盘断语，供 AI 解读与运营编辑参考。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-heming-stars".
+ */
+export interface ZiweiHemingStar {
+  id: number;
+  /**
+   * 拼音 slug，如 ziwei
+   */
+  code: string;
+  starName: string;
+  summary: string;
+  good?: string | null;
+  bad?: string | null;
+  spouseTraits?: string | null;
+  timing?: string | null;
+  niQuote?: string | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 商城 SKU 主图数据存储于此，由运营后台「商品管理」统一编辑上传。每条记录对应一个 SKU。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-images".
+ */
+export interface ShopProductImage {
+  id: number;
+  /**
+   * 例如 crystal-wood、report-bazi-basic。可在 admin.orasage.com/products 复制。
+   */
+  sku: string;
+  /**
+   * 建议 1:1 或 4:5，JPG/PNG/WebP。可先上传到「媒体库」再在此选择。
+   */
+  image: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -563,6 +709,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'ziwei-feed';
         value: number | ZiweiFeed;
+      } | null)
+    | ({
+        relationTo: 'ziwei-classics-books';
+        value: number | ZiweiClassicsBook;
+      } | null)
+    | ({
+        relationTo: 'ziwei-classics-chapters';
+        value: number | ZiweiClassicsChapter;
+      } | null)
+    | ({
+        relationTo: 'ziwei-knowledge-stars';
+        value: number | ZiweiKnowledgeStar;
+      } | null)
+    | ({
+        relationTo: 'ziwei-heming-stars';
+        value: number | ZiweiHemingStar;
+      } | null)
+    | ({
+        relationTo: 'shop-product-images';
+        value: number | ShopProductImage;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -770,6 +936,80 @@ export interface ZiweiFeedSelect<T extends boolean = true> {
   locale?: T;
   sort?: T;
   enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-classics-books_select".
+ */
+export interface ZiweiClassicsBooksSelect<T extends boolean = true> {
+  code?: T;
+  title?: T;
+  dynasty?: T;
+  author?: T;
+  intro?: T;
+  wordCount?: T;
+  sortOrder?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-classics-chapters_select".
+ */
+export interface ZiweiClassicsChaptersSelect<T extends boolean = true> {
+  code?: T;
+  book?: T;
+  chapterIndex?: T;
+  title?: T;
+  subtitle?: T;
+  paragraphs?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-knowledge-stars_select".
+ */
+export interface ZiweiKnowledgeStarsSelect<T extends boolean = true> {
+  code?: T;
+  starName?: T;
+  brief?: T;
+  keywords?: T;
+  nature?: T;
+  element?: T;
+  sortOrder?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ziwei-heming-stars_select".
+ */
+export interface ZiweiHemingStarsSelect<T extends boolean = true> {
+  code?: T;
+  starName?: T;
+  summary?: T;
+  good?: T;
+  bad?: T;
+  spouseTraits?: T;
+  timing?: T;
+  niQuote?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-images_select".
+ */
+export interface ShopProductImagesSelect<T extends boolean = true> {
+  sku?: T;
+  image?: T;
   updatedAt?: T;
   createdAt?: T;
 }

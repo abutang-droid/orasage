@@ -6,6 +6,7 @@
 import Link from 'next/link';
 import { ALL_STARS, ALL_TOPICS, getKnowledge, STAR_BRIEF_SEO, STAR_TO_SLUG } from '@/lib/seo/knowledge';
 import { TOPIC_LABEL } from '@/lib/ziwei/db-analysis';
+import { loadKnowledgeStars } from '@/lib/classics';
 
 export const metadata = {
   title: '紫微斗数知识库 · 14 主星 × 13 宫位 · 倪海夏正宗体系',
@@ -13,8 +14,14 @@ export const metadata = {
   keywords: ['紫微斗数', '倪海夏', '倪海厦紫微斗数', '紫微斗数全集', '紫微斗数全书', '14 主星', '12 宫位'],
 };
 
-export default function KnowledgeHomePage() {
-  const STAR_DESCRIPTIONS_QUICK = STAR_BRIEF_SEO;
+export default async function KnowledgeHomePage() {
+  const cmsStars = await loadKnowledgeStars();
+  const starBriefs: Record<string, string> = { ...STAR_BRIEF_SEO };
+  if (cmsStars) {
+    for (const s of cmsStars) {
+      starBriefs[s.starName] = s.brief;
+    }
+  }
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
@@ -82,7 +89,7 @@ export default function KnowledgeHomePage() {
                 </span>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--tx-2)', lineHeight: 1.7, marginBottom: '12px' }}>
-                {STAR_DESCRIPTIONS_QUICK[star] || ''}
+                {starBriefs[star] || ''}
               </p>
               <div className="flex flex-wrap gap-2">
                 {ALL_TOPICS.map(t => {

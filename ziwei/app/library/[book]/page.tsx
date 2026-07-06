@@ -12,7 +12,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ book: string }> }) {
   const { book: slug } = await params;
-  const book = getBookBySlug(slug);
+  const book = await getBookBySlug(slug);
   if (!book) return {};
   return {
     title: `《${book.title}》· ${book.dynasty} · 紫微斗数古籍原典库`,
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
 
 export default async function BookPage({ params }: { params: Promise<{ book: string }> }) {
   const { book: slug } = await params;
-  const book = getBookBySlug(slug);
+  const book = await getBookBySlug(slug);
   if (!book) notFound();
 
   return (
