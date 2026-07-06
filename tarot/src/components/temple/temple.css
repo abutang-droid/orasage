@@ -1,3 +1,45 @@
+/* ── Temple status card ─────────────────────────────────────── */
+
+.temple-status {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.temple-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.temple-status-row strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.temple-status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(184, 148, 63, 0.12);
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.temple-status-badge--done {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
 /* ── Temple worship (P3 light sacred visual) ─────────────────── */
 
 .temple-worship {

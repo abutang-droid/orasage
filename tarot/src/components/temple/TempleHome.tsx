@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { TempleDonation } from '@/components/temple/TempleDonation';
+import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { loadLastBlessing, type LastBlessing } from '@/lib/temple/last-blessing';
 import './temple.css';
@@ -87,6 +88,8 @@ export function TempleHome({
       {donated && (
         <div className="temple-donation-toast">乐捐成功，功德已计入您的修行记录。</div>
       )}
+
+      <TempleStatusCard />
 
       <section className="temple-home-shrine" aria-label="我的守护神">
         <div className="temple-home-shrine-bg" aria-hidden />
