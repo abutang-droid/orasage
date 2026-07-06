@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo } from '@/lib/orders';
 import { resolveOrderFulfillment } from '@/lib/order-fulfillment';
+import { parseCartOrderContext } from '../../../../../../shared/shop-cart/cart-order';
 import { proxyAuthMe } from '@/lib/auth-proxy';
 
 type RouteContext = { params: Promise<{ orderNo: string }> };
@@ -24,6 +25,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
     }
 
     const fulfillment = await resolveOrderFulfillment(order);
+    const cart = parseCartOrderContext(order.recommendationContext);
 
     const detailRes = await proxyAuthMe(`/orders/${encodeURIComponent(orderNo)}`);
     const detailData = detailRes.ok ? await detailRes.json().catch(() => ({})) : {};
@@ -43,6 +45,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
         createdAt: detailData.order?.createdAt,
       },
       fulfillment,
+      cartItems: cart?.items ?? null,
       shipments: detailData.shipments ?? [],
     });
   } catch (err) {

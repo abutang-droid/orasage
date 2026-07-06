@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo, updateOrderShipping } from '@/lib/orders';
-import { getProduct } from '@/lib/products';
+import { resolveOrderFulfillment } from '@/lib/order-fulfillment';
 import {
   formatShippingAddress,
-  inferRequiresShipping,
-  inferRequiresWristSize,
   validateShippingPayload,
   type ShippingPayload,
 } from '../../../../../../../shared/shop-fulfillment/index';
@@ -51,11 +49,8 @@ export async function POST(req: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: '订单状态不允许修改收货信息' }, { status: 409 });
     }
 
-    const product = order.sku ? await getProduct(order.sku) : null;
-    const requiresShipping = product
-      ? (product.requiresShipping ?? inferRequiresShipping(product))
-      : false;
-    if (!requiresShipping) {
+    const fulfillment = await resolveOrderFulfillment(order);
+    if (!fulfillment.requiresShipping) {
       return NextResponse.json({ error: '该订单无需收货信息' }, { status: 400 });
     }
 
@@ -66,11 +61,8 @@ export async function POST(req: NextRequest, context: RouteContext) {
         countryCode: (r.countryCode ?? 'CN').toUpperCase(),
       })),
     };
-    const requireWrist = product
-      ? (product.requiresWristSize ?? inferRequiresWristSize(product))
-      : false;
     const validationError = validateShippingPayload(payload, {
-      requireWrist,
+      requireWrist: fulfillment.requiresWristSize,
       recipientCount: couple ? 2 : 1,
     });
     if (validationError) {
