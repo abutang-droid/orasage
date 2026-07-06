@@ -214,7 +214,7 @@ function TemplePageContent() {
         onComplete={(result) => void handleJourneyComplete(result)}
         title="第一步 · 你的心灵故乡"
         subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
-        faithConfirmLabel="下一步 · 选择圣地"
+        faithConfirmLabel="下一步 · 选择守护神"
         fullscreen
       />
     )
@@ -236,12 +236,12 @@ function TemplePageContent() {
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32 }}>
           <div className="page-header" style={{ padding: '16px 0' }}>
-            <span className="label">🛐 选择守护神</span>
-            <h1>选择朝拜圣地</h1>
+            <span className="label">🛐 守护神</span>
+            <h1>选择守护神</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''}`
-                : '选择你的守护神，把手指放在神像上'}
+                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选定后与守护神绑定`
+                : '点选一位守护神，与之绑定后即可参拜'}
             </p>
           </div>
 
@@ -265,14 +265,14 @@ function TemplePageContent() {
 
           {sanctuariesLoading ? (
             <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 13 }}>
-              正在从 CMS 加载圣地…
+              正在加载守护神列表…
             </div>
           ) : null}
 
           {!sanctuariesLoading && filteredDeities.length === 0 && !searchQuery && (
             <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
               <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-                该信仰暂无圣地，请在 CMS 后台添加或选择其他信仰。
+                该信仰暂无守护神，请在 CMS 后台添加或选择其他信仰。
               </div>
             </div>
           )}

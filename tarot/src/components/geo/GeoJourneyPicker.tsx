@@ -45,7 +45,7 @@ const STEP_LABELS = ['大洲', '国家', '信仰'];
 const CONFIRM_LABELS: Record<JourneyStep, string> = {
   region: '确认大洲，选择国家',
   country: '确认国家，选择信仰',
-  faith: '下一步 · 选择圣地',
+  faith: '下一步 · 选择守护神',
 };
 
 export function GeoJourneyPicker({
@@ -53,7 +53,7 @@ export function GeoJourneyPicker({
   onComplete,
   title = '第一步 · 你的心灵故乡',
   subtitle = '从世界地图出发，找到与你最贴近的国家与信仰',
-  faithConfirmLabel = '下一步 · 选择圣地',
+  faithConfirmLabel = '下一步 · 选择守护神',
   fullscreen = true,
 }: GeoJourneyPickerProps) {
   const [step, setStep] = useState<JourneyStep>('region');
