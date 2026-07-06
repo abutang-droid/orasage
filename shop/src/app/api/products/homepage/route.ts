@@ -1,15 +1,26 @@
 import { NextResponse } from 'next/server';
+import { fetchProductImageMap } from '@/lib/cms-product-images';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
 export async function GET() {
   try {
-    const res = await fetch(`${authInternalUrl}/api/products/homepage`, {
-      next: { revalidate: 60 },
-    } as RequestInit);
+    const [res, imageMap] = await Promise.all([
+      fetch(`${authInternalUrl}/api/products/homepage`, {
+        next: { revalidate: 60 },
+      } as RequestInit),
+      fetchProductImageMap(),
+    ]);
     if (!res.ok) throw new Error(`homepage API ${res.status}`);
-    const data = await res.json();
-    return NextResponse.json(data);
+    const data = await res.json() as {
+      products?: Array<{ sku: string } & Record<string, unknown>>;
+      categories?: unknown;
+    };
+    const products = (data.products ?? []).map((p) => ({
+      ...p,
+      imageUrl: imageMap.get(p.sku) ?? null,
+    }));
+    return NextResponse.json({ ...data, products });
   } catch (err) {
     console.warn('[shop] homepage products fallback:', err);
     const { FALLBACK_PRODUCTS, categoryLabels } = await import('@/lib/products');

@@ -9,6 +9,7 @@ export interface HomepageCatalogItem {
   category: ProductCategory;
   categoryLabel: string;
   shopUrl: string;
+  imageUrl?: string | null;
 }
 
 export interface HomepageCatalog {
@@ -41,6 +42,7 @@ export async function fetchHomepageCatalog(): Promise<HomepageCatalog> {
         category: ProductCategory;
         categoryLabel?: string;
         shopUrl?: string;
+        imageUrl?: string | null;
       }>;
       categories: Array<{ id: ProductCategory; label: string }>;
     };
@@ -54,6 +56,7 @@ export async function fetchHomepageCatalog(): Promise<HomepageCatalog> {
       category: p.category,
       categoryLabel: p.categoryLabel ?? p.category,
       shopUrl: p.shopUrl ?? `${shopUrl}?sku=${encodeURIComponent(p.sku)}`,
+      imageUrl: p.imageUrl ?? null,
     }));
 
     return {

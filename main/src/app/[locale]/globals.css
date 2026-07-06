@@ -228,6 +228,14 @@
     @apply bg-card;
   }
 
+  .home-product-image-wrap {
+    @apply relative aspect-square w-full overflow-hidden rounded-[calc(var(--os-radius-card,1rem)-4px)] bg-muted;
+  }
+
+  .home-product-image {
+    @apply h-full w-full object-cover;
+  }
+
   .home-tool-icon {
     @apply bg-muted text-muted-foreground;
   }
