@@ -173,7 +173,7 @@ export function TempleHome({
 
       <p className="temple-home-settings-hint">
         更换守护神或信仰地区，请前往
-        <Link href="/profile/settings">我的 → 设置</Link>
+        <Link href="/settings">应用设置</Link>
       </p>
     </div>
   );

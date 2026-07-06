@@ -1,14 +1,8 @@
 "use client"
 
-import { useT, useLang, type Lang } from "@/lib/i18n/context"
+import { useT, useLang } from "@/lib/i18n/context"
 import { mainPortalUrl } from "@/lib/orasage-app-shell/config"
-
-const LANG_TO_LOCALE: Record<Lang, string> = {
-  zh: "zh-CN",
-  en: "en",
-  pt: "pt-BR",
-  es: "es",
-}
+import { localeFromLang } from "@/lib/orasage-locale"
 
 const FOOTER_COPY = {
   copyright: {
@@ -35,7 +29,7 @@ const FOOTER_COPY = {
 export function PortalFooter() {
   const t = useT()
   const { lang } = useLang()
-  const locale = LANG_TO_LOCALE[lang] ?? "zh-CN"
+  const locale = localeFromLang(lang)
   const base = mainPortalUrl(locale)
 
   return (
