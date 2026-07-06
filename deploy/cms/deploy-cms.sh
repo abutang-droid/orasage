@@ -16,6 +16,9 @@ source "$DEPLOY_DIR/deploy/lib/load-env.sh" 2>/dev/null || true
 
 log() { echo "[$(date '+%H:%M:%S')] [cms] $*"; }
 
+# 与 orasage-cms.service 中 User= 保持一致
+CMS_RUN_USER="${CMS_RUN_USER:-ubuntu}"
+
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || { log "缺少命令: $1"; exit 1; }
 }
@@ -103,6 +106,14 @@ sync_media_files() {
   fi
 }
 
+ensure_media_permissions() {
+  CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
+  mkdir -p "$CMS_MEDIA_DIR"
+  chown -R "${CMS_RUN_USER}:${CMS_RUN_USER}" "$CMS_MEDIA_DIR"
+  chmod 775 "$CMS_MEDIA_DIR"
+  log "媒体目录权限: ${CMS_MEDIA_DIR} → ${CMS_RUN_USER} (775)"
+}
+
 deploy_native() {
   log "部署 cms（Payload）..."
   require_cmd npm
@@ -110,6 +121,7 @@ deploy_native() {
   CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
   mkdir -p "$CMS_MEDIA_DIR"
   sync_media_files
+  ensure_media_permissions
   if [ -f "$APP_DIR/.env" ]; then
     if grep -q '^CMS_MEDIA_DIR=' "$APP_DIR/.env"; then
       sed -i "s|^CMS_MEDIA_DIR=.*|CMS_MEDIA_DIR=${CMS_MEDIA_DIR}|" "$APP_DIR/.env"
@@ -130,8 +142,11 @@ deploy_native() {
   npm run build
 
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
+  if [ "$(id -u)" -eq 0 ] && [ "$RUN_USER" = "root" ]; then
+    RUN_USER="$CMS_RUN_USER"
+  fi
   chown -R "$RUN_USER:$RUN_USER" "$APP_DIR"
-  chown -R "$RUN_USER:$RUN_USER" "$CMS_MEDIA_DIR"
+  ensure_media_permissions
 
   cp "$DEPLOY_DIR/deploy/cms/orasage-cms.service" /etc/systemd/system/
   systemctl daemon-reload
@@ -169,6 +184,15 @@ verify() {
     log "  媒体样本 ${sample_file}: 内网 HTTP $local_code, 公网 HTTP $public_code"
   else
     log "  警告: ${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media} 无 jpg 样本，请确认 CMS 媒体已上传"
+  fi
+  media_dir="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
+  media_owner=$(stat -c '%U' "$media_dir" 2>/dev/null || echo "unknown")
+  if [ "$media_owner" != "$CMS_RUN_USER" ]; then
+    log "  警告: 媒体目录属主为 $media_owner（期望 $CMS_RUN_USER），上传可能失败"
+  elif sudo -u "$CMS_RUN_USER" test -w "$media_dir" 2>/dev/null; then
+    log "  媒体目录可写: $media_dir ($CMS_RUN_USER)"
+  else
+    log "  警告: $CMS_RUN_USER 无法写入 $media_dir"
   fi
 }
 
