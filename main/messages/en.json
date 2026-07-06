@@ -172,6 +172,27 @@
       "privacy": "Privacy",
       "terms": "Terms"
     },
+    "blessing": {
+      "title": "Blessing & merit",
+      "desc": "Your temple practice on Tarot, synced when signed in",
+      "loading": "Loading merit…",
+      "loadError": "Could not load blessing data",
+      "empty": "No temple visits yet — worship your deity to earn merit",
+      "startCta": "Go to temple",
+      "level": "Level",
+      "meritTotal": "Merit",
+      "streak": "Streak",
+      "streakDays": "{count} days",
+      "streakNone": "—",
+      "prayedToday": "Today",
+      "prayedDone": "Done",
+      "prayedPending": "Not yet",
+      "nav": {
+        "meritDetail": "Merit details",
+        "myDeity": "My deity",
+        "worshipLog": "Worship log"
+      }
+    },
     "profiles": {
       "title": "Saved charts",
       "desc": "Charts saved in apps sync here. Use labels like A, B, C to tell them apart.",

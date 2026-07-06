@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { useProfileAuth } from './ProfileAuth';
 import { ProfileAccountCard } from './ProfileAccountCard';
 import { ProfileLoginCard } from './ProfileLoginCard';
+import { BlessingMeritCard } from './BlessingMeritCard';
 
 type MenuItem = {
   href: string;
@@ -34,6 +35,8 @@ export function ProfileHub({ locale }: { locale: string }) {
   return (
     <div className="space-y-6">
       {!user ? <ProfileLoginCard locale={locale} variant="hub" /> : <ProfileAccountCard />}
+
+      {user ? <BlessingMeritCard /> : null}
 
       <Card className="overflow-hidden p-0">
         <nav aria-label={t('title')}>
