@@ -1,14 +1,9 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaithPicker } from '@/components/FaithPicker';
-import { WorldMapSvg, type MapHotspot } from '@/components/geo/WorldMapSvg';
-import {
-  countryMapCoords,
-  fitViewportToHotspots,
-  spreadMapCoords,
-  WORLD_VIEWPORT,
-} from '@/lib/geo/map-layout';
+import { countryMapCoords, spreadMapCoords } from '@/lib/geo/map-layout';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
 import { storeGeo } from '@/lib/geo/types';
 import {
@@ -18,6 +13,14 @@ import {
 } from '@/lib/faiths/religions';
 import { splitFaithsByRank } from '@/lib/cms/faiths';
 import './geo-journey.css';
+
+const JourneyVectorMap = dynamic(
+  () => import('@/components/geo/JourneyVectorMap').then((m) => m.JourneyVectorMap),
+  {
+    ssr: false,
+    loading: () => <div className="geo-journey-loading">正在加载世界地图…</div>,
+  },
+);
 
 type JourneyStep = 'region' | 'country' | 'faith';
 
@@ -58,6 +61,7 @@ export function GeoJourneyPicker({
 }: GeoJourneyPickerProps) {
   const [step, setStep] = useState<JourneyStep>('region');
   const [regions, setRegions] = useState<GeoRegion[]>([]);
+  const [allCountries, setAllCountries] = useState<GeoCountry[]>([]);
   const [countries, setCountries] = useState<GeoCountry[]>([]);
   const [faiths, setFaiths] = useState<FaithOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,11 +85,13 @@ export function GeoJourneyPicker({
     if (!initDone.current) setLoading(true);
     Promise.all([
       fetch('/api/geo/regions').then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/geo/countries').then((r) => (r.ok ? r.json() : null)),
       fetch('/api/geo/suggest-country').then((r) => (r.ok ? r.json() : null)),
     ])
-      .then(([regionsData, suggestData]) => {
+      .then(([regionsData, allCountriesData, suggestData]) => {
         if (cancelled) return;
         if (regionsData?.regions) setRegions(regionsData.regions);
+        if (allCountriesData?.countries) setAllCountries(allCountriesData.countries);
         if (suggestData) setSuggested(suggestData as SuggestResponse);
 
         if (!initDone.current) {
@@ -238,34 +244,7 @@ export function GeoJourneyPicker({
     return ranked.slice(0, 6);
   }, [faiths]);
 
-  const regionHotspots: MapHotspot[] = useMemo(
-    () =>
-      regions.map((r) => ({
-        id: r.code,
-        label: r.nameZh,
-        sublabel: r.nameEn,
-        mapX: r.mapX,
-        mapY: r.mapY,
-      })),
-    [regions],
-  );
-
-  const countryHotspots: MapHotspot[] = useMemo(
-    () =>
-      countries.map((c) => {
-        const coords = countryMapCoords(c.code, c);
-        return {
-          id: c.code,
-          label: c.nameZh,
-          sublabel: c.nameEn,
-          mapX: coords.mapX,
-          mapY: coords.mapY,
-        };
-      }),
-    [countries],
-  );
-
-  const faithHotspots: MapHotspot[] = useMemo(() => {
+  const faithMarkers = useMemo(() => {
     if (!selectedCountry) return [];
     const base = countryMapCoords(selectedCountry.code, selectedCountry);
     return mapFaiths.map((faith, index) => {
@@ -274,7 +253,6 @@ export function GeoJourneyPicker({
         id: faith.id,
         label: faith.nameZh,
         sublabel: faith.nameEn,
-        emoji: faith.emoji,
         mapX: pos.mapX,
         mapY: pos.mapY,
       };
@@ -283,52 +261,13 @@ export function GeoJourneyPicker({
 
   const pendingRegionOption = useMemo(() => {
     if (!pendingRegion) return null;
-    const found = regions.find((r) => r.code === pendingRegion);
-    if (found) return found;
-    const hotspot = regionHotspots.find((h) => h.id === pendingRegion);
-    if (hotspot) {
-      return {
-        code: pendingRegion,
-        nameZh: hotspot.label,
-        nameEn: hotspot.sublabel ?? pendingRegion,
-        mapX: hotspot.mapX,
-        mapY: hotspot.mapY,
-        sortOrder: 0,
-      };
-    }
-    return null;
-  }, [regions, pendingRegion, regionHotspots]);
+    return regions.find((r) => r.code === pendingRegion) ?? null;
+  }, [regions, pendingRegion]);
 
   const pendingCountryOption = useMemo(() => {
     if (!pendingCountry) return null;
-    const found = countries.find((c) => c.code === pendingCountry);
-    if (found) return found;
-    const hotspot = countryHotspots.find((h) => h.id === pendingCountry);
-    if (hotspot) {
-      return {
-        code: pendingCountry,
-        nameZh: hotspot.label,
-        nameEn: hotspot.sublabel ?? pendingCountry,
-        regionCode: continentCode,
-        mapX: hotspot.mapX,
-        mapY: hotspot.mapY,
-        sortOrder: 0,
-      };
-    }
-    return null;
-  }, [countries, pendingCountry, countryHotspots, continentCode]);
-
-  const activeHotspots =
-    step === 'region' ? regionHotspots : step === 'country' ? countryHotspots : faithHotspots;
-
-  const viewport = useMemo(() => {
-    if (step === 'region') return fitViewportToHotspots(regionHotspots);
-    if (step === 'country') return fitViewportToHotspots(countryHotspots);
-    if (step === 'faith') return fitViewportToHotspots(faithHotspots);
-    return WORLD_VIEWPORT;
-  }, [step, regionHotspots, countryHotspots, faithHotspots]);
-
-  const viewportKey = `${step}-${continentCode}-${countryCode}-${activeHotspots.length}`;
+    return countries.find((c) => c.code === pendingCountry) ?? null;
+  }, [countries, pendingCountry]);
 
   const selectedMapId =
     step === 'region'
@@ -385,7 +324,7 @@ export function GeoJourneyPicker({
 
   const stepHint =
     step === 'region'
-      ? '在地图上找到与你相应的大洲，点选确认'
+      ? '在地图上点选任意国家，确认所属大洲'
       : step === 'country'
         ? '点选你的国家，确认后继续'
         : '选择最贴近你内心的信仰，确认后继续';
@@ -431,20 +370,22 @@ export function GeoJourneyPicker({
   return (
     <div className={`geo-journey${fullscreen ? ' geo-journey--fullscreen' : ''}`}>
       <div className="geo-journey-map-layer">
-        <WorldMapSvg
-          hotspots={activeHotspots}
+        <JourneyVectorMap
+          step={step}
+          allCountries={allCountries}
+          countries={countries}
+          continentCode={continentCode}
+          countryCode={countryCode}
+          faithMarkers={faithMarkers}
           selectedId={selectedMapId}
           onSelect={handleMapSelect}
-          viewport={viewport}
-          viewportKey={viewportKey}
           ariaLabel={
             step === 'region'
-              ? '世界地图，点选大洲'
+              ? '世界地图，点选国家以选择大洲'
               : step === 'country'
                 ? '区域地图，点选国家'
                 : '国家地图，点选信仰'
           }
-          compactLabels={step === 'faith'}
         />
       </div>
 
