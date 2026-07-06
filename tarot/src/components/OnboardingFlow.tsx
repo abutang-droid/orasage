@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaithPicker } from '@/components/FaithPicker';
+import { GeoJourneyPicker } from '@/components/geo/GeoJourneyPicker';
 import {
   GENDER_OPTIONS,
   OCCUPATION_OPTIONS,
@@ -29,7 +29,7 @@ type Step =
   | 'birthday'
   | 'gender'
   | 'occupation'
-  | 'faith'
+  | 'geo_journey'
   | 'saving';
 
 function MentorRow({ text }: { text: string }) {
@@ -115,6 +115,8 @@ export function OnboardingFlow() {
     gender: '',
     occupation: '',
     faith: '',
+    countryCode: '',
+    continentCode: '',
   });
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [introDone, setIntroDone] = useState(false);
@@ -158,6 +160,8 @@ export function OnboardingFlow() {
             gender: p.gender,
             occupation: p.occupation,
             faith: p.faith,
+            countryCode: p.countryCode,
+            continentCode: p.continentCode,
           }));
         }
       })
@@ -223,9 +227,9 @@ export function OnboardingFlow() {
       pushMentor('你现在的工作状态是？这会影响事业与财运的解读角度。');
       return;
     }
-    if (!draft.faith) {
-      setStep('faith');
-      pushMentor('最后，选择一种与你心灵相近的信仰或精神传统。祈福与运势都会参考它。');
+    if (!draft.faith || !draft.countryCode) {
+      setStep('geo_journey');
+      pushMentor('最后，在地图上找到你的心灵故乡，并选择一种精神归属。祈福与运势都会参考它。');
       return;
     }
     void finishOnboarding(draft);
@@ -258,7 +262,7 @@ export function OnboardingFlow() {
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存失败');
       setSaving(false);
-      setStep('faith');
+      setStep('geo_journey');
     }
   };
 
@@ -279,15 +283,26 @@ export function OnboardingFlow() {
   const onOccupationPick = (occupation: OccupationOption) => {
     setDraft((d) => ({ ...d, occupation }));
     pushUser(occupation);
-    setStep('faith');
-    pushMentor('最后一步——选择你的信仰或精神归属。');
+    setStep('geo_journey');
+    pushMentor('最后一步——在地图上找到你的国家，并选择信仰或精神归属。');
   };
 
-  const onFaithPick = (faith: string) => {
-    const next = { ...draft, faith };
+  const onGeoJourneyComplete = (result: {
+    continentCode: string;
+    countryCode: string;
+    faith: string;
+  }) => {
+    const next: OnboardingDraft = {
+      ...draft,
+      faith: result.faith,
+      countryCode: result.countryCode,
+      continentCode: result.continentCode,
+    };
     setDraft(next);
-    const label = isCustomFaithId(faith) ? customFaithDisplayName(faith) : formatFaithLabel(faith);
-    pushUser(label || '已选择信仰');
+    const label = isCustomFaithId(result.faith)
+      ? customFaithDisplayName(result.faith)
+      : formatFaithLabel(result.faith);
+    pushUser(`${label} · ${result.countryCode}`);
     void finishOnboarding(next);
   };
 
@@ -422,14 +437,18 @@ export function OnboardingFlow() {
               </div>
             )}
 
-            {step === 'faith' && (
+            {step === 'geo_journey' && (
               <div className="onboarding-faith-wrap">
-                <FaithPicker
-                  value={draft.faith}
-                  onChange={onFaithPick}
+                <GeoJourneyPicker
+                  value={{
+                    continentCode: draft.continentCode || undefined,
+                    countryCode: draft.countryCode || undefined,
+                    faith: draft.faith || undefined,
+                  }}
+                  onComplete={onGeoJourneyComplete}
                   title=""
                   subtitle=""
-                  confirmLabel="确认信仰"
+                  faithConfirmLabel="确认并完成引导"
                 />
               </div>
             )}

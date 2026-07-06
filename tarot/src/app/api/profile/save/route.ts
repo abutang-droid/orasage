@@ -10,6 +10,8 @@ const profileSchema = z.object({
   occupation: z.string().optional(),
   preferredDeity: z.string().optional(),
   faith: z.string().max(80).optional(),
+  countryCode: z.string().length(2).optional(),
+  continentCode: z.string().max(20).optional(),
   onboardingCompleted: z.boolean().optional(),
 })
 
@@ -32,6 +34,8 @@ export async function POST(req: NextRequest) {
     if (data.occupation) update.occupation = data.occupation
     if (data.preferredDeity) update.preferredDeity = data.preferredDeity
     if (data.faith) update.faith = data.faith
+    if (data.countryCode) update.countryCode = data.countryCode.toUpperCase()
+    if (data.continentCode) update.continentCode = data.continentCode
     if (data.onboardingCompleted !== undefined) update.onboardingCompleted = data.onboardingCompleted
 
     if (Object.keys(update).length === 0) {

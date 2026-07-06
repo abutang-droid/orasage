@@ -18,6 +18,8 @@ export interface UserData {
   occupation?: string | null
   preferredDeity?: string | null
   faith?: string | null
+  countryCode?: string | null
+  continentCode?: string | null
   onboardingCompleted?: boolean
   meritTotal?: number
   streakDays?: number
@@ -29,6 +31,7 @@ interface UserCtx {
   saveProfile: (fields: Partial<Pick<UserData, "nickname" | "birthday" | "gender" | "occupation">>) => Promise<boolean>
   setDeity: (deity: string) => Promise<boolean>
   setFaith: (faith: string) => Promise<boolean>
+  setGeo: (continentCode: string, countryCode: string) => Promise<boolean>
 }
 
 const UserContext = createContext<UserCtx>({
@@ -36,6 +39,7 @@ const UserContext = createContext<UserCtx>({
   saveProfile: async () => false,
   setDeity: async () => false,
   setFaith: async () => false,
+  setGeo: async () => false,
 })
 
 const LS_KEY = "manto:user"
@@ -64,6 +68,8 @@ function merge(server: UserData, local: UserData | null): UserData {
     occupation: server.occupation || local?.occupation || null,
     preferredDeity: server.preferredDeity || local?.preferredDeity || null,
     faith: server.faith || local?.faith || null,
+    countryCode: server.countryCode || local?.countryCode || null,
+    continentCode: server.continentCode || local?.continentCode || null,
     onboardingCompleted: server.onboardingCompleted ?? local?.onboardingCompleted ?? false,
     meritTotal: server.meritTotal ?? local?.meritTotal ?? 0,
     streakDays: server.streakDays ?? local?.streakDays ?? 0,
@@ -166,8 +172,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } catch { return false }
   }, [user])
 
+  const setGeo = useCallback(async (continentCode: string, countryCode: string) => {
+    if (!user) return false
+    try {
+      const res = await fetch("/api/profile/save", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          continentCode,
+          countryCode: countryCode.toUpperCase(),
+        }),
+      })
+      const data = await res.json()
+      if (data.saved) {
+        const updated = {
+          ...user,
+          continentCode,
+          countryCode: countryCode.toUpperCase(),
+        }
+        setUser(updated)
+        cacheUser(updated)
+        return true
+      }
+      return false
+    } catch { return false }
+  }, [user])
+
   return (
-    <UserContext.Provider value={{ user, loading, saveProfile, setDeity, setFaith }}>
+    <UserContext.Provider value={{ user, loading, saveProfile, setDeity, setFaith, setGeo }}>
       {children}
     </UserContext.Provider>
   )

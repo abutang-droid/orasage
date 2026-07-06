@@ -5,7 +5,8 @@ import { ensureReferralCode } from "@/lib/merit-service"
 
 const USER_SELECT = {
   id: true, nickname: true, email: true, avatar: true, birthday: true, gender: true,
-  occupation: true, preferredDeity: true, faith: true, onboardingCompleted: true,
+  occupation: true, preferredDeity: true, faith: true,
+  countryCode: true, continentCode: true, onboardingCompleted: true,
   onboardingStep: true, meritTotal: true, meritLevel: true, streakDays: true,
   streakLongest: true, lastCheckinDate: true, referralCode: true,
 } as const

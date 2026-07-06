@@ -1,0 +1,243 @@
+/* ── Geo Journey (P2 map → country → faith) ─────────────────── */
+
+.geo-journey {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.geo-journey-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.geo-journey-step {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.2s ease;
+}
+
+.geo-journey-step.is-done,
+.geo-journey-step.is-current {
+  background: var(--gold-light);
+}
+
+.geo-journey-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+}
+
+.geo-journey-back:hover {
+  color: var(--text-primary);
+}
+
+/* World map */
+.world-map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.world-map-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.world-map-hotspots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.world-map-hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.world-map-hotspot-pulse {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--hotspot-color, rgba(201, 149, 74, 0.5));
+  border: 2px solid var(--gold-light);
+  box-shadow: 0 0 12px rgba(201, 149, 74, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.world-map-hotspot.is-active .world-map-hotspot-pulse,
+.world-map-hotspot:hover .world-map-hotspot-pulse {
+  transform: scale(1.25);
+  box-shadow: 0 0 18px rgba(201, 149, 74, 0.55);
+}
+
+.world-map-hotspot-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+}
+
+.world-map-hotspot.is-active .world-map-hotspot-label {
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+  font-weight: 600;
+}
+
+/* Country list */
+.geo-country-suggest {
+  padding: 14px 16px;
+  background: rgba(201, 149, 74, 0.08);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.geo-country-suggest-lead {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.geo-country-suggest-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background 0.15s ease;
+}
+
+.geo-country-suggest-btn:hover {
+  background: var(--bg-card-hover);
+}
+
+.geo-country-suggest-name {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-serif);
+}
+
+.geo-country-suggest-en {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.geo-country-search {
+  margin-bottom: 12px;
+}
+
+.geo-country-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.geo-country-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: all 0.15s ease;
+}
+
+.geo-country-item:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-card-hover);
+}
+
+.geo-country-item.is-selected {
+  border-color: var(--border-focus);
+  background: var(--bg-card-hover);
+}
+
+.geo-country-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-serif);
+}
+
+.geo-country-item-en {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.geo-country-item-check {
+  font-size: 12px;
+  color: var(--gold-light);
+}
+
+.geo-journey-loading {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.geo-journey-region-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.geo-journey-faith-wrap {
+  margin-top: 4px;
+}
+
+.geo-journey-faith-context {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: rgba(201, 149, 74, 0.06);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}

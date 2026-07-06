@@ -1,13 +1,15 @@
 "use client"
 import { useState, useRef, useCallback, useEffect } from "react"
 import Link from "next/link"
-import { FaithPicker, loadStoredFaith } from "@/components/FaithPicker"
+import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
+import { loadStoredFaith } from "@/components/FaithPicker"
 import { formatFaithLabel } from "@/lib/faiths/religions"
+import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
 import type { Deity } from "@/lib/faiths/deities"
 import { useUser } from "@/lib/user"
 
-type TemplePhase = "faith" | "select" | "worship" | "blessing"
+type TemplePhase = "journey" | "select" | "worship" | "blessing"
 
 // ─── Worship Halo Animation ────────────────────────────────────────
 function HaloRings({ stage, deityColor }: { stage: number; deityColor: string }) {
@@ -343,13 +345,15 @@ function BlessingScreen({ deity, duration, stage, meritEarned, blessingText, alr
 
 // ─── Main Temple Page ──────────────────────────────────────────────
 export default function TemplePage() {
-  const { user, setFaith, setDeity } = useUser()
+  const { user, setFaith, setDeity, setGeo } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [selectedContinent, setSelectedContinent] = useState<string | null>(null)
   const [selectedDeity, setSelectedDeity] = useState<Sanctuary | null>(null)
   const [savedDeity, setSavedDeity] = useState<Sanctuary | null>(null)
   const [sanctuaries, setSanctuaries] = useState<Sanctuary[]>([])
   const [sanctuariesLoading, setSanctuariesLoading] = useState(false)
-  const [phase, setPhase] = useState<TemplePhase>("faith")
+  const [phase, setPhase] = useState<TemplePhase>("journey")
   const [blessingData, setBlessingData] = useState<{
     duration: number
     stage: number
@@ -366,11 +370,13 @@ export default function TemplePage() {
     const storedFaith = loadStoredFaith() || user?.faith || null
     if (storedFaith) {
       setSelectedFaith(storedFaith)
+      setSelectedCountry(user?.countryCode ?? null)
+      setSelectedContinent(user?.continentCode ?? null)
       setPhase("select")
     } else if (!user?.onboardingCompleted) {
-      setPhase("faith")
+      setPhase("journey")
     }
-  }, [user?.faith, user?.onboardingCompleted])
+  }, [user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
 
   useEffect(() => {
     if (phase !== "select") return
@@ -399,16 +405,19 @@ export default function TemplePage() {
     return () => { cancelled = true }
   }, [phase, selectedFaith])
 
-  const handleFaithChange = useCallback(async (faithId: string) => {
-    setSelectedFaith(faithId)
-    await setFaith(faithId)
+  const handleJourneyComplete = useCallback(async (result: GeoJourneySelection) => {
+    setSelectedFaith(result.faith)
+    setSelectedCountry(result.countryCode)
+    setSelectedContinent(result.continentCode)
+    await setGeo(result.continentCode, result.countryCode)
+    await setFaith(result.faith)
     void fetch('/api/onboarding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ step: 'faith' }),
     })
     setPhase("select")
-  }, [setFaith])
+  }, [setFaith, setGeo])
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
@@ -471,17 +480,21 @@ export default function TemplePage() {
     !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // ── Faith selection ──
-  if (phase === "faith") {
+  // ── Geo journey (region → country → faith) ──
+  if (phase === "journey") {
     return (
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32, paddingBottom: 32 }}>
-          <FaithPicker
-            value={selectedFaith}
-            onChange={(id) => void handleFaithChange(id)}
-            title="第一步 · 选择信仰"
-            subtitle="全球主要信仰按信众规模排列；更多选项在下方"
-            confirmLabel="下一步 · 选择圣地"
+          <GeoJourneyPicker
+            value={{
+              continentCode: user?.continentCode ?? selectedContinent ?? undefined,
+              countryCode: user?.countryCode ?? selectedCountry ?? undefined,
+              faith: selectedFaith ?? undefined,
+            }}
+            onComplete={(result) => void handleJourneyComplete(result)}
+            title="第一步 · 你的心灵故乡"
+            subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
+            faithConfirmLabel="下一步 · 选择圣地"
           />
         </div>
       </div>
@@ -498,7 +511,7 @@ export default function TemplePage() {
             <h1>选择朝拜圣地</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)} · 选择守护神`
+                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选择守护神`
                 : '选择你的守护神，把手指放在神像上'}
             </p>
           </div>
@@ -508,9 +521,9 @@ export default function TemplePage() {
               type="button"
               className="btn-ghost"
               style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
-              onClick={() => setPhase('faith')}
+              onClick={() => setPhase('journey')}
             >
-              ← 更换信仰（当前：{formatFaithLabel(selectedFaith)}）
+              ← 更换信仰与地区（当前：{formatFaithLabel(selectedFaith)}）
             </button>
           )}
 

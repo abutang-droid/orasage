@@ -18,6 +18,7 @@ import { splitFaithsByRank } from '@/lib/cms/faiths';
 type FaithPickerProps = {
   value?: string | null;
   onChange: (faithId: string) => void;
+  countryCode?: string | null;
   title?: string;
   subtitle?: string;
   confirmLabel?: string;
@@ -58,6 +59,7 @@ function FaithCard({
 export function FaithPicker({
   value,
   onChange,
+  countryCode,
   title = '你的信仰是什么？',
   subtitle = '选择最贴近你内心的传统，我们会据此推荐圣地与祈福方式',
   confirmLabel = '确认',
@@ -79,7 +81,10 @@ export function FaithPicker({
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch('/api/faiths')
+    const url = countryCode
+      ? `/api/faiths?country=${encodeURIComponent(countryCode)}`
+      : '/api/faiths';
+    fetch(url)
       .then((r) => (r.ok ? r.json() : null))
       .then((data: FaithApiResponse | null) => {
         if (cancelled) return;
@@ -100,7 +105,7 @@ export function FaithPicker({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [countryCode]);
 
   const { top: topFaiths, more: moreFaiths } = useMemo(() => {
     if (faiths.length === 0) {
