@@ -19,6 +19,7 @@ import * as migration_20260705_130000_tarot_home_hero_global from './20260705_13
 import * as migration_20260705_131000_tarot_home_hero_locked_docs_rels from './20260705_131000_tarot_home_hero_locked_docs_rels';
 import * as migration_20260706_100000_geo_faith from './20260706_100000_geo_faith';
 import * as migration_20260706_120000_worship_facing from './20260706_120000_worship_facing';
+import * as migration_20260706_140000_shop_product_images from './20260706_140000_shop_product_images';
 
 export const migrations = [
   {
@@ -125,5 +126,10 @@ export const migrations = [
     up: migration_20260706_120000_worship_facing.up,
     down: migration_20260706_120000_worship_facing.down,
     name: '20260706_120000_worship_facing',
+  },
+  {
+    up: migration_20260706_140000_shop_product_images.up,
+    down: migration_20260706_140000_shop_product_images.down,
+    name: '20260706_140000_shop_product_images',
   },
 ];

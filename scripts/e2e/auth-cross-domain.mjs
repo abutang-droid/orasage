@@ -37,7 +37,7 @@ async function main() {
   await page.waitForURL(/bazi\.orasage\.com/, { timeout: 60000 });
   console.log('[auth-sso] returned to bazi after register');
 
-  const chip = page.locator('.orasage-auth-chip--signed-in');
+  const chip = page.locator('.orasage-auth-chip--signed-in').first();
   await chip.waitFor({ state: 'visible', timeout: 15000 });
   const chipText = await chip.textContent();
   if (!chipText || chipText.includes('登录')) {

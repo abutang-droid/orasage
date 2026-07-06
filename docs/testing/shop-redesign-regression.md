@@ -38,7 +38,7 @@ cd tarot && npx tsc --noEmit   # 若改 shared/shop-checkout
 |----|------|------|
 | P0-01 | 游客首页点购买 → `/checkout?sku=` → 邮箱注册/已存在绑定 | 手动 + shop-crystal |
 | P0-02 | 登录用户购买水晶 → 真实 ShippingForm → mock 支付 | shop-crystal |
-| P0-03 | bazi 报告购买 → 自动解锁（无实体） | shop-flow / platform-report |
+| P0-03 | bazi 报告购买 → 自动解锁（无实体） | shop-flow / platform-report（使用 `*-basic` 数字 SKU） |
 | P0-04 | bazi 含实体 SKU → 必须真实地址（非假地址） | 手动 |
 | P0-05 | main profile 订单列表地址可读 | 手动 |
 | P0-06 | `?sku=` 首页滚动定位 | 手动 |
