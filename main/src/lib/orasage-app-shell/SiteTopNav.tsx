@@ -9,6 +9,7 @@ const TOP_NAV_ITEMS = [
   { id: 'bazi' as const, href: ORASAGE_URLS.bazi, external: true },
   { id: 'ziwei' as const, href: ORASAGE_URLS.ziwei, external: true },
   { id: 'tarot' as const, href: ORASAGE_URLS.tarot, external: true },
+  { id: 'blessing' as const, href: ORASAGE_URLS.temple, external: true },
   { id: 'shop' as const, href: ORASAGE_URLS.shop, external: true },
   { id: 'famous' as const, href: (locale: string) => famousUrl(locale), external: false },
   { id: 'daozang' as const, href: (locale: string) => daozangUrl(locale), external: false },
