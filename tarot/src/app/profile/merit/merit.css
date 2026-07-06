@@ -1,0 +1,226 @@
+/* ── Merit profile (P4 rules + privileges) ───────────────────── */
+
+.merit-page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.merit-hero {
+  text-align: center;
+  padding: 28px 0 20px;
+}
+
+.merit-badge {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #0d0d0d;
+  background: linear-gradient(160deg, var(--gold-dark), var(--gold-light));
+  box-shadow: var(--shadow-gold);
+}
+
+.merit-total-card {
+  padding: 20px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-md);
+}
+
+.merit-progress-track {
+  margin-top: 12px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.merit-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  transition: width 0.4s ease;
+}
+
+.merit-path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.merit-path-card {
+  padding: 14px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.merit-path-card.is-time {
+  border-color: rgba(212, 168, 83, 0.35);
+  background: linear-gradient(180deg, rgba(212, 168, 83, 0.08), transparent);
+}
+
+.merit-path-card.is-offer {
+  border-color: rgba(184, 134, 11, 0.35);
+  background: linear-gradient(180deg, rgba(184, 134, 11, 0.08), transparent);
+}
+
+.merit-path-card.is-share.is-paused {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+.merit-path-value {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--gold-light);
+}
+
+.merit-path-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.merit-path-meta {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.merit-section {
+  margin-bottom: 24px;
+}
+
+.merit-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.merit-rules-card {
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+}
+
+.merit-rules-card.is-paused {
+  opacity: 0.8;
+}
+
+.merit-rules-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.merit-rules-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.merit-rules-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.merit-rules-badge.is-paused {
+  background: var(--rose-bg);
+  color: var(--rose);
+}
+
+.merit-rule-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.merit-rule-row:last-child {
+  border-bottom: none;
+}
+
+.merit-rule-condition {
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.merit-rule-amount {
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.merit-rule-note {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.merit-privilege-card {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.merit-privilege-card.is-current {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-sm);
+}
+
+.merit-privilege-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.merit-privilege-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.merit-checkin-row {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.merit-sacred-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  background: rgba(184, 148, 63, 0.06);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}

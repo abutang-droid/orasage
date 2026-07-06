@@ -2,17 +2,17 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   computeStreakAfterCheckin,
+  computeDailyTimeMerit,
   dateKeyUTC,
   getMeritLevel,
-  meritForWorshipStage,
   meritProgress,
   sacredDayMultiplier,
-  streakBonusMerit,
-  onboardingDayBonus,
+  TIME_MERIT,
   REFERRAL_LEVEL_BONUS,
   SHARE_MERIT,
   MERIT_SHARE_PATH_ENABLED,
   OFFER_MERIT,
+  OFFER_SPENT_MILESTONES,
   type OnboardingStep,
   nextOnboardingStep,
 } from '@/lib/merit';
@@ -46,8 +46,11 @@ export type MeritSummary = {
   level: number;
   levelTitleZh: string;
   levelTitleEn: string;
+  levelTitlePt: string;
   streak: number;
   streakLongest: number;
+  totalCheckins: number;
+  totalSpentCents: number;
   rank: string;
   progressInLevel: number;
   neededForNext: number | null;
@@ -56,6 +59,7 @@ export type MeritSummary = {
   onboardingStep: string;
   referralCode: string | null;
   freeReadingsRemaining: number;
+  sharePathEnabled: boolean;
 };
 
 export async function ensureReferralCode(userId: string): Promise<string> {
@@ -80,10 +84,13 @@ export async function ensureReferralCode(userId: string): Promise<string> {
 }
 
 export async function getMeritSummary(userId: string): Promise<MeritSummary | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { ...MERIT_SELECT, referralCode: true },
-  });
+  const [user, totalCheckins] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { ...MERIT_SELECT, referralCode: true },
+    }),
+    prisma.templeCheckin.count({ where: { userId } }),
+  ]);
   if (!user) return null;
 
   const today = dateKeyUTC();
@@ -98,8 +105,11 @@ export async function getMeritSummary(userId: string): Promise<MeritSummary | nu
     level: user.meritLevel,
     levelTitleZh: levelInfo.titleZh,
     levelTitleEn: levelInfo.titleEn,
+    levelTitlePt: levelInfo.titlePt,
     streak: user.streakDays,
     streakLongest: user.streakLongest,
+    totalCheckins,
+    totalSpentCents: user.totalSpentCents,
     rank: progress.rankLabel,
     progressInLevel: progress.progressInLevel,
     neededForNext: progress.neededForNext,
@@ -108,6 +118,7 @@ export async function getMeritSummary(userId: string): Promise<MeritSummary | nu
     onboardingStep: user.onboardingStep,
     referralCode: user.referralCode,
     freeReadingsRemaining: user.freeReadingsRemaining,
+    sharePathEnabled: MERIT_SHARE_PATH_ENABLED,
   };
 }
 
@@ -333,13 +344,7 @@ export async function recordOfferMerit(
     }
   }
 
-  const milestones: [number, number][] = [
-    [10000, 50],
-    [100000, 200],
-    [1000000, 2000],
-    [10000000, 10000],
-  ];
-  for (const [cents, bonus] of milestones) {
+  for (const { cents, bonus } of OFFER_SPENT_MILESTONES) {
     if (oldSpent < cents && newSpent >= cents) {
       await awardMerit({
         userId,
@@ -427,19 +432,30 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
     return { ok: true, alreadyCheckedIn: true, meritEarned: 0, blessingText, summary };
   }
 
-  const priorCheckins = await prisma.templeCheckin.count({ where: { userId: input.userId } });
-  const baseMerit = meritForWorshipStage(input.worshipStage);
-  const { streakDays, streakLongest } = computeStreakAfterCheckin(
+  const { streakDays: nextStreakDays } = computeStreakAfterCheckin(
     user.lastCheckinDate,
     user.streakDays,
     today,
   );
-  const bonus = streakBonusMerit(streakDays) + onboardingDayBonus(priorCheckins + 1);
-  const rawMerit = baseMerit + bonus;
-  const multiplier = sacredDayMultiplier();
-  const meritEarned = Math.round(rawMerit * multiplier);
+  const streakDays = nextStreakDays;
+  const streakLongest = Math.max(user.streakLongest, streakDays);
 
-  const newTotal = user.meritTotal + meritEarned;
+  const priorCheckins = await prisma.templeCheckin.count({ where: { userId: input.userId } });
+  const totalCheckins = priorCheckins + 1;
+  const rawMerit = computeDailyTimeMerit(streakDays, totalCheckins);
+  const multiplier = sacredDayMultiplier();
+  let meritEarned = Math.round(rawMerit * multiplier);
+
+  let newTotal = user.meritTotal + meritEarned;
+  if (
+    totalCheckins === TIME_MERIT.divinePromotionTotalDays &&
+    newTotal < TIME_MERIT.divinePromotionMinMerit
+  ) {
+    const boost = TIME_MERIT.divinePromotionMinMerit - newTotal;
+    meritEarned += boost;
+    newTotal = TIME_MERIT.divinePromotionMinMerit;
+  }
+
   const newMeritTime = user.meritTime + meritEarned;
   const newLevel = getMeritLevel(newTotal).level;
   const levelUp = newLevel > user.meritLevel;

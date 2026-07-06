@@ -120,7 +120,7 @@ export default function TemplePage() {
       setBlessingData({
         duration,
         stage,
-        meritEarned: data?.meritEarned ?? (stage === 3 ? 10 : stage === 2 ? 5 : 1),
+        meritEarned: data?.meritEarned ?? 1,
         blessingText: data?.blessingText,
         alreadyCheckedIn: data?.alreadyCheckedIn,
         levelUp: data?.levelUp,
@@ -131,7 +131,7 @@ export default function TemplePage() {
       setBlessingData({
         duration,
         stage,
-        meritEarned: stage === 3 ? 10 : stage === 2 ? 5 : 1,
+        meritEarned: 1,
       })
       setPhase("blessing")
     } finally {
