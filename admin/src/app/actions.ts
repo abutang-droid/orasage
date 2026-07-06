@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts } from '@/lib/api';
 
 export async function saveProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
@@ -50,6 +50,17 @@ export async function updateOrderStatusAction(formData: FormData) {
   const status = String(formData.get('status') ?? '');
   if (!orderNo || !status) throw new Error('参数不完整');
   await updateOrderStatus(orderNo, status);
+  revalidatePath('/orders');
+  revalidatePath('/');
+}
+
+export async function createShipmentAction(formData: FormData) {
+  const orderNo = String(formData.get('orderNo') ?? '');
+  const carrier = String(formData.get('carrier') ?? '').trim();
+  const trackingNo = String(formData.get('trackingNo') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+  if (!orderNo || !carrier || !trackingNo) throw new Error('请填写承运商与运单号');
+  await createOrderShipment(orderNo, { carrier, trackingNo, note: note || undefined });
   revalidatePath('/orders');
   revalidatePath('/');
 }

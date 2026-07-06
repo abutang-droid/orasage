@@ -20,6 +20,14 @@ export const orderStatusEnum = pgEnum("order_status", [
   "cancelled",
 ]);
 
+export const shipmentStatusEnum = pgEnum("shipment_status", [
+  "pending",
+  "picked_up",
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
@@ -68,6 +76,45 @@ export const userOrders = pgTable("user_orders", {
   shippingAddress: text("shipping_address"),
   recommendationContext: text("recommendation_context"),
   readingId: varchar("reading_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userAddresses = pgTable("user_addresses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  label: varchar("label", { length: 50 }),
+  name: varchar("name", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 40 }).notNull(),
+  countryCode: varchar("country_code", { length: 2 }).notNull().default("CN"),
+  province: varchar("province", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  district: varchar("district", { length: 100 }),
+  addressLine: varchar("address_line", { length: 500 }).notNull(),
+  postalCode: varchar("postal_code", { length: 20 }),
+  wristCm: varchar("wrist_cm", { length: 20 }),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const orderShipments = pgTable("order_shipments", {
+  id: serial("id").primaryKey(),
+  orderNo: varchar("order_no", { length: 64 }).notNull(),
+  carrier: varchar("carrier", { length: 100 }).notNull(),
+  trackingNo: varchar("tracking_no", { length: 100 }).notNull(),
+  status: shipmentStatusEnum("status").notNull().default("in_transit"),
+  shippedAt: timestamp("shipped_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const orderShipmentEvents = pgTable("order_shipment_events", {
+  id: serial("id").primaryKey(),
+  shipmentId: integer("shipment_id").notNull(),
+  status: varchar("status", { length: 32 }).notNull(),
+  description: varchar("description", { length: 500 }).notNull(),
+  location: varchar("location", { length: 200 }),
+  occurredAt: timestamp("occurred_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

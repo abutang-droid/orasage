@@ -10,14 +10,21 @@ import {
   validateShippingPayload,
   type ShippingPayload,
 } from '../../../../../../../shared/shop-fulfillment/index';
+import { proxyAuthMe } from '@/lib/auth-proxy';
 
 const shippingSchema = z.object({
   recipients: z.array(z.object({
     name: z.string().max(100),
     phone: z.string().max(40),
+    countryCode: z.string().length(2).optional(),
+    province: z.string().max(100).optional(),
+    city: z.string().max(100).optional(),
+    district: z.string().max(100).optional(),
     address: z.string().max(500),
+    postalCode: z.string().max(20).optional(),
     wristCm: z.string().max(20).optional(),
   })).min(1).max(2),
+  saveToAddressBook: z.boolean().optional(),
 });
 
 type RouteContext = { params: Promise<{ orderNo: string }> };
@@ -52,11 +59,17 @@ export async function POST(req: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: '该订单无需收货信息' }, { status: 400 });
     }
 
-    const body = shippingSchema.parse(await req.json()) as ShippingPayload;
+    const parsed = shippingSchema.parse(await req.json());
+    const payload: ShippingPayload = {
+      recipients: parsed.recipients.map((r) => ({
+        ...r,
+        countryCode: (r.countryCode ?? 'CN').toUpperCase(),
+      })),
+    };
     const requireWrist = product
       ? (product.requiresWristSize ?? inferRequiresWristSize(product))
       : false;
-    const validationError = validateShippingPayload(body, {
+    const validationError = validateShippingPayload(payload, {
       requireWrist,
       recipientCount: couple ? 2 : 1,
     });
@@ -65,9 +78,28 @@ export async function POST(req: NextRequest, context: RouteContext) {
     }
 
     const shippingAddress = formatShippingAddress({
-      recipients: couple ? body.recipients.slice(0, 2) : [body.recipients[0]],
+      recipients: couple ? payload.recipients.slice(0, 2) : [payload.recipients[0]],
     });
     await updateOrderShipping(orderNo, shippingAddress);
+
+    if (parsed.saveToAddressBook) {
+      for (const recipient of couple ? payload.recipients.slice(0, 2) : [payload.recipients[0]]) {
+        await proxyAuthMe('/addresses', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: recipient.name,
+            phone: recipient.phone,
+            countryCode: recipient.countryCode ?? 'CN',
+            province: recipient.province ?? null,
+            city: recipient.city ?? null,
+            district: recipient.district ?? null,
+            addressLine: recipient.address,
+            postalCode: recipient.postalCode ?? null,
+            wristCm: recipient.wristCm ?? null,
+          }),
+        });
+      }
+    }
 
     return NextResponse.json({ success: true, orderNo, shippingAddress });
   } catch (err) {

@@ -2,9 +2,10 @@ import { Router, type Request, type Response } from "express";
 import { desc, eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { savedProfiles, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
+import { savedProfiles, userAddresses, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
 import { getAuthUser } from "../lib/auth-user.ts";
 import { resolveReadingDetailUrl } from "../lib/reading-detail-url.ts";
+import { formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
 
 export const accountRouter = Router();
 
@@ -155,6 +156,177 @@ accountRouter.get("/orders", async (req, res) => {
       readingId: o.readingId,
       createdAt: o.createdAt,
     })),
+  });
+});
+
+function mapAddressRow(row: typeof userAddresses.$inferSelect) {
+  return {
+    id: row.id,
+    label: row.label,
+    name: row.name,
+    phone: row.phone,
+    countryCode: row.countryCode,
+    province: row.province,
+    city: row.city,
+    district: row.district,
+    addressLine: row.addressLine,
+    postalCode: row.postalCode,
+    wristCm: row.wristCm,
+    isDefault: row.isDefault,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+const addressBodySchema = z.object({
+  label: z.string().max(50).optional().nullable(),
+  name: z.string().min(1).max(100),
+  phone: z.string().min(1).max(40),
+  countryCode: z.string().length(2).default('CN'),
+  province: z.string().max(100).optional().nullable(),
+  city: z.string().max(100).optional().nullable(),
+  district: z.string().max(100).optional().nullable(),
+  addressLine: z.string().min(1).max(500),
+  postalCode: z.string().max(20).optional().nullable(),
+  wristCm: z.string().max(20).optional().nullable(),
+  isDefault: z.boolean().optional(),
+});
+
+accountRouter.get("/addresses", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const rows = await db
+    .select()
+    .from(userAddresses)
+    .where(eq(userAddresses.userId, user.id))
+    .orderBy(desc(userAddresses.isDefault), desc(userAddresses.updatedAt));
+  res.json({ addresses: rows.map(mapAddressRow) });
+});
+
+accountRouter.post("/addresses", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    const body = addressBodySchema.parse(req.body);
+    if (body.isDefault) {
+      await db.update(userAddresses).set({ isDefault: false }).where(eq(userAddresses.userId, user.id));
+    }
+    const existing = await db.select().from(userAddresses).where(eq(userAddresses.userId, user.id));
+    const [row] = await db.insert(userAddresses).values({
+      userId: user.id,
+      label: body.label ?? null,
+      name: body.name,
+      phone: body.phone,
+      countryCode: body.countryCode.toUpperCase(),
+      province: body.province ?? null,
+      city: body.city ?? null,
+      district: body.district ?? null,
+      addressLine: body.addressLine,
+      postalCode: body.postalCode ?? null,
+      wristCm: body.wristCm ?? null,
+      isDefault: body.isDefault ?? existing.length === 0,
+      updatedAt: new Date(),
+    }).returning();
+    res.status(201).json({ address: mapAddressRow(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[addresses] create error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+accountRouter.put("/addresses/:id", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: "无效地址 ID" });
+    return;
+  }
+  try {
+    const body = addressBodySchema.parse(req.body);
+    const [existing] = await db.select().from(userAddresses).where(and(eq(userAddresses.id, id), eq(userAddresses.userId, user.id))).limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "地址不存在" });
+      return;
+    }
+    if (body.isDefault) {
+      await db.update(userAddresses).set({ isDefault: false }).where(eq(userAddresses.userId, user.id));
+    }
+    const [row] = await db.update(userAddresses).set({
+      label: body.label ?? null,
+      name: body.name,
+      phone: body.phone,
+      countryCode: body.countryCode.toUpperCase(),
+      province: body.province ?? null,
+      city: body.city ?? null,
+      district: body.district ?? null,
+      addressLine: body.addressLine,
+      postalCode: body.postalCode ?? null,
+      wristCm: body.wristCm ?? null,
+      isDefault: body.isDefault ?? existing.isDefault,
+      updatedAt: new Date(),
+    }).where(eq(userAddresses.id, id)).returning();
+    res.json({ address: mapAddressRow(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[addresses] update error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+accountRouter.delete("/addresses/:id", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: "无效地址 ID" });
+    return;
+  }
+  const [existing] = await db.select().from(userAddresses).where(and(eq(userAddresses.id, id), eq(userAddresses.userId, user.id))).limit(1);
+  if (!existing) {
+    res.status(404).json({ error: "地址不存在" });
+    return;
+  }
+  await db.delete(userAddresses).where(eq(userAddresses.id, id));
+  res.json({ success: true });
+});
+
+accountRouter.get("/orders/:orderNo", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const orderNo = String(req.params.orderNo);
+  const [order] = await db.select().from(userOrders).where(eq(userOrders.orderNo, orderNo)).limit(1);
+  if (!order || order.userId !== user.id) {
+    res.status(404).json({ error: "订单不存在" });
+    return;
+  }
+  const shipmentRows = await listShipmentsForOrder(orderNo);
+  res.json({
+    order: {
+      id: order.id,
+      orderNo: order.orderNo,
+      title: order.title,
+      sku: order.sku,
+      amountCents: order.amountCents,
+      currency: order.currency,
+      amountDisplay: `¥${(order.amountCents / 100).toFixed(2)}`,
+      status: order.status,
+      statusLabel: STATUS_LABELS[order.status] ?? order.status,
+      appSource: order.appSource,
+      appLabel: order.appSource ? APP_LABELS[order.appSource] : null,
+      shippingAddress: order.shippingAddress,
+      recommendationContext: order.recommendationContext,
+      readingId: order.readingId,
+      createdAt: order.createdAt,
+    },
+    shipments: shipmentRows.map(({ shipment, events }) => formatShipment(shipment, events)),
   });
 });
 
@@ -577,7 +749,11 @@ internalRouter.get("/orders/:orderNo", async (req, res) => {
     res.status(404).json({ error: "订单不存在" });
     return;
   }
-  res.json({ order });
+  const shipmentRows = await listShipmentsForOrder(orderNo);
+  res.json({
+    order,
+    shipments: shipmentRows.map(({ shipment, events }) => formatShipment(shipment, events)),
+  });
 });
 
 internalRouter.patch("/orders/:orderNo", async (req, res) => {

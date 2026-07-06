@@ -87,6 +87,14 @@ export function OrdersList() {
                 <p className="mt-2 text-xs text-primary/90">{o.recommendationContext}</p>
               )}
               {o.sku && <p className="mt-1 text-xs text-muted-foreground">SKU: {o.sku}</p>}
+              <p className="mt-3">
+                <a
+                  href={`https://shop.orasage.com/orders/${encodeURIComponent(o.orderNo)}`}
+                  className="text-xs text-primary underline underline-offset-2"
+                >
+                  查看物流
+                </a>
+              </p>
               <p className="mt-3 text-xs text-muted-foreground">{formatDate(o.createdAt)}</p>
             </CardContent>
           </Card>

@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
-import { parseShippingAddress } from '../../../../shared/shop-fulfillment/index';
+import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
 
 type CheckoutOrder = {
   orderNo: string;
@@ -51,7 +51,8 @@ function CheckoutContent() {
   const orderNo = searchParams.get('order') ?? '';
   const sku = searchParams.get('sku') ?? '';
   const returnUrl = searchParams.get('return');
-  const coupleShipping = searchParams.get('shipping') === 'couple';
+  const coupleFromUrl = searchParams.get('shipping') === 'couple';
+  const [coupleShipping, setCoupleShipping] = useState(coupleFromUrl);
   const readingId = searchParams.get('readingId') ?? undefined;
   const planType = searchParams.get('planType') ?? undefined;
   const appSource = searchParams.get('appSource') ?? 'shop';
@@ -78,6 +79,20 @@ function CheckoutContent() {
   const guestStartedRef = useRef(false);
   const autoFlowOrderRef = useRef<string | null>(null);
 
+  useEffect(() => {
+    setCoupleShipping(coupleFromUrl);
+  }, [coupleFromUrl]);
+
+  const coupleEligible = inferCoupleEligible(order?.sku ?? sku);
+
+  const handleCoupleChange = useCallback((next: boolean) => {
+    setCoupleShipping(next);
+    const params = new URLSearchParams(searchParams.toString());
+    if (next) params.set('shipping', 'couple');
+    else params.delete('shipping');
+    router.replace(`/checkout?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
   const effectiveAppSource = orderAppSource ?? appSource;
   const isReportAppCheckout = REPORT_APP_SOURCES.has(effectiveAppSource);
   const isReportDigitalCheckout = isReportAppCheckout && !fulfillment?.requiresShipping;
@@ -85,10 +100,10 @@ function CheckoutContent() {
   const submitMockShipping = useCallback(async (targetOrderNo: string): Promise<void> => {
     const recipients = coupleShipping
       ? [
-          { name: '收货人甲', phone: '13800000001', address: '模拟地址甲', wristCm: '16' },
-          { name: '收货人乙', phone: '13800000002', address: '模拟地址乙', wristCm: '17' },
+          { name: '收货人甲', phone: '13800000001', countryCode: 'CN', address: '模拟地址甲', wristCm: '16' },
+          { name: '收货人乙', phone: '13800000002', countryCode: 'CN', address: '模拟地址乙', wristCm: '17' },
         ]
-      : [{ name: '收货人', phone: '13800000000', address: '模拟收货地址', wristCm: '16' }];
+      : [{ name: '收货人', phone: '13800000000', countryCode: 'CN', address: '模拟收货地址', wristCm: '16' }];
     const shipUrl = `/api/orders/${encodeURIComponent(targetOrderNo)}/shipping${coupleShipping ? '?shipping=couple' : ''}`;
     const res = await fetch(shipUrl, {
       method: 'POST',
@@ -476,7 +491,9 @@ function CheckoutContent() {
         <ShippingForm
           orderNo={orderNo}
           productTitle={order.title}
+          coupleEligible={coupleEligible}
           couple={coupleShipping}
+          onCoupleChange={handleCoupleChange}
           requireWrist={fulfillment?.requiresWristSize}
           onSaved={() => setShippingDone(true)}
         />

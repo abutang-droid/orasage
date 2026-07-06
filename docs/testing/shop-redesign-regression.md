@@ -50,9 +50,9 @@ cd tarot && npx tsc --noEmit   # 若改 shared/shop-checkout
 
 P0 全部 + 购物车增删改、PDP、CMS 商品图加载、main 首页链 PDP
 
-### Phase 2（预留）
+### Phase 2
 
-P1 全部 + 地址簿、发货录入、Stripe 测试卡、物流时间线
+P1 全部 + 地址簿、发货录入、物流时间线、情侣装 1/2 人切换（Stripe 生产暂缓）
 
 ## 受影响模块 → 必跑映射
 

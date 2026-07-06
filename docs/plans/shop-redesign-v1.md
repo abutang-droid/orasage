@@ -1,6 +1,6 @@
 # OraSage 商店模块升级方案 v1（已确认）
 
-> 状态：决策已锁定 · 实施节奏 Phase 0 → 1 → 2  
+> 状态：Phase 2 进行中（Stripe 生产暂缓，继续 mock 支付）  
 > 关联测试：`docs/testing/shop-redesign-regression.md`
 
 ## 一、已确认决策
@@ -11,7 +11,7 @@
 | 2 | 配送范围 | **一期全球配送**（UI/地址结构预留国家字段；运费规则可分期细化） |
 | 3 | 商品图 | **CMS 管理**（Payload Media 关联 SKU 或商品扩展字段） |
 | 4 | 情侣装 | **一单两人地址**；可切换为 **仅 1 人地址** |
-| 5 | 支付 | **Stripe 生产与实体物流同 Phase（Phase 2）**；Phase 0–1 可继续 mock 但禁止假地址/假支付捷径 |
+| 5 | 支付 | **Stripe 生产暂缓**（未拿到支付方正式接口）；Phase 2 继续 **mock 支付**，禁止假地址捷径 |
 | 6 | 节奏 | **同意 Phase 0 → 1 → 2** |
 | 7 | 跨模块改动 | **每次牵涉其它模块的改动，必须执行全量回归测试**（见测试矩阵） |
 
@@ -25,7 +25,7 @@
 - `/checkout` 移动子页返回导航
 - 主站订单列表友好展示收货地址
 
-### Phase 1 — 商店 MVP（进行中）
+### Phase 1 — 商店 MVP（已完成）
 
 - PDP `/product/[sku]`
 - 购物车（游客 localStorage + 登录同步待完善）
@@ -33,14 +33,14 @@
 - 首页合集布局升级（精选 + 分类区块）
 - CMS 商品主图 collection `shop-product-images` + 展示
 
-### Phase 2 — 地址 · 物流 · Stripe 实体
+### Phase 2 — 地址 · 物流（进行中）
 
-- `user_addresses` 地址簿
-- `order_shipments` + admin 发货
-- 订单详情 + 物流时间线
-- **全球配送**运费规则
-- **Stripe 生产**（实体 + 数字）
-- 情侣装：1 人 / 2 人地址切换
+- `user_addresses` 地址簿（`/account/addresses`）
+- `order_shipments` + admin 发货录入
+- 订单详情 `/orders/[orderNo]` + 物流时间线
+- **全球配送**运费规则（国家字段 + 境内免邮/境外 flat rate）
+- 情侣装：1 人 / 2 人地址切换（checkout UI）
+- ~~Stripe 生产~~ → **暂缓**，保持 `PAYMENT_MODE=mock`
 
 ## 三、目标架构（摘要）
 
@@ -50,19 +50,19 @@
 命理 App 深链（保留 shared/shop-checkout，数字品快路径）
 ```
 
-数据扩展见 Phase 1–2：`order_line_items`、`user_addresses`、`order_shipments`、`products.imageUrl`（CMS）等。
+数据扩展：`user_addresses`、`order_shipments`、`order_shipment_events`、`products.imageUrl`（CMS）等。
 
 ## 四、跨模块触点
 
 | 模块 | 关联 |
 |------|------|
-| `auth-service` | 订单、商品、地址簿（P2）、用户注册 |
+| `auth-service` | 订单、商品、地址簿、发货记录 |
 | `shop` | 前台主战场 |
 | `shared/shop-checkout` | bazi/ziwei/tarot/main 代理结账 |
-| `shared/shop-fulfillment` | 物流推断、地址 JSON |
-| `main` | 首页商品区、profile/orders |
+| `shared/shop-fulfillment` | 物流推断、地址 JSON、运费规则 |
+| `main` | 首页商品区、profile/orders 物流链接 |
 | `admin` | 商品、订单发货 |
-| `cms` | Shop Hero、商品图（P1） |
+| `cms` | Shop Hero、商品图 |
 | `deploy/` | shop/main/auth 部署 |
 
 ## 五、文档维护

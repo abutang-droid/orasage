@@ -63,6 +63,21 @@ export interface AdminOrder {
   appLabel?: string | null;
   shippingAddress?: string | null;
   createdAt: string;
+  shipments?: AdminShipment[];
+}
+
+export interface AdminShipment {
+  id: number;
+  carrier: string;
+  trackingNo: string;
+  status: string;
+  shippedAt?: string | null;
+  events: Array<{
+    status: string;
+    description: string;
+    location?: string | null;
+    occurredAt: string;
+  }>;
 }
 
 export function getStats() {
@@ -96,6 +111,13 @@ export function updateOrderStatus(orderNo: string, status: string) {
     method: 'PATCH',
     body: JSON.stringify({ status }),
   });
+}
+
+export function createOrderShipment(orderNo: string, body: { carrier: string; trackingNo: string; note?: string }) {
+  return adminFetch<{ success: boolean; shipment: AdminShipment | null }>(
+    `/orders/${encodeURIComponent(orderNo)}/shipments`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
 }
 
 export interface HomepageProductsConfig {

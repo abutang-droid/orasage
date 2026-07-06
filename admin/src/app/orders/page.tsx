@@ -1,8 +1,8 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getOrders } from '@/lib/api';
-import { updateOrderStatusAction } from '@/app/actions';
+import { updateOrderStatusAction, createShipmentAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
-import { formatShippingDisplay } from '../../../../shared/shop-fulfillment/index';
+import { formatShippingDisplay, SHIPMENT_STATUS_LABELS } from '../../../../shared/shop-fulfillment/index';
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
 
@@ -21,7 +21,7 @@ export default async function OrdersPage() {
     <div className="admin-page">
       <header className="page-header">
         <h1>订单管理</h1>
-        <p className="muted">来自 shop 与各命理 App 的结账记录</p>
+        <p className="muted">来自 shop 与各命理 App 的结账记录 · 录入运单后用户可在订单详情查看物流</p>
       </header>
 
       <section className="panel">
@@ -36,6 +36,7 @@ export default async function OrdersPage() {
                 <th>金额</th>
                 <th>来源</th>
                 <th>收货信息</th>
+                <th>物流</th>
                 <th>状态</th>
                 <th>时间</th>
                 <th>操作</th>
@@ -43,7 +44,7 @@ export default async function OrdersPage() {
             </thead>
             <tbody>
               {orders.length === 0 ? (
-                <tr><td colSpan={10} className="muted">暂无订单</td></tr>
+                <tr><td colSpan={11} className="muted">暂无订单</td></tr>
               ) : orders.map((o) => (
                 <tr key={o.orderNo}>
                   <td><code>{o.orderNo}</code></td>
@@ -57,9 +58,29 @@ export default async function OrdersPage() {
                       ? formatShippingDisplay(o.shippingAddress)
                       : '—'}
                   </td>
+                  <td className="shipping-cell">
+                    {o.shipments && o.shipments.length > 0 ? (
+                      <ul className="shipment-list">
+                        {o.shipments.map((s) => (
+                          <li key={s.id}>
+                            <strong>{s.carrier}</strong> {s.trackingNo}
+                            <span className="muted"> · {SHIPMENT_STATUS_LABELS[s.status] ?? s.status}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="muted">未发货</span>
+                    )}
+                  </td>
                   <td><span className="badge">{o.statusLabel}</span></td>
                   <td>{new Date(o.createdAt).toLocaleString('zh-CN')}</td>
-                  <td>
+                  <td className="admin-order-actions">
+                    <form action={createShipmentAction} className="shipment-form">
+                      <input type="hidden" name="orderNo" value={o.orderNo} />
+                      <input type="text" name="carrier" placeholder="承运商" className="shipment-input" required />
+                      <input type="text" name="trackingNo" placeholder="运单号" className="shipment-input" required />
+                      <button type="submit" className="btn-small">发货</button>
+                    </form>
                     <form action={updateOrderStatusAction} className="inline-status-form">
                       <input type="hidden" name="orderNo" value={o.orderNo} />
                       <select name="status" defaultValue={o.status}>

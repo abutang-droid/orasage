@@ -23,6 +23,7 @@ import {
   setTarotDailyRecommendSkus,
 } from "../lib/tarot-billing.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
+import { createShipment, formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireAdmin);
@@ -321,8 +322,9 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
 adminApiRouter.get("/orders", async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 100, 200);
   const rows = await db.select().from(userOrders).orderBy(desc(userOrders.createdAt)).limit(limit);
-  res.json({
-    orders: rows.map((o) => ({
+  const orders = await Promise.all(rows.map(async (o) => {
+    const shipmentRows = await listShipmentsForOrder(o.orderNo);
+    return {
       id: o.id,
       userId: o.userId,
       orderNo: o.orderNo,
@@ -337,8 +339,10 @@ adminApiRouter.get("/orders", async (req, res) => {
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
       shippingAddress: o.shippingAddress,
       createdAt: o.createdAt,
-    })),
-  });
+      shipments: shipmentRows.map(({ shipment, events }) => formatShipment(shipment, events)),
+    };
+  }));
+  res.json({ orders });
 });
 
 const orderStatusSchema = z.object({
@@ -362,6 +366,42 @@ adminApiRouter.patch("/orders/:orderNo", async (req, res) => {
       return;
     }
     console.error("[admin] update order:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const shipmentCreateSchema = z.object({
+  carrier: z.string().min(1).max(100),
+  trackingNo: z.string().min(1).max(100),
+  note: z.string().max(500).optional(),
+});
+
+adminApiRouter.post("/orders/:orderNo/shipments", async (req, res) => {
+  try {
+    const orderNo = String(req.params.orderNo);
+    const body = shipmentCreateSchema.parse(req.body);
+    const shipment = await createShipment({
+      orderNo,
+      carrier: body.carrier,
+      trackingNo: body.trackingNo,
+      note: body.note,
+    });
+    const shipmentRows = await listShipmentsForOrder(orderNo);
+    const current = shipmentRows.find((row) => row.shipment.id === shipment.id);
+    res.status(201).json({
+      success: true,
+      shipment: current ? formatShipment(current.shipment, current.events) : null,
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message === '订单不存在') {
+      res.status(404).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] create shipment:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
