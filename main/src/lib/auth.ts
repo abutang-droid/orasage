@@ -115,7 +115,10 @@ export async function fetchMe(): Promise<AuthUser | null> {
   return data.user as AuthUser;
 }
 
-export async function updateProfile(body: { nickname?: string }): Promise<AuthUser> {
+export async function updateProfile(body: {
+  nickname?: string;
+  languagePreference?: string | null;
+}): Promise<AuthUser> {
   const res = await authFetch('/auth/profile', {
     method: 'PUT',
     body: JSON.stringify(body),

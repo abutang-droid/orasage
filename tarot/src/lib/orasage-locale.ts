@@ -15,3 +15,7 @@ export function localeFromLang(lang: Lang): string {
 export function profileUrlFromLang(lang: Lang): string {
   return profileUrl(localeFromLang(lang));
 }
+
+export function profileSettingsUrlFromLang(lang: Lang): string {
+  return `${profileUrlFromLang(lang)}/settings`;
+}

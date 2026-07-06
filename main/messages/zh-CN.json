@@ -167,6 +167,7 @@
       "readings": "占卜记录",
       "recommendations": "能量推荐",
       "orders": "订单",
+      "settings": "设置",
       "about": "关于我们",
       "contact": "联系我们",
       "privacy": "隐私政策",
@@ -192,6 +193,19 @@
         "myDeity": "我的守护神",
         "worshipLog": "拜神记录"
       }
+    },
+    "settings": {
+      "title": "设置",
+      "desc": "语言偏好与祈福相关选项，全站在此统一管理。",
+      "languageTitle": "语言",
+      "languageDesc": "全站显示语言",
+      "languageCurrent": "当前",
+      "blessingTitle": "祈福",
+      "blessingDesc": "信仰、地区与守护神在塔罗祈福台修改",
+      "changeFaith": "更换信仰与地区",
+      "changeDeity": "更换守护神",
+      "notSet": "未设置",
+      "notChosen": "未选择"
     },
     "profiles": {
       "title": "测试对象",
