@@ -19,6 +19,7 @@ export type AppCheckoutInput = {
   successUrl?: string;
   cancelUrl?: string;
   shippingMode?: 'single' | 'couple';
+  priceCentsUsd?: number;
   /** 转发 orasage_token，供 shop 内网 checkout 校验 userId */
   cookieHeader?: string | null;
 };
@@ -70,6 +71,7 @@ export async function proxyShopCheckout(input: AppCheckoutInput): Promise<Checko
       successUrl: input.successUrl,
       cancelUrl: input.cancelUrl,
       shippingMode: input.shippingMode,
+      priceCentsUsd: input.priceCentsUsd,
     }),
   });
   const data = await res.json().catch(() => ({}));

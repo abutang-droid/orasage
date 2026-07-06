@@ -1,5 +1,6 @@
 "use client"
-import { useState, useCallback, useEffect, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
 import { loadStoredFaith } from "@/components/FaithPicker"
 import { WorshipScreen } from "@/components/temple/WorshipScreen"
@@ -9,10 +10,13 @@ import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
 import { facingForFaithCode } from "@/lib/temple/facing"
 import { useUser } from "@/lib/user"
+import "@/components/temple/temple.css"
 
 type TemplePhase = "journey" | "select" | "worship" | "blessing"
 
-export default function TemplePage() {
+function TemplePageContent() {
+  const searchParams = useSearchParams()
+  const donated = searchParams.get("donated") === "1"
   const { user, setFaith, setDeity, setGeo } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
@@ -191,6 +195,12 @@ export default function TemplePage() {
             </p>
           </div>
 
+          {donated && (
+            <div className="temple-donation-toast">
+              乐捐成功，功德已计入供养之路。可在「我 → 功德详情」查看。
+            </div>
+          )}
+
           {selectedFaith && (
             <button
               type="button"
@@ -343,4 +353,16 @@ export default function TemplePage() {
   }
 
   return null
+}
+
+export default function TemplePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+        加载祈福…
+      </div>
+    }>
+      <TemplePageContent />
+    </Suspense>
+  )
 }

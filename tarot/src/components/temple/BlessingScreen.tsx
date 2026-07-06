@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
+import { TempleDonation } from '@/components/temple/TempleDonation';
 import './temple.css';
 
 type BlessingScreenProps = {
@@ -60,6 +61,8 @@ export function BlessingScreen({
         {levelUp ? ' · 升阶！' : ''}
         {streakDays && streakDays > 1 ? ` · 连续 ${streakDays} 天` : ''}
       </div>
+
+      <TempleDonation deityName={deity.name} />
 
       <div className="temple-blessing-actions">
         <Link href="/daily-fortune" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', textDecoration: 'none' }}>

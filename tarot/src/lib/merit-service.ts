@@ -13,6 +13,10 @@ import {
   MERIT_SHARE_PATH_ENABLED,
   OFFER_MERIT,
   OFFER_SPENT_MILESTONES,
+  TEMPLE_DONATION,
+  computeTempleDonationMerit,
+  randomTempleDonationMultiplier,
+  type OfferMeritKind,
   type OnboardingStep,
   nextOnboardingStep,
 } from '@/lib/merit';
@@ -284,10 +288,9 @@ export async function recordShareClick(userId: string): Promise<AwardMeritResult
 
 export async function recordOfferMerit(
   userId: string,
-  kind: keyof typeof OFFER_MERIT,
-  opts?: { orderNo?: string; amountCents?: number },
+  kind: OfferMeritKind,
+  opts?: { orderNo?: string; amountCents?: number; donationMultiplier?: number },
 ): Promise<AwardMeritResult> {
-  const amount = OFFER_MERIT[kind];
   const idempotencyKey = opts?.orderNo ? `offer:${kind}:${opts.orderNo}` : undefined;
 
   if (!idempotencyKey) {
@@ -296,6 +299,21 @@ export async function recordOfferMerit(
 
   const existing = await prisma.meritLog.findUnique({ where: { idempotencyKey } });
   if (existing) return { ok: true, duplicate: true, awarded: 0 };
+
+  let amount: number;
+  let reason: string;
+  if (kind === 'temple_donation') {
+    const cents = opts?.amountCents ?? 0;
+    if (cents < TEMPLE_DONATION.minCentsUsd || cents > TEMPLE_DONATION.maxCentsUsd) {
+      return { ok: false, reason: 'invalid_donation_amount' };
+    }
+    const multiplier = opts?.donationMultiplier ?? randomTempleDonationMultiplier();
+    amount = computeTempleDonationMerit(cents, multiplier);
+    reason = `temple_donation:x${multiplier}`;
+  } else {
+    amount = OFFER_MERIT[kind];
+    reason = kind;
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

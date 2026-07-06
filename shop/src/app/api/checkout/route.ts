@@ -67,6 +67,8 @@ export async function POST(req: NextRequest) {
       planType: body.planType,
       shippingMode: body.shippingMode,
       locale: body.locale,
+      priceCentsUsd: body.priceCentsUsd,
+      priceCents: body.priceCents,
     });
     return NextResponse.json(result);
   } catch (err) {

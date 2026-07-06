@@ -7,6 +7,8 @@ export type AppCheckoutRequest = {
   shippingMode?: 'single' | 'couple';
   successUrl?: string;
   cancelUrl?: string;
+  /** 乐捐等可变价 SKU（美分，USD） */
+  priceCentsUsd?: number;
 };
 
 export type AppCheckoutResponse = {

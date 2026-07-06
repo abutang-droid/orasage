@@ -4,9 +4,10 @@ import { recordOfferMerit } from '@/lib/merit-service';
 
 const bodySchema = z.object({
   tarotUserId: z.string().min(1).max(80),
-  kind: z.enum(['paid_reading', 'crystal_purchase', 'crystal_gift']),
+  kind: z.enum(['paid_reading', 'crystal_purchase', 'crystal_gift', 'temple_donation']),
   orderNo: z.string().min(1).max(64),
   amountCents: z.number().int().nonnegative().optional(),
+  donationMultiplier: z.number().int().min(10).max(100).optional(),
 });
 
 const INTERNAL_SECRET = process.env.TAROT_INTERNAL_SECRET || process.env.JWT_SECRET || '';
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
     const result = await recordOfferMerit(body.tarotUserId, body.kind, {
       orderNo: body.orderNo,
       amountCents: body.amountCents,
+      donationMultiplier: body.donationMultiplier,
     });
     if (!result.ok) {
       return NextResponse.json({ error: result.reason }, { status: 400 });

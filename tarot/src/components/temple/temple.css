@@ -379,3 +379,102 @@
   padding: 10px 0;
   font-family: var(--font-sans);
 }
+
+/* ── Temple donation (P5) ───────────────────────────────────── */
+
+.temple-donation {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-md);
+}
+
+.temple-donation-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  letter-spacing: 0.08em;
+}
+
+.temple-donation-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.temple-donation-formula {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.temple-donation-merit {
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+}
+
+.temple-donation-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.temple-donation-preset {
+  padding: 8px 4px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.temple-donation-preset.is-active {
+  border-color: var(--border-focus);
+  color: var(--gold-light);
+  background: rgba(184, 148, 63, 0.08);
+}
+
+.temple-donation-slider-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.temple-donation-slider {
+  width: 100%;
+  margin-top: 8px;
+  accent-color: var(--gold);
+}
+
+.temple-donation-submit {
+  width: 100%;
+  font-size: 13px;
+}
+
+.temple-donation-error {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--error);
+  text-align: center;
+}
+
+.temple-donation-toast {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--success);
+  background: var(--success-bg);
+  border-radius: var(--radius-md);
+  text-align: center;
+}

@@ -38,6 +38,29 @@ export const OFFER_MERIT = {
   crystal_gift: 25,
 } as const;
 
+/** P5 祈福乐捐 — SKU 与功德公式（实现见 shared/tarot-merit/donation.ts） */
+import {
+  TEMPLE_DONATION,
+  randomIntInclusive,
+  randomTempleDonationMultiplier,
+  computeTempleDonationMerit,
+  templeDonationMeritRange,
+  resolveTarotOfferKind,
+  type TarotOfferMeritKind,
+} from '../../../shared/tarot-merit/donation';
+
+export {
+  TEMPLE_DONATION,
+  randomIntInclusive,
+  randomTempleDonationMultiplier,
+  computeTempleDonationMerit,
+  templeDonationMeritRange,
+  type TarotOfferMeritKind,
+  resolveTarotOfferKind,
+};
+
+export type OfferMeritKind = keyof typeof OFFER_MERIT | 'temple_donation';
+
 /** §C2 供养之路 — 累计消费里程碑（美分） */
 export const OFFER_SPENT_MILESTONES: ReadonlyArray<{ cents: number; bonus: number }> = [
   { cents: 10000, bonus: 50 },
@@ -234,6 +257,7 @@ export type MeritRuleRow = {
 export const MERIT_RULES = {
   sharePathEnabled: MERIT_SHARE_PATH_ENABLED,
   sacredDayMultiplier: 2,
+  templeDonation: TEMPLE_DONATION,
   levels: MERIT_LEVELS.map((l) => ({
     level: l.level,
     min: l.min,
@@ -280,6 +304,11 @@ export const MERIT_RULES = {
       { condition: '完成一次付费占卜', amount: `+${OFFER_MERIT.paid_reading}` },
       { condition: '购买水晶手串', amount: `+${OFFER_MERIT.crystal_purchase}` },
       { condition: '为他人购买水晶（赠礼）', amount: `+${OFFER_MERIT.crystal_gift}` },
+      {
+        condition: '祈福乐捐',
+        amount: '金额(美元) × 随机倍数(10–100)',
+        note: `$${(TEMPLE_DONATION.minCentsUsd / 100).toFixed(2)}–$${(TEMPLE_DONATION.maxCentsUsd / 100).toFixed(2)}，计入供养功德`,
+      },
       { condition: '累计消费 $100', amount: '+50' },
       { condition: '累计消费 $1,000', amount: '+200' },
       { condition: '累计消费 $10,000', amount: '+2,000' },

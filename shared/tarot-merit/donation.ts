@@ -1,0 +1,55 @@
+/** P5 祈福乐捐 — 跨 shop/tarot 共享常量与功德计算 */
+
+export const TEMPLE_DONATION = {
+  sku: 'temple-donation',
+  minCentsUsd: 1,
+  maxCentsUsd: 100,
+  meritMultiplierMin: 10,
+  meritMultiplierMax: 100,
+  explanationZh:
+    '自愿乐捐将用于 OraSage 祈福体系的日常维护、服务器与软硬件投入。乐捐功德计入供养之路。',
+} as const;
+
+export function randomIntInclusive(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function randomTempleDonationMultiplier(): number {
+  return randomIntInclusive(TEMPLE_DONATION.meritMultiplierMin, TEMPLE_DONATION.meritMultiplierMax);
+}
+
+export function computeTempleDonationMerit(amountCentsUsd: number, multiplier: number): number {
+  const amountUsd = amountCentsUsd / 100;
+  return Math.max(1, Math.round(amountUsd * multiplier));
+}
+
+export function templeDonationMeritRange(amountCentsUsd: number): { min: number; max: number } {
+  return {
+    min: computeTempleDonationMerit(amountCentsUsd, TEMPLE_DONATION.meritMultiplierMin),
+    max: computeTempleDonationMerit(amountCentsUsd, TEMPLE_DONATION.meritMultiplierMax),
+  };
+}
+
+export type TarotOfferMeritKind =
+  | 'paid_reading'
+  | 'crystal_purchase'
+  | 'crystal_gift'
+  | 'temple_donation';
+
+/** 将 shop SKU 映射为 tarot 供养功德类型（§C2） */
+export function resolveTarotOfferKind(sku: string): TarotOfferMeritKind {
+  const s = sku.toLowerCase();
+  if (s === TEMPLE_DONATION.sku || s.includes('temple-donation')) return 'temple_donation';
+  if (s.includes('gift')) return 'crystal_gift';
+  if (s.includes('crystal')) return 'crystal_purchase';
+  if (
+    s.includes('report') ||
+    s.includes('tarot') ||
+    s.includes('reading') ||
+    s.includes('draw') ||
+    s.includes('consult')
+  ) {
+    return 'paid_reading';
+  }
+  return 'paid_reading';
+}
