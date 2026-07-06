@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
-import { createCheckoutOrder, startCheckoutSchema } from '@/lib/checkout-flow';
+import {
+  cartStartCheckoutSchema,
+  createCartCheckoutOrder,
+  createCheckoutOrder,
+  startCheckoutSchema,
+} from '@/lib/checkout-flow';
 
-/** 已登录用户从 SKU 创建待支付订单（八字等 App 访客结账第二步） */
+/** 已登录用户创建待支付订单（单 SKU 或购物车合并） */
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
   if (!user) {
@@ -11,7 +16,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = startCheckoutSchema.parse(await req.json());
+    const raw = await req.json();
+    if (Array.isArray(raw.items) && raw.items.length > 0) {
+      const body = cartStartCheckoutSchema.parse(raw);
+      const result = await createCartCheckoutOrder(req, { ...body, userId: user.id });
+      return NextResponse.json(result);
+    }
+
+    const body = startCheckoutSchema.parse(raw);
     const result = await createCheckoutOrder(req, { ...body, userId: user.id });
     return NextResponse.json(result);
   } catch (err) {

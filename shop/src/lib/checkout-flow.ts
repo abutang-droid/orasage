@@ -15,6 +15,24 @@ import {
 } from '@/lib/currency';
 import { SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../shared/shop-locale/index';
 import { inferRequiresShipping } from '../../../shared/shop-fulfillment/index';
+import {
+  encodeCartOrderContext,
+  SHOP_CART_ORDER_SKU,
+  type CartOrderLine,
+} from '../../../shared/shop-cart/cart-order';
+
+export const cartCheckoutLineSchema = z.object({
+  sku: z.string().min(1),
+  quantity: z.number().int().positive().max(10).default(1),
+});
+
+export const cartStartCheckoutSchema = z.object({
+  items: z.array(cartCheckoutLineSchema).min(1).max(20),
+  appSource: z.enum(['shop']).optional(),
+  successUrl: z.string().url().optional(),
+  cancelUrl: z.string().url().optional(),
+  locale: z.string().max(16).optional(),
+});
 
 export const startCheckoutSchema = z.object({
   sku: z.string().min(1),
@@ -30,6 +48,8 @@ export const startCheckoutSchema = z.object({
   priceCentsUsd: z.number().int().positive().optional(),
   locale: z.string().max(16).optional(),
 });
+
+export type CartStartCheckoutInput = z.infer<typeof cartStartCheckoutSchema> & { userId: number };
 
 export type StartCheckoutInput = z.infer<typeof startCheckoutSchema> & { userId: number };
 
@@ -182,6 +202,125 @@ export async function createCheckoutOrder(
     title: product.name,
     needsShipping,
     shippingMode: input.shippingMode,
+  };
+}
+
+type ResolvedCartLine = {
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>;
+  quantity: number;
+  unitCents: number;
+};
+
+async function resolveCartLines(
+  locale: string,
+  items: Array<{ sku: string; quantity: number }>,
+  currency: ShopCurrency,
+): Promise<{ lines: ResolvedCartLine[]; cartLines: CartOrderLine[]; amountCents: number; title: string }> {
+  const lines: ResolvedCartLine[] = [];
+  for (const item of items) {
+    const product = await getProduct(item.sku, locale);
+    if (!product) throw new Error(`商品不存在: ${item.sku}`);
+    const quantity = item.quantity ?? 1;
+    lines.push({
+      product,
+      quantity,
+      unitCents: unitPrice(product, currency),
+    });
+  }
+
+  const amountCents = lines.reduce((sum, line) => sum + line.unitCents * line.quantity, 0);
+  const totalQty = lines.reduce((sum, line) => sum + line.quantity, 0);
+  const cartLines: CartOrderLine[] = lines.map((line) => ({
+    sku: line.product.sku,
+    quantity: line.quantity,
+    name: line.product.name,
+  }));
+  const title = lines.length === 1
+    ? (lines[0].quantity > 1 ? `${lines[0].product.name} ×${lines[0].quantity}` : lines[0].product.name)
+    : `商城订单（${totalQty} 件）`;
+
+  return { lines, cartLines, amountCents, title };
+}
+
+/** 购物车合并结账 — 多件商品一笔订单 */
+export async function createCartCheckoutOrder(
+  req: NextRequest,
+  input: CartStartCheckoutInput,
+): Promise<StartCheckoutResult> {
+  const locale = localeFromCheckoutRequest(req, input.locale);
+  const currency: ShopCurrency = currencyForLocale(locale);
+  const { lines, cartLines, amountCents, title } = await resolveCartLines(locale, input.items, currency);
+  const orderNo = makeOrderNo();
+  const needsShipping = lines.some(
+    (line) => line.product.requiresShipping ?? inferRequiresShipping(line.product),
+  );
+  const cartContext = encodeCartOrderContext(cartLines);
+
+  await syncOrderToAuth({
+    userId: input.userId,
+    orderNo,
+    title,
+    sku: lines.length === 1 ? lines[0].product.sku : SHOP_CART_ORDER_SKU,
+    amountCents,
+    status: 'pending',
+    appSource: input.appSource ?? 'shop',
+    recommendationContext: lines.length === 1 ? undefined : cartContext,
+  });
+
+  const successUrl = input.successUrl
+    ? `${input.successUrl}${input.successUrl.includes('?') ? '&' : '?'}order=${encodeURIComponent(orderNo)}`
+    : `${ENV.shopUrl}/success?order=${orderNo}`;
+  const cancelUrl = input.cancelUrl ?? `${ENV.shopUrl}/cart`;
+
+  if (paymentsUseStripe() && !needsShipping) {
+    const stripe = getStripe();
+    if (stripe) {
+      const stripeMeta: Record<string, string> = {
+        orderNo,
+        userId: String(input.userId),
+        sku: lines.length === 1 ? lines[0].product.sku : SHOP_CART_ORDER_SKU,
+        currency,
+      };
+      if (cartContext) stripeMeta.recommendationContext = cartContext.slice(0, 500);
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: stripeMeta,
+        line_items: lines.map((line) => {
+          const charge = toStripeAmount(
+            { priceCents: line.product.priceCents, priceCentsUsd: line.product.priceCentsUsd },
+            currency,
+          );
+          return {
+            quantity: line.quantity,
+            price_data: {
+              currency: charge.currency,
+              unit_amount: charge.unit_amount,
+              product_data: { name: line.product.name, description: line.product.desc },
+            },
+          };
+        }),
+      });
+      return {
+        orderNo,
+        checkoutUrl: session.url,
+        provider: 'stripe',
+        amountCents,
+        title,
+        needsShipping,
+      };
+    }
+  }
+
+  return {
+    orderNo,
+    checkoutUrl: mockCheckoutUrl(orderNo, input.successUrl),
+    provider: 'mock',
+    amountCents,
+    title,
+    needsShipping,
   };
 }
 

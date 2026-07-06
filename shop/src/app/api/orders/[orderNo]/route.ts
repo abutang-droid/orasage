@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo } from '@/lib/orders';
-import { getProduct } from '@/lib/products';
+import { resolveOrderFulfillment } from '@/lib/order-fulfillment';
 import { proxyAuthMe } from '@/lib/auth-proxy';
-import { inferRequiresShipping, inferRequiresWristSize } from '../../../../../../shared/shop-fulfillment/index';
 
 type RouteContext = { params: Promise<{ orderNo: string }> };
 
@@ -24,13 +23,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: '无权查看该订单' }, { status: 403 });
     }
 
-    const product = order.sku ? await getProduct(order.sku) : null;
-    const fulfillment = product
-      ? {
-          requiresShipping: product.requiresShipping ?? inferRequiresShipping(product),
-          requiresWristSize: product.requiresWristSize ?? inferRequiresWristSize(product),
-        }
-      : { requiresShipping: false, requiresWristSize: false };
+    const fulfillment = await resolveOrderFulfillment(order);
 
     const detailRes = await proxyAuthMe(`/orders/${encodeURIComponent(orderNo)}`);
     const detailData = detailRes.ok ? await detailRes.json().catch(() => ({})) : {};

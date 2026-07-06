@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
+import { useCart } from '@/lib/cart';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
 
 type CheckoutOrder = {
@@ -48,6 +49,7 @@ function appendOrderToReturnUrl(returnUrl: string, orderNo: string): string {
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { clear: clearCart } = useCart();
   const orderNo = searchParams.get('order') ?? '';
   const sku = searchParams.get('sku') ?? '';
   const returnUrl = searchParams.get('return');
@@ -131,6 +133,7 @@ function CheckoutContent() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || '支付失败');
       setFlowPhase('done');
+      clearCart();
       if (returnUrl) {
         const target = appendOrderToReturnUrl(returnUrl, targetOrderNo);
         window.location.replace(target);
@@ -143,7 +146,7 @@ function CheckoutContent() {
       setPayError(err instanceof Error ? err.message : '支付失败');
       throw err;
     }
-  }, [returnUrl, router]);
+  }, [returnUrl, router, clearCart]);
 
   const runReportAutoCheckout = useCallback(async (
     targetOrderNo: string,
