@@ -28,10 +28,12 @@ export function ProductCard({ product }: { product: Product }) {
         body: JSON.stringify({ sku: product.sku }),
       });
       const data = await res.json();
+
       if (res.status === 401) {
-        window.location.href = data.loginUrl;
+        window.location.href = `/checkout?sku=${encodeURIComponent(product.sku)}`;
         return;
       }
+
       if (!res.ok) throw new Error(data.error || '购买失败');
 
       if (data.checkoutUrl) {
@@ -39,14 +41,9 @@ export function ProductCard({ product }: { product: Product }) {
         return;
       }
 
-      if ((data.provider === 'mock' || data.provider === 'demo') && data.orderNo) {
-        const payRes = await fetch(`/api/pay?order=${encodeURIComponent(data.orderNo)}`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-        const payData = await payRes.json();
-        if (!payRes.ok) throw new Error(payData.error || '支付失败');
-        window.location.href = `/success?order=${encodeURIComponent(data.orderNo)}`;
+      if (data.orderNo) {
+        window.location.href = `/checkout?order=${encodeURIComponent(data.orderNo)}`;
+        return;
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '购买失败');
@@ -66,7 +63,7 @@ export function ProductCard({ product }: { product: Product }) {
         <span className="shop-product-price">{displayPrice}</span>
         <button
           type="button"
-          onClick={handleBuy}
+          onClick={() => void handleBuy()}
           disabled={loading}
           className="shop-btn-primary"
         >

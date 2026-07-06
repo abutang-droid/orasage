@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { Product, ProductCategory } from '@/lib/products';
 import { categoryLabels } from '@/lib/products';
 import { ProductCard } from './ProductCard';
@@ -15,6 +15,14 @@ export function ProductCatalog({ products }: { products: Product[] }) {
     if (activeCategory === 'all') return products;
     return products.filter((p) => p.category === activeCategory);
   }, [products, activeCategory]);
+
+  useEffect(() => {
+    if (!highlightSku) return;
+    const el = document.getElementById(highlightSku);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightSku, filtered]);
 
   const categories: Array<ProductCategory | 'all'> = ['all', 'crystal', 'report', 'service'];
 

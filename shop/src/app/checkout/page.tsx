@@ -79,6 +79,7 @@ function CheckoutContent() {
 
   const effectiveAppSource = orderAppSource ?? appSource;
   const isReportAppCheckout = REPORT_APP_SOURCES.has(effectiveAppSource);
+  const isReportDigitalCheckout = isReportAppCheckout && !fulfillment?.requiresShipping;
 
   const submitMockShipping = useCallback(async (targetOrderNo: string): Promise<void> => {
     const recipients = coupleShipping
@@ -166,7 +167,11 @@ function CheckoutContent() {
           const hasShipping = Boolean(parseShippingAddress(loadedOrder.shippingAddress));
           setShippingDone(hasShipping || !loadedFulfillment.requiresShipping);
 
-          if (REPORT_APP_SOURCES.has(loadedOrder.appSource ?? appSource) && loadedOrder.status === 'pending') {
+          if (
+            REPORT_APP_SOURCES.has(loadedOrder.appSource ?? appSource)
+            && loadedOrder.status === 'pending'
+            && !loadedFulfillment.requiresShipping
+          ) {
             void runReportAutoCheckout(
               orderNo,
               loadedFulfillment.requiresShipping,
@@ -329,7 +334,7 @@ function CheckoutContent() {
   if (loading) {
     return (
       <main className="shop-page p-16 text-center text-sage-muted">
-        {isReportAppCheckout ? '正在解锁报告…' : '加载订单…'}
+        {isReportDigitalCheckout ? '正在解锁报告…' : '加载订单…'}
       </main>
     );
   }
@@ -362,7 +367,9 @@ function CheckoutContent() {
             <p className="text-sm text-sage-primary text-center">
               该邮箱 <strong>{email}</strong> 已注册
             </p>
-            <p className="mt-2 text-xs text-sage-muted text-center">可直接使用此账号完成购买，或重新填写邮箱</p>
+            <p className="mt-2 text-xs text-sage-muted text-center">
+              是否直接使用此邮箱登录并完成购买？
+            </p>
             {emailError && <p className="mt-3 text-sm text-red-600 text-center">{emailError}</p>}
             <div className="mt-6 flex flex-col gap-3">
               <button
@@ -397,6 +404,9 @@ function CheckoutContent() {
                 className="mt-2 w-full rounded-lg border border-sage-border px-3 py-2.5 text-sage-primary"
               />
             </label>
+            <p className="mt-3 text-xs text-sage-muted leading-relaxed">
+              若邮箱尚未注册，继续即表示同意以此邮箱创建账号并接收订单通知。
+            </p>
             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
             <button type="submit" disabled={guestLoading} className="shop-btn-primary mt-6 w-full">
               {guestLoading ? '处理中…' : '继续解锁'}
@@ -419,7 +429,7 @@ function CheckoutContent() {
     ? `$${(order.amountCents / 100).toFixed(2)}`
     : `¥${(order.amountCents / 100).toFixed(2)}`;
 
-  if (isReportAppCheckout) {
+  if (isReportDigitalCheckout) {
     return (
       <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center px-4">
         <h1 className="font-serif text-2xl text-sage-primary">正在解锁报告</h1>

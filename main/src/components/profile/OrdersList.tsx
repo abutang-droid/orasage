@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOrders, type UserOrder } from '@/lib/auth';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
+import { formatShippingDisplay } from '../../../../shared/shop-fulfillment/index';
 
 function formatDate(iso: string): string {
   try {
@@ -79,7 +80,7 @@ export function OrdersList() {
               </div>
               {o.shippingAddress && (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  {t('shipping')}: {o.shippingAddress}
+                  {t('shipping')}: {formatShippingDisplay(o.shippingAddress) || o.shippingAddress}
                 </p>
               )}
               {o.recommendationContext && (
