@@ -1,15 +1,8 @@
-import { PublicLegalPage } from '@/components/PublicLegalPage';
+import { redirect } from '@/i18n/navigation';
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default function PrivacyPage({ params }: Props) {
-  return (
-    <PublicLegalPage
-      params={params}
-      slug="legal/privacy"
-      titleKey="title"
-      fallbackKey="content"
-      ns="privacy"
-    />
-  );
+export default async function PrivacyPage({ params }: Props) {
+  const { locale } = await params;
+  redirect({ href: '/profile/privacy', locale });
 }

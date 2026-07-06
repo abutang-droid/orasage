@@ -89,7 +89,7 @@ export function OrdersList() {
                   href={`https://shop.orasage.com/orders/${encodeURIComponent(o.orderNo)}`}
                   className="text-xs text-primary underline underline-offset-2"
                 >
-                  查看物流
+                  {t('trackShipment')}
                 </a>
               </p>
               <p className="mt-3 text-xs text-muted-foreground">{formatDate(o.createdAt)}</p>

@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@orasage/ui';
 import { useEffect, useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { locales, localeNames, type Locale } from '@/i18n/routing';
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { updateProfile } from '@/lib/auth';
 import type { BlessingMeritSummary } from '@/lib/tarot-merit';
 import { tarotBlessingUrls } from '@/lib/urls';
 import { useProfileAuth } from './ProfileAuth';
+import { ProfileAccountCard } from './ProfileAccountCard';
 import { ProfileLoginCard } from './ProfileLoginCard';
 
 type SettingsRowProps = {
@@ -65,9 +66,16 @@ function formatDeitySubtitle(
     : prefs.deityNameEn ?? prefs.deityNameZh ?? prefs.deityId;
 }
 
+const LEGAL_LINKS = [
+  { href: '/profile/about', labelKey: 'about' },
+  { href: '/profile/contact', labelKey: 'contact' },
+  { href: '/profile/privacy', labelKey: 'privacy' },
+  { href: '/profile/terms', labelKey: 'terms' },
+] as const;
+
 export function ProfileSettings({ locale }: { locale: string }) {
   const t = useTranslations('profile.settings');
-  const tBlessingNav = useTranslations('profile.blessing.nav');
+  const tLegal = useTranslations('profile.legal');
   const currentLocale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -108,6 +116,16 @@ export function ProfileSettings({ locale }: { locale: string }) {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">{t('accountTitle')}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t('accountDesc')}</p>
+        </CardHeader>
+        <CardContent className="p-0 pb-4">
+          {!user ? <ProfileLoginCard locale={locale} variant="gate" /> : <ProfileAccountCard embedded />}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">{t('languageTitle')}</CardTitle>
@@ -166,16 +184,23 @@ export function ProfileSettings({ locale }: { locale: string }) {
       </Card>
 
       <Card className="overflow-hidden p-0">
-        <nav aria-label={t('title')}>
-          <a
-            href={urls.merit}
-            className="flex min-h-[52px] items-center justify-between border-b border-border px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-muted/40"
-          >
-            <span className="text-foreground">{tBlessingNav('meritDetail')}</span>
-            <span className="text-muted-foreground" aria-hidden>
-              ›
-            </span>
-          </a>
+        <CardHeader className="border-b border-border px-4 pb-3 pt-4">
+          <CardTitle className="text-base">{t('helpTitle')}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t('helpDesc')}</p>
+        </CardHeader>
+        <nav aria-label={t('helpTitle')}>
+          {LEGAL_LINKS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex min-h-[52px] items-center justify-between border-b border-border px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-muted/40"
+            >
+              <span className="text-foreground">{tLegal(item.labelKey)}</span>
+              <span className="text-muted-foreground" aria-hidden>
+                ›
+              </span>
+            </Link>
+          ))}
         </nav>
       </Card>
     </div>
