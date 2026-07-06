@@ -12,6 +12,8 @@ export type GeoCountry = {
   nameZh: string;
   nameEn: string;
   regionCode: string;
+  mapX?: number;
+  mapY?: number;
   sortOrder: number;
 };
 

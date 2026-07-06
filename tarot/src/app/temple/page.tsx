@@ -162,21 +162,18 @@ function TemplePageContent() {
   // ── Geo journey (region → country → faith) ──
   if (phase === "journey") {
     return (
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ paddingTop: 32, paddingBottom: 32 }}>
-          <GeoJourneyPicker
-            value={{
-              continentCode: user?.continentCode ?? selectedContinent ?? undefined,
-              countryCode: user?.countryCode ?? selectedCountry ?? undefined,
-              faith: selectedFaith ?? undefined,
-            }}
-            onComplete={(result) => void handleJourneyComplete(result)}
-            title="第一步 · 你的心灵故乡"
-            subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
-            faithConfirmLabel="下一步 · 选择圣地"
-          />
-        </div>
-      </div>
+      <GeoJourneyPicker
+        value={{
+          continentCode: user?.continentCode ?? selectedContinent ?? undefined,
+          countryCode: user?.countryCode ?? selectedCountry ?? undefined,
+          faith: selectedFaith ?? undefined,
+        }}
+        onComplete={(result) => void handleJourneyComplete(result)}
+        title="第一步 · 你的心灵故乡"
+        subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
+        faithConfirmLabel="下一步 · 选择圣地"
+        fullscreen
+      />
     )
   }
 

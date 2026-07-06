@@ -15,50 +15,52 @@ export type SeedGeoCountry = {
   nameZh: string;
   nameEn: string;
   regionCode: string;
+  mapX: number;
+  mapY: number;
   sortOrder: number;
 };
 
 export const SEED_GEO_COUNTRIES: SeedGeoCountry[] = [
   // Asia
-  { code: 'CN', nameZh: '中国', nameEn: 'China', regionCode: 'asia', sortOrder: 10 },
-  { code: 'TW', nameZh: '中国台湾', nameEn: 'Taiwan', regionCode: 'asia', sortOrder: 11 },
-  { code: 'HK', nameZh: '中国香港', nameEn: 'Hong Kong', regionCode: 'asia', sortOrder: 12 },
-  { code: 'JP', nameZh: '日本', nameEn: 'Japan', regionCode: 'asia', sortOrder: 20 },
-  { code: 'KR', nameZh: '韩国', nameEn: 'South Korea', regionCode: 'asia', sortOrder: 21 },
-  { code: 'TH', nameZh: '泰国', nameEn: 'Thailand', regionCode: 'asia', sortOrder: 30 },
-  { code: 'PH', nameZh: '菲律宾', nameEn: 'Philippines', regionCode: 'asia', sortOrder: 31 },
-  { code: 'ID', nameZh: '印度尼西亚', nameEn: 'Indonesia', regionCode: 'asia', sortOrder: 32 },
-  { code: 'MY', nameZh: '马来西亚', nameEn: 'Malaysia', regionCode: 'asia', sortOrder: 33 },
-  { code: 'SG', nameZh: '新加坡', nameEn: 'Singapore', regionCode: 'asia', sortOrder: 34 },
-  { code: 'VN', nameZh: '越南', nameEn: 'Vietnam', regionCode: 'asia', sortOrder: 35 },
-  { code: 'IN', nameZh: '印度', nameEn: 'India', regionCode: 'asia', sortOrder: 40 },
-  { code: 'PK', nameZh: '巴基斯坦', nameEn: 'Pakistan', regionCode: 'asia', sortOrder: 41 },
-  { code: 'BD', nameZh: '孟加拉国', nameEn: 'Bangladesh', regionCode: 'asia', sortOrder: 42 },
+  { code: 'CN', nameZh: '中国', nameEn: 'China', regionCode: 'asia', mapX: 68, mapY: 38, sortOrder: 10 },
+  { code: 'TW', nameZh: '中国台湾', nameEn: 'Taiwan', regionCode: 'asia', mapX: 72, mapY: 42, sortOrder: 11 },
+  { code: 'HK', nameZh: '中国香港', nameEn: 'Hong Kong', regionCode: 'asia', mapX: 70, mapY: 41, sortOrder: 12 },
+  { code: 'JP', nameZh: '日本', nameEn: 'Japan', regionCode: 'asia', mapX: 82, mapY: 36, sortOrder: 20 },
+  { code: 'KR', nameZh: '韩国', nameEn: 'South Korea', regionCode: 'asia', mapX: 78, mapY: 34, sortOrder: 21 },
+  { code: 'TH', nameZh: '泰国', nameEn: 'Thailand', regionCode: 'asia', mapX: 66, mapY: 48, sortOrder: 30 },
+  { code: 'PH', nameZh: '菲律宾', nameEn: 'Philippines', regionCode: 'asia', mapX: 74, mapY: 48, sortOrder: 31 },
+  { code: 'ID', nameZh: '印度尼西亚', nameEn: 'Indonesia', regionCode: 'asia', mapX: 72, mapY: 58, sortOrder: 32 },
+  { code: 'MY', nameZh: '马来西亚', nameEn: 'Malaysia', regionCode: 'asia', mapX: 68, mapY: 54, sortOrder: 33 },
+  { code: 'SG', nameZh: '新加坡', nameEn: 'Singapore', regionCode: 'asia', mapX: 67, mapY: 53, sortOrder: 34 },
+  { code: 'VN', nameZh: '越南', nameEn: 'Vietnam', regionCode: 'asia', mapX: 66, mapY: 46, sortOrder: 35 },
+  { code: 'IN', nameZh: '印度', nameEn: 'India', regionCode: 'asia', mapX: 62, mapY: 44, sortOrder: 40 },
+  { code: 'PK', nameZh: '巴基斯坦', nameEn: 'Pakistan', regionCode: 'asia', mapX: 58, mapY: 38, sortOrder: 41 },
+  { code: 'BD', nameZh: '孟加拉国', nameEn: 'Bangladesh', regionCode: 'asia', mapX: 64, mapY: 42, sortOrder: 42 },
   // Americas
-  { code: 'BR', nameZh: '巴西', nameEn: 'Brazil', regionCode: 'americas', sortOrder: 10 },
-  { code: 'MX', nameZh: '墨西哥', nameEn: 'Mexico', regionCode: 'americas', sortOrder: 11 },
-  { code: 'AR', nameZh: '阿根廷', nameEn: 'Argentina', regionCode: 'americas', sortOrder: 12 },
-  { code: 'CO', nameZh: '哥伦比亚', nameEn: 'Colombia', regionCode: 'americas', sortOrder: 13 },
-  { code: 'US', nameZh: '美国', nameEn: 'United States', regionCode: 'americas', sortOrder: 20 },
-  { code: 'PE', nameZh: '秘鲁', nameEn: 'Peru', regionCode: 'americas', sortOrder: 21 },
-  { code: 'CL', nameZh: '智利', nameEn: 'Chile', regionCode: 'americas', sortOrder: 22 },
+  { code: 'BR', nameZh: '巴西', nameEn: 'Brazil', regionCode: 'americas', mapX: 28, mapY: 58, sortOrder: 10 },
+  { code: 'MX', nameZh: '墨西哥', nameEn: 'Mexico', regionCode: 'americas', mapX: 14, mapY: 40, sortOrder: 11 },
+  { code: 'AR', nameZh: '阿根廷', nameEn: 'Argentina', regionCode: 'americas', mapX: 24, mapY: 72, sortOrder: 12 },
+  { code: 'CO', nameZh: '哥伦比亚', nameEn: 'Colombia', regionCode: 'americas', mapX: 20, mapY: 50, sortOrder: 13 },
+  { code: 'US', nameZh: '美国', nameEn: 'United States', regionCode: 'americas', mapX: 18, mapY: 32, sortOrder: 20 },
+  { code: 'PE', nameZh: '秘鲁', nameEn: 'Peru', regionCode: 'americas', mapX: 22, mapY: 62, sortOrder: 21 },
+  { code: 'CL', nameZh: '智利', nameEn: 'Chile', regionCode: 'americas', mapX: 22, mapY: 76, sortOrder: 22 },
   // Europe
-  { code: 'PT', nameZh: '葡萄牙', nameEn: 'Portugal', regionCode: 'europe', sortOrder: 10 },
-  { code: 'ES', nameZh: '西班牙', nameEn: 'Spain', regionCode: 'europe', sortOrder: 11 },
-  { code: 'IT', nameZh: '意大利', nameEn: 'Italy', regionCode: 'europe', sortOrder: 12 },
-  { code: 'FR', nameZh: '法国', nameEn: 'France', regionCode: 'europe', sortOrder: 13 },
-  { code: 'DE', nameZh: '德国', nameEn: 'Germany', regionCode: 'europe', sortOrder: 14 },
-  { code: 'GB', nameZh: '英国', nameEn: 'United Kingdom', regionCode: 'europe', sortOrder: 15 },
-  { code: 'PL', nameZh: '波兰', nameEn: 'Poland', regionCode: 'europe', sortOrder: 16 },
-  { code: 'RU', nameZh: '俄罗斯', nameEn: 'Russia', regionCode: 'europe', sortOrder: 17 },
+  { code: 'PT', nameZh: '葡萄牙', nameEn: 'Portugal', regionCode: 'europe', mapX: 44, mapY: 38, sortOrder: 10 },
+  { code: 'ES', nameZh: '西班牙', nameEn: 'Spain', regionCode: 'europe', mapX: 46, mapY: 36, sortOrder: 11 },
+  { code: 'IT', nameZh: '意大利', nameEn: 'Italy', regionCode: 'europe', mapX: 52, mapY: 36, sortOrder: 12 },
+  { code: 'FR', nameZh: '法国', nameEn: 'France', regionCode: 'europe', mapX: 48, mapY: 32, sortOrder: 13 },
+  { code: 'DE', nameZh: '德国', nameEn: 'Germany', regionCode: 'europe', mapX: 52, mapY: 28, sortOrder: 14 },
+  { code: 'GB', nameZh: '英国', nameEn: 'United Kingdom', regionCode: 'europe', mapX: 46, mapY: 26, sortOrder: 15 },
+  { code: 'PL', nameZh: '波兰', nameEn: 'Poland', regionCode: 'europe', mapX: 54, mapY: 28, sortOrder: 16 },
+  { code: 'RU', nameZh: '俄罗斯', nameEn: 'Russia', regionCode: 'europe', mapX: 62, mapY: 24, sortOrder: 17 },
   // Africa
-  { code: 'NG', nameZh: '尼日利亚', nameEn: 'Nigeria', regionCode: 'africa', sortOrder: 10 },
-  { code: 'ZA', nameZh: '南非', nameEn: 'South Africa', regionCode: 'africa', sortOrder: 11 },
-  { code: 'EG', nameZh: '埃及', nameEn: 'Egypt', regionCode: 'africa', sortOrder: 12 },
-  { code: 'KE', nameZh: '肯尼亚', nameEn: 'Kenya', regionCode: 'africa', sortOrder: 13 },
+  { code: 'NG', nameZh: '尼日利亚', nameEn: 'Nigeria', regionCode: 'africa', mapX: 48, mapY: 52, sortOrder: 10 },
+  { code: 'ZA', nameZh: '南非', nameEn: 'South Africa', regionCode: 'africa', mapX: 54, mapY: 72, sortOrder: 11 },
+  { code: 'EG', nameZh: '埃及', nameEn: 'Egypt', regionCode: 'africa', mapX: 54, mapY: 42, sortOrder: 12 },
+  { code: 'KE', nameZh: '肯尼亚', nameEn: 'Kenya', regionCode: 'africa', mapX: 56, mapY: 56, sortOrder: 13 },
   // Oceania
-  { code: 'AU', nameZh: '澳大利亚', nameEn: 'Australia', regionCode: 'oceania', sortOrder: 10 },
-  { code: 'NZ', nameZh: '新西兰', nameEn: 'New Zealand', regionCode: 'oceania', sortOrder: 11 },
+  { code: 'AU', nameZh: '澳大利亚', nameEn: 'Australia', regionCode: 'oceania', mapX: 82, mapY: 68, sortOrder: 10 },
+  { code: 'NZ', nameZh: '新西兰', nameEn: 'New Zealand', regionCode: 'oceania', mapX: 90, mapY: 76, sortOrder: 11 },
 ];
 
 export type SeedCountryFaith = {

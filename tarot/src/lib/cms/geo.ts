@@ -1,4 +1,5 @@
 import { SEED_GEO_COUNTRIES, SEED_GEO_REGIONS } from '../../../../shared/tarot-geo-seed';
+import { countryMapCoords } from '@/lib/geo/map-layout';
 import {
   fetchFaithsWithFallback,
   mapCmsFaithToOption,
@@ -27,6 +28,8 @@ export type GeoCountryDto = {
   nameZh: string;
   nameEn: string;
   regionCode: string;
+  mapX?: number;
+  mapY?: number;
   sortOrder: number;
 };
 
@@ -49,6 +52,8 @@ type CmsGeoCountry = {
   code: string;
   nameZh: string;
   nameEn: string;
+  mapX?: number | null;
+  mapY?: number | null;
   sortOrder?: number | null;
   region?: { code: string } | number | null;
 };
@@ -72,11 +77,14 @@ function mapRegion(r: CmsGeoRegion): GeoRegionDto {
 }
 
 function mapCountry(c: CmsGeoCountry, regionCode: string): GeoCountryDto {
+  const coords = countryMapCoords(c.code, { mapX: c.mapX, mapY: c.mapY });
   return {
     code: c.code,
     nameZh: c.nameZh,
     nameEn: c.nameEn,
     regionCode,
+    mapX: coords.mapX,
+    mapY: coords.mapY,
     sortOrder: c.sortOrder ?? 0,
   };
 }
@@ -98,6 +106,8 @@ export function fallbackGeoCountries(regionCode?: string): GeoCountryDto[] {
     nameZh: c.nameZh,
     nameEn: c.nameEn,
     regionCode: c.regionCode,
+    mapX: c.mapX,
+    mapY: c.mapY,
     sortOrder: c.sortOrder,
   }));
   if (!regionCode) return list;

@@ -438,19 +438,18 @@ export function OnboardingFlow() {
             )}
 
             {step === 'geo_journey' && (
-              <div className="onboarding-faith-wrap">
-                <GeoJourneyPicker
-                  value={{
-                    continentCode: draft.continentCode || undefined,
-                    countryCode: draft.countryCode || undefined,
-                    faith: draft.faith || undefined,
-                  }}
-                  onComplete={onGeoJourneyComplete}
-                  title=""
-                  subtitle=""
-                  faithConfirmLabel="确认并完成引导"
-                />
-              </div>
+              <GeoJourneyPicker
+                value={{
+                  continentCode: draft.continentCode || undefined,
+                  countryCode: draft.countryCode || undefined,
+                  faith: draft.faith || undefined,
+                }}
+                onComplete={onGeoJourneyComplete}
+                title=""
+                subtitle=""
+                faithConfirmLabel="确认并完成引导"
+                fullscreen
+              />
             )}
 
             {step === 'saving' && (
