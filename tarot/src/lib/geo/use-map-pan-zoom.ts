@@ -14,6 +14,13 @@ type UseMapPanZoomOptions = {
   resetKey?: string;
 };
 
+function isInteractiveMapTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest('.world-map-hotspot, .world-map-control-btn, button, a, input, textarea'),
+  );
+}
+
 export function useMapPanZoom({
   minScale = 0.6,
   maxScale = 4,
@@ -24,6 +31,7 @@ export function useMapPanZoom({
   const lastPoint = useRef({ x: 0, y: 0 });
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchStart = useRef<{ distance: number; scale: number } | null>(null);
+  const dragStart = useRef({ x: 0, y: 0, moved: false });
 
   useEffect(() => {
     setTransform({ x: 0, y: 0, scale: 1 });
@@ -56,6 +64,8 @@ export function useMapPanZoom({
 
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 && event.pointerType === 'mouse') return;
+    if (isInteractiveMapTarget(event.target)) return;
+
     const target = event.currentTarget;
     target.setPointerCapture(event.pointerId);
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -63,6 +73,7 @@ export function useMapPanZoom({
     if (pointers.current.size === 1) {
       dragging.current = true;
       lastPoint.current = { x: event.clientX, y: event.clientY };
+      dragStart.current = { x: event.clientX, y: event.clientY, moved: false };
     } else if (pointers.current.size === 2) {
       const pts = [...pointers.current.values()];
       const dx = pts[1].x - pts[0].x;
@@ -92,6 +103,9 @@ export function useMapPanZoom({
     if (!dragging.current) return;
     const dx = event.clientX - lastPoint.current.x;
     const dy = event.clientY - lastPoint.current.y;
+    if (Math.hypot(event.clientX - dragStart.current.x, event.clientY - dragStart.current.y) > 6) {
+      dragStart.current.moved = true;
+    }
     lastPoint.current = { x: event.clientX, y: event.clientY };
     setTransform((prev) => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
   }, [clampScale]);
