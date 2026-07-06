@@ -38,15 +38,3 @@ export async function fetchAdminProductImageMap(): Promise<Map<string, string>> 
   }
   return map;
 }
-
-export function cmsProductImageAdminUrl(sku?: string): string {
-  const base = '/cms/admin/collections/shop-product-images';
-  if (!sku) return base;
-  return `${base}?where[sku][equals]=${encodeURIComponent(sku)}`;
-}
-
-export function cmsProductImageCreateUrl(sku?: string): string {
-  const base = '/cms/admin/collections/shop-product-images/create';
-  if (!sku) return base;
-  return `${base}?sku=${encodeURIComponent(sku)}`;
-}

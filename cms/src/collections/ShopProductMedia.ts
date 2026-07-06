@@ -9,9 +9,10 @@ export const ShopProductMedia: CollectionConfig = {
   },
   admin: {
     group: '商城',
+    hidden: true,
     useAsTitle: 'sku',
     description:
-      '为 shop.orasage.com 商品配置主图。每条记录对应一个 SKU（须与运营后台「商品管理」中的 SKU 完全一致）。上传图片后约 1 分钟内在商城前台生效。',
+      '商城 SKU 主图数据存储于此，由运营后台「商品管理」统一编辑上传。每条记录对应一个 SKU。',
     defaultColumns: ['sku', 'image', 'updatedAt'],
     listSearchableFields: ['sku'],
   },
