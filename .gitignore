@@ -8,3 +8,6 @@ dist/
 .DS_Store
 _tmp_*
 .pnpm-store/
+
+# 紫微 51 万样本库（~5.5GB，仅本机/VPS 数据，勿提交）
+data/ziwei-samples/
