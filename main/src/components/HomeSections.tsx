@@ -235,12 +235,24 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
               'home-product-card flex min-h-[148px] flex-col p-3.5 sm:min-h-[160px] sm:p-4',
             )}
           >
-            <span
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm"
-              style={productBadgeStyle(item.element, item.category)}
-            >
-              {productBadgeLabel(item.element, item.category, item.categoryLabel)}
-            </span>
+            {item.imageUrl ? (
+              <div className="home-product-image-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="home-product-image"
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <span
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm"
+                style={productBadgeStyle(item.element, item.category)}
+              >
+                {productBadgeLabel(item.element, item.category, item.categoryLabel)}
+              </span>
+            )}
             <h3 className="mt-2.5 text-sm font-medium leading-snug text-foreground sm:text-[15px]">
               {item.name}
             </h3>

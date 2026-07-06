@@ -25,7 +25,7 @@ function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | 
 
 let cachedMap: Map<string, string> | null = null;
 let cacheExpiry = 0;
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 15_000;
 
 /** 从 CMS 拉取 SKU → 主图 URL 映射 */
 export async function fetchProductImageMap(): Promise<Map<string, string>> {
@@ -37,7 +37,7 @@ export async function fetchProductImageMap(): Promise<Map<string, string>> {
   try {
     const res = await fetch(
       `${CMS_INTERNAL_URL}/api/shop-product-images?limit=200&depth=1`,
-      { next: { revalidate: 60 } } as RequestInit,
+      { next: { revalidate: 15 } } as RequestInit,
     );
     if (!res.ok) return map;
     const data = (await res.json()) as { docs?: CmsProductImageRow[] };
