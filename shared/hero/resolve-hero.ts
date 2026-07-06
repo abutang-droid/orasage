@@ -1,5 +1,12 @@
 import type { MappedHeroContent } from './map-cms-hero';
 
+export type HeroReachabilityOptions = {
+  /** 公网 CMS 根，如 https://admin.orasage.com/cms */
+  publicCmsBase?: string;
+  /** 内网可达性检测根（服务端优先），如 http://127.0.0.1:3120/cms */
+  internalCmsBase?: string;
+};
+
 function hasHeroText(hero: MappedHeroContent): boolean {
   return Boolean(
     hero.headline?.trim() ||
@@ -7,6 +14,25 @@ function hasHeroText(hero: MappedHeroContent): boolean {
       hero.subtitle?.trim() ||
       hero.bodyText?.trim(),
   );
+}
+
+/** 服务端用内网 URL 检测媒体是否真实存在，避免公网反代异常时误降级 */
+export function cmsMediaUrlForReachability(
+  url: string,
+  opts?: HeroReachabilityOptions,
+): string {
+  const publicBase = (opts?.publicCmsBase ?? 'https://admin.orasage.com/cms').replace(
+    /\/$/,
+    '',
+  );
+  const internalBase = (opts?.internalCmsBase ?? 'http://127.0.0.1:3120/cms').replace(
+    /\/$/,
+    '',
+  );
+  if (internalBase && (url.startsWith(`${publicBase}/`) || url === publicBase)) {
+    return internalBase + url.slice(publicBase.length);
+  }
+  return url;
 }
 
 async function isUrlReachable(url: string): Promise<boolean> {
@@ -33,12 +59,19 @@ async function isUrlReachable(url: string): Promise<boolean> {
   }
 }
 
-async function isHeroMediaReachable(hero: MappedHeroContent): Promise<boolean> {
+async function isHeroMediaReachable(
+  hero: MappedHeroContent,
+  reachability?: HeroReachabilityOptions,
+): Promise<boolean> {
   if (hero.displayMode === 'image') {
-    return hero.imageUrl ? isUrlReachable(hero.imageUrl) : false;
+    if (!hero.imageUrl) return false;
+    const checkUrl = cmsMediaUrlForReachability(hero.imageUrl, reachability);
+    return isUrlReachable(checkUrl);
   }
   if (hero.displayMode === 'video') {
-    return hero.videoUrl ? isUrlReachable(hero.videoUrl) : false;
+    if (!hero.videoUrl) return false;
+    const checkUrl = cmsMediaUrlForReachability(hero.videoUrl, reachability);
+    return isUrlReachable(checkUrl);
   }
   return true;
 }
@@ -50,6 +83,7 @@ async function isHeroMediaReachable(hero: MappedHeroContent): Promise<boolean> {
 export async function resolveHeroWithFallback(
   mapped: MappedHeroContent | null,
   fallback: MappedHeroContent,
+  reachability?: HeroReachabilityOptions,
 ): Promise<MappedHeroContent> {
   if (!mapped) return fallback;
   if (!mapped.enabled) return mapped;
@@ -59,7 +93,7 @@ export async function resolveHeroWithFallback(
   }
 
   if (mapped.displayMode === 'image' || mapped.displayMode === 'video') {
-    const mediaOk = await isHeroMediaReachable(mapped);
+    const mediaOk = await isHeroMediaReachable(mapped, reachability);
     if (!mediaOk) {
       if (hasHeroText(mapped)) {
         return {

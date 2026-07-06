@@ -89,12 +89,27 @@ try_create_database() {
   exit 1
 }
 
+sync_media_files() {
+  CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
+  local legacy_dir="$APP_DIR/media"
+  mkdir -p "$CMS_MEDIA_DIR"
+  if [ -d "$legacy_dir" ] && [ "$(ls -A "$legacy_dir" 2>/dev/null | wc -l)" -gt 0 ]; then
+    log "同步媒体文件: $legacy_dir → $CMS_MEDIA_DIR"
+    if command -v rsync >/dev/null 2>&1; then
+      rsync -a "$legacy_dir/" "$CMS_MEDIA_DIR/"
+    else
+      cp -a "$legacy_dir/." "$CMS_MEDIA_DIR/"
+    fi
+  fi
+}
+
 deploy_native() {
   log "部署 cms（Payload）..."
   require_cmd npm
 
   CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
   mkdir -p "$CMS_MEDIA_DIR"
+  sync_media_files
   if [ -f "$APP_DIR/.env" ]; then
     if grep -q '^CMS_MEDIA_DIR=' "$APP_DIR/.env"; then
       sed -i "s|^CMS_MEDIA_DIR=.*|CMS_MEDIA_DIR=${CMS_MEDIA_DIR}|" "$APP_DIR/.env"
@@ -137,6 +152,20 @@ verify() {
   log "  https://cms.orasage.com/admin → HTTP $blocked (期望 301 链至 admin/cms/admin)"
   admin_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://admin.orasage.com/cms/admin || echo "000")
   log "  https://admin.orasage.com/cms/admin → HTTP $admin_code"
+  sample_file=""
+  if [ -d "${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}" ]; then
+    sample_file=$(find "${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}" -maxdepth 1 -type f -name '*.jpg' | head -1)
+    sample_file="${sample_file##*/}"
+  fi
+  if [ -n "$sample_file" ]; then
+    local_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
+      "http://127.0.0.1:3120/cms/api/media/file/${sample_file}" || echo "000")
+    public_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
+      "https://admin.orasage.com/cms/api/media/file/${sample_file}" || echo "000")
+    log "  媒体样本 ${sample_file}: 内网 HTTP $local_code, 公网 HTTP $public_code"
+  else
+    log "  警告: ${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media} 无 jpg 样本，请确认 CMS 媒体已上传"
+  fi
 }
 
 # ── main ──────────────────────────────────────────────────────

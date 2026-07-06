@@ -48,7 +48,10 @@ export async function fetchHomeHero(
     if (!res.ok) return fallback;
     const data = (await res.json()) as CmsHeroRaw;
     const mapped = mapHomeHero(data);
-    return resolveHeroWithFallback(mapped, fallback);
+    return resolveHeroWithFallback(mapped, fallback, {
+      publicCmsBase: CMS_PUBLIC_URL,
+      internalCmsBase: CMS_INTERNAL_URL,
+    });
   } catch {
     return fallback;
   }
