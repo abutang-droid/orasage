@@ -67,6 +67,7 @@ function CheckoutContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [fulfillment, setFulfillment] = useState<Fulfillment | null>(null);
+  const [cartItems, setCartItems] = useState<Array<{ sku: string; name: string; quantity: number }> | null>(null);
   const [shippingDone, setShippingDone] = useState(false);
   const [productPreview, setProductPreview] = useState<ProductPreview | null>(null);
   const [guestStep, setGuestStep] = useState<GuestStep>('email');
@@ -182,6 +183,7 @@ function CheckoutContent() {
           const loadedFulfillment = data.fulfillment as Fulfillment;
           setOrder(loadedOrder);
           setFulfillment(loadedFulfillment);
+          setCartItems(Array.isArray(data.cartItems) ? data.cartItems : null);
           if (loadedOrder.appSource) setOrderAppSource(loadedOrder.appSource);
           const hasShipping = Boolean(parseShippingAddress(loadedOrder.shippingAddress));
           setShippingDone(hasShipping || !loadedFulfillment.requiresShipping);
@@ -487,10 +489,16 @@ function CheckoutContent() {
   }
 
   const needsShippingStep = fulfillment?.requiresShipping && !shippingDone;
+  const mixedCartOrder = Boolean(cartItems && cartItems.length > 1 && fulfillment?.requiresShipping);
   if (needsShippingStep) {
     return (
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8">
         <CheckoutStepper current="shipping" requiresShipping />
+        {mixedCartOrder ? (
+          <p className="mb-4 text-sm text-sage-muted leading-relaxed">
+            订单含数字商品与实体商品。请填写收货地址，实体商品将按此地址发货；数字商品支付后自动交付，无需邮寄。
+          </p>
+        ) : null}
         <ShippingForm
           orderNo={orderNo}
           productTitle={order.title}
