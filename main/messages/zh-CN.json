@@ -172,6 +172,27 @@
       "privacy": "隐私政策",
       "terms": "服务条款"
     },
+    "blessing": {
+      "title": "祈福与功德",
+      "desc": "塔罗祈福台的修行记录，登录后同步显示",
+      "loading": "加载功德…",
+      "loadError": "暂时无法加载祈福数据",
+      "empty": "尚未开始祈福，参拜守护神即可积累功德",
+      "startCta": "前往祈福",
+      "level": "修行等级",
+      "meritTotal": "功德值",
+      "streak": "连续参拜",
+      "streakDays": "{count} 天",
+      "streakNone": "—",
+      "prayedToday": "今日祈福",
+      "prayedDone": "已完成",
+      "prayedPending": "未完成",
+      "nav": {
+        "meritDetail": "功德详情",
+        "myDeity": "我的守护神",
+        "worshipLog": "拜神记录"
+      }
+    },
     "profiles": {
       "title": "测试对象",
       "desc": "各应用保存的命盘资料将同步显示在此，可用 A/B/C 等标签区分。",

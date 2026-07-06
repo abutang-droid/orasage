@@ -71,6 +71,7 @@ ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.orasage.com/c
 ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
 ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
+ensure_root_env_kv TAROT_INTERNAL_URL "${TAROT_INTERNAL_URL:-http://127.0.0.1:3112}"
 
 # ── 3. Auth 数据库迁移 ───────────────────────────────────────
 log "运行 auth 数据库迁移..."
