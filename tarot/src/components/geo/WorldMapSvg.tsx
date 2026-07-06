@@ -113,6 +113,9 @@ export function WorldMapSvg({
                     top: `${spot.mapY}%`,
                     ['--hotspot-color' as string]: color,
                   }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                  }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelect(spot.id);

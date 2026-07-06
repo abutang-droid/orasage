@@ -17,6 +17,56 @@
 .geo-journey-map-layer {
   position: absolute;
   inset: 0;
+  z-index: 1;
+}
+
+.geo-journey-top,
+.geo-journey-bottom,
+.geo-journey-confirm-dock {
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.geo-journey-top > *,
+.geo-journey-bottom > *,
+.geo-journey-confirm-dock > * {
+  pointer-events: auto;
+}
+
+.geo-journey-top {
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    0
+    max(16px, env(safe-area-inset-left));
+}
+
+.geo-journey-bottom {
+  margin-top: auto;
+  padding:
+    0
+    max(16px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.geo-journey-confirm-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(max(20px, env(safe-area-inset-bottom)) + 56px);
+  z-index: 125;
+  padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.geo-journey-confirm-dock .geo-journey-faith-confirm {
+  margin-top: 0;
+  width: min(100%, 420px);
+  pointer-events: auto;
 }
 
 .geo-journey-overlay {
@@ -25,16 +75,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding:
-    max(12px, env(safe-area-inset-top))
-    max(16px, env(safe-area-inset-right))
-    max(20px, env(safe-area-inset-bottom))
-    max(16px, env(safe-area-inset-left));
   pointer-events: none;
-}
-
-.geo-journey-overlay > * {
-  pointer-events: auto;
 }
 
 .geo-journey-header {
@@ -215,8 +256,7 @@
 }
 
 .geo-journey-footer {
-  margin-top: auto;
-  padding-top: 8px;
+  padding-top: 0;
 }
 
 .geo-journey-list-btn {
@@ -269,7 +309,7 @@
   right: max(12px, env(safe-area-inset-right));
   top: 50%;
   transform: translateY(-50%);
-  z-index: 5;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -335,6 +375,7 @@
   align-items: center;
   gap: 4px;
   min-width: 44px;
+  z-index: 4;
 }
 
 .world-map-hotspot-pulse {
