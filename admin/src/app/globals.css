@@ -259,6 +259,44 @@ a {
   gap: 0.35rem;
 }
 
+.product-image-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.product-image-field-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.product-image-hint {
+  font-size: 0.75rem;
+}
+
+.product-image-missing {
+  font-size: 0.8rem;
+}
+
+.product-thumb--form {
+  width: 72px;
+  height: 72px;
+}
+
+.panel-notice {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: var(--orasage-card, #f5f5f4);
+  border: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.panel-notice--error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #b91c1c;
+}
+
 .product-thumb {
   width: 48px;
   height: 48px;

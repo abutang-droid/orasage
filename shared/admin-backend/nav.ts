@@ -51,11 +51,6 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.includes('/globals/shop-home-hero'),
   },
   {
-    label: '商品主图',
-    href: '/cms/admin/collections/shop-product-images',
-    isActive: (p) => p.includes('/collections/shop-product-images'),
-  },
-  {
     label: '八字 Hero',
     href: '/cms/admin/globals/bazi-home-hero',
     isActive: (p) => p.includes('/globals/bazi-home-hero'),

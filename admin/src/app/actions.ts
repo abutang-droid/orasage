@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts } from '@/lib/api';
+import { upsertProductImage } from '@/lib/cms-api';
+import { getAdminToken } from '@/lib/auth';
 
 export async function saveProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
@@ -41,8 +43,27 @@ export async function saveProductAction(formData: FormData) {
     await createProduct(payload);
   }
 
+  const imageFile = formData.get('image');
+  let imageError: string | null = null;
+  if (imageFile instanceof File && imageFile.size > 0) {
+    const token = await getAdminToken();
+    if (!token) {
+      imageError = '未登录，主图未上传';
+    } else {
+      try {
+        await upsertProductImage(sku, imageFile, token);
+      } catch (err) {
+        imageError = err instanceof Error ? err.message : '主图上传失败';
+      }
+    }
+  }
+
   revalidatePath('/products');
   revalidatePath('/');
+
+  if (imageError) {
+    redirect(`/products?image_err=${encodeURIComponent(imageError)}&sku=${encodeURIComponent(sku)}`);
+  }
 }
 
 export async function updateOrderStatusAction(formData: FormData) {

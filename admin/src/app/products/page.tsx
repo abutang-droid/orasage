@@ -3,6 +3,8 @@ import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRec
 import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { ProductImageCell } from '@/components/ProductImageCell';
+import { ProductImageField } from '@/components/ProductImageField';
+import { ProductInlineEditForm } from '@/components/ProductInlineEditForm';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -40,7 +42,14 @@ const TAROT_REC_SLOTS = 6;
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ ziwei_rec?: string; ziwei_rec_err?: string; tarot_billing?: string; tarot_billing_err?: string }>;
+  searchParams?: Promise<{
+    ziwei_rec?: string;
+    ziwei_rec_err?: string;
+    tarot_billing?: string;
+    tarot_billing_err?: string;
+    image_err?: string;
+    sku?: string;
+  }>;
 }) {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
@@ -105,18 +114,22 @@ export default async function ProductsPage({
     <div className="admin-page">
       <header className="page-header">
         <h1>商品管理</h1>
-        <p className="muted">全平台统一商品目录，shop / bazi / tarot / main 共用 SKU</p>
+        <p className="muted">
+          全平台统一商品目录，shop / bazi / tarot / main 共用 SKU。商品信息与主图在同一页面编辑，保存后约 1 分钟内在商城前台生效。
+        </p>
       </header>
 
-      <section className="panel">
-        <h2>商品主图（CMS）</h2>
-        <p className="muted" style={{ marginBottom: '0.75rem' }}>
-          商城前台主图在 CMS「商品主图」中按 SKU 上传。左侧导航 <strong>内容 → 商品主图</strong>，或在下方列表点击「上传主图」。
-          已配置 {productImageMap.size} / {products.length} 个 SKU。
+      {sp.image_err ? (
+        <p className="muted panel-notice panel-notice--error">
+          商品 {sp.sku ? <code>{sp.sku}</code> : null} 信息已保存，但主图上传失败：{decodeURIComponent(sp.image_err)}
         </p>
-        <a href="/cms/admin/collections/shop-product-images" className="btn-primary">
-          打开商品主图管理
-        </a>
+      ) : null}
+
+      <section className="panel">
+        <h2>主图配置概况</h2>
+        <p className="muted" style={{ marginBottom: 0 }}>
+          已配置主图 {productImageMap.size} / {products.length} 个 SKU。在下方列表点击「编辑」可同时修改商品信息与上传主图。
+        </p>
       </section>
 
       <section className="panel">
@@ -141,7 +154,7 @@ export default async function ProductsPage({
             <tbody>
               {baziBillingProducts.map((p) => (
                 <tr key={p.sku}>
-                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
+                  <td><ProductImageCell imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
@@ -151,22 +164,7 @@ export default async function ProductsPage({
                   <td>
                     <details>
                       <summary>编辑</summary>
-                      <form action={saveProductAction} className="inline-form">
-                        <input type="hidden" name="isEdit" value="1" />
-                        <input type="hidden" name="sku" value={p.sku} />
-                        <input name="name" defaultValue={p.name} required />
-                        <input name="element" defaultValue={p.element ?? ''} placeholder="五行" />
-                        <select name="category" defaultValue={p.category}>
-                          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                        </select>
-                        <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
-                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
-                        <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
-                        <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
-                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需要收货</label>
-                        <textarea name="description" rows={2} defaultValue={p.desc} required />
-                        <button type="submit" className="btn-small">保存</button>
-                      </form>
+                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
                     </details>
                   </td>
                 </tr>
@@ -202,7 +200,7 @@ export default async function ProductsPage({
             <tbody>
               {ziweiChatProducts.map((p) => (
                 <tr key={p.sku}>
-                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
+                  <td><ProductImageCell imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
@@ -211,21 +209,7 @@ export default async function ProductsPage({
                   <td>
                     <details>
                       <summary>编辑</summary>
-                      <form action={saveProductAction} className="inline-form">
-                        <input type="hidden" name="isEdit" value="1" />
-                        <input type="hidden" name="sku" value={p.sku} />
-                        <input name="name" defaultValue={p.name} required />
-                        <input name="element" defaultValue={p.element ?? ''} placeholder="五行" />
-                        <select name="category" defaultValue={p.category}>
-                          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                        </select>
-                        <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
-                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
-                        <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
-                        <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
-                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需发货</label>
-                        <button type="submit">保存</button>
-                      </form>
+                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
                     </details>
                   </td>
                 </tr>
@@ -268,7 +252,7 @@ export default async function ProductsPage({
             <tbody>
               {tarotBillingProducts.map((p) => (
                 <tr key={p.sku}>
-                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
+                  <td><ProductImageCell imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
@@ -435,8 +419,11 @@ export default async function ProductsPage({
 
       <section className="panel">
         <h2>新增商品</h2>
-        <form action={saveProductAction} className="form-grid">
+        <form action={saveProductAction} className="form-grid" encType="multipart/form-data">
           <input type="hidden" name="isEdit" value="0" />
+          <label className="full-width">
+            <ProductImageField />
+          </label>
           <label>SKU<input name="sku" required placeholder="crystal-wood" /></label>
           <label>名称<input name="name" required placeholder="绿幽灵手串" /></label>
           <label>五行<input name="element" placeholder="木（水晶类填写）" /></label>
@@ -476,7 +463,7 @@ export default async function ProductsPage({
             <tbody>
               {products.map((p) => (
                 <tr key={p.sku}>
-                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
+                  <td><ProductImageCell imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.element ?? '—'}</td>
@@ -488,22 +475,7 @@ export default async function ProductsPage({
                   <td>
                     <details>
                       <summary>编辑</summary>
-                      <form action={saveProductAction} className="inline-form">
-                        <input type="hidden" name="isEdit" value="1" />
-                        <input type="hidden" name="sku" value={p.sku} />
-                        <input name="name" defaultValue={p.name} required />
-                        <input name="element" defaultValue={p.element ?? ''} placeholder="五行" />
-                        <select name="category" defaultValue={p.category}>
-                          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                        </select>
-                        <input name="priceYuan" type="number" step="0.01" defaultValue={(p.priceCents / 100).toFixed(2)} required />
-                        <input name="priceUsd" type="number" step="0.01" defaultValue={p.priceCentsUsd ? (p.priceCentsUsd / 100).toFixed(2) : ''} placeholder="USD" required />
-                        <input name="sortOrder" type="number" defaultValue={p.sortOrder} />
-                        <label><input name="active" type="checkbox" defaultChecked={p.active} /> 上架</label>
-                        <label><input name="requiresShipping" type="checkbox" defaultChecked={p.requiresShipping} /> 需要收货</label>
-                        <textarea name="description" rows={2} defaultValue={p.desc} required />
-                        <button type="submit" className="btn-small">保存</button>
-                      </form>
+                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
                     </details>
                   </td>
                 </tr>

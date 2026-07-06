@@ -30,3 +30,9 @@ export async function getAdminUser(): Promise<AdminUser | null> {
 export function loginUrl() {
   return `${ENV.authUrl}/login?redirect=${encodeURIComponent(ENV.adminUrl)}`;
 }
+
+/** 读取当前管理员 JWT，用于服务端代理 CMS 写接口 */
+export async function getAdminToken(): Promise<string | null> {
+  const jar = await cookies();
+  return jar.get(ENV.jwtCookieName)?.value ?? null;
+}
