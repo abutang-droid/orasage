@@ -116,8 +116,32 @@ function TemplePageContent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ step: 'faith' }),
     })
+
+    if (result.deityCode) {
+      await setDeity(result.deityCode)
+      try {
+        const res = await fetch(`/api/sanctuaries?faith=${encodeURIComponent(result.faith)}`)
+        const data = res.ok ? await res.json() : null
+        const deity = data?.sanctuaries?.find((d: Sanctuary) => d.id === result.deityCode)
+        if (deity) {
+          setSelectedDeity(deity)
+          setSavedDeity(deity)
+          localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
+          void fetch('/api/onboarding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ step: 'deity' }),
+          })
+          setPhase("worship")
+          return
+        }
+      } catch {
+        /* fall through to pick */
+      }
+    }
+
     setPhase("pick")
-  }, [setFaith, setGeo])
+  }, [setFaith, setGeo, setDeity])
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
@@ -214,7 +238,8 @@ function TemplePageContent() {
         onComplete={(result) => void handleJourneyComplete(result)}
         title="第一步 · 你的心灵故乡"
         subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
-        faithConfirmLabel="下一步 · 选择守护神"
+        faithConfirmLabel="确认信仰"
+        pickDeity
         fullscreen
       />
     )

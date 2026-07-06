@@ -36,8 +36,19 @@ type CmsListResponse<T> = {
 };
 
 function resolveImageUrl(s: CmsSanctuary): string {
-  if (s.imageUrl?.trim()) return s.imageUrl;
-  return '/gods/placeholder.svg';
+  const raw = s.imageUrl?.trim();
+  if (!raw) return '/gods/placeholder.svg';
+  if (raw.startsWith('http://127.0.0.1') || raw.startsWith('http://localhost')) {
+    try {
+      const pathname = new URL(raw).pathname;
+      if (pathname.startsWith('/gods/')) return pathname;
+      if (pathname.startsWith('/media/')) return pathname;
+      return '/gods/placeholder.svg';
+    } catch {
+      return '/gods/placeholder.svg';
+    }
+  }
+  return raw;
 }
 
 function faithCodesFromSanctuary(s: CmsSanctuary): string[] {

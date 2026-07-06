@@ -21,6 +21,7 @@ export type GeoJourneySelection = {
   continentCode: string;
   countryCode: string;
   faith: string;
+  deityCode?: string;
 };
 
 export const GEO_STORAGE_KEY = 'manto:geo';
