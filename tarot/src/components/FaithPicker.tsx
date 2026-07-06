@@ -61,7 +61,7 @@ export function FaithPicker({
   onChange,
   countryCode,
   title = '你的信仰是什么？',
-  subtitle = '选择最贴近你内心的传统，我们会据此推荐圣地与祈福方式',
+  subtitle = '选择最贴近你内心的传统，我们会据此推荐守护神与祈福方式',
   confirmLabel = '确认',
 }: FaithPickerProps) {
   const [showMore, setShowMore] = useState(false);

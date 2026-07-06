@@ -9,6 +9,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ sanctuaries, faith });
   } catch (err) {
     console.error('[api/sanctuaries]', err);
-    return NextResponse.json({ error: '加载圣地失败' }, { status: 500 });
+    return NextResponse.json({ error: '加载守护神失败' }, { status: 500 });
   }
 }
