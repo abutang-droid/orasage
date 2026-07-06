@@ -16,5 +16,5 @@
     <path d="M128 72v112M108 96l40 24M148 96l-40 24" stroke-width="4" />
       <circle cx="128" cy="64" r="8" fill="#fff" stroke="none" />
   </g>
-  <text x="128" y="230" text-anchor="middle" font-family="Georgia, 'Noto Serif SC', serif" font-size="11" fill="rgba(255,255,255,0.55)">简图 · 待替换</text>
+  // watermark omitted — placeholder art only
 </svg>

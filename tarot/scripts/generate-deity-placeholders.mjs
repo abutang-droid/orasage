@@ -235,7 +235,7 @@ function svgFor({ nameZh, color, colorLight, icon }) {
   <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.88">
     ${icon.trim()}
   </g>
-  <text x="128" y="230" text-anchor="middle" font-family="Georgia, 'Noto Serif SC', serif" font-size="11" fill="rgba(255,255,255,0.55)">简图 · 待替换</text>
+  // watermark omitted — placeholder art only
 </svg>
 `;
 }

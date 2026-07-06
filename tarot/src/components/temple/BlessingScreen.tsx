@@ -27,7 +27,7 @@ export function BlessingScreen({
   streakDays,
   onDone,
 }: BlessingScreenProps) {
-  const peakLabel = stage === 3 ? '虔诚之巅' : stage === 2 ? '深度参拜' : '参拜完成';
+  const peakLabel = stage === 3 ? '诚心礼成' : stage === 2 ? '深度参拜' : '参拜礼成';
 
   return (
     <div className="temple-blessing">
@@ -38,7 +38,7 @@ export function BlessingScreen({
       <div className="temple-blessing-peak">{peakLabel}</div>
 
       <p className="temple-blessing-lead">
-        {deity.name}已将你的心愿放在了最靠近星辰的地方。
+        {deity.name}已聆听你的心愿，愿护佑与你同行。
       </p>
 
       <div className="temple-blessing-card">
@@ -46,11 +46,11 @@ export function BlessingScreen({
         <div className="temple-blessing-card-text">
           {blessingText ?? deity.blessingText ?? (
             <>
-              她看见你心里的那团火——
+              你的心意已被看见——
               <br />
-              那是还没说出口的话。
+              那些尚未说出口的话，
               <br />
-              今天，向前走一步。
+              今日宜向前走一步。
             </>
           )}
         </div>
@@ -58,7 +58,7 @@ export function BlessingScreen({
 
       <div className="temple-blessing-merit">
         {alreadyCheckedIn ? '今日功德已记录' : `+${meritEarned} 功德`}
-        {levelUp ? ' · 升阶！' : ''}
+        {levelUp ? ' · 修行精进' : ''}
         {streakDays && streakDays > 1 ? ` · 连续 ${streakDays} 天` : ''}
       </div>
 

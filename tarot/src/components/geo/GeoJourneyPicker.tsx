@@ -385,10 +385,10 @@ export function GeoJourneyPicker({
 
   const stepHint =
     step === 'region'
-      ? '点选地图上的大洲，确认后继续；可拖动平移、双指缩放'
+      ? '在地图上找到与你相应的大洲，点选确认'
       : step === 'country'
-        ? '点选国家后点击确认；或打开列表搜索'
-        : '点选信仰后点击确认；或打开列表查看更多';
+        ? '点选你的国家，确认后继续'
+        : '选择最贴近你内心的信仰，确认后继续';
 
   const listButtonLabel =
     step === 'region' ? '列表选大洲' : step === 'country' ? '列表选国家' : '列表选信仰';

@@ -74,19 +74,9 @@
   position: relative;
 }
 
-.temple-facing-compass-n {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 8px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-}
-
 .temple-facing-compass-arrow {
   position: absolute;
-  inset: 10px;
+  inset: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
