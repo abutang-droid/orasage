@@ -229,7 +229,7 @@ export function OnboardingFlow() {
     }
     if (!draft.faith || !draft.countryCode) {
       setStep('geo_journey');
-      pushMentor('最后，在地图上找到你的心灵故乡，并选择一种精神归属。祈福与运势都会参考它。');
+      pushMentor('最后，确认你所在的国家，并选择一种精神归属。我们会自动尝试定位，你也可以手动选择。祈福与运势都会参考它。');
       return;
     }
     void finishOnboarding(draft);
@@ -284,7 +284,7 @@ export function OnboardingFlow() {
     setDraft((d) => ({ ...d, occupation }));
     pushUser(occupation);
     setStep('geo_journey');
-    pushMentor('最后一步——在地图上找到你的国家，并选择信仰或精神归属。');
+    pushMentor('最后一步——确认你的国家，并选择信仰或精神归属。');
   };
 
   const onGeoJourneyComplete = (result: {
