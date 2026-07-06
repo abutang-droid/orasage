@@ -44,7 +44,7 @@ async function isUrlReachable(url: string): Promise<boolean> {
       signal: controller.signal,
       redirect: 'follow',
     });
-    if (res.status === 405 || res.status === 501) {
+    if (res.status === 405 || res.status === 501 || res.status === 404) {
       res = await fetch(url, {
         method: 'GET',
         headers: { Range: 'bytes=0-0' },
