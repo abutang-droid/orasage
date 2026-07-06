@@ -57,25 +57,21 @@ bash deploy/remote-deploy-all.sh
 
 ## 方式三：GitHub Actions
 
+详见 **[deploy/GITHUB-ACTIONS-SETUP.md](./GITHUB-ACTIONS-SETUP.md)**（含 IAP 与 Secrets 逐步配置）。
+
 仓库 Secrets 需配置：
 
 | Secret | 必填 | 说明 |
 |--------|------|------|
 | `SSH_PRIVATE_KEY` | 是 | VPS SSH 私钥 |
 | `GCP_SA_KEY` | 若 22 端口不通 | GCP 服务账号 JSON |
-| `GCP_PROJECT` | IAP 时必填 | 项目 ID |
-| `GCP_ZONE` | IAP 时必填 | 如 `us-east1-b` |
-| `GCP_INSTANCE` | IAP 时必填 | VM 实例名 |
+| `GCP_PROJECT` | IAP 时必填 | `cloudpc-p-f58ae6f00b5c` |
+| `GCP_ZONE` | IAP 时必填 | `us-east1-b` |
+| `GCP_INSTANCE` | IAP 时必填 | `cloud-pc-cknotproylkasckrer1aejq45` |
 
-在 Actions 页面手动触发 **Deploy All Apps**。
+在 Actions 页面手动触发 **Deploy All Apps** 或推送 `main/**` 触发 **Deploy Core**。
 
-> GitHub Actions runner 目前连 `34.75.40.67:22` 会超时。需开放防火墙或配置 IAP：
->
-> ```bash
-> gcloud compute firewall-rules create allow-ssh-ingress-from-iap \
->   --direction=INGRESS --action=allow --rules=tcp:22 \
->   --source-ranges=35.235.240.0/20
-> ```
+> GitHub Actions runner 目前连 `34.75.40.67:22` 会超时。workflow 已支持 IAP 回退；按上方文档配置 Secrets 即可。
 
 ## 验证
 
