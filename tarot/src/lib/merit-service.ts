@@ -11,6 +11,7 @@ import {
   onboardingDayBonus,
   REFERRAL_LEVEL_BONUS,
   SHARE_MERIT,
+  MERIT_SHARE_PATH_ENABLED,
   OFFER_MERIT,
   type OnboardingStep,
   nextOnboardingStep,
@@ -197,6 +198,7 @@ export async function awardMerit(input: {
 }
 
 async function maybeAwardReferrerLevelBonus(userId: string, oldLevel: number, newLevel: number) {
+  if (!MERIT_SHARE_PATH_ENABLED) return;
   if (newLevel <= oldLevel) return;
 
   const user = await prisma.user.findUnique({
@@ -218,6 +220,7 @@ async function maybeAwardReferrerLevelBonus(userId: string, oldLevel: number, ne
 }
 
 export async function bindReferralCode(userId: string, code: string): Promise<{ ok: boolean; reason?: string }> {
+  if (!MERIT_SHARE_PATH_ENABLED) return { ok: false, reason: 'share_path_disabled' };
   const normalized = code.trim().toLowerCase();
   if (!normalized) return { ok: false, reason: 'empty_code' };
 
@@ -243,6 +246,9 @@ export async function bindReferralCode(userId: string, code: string): Promise<{ 
 }
 
 export async function recordShareClick(userId: string): Promise<AwardMeritResult> {
+  if (!MERIT_SHARE_PATH_ENABLED) {
+    return { ok: true, duplicate: true, awarded: 0 };
+  }
   const today = dateKeyUTC();
   const count = await prisma.meritLog.count({
     where: {
@@ -307,7 +313,7 @@ export async function recordOfferMerit(
     data: { totalSpentCents: newSpent },
   });
 
-  if (user.referredByUserId) {
+  if (user.referredByUserId && MERIT_SHARE_PATH_ENABLED) {
     if (kind === 'paid_reading') {
       await awardMerit({
         userId: user.referredByUserId,
@@ -477,7 +483,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
     }),
   ]);
 
-  if (priorCheckins === 0 && user.referredByUserId) {
+  if (priorCheckins === 0 && user.referredByUserId && MERIT_SHARE_PATH_ENABLED) {
     await awardMerit({
       userId: user.referredByUserId,
       path: 'share',

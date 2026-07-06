@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
+import { MERIT_SHARE_PATH_ENABLED } from '@/lib/merit';
 import { bindReferralCode, ensureReferralCode } from '@/lib/merit-service';
 
 const bodySchema = z.object({
@@ -16,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!MERIT_SHARE_PATH_ENABLED) {
+    return NextResponse.json({ error: 'share_path_disabled' }, { status: 403 });
+  }
   const auth = await getAuthUser();
   if (!auth) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });

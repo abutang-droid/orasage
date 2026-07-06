@@ -89,12 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const params = new URLSearchParams(window.location.search)
         const ref = params.get('ref') || localStorage.getItem('manto:ref')
         if (ref) {
-          localStorage.setItem('manto:ref', ref)
-          await fetch('/api/merit/referral', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: ref }),
-          })
+          localStorage.removeItem('manto:ref')
         }
       } catch {} finally {
         if (!cancelled) setLoading(false)

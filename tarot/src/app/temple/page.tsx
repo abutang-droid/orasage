@@ -329,13 +329,6 @@ function BlessingScreen({ deity, duration, stage, meritEarned, blessingText, alr
         }}>
           ✦ 去抽今日运势
         </Link>
-        <button
-          className="btn-ghost"
-          style={{ width: '100%' }}
-          onClick={() => void fetch('/api/merit/share', { method: 'POST' })}
-        >
-          📤 分享到 WhatsApp
-        </button>
         <button onClick={onDone} style={{
           background: 'none', border: 'none', color: 'var(--text-secondary)',
           fontSize: 13, cursor: 'pointer', padding: '10px 0',

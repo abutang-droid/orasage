@@ -117,6 +117,9 @@ export const SHARE_MERIT = {
   referral_crystal: 100,
 } as const;
 
+/** 传播之路（分享/推荐）暂停发功；历史 meritShare 数据保留 */
+export const MERIT_SHARE_PATH_ENABLED = false;
+
 export const REFERRAL_LEVEL_BONUS: Record<number, number> = {
   1: 200,
   2: 500,

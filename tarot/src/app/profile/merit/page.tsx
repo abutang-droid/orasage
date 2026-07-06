@@ -82,10 +82,9 @@ export default function MeritPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 24 }}>
           {[
             { label: '时间功德', value: s.meritTime },
-            { label: '传播功德', value: s.meritShare },
             { label: '供养功德', value: s.meritOffer },
           ].map((item) => (
             <div key={item.label} style={{ textAlign: 'center', padding: '12px 8px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
