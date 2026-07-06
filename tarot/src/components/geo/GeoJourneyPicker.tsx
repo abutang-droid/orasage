@@ -42,6 +42,12 @@ type FaithApiResponse = {
 
 const STEP_LABELS = ['大洲', '国家', '信仰'];
 
+const CONFIRM_LABELS: Record<JourneyStep, string> = {
+  region: '确认大洲，选择国家',
+  country: '确认国家，选择信仰',
+  faith: '下一步 · 选择圣地',
+};
+
 export function GeoJourneyPicker({
   value,
   onComplete,
@@ -61,8 +67,13 @@ export function GeoJourneyPicker({
   const [listOpen, setListOpen] = useState(false);
   const [continentCode, setContinentCode] = useState(value?.continentCode ?? '');
   const [countryCode, setCountryCode] = useState(value?.countryCode ?? '');
+  const [pendingRegion, setPendingRegion] = useState<string | null>(null);
+  const [pendingCountry, setPendingCountry] = useState<string | null>(null);
   const [pendingFaith, setPendingFaith] = useState<string | null>(value?.faith ?? null);
   const [suggested, setSuggested] = useState<SuggestResponse | null>(null);
+
+  const confirmLabel =
+    step === 'faith' ? faithConfirmLabel : CONFIRM_LABELS[step];
 
   useEffect(() => {
     let cancelled = false;
@@ -81,7 +92,7 @@ export function GeoJourneyPicker({
           setCountryCode(value.countryCode);
           setStep(value.faith ? 'faith' : 'country');
         } else if (suggestData?.country?.regionCode) {
-          setContinentCode(suggestData.country.regionCode);
+          setPendingRegion(suggestData.country.regionCode);
         }
       })
       .catch(() => {})
@@ -119,18 +130,64 @@ export function GeoJourneyPicker({
     }
   }, []);
 
-  const selectRegion = useCallback(
-    (code: string) => {
-      setContinentCode(code);
-      setCountryCode('');
-      setPendingFaith(null);
-      setSearch('');
-      setListOpen(false);
-      setStep('country');
-      void loadCountries(code);
+  const pickRegion = useCallback((code: string) => {
+    setPendingRegion(code);
+    setListOpen(false);
+  }, []);
+
+  const pickCountry = useCallback((code: string) => {
+    setPendingCountry(code);
+    setListOpen(false);
+  }, []);
+
+  const pickFaith = useCallback((faithId: string) => {
+    setPendingFaith(faithId);
+    setListOpen(false);
+  }, []);
+
+  const confirmRegion = useCallback(() => {
+    if (!pendingRegion) return;
+    setContinentCode(pendingRegion);
+    setCountryCode('');
+    setPendingCountry(null);
+    setPendingFaith(null);
+    setPendingRegion(null);
+    setSearch('');
+    setStep('country');
+    void loadCountries(pendingRegion);
+  }, [pendingRegion, loadCountries]);
+
+  const confirmCountry = useCallback(() => {
+    if (!pendingCountry || !continentCode) return;
+    setCountryCode(pendingCountry);
+    storeGeo(continentCode, pendingCountry);
+    setPendingFaith(null);
+    setPendingCountry(null);
+    setStep('faith');
+  }, [pendingCountry, continentCode]);
+
+  const confirmFaith = useCallback(
+    (faithId: string) => {
+      if (!continentCode || !countryCode) return;
+      storeGeo(continentCode, countryCode);
+      onComplete({ continentCode, countryCode, faith: faithId });
     },
-    [loadCountries],
+    [continentCode, countryCode, onComplete],
   );
+
+  const confirmCurrentStep = useCallback(() => {
+    if (step === 'region') {
+      confirmRegion();
+      return;
+    }
+    if (step === 'country') {
+      confirmCountry();
+      return;
+    }
+    if (step === 'faith' && pendingFaith) {
+      confirmFaith(pendingFaith);
+    }
+  }, [step, confirmRegion, confirmCountry, confirmFaith, pendingFaith]);
 
   useEffect(() => {
     if (step === 'country' && continentCode && countries.length === 0 && !countriesLoading) {
@@ -143,26 +200,6 @@ export function GeoJourneyPicker({
       void loadFaiths(countryCode);
     }
   }, [step, countryCode, loadFaiths]);
-
-  const selectCountry = useCallback(
-    (code: string) => {
-      setCountryCode(code);
-      setPendingFaith(null);
-      storeGeo(continentCode, code);
-      setListOpen(false);
-      setStep('faith');
-    },
-    [continentCode],
-  );
-
-  const confirmFaith = useCallback(
-    (faithId: string) => {
-      if (!continentCode || !countryCode) return;
-      storeGeo(continentCode, countryCode);
-      onComplete({ continentCode, countryCode, faith: faithId });
-    },
-    [continentCode, countryCode, onComplete],
-  );
 
   const regionName = useMemo(
     () => regions.find((r) => r.code === continentCode)?.nameZh ?? '',
@@ -177,6 +214,16 @@ export function GeoJourneyPicker({
   const selectedCountry = useMemo(
     () => countries.find((c) => c.code === countryCode) ?? suggested?.country ?? null,
     [countries, countryCode, suggested?.country],
+  );
+
+  const pendingRegionOption = useMemo(
+    () => regions.find((r) => r.code === pendingRegion) ?? null,
+    [regions, pendingRegion],
+  );
+
+  const pendingCountryOption = useMemo(
+    () => countries.find((c) => c.code === pendingCountry) ?? null,
+    [countries, pendingCountry],
   );
 
   const filteredCountries = useMemo(() => {
@@ -253,28 +300,33 @@ export function GeoJourneyPicker({
   const viewportKey = `${step}-${continentCode}-${countryCode}-${activeHotspots.length}`;
 
   const selectedMapId =
-    step === 'region' ? continentCode || null : step === 'country' ? countryCode || null : pendingFaith;
+    step === 'region'
+      ? (pendingRegion ?? continentCode) || null
+      : step === 'country'
+        ? (pendingCountry ?? countryCode) || null
+        : pendingFaith;
 
   const handleMapSelect = useCallback(
     (id: string) => {
       if (step === 'region') {
-        selectRegion(id);
+        pickRegion(id);
         return;
       }
       if (step === 'country') {
-        selectCountry(id);
+        pickCountry(id);
         return;
       }
-      setPendingFaith(id);
+      pickFaith(id);
     },
-    [step, selectRegion, selectCountry],
+    [step, pickRegion, pickCountry, pickFaith],
   );
 
   const showSuggestBanner =
     step === 'country' &&
     suggested?.country &&
     suggested.country.regionCode === continentCode &&
-    !countryCode;
+    !countryCode &&
+    !pendingCountry;
 
   const stepIndex = step === 'region' ? 0 : step === 'country' ? 1 : 2;
 
@@ -286,6 +338,7 @@ export function GeoJourneyPicker({
       return;
     }
     if (step === 'country') {
+      setPendingCountry(null);
       setStep('region');
       setCountryCode('');
       setSearch('');
@@ -301,15 +354,30 @@ export function GeoJourneyPicker({
 
   const stepHint =
     step === 'region'
-      ? '点选地图上的大洲，可拖动平移、双指缩放'
+      ? '点选地图上的大洲，确认后继续；可拖动平移、双指缩放'
       : step === 'country'
-        ? '点选国家，或打开列表；地图可拖动缩放'
-        : '点选信仰标记，地图可拖动缩放';
+        ? '点选国家后点击确认；或打开列表搜索'
+        : '点选信仰后点击确认；或打开列表查看更多';
 
   const listButtonLabel =
     step === 'region' ? '列表选大洲' : step === 'country' ? '列表选国家' : '列表选信仰';
 
-  const pendingFaithOption = pendingFaith ? getFaithById(pendingFaith, faiths) : null;
+  const pendingFaithOption = pendingFaith
+    ? getFaithById(pendingFaith, faiths) ?? mapFaiths.find((f) => f.id === pendingFaith) ?? null
+    : null;
+
+  const pendingConfirm =
+    step === 'region'
+      ? pendingRegionOption
+        ? { emoji: '🌍', name: pendingRegionOption.nameZh, sub: pendingRegionOption.nameEn }
+        : null
+      : step === 'country'
+        ? pendingCountryOption
+          ? { emoji: '📍', name: pendingCountryOption.nameZh, sub: pendingCountryOption.nameEn }
+          : null
+        : pendingFaithOption
+          ? { emoji: pendingFaithOption.emoji, name: pendingFaithOption.nameZh, sub: pendingFaithOption.nameEn }
+          : null;
 
   if (loading) {
     return (
@@ -372,7 +440,7 @@ export function GeoJourneyPicker({
           <button
             type="button"
             className="geo-journey-suggest"
-            onClick={() => selectCountry(suggested.country!.code)}
+            onClick={() => pickCountry(suggested.country!.code)}
           >
             <span aria-hidden>📍</span>
             <span>
@@ -382,21 +450,21 @@ export function GeoJourneyPicker({
           </button>
         )}
 
-        {step === 'faith' && pendingFaithOption && (
+        {pendingConfirm && (
           <div className="geo-journey-faith-confirm">
             <div className="geo-journey-faith-confirm-card">
-              <span className="geo-journey-faith-confirm-emoji">{pendingFaithOption.emoji}</span>
+              <span className="geo-journey-faith-confirm-emoji">{pendingConfirm.emoji}</span>
               <div>
-                <div className="geo-journey-faith-confirm-name">{pendingFaithOption.nameZh}</div>
-                <div className="geo-journey-faith-confirm-en">{pendingFaithOption.nameEn}</div>
+                <div className="geo-journey-faith-confirm-name">{pendingConfirm.name}</div>
+                <div className="geo-journey-faith-confirm-en">{pendingConfirm.sub}</div>
               </div>
             </div>
             <button
               type="button"
               className="btn-primary geo-journey-faith-confirm-btn"
-              onClick={() => pendingFaith && confirmFaith(pendingFaith)}
+              onClick={confirmCurrentStep}
             >
-              {faithConfirmLabel}
+              {confirmLabel}
             </button>
           </div>
         )}
@@ -435,8 +503,8 @@ export function GeoJourneyPicker({
                   <button
                     key={r.code}
                     type="button"
-                    className={`geo-country-item${continentCode === r.code ? ' is-selected' : ''}`}
-                    onClick={() => selectRegion(r.code)}
+                    className={`geo-country-item${(pendingRegion ?? continentCode) === r.code ? ' is-selected' : ''}`}
+                    onClick={() => pickRegion(r.code)}
                   >
                     <span>
                       <span className="geo-country-item-name">{r.nameZh}</span>
@@ -465,8 +533,8 @@ export function GeoJourneyPicker({
                       <button
                         key={c.code}
                         type="button"
-                        className={`geo-country-item${countryCode === c.code ? ' is-selected' : ''}`}
-                        onClick={() => selectCountry(c.code)}
+                        className={`geo-country-item${(pendingCountry ?? countryCode) === c.code ? ' is-selected' : ''}`}
+                        onClick={() => pickCountry(c.code)}
                       >
                         <span>
                           <span className="geo-country-item-name">{c.nameZh}</span>
