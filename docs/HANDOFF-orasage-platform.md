@@ -3,6 +3,7 @@
 > 写给下一任 Agent / 开发者。  
 > 最后更新：**2026-07-06**  
 > **塔罗区全量交接（P4–P7）：** [`HANDOFF-tarot.md`](./HANDOFF-tarot.md) ← **塔罗任务优先读这个**  
+> **地理旅程 / 祈福改版（2026-07-06）：** [`HANDOFF-tarot-geo-temple-2026-07-06.md`](./HANDOFF-tarot-geo-temple-2026-07-06.md)  
 > **最新会话交接（P0 安全 + E2E 冒烟）：** [`HANDOFF-e2e-p0-2026-07-03.md`](./HANDOFF-e2e-p0-2026-07-03.md)  
 > **塔罗功德后端 + 部署：** [`HANDOFF-agent-2026-07-03.md`](./HANDOFF-agent-2026-07-03.md)  
 > **产品体验与测试用例：** [`docs/testing/platform-ux-evaluation-and-test-cases.md`](./testing/platform-ux-evaluation-and-test-cases.md)  

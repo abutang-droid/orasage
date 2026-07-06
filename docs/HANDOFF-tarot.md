@@ -2,7 +2,8 @@
 
 > 写给下一任 Agent / 开发者（orasage monorepo `tarot/`）。  
 > 最后更新：**2026-07-06**  
-> 平台总览：[`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)
+> 平台总览：[`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)  
+> **本轮地理旅程 / 祈福改版专项交接：** [`HANDOFF-tarot-geo-temple-2026-07-06.md`](./HANDOFF-tarot-geo-temple-2026-07-06.md)
 
 ---
 
