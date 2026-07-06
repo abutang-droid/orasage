@@ -37,7 +37,7 @@ type CmsListResponse<T> = {
 
 function resolveImageUrl(s: CmsSanctuary): string {
   if (s.imageUrl?.trim()) return s.imageUrl;
-  return '/gods/placeholder.webp';
+  return '/gods/placeholder.svg';
 }
 
 function faithCodesFromSanctuary(s: CmsSanctuary): string[] {
