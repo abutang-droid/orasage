@@ -1,20 +1,30 @@
 import type { Express } from 'express';
+import {
+  fallbackBaziHomeHero,
+  resolveBaziHeroFromRaw,
+} from '../client/src/lib/cms-bazi-hero';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
+
+const SERVER_FALLBACK = fallbackBaziHomeHero({
+  eyebrow: '八字命理',
+  title: '八字排盘',
+  subtitle: '输入生辰，探索命盘奥秘',
+});
 
 async function proxyCmsJson(res: import('express').Response, path: string) {
   try {
     const upstream = await fetch(`${CMS_INTERNAL_URL}${path}`);
     if (!upstream.ok) {
-      res.status(upstream.status).json(null);
+      res.status(upstream.status).json(SERVER_FALLBACK);
       return;
     }
     const data = await upstream.json();
     res.set('Cache-Control', 'no-store');
-    res.json(data);
+    res.json(await resolveBaziHeroFromRaw(data, SERVER_FALLBACK));
   } catch {
-    res.status(502).json(null);
+    res.status(502).json(SERVER_FALLBACK);
   }
 }
 

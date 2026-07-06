@@ -4,6 +4,7 @@ import {
   type HeroDisplayMode,
   type MappedHeroContent,
 } from '../../../shared/hero/map-cms-hero';
+import { resolveHeroWithFallback } from '../../../shared/hero/resolve-hero';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -37,14 +38,22 @@ function mapTarotHero(data: CmsHeroRaw): TarotHomeHeroContent | null {
   return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
-export async function fetchTarotHomeHero(): Promise<TarotHomeHeroContent | null> {
+export async function resolveTarotHeroFromRaw(data: CmsHeroRaw): Promise<TarotHomeHeroContent> {
+  const mapped = mapTarotHero(data);
+  return resolveHeroWithFallback(mapped, fallbackTarotHomeHero());
+}
+
+export async function fetchTarotHomeHero(): Promise<TarotHomeHeroContent> {
   try {
     const res = await fetch(heroApiUrl(), { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = (await res.json()) as CmsHeroRaw;
-    return mapTarotHero(data);
+    if (!res.ok) return fallbackTarotHomeHero();
+    const data = (await res.json()) as TarotHomeHeroContent | CmsHeroRaw;
+    if (data && typeof data === 'object' && 'displayMode' in data && 'enabled' in data) {
+      return data as TarotHomeHeroContent;
+    }
+    return resolveTarotHeroFromRaw(data as CmsHeroRaw);
   } catch {
-    return null;
+    return fallbackTarotHomeHero();
   }
 }
 

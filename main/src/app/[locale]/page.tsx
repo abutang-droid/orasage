@@ -9,15 +9,15 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [homepageCatalog, cmsHero, tHero] = await Promise.all([
-    fetchHomepageCatalog(),
-    fetchHomeHero(locale),
-    getTranslations('hero'),
-  ]);
-
-  const hero = cmsHero ?? fallbackHomeHero({
+  const tHero = await getTranslations('hero');
+  const fallback = fallbackHomeHero({
     hero: { title: tHero('title'), subtitle: tHero('subtitle') },
   });
+
+  const [homepageCatalog, hero] = await Promise.all([
+    fetchHomepageCatalog(),
+    fetchHomeHero(locale, fallback),
+  ]);
 
   return (
     <div className="home-portal">

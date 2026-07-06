@@ -57,6 +57,7 @@ ensure_env() {
   fi
   export NEXT_PUBLIC_SERVER_URL="${NEXT_PUBLIC_SERVER_URL:-https://admin.orasage.com/cms}"
   export CMS_BASE_PATH="${CMS_BASE_PATH:-/cms}"
+  export CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
   set -u
 }
 
@@ -92,6 +93,16 @@ deploy_native() {
   log "部署 cms（Payload）..."
   require_cmd npm
 
+  CMS_MEDIA_DIR="${CMS_MEDIA_DIR:-/var/lib/orasage/cms-media}"
+  mkdir -p "$CMS_MEDIA_DIR"
+  if [ -f "$APP_DIR/.env" ]; then
+    if grep -q '^CMS_MEDIA_DIR=' "$APP_DIR/.env"; then
+      sed -i "s|^CMS_MEDIA_DIR=.*|CMS_MEDIA_DIR=${CMS_MEDIA_DIR}|" "$APP_DIR/.env"
+    else
+      echo "CMS_MEDIA_DIR=${CMS_MEDIA_DIR}" >> "$APP_DIR/.env"
+    fi
+  fi
+
   cd "$APP_DIR"
   npm ci
   npm run migrate
@@ -101,6 +112,7 @@ deploy_native() {
 
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
   chown -R "$RUN_USER:$RUN_USER" "$APP_DIR"
+  chown -R "$RUN_USER:$RUN_USER" "$CMS_MEDIA_DIR"
 
   cp "$DEPLOY_DIR/deploy/cms/orasage-cms.service" /etc/systemd/system/
   systemctl daemon-reload

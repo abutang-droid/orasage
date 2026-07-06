@@ -34,13 +34,12 @@ type Props = {
 
 /** CMS 可配置的商城首页 Hero */
 export async function ShopHomeHero({ loggedIn }: Props) {
-  const hero: ShopHomeHeroContent =
-    (await fetchShopHomeHero()) ??
-    fallbackShopHomeHero({
-      eyebrow: 'OraSage',
-      title: '能量商城',
-      subtitle: '命理解读推荐 · 水晶手串 · 数字报告',
-    });
+  const fallback = fallbackShopHomeHero({
+    eyebrow: 'OraSage',
+    title: '能量商城',
+    subtitle: '命理解读推荐 · 水晶手串 · 数字报告',
+  });
+  const hero = await fetchShopHomeHero(fallback);
 
   if (!hero.enabled) return null;
 

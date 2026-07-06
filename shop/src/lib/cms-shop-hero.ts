@@ -4,6 +4,7 @@ import {
   type HeroDisplayMode,
   type MappedHeroContent,
 } from '../../../shared/hero/map-cms-hero';
+import { resolveHeroWithFallback } from '../../../shared/hero/resolve-hero';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -33,16 +34,19 @@ function mapShopHero(data: CmsHeroRaw): ShopHomeHeroContent | null {
   return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
-export async function fetchShopHomeHero(): Promise<ShopHomeHeroContent | null> {
+export async function fetchShopHomeHero(
+  fallback: ShopHomeHeroContent,
+): Promise<ShopHomeHeroContent> {
   try {
     const res = await fetch(`${CMS_INTERNAL_URL}/api/globals/shop-home-hero?depth=1`, {
       cache: 'no-store',
     });
-    if (!res.ok) return null;
+    if (!res.ok) return fallback;
     const data = (await res.json()) as CmsHeroRaw;
-    return mapShopHero(data);
+    const mapped = mapShopHero(data);
+    return resolveHeroWithFallback(mapped, fallback);
   } catch {
-    return null;
+    return fallback;
   }
 }
 

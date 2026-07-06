@@ -4,6 +4,7 @@ import {
   type HeroDisplayMode,
   type MappedHeroContent,
 } from '../../shared/hero/map-cms-hero';
+import { resolveHeroWithFallback } from '../../shared/hero/resolve-hero';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -41,16 +42,29 @@ function mapZiweiHero(data: CmsHeroRaw): ZiweiHomeHeroContent | null {
   return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
-export async function fetchZiweiHomeHero(): Promise<ZiweiHomeHeroContent | null> {
+export async function resolveZiweiHeroFromRaw(
+  data: CmsHeroRaw,
+  fallback: ZiweiHomeHeroContent,
+): Promise<ZiweiHomeHeroContent> {
+  const mapped = mapZiweiHero(data);
+  return resolveHeroWithFallback(mapped, fallback);
+}
+
+export async function fetchZiweiHomeHero(
+  fallback: ZiweiHomeHeroContent,
+): Promise<ZiweiHomeHeroContent> {
   try {
     const res = await fetch(heroApiUrl(), {
       cache: 'no-store',
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as CmsHeroRaw;
-    return mapZiweiHero(data);
+    if (!res.ok) return fallback;
+    const data = (await res.json()) as ZiweiHomeHeroContent | CmsHeroRaw;
+    if (data && typeof data === 'object' && 'displayMode' in data && 'enabled' in data) {
+      return data as ZiweiHomeHeroContent;
+    }
+    return resolveZiweiHeroFromRaw(data as CmsHeroRaw, fallback);
   } catch {
-    return null;
+    return fallback;
   }
 }
 

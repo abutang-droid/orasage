@@ -36,16 +36,15 @@ export function BaziHomeHero() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetchBaziHomeHero().then((content) => {
+    void fetchBaziHomeHero(
+      fallbackBaziHomeHero({
+        eyebrow: t('home.eyebrow'),
+        title: t('home.title'),
+        subtitle: t('home.subtitle'),
+      }),
+    ).then((content) => {
       if (cancelled) return;
-      setHero(
-        content ??
-          fallbackBaziHomeHero({
-            eyebrow: t('home.eyebrow'),
-            title: t('home.title'),
-            subtitle: t('home.subtitle'),
-          }),
-      );
+      setHero(content);
     });
     return () => {
       cancelled = true;

@@ -72,7 +72,7 @@ export function TarotHomeHero() {
   useEffect(() => {
     let cancelled = false;
     void fetchTarotHomeHero().then((content) => {
-      if (!cancelled) setHero(content ?? fallbackTarotHomeHero());
+      if (!cancelled) setHero(content);
     });
     return () => {
       cancelled = true;

@@ -1,5 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import type { CollectionConfig } from 'payload';
 import { MEDIA_LIBRARY_SPEC } from '../lib/media-specs';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const mediaDir =
+  process.env.CMS_MEDIA_DIR?.trim() ||
+  path.resolve(dirname, '../../media');
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -29,6 +38,7 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
+    staticDir: mediaDir,
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'],
   },
 };

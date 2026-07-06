@@ -4,6 +4,7 @@ import {
   type HeroDisplayMode,
   type MappedHeroContent,
 } from '../../../../shared/hero/map-cms-hero';
+import { resolveHeroWithFallback } from '../../../../shared/hero/resolve-hero';
 
 const CMS_INTERNAL_URL =
   import.meta.env.VITE_CMS_URL || import.meta.env.VITE_CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -39,16 +40,29 @@ function mapBaziHero(data: CmsHeroRaw): BaziHomeHeroContent | null {
   return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
-export async function fetchBaziHomeHero(): Promise<BaziHomeHeroContent | null> {
+export async function resolveBaziHeroFromRaw(
+  data: CmsHeroRaw,
+  fallback: BaziHomeHeroContent,
+): Promise<BaziHomeHeroContent> {
+  const mapped = mapBaziHero(data);
+  return resolveHeroWithFallback(mapped, fallback);
+}
+
+export async function fetchBaziHomeHero(
+  fallback: BaziHomeHeroContent,
+): Promise<BaziHomeHeroContent> {
   try {
     const res = await fetch(heroApiUrl(), {
       cache: 'no-store',
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as CmsHeroRaw;
-    return mapBaziHero(data);
+    if (!res.ok) return fallback;
+    const data = (await res.json()) as BaziHomeHeroContent | CmsHeroRaw;
+    if (data && typeof data === 'object' && 'displayMode' in data && 'enabled' in data) {
+      return data as BaziHomeHeroContent;
+    }
+    return resolveBaziHeroFromRaw(data as CmsHeroRaw, fallback);
   } catch {
-    return null;
+    return fallback;
   }
 }
 

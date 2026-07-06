@@ -39,16 +39,15 @@ export function ZiweiHomeHero() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetchZiweiHomeHero().then((content) => {
+    void fetchZiweiHomeHero(
+      fallbackZiweiHomeHero({
+        eyebrow: t('home.eyebrow'),
+        title: t('home.title'),
+        subtitle: t('home.subtitle'),
+      }),
+    ).then((content) => {
       if (cancelled) return;
-      setHero(
-        content ??
-          fallbackZiweiHomeHero({
-            eyebrow: t('home.eyebrow'),
-            title: t('home.title'),
-            subtitle: t('home.subtitle'),
-          }),
-      );
+      setHero(content);
     });
     return () => {
       cancelled = true;
