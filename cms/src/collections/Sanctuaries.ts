@@ -141,6 +141,59 @@ export const Sanctuaries: CollectionConfig = {
       admin: { description: '参拜完成后展示的指引文案' },
     },
     {
+      name: 'worshipFacing',
+      label: '朝拜朝向',
+      type: 'select',
+      defaultValue: 'inherit',
+      options: [
+        { label: '继承关联信仰', value: 'inherit' },
+        { label: '无特定朝向', value: 'none' },
+        { label: '面向麦加（Qibla）', value: 'qibla' },
+        { label: '面向东方', value: 'east' },
+        { label: '面向耶路撒冷', value: 'jerusalem' },
+        { label: '自定义', value: 'custom' },
+      ],
+      admin: {
+        description: '覆盖信仰默认朝向；视觉象征，非 GPS 定位',
+      },
+    },
+    {
+      name: 'facingLabelZh',
+      label: '朝向文案（中文）',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing &&
+          siblingData.worshipFacing !== 'inherit' &&
+          siblingData.worshipFacing !== 'none',
+      },
+    },
+    {
+      name: 'facingLabelEn',
+      label: '朝向文案（英文）',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing &&
+          siblingData.worshipFacing !== 'inherit' &&
+          siblingData.worshipFacing !== 'none',
+      },
+    },
+    {
+      name: 'facingBearing',
+      label: '罗盘方位角',
+      type: 'number',
+      min: 0,
+      max: 360,
+      admin: {
+        description: '0=北、90=东；custom 或覆盖默认时填写',
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing === 'custom' ||
+          (siblingData?.worshipFacing &&
+            !['inherit', 'none'].includes(String(siblingData.worshipFacing))),
+      },
+    },
+    {
       name: 'content',
       label: '圣地介绍',
       type: 'richText',

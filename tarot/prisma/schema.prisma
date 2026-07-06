@@ -19,6 +19,8 @@ model User {
   occupation String?  @db.VarChar(50)
   preferredDeity String? @db.VarChar(50)
   faith      String?  @db.VarChar(80)
+  countryCode String? @db.VarChar(2)
+  continentCode String? @db.VarChar(20)
   onboardingCompleted Boolean @default(false)
   onboardingStep String @default("welcome") @db.VarChar(20)
   referralCode String? @unique @db.VarChar(16)

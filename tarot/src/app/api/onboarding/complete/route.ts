@@ -11,6 +11,8 @@ const bodySchema = z.object({
   gender: z.enum(GENDER_OPTIONS),
   occupation: z.enum(OCCUPATION_OPTIONS),
   faith: z.string().min(1).max(80),
+  countryCode: z.string().length(2).optional(),
+  continentCode: z.string().max(20).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -27,6 +29,8 @@ export async function POST(req: NextRequest) {
         gender: body.gender,
         occupation: body.occupation,
         faith: body.faith,
+        countryCode: body.countryCode?.toUpperCase(),
+        continentCode: body.continentCode,
         onboardingCompleted: true,
         onboardingStep: 'done',
       },

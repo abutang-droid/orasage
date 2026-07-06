@@ -1,5 +1,6 @@
 import { DEITIES, filterDeitiesByFaith, type Deity } from '@/lib/faiths/deities';
 import type { CmsFaith } from '@/lib/cms/faiths';
+import { resolveWorshipFacing, facingForFaithCode, type WorshipFacing } from '@/lib/temple/facing';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -16,11 +17,16 @@ export type CmsSanctuary = {
   gradient?: string | null;
   imageUrl?: string | null;
   blessingText?: string | null;
+  worshipFacing?: string | null;
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  facingBearing?: number | null;
   faiths?: CmsFaith[] | number[] | null;
 };
 
 export type Sanctuary = Deity & {
   blessingText?: string | null;
+  worshipFacing?: WorshipFacing | null;
   source: 'cms' | 'fallback';
 };
 
@@ -41,8 +47,13 @@ function faithCodesFromSanctuary(s: CmsSanctuary): string[] {
     .filter((c): c is string => Boolean(c));
 }
 
-export function mapCmsSanctuary(s: CmsSanctuary): Sanctuary {
+export function mapCmsSanctuary(s: CmsSanctuary, faithFacingByCode?: Map<string, CmsFaith>): Sanctuary {
   const faithIds = faithCodesFromSanctuary(s);
+  const primaryFaith = faithIds[0];
+  const faithFields = primaryFaith ? faithFacingByCode?.get(primaryFaith) : undefined;
+
+  const worshipFacing = resolveWorshipFacing(s, faithFields);
+
   return {
     id: s.code,
     name: s.nameZh,
@@ -55,6 +66,7 @@ export function mapCmsSanctuary(s: CmsSanctuary): Sanctuary {
     imageUrl: resolveImageUrl(s),
     faithIds,
     blessingText: s.blessingText,
+    worshipFacing,
     source: 'cms',
   };
 }
@@ -75,7 +87,15 @@ export async function fetchSanctuariesFromCms(faithCode?: string | null): Promis
   }
 
   const data: CmsListResponse<CmsSanctuary> = await res.json();
-  let list = data.docs.map(mapCmsSanctuary);
+  const faithFacingByCode = new Map<string, CmsFaith>();
+  for (const doc of data.docs) {
+    for (const f of doc.faiths ?? []) {
+      if (f && typeof f === 'object' && 'code' in f) {
+        faithFacingByCode.set(f.code, f);
+      }
+    }
+  }
+  let list = data.docs.map((doc) => mapCmsSanctuary(doc, faithFacingByCode));
 
   if (faithCode && faithCode !== 'none' && !faithCode.startsWith('other')) {
     const matched = list.filter((s) => s.faithIds.includes(faithCode));
@@ -95,6 +115,7 @@ export async function fetchSanctuariesByFaith(faithCode: string | null): Promise
 
   const fallback = filterDeitiesByFaith(faithCode).map((d) => ({
     ...d,
+    worshipFacing: facingForFaithCode(d.faithIds[0] ?? faithCode),
     source: 'fallback' as const,
   }));
   return fallback;

@@ -1,355 +1,27 @@
 "use client"
-import { useState, useRef, useCallback, useEffect } from "react"
-import Link from "next/link"
-import { FaithPicker, loadStoredFaith } from "@/components/FaithPicker"
+import { useState, useCallback, useEffect, useMemo } from "react"
+import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
+import { loadStoredFaith } from "@/components/FaithPicker"
+import { WorshipScreen } from "@/components/temple/WorshipScreen"
+import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { formatFaithLabel } from "@/lib/faiths/religions"
+import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
-import type { Deity } from "@/lib/faiths/deities"
+import { facingForFaithCode } from "@/lib/temple/facing"
 import { useUser } from "@/lib/user"
 
-type TemplePhase = "faith" | "select" | "worship" | "blessing"
+type TemplePhase = "journey" | "select" | "worship" | "blessing"
 
-// ─── Worship Halo Animation ────────────────────────────────────────
-function HaloRings({ stage, deityColor }: { stage: number; deityColor: string }) {
-  const alpha = stage >= 3 ? 0.4 : stage >= 2 ? 0.25 : stage >= 1 ? 0.12 : 0.04
-  const radius1 = stage === 1 ? 90 : stage === 2 ? 130 : stage >= 3 ? 180 : 60
-  const radius2 = stage === 2 ? 180 : stage >= 3 ? 240 : 90
-
-  return (
-    <>
-      {/* Ring 1 */}
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%',
-        width: radius1 * 2, height: radius1 * 2,
-        transform: 'translate(-50%,-50%)',
-        borderRadius: '50%',
-        border: `1px solid ${deityColor}`,
-        opacity: alpha,
-        transition: 'all 0.8s var(--ease-out)',
-      }} />
-      {/* Ring 2 */}
-      {stage >= 2 && (
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          width: radius2 * 2, height: radius2 * 2,
-          transform: 'translate(-50%,-50%)',
-          borderRadius: '50%',
-          border: `0.5px solid ${deityColor}`,
-          opacity: alpha * 0.6,
-          transition: 'all 0.8s var(--ease-out)',
-        }} />
-      )}
-    </>
-  )
-}
-
-// ─── Particle Effect ───────────────────────────────────────────────
-function Particles({ stage }: { stage: number }) {
-  const count = stage === 1 ? 15 : stage === 2 ? 35 : stage >= 3 ? 70 : 0
-  const particles = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    angle: (i / count) * 360 + Math.random() * 30,
-    distance: 40 + Math.random() * 100,
-    delay: Math.random() * 0.5,
-    size: 2 + Math.random() * 3,
-    opacity: 0.3 + Math.random() * 0.5,
-  }))
-
-  return (
-    <>
-      {particles.map(p => (
-        <div key={p.id} style={{
-          position: 'absolute', top: '50%', left: '50%',
-          width: p.size, height: p.size,
-          borderRadius: '50%',
-          background: 'var(--gold-light)',
-          opacity: p.opacity,
-          transform: `translate(-50%,-50%) rotate(${p.angle}deg) translateY(-${p.distance}px)`,
-          animation: `particle-rise 2s ease-out ${p.delay}s infinite`,
-        }} />
-      ))}
-    </>
-  )
-}
-
-// ─── Worship Screen ────────────────────────────────────────────────
-function WorshipScreen({ deity, onComplete }: { deity: Deity; onComplete: (duration: number, stage: number) => void }) {
-  const [isPressed, setIsPressed] = useState(false)
-  const [stage, setStage] = useState(0) // 0=idle, 1=3s, 2=7s, 3=10s
-  const [elapsed, setElapsed] = useState(0)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const startTimeRef = useRef<number>(0)
-
-  const startHolding = useCallback(() => {
-    setIsPressed(true)
-    startTimeRef.current = Date.now()
-    setElapsed(0)
-    setStage(0)
-
-    timerRef.current = setInterval(() => {
-      const elapsed = (Date.now() - startTimeRef.current) / 1000
-      setElapsed(elapsed)
-      if (elapsed >= 10) setStage(3)
-      else if (elapsed >= 7) setStage(2)
-      else if (elapsed >= 3) setStage(1)
-    }, 100)
-  }, [])
-
-  const stopHolding = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    setIsPressed(false)
-    const duration = (Date.now() - startTimeRef.current) / 1000
-
-    if (duration < 1) {
-      setElapsed(0); setStage(0); return // too short
-    }
-    if (duration < 3) {
-      setStage(1)
-      setTimeout(() => { setStage(0); setElapsed(0) }, 500)
-      return
-    }
-
-    onComplete(duration, stage >= 3 ? 3 : stage >= 2 ? 2 : 1)
-  }, [stage, onComplete])
-
-  return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      paddingTop: 32, position: 'relative',
-    }}>
-      {/* Backdrop vignette */}
-      {stage >= 3 && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: `radial-gradient(ellipse at center, transparent 40%, rgba(13,13,13,0.6) 100%)`,
-          pointerEvents: 'none', zIndex: 0, transition: 'opacity 0.5s ease',
-        }} />
-      )}
-
-      {/* Deity display */}
-      <div style={{
-        position: 'relative', width: 200, height: 200, marginBottom: 32,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 1,
-      }}>
-        <HaloRings stage={stage} deityColor={deity.color} />
-        <Particles stage={isPressed ? stage : 0} />
-
-        {/* Deity image */}
-        <div style={{
-          width: 140, height: 140, borderRadius: '50%',
-          overflow: 'hidden',
-          boxShadow: stage >= 2 ? `0 0 40px ${deity.color}44` : '0 0 10px rgba(0,0,0,0.3)',
-          transition: 'all 0.5s var(--ease-out)',
-          transform: stage >= 3 ? 'scale(1.05)' : 'scale(1)',
-          position: 'relative', zIndex: 2,
-          border: `2px solid ${stage >= 2 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}`,
-        }}>
-          <img src={deity.imageUrl} alt={deity.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-        </div>
-      </div>
-
-      <div style={{
-        fontSize: 20, fontWeight: 600, color: 'var(--text-primary)',
-        fontFamily: 'var(--font-display)', marginBottom: 8,
-        letterSpacing: '0.04em',
-      }}>
-        {deity.name}
-      </div>
-      <div style={{
-        fontSize: 12, color: 'var(--text-muted)', marginBottom: 32,
-        fontFamily: 'var(--font-sans)',
-      }}>
-        {deity.nameEN}
-      </div>
-
-      {/* Touch area */}
-      {!isPressed || elapsed < 3 ? (
-        <div style={{
-          textAlign: 'center', marginBottom: 24,
-          fontSize: 15, color: 'var(--text-secondary)',
-          fontFamily: 'var(--font-serif)',
-        }}>
-          把手指放在神像上
-        </div>
-      ) : null}
-
-      <div
-        onTouchStart={e => { e.preventDefault(); startHolding() }}
-        onTouchEnd={e => { e.preventDefault(); stopHolding() }}
-        onMouseDown={startHolding}
-        onMouseUp={stopHolding}
-        onMouseLeave={stopHolding}
-        style={{
-          width: 160, height: 160,
-          borderRadius: '50%',
-          border: `2px dashed ${isPressed ? 'var(--gold-light)' : 'var(--border-focus)'}`,
-          cursor: 'pointer', userSelect: 'none',
-          transition: 'all 0.3s ease',
-          opacity: isPressed ? 0.8 : 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative', zIndex: 1,
-          background: isPressed ? 'var(--bg-card-hover)' : 'transparent',
-        }}
-      >
-        <div style={{
-          fontSize: 13, color: 'var(--text-muted)',
-          textAlign: 'center', fontFamily: 'var(--font-sans)',
-          padding: '0 20px',
-        }}>
-          {isPressed
-            ? stage >= 3 ? "虔诚之巅 ✦" : stage >= 2 ? "圣光展开中..." : stage >= 1 ? "光环渐起..." : "继续按住..."
-            : "手指按住这里\n感受临在"}
-        </div>
-      </div>
-
-      {/* Progress indicator */}
-      {isPressed && (
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <div style={{
-            width: 120, height: 3, background: 'var(--border)',
-            borderRadius: 2, margin: '0 auto', overflow: 'hidden',
-          }}>
-            <div style={{
-              height: '100%', background: 'var(--gold-light)',
-              width: `${Math.min(elapsed / 10 * 100, 100)}%`,
-              borderRadius: 2, transition: 'width 0.1s linear',
-            }} />
-          </div>
-          <div style={{
-            marginTop: 6, fontSize: 11, color: 'var(--text-muted)',
-            fontFamily: 'var(--font-mono)',
-          }}>
-            {elapsed < 1 ? "按住以持续参拜" :
-             elapsed < 3 ? `${Math.round(elapsed)}s · 光环渐起` :
-             elapsed < 7 ? `${Math.round(elapsed)}s · 光环扩散` :
-             elapsed < 10 ? `${Math.round(elapsed)}s · 圣光展开` :
-             "虔诚之巅 · 松手完成参拜"}
-          </div>
-        </div>
-      )}
-
-      {/* Too-short toast */}
-      {!isPressed && elapsed > 0 && elapsed < 1 && (
-        <div style={{
-          marginTop: 16, fontSize: 13, color: 'var(--text-secondary)',
-          fontFamily: 'var(--font-serif)', textAlign: 'center',
-        }}>
-          再按一会，{deity.name}正在聆听
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Blessing End Screen ───────────────────────────────────────────
-function BlessingScreen({ deity, duration, stage, meritEarned, blessingText, alreadyCheckedIn, levelUp, streakDays, onDone }: {
-  deity: Sanctuary
-  duration: number
-  stage: number
-  meritEarned: number
-  blessingText?: string
-  alreadyCheckedIn?: boolean
-  levelUp?: boolean
-  streakDays?: number
-  onDone: () => void
-}) {
-  const peakLabel = stage === 3 ? "虔诚之巅" : stage === 2 ? "深度参拜" : "参拜完成"
-
-  return (
-    <div className="animate-fade-in-up" style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      paddingTop: 48, textAlign: 'center',
-    }}>
-      {/* Small deity image */}
-      <div style={{
-        width: 60, height: 60, borderRadius: '50%',
-        overflow: 'hidden', marginBottom: 24,
-        boxShadow: `0 0 20px ${deity.color}33`,
-      }}>
-        <img src={deity.imageUrl} alt={deity.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-      </div>
-
-      <div style={{
-        fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600,
-        color: 'var(--gold-light)', marginBottom: 16,
-        letterSpacing: '0.06em',
-      }}>
-        {peakLabel}
-      </div>
-
-      <div style={{
-        fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24,
-        maxWidth: 300, lineHeight: 1.7, fontFamily: 'var(--font-serif)',
-      }}>
-        {deity.name}已将你的心愿放在了最靠近星辰的地方。
-      </div>
-
-      {/* AI blessing placeholder */}
-      <div style={{
-        padding: '20px 24px', background: 'var(--bg-card)',
-        border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
-        marginBottom: 24, maxWidth: 340,
-      }}>
-        <div style={{ fontSize: 11, color: 'var(--gold)', marginBottom: 10, letterSpacing: '0.1em', fontFamily: 'var(--font-display)' }}>
-          ── 今日指引 ──
-        </div>
-        <div style={{
-          fontSize: 14, color: 'var(--text-primary)',
-          lineHeight: 1.8, fontFamily: 'var(--font-serif)',
-        }}>
-          {blessingText ?? deity.blessingText ?? (
-            <>
-              她看见你心里的那团火——<br />
-              那是还没说出口的话。<br />
-              今天，向前走一步。
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Merit earned */}
-      <div style={{
-        fontSize: 12, color: 'var(--gold-light)', marginBottom: 24,
-        fontFamily: 'var(--font-mono)', letterSpacing: '0.06em',
-        background: 'rgba(201,149,74,0.1)', padding: '6px 16px',
-        borderRadius: 'var(--radius-pill)',
-      }}>
-        {alreadyCheckedIn ? '今日功德已记录' : `+${meritEarned} 功德`}
-        {levelUp ? ' · 升阶！' : ''}
-        {streakDays && streakDays > 1 ? ` · 连续 ${streakDays} 天` : ''}
-      </div>
-
-      {/* Actions */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 300 }}>
-        <Link href="/daily-fortune" className="btn-primary" style={{
-          display: 'flex', justifyContent: 'center', textDecoration: 'none',
-        }}>
-          ✦ 去抽今日运势
-        </Link>
-        <button onClick={onDone} style={{
-          background: 'none', border: 'none', color: 'var(--text-secondary)',
-          fontSize: 13, cursor: 'pointer', padding: '10px 0',
-          fontFamily: 'var(--font-sans)',
-        }}>
-          返回
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── Main Temple Page ──────────────────────────────────────────────
 export default function TemplePage() {
-  const { user, setFaith, setDeity } = useUser()
+  const { user, setFaith, setDeity, setGeo } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [selectedContinent, setSelectedContinent] = useState<string | null>(null)
   const [selectedDeity, setSelectedDeity] = useState<Sanctuary | null>(null)
   const [savedDeity, setSavedDeity] = useState<Sanctuary | null>(null)
   const [sanctuaries, setSanctuaries] = useState<Sanctuary[]>([])
   const [sanctuariesLoading, setSanctuariesLoading] = useState(false)
-  const [phase, setPhase] = useState<TemplePhase>("faith")
+  const [phase, setPhase] = useState<TemplePhase>("journey")
   const [blessingData, setBlessingData] = useState<{
     duration: number
     stage: number
@@ -366,11 +38,13 @@ export default function TemplePage() {
     const storedFaith = loadStoredFaith() || user?.faith || null
     if (storedFaith) {
       setSelectedFaith(storedFaith)
+      setSelectedCountry(user?.countryCode ?? null)
+      setSelectedContinent(user?.continentCode ?? null)
       setPhase("select")
     } else if (!user?.onboardingCompleted) {
-      setPhase("faith")
+      setPhase("journey")
     }
-  }, [user?.faith, user?.onboardingCompleted])
+  }, [user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
 
   useEffect(() => {
     if (phase !== "select") return
@@ -399,16 +73,19 @@ export default function TemplePage() {
     return () => { cancelled = true }
   }, [phase, selectedFaith])
 
-  const handleFaithChange = useCallback(async (faithId: string) => {
-    setSelectedFaith(faithId)
-    await setFaith(faithId)
+  const handleJourneyComplete = useCallback(async (result: GeoJourneySelection) => {
+    setSelectedFaith(result.faith)
+    setSelectedCountry(result.countryCode)
+    setSelectedContinent(result.continentCode)
+    await setGeo(result.continentCode, result.countryCode)
+    await setFaith(result.faith)
     void fetch('/api/onboarding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ step: 'faith' }),
     })
     setPhase("select")
-  }, [setFaith])
+  }, [setFaith, setGeo])
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
@@ -471,17 +148,28 @@ export default function TemplePage() {
     !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // ── Faith selection ──
-  if (phase === "faith") {
+  const worshipFacing = useMemo(
+    () =>
+      selectedDeity?.worshipFacing ??
+      facingForFaithCode(selectedFaith),
+    [selectedDeity, selectedFaith],
+  )
+
+  // ── Geo journey (region → country → faith) ──
+  if (phase === "journey") {
     return (
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32, paddingBottom: 32 }}>
-          <FaithPicker
-            value={selectedFaith}
-            onChange={(id) => void handleFaithChange(id)}
-            title="第一步 · 选择信仰"
-            subtitle="全球主要信仰按信众规模排列；更多选项在下方"
-            confirmLabel="下一步 · 选择圣地"
+          <GeoJourneyPicker
+            value={{
+              continentCode: user?.continentCode ?? selectedContinent ?? undefined,
+              countryCode: user?.countryCode ?? selectedCountry ?? undefined,
+              faith: selectedFaith ?? undefined,
+            }}
+            onComplete={(result) => void handleJourneyComplete(result)}
+            title="第一步 · 你的心灵故乡"
+            subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
+            faithConfirmLabel="下一步 · 选择圣地"
           />
         </div>
       </div>
@@ -498,7 +186,7 @@ export default function TemplePage() {
             <h1>选择朝拜圣地</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)} · 选择守护神`
+                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选择守护神`
                 : '选择你的守护神，把手指放在神像上'}
             </p>
           </div>
@@ -508,9 +196,9 @@ export default function TemplePage() {
               type="button"
               className="btn-ghost"
               style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
-              onClick={() => setPhase('faith')}
+              onClick={() => setPhase('journey')}
             >
-              ← 更换信仰（当前：{formatFaithLabel(selectedFaith)}）
+              ← 更换信仰与地区（当前：{formatFaithLabel(selectedFaith)}）
             </button>
           )}
 
@@ -629,17 +317,18 @@ export default function TemplePage() {
   // ── Worship ──
   if (phase === "worship" && selectedDeity) {
     return (
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
-        <WorshipScreen deity={selectedDeity} onComplete={handleWorshipComplete} />
-      </div>
+      <WorshipScreen
+        deity={selectedDeity}
+        facing={worshipFacing}
+        onComplete={handleWorshipComplete}
+      />
     )
   }
 
   // ── Blessing ──
   if (phase === "blessing" && selectedDeity && blessingData) {
     return (
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
-        <BlessingScreen
+      <BlessingScreen
           deity={selectedDeity}
           duration={blessingData.duration}
           stage={blessingData.stage}
@@ -649,8 +338,7 @@ export default function TemplePage() {
           levelUp={blessingData.levelUp}
           streakDays={blessingData.streakDays}
           onDone={handleBlessingDone}
-        />
-      </div>
+      />
     )
   }
 

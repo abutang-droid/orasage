@@ -1,30 +1,42 @@
 /**
  * Seed data for CMS faiths + sanctuaries (synced with tarot/src/lib/faiths/*)
  */
-export const SEED_FAITHS = [
+import type { WorshipFacingMode } from './tarot-facing';
+
+type SeedFaith = {
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  emoji: string;
+  rank: number;
+  adherentsM: number;
+  worshipFacing?: WorshipFacingMode;
+};
+
+export const SEED_FAITHS: SeedFaith[] = [
   { code: 'christianity', nameZh: '基督教', nameEn: 'Christianity', emoji: '✝️', rank: 1, adherentsM: 2380 },
-  { code: 'islam', nameZh: '伊斯兰教', nameEn: 'Islam', emoji: '☪️', rank: 2, adherentsM: 1910 },
-  { code: 'hinduism', nameZh: '印度教', nameEn: 'Hinduism', emoji: '🕉️', rank: 3, adherentsM: 1160 },
-  { code: 'buddhism', nameZh: '佛教', nameEn: 'Buddhism', emoji: '☸️', rank: 4, adherentsM: 507 },
-  { code: 'chinese_folk', nameZh: '中国民间信仰', nameEn: 'Chinese Folk Religion', emoji: '🏮', rank: 5, adherentsM: 394 },
+  { code: 'islam', nameZh: '伊斯兰教', nameEn: 'Islam', emoji: '☪️', rank: 2, adherentsM: 1910, worshipFacing: 'qibla' },
+  { code: 'hinduism', nameZh: '印度教', nameEn: 'Hinduism', emoji: '🕉️', rank: 3, adherentsM: 1160, worshipFacing: 'east' },
+  { code: 'buddhism', nameZh: '佛教', nameEn: 'Buddhism', emoji: '☸️', rank: 4, adherentsM: 507, worshipFacing: 'east' },
+  { code: 'chinese_folk', nameZh: '中国民间信仰', nameEn: 'Chinese Folk Religion', emoji: '🏮', rank: 5, adherentsM: 394, worshipFacing: 'east' },
   { code: 'african_traditional', nameZh: '非洲传统宗教', nameEn: 'African Traditional Religions', emoji: '🌍', rank: 6, adherentsM: 100 },
-  { code: 'sikhism', nameZh: '锡克教', nameEn: 'Sikhism', emoji: '☬', rank: 7, adherentsM: 26 },
+  { code: 'sikhism', nameZh: '锡克教', nameEn: 'Sikhism', emoji: '☬', rank: 7, adherentsM: 26, worshipFacing: 'east' },
   { code: 'spiritism', nameZh: '灵性主义', nameEn: 'Spiritism', emoji: '👁️', rank: 8, adherentsM: 15 },
-  { code: 'judaism', nameZh: '犹太教', nameEn: 'Judaism', emoji: '✡️', rank: 9, adherentsM: 15 },
-  { code: 'taoism', nameZh: '道教', nameEn: 'Taoism', emoji: '☯️', rank: 10, adherentsM: 12 },
-  { code: 'shinto', nameZh: '神道教', nameEn: 'Shinto', emoji: '⛩️', rank: 11, adherentsM: 4 },
+  { code: 'judaism', nameZh: '犹太教', nameEn: 'Judaism', emoji: '✡️', rank: 9, adherentsM: 15, worshipFacing: 'jerusalem' },
+  { code: 'taoism', nameZh: '道教', nameEn: 'Taoism', emoji: '☯️', rank: 10, adherentsM: 12, worshipFacing: 'east' },
+  { code: 'shinto', nameZh: '神道教', nameEn: 'Shinto', emoji: '⛩️', rank: 11, adherentsM: 4, worshipFacing: 'east' },
   { code: 'bahai', nameZh: '巴哈伊教', nameEn: "Bahá'í Faith", emoji: '⭐', rank: 12, adherentsM: 8 },
   { code: 'jainism', nameZh: '耆那教', nameEn: 'Jainism', emoji: '🙏', rank: 13, adherentsM: 5 },
   { code: 'zoroastrianism', nameZh: '琐罗亚斯德教', nameEn: 'Zoroastrianism', emoji: '🔥', rank: 14, adherentsM: 0.2 },
   { code: 'cao_dai', nameZh: '高台教', nameEn: 'Caodaism', emoji: '🌸', rank: 15, adherentsM: 4 },
-  { code: 'confucianism', nameZh: '儒教', nameEn: 'Confucianism', emoji: '📜', rank: 16, adherentsM: 6 },
+  { code: 'confucianism', nameZh: '儒教', nameEn: 'Confucianism', emoji: '📜', rank: 16, adherentsM: 6, worshipFacing: 'east' },
   { code: 'korean_shamanism', nameZh: '韩国巫教', nameEn: 'Korean Shamanism', emoji: '🎭', rank: 17, adherentsM: 5 },
   { code: 'indigenous', nameZh: '原住民信仰', nameEn: 'Indigenous Religions', emoji: '🦅', rank: 18, adherentsM: 300 },
   { code: 'afro_brazilian', nameZh: '非裔巴西宗教', nameEn: 'Afro-Brazilian Religions', emoji: '🌊', rank: 19, adherentsM: 2 },
   { code: 'tenrikyo', nameZh: '天理教', nameEn: 'Tenrikyo', emoji: '🌅', rank: 20, adherentsM: 2 },
   { code: 'none', nameZh: '无特定信仰', nameEn: 'No Specific Faith', emoji: '🌿', rank: 98, adherentsM: 0 },
   { code: 'other', nameZh: '其他', nameEn: 'Other', emoji: '⋯', rank: 99, adherentsM: 0 },
-] as const;
+];
 
 export type SeedSanctuary = {
   code: string;

@@ -225,7 +225,7 @@
 }
 
 .onboarding-faith-wrap:not(:has(.faith-picker--collapsed)) {
-  max-height: 42vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 

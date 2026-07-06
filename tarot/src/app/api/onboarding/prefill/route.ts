@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
     gender: '',
     occupation: '',
     faith: '',
+    countryCode: '',
+    continentCode: '',
     sourceApp: null,
     sourceLabel: null,
   };
@@ -36,7 +38,10 @@ export async function GET(req: NextRequest) {
   if (auth) {
     const user = await prisma.user.findUnique({
       where: { id: auth.userId },
-      select: { nickname: true, birthday: true, gender: true, occupation: true, faith: true },
+      select: {
+        nickname: true, birthday: true, gender: true, occupation: true, faith: true,
+        countryCode: true, continentCode: true,
+      },
     });
     if (user) {
       local = {
@@ -45,6 +50,8 @@ export async function GET(req: NextRequest) {
         gender: genderFromAuth(user.gender),
         occupation: (user.occupation as OnboardingPrefill['occupation']) || '',
         faith: user.faith || '',
+        countryCode: user.countryCode || '',
+        continentCode: user.continentCode || '',
         sourceApp: 'tarot',
         sourceLabel: SOURCE_APP_LABELS.tarot,
       };
@@ -71,6 +78,8 @@ export async function GET(req: NextRequest) {
             gender: genderFromAuth(preferred.gender),
             occupation: '',
             faith: '',
+            countryCode: '',
+            continentCode: '',
             sourceApp: app,
             sourceLabel: app ? (SOURCE_APP_LABELS[app] ?? app) : null,
           };
@@ -88,6 +97,8 @@ export async function GET(req: NextRequest) {
         gender: external.gender || local.gender,
         occupation: local.occupation || external.occupation,
         faith: local.faith || external.faith,
+        countryCode: local.countryCode || external.countryCode,
+        continentCode: local.continentCode || external.continentCode,
         sourceApp: external.sourceApp,
         sourceLabel: external.sourceLabel,
       }

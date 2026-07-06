@@ -10,6 +10,8 @@ export type OnboardingDraft = {
   gender: GenderOption | '';
   occupation: OccupationOption | '';
   faith: string;
+  countryCode: string;
+  continentCode: string;
 };
 
 export type OnboardingPrefill = {
@@ -18,6 +20,8 @@ export type OnboardingPrefill = {
   gender: GenderOption | '';
   occupation: OccupationOption | '';
   faith: string;
+  countryCode: string;
+  continentCode: string;
   sourceApp: string | null;
   sourceLabel: string | null;
 };
@@ -34,6 +38,7 @@ export function formatPrefillSummary(prefill: OnboardingPrefill): string {
   if (prefill.gender) rows.push(`性别：${prefill.gender}`);
   if (prefill.occupation) rows.push(`工作状态：${prefill.occupation}`);
   if (prefill.faith) rows.push(`信仰：${prefill.faith}`);
+  if (prefill.countryCode) rows.push(`国家/地区：${prefill.countryCode}`);
   if (prefill.sourceLabel) rows.push(`来源：${prefill.sourceLabel} 档案`);
   return rows.join('\n');
 }
@@ -62,7 +67,9 @@ export function birthFromParts(
 }
 
 export function hasPrefillData(prefill: Partial<OnboardingPrefill>): boolean {
-  return Boolean(prefill.birthdate || prefill.gender || prefill.occupation || prefill.faith);
+  return Boolean(
+    prefill.birthdate || prefill.gender || prefill.occupation || prefill.faith || prefill.countryCode,
+  );
 }
 
 export const SOURCE_APP_LABELS: Record<string, string> = {
