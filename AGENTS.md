@@ -1,6 +1,6 @@
 # AGENTS.md
 
-> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含「全站」范围定义与导航规范）。
+> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含 **最高宪法：关联分支穿透与影响评估**、「全站」范围定义与导航规范）。
 
 ## Cursor Cloud specific instructions
 
