@@ -284,6 +284,32 @@ a {
   align-items: center;
 }
 
+.admin-order-actions {
+  min-width: 220px;
+}
+
+.shipment-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.shipment-input {
+  min-width: 88px;
+  flex: 1 1 88px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.shipment-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.8rem;
+}
+
 details summary {
   cursor: pointer;
   color: var(--orasage-gold, #b8943f);

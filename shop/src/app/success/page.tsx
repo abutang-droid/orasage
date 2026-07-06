@@ -18,7 +18,12 @@ export default async function SuccessPage({
       )}
       <p className="mt-2 text-sm text-sage-muted">订单已同步到您的用户中心</p>
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
-        <a href="https://auth.orasage.com/center" className="shop-btn-primary w-full">
+        {order ? (
+          <Link href={`/orders/${encodeURIComponent(order)}`} className="shop-btn-primary w-full">
+            查看订单与物流
+          </Link>
+        ) : null}
+        <a href="https://auth.orasage.com/center" className={order ? 'shop-btn-secondary w-full' : 'shop-btn-primary w-full'}>
           查看我的订单
         </a>
         <Link href="/" className="shop-btn-secondary w-full">

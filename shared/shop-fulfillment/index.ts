@@ -19,16 +19,60 @@ export function inferRequiresWristSize(product: ProductFulfillment): boolean {
   return product.category === 'crystal' || product.sku.includes('-advanced');
 }
 
+/** 情侣装 SKU 支持 1/2 人地址切换 */
+export function inferCoupleEligible(sku?: string | null): boolean {
+  return Boolean(sku && sku.includes('couple'));
+}
+
+export const SHIPPING_COUNTRIES = [
+  { code: 'CN', label: '中国' },
+  { code: 'HK', label: '中国香港' },
+  { code: 'MO', label: '中国澳门' },
+  { code: 'TW', label: '中国台湾' },
+  { code: 'US', label: '美国' },
+  { code: 'CA', label: '加拿大' },
+  { code: 'GB', label: '英国' },
+  { code: 'AU', label: '澳大利亚' },
+  { code: 'SG', label: '新加坡' },
+  { code: 'MY', label: '马来西亚' },
+  { code: 'JP', label: '日本' },
+  { code: 'KR', label: '韩国' },
+  { code: 'DE', label: '德国' },
+  { code: 'FR', label: '法国' },
+] as const;
+
 export type ShippingRecipient = {
   name: string;
   phone: string;
+  countryCode?: string;
+  province?: string;
+  city?: string;
+  district?: string;
   address: string;
+  postalCode?: string;
   wristCm?: string;
 };
 
 export type ShippingPayload = {
   recipients: ShippingRecipient[];
 };
+
+/** 全球配送运费估算（分）；国内免邮，境外按收件人数 flat rate */
+export function estimateShippingFeeCents(countryCode: string, recipientCount = 1): number {
+  const code = (countryCode || 'CN').toUpperCase();
+  const domestic = code === 'CN' || code === 'HK' || code === 'MO' || code === 'TW';
+  const base = domestic ? 0 : 1500;
+  return base * Math.max(1, recipientCount);
+}
+
+export function formatRecipientLine(r: ShippingRecipient): string {
+  const country = r.countryCode && r.countryCode !== 'CN'
+    ? SHIPPING_COUNTRIES.find((c) => c.code === r.countryCode)?.label ?? r.countryCode
+    : '';
+  const parts = [country, r.province, r.city, r.district, r.address, r.postalCode ? `邮编 ${r.postalCode}` : '']
+    .filter(Boolean);
+  return parts.join(' ');
+}
 
 export function formatShippingAddress(payload: ShippingPayload): string {
   return JSON.stringify(payload);
@@ -58,7 +102,7 @@ export function formatShippingDisplay(raw: string | null | undefined): string {
       const parts = [
         r.name,
         r.phone,
-        r.address,
+        formatRecipientLine(r),
         r.wristCm ? `手腕 ${r.wristCm}cm` : '',
       ].filter(Boolean);
       const label = payload.recipients.length > 1 ? `第${i + 1}位: ` : '';
@@ -80,10 +124,35 @@ export function validateShippingPayload(
     const prefix = count > 1 ? `第${i + 1}位` : '';
     if (!r.name?.trim()) return prefix ? `${prefix}请填写收货人姓名` : '请填写收货人姓名';
     if (!r.phone?.trim()) return prefix ? `${prefix}请填写联系电话` : '请填写联系电话';
-    if (!r.address?.trim()) return prefix ? `${prefix}请填写收货地址` : '请填写收货地址';
+    if (!r.countryCode?.trim()) return prefix ? `${prefix}请选择国家/地区` : '请选择国家/地区';
+    if (!r.address?.trim()) return prefix ? `${prefix}请填写详细地址` : '请填写详细地址';
     if (options.requireWrist && !r.wristCm?.trim()) {
       return prefix ? `${prefix}请填写手腕周长` : '请填写手腕周长';
     }
   }
   return null;
 }
+
+export type ShipmentEvent = {
+  status: string;
+  description: string;
+  location?: string | null;
+  occurredAt: string;
+};
+
+export type OrderShipment = {
+  id: number;
+  carrier: string;
+  trackingNo: string;
+  status: string;
+  shippedAt?: string | null;
+  events: ShipmentEvent[];
+};
+
+export const SHIPMENT_STATUS_LABELS: Record<string, string> = {
+  pending: '待揽收',
+  picked_up: '已揽收',
+  in_transit: '运输中',
+  out_for_delivery: '派送中',
+  delivered: '已签收',
+};

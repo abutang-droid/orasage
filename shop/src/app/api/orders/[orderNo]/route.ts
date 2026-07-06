@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { getOrderByNo } from '@/lib/orders';
 import { getProduct } from '@/lib/products';
+import { proxyAuthMe } from '@/lib/auth-proxy';
 import { inferRequiresShipping, inferRequiresWristSize } from '../../../../../../shared/shop-fulfillment/index';
 
 type RouteContext = { params: Promise<{ orderNo: string }> };
@@ -31,6 +32,9 @@ export async function GET(_req: NextRequest, context: RouteContext) {
         }
       : { requiresShipping: false, requiresWristSize: false };
 
+    const detailRes = await proxyAuthMe(`/orders/${encodeURIComponent(orderNo)}`);
+    const detailData = detailRes.ok ? await detailRes.json().catch(() => ({})) : {};
+
     return NextResponse.json({
       order: {
         orderNo: order.orderNo,
@@ -41,8 +45,12 @@ export async function GET(_req: NextRequest, context: RouteContext) {
         status: order.status,
         shippingAddress: order.shippingAddress,
         appSource: order.appSource,
+        statusLabel: detailData.order?.statusLabel,
+        amountDisplay: detailData.order?.amountDisplay,
+        createdAt: detailData.order?.createdAt,
       },
       fulfillment,
+      shipments: detailData.shipments ?? [],
     });
   } catch (err) {
     console.error('[orders GET]', err);

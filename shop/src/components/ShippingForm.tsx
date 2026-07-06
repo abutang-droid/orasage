@@ -1,29 +1,81 @@
 'use client';
 
-import { useState } from 'react';
-import type { ShippingPayload, ShippingRecipient } from '../../../shared/shop-fulfillment/index';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  SHIPPING_COUNTRIES,
+  estimateShippingFeeCents,
+  type ShippingPayload,
+  type ShippingRecipient,
+} from '../../../shared/shop-fulfillment/index';
+import { addressToRecipient, type UserAddress } from '@/lib/addresses';
 
 type Props = {
   orderNo: string;
   productTitle: string;
+  coupleEligible?: boolean;
   couple?: boolean;
+  onCoupleChange?: (couple: boolean) => void;
   requireWrist?: boolean;
   onSaved: () => void;
 };
 
 function emptyRecipient(): ShippingRecipient {
-  return { name: '', phone: '', address: '', wristCm: '' };
+  return { name: '', phone: '', countryCode: 'CN', address: '', wristCm: '' };
 }
 
-export function ShippingForm({ orderNo, productTitle, couple = false, requireWrist = false, onSaved }: Props) {
+export function ShippingForm({
+  orderNo,
+  productTitle,
+  coupleEligible = false,
+  couple = false,
+  onCoupleChange,
+  requireWrist = false,
+  onSaved,
+}: Props) {
   const [recipients, setRecipients] = useState<ShippingRecipient[]>(
     couple ? [emptyRecipient(), emptyRecipient()] : [emptyRecipient()],
   );
+  const [savedAddresses, setSavedAddresses] = useState<UserAddress[]>([]);
+  const [saveToAddressBook, setSaveToAddressBook] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setRecipients(couple ? [emptyRecipient(), emptyRecipient()] : [emptyRecipient()]);
+  }, [couple]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch('/api/addresses', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.addresses) return;
+        setSavedAddresses(data.addresses);
+        const defaults = data.addresses as UserAddress[];
+        if (defaults.length > 0) {
+          setRecipients((prev) => prev.map((_, i) => {
+            const addr = defaults[i] ?? defaults[0];
+            return addr ? addressToRecipient(addr) : emptyRecipient();
+          }));
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const shippingFeeCents = useMemo(() => {
+    const primary = recipients[0]?.countryCode ?? 'CN';
+    return estimateShippingFeeCents(primary, couple ? 2 : 1);
+  }, [recipients, couple]);
+
   function updateRecipient(index: number, field: keyof ShippingRecipient, value: string) {
     setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
+  }
+
+  function applySavedAddress(index: number, addressId: string) {
+    const addr = savedAddresses.find((a) => String(a.id) === addressId);
+    if (!addr) return;
+    setRecipients((prev) => prev.map((r, i) => (i === index ? addressToRecipient(addr) : r)));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,7 +89,7 @@ export function ShippingForm({ orderNo, productTitle, couple = false, requireWri
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, saveToAddressBook }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || '保存失败');
@@ -53,12 +105,60 @@ export function ShippingForm({ orderNo, productTitle, couple = false, requireWri
     <form className="shop-shipping-form" onSubmit={(e) => void handleSubmit(e)}>
       <h1 className="shop-shipping-title">填写收货信息</h1>
       <p className="shop-shipping-subtitle">{productTitle}</p>
-      <p className="shop-shipping-note">7-14 个工作日发货</p>
+      <p className="shop-shipping-note">全球配送 · 7-14 个工作日发货</p>
+
+      {coupleEligible ? (
+        <fieldset className="shop-shipping-couple-toggle">
+          <legend className="shop-shipping-legend">配送人数</legend>
+          <label className="shop-shipping-toggle-option">
+            <input
+              type="radio"
+              name="coupleMode"
+              checked={!couple}
+              onChange={() => onCoupleChange?.(false)}
+            />
+            仅 1 人地址
+          </label>
+          <label className="shop-shipping-toggle-option">
+            <input
+              type="radio"
+              name="coupleMode"
+              checked={couple}
+              onChange={() => onCoupleChange?.(true)}
+            />
+            2 人各一地址
+          </label>
+        </fieldset>
+      ) : null}
+
+      {shippingFeeCents > 0 ? (
+        <p className="shop-shipping-fee">预估运费：¥{(shippingFeeCents / 100).toFixed(2)}</p>
+      ) : (
+        <p className="shop-shipping-fee shop-shipping-fee--free">运费：免邮</p>
+      )}
 
       {recipients.map((recipient, index) => (
         <fieldset key={index} className="shop-shipping-fieldset">
           {couple ? (
             <legend className="shop-shipping-legend">{index === 0 ? '第一位' : '第二位'}</legend>
+          ) : null}
+
+          {savedAddresses.length > 0 ? (
+            <label className="shop-shipping-label">
+              从地址簿选择
+              <select
+                className="shop-shipping-input"
+                defaultValue=""
+                onChange={(e) => applySavedAddress(index, e.target.value)}
+              >
+                <option value="">手动填写</option>
+                {savedAddresses.map((addr) => (
+                  <option key={addr.id} value={addr.id}>
+                    {(addr.label ? `${addr.label} · ` : '') + addr.name}
+                  </option>
+                ))}
+              </select>
+            </label>
           ) : null}
 
           <label className="shop-shipping-label">
@@ -86,7 +186,43 @@ export function ShippingForm({ orderNo, productTitle, couple = false, requireWri
           </label>
 
           <label className="shop-shipping-label">
-            省 / 市 / 区 / 详细地址
+            国家/地区
+            <select
+              className="shop-shipping-input"
+              value={recipient.countryCode ?? 'CN'}
+              onChange={(e) => updateRecipient(index, 'countryCode', e.target.value)}
+              required
+            >
+              {SHIPPING_COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="shop-shipping-label">
+            省 / 州
+            <input
+              type="text"
+              className="shop-shipping-input"
+              value={recipient.province ?? ''}
+              onChange={(e) => updateRecipient(index, 'province', e.target.value)}
+              autoComplete="address-level1"
+            />
+          </label>
+
+          <label className="shop-shipping-label">
+            城市
+            <input
+              type="text"
+              className="shop-shipping-input"
+              value={recipient.city ?? ''}
+              onChange={(e) => updateRecipient(index, 'city', e.target.value)}
+              autoComplete="address-level2"
+            />
+          </label>
+
+          <label className="shop-shipping-label">
+            详细地址
             <textarea
               className="shop-shipping-textarea"
               rows={3}
@@ -94,6 +230,17 @@ export function ShippingForm({ orderNo, productTitle, couple = false, requireWri
               onChange={(e) => updateRecipient(index, 'address', e.target.value)}
               autoComplete="street-address"
               required
+            />
+          </label>
+
+          <label className="shop-shipping-label">
+            邮编（选填）
+            <input
+              type="text"
+              className="shop-shipping-input"
+              value={recipient.postalCode ?? ''}
+              onChange={(e) => updateRecipient(index, 'postalCode', e.target.value)}
+              autoComplete="postal-code"
             />
           </label>
 
@@ -114,11 +261,24 @@ export function ShippingForm({ orderNo, productTitle, couple = false, requireWri
         </fieldset>
       ))}
 
+      <label className="shop-shipping-save-book">
+        <input
+          type="checkbox"
+          checked={saveToAddressBook}
+          onChange={(e) => setSaveToAddressBook(e.target.checked)}
+        />
+        保存到地址簿
+      </label>
+
       {error ? <p className="shop-shipping-error">{error}</p> : null}
 
       <button type="submit" className="shop-btn-primary shop-shipping-submit" disabled={loading}>
         {loading ? '保存中…' : '确认收货信息'}
       </button>
+
+      <p className="shop-shipping-manage">
+        <a href="/account/addresses">管理地址簿</a>
+      </p>
     </form>
   );
 }
