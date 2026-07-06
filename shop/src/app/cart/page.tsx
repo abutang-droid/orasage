@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
@@ -8,11 +9,17 @@ import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
 import { ProductImage } from '@/components/ProductImage';
 
+const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL ?? 'https://shop.orasage.com';
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL ?? 'https://auth.orasage.com';
+
 export default function CartPage() {
+  const router = useRouter();
   const { cart, removeItem, setQuantity, clear } = useCart();
   const { currency } = useShopLocale();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +53,35 @@ export default function CartPage() {
       );
     return sum + cents * line.quantity;
   }, 0);
+
+  async function handleCheckout() {
+    if (cart.lines.length === 0) return;
+    setCheckingOut(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch('/api/checkout/start', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cart.lines.map((line) => ({ sku: line.sku, quantity: line.quantity })),
+          appSource: 'shop',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        const returnUrl = `${SHOP_URL}/cart`;
+        window.location.href = `${AUTH_URL}/login?redirect=${encodeURIComponent(returnUrl)}`;
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || '创建订单失败');
+      router.push(`/checkout?order=${encodeURIComponent(data.orderNo)}`);
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : '创建订单失败');
+    } finally {
+      setCheckingOut(false);
+    }
+  }
 
   if (loading) {
     return <main className="shop-page p-16 text-center text-sage-muted">加载购物车…</main>;
@@ -133,13 +169,16 @@ export default function CartPage() {
         <p className="shop-cart-total">
           合计 <strong>{formatShopPrice(totalCents, currency)}</strong>
         </p>
-        <p className="shop-cart-note">结账时一次处理一件商品；登录后填写配送与支付信息。</p>
-        <Link
-          href={`/checkout?sku=${encodeURIComponent(cart.lines[0].sku)}`}
-          className="shop-btn-primary w-full text-center"
+        <p className="shop-cart-note">购物车商品将合并为一笔订单结算；含实体商品时需填写配送信息。</p>
+        {checkoutError ? <p className="mt-2 text-sm text-red-600">{checkoutError}</p> : null}
+        <button
+          type="button"
+          onClick={() => void handleCheckout()}
+          disabled={checkingOut}
+          className="shop-btn-primary w-full"
         >
-          去结账
-        </Link>
+          {checkingOut ? '准备订单…' : '去结账'}
+        </button>
       </div>
     </main>
   );
