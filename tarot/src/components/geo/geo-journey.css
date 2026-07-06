@@ -185,6 +185,7 @@
   border: 1px solid var(--border-focus);
   border-radius: var(--radius-md);
   backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
 }
 
 .geo-journey-faith-confirm-card {
