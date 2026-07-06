@@ -1,5 +1,6 @@
 export type AppCheckoutRequest = {
   sku: string;
+  /** 乐捐等可变价 SKU：quantity = 金额（分），单价 0.01 */
   quantity?: number;
   recommendationContext?: string;
   readingId?: string;
@@ -7,8 +8,6 @@ export type AppCheckoutRequest = {
   shippingMode?: 'single' | 'couple';
   successUrl?: string;
   cancelUrl?: string;
-  /** 乐捐等可变价 SKU（美分，USD） */
-  priceCentsUsd?: number;
 };
 
 export type AppCheckoutResponse = {

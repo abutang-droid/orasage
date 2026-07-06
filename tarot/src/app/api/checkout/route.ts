@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
-import { TEMPLE_DONATION } from '@/lib/merit';
+import { isValidTempleDonationQuantity, TEMPLE_DONATION } from '@/lib/merit';
 import { proxyShopCheckout, resolveAuthUserId } from '../../../../../shared/shop-checkout/server';
 
 const bodySchema = z.object({
   sku: z.string().min(1),
-  quantity: z.number().int().positive().max(10).optional(),
+  quantity: z.number().int().positive().max(100).optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
-  priceCentsUsd: z.number().int().positive().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -22,11 +21,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = bodySchema.parse(await req.json());
     if (body.sku === TEMPLE_DONATION.sku) {
-      if (
-        body.priceCentsUsd == null ||
-        body.priceCentsUsd < TEMPLE_DONATION.minCentsUsd ||
-        body.priceCentsUsd > TEMPLE_DONATION.maxCentsUsd
-      ) {
+      const quantity = body.quantity ?? 0;
+      if (!isValidTempleDonationQuantity(quantity)) {
         return NextResponse.json({ error: '乐捐金额需在 $0.01–$1 之间' }, { status: 400 });
       }
     }
@@ -44,7 +40,6 @@ export async function POST(req: NextRequest) {
       readingId: body.readingId,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,
-      priceCentsUsd: body.priceCentsUsd,
       cookieHeader: req.headers.get('cookie'),
     });
     return NextResponse.json(result);

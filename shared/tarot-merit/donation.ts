@@ -2,6 +2,9 @@
 
 export const TEMPLE_DONATION = {
   sku: 'temple-donation',
+  /** 商品目录单价（分）；乐捐总额 = unitPriceCents × quantity */
+  unitPriceCents: 1,
+  unitPriceCentsUsd: 1,
   minCentsUsd: 1,
   maxCentsUsd: 100,
   meritMultiplierMin: 10,
@@ -9,6 +12,19 @@ export const TEMPLE_DONATION = {
   explanationZh:
     '自愿供养，用于庙宇日常护持；功德计入您的修行记录。',
 } as const;
+
+/** 乐捐金额（分）→ 结账数量（单价 0.01） */
+export function templeDonationQuantity(amountCents: number): number {
+  return amountCents;
+}
+
+export function isValidTempleDonationQuantity(quantity: number): boolean {
+  return (
+    Number.isInteger(quantity)
+    && quantity >= TEMPLE_DONATION.minCentsUsd
+    && quantity <= TEMPLE_DONATION.maxCentsUsd
+  );
+}
 
 export function randomIntInclusive(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;

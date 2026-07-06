@@ -8,7 +8,8 @@ import {
   createCheckoutOrder,
   localeFromCheckoutRequest,
   mockCheckoutUrl,
-  startCheckoutSchema,
+  startCheckoutBodySchema,
+  validateCheckoutQuantity,
 } from '@/lib/checkout-flow';
 import {
   currencyForLocale,
@@ -16,15 +17,20 @@ import {
   type ShopCurrency,
 } from '@/lib/currency';
 
-const checkoutSchema = startCheckoutSchema.extend({
+const checkoutSchema = startCheckoutBodySchema.extend({
   userId: z.number().int().positive(),
   sku: z.string().min(1).optional(),
   items: z.array(z.object({
     sku: z.string().min(1),
-    quantity: z.number().int().positive().max(10).default(1),
+    quantity: z.number().int().positive().max(100).default(1),
   })).min(1).optional(),
 }).refine((b) => Boolean(b.sku || (b.items && b.items.length > 0)), {
   message: '需要 sku 或 items',
+}).superRefine((body, ctx) => {
+  const sku = body.items?.[0]?.sku ?? body.sku;
+  const quantity = body.items?.[0]?.quantity ?? body.quantity ?? 1;
+  if (!sku) return;
+  validateCheckoutQuantity(sku, quantity, ctx);
 });
 
 function unitPrice(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>, currency: ShopCurrency): number {
