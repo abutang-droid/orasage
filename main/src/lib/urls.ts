@@ -15,6 +15,6 @@ export function tarotBlessingUrls() {
   return {
     merit: `${base}/profile/merit`,
     temple: externalUrls.temple,
-    settings: `${base}/profile/settings`,
+    settings: `${base}/settings`,
   };
 }

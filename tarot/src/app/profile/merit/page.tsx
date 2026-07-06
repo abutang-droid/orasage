@@ -1,6 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useLang } from "@/lib/i18n/context"
+import { profileUrlFromLang } from "@/lib/orasage-locale"
 import "./merit.css"
 
 type MeritSummary = {
@@ -111,6 +113,8 @@ function PathRulesCard({
 }
 
 export default function MeritPage() {
+  const { lang } = useLang()
+  const profileHref = profileUrlFromLang(lang)
   const [summary, setSummary] = useState<MeritSummary | null>(null)
   const [rules, setRules] = useState<MeritRules | null>(null)
   const [recent, setRecent] = useState<Checkin[]>([])
@@ -159,9 +163,9 @@ export default function MeritPage() {
   return (
     <div className="merit-page">
       <div style={{ paddingTop: 24 }}>
-        <Link href="/profile" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
-          ← 返回我的
-        </Link>
+        <a href={profileHref} style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
+          ← 返回用户中心
+        </a>
 
         <div className="merit-hero">
           <div className="merit-badge">✦</div>
