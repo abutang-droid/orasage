@@ -11,6 +11,9 @@ import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Faiths } from './collections/Faiths';
 import { Sanctuaries } from './collections/Sanctuaries';
+import { GeoRegions } from './collections/GeoRegions';
+import { GeoCountries } from './collections/GeoCountries';
+import { CountryFaiths } from './collections/CountryFaiths';
 import { HomeHero } from './globals/HomeHero';
 import { BaziHomeHero } from './globals/BaziHomeHero';
 import { ZiweiHomeHero } from './globals/ZiweiHomeHero';
@@ -71,7 +74,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Media, Pages, Faiths, Sanctuaries, BaziFeed, ZiweiFeed],
+  collections: [Users, Media, Pages, Faiths, Sanctuaries, GeoRegions, GeoCountries, CountryFaiths, BaziFeed, ZiweiFeed],
   globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero, TarotHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

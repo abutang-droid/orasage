@@ -79,7 +79,11 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
     label: '宗教 / 圣地',
     href: '/cms/admin/collections/faiths',
     isActive: (p) =>
-      p.includes('/collections/faiths') || p.includes('/collections/sanctuaries'),
+      p.includes('/collections/faiths') ||
+      p.includes('/collections/sanctuaries') ||
+      p.includes('/collections/geo-regions') ||
+      p.includes('/collections/geo-countries') ||
+      p.includes('/collections/country-faiths'),
   },
 ];
 

@@ -20,19 +20,14 @@
 
 ## 分期
 
-### P0 — 去分享（✅ 进行中）
+### P0 — 去分享（✅ 已合 main #140）
 
-- 移除祈福完成页 WhatsApp
-- 移除设置「邀请好友」
-- 停止 `?ref=` 自动绑定
-- `MERIT_SHARE_PATH_ENABLED = false`：暂停传播路发功
-- 功德页仅展示时间 + 供养两路
+### P1 — CMS 地理→信仰（✅ 本 PR）
 
-### P1 — CMS 地理→信仰
-
-- `regions` / `countries` / `country_faiths` 集合
-- seed 常见国家主流信仰
-- tarot API：`GET /api/geo/*`、`GET /api/faiths?country=`
+- `geo-regions` / `geo-countries` / `country-faiths` 集合
+- seed：`shared/tarot-geo-seed.ts` + `npm run seed:tarot-geo`
+- tarot API：`/api/geo/regions`、`/api/geo/countries`、`/api/geo/suggest-country`
+- `GET /api/faiths?country=BR` 按国家主流排序
 
 ### P2 — 地图选路 UI + Onboarding
 
