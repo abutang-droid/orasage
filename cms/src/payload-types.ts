@@ -72,6 +72,9 @@ export interface Config {
     pages: Page;
     faiths: Faith;
     sanctuaries: Sanctuary;
+    'geo-regions': GeoRegion;
+    'geo-countries': GeoCountry;
+    'country-faiths': CountryFaith;
     'bazi-feed': BaziFeed;
     'ziwei-feed': ZiweiFeed;
     'payload-kv': PayloadKv;
@@ -86,6 +89,9 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     faiths: FaithsSelect<false> | FaithsSelect<true>;
     sanctuaries: SanctuariesSelect<false> | SanctuariesSelect<true>;
+    'geo-regions': GeoRegionsSelect<false> | GeoRegionsSelect<true>;
+    'geo-countries': GeoCountriesSelect<false> | GeoCountriesSelect<true>;
+    'country-faiths': CountryFaithsSelect<false> | CountryFaithsSelect<true>;
     'bazi-feed': BaziFeedSelect<false> | BaziFeedSelect<true>;
     'ziwei-feed': ZiweiFeedSelect<false> | ZiweiFeedSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -102,12 +108,14 @@ export interface Config {
     'bazi-home-hero': BaziHomeHero;
     'ziwei-home-hero': ZiweiHomeHero;
     'shop-home-hero': ShopHomeHero;
+    'tarot-home-hero': TarotHomeHero;
   };
   globalsSelect: {
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'bazi-home-hero': BaziHomeHeroSelect<false> | BaziHomeHeroSelect<true>;
     'ziwei-home-hero': ZiweiHomeHeroSelect<false> | ZiweiHomeHeroSelect<true>;
     'shop-home-hero': ShopHomeHeroSelect<false> | ShopHomeHeroSelect<true>;
+    'tarot-home-hero': TarotHomeHeroSelect<false> | TarotHomeHeroSelect<true>;
   };
   locale: null;
   widgets: {
@@ -146,6 +154,10 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   /**
+   * SSO 自动写入的内部邮箱
+   */
+  email: string;
+  /**
    * auth-service 用户 ID，SSO 自动写入
    */
   orasageUserId?: number | null;
@@ -166,9 +178,9 @@ export interface User {
 export interface Media {
   id: number;
   /**
-   * 必填。描述图片/视频内容，用于无障碍阅读与 SEO，例如「绿幽灵水晶手串产品图」
+   * 可选。描述图片/视频内容，用于无障碍阅读与 SEO；纯媒体 Hero 可不填
    */
-  alt: string;
+  alt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -342,6 +354,86 @@ export interface Sanctuary {
   createdAt: string;
 }
 /**
+ * 世界地图大洲热点。mapX/mapY 为 SVG 视图坐标（0–100）。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geo-regions".
+ */
+export interface GeoRegion {
+  id: number;
+  /**
+   * 如 asia、europe、americas、africa、oceania
+   */
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  /**
+   * SVG 世界地图横坐标 0–100
+   */
+  mapX: number;
+  /**
+   * SVG 世界地图纵坐标 0–100
+   */
+  mapY: number;
+  sortOrder?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 国家与所属大洲。主流信仰在「国家主流信仰」集合维护。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geo-countries".
+ */
+export interface GeoCountry {
+  id: number;
+  /**
+   * ISO 3166-1 alpha-2，如 BR、TH、TW
+   */
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  region: number | GeoRegion;
+  /**
+   * 同大洲内列表排序
+   */
+  sortOrder?: number | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 某国家/地区的主流信仰及占比权重。prevalence 越高在选信仰时越靠前。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "country-faiths".
+ */
+export interface CountryFaith {
+  id: number;
+  /**
+   * 由国家+信仰自动生成，便于后台搜索
+   */
+  label?: string | null;
+  country: number | GeoCountry;
+  faith: number | Faith;
+  /**
+   * 1–100，越高越靠前展示；可理解为该国信众占比权重
+   */
+  prevalence: number;
+  /**
+   * 勾选后在 UI 显示「主流」标签
+   */
+  isPrimary?: boolean | null;
+  /**
+   * 内部备注，不对用户展示
+   */
+  note?: string | null;
+  wpStatus?: ('publish' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * 八字计算器下方的滚动信息流。「订单动态」与「用户评价」交替展示；取消「启用」后该条不显示。
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -430,6 +522,18 @@ export interface PayloadLockedDocument {
         value: number | Sanctuary;
       } | null)
     | ({
+        relationTo: 'geo-regions';
+        value: number | GeoRegion;
+      } | null)
+    | ({
+        relationTo: 'geo-countries';
+        value: number | GeoCountry;
+      } | null)
+    | ({
+        relationTo: 'country-faiths';
+        value: number | CountryFaith;
+      } | null)
+    | ({
         relationTo: 'bazi-feed';
         value: number | BaziFeed;
       } | null)
@@ -484,6 +588,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  email?: T;
   orasageUserId?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -563,6 +668,50 @@ export interface SanctuariesSelect<T extends boolean = true> {
   blessingText?: T;
   content?: T;
   sortOrder?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geo-regions_select".
+ */
+export interface GeoRegionsSelect<T extends boolean = true> {
+  code?: T;
+  nameZh?: T;
+  nameEn?: T;
+  mapX?: T;
+  mapY?: T;
+  sortOrder?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geo-countries_select".
+ */
+export interface GeoCountriesSelect<T extends boolean = true> {
+  code?: T;
+  nameZh?: T;
+  nameEn?: T;
+  region?: T;
+  sortOrder?: T;
+  wpStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "country-faiths_select".
+ */
+export interface CountryFaithsSelect<T extends boolean = true> {
+  label?: T;
+  country?: T;
+  faith?: T;
+  prevalence?: T;
+  isPrimary?: T;
+  note?: T;
   wpStatus?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -649,13 +798,16 @@ export interface HomeHero {
    * 主标题上方的小字标签，如品牌名或栏目名
    */
   eyebrow?: string | null;
-  headline: string;
   /**
-   * 主标题下方的说明文字，建议一两句话
+   * 纯文字模式必填；图片/视频模式可留空，仅展示媒体
+   */
+  headline?: string | null;
+  /**
+   * 主标题下方的说明文字，可留空
    */
   subtitle?: string | null;
   /**
-   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   * 纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填
    */
   displayMode: 'text' | 'image' | 'video';
   /**
@@ -708,13 +860,16 @@ export interface BaziHomeHero {
    * 主标题上方的小字标签，如品牌名或栏目名
    */
   eyebrow?: string | null;
-  headline: string;
   /**
-   * 主标题下方的说明文字，建议一两句话
+   * 纯文字模式必填；图片/视频模式可留空，仅展示媒体
+   */
+  headline?: string | null;
+  /**
+   * 主标题下方的说明文字，可留空
    */
   subtitle?: string | null;
   /**
-   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   * 纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填
    */
   displayMode: 'text' | 'image' | 'video';
   /**
@@ -767,13 +922,16 @@ export interface ZiweiHomeHero {
    * 主标题上方的小字标签，如品牌名或栏目名
    */
   eyebrow?: string | null;
-  headline: string;
   /**
-   * 主标题下方的说明文字，建议一两句话
+   * 纯文字模式必填；图片/视频模式可留空，仅展示媒体
+   */
+  headline?: string | null;
+  /**
+   * 主标题下方的说明文字，可留空
    */
   subtitle?: string | null;
   /**
-   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   * 纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填
    */
   displayMode: 'text' | 'image' | 'video';
   /**
@@ -826,13 +984,78 @@ export interface ShopHomeHero {
    * 主标题上方的小字标签，如品牌名或栏目名
    */
   eyebrow?: string | null;
-  headline: string;
   /**
-   * 主标题下方的说明文字，建议一两句话
+   * 纯文字模式必填；图片/视频模式可留空，仅展示媒体
+   */
+  headline?: string | null;
+  /**
+   * 主标题下方的说明文字，可留空
    */
   subtitle?: string | null;
   /**
-   * 纯文字：仅标题与文案；图片：标题下方展示主图；视频：背景循环播放
+   * 纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填
+   */
+  displayMode: 'text' | 'image' | 'video';
+  /**
+   * 【Hero 主图规格】
+   * · 格式：WebP（推荐）/ JPG / PNG
+   * · 比例：16:9 或 3:2 横图
+   * · 尺寸：建议 1200×675 px（宽 1200–1600 px）
+   * · 体积：≤ 500 KB（过大请用 squoosh.app 等压缩后上传）
+   * · 展示：前台最高约 208 px，居中 contain，圆角卡片
+   * · 用途：图片模式主图；视频模式作封面 poster
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * 【Hero 视频规格】
+   * · 格式：MP4（H.264，推荐）或 WebM
+   * · 比例：16:9 横屏
+   * · 尺寸：建议 1920×1080 或 1280×720
+   * · 体积：≤ 15 MB
+   * · 播放：前台静音循环、约 30% 透明度作背景
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * 填写 .mp4 或 .webm 直链（大文件建议放 CDN）；若填写则优先于上方上传文件。
+   */
+  videoExternalUrl?: string | null;
+  /**
+   * 符合浏览器自动播放策略：须静音；用户可在部分浏览器手动控制
+   */
+  videoAutoplay?: boolean | null;
+  /**
+   * 显示在副标题下方的额外说明，一般可留空
+   */
+  bodyText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * 配置 tarot.orasage.com 首页顶部 Hero 文案与媒体。未启用或拉取失败时，前台使用内置默认文案。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tarot-home-hero".
+ */
+export interface TarotHomeHero {
+  id: number;
+  /**
+   * 取消勾选后，对应站点首页 Hero 区域将完全不显示
+   */
+  enabled?: boolean | null;
+  /**
+   * 主标题上方的小字标签，如品牌名或栏目名
+   */
+  eyebrow?: string | null;
+  /**
+   * 纯文字模式必填；图片/视频模式可留空，仅展示媒体
+   */
+  headline?: string | null;
+  /**
+   * 主标题下方的说明文字，可留空
+   */
+  subtitle?: string | null;
+  /**
+   * 纯文字：须填主标题；图片/视频：可只展示媒体，标题与文案均可不填
    */
   displayMode: 'text' | 'image' | 'video';
   /**
@@ -931,6 +1154,25 @@ export interface ZiweiHomeHeroSelect<T extends boolean = true> {
  * via the `definition` "shop-home-hero_select".
  */
 export interface ShopHomeHeroSelect<T extends boolean = true> {
+  enabled?: T;
+  eyebrow?: T;
+  headline?: T;
+  subtitle?: T;
+  displayMode?: T;
+  heroImage?: T;
+  heroVideo?: T;
+  videoExternalUrl?: T;
+  videoAutoplay?: T;
+  bodyText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tarot-home-hero_select".
+ */
+export interface TarotHomeHeroSelect<T extends boolean = true> {
   enabled?: T;
   eyebrow?: T;
   headline?: T;
