@@ -47,7 +47,10 @@ export async function resolveZiweiHeroFromRaw(
   fallback: ZiweiHomeHeroContent,
 ): Promise<ZiweiHomeHeroContent> {
   const mapped = mapZiweiHero(data);
-  return resolveHeroWithFallback(mapped, fallback);
+  return resolveHeroWithFallback(mapped, fallback, {
+    publicCmsBase: CMS_PUBLIC_URL,
+    internalCmsBase: CMS_INTERNAL_URL,
+  });
 }
 
 export async function fetchZiweiHomeHero(

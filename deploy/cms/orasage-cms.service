@@ -10,6 +10,7 @@ EnvironmentFile=-/opt/orasage/cms/.env
 Environment=NODE_ENV=production
 Environment=PORT=3120
 Environment=HOSTNAME=127.0.0.1
+Environment=CMS_MEDIA_DIR=/var/lib/orasage/cms-media
 ExecStart=/usr/local/bin/npm start
 Restart=always
 RestartSec=5

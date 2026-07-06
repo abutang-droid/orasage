@@ -40,7 +40,10 @@ function mapTarotHero(data: CmsHeroRaw): TarotHomeHeroContent | null {
 
 export async function resolveTarotHeroFromRaw(data: CmsHeroRaw): Promise<TarotHomeHeroContent> {
   const mapped = mapTarotHero(data);
-  return resolveHeroWithFallback(mapped, fallbackTarotHomeHero());
+  return resolveHeroWithFallback(mapped, fallbackTarotHomeHero(), {
+    publicCmsBase: CMS_PUBLIC_URL,
+    internalCmsBase: CMS_INTERNAL_URL,
+  });
 }
 
 export async function fetchTarotHomeHero(): Promise<TarotHomeHeroContent> {

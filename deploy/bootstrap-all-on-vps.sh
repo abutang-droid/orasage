@@ -54,20 +54,8 @@ deploy_cms() {
     log "cms: 无 .env，跳过（首次请 cp cms/.env.example cms/.env 并配置 DATABASE_URL）"
     return 0
   fi
-  log "部署 cms..."
-  cd "$DEPLOY_DIR/cms"
-  set -a
-  # shellcheck disable=SC1091
-  [ -f .env ] && . ./.env
-  set +a
-  npm ci
-  npm run migrate
-  npm run seed:tarot 2>/dev/null || log "cms seed:tarot 跳过"
-  npm run build
-  sudo cp "$DEPLOY_DIR/deploy/cms/orasage-cms.service" /etc/systemd/system/
-  sudo systemctl daemon-reload
-  sudo systemctl enable orasage-cms
-  sudo systemctl restart orasage-cms
+  log "部署 cms（含媒体同步）..."
+  sudo ORASAGE_REF="$ORASAGE_REF" DEPLOY_DIR="$DEPLOY_DIR" bash "$DEPLOY_DIR/deploy/cms/deploy-cms.sh"
 }
 
 fortune_mode_for() {

@@ -7,6 +7,13 @@ import { resolveHeroWithFallback } from '../../shared/hero/resolve-hero';
 
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL || 'https://admin.orasage.com/cms';
+const CMS_INTERNAL_URL =
+  process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
+
+const HERO_REACHABILITY = {
+  publicCmsBase: CMS_PUBLIC_URL,
+  internalCmsBase: CMS_INTERNAL_URL,
+};
 
 type CmsMedia = {
   url?: string | null;
@@ -46,5 +53,5 @@ export async function resolveBaziHeroFromRaw(
   fallback: MappedHeroContent,
 ): Promise<MappedHeroContent> {
   const mapped = mapBaziHero(data);
-  return resolveHeroWithFallback(mapped, fallback);
+  return resolveHeroWithFallback(mapped, fallback, HERO_REACHABILITY);
 }
