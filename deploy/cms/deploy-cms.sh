@@ -96,6 +96,7 @@ deploy_native() {
   npm ci
   npm run migrate
   npm run seed:tarot 2>/dev/null || log "seed:tarot 跳过（需 tsx / 已种子化）"
+  npm run seed:tarot-geo 2>/dev/null || log "seed:tarot-geo 跳过（需 tsx / 已种子化）"
   npm run build
 
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
