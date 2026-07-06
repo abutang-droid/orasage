@@ -30,8 +30,6 @@ type TempleHomeProps = {
   deity: Sanctuary;
   donated?: boolean;
   onWorship: () => void;
-  onChangeDeity: () => void;
-  onChangeFaith: () => void;
   latestBlessing?: LastBlessing | null;
 };
 
@@ -39,8 +37,6 @@ export function TempleHome({
   deity,
   donated,
   onWorship,
-  onChangeDeity,
-  onChangeFaith,
   latestBlessing,
 }: TempleHomeProps) {
   const [summary, setSummary] = useState<MeritSummary | null>(null);
@@ -172,14 +168,10 @@ export function TempleHome({
         <TempleDonation deityName={deity.name} />
       </section>
 
-      <footer className="temple-home-footer">
-        <button type="button" className="btn-ghost" onClick={onChangeDeity}>
-          更换守护神
-        </button>
-        <button type="button" className="btn-ghost" onClick={onChangeFaith}>
-          更换信仰与地区
-        </button>
-      </footer>
+      <p className="temple-home-settings-hint">
+        更换守护神或信仰地区，请前往
+        <Link href="/profile/settings">我的 → 设置</Link>
+      </p>
     </div>
   );
 }

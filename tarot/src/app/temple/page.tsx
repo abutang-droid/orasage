@@ -19,6 +19,7 @@ type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 function TemplePageContent() {
   const searchParams = useSearchParams()
   const donated = searchParams.get("donated") === "1"
+  const changeAction = searchParams.get("change")
   const { user, setFaith, setDeity, setGeo } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
@@ -46,6 +47,15 @@ function TemplePageContent() {
   }, [])
 
   useEffect(() => {
+    if (changeAction === "faith") {
+      setPhase("journey")
+      return
+    }
+    if (changeAction === "deity") {
+      setPhase("pick")
+      return
+    }
+
     const storedFaith = loadStoredFaith() || user?.faith || null
     if (storedFaith) {
       setSelectedFaith(storedFaith)
@@ -56,7 +66,7 @@ function TemplePageContent() {
     } else if (!user?.onboardingCompleted) {
       setPhase("journey")
     }
-  }, [user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
+  }, [changeAction, user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
 
   useEffect(() => {
     if (!selectedFaith) return
@@ -75,10 +85,11 @@ function TemplePageContent() {
               const deity = data.sanctuaries.find((d: Sanctuary) => d.id === deityId)
               if (deity) {
                 setSavedDeity(deity)
+                if (changeAction) return
                 setPhase((current) =>
                   current === "journey" || current === "pick" ? "home" : current,
                 )
-              } else {
+              } else if (!changeAction) {
                 setPhase((current) => (current === "home" ? "pick" : current))
               }
             } catch {
@@ -92,7 +103,7 @@ function TemplePageContent() {
         if (!cancelled) setSanctuariesLoading(false)
       })
     return () => { cancelled = true }
-  }, [selectedFaith])
+  }, [selectedFaith, changeAction])
 
   const handleJourneyComplete = useCallback(async (result: GeoJourneySelection) => {
     setSelectedFaith(result.faith)
@@ -216,8 +227,6 @@ function TemplePageContent() {
         donated={donated}
         latestBlessing={latestBlessing}
         onWorship={handleStartWorship}
-        onChangeDeity={() => setPhase("pick")}
-        onChangeFaith={() => setPhase("journey")}
       />
     )
   }
@@ -244,17 +253,6 @@ function TemplePageContent() {
               onClick={() => setPhase('home')}
             >
               ← 返回祈福首页
-            </button>
-          )}
-
-          {selectedFaith && (
-            <button
-              type="button"
-              className="btn-ghost"
-              style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
-              onClick={() => setPhase('journey')}
-            >
-              ← 更换信仰与地区（当前：{formatFaithLabel(selectedFaith)}）
             </button>
           )}
 

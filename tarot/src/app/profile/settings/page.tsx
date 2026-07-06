@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useLang, type Lang } from "@/lib/i18n/context"
 import { useUser } from "@/lib/user"
@@ -15,6 +16,31 @@ export default function SettingsPage() {
   const router = useRouter()
   const { lang, setLang } = useLang()
   const { user } = useUser()
+  const [deityName, setDeityName] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("manto:deity")
+      if (raw) setDeityName(JSON.parse(raw).name ?? null)
+    } catch {
+      setDeityName(null)
+    }
+  }, [])
+
+  const rowStyle = {
+    display: 'flex' as const,
+    alignItems: 'center' as const,
+    gap: 14,
+    width: '100%',
+    padding: '16px',
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'pointer' as const,
+    fontFamily: 'var(--font-sans)',
+    fontSize: 15,
+    color: 'var(--text-primary)',
+  }
 
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
@@ -63,26 +89,38 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        {/* 信仰 */}
+        {/* 祈福 */}
         <div style={{ marginBottom: 28 }}>
-          <div className="section-label" style={{ marginBottom: 12 }}>信仰</div>
-          <button
-            onClick={() => router.push("/temple")}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 14,
-              width: '100%', padding: '16px',
-              background: 'var(--bg-card)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)', cursor: 'pointer',
-              fontFamily: 'var(--font-sans)', fontSize: 15,
-              color: 'var(--text-primary)',
-            }}
-          >
-            <span style={{ fontSize: 22 }}>🛐</span>
-            <span style={{ flex: 1, textAlign: 'left' }}>
-              {user?.faith ? formatFaithLabel(user.faith) : '选择信仰'}
-            </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
-          </button>
+          <div className="section-label" style={{ marginBottom: 12 }}>祈福</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <button
+              onClick={() => router.push("/temple?change=faith")}
+              style={rowStyle}
+            >
+              <span style={{ fontSize: 22 }}>🌍</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                <span style={{ display: 'block' }}>更换信仰与地区</span>
+                <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                  {user?.faith ? formatFaithLabel(user.faith) : '未设置'}
+                  {user?.countryCode ? ` · ${user.countryCode}` : ''}
+                </span>
+              </span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
+            </button>
+            <button
+              onClick={() => router.push("/temple?change=deity")}
+              style={rowStyle}
+            >
+              <span style={{ fontSize: 22 }}>🛐</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                <span style={{ display: 'block' }}>更换守护神</span>
+                <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                  {deityName ?? '未选择'}
+                </span>
+              </span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>→</span>
+            </button>
+          </div>
         </div>
 
         {/* 3. 语言切换 */}
