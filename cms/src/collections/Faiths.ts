@@ -73,6 +73,52 @@ export const Faiths: CollectionConfig = {
       },
     },
     {
+      name: 'worshipFacing',
+      label: '朝拜朝向',
+      type: 'select',
+      defaultValue: 'none',
+      options: [
+        { label: '无特定朝向', value: 'none' },
+        { label: '面向麦加（Qibla）', value: 'qibla' },
+        { label: '面向东方', value: 'east' },
+        { label: '面向耶路撒冷', value: 'jerusalem' },
+      ],
+      admin: {
+        description: '视觉象征，不要求用户开启定位。有圣地概念的信仰可在此配置默认朝向。',
+      },
+    },
+    {
+      name: 'facingLabelZh',
+      label: '朝向文案（中文）',
+      type: 'text',
+      admin: {
+        description: '覆盖默认文案，如「面向圣地」',
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing && siblingData.worshipFacing !== 'none',
+      },
+    },
+    {
+      name: 'facingLabelEn',
+      label: '朝向文案（英文）',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing && siblingData.worshipFacing !== 'none',
+      },
+    },
+    {
+      name: 'facingBearing',
+      label: '罗盘方位角',
+      type: 'number',
+      min: 0,
+      max: 360,
+      admin: {
+        description: '0=北、90=东，仅 UI 示意；留空则用默认值',
+        condition: (_, siblingData) =>
+          siblingData?.worshipFacing && siblingData.worshipFacing !== 'none',
+      },
+    },
+    {
       name: 'wpStatus',
       label: '发布状态',
       type: 'select',

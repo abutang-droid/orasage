@@ -15,6 +15,10 @@ export type CmsFaith = {
   emoji?: string | null;
   rank?: number | null;
   adherentsM?: number | null;
+  worshipFacing?: string | null;
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  facingBearing?: number | null;
 };
 
 type CmsListResponse<T> = {

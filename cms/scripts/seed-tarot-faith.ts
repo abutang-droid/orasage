@@ -27,6 +27,7 @@ async function main() {
           emoji: f.emoji,
           rank: f.rank,
           adherentsM: f.adherentsM,
+          worshipFacing: f.worshipFacing ?? 'none',
           wpStatus: 'publish',
         },
       });
@@ -41,6 +42,7 @@ async function main() {
           emoji: f.emoji,
           rank: f.rank,
           adherentsM: f.adherentsM,
+          worshipFacing: f.worshipFacing ?? 'none',
           wpStatus: 'publish',
         },
       });

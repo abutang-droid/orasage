@@ -269,6 +269,19 @@ export interface Faith {
    * 全球信众约数，单位：百万人
    */
   adherentsM?: number | null;
+  /**
+   * 视觉象征，不要求用户开启定位。有圣地概念的信仰可在此配置默认朝向。
+   */
+  worshipFacing?: ('none' | 'qibla' | 'east' | 'jerusalem') | null;
+  /**
+   * 覆盖默认文案，如「面向圣地」
+   */
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  /**
+   * 0=北、90=东，仅 UI 示意；留空则用默认值
+   */
+  facingBearing?: number | null;
   wpStatus?: ('publish' | 'draft') | null;
   updatedAt: string;
   createdAt: string;
@@ -330,6 +343,16 @@ export interface Sanctuary {
    * 参拜完成后展示的指引文案
    */
   blessingText?: string | null;
+  /**
+   * 覆盖信仰默认朝向；视觉象征，非 GPS 定位
+   */
+  worshipFacing?: ('inherit' | 'none' | 'qibla' | 'east' | 'jerusalem' | 'custom') | null;
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  /**
+   * 0=北、90=东；custom 或覆盖默认时填写
+   */
+  facingBearing?: number | null;
   content?: {
     root: {
       type: string;
@@ -640,6 +663,10 @@ export interface FaithsSelect<T extends boolean = true> {
   emoji?: T;
   rank?: T;
   adherentsM?: T;
+  worshipFacing?: T;
+  facingLabelZh?: T;
+  facingLabelEn?: T;
+  facingBearing?: T;
   wpStatus?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -666,6 +693,10 @@ export interface SanctuariesSelect<T extends boolean = true> {
   imageUrl?: T;
   image?: T;
   blessingText?: T;
+  worshipFacing?: T;
+  facingLabelZh?: T;
+  facingLabelEn?: T;
+  facingBearing?: T;
   content?: T;
   sortOrder?: T;
   wpStatus?: T;
