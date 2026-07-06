@@ -19,6 +19,7 @@ export type AppShellProps = {
   pathname?: string;
   showBottomNav?: boolean;
   footer?: ReactNode;
+  headerExtra?: ReactNode;
   children: ReactNode;
 };
 
@@ -30,6 +31,7 @@ export function AppShell({
   pathname = '/',
   showBottomNav = true,
   footer = null,
+  headerExtra = null,
   children,
 }: AppShellProps) {
   const showBack = isAppSubpage(appId, pathname);
@@ -37,13 +39,16 @@ export function AppShell({
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
-      <SiteTopNav locale={locale} context={appId} />
+      <SiteTopNav locale={locale} context={appId} trailing={headerExtra} />
 
       <header className="orasage-site-mobile-bar lg:hidden">
         <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
           {brandLabel}
         </a>
-        <OrasageAuthChip locale={locale} />
+        <div className="orasage-site-mobile-bar-actions">
+          {headerExtra}
+          <OrasageAuthChip locale={locale} />
+        </div>
       </header>
 
       <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}`}>

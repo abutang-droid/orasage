@@ -255,6 +255,12 @@
   text-decoration: none;
 }
 
+.orasage-site-mobile-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 @media (min-width: 1024px) {
   .orasage-site-mobile-bar {
     display: none;

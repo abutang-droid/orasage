@@ -63,7 +63,7 @@ export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
   bazi: ['/history'],
   ziwei: ['/knowledge', '/library', '/heming'],
   tarot: ['/reading', '/crystal', '/temple', '/history'],
-  shop: ['/checkout', '/success'],
+  shop: ['/checkout', '/success', '/cart', '/product'],
 };
 
 export function isAppSubpage(appId: AppId, pathname: string): boolean {

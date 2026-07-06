@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { OrasageAuthChip } from './OrasageAuthChip';
@@ -19,10 +20,11 @@ export type SiteTopNavProps = {
   locale?: string;
   /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / ManTo） */
   context?: NavContext;
+  trailing?: ReactNode;
 };
 
 /** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
-export function SiteTopNav({ locale = 'zh-CN', context = 'portal' }: SiteTopNavProps) {
+export function SiteTopNav({ locale = 'zh-CN', context = 'portal', trailing = null }: SiteTopNavProps) {
   const isPortal = context === 'portal';
   const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
   const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
@@ -43,6 +45,7 @@ export function SiteTopNav({ locale = 'zh-CN', context = 'portal' }: SiteTopNavP
               </a>
             );
           })}
+          {trailing}
           <OrasageAuthChip locale={locale} />
         </nav>
       </div>

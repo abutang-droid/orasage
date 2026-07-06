@@ -15,6 +15,7 @@ export interface Product {
   category: ProductCategory;
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
+  imageUrl?: string | null;
 }
 
 /** 静态兜底（auth-service 不可用时） */

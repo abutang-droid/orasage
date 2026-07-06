@@ -17,7 +17,7 @@
 
 ## 二、分阶段路线
 
-### Phase 0 — 基础修复（当前）
+### Phase 0 — 基础修复（已完成）
 
 - 修复首页购买断链：游客 → `/checkout?sku=`，邮箱注册/绑定低摩擦
 - 实体商品禁止 mock 直付、禁止报告流注入假地址（数字品保留快路径）
@@ -25,15 +25,13 @@
 - `/checkout` 移动子页返回导航
 - 主站订单列表友好展示收货地址
 
-**不涉及**：购物车、PDP、新表结构、Stripe 实体、CMS 商品图
-
-### Phase 1 — 商店 MVP
+### Phase 1 — 商店 MVP（进行中）
 
 - PDP `/product/[sku]`
-- 购物车（游客 localStorage + 登录同步）
-- 结账三步 UI
-- 首页合集布局升级
-- CMS 商品主图字段 + 展示
+- 购物车（游客 localStorage + 登录同步待完善）
+- 结账三步 UI（联系 / 配送 / 支付步骤条）
+- 首页合集布局升级（精选 + 分类区块）
+- CMS 商品主图 collection `shop-product-images` + 展示
 
 ### Phase 2 — 地址 · 物流 · Stripe 实体
 

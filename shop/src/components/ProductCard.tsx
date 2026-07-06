@@ -1,14 +1,19 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { useCart } from '@/lib/cart';
+import { ProductImage } from './ProductImage';
 
 export function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [added, setAdded] = useState(false);
   const { currency } = useShopLocale();
+  const { addItem } = useCart();
 
   const displayCents = product.priceCentsResolved
     ?? resolvePriceCents(
@@ -52,22 +57,45 @@ export function ProductCard({ product }: { product: Product }) {
     }
   }
 
+  function handleAddToCart() {
+    addItem(product.sku);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1500);
+  }
+
   const badgeLabel = product.element ?? '✦';
 
   return (
     <article className="shop-product-card">
-      <span className="shop-product-badge">{badgeLabel}</span>
-      <h3 className="shop-product-name">{product.name}</h3>
-      <p className="shop-product-desc">{product.desc}</p>
-      <div className="mt-4 flex items-center justify-between gap-2">
+      <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-product-card-link">
+        <ProductImage
+          sku={product.sku}
+          name={product.name}
+          category={product.category}
+          imageUrl={product.imageUrl}
+        />
+        <span className="shop-product-badge">{badgeLabel}</span>
+        <h3 className="shop-product-name">{product.name}</h3>
+        <p className="shop-product-desc">{product.desc}</p>
+      </Link>
+      <div className="mt-3 flex items-center justify-between gap-2">
         <span className="shop-product-price">{displayPrice}</span>
+      </div>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={() => void handleBuy()}
           disabled={loading}
-          className="shop-btn-primary"
+          className="shop-btn-primary flex-1"
         >
           {loading ? '处理中…' : '购买'}
+        </button>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className="shop-btn-secondary flex-1"
+        >
+          {added ? '已加入' : '加购'}
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}

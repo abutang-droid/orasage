@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
 import { ShippingForm } from '@/components/ShippingForm';
+import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { parseShippingAddress } from '../../../../shared/shop-fulfillment/index';
 
 type CheckoutOrder = {
@@ -354,7 +355,8 @@ function CheckoutContent() {
 
     return (
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8 px-4">
-        <h1 className="font-serif text-2xl text-sage-primary text-center">确认购买</h1>
+        <CheckoutStepper current="contact" requiresShipping={false} />
+        <h1 className="font-serif text-2xl text-sage-primary text-center mt-6">确认购买</h1>
         <div className="mt-6 rounded-xl border border-sage-border bg-white/60 p-5">
           <p className="text-xs text-sage-muted mb-1">{productPreview.sku}</p>
           <p className="font-semibold text-sage-primary">{productPreview.name}</p>
@@ -432,6 +434,7 @@ function CheckoutContent() {
   if (isReportDigitalCheckout) {
     return (
       <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center px-4">
+        <CheckoutStepper current="payment" requiresShipping={false} />
         <h1 className="font-serif text-2xl text-sage-primary">正在解锁报告</h1>
         <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
         <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
@@ -469,6 +472,7 @@ function CheckoutContent() {
   if (needsShippingStep) {
     return (
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8">
+        <CheckoutStepper current="shipping" requiresShipping />
         <ShippingForm
           orderNo={orderNo}
           productTitle={order.title}
@@ -482,7 +486,8 @@ function CheckoutContent() {
 
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
-      <h1 className="font-serif text-2xl text-sage-primary">确认支付</h1>
+      <CheckoutStepper current="payment" requiresShipping={fulfillment?.requiresShipping ?? false} />
+      <h1 className="font-serif text-2xl text-sage-primary mt-6">确认支付</h1>
       <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
       <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
       <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>

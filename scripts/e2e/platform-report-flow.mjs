@@ -1,6 +1,7 @@
 /**
- * API E2E: bazi / ziwei checkout → mock pay (report SKU 存在性)
+ * API E2E: bazi / ziwei checkout → mock pay (纯数字报告 SKU，无需收货)
  * Full report generation requires browser flow + reading payload sync.
+ * 使用 *-basic SKU：Phase 0 起 *-advanced 含实体需先填收货信息。
  *
  * Usage: node platform-report-flow.mjs
  */
@@ -63,12 +64,12 @@ async function main() {
   console.log('=== Platform checkout E2E ===\n');
   const user = await registerUser();
 
-  const baziOrder = await checkout('bazi', user.token, 'report-bazi-advanced');
+  const baziOrder = await checkout('bazi', user.token, 'report-bazi-basic');
   console.log('bazi order:', baziOrder);
   await mockPay(user.token, baziOrder);
   console.log('bazi pay: ok');
 
-  const ziweiOrder = await checkout('ziwei', user.token, 'report-ziwei-advanced');
+  const ziweiOrder = await checkout('ziwei', user.token, 'report-ziwei-basic');
   console.log('ziwei order:', ziweiOrder);
   await mockPay(user.token, ziweiOrder);
   console.log('ziwei pay: ok');

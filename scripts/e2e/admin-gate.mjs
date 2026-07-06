@@ -78,8 +78,9 @@ async function assertBrowserRegularUserGate(token) {
 
   console.log('[admin-gate] browser GET admin home (regular user)');
   await page.goto(`${BASE.admin}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.getByText('需要管理员账号登录后才能访问').waitFor({ state: 'visible', timeout: 20000 });
-  const overview = page.getByRole('heading', { name: '运营概览' });
+  await page.getByRole('heading', { name: 'OraSage 管理后台' }).waitFor({ state: 'visible', timeout: 20000 });
+  await page.getByText('使用 orasage 管理员账号登录').waitFor({ state: 'visible', timeout: 20000 });
+  const overview = page.getByRole('heading', { name: '后台首页' });
   if (await overview.count()) {
     throw new Error('regular user must not see 运营概览 dashboard');
   }

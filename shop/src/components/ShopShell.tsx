@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { AppShell } from '@/lib/orasage-app-shell';
 import { ShopLocaleProvider, useShopLocale } from '@/components/ShopLocaleProvider';
 import { PortalFooter } from '@/components/PortalFooter';
+import { CartProvider } from '@/lib/cart';
+import { CartLink } from '@/components/CartLink';
 
 function ShopShellInner({ children }: { children: ReactNode }) {
   const { locale } = useShopLocale();
@@ -17,6 +19,7 @@ function ShopShellInner({ children }: { children: ReactNode }) {
       theme="light"
       pathname={pathname}
       footer={<PortalFooter />}
+      headerExtra={<CartLink />}
     >
       {children}
     </AppShell>
@@ -27,7 +30,9 @@ function ShopShellInner({ children }: { children: ReactNode }) {
 export function ShopShell({ children }: { children: ReactNode }) {
   return (
     <ShopLocaleProvider>
-      <ShopShellInner>{children}</ShopShellInner>
+      <CartProvider>
+        <ShopShellInner>{children}</ShopShellInner>
+      </CartProvider>
     </ShopLocaleProvider>
   );
 }
