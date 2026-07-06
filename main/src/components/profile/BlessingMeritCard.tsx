@@ -3,21 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { BlessingMeritSummary } from '@/lib/tarot-merit';
 import { tarotBlessingUrls } from '@/lib/urls';
 import { useProfileAuth } from './ProfileAuth';
-
-type MeritLink = {
-  path: 'merit' | 'temple';
-  labelKey: 'meritDetail' | 'myDeity' | 'worshipLog';
-  external: boolean;
-};
-
-const MERIT_LINKS: MeritLink[] = [
-  { path: 'merit', labelKey: 'meritDetail', external: true },
-  { path: 'temple', labelKey: 'myDeity', external: true },
-  { path: 'merit', labelKey: 'worshipLog', external: true },
-];
 
 export function BlessingMeritCard() {
   const t = useTranslations('profile.blessing');
@@ -60,22 +49,17 @@ export function BlessingMeritCard() {
     ? data?.summary?.levelTitleZh
     : data?.summary?.levelTitleEn ?? data?.summary?.levelTitleZh;
 
-  function resolveHref(path: MeritLink['path']) {
-    if (path === 'temple') return urls.temple;
-    return urls.merit;
-  }
-
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('title')}</CardTitle>
         <p className="text-sm text-muted-foreground">{t('desc')}</p>
       </CardHeader>
-      <CardContent className="space-y-4 p-0">
+      <CardContent className="space-y-4 p-0 pb-4">
         {loading ? (
-          <p className="px-4 pb-4 text-sm text-muted-foreground">{t('loading')}</p>
+          <p className="px-4 text-sm text-muted-foreground">{t('loading')}</p>
         ) : error ? (
-          <p className="px-4 pb-4 text-sm text-muted-foreground">{t('loadError')}</p>
+          <p className="px-4 text-sm text-muted-foreground">{t('loadError')}</p>
         ) : data?.linked && data.summary ? (
           <dl className="grid grid-cols-2 gap-3 border-b border-border px-4 pb-4 text-sm">
             <div>
@@ -111,22 +95,20 @@ export function BlessingMeritCard() {
           </div>
         )}
 
-        <nav aria-label={t('title')}>
-          {MERIT_LINKS.map((item) => (
-            <a
-              key={item.labelKey}
-              href={resolveHref(item.path)}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noopener noreferrer' : undefined}
-              className="flex min-h-[52px] items-center justify-between border-b border-border px-4 py-3 text-sm transition-colors last:border-b-0 active:bg-muted/60 hover:bg-muted/40"
-            >
-              <span className="text-foreground">{t(`nav.${item.labelKey}`)}</span>
-              <span className="text-muted-foreground" aria-hidden>
-                ›
-              </span>
-            </a>
-          ))}
-        </nav>
+        <div className="flex flex-wrap gap-2 px-4">
+          <a
+            href={urls.temple}
+            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 sm:flex-none"
+          >
+            {t('nav.myDeity')}
+          </a>
+          <Link
+            href="/profile/merit"
+            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 sm:flex-none"
+          >
+            {t('nav.meritDetail')}
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

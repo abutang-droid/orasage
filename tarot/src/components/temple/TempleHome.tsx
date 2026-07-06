@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useLang } from '@/lib/i18n/context';
-import { profileSettingsUrlFromLang } from '@/lib/orasage-locale';
+import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { TempleDonation } from '@/components/temple/TempleDonation';
 import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
@@ -44,6 +44,7 @@ export function TempleHome({
 }: TempleHomeProps) {
   const { lang } = useLang();
   const settingsHref = profileSettingsUrlFromLang(lang);
+  const meritHref = profileMeritUrlFromLang(lang);
   const [summary, setSummary] = useState<MeritSummary | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [blessing, setBlessing] = useState<LastBlessing | null>(latestBlessing ?? null);
@@ -143,9 +144,9 @@ export function TempleHome({
               日积月累 {summary?.meritTime ?? 0} · 诚心供养 {summary?.meritOffer ?? 0}
               {summary?.streak && summary.streak > 1 ? ` · 连续 ${summary.streak} 天` : ''}
             </div>
-            <Link href="/profile/merit" className="temple-home-merit-link">
+            <a href={meritHref} className="temple-home-merit-link">
               查看功德详情 →
-            </Link>
+            </a>
           </>
         )}
       </section>

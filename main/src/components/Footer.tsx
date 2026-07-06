@@ -17,10 +17,10 @@ export function Footer() {
           {t('copyright')}
         </p>
         <div className="flex w-full justify-center gap-8 sm:w-auto sm:gap-6">
-          <Link href="/privacy" className={SITE_FOOTER_LINK_CLASS}>
+          <Link href="/profile/privacy" className={SITE_FOOTER_LINK_CLASS}>
             {t('privacy')}
           </Link>
-          <Link href="/terms" className={SITE_FOOTER_LINK_CLASS}>
+          <Link href="/profile/terms" className={SITE_FOOTER_LINK_CLASS}>
             {t('terms')}
           </Link>
         </div>

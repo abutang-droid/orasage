@@ -1,15 +1,8 @@
-import { PublicLegalPage } from '@/components/PublicLegalPage';
+import { redirect } from '@/i18n/navigation';
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default function TermsPage({ params }: Props) {
-  return (
-    <PublicLegalPage
-      params={params}
-      slug="legal/terms"
-      titleKey="title"
-      fallbackKey="content"
-      ns="terms"
-    />
-  );
+export default async function TermsPage({ params }: Props) {
+  const { locale } = await params;
+  redirect({ href: '/profile/terms', locale });
 }

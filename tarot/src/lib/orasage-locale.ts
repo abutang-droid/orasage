@@ -19,3 +19,7 @@ export function profileUrlFromLang(lang: Lang): string {
 export function profileSettingsUrlFromLang(lang: Lang): string {
   return `${profileUrlFromLang(lang)}/settings`;
 }
+
+export function profileMeritUrlFromLang(lang: Lang): string {
+  return `${profileUrlFromLang(lang)}/merit`;
+}
