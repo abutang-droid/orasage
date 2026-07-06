@@ -1,6 +1,8 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts, getTarotBillingConfig } from '@/lib/api';
 import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
+import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
+import { ProductImageCell } from '@/components/ProductImageCell';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -56,10 +58,16 @@ export default async function ProductsPage({
     threeCardBundleSku: 'report-tarot-bundle',
     recommendSkus: [] as string[],
   };
+  let productImageMap = new Map<string, string>();
   try {
     ({ products } = await getProducts());
   } catch (err) {
     console.error('[admin/products]', err);
+  }
+  try {
+    productImageMap = await fetchAdminProductImageMap();
+  } catch (err) {
+    console.error('[admin/product-images]', err);
   }
   try {
     ({ skus: homepageSkus } = await getHomepageProducts());
@@ -101,6 +109,17 @@ export default async function ProductsPage({
       </header>
 
       <section className="panel">
+        <h2>商品主图（CMS）</h2>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>
+          商城前台主图在 CMS「商品主图」中按 SKU 上传。左侧导航 <strong>内容 → 商品主图</strong>，或在下方列表点击「上传主图」。
+          已配置 {productImageMap.size} / {products.length} 个 SKU。
+        </p>
+        <a href="/cms/admin/collections/shop-product-images" className="btn-primary">
+          打开商品主图管理
+        </a>
+      </section>
+
+      <section className="panel">
         <h2>八字计费商品（6 个固定 SKU）</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
           八字单人/合盘三档报告的价格、描述与发货配置。修改后 bazi 付费墙与 shop 结账页同步生效。
@@ -109,6 +128,7 @@ export default async function ProductsPage({
           <table className="data-table">
             <thead>
               <tr>
+                <th>主图</th>
                 <th>SKU</th>
                 <th>名称</th>
                 <th>实体</th>
@@ -121,6 +141,7 @@ export default async function ProductsPage({
             <tbody>
               {baziBillingProducts.map((p) => (
                 <tr key={p.sku}>
+                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
@@ -169,6 +190,7 @@ export default async function ProductsPage({
           <table className="data-table">
             <thead>
               <tr>
+                <th>主图</th>
                 <th>SKU</th>
                 <th>名称</th>
                 <th>价格 CNY</th>
@@ -180,6 +202,7 @@ export default async function ProductsPage({
             <tbody>
               {ziweiChatProducts.map((p) => (
                 <tr key={p.sku}>
+                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
@@ -234,6 +257,7 @@ export default async function ProductsPage({
           <table className="data-table">
             <thead>
               <tr>
+                <th>主图</th>
                 <th>SKU</th>
                 <th>名称</th>
                 <th>价格 CNY</th>
@@ -244,6 +268,7 @@ export default async function ProductsPage({
             <tbody>
               {tarotBillingProducts.map((p) => (
                 <tr key={p.sku}>
+                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
@@ -436,6 +461,7 @@ export default async function ProductsPage({
           <table className="data-table">
             <thead>
               <tr>
+                <th>主图</th>
                 <th>SKU</th>
                 <th>名称</th>
                 <th>五行</th>
@@ -450,6 +476,7 @@ export default async function ProductsPage({
             <tbody>
               {products.map((p) => (
                 <tr key={p.sku}>
+                  <td><ProductImageCell sku={p.sku} imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
                   <td>{p.element ?? '—'}</td>

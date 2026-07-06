@@ -10,11 +10,16 @@ export const ShopProductMedia: CollectionConfig = {
   admin: {
     group: '商城',
     useAsTitle: 'sku',
-    description: '为 shop.orasage.com 商品配置主图。SKU 须与 auth-service 商品目录一致。',
+    description:
+      '为 shop.orasage.com 商品配置主图。每条记录对应一个 SKU（须与运营后台「商品管理」中的 SKU 完全一致）。上传图片后约 1 分钟内在商城前台生效。',
     defaultColumns: ['sku', 'image', 'updatedAt'],
+    listSearchableFields: ['sku'],
   },
   access: {
     read: () => true,
+    create: ({ req }) => Boolean(req.user),
+    update: ({ req }) => Boolean(req.user),
+    delete: ({ req }) => Boolean(req.user),
   },
   fields: [
     {
@@ -24,6 +29,9 @@ export const ShopProductMedia: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      admin: {
+        description: '例如 crystal-wood、report-bazi-basic。可在 admin.orasage.com/products 复制。',
+      },
     },
     {
       name: 'image',
@@ -31,6 +39,9 @@ export const ShopProductMedia: CollectionConfig = {
       label: '主图',
       relationTo: 'media',
       required: true,
+      admin: {
+        description: '建议 1:1 或 4:5，JPG/PNG/WebP。可先上传到「媒体库」再在此选择。',
+      },
     },
   ],
 };
