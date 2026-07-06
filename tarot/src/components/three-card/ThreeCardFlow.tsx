@@ -6,6 +6,7 @@ import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { buildLoginUrl } from '@/lib/login-url';
+import { profileUrl } from '@/lib/orasage-app-shell/config';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
@@ -576,7 +577,7 @@ export function ThreeCardFlow() {
             <div className="card three-card-bundle-note">
               <p>你购买的是报告+开运物套装，物品将按订单地址寄送。</p>
               <a
-                href="https://shop.orasage.com/account/orders"
+                href={`${profileUrl('zh-CN')}/orders`}
                 className="btn-outline"
                 style={{ display: 'block', textAlign: 'center', marginTop: 10 }}
               >
