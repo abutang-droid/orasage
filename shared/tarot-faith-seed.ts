@@ -64,7 +64,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['奇迹', '母爱', '庇护'],
     color: '#1A3A5C',
     gradient: 'linear-gradient(160deg, #1A3A5C, #2A4A6C)',
-    imageUrl: '/gods/Aparecida.webp',
+    imageUrl: '/gods/aparecida.webp',
     sortOrder: 10,
   },
   {
@@ -77,7 +77,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['慈悲', '家庭', '底层守护'],
     color: '#8B2E3A',
     gradient: 'linear-gradient(160deg, #5B1A25, #8B2E3A)',
-    imageUrl: '/gods/Guadalupe.webp',
+    imageUrl: '/gods/guadalupe.webp',
     sortOrder: 20,
   },
   {
@@ -90,7 +90,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['旅人保护', '平安', '方向'],
     color: '#5B8FA6',
     gradient: 'linear-gradient(160deg, #3A6070, #5B8FA6)',
-    imageUrl: '/gods/Luján.webp',
+    imageUrl: '/gods/lujan.webp',
     sortOrder: 30,
   },
   {
@@ -103,7 +103,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['奇迹', '希望', '孩子'],
     color: '#8B2020',
     gradient: 'linear-gradient(160deg, #5B1010, #8B2020)',
-    imageUrl: '/gods/Santo Niño.webp',
+    imageUrl: '/gods/santo-nino.webp',
     sortOrder: 40,
   },
   {
@@ -116,7 +116,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['慈悲', '救苦', '子嗣'],
     color: '#D4C8C0',
     gradient: 'linear-gradient(160deg, #B8ACA4, #F0E8E0)',
-    imageUrl: '/gods/观音.webp',
+    imageUrl: '/gods/guanyin.webp',
     sortOrder: 50,
     blessingText: '慈悲之光已照见你的心愿，今日向前走一步。',
   },
@@ -130,7 +130,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['全能护佑', '事业', '财运'],
     color: '#C9954A',
     gradient: 'linear-gradient(160deg, #A67A38, #D4A853)',
-    imageUrl: '/gods/四面佛.webp',
+    imageUrl: '/gods/brahma.webp',
     sortOrder: 60,
   },
   {
@@ -143,7 +143,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['除障', '智慧', '学业'],
     color: '#D4782A',
     gradient: 'linear-gradient(160deg, #B06020, #E89040)',
-    imageUrl: '/gods/象神.webp',
+    imageUrl: '/gods/ganesha.webp',
     sortOrder: 70,
   },
   {
@@ -156,7 +156,7 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     domains: ['出海平安', '女性力量'],
     color: '#8B2020',
     gradient: 'linear-gradient(160deg, #5B1010, #A03030)',
-    imageUrl: '/gods/妈祖.webp',
+    imageUrl: '/gods/mazu.webp',
     sortOrder: 80,
   },
   // ── 主流宗教守护神扩展（每信仰至少一位）────────────────────────
