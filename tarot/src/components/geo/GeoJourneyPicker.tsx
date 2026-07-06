@@ -4,10 +4,14 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaithPicker } from '@/components/FaithPicker';
 import { countryMapCoords, spreadMapCoords } from '@/lib/geo/map-layout';
+import type { GeoDetectSource } from '@/lib/geo/detect-country';
+import { useCountrySuggestion } from '@/lib/geo/use-country-suggestion';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
 import { storeGeo } from '@/lib/geo/types';
 import {
   getFaithById,
+  getMoreFaiths,
+  getTopFaiths,
   SPECIAL_FAITH_IDS,
   type FaithOption,
 } from '@/lib/faiths/religions';
@@ -33,14 +37,15 @@ type GeoJourneyPickerProps = {
   fullscreen?: boolean;
 };
 
-type SuggestResponse = {
-  suggestedCode: string | null;
-  country: GeoCountry | null;
-  source: string;
-};
-
 type FaithApiResponse = {
   faiths?: FaithOption[];
+  regional?: boolean;
+};
+
+const LOCATION_SOURCE_LABEL: Record<GeoDetectSource, string> = {
+  gps: '定位服务',
+  ip: '网络位置',
+  manual: '手动选择',
 };
 
 const STEP_LABELS = ['大洲', '国家', '信仰'];
@@ -74,8 +79,15 @@ export function GeoJourneyPicker({
   const [pendingRegion, setPendingRegion] = useState<string | null>(null);
   const [pendingCountry, setPendingCountry] = useState<string | null>(null);
   const [pendingFaith, setPendingFaith] = useState<string | null>(value?.faith ?? null);
-  const [suggested, setSuggested] = useState<SuggestResponse | null>(null);
+  const [locationSource, setLocationSource] = useState<GeoDetectSource>('manual');
+  const [faithRegional, setFaithRegional] = useState(true);
   const initDone = useRef(false);
+  const autoLocationApplied = useRef(false);
+
+  const { suggestion, resolving: locationResolving } = useCountrySuggestion(
+    allCountries,
+    !loading && allCountries.length > 0 && !value?.countryCode,
+  );
 
   const confirmLabel =
     step === 'faith' ? faithConfirmLabel : CONFIRM_LABELS[step];
@@ -86,21 +98,18 @@ export function GeoJourneyPicker({
     Promise.all([
       fetch('/api/geo/regions').then((r) => (r.ok ? r.json() : null)),
       fetch('/api/geo/countries').then((r) => (r.ok ? r.json() : null)),
-      fetch('/api/geo/suggest-country').then((r) => (r.ok ? r.json() : null)),
     ])
-      .then(([regionsData, allCountriesData, suggestData]) => {
+      .then(([regionsData, allCountriesData]) => {
         if (cancelled) return;
         if (regionsData?.regions) setRegions(regionsData.regions);
         if (allCountriesData?.countries) setAllCountries(allCountriesData.countries);
-        if (suggestData) setSuggested(suggestData as SuggestResponse);
 
         if (!initDone.current) {
           if (value?.continentCode && value?.countryCode) {
             setContinentCode(value.continentCode);
             setCountryCode(value.countryCode);
             setStep(value.faith ? 'faith' : 'country');
-          } else if (suggestData?.country?.regionCode) {
-            setPendingRegion(suggestData.country.regionCode);
+            setLocationSource('manual');
           }
           initDone.current = true;
         }
@@ -132,13 +141,52 @@ export function GeoJourneyPicker({
     try {
       const res = await fetch(`/api/faiths?country=${encodeURIComponent(code)}`);
       const data: FaithApiResponse | null = res.ok ? await res.json() : null;
-      setFaiths(data?.faiths?.length ? data.faiths : []);
+      if (data?.regional && data.faiths?.length) {
+        setFaithRegional(true);
+        setFaiths(data.faiths);
+        return;
+      }
+
+      setFaithRegional(false);
+      if (data?.faiths?.length) {
+        setFaiths(data.faiths);
+        return;
+      }
+
+      const allRes = await fetch('/api/faiths');
+      const allData: FaithApiResponse | null = allRes.ok ? await allRes.json() : null;
+      setFaiths(
+        allData?.faiths?.length ? allData.faiths : [...getTopFaiths(), ...getMoreFaiths()],
+      );
     } catch {
-      setFaiths([]);
+      setFaithRegional(false);
+      setFaiths([...getTopFaiths(), ...getMoreFaiths()]);
     } finally {
       setFaithsLoading(false);
     }
   }, []);
+
+  const applyDetectedCountry = useCallback(
+    (country: GeoCountry, source: GeoDetectSource) => {
+      setLocationSource(source);
+      setContinentCode(country.regionCode);
+      setCountryCode(country.code);
+      setPendingRegion(null);
+      setPendingCountry(null);
+      storeGeo(country.regionCode, country.code);
+      setStep('faith');
+      void loadCountries(country.regionCode);
+      void loadFaiths(country.code);
+    },
+    [loadCountries, loadFaiths],
+  );
+
+  useEffect(() => {
+    if (!suggestion || autoLocationApplied.current) return;
+    if (value?.continentCode && value?.countryCode) return;
+    autoLocationApplied.current = true;
+    applyDetectedCountry(suggestion.country, suggestion.source);
+  }, [suggestion, value?.continentCode, value?.countryCode, applyDetectedCountry]);
 
   const pickRegion = useCallback((code: string) => {
     setPendingRegion(code);
@@ -217,14 +265,25 @@ export function GeoJourneyPicker({
   );
 
   const countryName = useMemo(
-    () => countries.find((c) => c.code === countryCode)?.nameZh ?? suggested?.country?.nameZh ?? '',
-    [countries, countryCode, suggested?.country?.nameZh],
+    () =>
+      countries.find((c) => c.code === countryCode)?.nameZh ??
+      allCountries.find((c) => c.code === countryCode)?.nameZh ??
+      suggestion?.country.nameZh ??
+      '',
+    [countries, countryCode, allCountries, suggestion?.country.nameZh],
   );
 
   const selectedCountry = useMemo(
-    () => countries.find((c) => c.code === countryCode) ?? suggested?.country ?? null,
-    [countries, countryCode, suggested?.country],
+    () =>
+      countries.find((c) => c.code === countryCode) ??
+      allCountries.find((c) => c.code === countryCode) ??
+      suggestion?.country ??
+      null,
+    [countries, countryCode, allCountries, suggestion?.country],
   );
+
+  const mapAmbient =
+    step === 'faith' && (locationSource === 'gps' || locationSource === 'ip');
 
   const filteredCountries = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -238,11 +297,11 @@ export function GeoJourneyPicker({
   }, [countries, search]);
 
   const mapFaiths = useMemo(() => {
-    if (faiths.length === 0) return [];
+    if (!faithRegional || faiths.length === 0) return [];
     const split = splitFaithsByRank(faiths);
     const ranked = [...split.top, ...split.more].filter((f) => !SPECIAL_FAITH_IDS.has(f.id));
     return ranked.slice(0, 6);
-  }, [faiths]);
+  }, [faiths, faithRegional]);
 
   const faithMarkers = useMemo(() => {
     if (!selectedCountry) return [];
@@ -293,10 +352,24 @@ export function GeoJourneyPicker({
 
   const showSuggestBanner =
     step === 'country' &&
-    suggested?.country &&
-    suggested.country.regionCode === continentCode &&
+    suggestion?.country &&
+    suggestion.country.regionCode === continentCode &&
     !countryCode &&
     !pendingCountry;
+
+  const showLocationBadge =
+    step === 'faith' &&
+    countryCode &&
+    (locationSource === 'gps' || locationSource === 'ip');
+
+  const showInlineFaithPicker = step === 'faith' && countryCode && !faithRegional;
+
+  const changeCountry = useCallback(() => {
+    setLocationSource('manual');
+    setPendingFaith(null);
+    setStep('country');
+    if (continentCode) void loadCountries(continentCode);
+  }, [continentCode, loadCountries]);
 
   const stepIndex = step === 'region' ? 0 : step === 'country' ? 1 : 2;
 
@@ -324,13 +397,21 @@ export function GeoJourneyPicker({
 
   const stepHint =
     step === 'region'
-      ? '在地图上点选任意国家，确认所属大洲'
+      ? '在地图上点选任意国家，或从列表选择大洲'
       : step === 'country'
         ? '点选你的国家，确认后继续'
-        : '选择最贴近你内心的信仰，确认后继续';
+        : faithRegional
+          ? '点选地图上的信仰标记，或打开列表选择'
+          : '该国暂无专属信仰数据，请从完整列表中选择';
 
   const listButtonLabel =
-    step === 'region' ? '列表选大洲' : step === 'country' ? '列表选国家' : '列表选信仰';
+    step === 'region'
+      ? '列表选大洲'
+      : step === 'country'
+        ? '列表选国家'
+        : faithRegional
+          ? '列表选信仰'
+          : '展开信仰列表';
 
   const pendingFaithOption = pendingFaith
     ? getFaithById(pendingFaith, faiths) ?? mapFaiths.find((f) => f.id === pendingFaith) ?? null
@@ -379,12 +460,15 @@ export function GeoJourneyPicker({
           faithMarkers={faithMarkers}
           selectedId={selectedMapId}
           onSelect={handleMapSelect}
+          ambient={mapAmbient}
           ariaLabel={
-            step === 'region'
-              ? '世界地图，点选国家以选择大洲'
-              : step === 'country'
-                ? '区域地图，点选国家'
-                : '国家地图，点选信仰'
+            mapAmbient
+              ? '世界地图背景'
+              : step === 'region'
+                ? '世界地图，点选国家以选择大洲'
+                : step === 'country'
+                  ? '区域地图，点选国家'
+                  : '国家地图，点选信仰'
           }
         />
       </div>
@@ -417,37 +501,77 @@ export function GeoJourneyPicker({
             {step === 'region' && subtitle ? <p className="geo-journey-subtitle">{subtitle}</p> : null}
             <h1 className="geo-journey-title">{stepTitle}</h1>
             <p className="geo-journey-hint">{stepHint}</p>
+            {locationResolving && step === 'region' && !countryCode ? (
+              <p className="geo-journey-locating">正在尝试根据你的位置推荐国家…</p>
+            ) : null}
           </div>
 
-          {showSuggestBanner && suggested?.country && (
+          {showLocationBadge && (
+            <div className="geo-journey-location-badge">
+              <span>
+                已根据{LOCATION_SOURCE_LABEL[locationSource]}选择
+                <strong>{countryName}</strong>
+              </span>
+              <button type="button" className="geo-journey-location-change" onClick={changeCountry}>
+                更改
+              </button>
+            </div>
+          )}
+
+          {showSuggestBanner && suggestion?.country && (
             <button
               type="button"
               className="geo-journey-suggest"
-              onClick={() => pickCountry(suggested.country!.code)}
+              onClick={() => pickCountry(suggestion.country.code)}
             >
               <span aria-hidden>📍</span>
               <span>
-                <span className="geo-journey-suggest-lead">根据位置推荐</span>
-                <span className="geo-journey-suggest-name">{suggested.country.nameZh}</span>
+                <span className="geo-journey-suggest-lead">
+                  根据{LOCATION_SOURCE_LABEL[suggestion.source]}推荐
+                </span>
+                <span className="geo-journey-suggest-name">{suggestion.country.nameZh}</span>
               </span>
             </button>
+          )}
+
+          {showInlineFaithPicker && (
+            <div className="geo-journey-faith-panel">
+              {faithsLoading ? (
+                <div className="geo-journey-loading">正在加载信仰列表…</div>
+              ) : (
+                <FaithPicker
+                  value={pendingFaith ?? value?.faith}
+                  countryCode={countryCode}
+                  onChange={(faithId) => {
+                    setPendingFaith(faithId);
+                    confirmFaith(faithId);
+                  }}
+                  title=""
+                  subtitle=""
+                  confirmLabel={faithConfirmLabel}
+                  customFirst
+                />
+              )}
+            </div>
           )}
         </div>
 
         <div className="geo-journey-bottom">
-          <footer className="geo-journey-footer">
-            <button
-              type="button"
-              className="btn-outline geo-journey-list-btn"
-              onClick={() => setListOpen(true)}
-            >
-              {listButtonLabel}
-            </button>
-          </footer>
+          {!showInlineFaithPicker ? (
+            <footer className="geo-journey-footer">
+              <button
+                type="button"
+                className="btn-outline geo-journey-list-btn"
+                onClick={() => setListOpen(true)}
+              >
+                {listButtonLabel}
+              </button>
+            </footer>
+          ) : null}
         </div>
       </div>
 
-      {pendingConfirm && (
+      {pendingConfirm && !showInlineFaithPicker && (
         <div className="geo-journey-confirm-dock" role="region" aria-label="确认选择">
           <div className="geo-journey-faith-confirm">
             <div className="geo-journey-faith-confirm-card">
@@ -547,6 +671,7 @@ export function GeoJourneyPicker({
                   title=""
                   subtitle=""
                   confirmLabel={faithConfirmLabel}
+                  customFirst
                 />
                 {faithsLoading ? (
                   <div className="geo-journey-loading">正在加载信仰列表…</div>

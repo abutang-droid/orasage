@@ -31,6 +31,8 @@ export type JourneyVectorMapProps = {
   selectedId?: string | null;
   onSelect: (id: string) => void;
   ariaLabel?: string;
+  /** 定位已确定国家时，地图仅作背景装饰 */
+  ambient?: boolean;
 };
 
 function countryRegionLookup(countries: GeoCountry[]) {
@@ -47,6 +49,7 @@ export function JourneyVectorMap({
   selectedId,
   onSelect,
   ariaLabel = '世界地图',
+  ambient = false,
 }: JourneyVectorMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<JsVectorMapInstance | null>(null);
@@ -60,7 +63,7 @@ export function JourneyVectorMap({
     [countries],
   );
 
-  const mapKey = `${step}-${continentCode ?? ''}-${countryCode ?? ''}-${faithMarkers.map((m) => m.id).join(',')}`;
+  const mapKey = `${step}-${continentCode ?? ''}-${countryCode ?? ''}-${faithMarkers.map((m) => m.id).join(',')}-${ambient ? 'ambient' : 'interactive'}`;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -110,22 +113,25 @@ export function JourneyVectorMap({
             ? { region: countryCode, animate: true }
             : undefined;
 
+      const lockInteraction = ambient && step !== 'faith';
+
       const map = new jsVectorMap({
         selector: container,
         map: 'world_merc',
         backgroundColor: 'transparent',
-        draggable: true,
-        zoomButtons: true,
-        zoomOnScroll: true,
+        draggable: !lockInteraction,
+        zoomButtons: !lockInteraction,
+        zoomOnScroll: !lockInteraction,
         showTooltip: true,
         regionStyle: JVM_REGION_STYLE,
         markerStyle: JVM_MARKER_STYLE,
         markersSelectable: step === 'faith',
-        regionsSelectable: step !== 'faith',
+        regionsSelectable: !lockInteraction && step !== 'faith',
         series,
         markers,
         focusOn,
         onRegionClick(_event, code) {
+          if (lockInteraction) return;
           if (step === 'region') {
             const regionCode = lookup.get(code);
             if (regionCode) onSelectRef.current(regionCode);
@@ -167,6 +173,7 @@ export function JourneyVectorMap({
     countryCodesInContinent,
     faithMarkers,
     step,
+    ambient,
   ]);
 
   useEffect(() => {
@@ -200,7 +207,10 @@ export function JourneyVectorMap({
   }, []);
 
   return (
-    <div className="journey-vector-map world-map" aria-label={ariaLabel}>
+    <div
+      className={`journey-vector-map world-map${ambient ? ' journey-vector-map--ambient' : ''}`}
+      aria-label={ariaLabel}
+    >
       <div
         ref={containerRef}
         id={`journey-map-${mapId}`}
@@ -208,7 +218,9 @@ export function JourneyVectorMap({
         role="img"
         aria-label={ariaLabel}
       />
-      <p className="world-map-gesture-hint">双指缩放 · 拖动平移 · 点选地图</p>
+      {!ambient ? (
+        <p className="world-map-gesture-hint">双指缩放 · 拖动平移 · 点选地图</p>
+      ) : null}
     </div>
   );
 }

@@ -22,6 +22,8 @@ type FaithPickerProps = {
   title?: string;
   subtitle?: string;
   confirmLabel?: string;
+  /** 将「自定义」放在首屏网格第一位 */
+  customFirst?: boolean;
 };
 
 type FaithApiResponse = {
@@ -29,6 +31,7 @@ type FaithApiResponse = {
   top?: FaithOption[];
   more?: FaithOption[];
   source?: 'cms' | 'fallback';
+  regional?: boolean;
 };
 
 function FaithCard({
@@ -63,6 +66,7 @@ export function FaithPicker({
   title = '你的信仰是什么？',
   subtitle = '选择最贴近你内心的传统，我们会据此推荐守护神与祈福方式',
   confirmLabel = '确认',
+  customFirst = true,
 }: FaithPickerProps) {
   const [showMore, setShowMore] = useState(false);
   const [otherText, setOtherText] = useState('');
@@ -197,6 +201,16 @@ export function FaithPicker({
       ) : (
         <>
           <div className="faith-picker-grid">
+            {customFirst ? (
+              <FaithCard
+                faith={customFaith}
+                selected={isOther}
+                onSelect={() => {
+                  selectFaith(CUSTOM_FAITH_ID);
+                  setOtherText('');
+                }}
+              />
+            ) : null}
             {topFaiths.map((faith) => (
               <FaithCard
                 key={faith.id}
@@ -207,16 +221,18 @@ export function FaithPicker({
             ))}
           </div>
 
-          <div className="faith-picker-custom">
-            <FaithCard
-              faith={customFaith}
-              selected={isOther}
-              onSelect={() => {
-                selectFaith(CUSTOM_FAITH_ID);
-                setOtherText('');
-              }}
-            />
-          </div>
+          {!customFirst ? (
+            <div className="faith-picker-custom">
+              <FaithCard
+                faith={customFaith}
+                selected={isOther}
+                onSelect={() => {
+                  selectFaith(CUSTOM_FAITH_ID);
+                  setOtherText('');
+                }}
+              />
+            </div>
+          ) : null}
 
           {!showMore ? (
             <button type="button" className="btn-outline faith-picker-more-btn" onClick={() => setShowMore(true)}>
