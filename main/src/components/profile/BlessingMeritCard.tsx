@@ -55,7 +55,7 @@ export function BlessingMeritCard() {
 
   if (!user) return null;
 
-  const urls = tarotBlessingUrls();
+  const urls = tarotBlessingUrls(locale);
   const levelTitle = locale.startsWith('zh')
     ? data?.summary?.levelTitleZh
     : data?.summary?.levelTitleEn ?? data?.summary?.levelTitleZh;

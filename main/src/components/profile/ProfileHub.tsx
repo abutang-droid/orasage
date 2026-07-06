@@ -10,7 +10,7 @@ import { BlessingMeritCard } from './BlessingMeritCard';
 
 type MenuItem = {
   href: string;
-  labelKey: 'profiles' | 'readings' | 'recommendations' | 'orders' | 'about' | 'contact' | 'privacy' | 'terms';
+  labelKey: 'profiles' | 'readings' | 'recommendations' | 'orders' | 'settings' | 'about' | 'contact' | 'privacy' | 'terms';
   requiresAuth?: boolean;
 };
 
@@ -19,6 +19,7 @@ const MENU_ITEMS: MenuItem[] = [
   { href: '/profile/readings', labelKey: 'readings', requiresAuth: true },
   { href: '/profile/recommendations', labelKey: 'recommendations', requiresAuth: true },
   { href: '/profile/orders', labelKey: 'orders', requiresAuth: true },
+  { href: '/profile/settings', labelKey: 'settings' },
   { href: '/profile/about', labelKey: 'about' },
   { href: '/profile/contact', labelKey: 'contact' },
   { href: '/profile/privacy', labelKey: 'privacy' },

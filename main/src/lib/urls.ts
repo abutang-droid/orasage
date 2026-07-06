@@ -10,11 +10,14 @@ export const externalUrls = {
 } as const;
 
 /** 祈福 / 功德深链（tarot 子域） */
-export function tarotBlessingUrls() {
+export function tarotBlessingUrls(locale = 'zh-CN') {
   const base = externalUrls.tarot.replace(/\/$/, '');
+  const portalBase = `https://orasage.com/${locale}`;
   return {
     merit: `${base}/profile/merit`,
     temple: externalUrls.temple,
-    settings: `${base}/settings`,
+    settings: `${portalBase}/profile/settings`,
+    changeFaith: `${externalUrls.temple}?change=faith`,
+    changeDeity: `${externalUrls.temple}?change=deity`,
   };
 }

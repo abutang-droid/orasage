@@ -5,6 +5,16 @@ const TAROT_INTERNAL_SECRET =
 export type BlessingMeritSummary = {
   linked: boolean;
   preferredDeity?: string | null;
+  prefs?: {
+    faith: string | null;
+    faithLabelZh: string | null;
+    faithLabelEn: string | null;
+    countryCode: string | null;
+    continentCode: string | null;
+    deityId: string | null;
+    deityNameZh: string | null;
+    deityNameEn: string | null;
+  };
   summary?: {
     total: number;
     level: number;

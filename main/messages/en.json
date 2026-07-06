@@ -167,6 +167,7 @@
       "readings": "Readings",
       "recommendations": "Crystals",
       "orders": "Orders",
+      "settings": "Settings",
       "about": "About",
       "contact": "Contact",
       "privacy": "Privacy",
@@ -192,6 +193,19 @@
         "myDeity": "My deity",
         "worshipLog": "Worship log"
       }
+    },
+    "settings": {
+      "title": "Settings",
+      "desc": "Language and blessing preferences, managed in one place.",
+      "languageTitle": "Language",
+      "languageDesc": "Site-wide display language",
+      "languageCurrent": "Current",
+      "blessingTitle": "Blessing",
+      "blessingDesc": "Faith, region, and deity are changed on the Tarot temple",
+      "changeFaith": "Change faith & region",
+      "changeDeity": "Change guardian deity",
+      "notSet": "Not set",
+      "notChosen": "Not chosen"
     },
     "profiles": {
       "title": "Saved charts",

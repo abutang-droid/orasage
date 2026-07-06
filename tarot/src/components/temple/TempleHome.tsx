@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useLang } from '@/lib/i18n/context';
+import { profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { TempleDonation } from '@/components/temple/TempleDonation';
 import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
@@ -40,6 +42,8 @@ export function TempleHome({
   onWorship,
   latestBlessing,
 }: TempleHomeProps) {
+  const { lang } = useLang();
+  const settingsHref = profileSettingsUrlFromLang(lang);
   const [summary, setSummary] = useState<MeritSummary | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [blessing, setBlessing] = useState<LastBlessing | null>(latestBlessing ?? null);
@@ -173,7 +177,9 @@ export function TempleHome({
 
       <p className="temple-home-settings-hint">
         更换守护神或信仰地区，请前往
-        <Link href="/settings">应用设置</Link>
+        <a href={settingsHref} className="temple-home-settings-link">
+          我的 → 设置
+        </a>
       </p>
     </div>
   );

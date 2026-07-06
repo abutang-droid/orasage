@@ -62,7 +62,7 @@ export const APP_HOME_PATH: Record<AppId, string> = {
 export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
   bazi: ['/history'],
   ziwei: ['/knowledge', '/library', '/heming'],
-  tarot: ['/reading', '/crystal', '/temple', '/history', '/settings', '/profile/merit'],
+  tarot: ['/reading', '/crystal', '/temple', '/history', '/profile/merit'],
   shop: ['/success'],
 };
 

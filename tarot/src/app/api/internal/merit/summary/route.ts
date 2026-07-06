@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMeritSummary } from '@/lib/merit-service';
 import { prisma } from '@/lib/prisma';
+import { DEITIES } from '@/lib/faiths/deities';
+import { formatFaithLabel } from '@/lib/faiths/religions';
 
 const INTERNAL_SECRET = process.env.TAROT_INTERNAL_SECRET || process.env.JWT_SECRET || '';
 
@@ -21,7 +23,13 @@ export async function GET(req: NextRequest) {
     const externalId = `orasage:${orasageUserId}`;
     const user = await prisma.user.findUnique({
       where: { externalId },
-      select: { id: true, preferredDeity: true },
+      select: {
+        id: true,
+        preferredDeity: true,
+        faith: true,
+        countryCode: true,
+        continentCode: true,
+      },
     });
     if (!user) {
       return NextResponse.json({ linked: false });
@@ -32,9 +40,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ linked: false });
     }
 
+    const deity = user.preferredDeity
+      ? DEITIES.find((d) => d.id === user.preferredDeity)
+      : undefined;
+
     return NextResponse.json({
       linked: true,
       preferredDeity: user.preferredDeity,
+      prefs: {
+        faith: user.faith,
+        faithLabelZh: user.faith ? formatFaithLabel(user.faith) : null,
+        faithLabelEn: user.faith ? formatFaithLabel(user.faith) : null,
+        countryCode: user.countryCode,
+        continentCode: user.continentCode,
+        deityId: user.preferredDeity,
+        deityNameZh: deity?.name ?? null,
+        deityNameEn: deity?.nameEN ?? null,
+      },
       summary: {
         total: summary.total,
         level: summary.level,
