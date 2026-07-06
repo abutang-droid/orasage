@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="伊曼雅 简图">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" rx="20" fill="url(#bg)"/>
+  <circle cx="128" cy="112" r="88" fill="url(#halo)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.88">
+    <path d="M56 148c24-16 48-16 72 0s48 16 72 0" />
+      <path d="M72 148c16 24 32 36 56 36s40-12 56-36" opacity="0.6" />
+      <path d="M168 88a20 20 0 1 1-40 0 20 20 0 0 1 40 0z" />
+  </g>
+  <text x="128" y="230" text-anchor="middle" font-family="Georgia, 'Noto Serif SC', serif" font-size="11" fill="rgba(255,255,255,0.55)">简图 · 待替换</text>
+</svg>
