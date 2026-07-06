@@ -123,6 +123,10 @@ deploy_native() {
   npm run migrate
   npm run seed:tarot 2>/dev/null || log "seed:tarot 跳过（需 tsx / 已种子化）"
   npm run seed:tarot-geo 2>/dev/null || log "seed:tarot-geo 跳过（需 tsx / 已种子化）"
+  if systemctl is-active --quiet orasage-tarot 2>/dev/null; then
+    log "重启 orasage-tarot（刷新 CMS 圣地/信仰 fetch 缓存）..."
+    systemctl restart orasage-tarot
+  fi
   npm run build
 
   RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
