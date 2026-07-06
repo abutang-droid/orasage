@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaithPicker } from '@/components/FaithPicker';
 import { countryMapCoords, spreadMapCoords } from '@/lib/geo/map-layout';
 import type { GeoDetectSource } from '@/lib/geo/detect-country';
-import { useCountrySuggestion } from '@/lib/geo/use-country-suggestion';
+import { useCountrySuggestion, type CountrySuggestion } from '@/lib/geo/use-country-suggestion';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
 import { storeGeo } from '@/lib/geo/types';
 import {
@@ -81,10 +81,12 @@ export function GeoJourneyPicker({
   const [pendingFaith, setPendingFaith] = useState<string | null>(value?.faith ?? null);
   const [locationSource, setLocationSource] = useState<GeoDetectSource>('manual');
   const [faithRegional, setFaithRegional] = useState(true);
+  const [manualListMode, setManualListMode] = useState(false);
+  const [detectedSuggestion, setDetectedSuggestion] = useState<CountrySuggestion | null>(null);
   const initDone = useRef(false);
-  const autoLocationApplied = useRef(false);
+  const detectionHandled = useRef(false);
 
-  const { suggestion, resolving: locationResolving } = useCountrySuggestion(
+  const { suggestion, resolving: locationResolving, resolved: locationResolved } = useCountrySuggestion(
     allCountries,
     !loading && allCountries.length > 0 && !value?.countryCode,
   );
@@ -182,20 +184,62 @@ export function GeoJourneyPicker({
   );
 
   useEffect(() => {
-    if (!suggestion || autoLocationApplied.current) return;
+    if (!locationResolved || detectionHandled.current) return;
     if (value?.continentCode && value?.countryCode) return;
-    autoLocationApplied.current = true;
-    applyDetectedCountry(suggestion.country, suggestion.source);
-  }, [suggestion, value?.continentCode, value?.countryCode, applyDetectedCountry]);
+    detectionHandled.current = true;
+
+    if (suggestion) {
+      setDetectedSuggestion(suggestion);
+      void loadCountries(suggestion.country.regionCode);
+      return;
+    }
+
+    setManualListMode(true);
+  }, [locationResolved, suggestion, value?.continentCode, value?.countryCode, loadCountries]);
 
   const pickRegion = useCallback((code: string) => {
     setPendingRegion(code);
     setListOpen(false);
-  }, []);
+    if (manualListMode) {
+      setContinentCode(code);
+      setCountryCode('');
+      setPendingCountry(null);
+      setPendingFaith(null);
+      setPendingRegion(null);
+      setSearch('');
+      setStep('country');
+      void loadCountries(code);
+    }
+  }, [manualListMode, loadCountries]);
 
   const pickCountry = useCallback((code: string) => {
     setPendingCountry(code);
     setListOpen(false);
+    if (manualListMode && continentCode) {
+      setLocationSource('manual');
+      setCountryCode(code);
+      storeGeo(continentCode, code);
+      setPendingFaith(null);
+      setPendingCountry(null);
+      setStep('faith');
+      void loadFaiths(code);
+    }
+  }, [manualListMode, continentCode, loadFaiths]);
+
+  const confirmDetectedCountry = useCallback(() => {
+    if (!detectedSuggestion) return;
+    applyDetectedCountry(detectedSuggestion.country, detectedSuggestion.source);
+    setDetectedSuggestion(null);
+  }, [detectedSuggestion, applyDetectedCountry]);
+
+  const rejectDetectedCountry = useCallback(() => {
+    setDetectedSuggestion(null);
+    setManualListMode(true);
+    setContinentCode('');
+    setCountryCode('');
+    setPendingCountry(null);
+    setPendingRegion(null);
+    setStep('region');
   }, []);
 
   const pickFaith = useCallback((faithId: string) => {
@@ -282,8 +326,22 @@ export function GeoJourneyPicker({
     [countries, countryCode, allCountries, suggestion?.country],
   );
 
+  const showDetectConfirm = Boolean(detectedSuggestion) && !countryCode;
+
   const mapAmbient =
-    step === 'faith' && (locationSource === 'gps' || locationSource === 'ip');
+    showDetectConfirm ||
+    (manualListMode && step !== 'faith') ||
+    (step === 'faith' && (locationSource === 'gps' || locationSource === 'ip'));
+
+  const mapStep = showDetectConfirm ? 'country' : step;
+  const mapContinentCode = showDetectConfirm
+    ? detectedSuggestion?.country.regionCode
+    : continentCode;
+  const mapCountryCode = showDetectConfirm ? detectedSuggestion?.country.code : countryCode;
+  const mapCountries =
+    showDetectConfirm && detectedSuggestion
+      ? allCountries.filter((c) => c.regionCode === detectedSuggestion.country.regionCode)
+      : countries;
 
   const filteredCountries = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -350,17 +408,11 @@ export function GeoJourneyPicker({
     [step, pickRegion, pickCountry, pickFaith],
   );
 
-  const showSuggestBanner =
-    step === 'country' &&
-    suggestion?.country &&
-    suggestion.country.regionCode === continentCode &&
-    !countryCode &&
-    !pendingCountry;
-
   const showLocationBadge =
     step === 'faith' &&
     countryCode &&
-    (locationSource === 'gps' || locationSource === 'ip');
+    (locationSource === 'gps' || locationSource === 'ip') &&
+    !showDetectConfirm;
 
   const showInlineFaithPicker = step === 'faith' && countryCode && !faithRegional;
 
@@ -382,6 +434,7 @@ export function GeoJourneyPicker({
     }
     if (step === 'country') {
       setPendingCountry(null);
+      setContinentCode('');
       setStep('region');
       setCountryCode('');
       setSearch('');
@@ -389,20 +442,28 @@ export function GeoJourneyPicker({
   };
 
   const stepTitle =
-    step === 'region'
-      ? title
-      : step === 'country'
-        ? `选择国家 · ${regionName}`
-        : `选择信仰 · ${countryName}`;
+    showDetectConfirm && detectedSuggestion
+      ? '确认你的国家'
+      : step === 'region'
+        ? title
+        : step === 'country'
+          ? `选择国家 · ${regionName}`
+          : `选择信仰 · ${countryName}`;
 
   const stepHint =
-    step === 'region'
-      ? '在地图上点选任意国家，或从列表选择大洲'
-      : step === 'country'
-        ? '点选你的国家，确认后继续'
-        : faithRegional
-          ? '点选地图上的信仰标记，或打开列表选择'
-          : '该国暂无专属信仰数据，请从完整列表中选择';
+    showDetectConfirm
+      ? `根据${detectedSuggestion ? LOCATION_SOURCE_LABEL[detectedSuggestion.source] : '位置信息'}自动识别，请确认是否正确`
+      : manualListMode && step === 'region'
+        ? '从下方列表选择你的大洲'
+        : manualListMode && step === 'country'
+          ? '从下方列表选择你的国家'
+          : step === 'region'
+            ? '在地图上点选任意国家，或从列表选择大洲'
+            : step === 'country'
+              ? '点选你的国家，确认后继续'
+              : faithRegional
+                ? '点选地图上的信仰标记，或打开列表选择'
+                : '该国暂无专属信仰数据，请从完整列表中选择';
 
   const listButtonLabel =
     step === 'region'
@@ -413,12 +474,19 @@ export function GeoJourneyPicker({
           ? '列表选信仰'
           : '展开信仰列表';
 
+  const showInlineRegionList = manualListMode && !showDetectConfirm && step === 'region';
+  const showInlineCountryList = manualListMode && !showDetectConfirm && step === 'country';
+  const showListFooter =
+    !showInlineFaithPicker && !showInlineRegionList && !showInlineCountryList && !showDetectConfirm;
+
   const pendingFaithOption = pendingFaith
     ? getFaithById(pendingFaith, faiths) ?? mapFaiths.find((f) => f.id === pendingFaith) ?? null
     : null;
 
   const pendingConfirm =
-    step === 'region' && pendingRegion
+    showDetectConfirm || manualListMode
+      ? null
+      : step === 'region' && pendingRegion
       ? {
           emoji: '🌍',
           name: pendingRegionOption?.nameZh ?? pendingRegion,
@@ -452,13 +520,17 @@ export function GeoJourneyPicker({
     <div className={`geo-journey${fullscreen ? ' geo-journey--fullscreen' : ''}`}>
       <div className="geo-journey-map-layer">
         <JourneyVectorMap
-          step={step}
+          step={mapStep}
           allCountries={allCountries}
-          countries={countries}
-          continentCode={continentCode}
-          countryCode={countryCode}
+          countries={mapCountries}
+          continentCode={mapContinentCode}
+          countryCode={mapCountryCode}
           faithMarkers={faithMarkers}
-          selectedId={selectedMapId}
+          selectedId={
+            showDetectConfirm
+              ? detectedSuggestion?.country.code ?? null
+              : selectedMapId
+          }
           onSelect={handleMapSelect}
           ambient={mapAmbient}
           ariaLabel={
@@ -501,10 +573,81 @@ export function GeoJourneyPicker({
             {step === 'region' && subtitle ? <p className="geo-journey-subtitle">{subtitle}</p> : null}
             <h1 className="geo-journey-title">{stepTitle}</h1>
             <p className="geo-journey-hint">{stepHint}</p>
-            {locationResolving && step === 'region' && !countryCode ? (
-              <p className="geo-journey-locating">正在尝试根据你的位置推荐国家…</p>
+            {locationResolving && !showDetectConfirm && !manualListMode ? (
+              <p className="geo-journey-locating">正在尝试根据你的位置识别国家…</p>
             ) : null}
           </div>
+
+          {showDetectConfirm && detectedSuggestion ? (
+            <div className="geo-journey-detect-confirm" role="region" aria-label="确认国家">
+              <p className="geo-journey-detect-lead">
+                根据{LOCATION_SOURCE_LABEL[detectedSuggestion.source]}，我们判断你在
+              </p>
+              <p className="geo-journey-detect-country">{detectedSuggestion.country.nameZh}</p>
+              <p className="geo-journey-detect-sub">{detectedSuggestion.country.nameEn}</p>
+              <p className="geo-journey-detect-question">这是你所在的国家吗？</p>
+              <div className="geo-journey-detect-actions">
+                <button type="button" className="btn-primary" onClick={confirmDetectedCountry}>
+                  正确，继续
+                </button>
+                <button type="button" className="btn-outline" onClick={rejectDetectedCountry}>
+                  不是，手动选择
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {showInlineRegionList ? (
+            <div className="geo-journey-inline-list">
+              <div className="geo-country-list">
+                {regions.map((r) => (
+                  <button
+                    key={r.code}
+                    type="button"
+                    className={`geo-country-item${continentCode === r.code ? ' is-selected' : ''}`}
+                    onClick={() => pickRegion(r.code)}
+                  >
+                    <span>
+                      <span className="geo-country-item-name">{r.nameZh}</span>
+                      <span className="geo-country-item-en">{r.nameEn}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {showInlineCountryList ? (
+            <div className="geo-journey-inline-list">
+              <div className="geo-country-search">
+                <input
+                  className="input-field"
+                  placeholder="🔍 搜索国家或地区…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              {countriesLoading ? (
+                <div className="geo-journey-loading">正在加载国家列表…</div>
+              ) : (
+                <div className="geo-country-list">
+                  {filteredCountries.map((c) => (
+                    <button
+                      key={c.code}
+                      type="button"
+                      className={`geo-country-item${countryCode === c.code ? ' is-selected' : ''}`}
+                      onClick={() => pickCountry(c.code)}
+                    >
+                      <span>
+                        <span className="geo-country-item-name">{c.nameZh}</span>
+                        <span className="geo-country-item-en">{c.nameEn}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {showLocationBadge && (
             <div className="geo-journey-location-badge">
@@ -516,22 +659,6 @@ export function GeoJourneyPicker({
                 更改
               </button>
             </div>
-          )}
-
-          {showSuggestBanner && suggestion?.country && (
-            <button
-              type="button"
-              className="geo-journey-suggest"
-              onClick={() => pickCountry(suggestion.country.code)}
-            >
-              <span aria-hidden>📍</span>
-              <span>
-                <span className="geo-journey-suggest-lead">
-                  根据{LOCATION_SOURCE_LABEL[suggestion.source]}推荐
-                </span>
-                <span className="geo-journey-suggest-name">{suggestion.country.nameZh}</span>
-              </span>
-            </button>
           )}
 
           {showInlineFaithPicker && (
@@ -557,7 +684,7 @@ export function GeoJourneyPicker({
         </div>
 
         <div className="geo-journey-bottom">
-          {!showInlineFaithPicker ? (
+          {showListFooter ? (
             <footer className="geo-journey-footer">
               <button
                 type="button"

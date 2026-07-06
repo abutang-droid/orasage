@@ -26,6 +26,7 @@ function matchCountry(code: string, countries: GeoCountry[]): GeoCountry | null 
 export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolean) {
   const [suggestion, setSuggestion] = useState<CountrySuggestion | null>(null);
   const [resolving, setResolving] = useState(false);
+  const [resolved, setResolved] = useState(false);
   const ran = useRef(false);
 
   useEffect(() => {
@@ -56,7 +57,10 @@ export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolea
       } catch {
         /* manual fallback */
       } finally {
-        if (!cancelled) setResolving(false);
+        if (!cancelled) {
+          setResolving(false);
+          setResolved(true);
+        }
       }
     }
 
@@ -66,5 +70,5 @@ export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolea
     };
   }, [allCountries, enabled]);
 
-  return { suggestion, resolving };
+  return { suggestion, resolving, resolved };
 }
