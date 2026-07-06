@@ -5,14 +5,16 @@ import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
 import { loadStoredFaith } from "@/components/FaithPicker"
 import { WorshipScreen } from "@/components/temple/WorshipScreen"
 import { BlessingScreen } from "@/components/temple/BlessingScreen"
+import { TempleHome } from "@/components/temple/TempleHome"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
 import { facingForFaithCode } from "@/lib/temple/facing"
+import { loadLastBlessing, storeLastBlessing, type LastBlessing } from "@/lib/temple/last-blessing"
 import { useUser } from "@/lib/user"
 import "@/components/temple/temple.css"
 
-type TemplePhase = "journey" | "select" | "worship" | "blessing"
+type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 
 function TemplePageContent() {
   const searchParams = useSearchParams()
@@ -26,6 +28,7 @@ function TemplePageContent() {
   const [sanctuaries, setSanctuaries] = useState<Sanctuary[]>([])
   const [sanctuariesLoading, setSanctuariesLoading] = useState(false)
   const [phase, setPhase] = useState<TemplePhase>("journey")
+  const [latestBlessing, setLatestBlessing] = useState<LastBlessing | null>(null)
   const [blessingData, setBlessingData] = useState<{
     duration: number
     stage: number
@@ -39,22 +42,27 @@ function TemplePageContent() {
   const [worshipSaving, setWorshipSaving] = useState(false)
 
   useEffect(() => {
+    setLatestBlessing(loadLastBlessing())
+  }, [])
+
+  useEffect(() => {
     const storedFaith = loadStoredFaith() || user?.faith || null
     if (storedFaith) {
       setSelectedFaith(storedFaith)
       setSelectedCountry(user?.countryCode ?? null)
       setSelectedContinent(user?.continentCode ?? null)
-      setPhase("select")
+      const saved = localStorage.getItem("manto:deity")
+      if (!saved) setPhase("pick")
     } else if (!user?.onboardingCompleted) {
       setPhase("journey")
     }
   }, [user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
 
   useEffect(() => {
-    if (phase !== "select") return
+    if (!selectedFaith) return
     let cancelled = false
     setSanctuariesLoading(true)
-    const q = selectedFaith ? `?faith=${encodeURIComponent(selectedFaith)}` : ""
+    const q = `?faith=${encodeURIComponent(selectedFaith)}`
     fetch(`/api/sanctuaries${q}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -65,8 +73,17 @@ function TemplePageContent() {
             try {
               const deityId = JSON.parse(saved).id
               const deity = data.sanctuaries.find((d: Sanctuary) => d.id === deityId)
-              if (deity) setSavedDeity(deity)
-            } catch {}
+              if (deity) {
+                setSavedDeity(deity)
+                setPhase((current) =>
+                  current === "journey" || current === "pick" ? "home" : current,
+                )
+              } else {
+                setPhase((current) => (current === "home" ? "pick" : current))
+              }
+            } catch {
+              setPhase("pick")
+            }
           }
         }
       })
@@ -75,7 +92,7 @@ function TemplePageContent() {
         if (!cancelled) setSanctuariesLoading(false)
       })
     return () => { cancelled = true }
-  }, [phase, selectedFaith])
+  }, [selectedFaith])
 
   const handleJourneyComplete = useCallback(async (result: GeoJourneySelection) => {
     setSelectedFaith(result.faith)
@@ -88,7 +105,7 @@ function TemplePageContent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ step: 'faith' }),
     })
-    setPhase("select")
+    setPhase("pick")
   }, [setFaith, setGeo])
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
@@ -121,11 +138,21 @@ function TemplePageContent() {
         }),
       })
       const data = res.ok ? await res.json() : null
+      const blessingText = data?.blessingText as string | undefined
+      if (blessingText?.trim()) {
+        const stored: LastBlessing = {
+          text: blessingText.trim(),
+          deityName: selectedDeity.name,
+          date: new Date().toLocaleDateString("zh-CN"),
+        }
+        storeLastBlessing(stored)
+        setLatestBlessing(stored)
+      }
       setBlessingData({
         duration,
         stage,
         meritEarned: data?.meritEarned ?? 1,
-        blessingText: data?.blessingText,
+        blessingText,
         alreadyCheckedIn: data?.alreadyCheckedIn,
         levelUp: data?.levelUp,
         streakDays: data?.streakDays ?? data?.summary?.streak,
@@ -144,9 +171,15 @@ function TemplePageContent() {
   }, [selectedDeity, selectedFaith, user?.onboardingCompleted, worshipSaving])
 
   const handleBlessingDone = useCallback(() => {
-    setPhase("select")
+    setPhase("home")
     setBlessingData(null)
   }, [])
+
+  const handleStartWorship = useCallback(() => {
+    if (!savedDeity) return
+    setSelectedDeity(savedDeity)
+    setPhase("worship")
+  }, [savedDeity])
 
   const filteredDeities = sanctuaries.filter(d =>
     !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
@@ -159,7 +192,6 @@ function TemplePageContent() {
     [selectedDeity, selectedFaith],
   )
 
-  // ── Geo journey (region → country → faith) ──
   if (phase === "journey") {
     return (
       <GeoJourneyPicker
@@ -177,25 +209,42 @@ function TemplePageContent() {
     )
   }
 
-  // ── Select Deity (sanctuary) ──
-  if (phase === "select") {
+  if (phase === "home" && savedDeity) {
+    return (
+      <TempleHome
+        deity={savedDeity}
+        donated={donated}
+        latestBlessing={latestBlessing}
+        onWorship={handleStartWorship}
+        onChangeDeity={() => setPhase("pick")}
+        onChangeFaith={() => setPhase("journey")}
+      />
+    )
+  }
+
+  if (phase === "pick") {
     return (
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32 }}>
           <div className="page-header" style={{ padding: '16px 0' }}>
-            <span className="label">🛐 每日拜神</span>
+            <span className="label">🛐 选择守护神</span>
             <h1>选择朝拜圣地</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选择守护神`
+                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''}`
                 : '选择你的守护神，把手指放在神像上'}
             </p>
           </div>
 
-          {donated && (
-            <div className="temple-donation-toast">
-              乐捐成功，功德已计入供养之路。可在「我 → 功德详情」查看。
-            </div>
+          {savedDeity && (
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
+              onClick={() => setPhase('home')}
+            >
+              ← 返回祈福首页
+            </button>
           )}
 
           {selectedFaith && (
@@ -209,31 +258,6 @@ function TemplePageContent() {
             </button>
           )}
 
-          {/* Saved deity — quick re-worship */}
-          {!searchQuery && savedDeity && (
-            <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '14px 16px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
-                <img src={savedDeity.imageUrl} alt={savedDeity.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                  {savedDeity.name}
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-                  你的守护神
-                </div>
-              </div>
-              <button
-                onClick={() => handleSelectDeity(savedDeity)}
-                className="btn-primary small"
-                style={{ fontSize: 12, padding: '6px 14px', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}
-              >
-                🛐 参拜
-              </button>
-            </div>
-          )}
-
-          {/* Search */}
           <div style={{ marginBottom: 24 }}>
             <input className="input-field" placeholder="🔍 搜索你想拜的神明..."
               value={searchQuery}
@@ -255,22 +279,6 @@ function TemplePageContent() {
             </div>
           )}
 
-          {searchQuery && !sanctuariesLoading && filteredDeities.length === 0 && (
-            <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
-              <div style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 8, fontFamily: 'var(--font-serif)' }}>
-                没有找到「{searchQuery}」
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
-                你想拜的神明还不在我们的体系中。但我们听到了。
-              </div>
-              <button className="btn-outline" style={{ width: '100%' }}>
-                🙏 我也在等 · 凑满 100 位信徒即上线
-              </button>
-            </div>
-          )}
-
-          {/* Deity grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 32 }}>
             {filteredDeities.map(deity => (
               <button
@@ -285,31 +293,16 @@ function TemplePageContent() {
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', gap: 10,
                 }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-focus)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'
-                }}
               >
-                <div style={{
-                  width: 48, height: 48, borderRadius: '50%',
-                  overflow: 'hidden',
-                }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden' }}>
                   <img src={deity.imageUrl} alt={deity.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
                 <div>
-                  <div style={{
-                    fontSize: 14, fontWeight: 600,
-                    fontFamily: 'var(--font-serif)', marginBottom: 2,
-                  }}>{deity.name}</div>
-                  <div style={{
-                    fontSize: 10, color: 'var(--text-muted)',
-                    fontFamily: 'var(--font-sans)',
-                  }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: 2 }}>
+                    {deity.name}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
                     {deity.nameEN}
                   </div>
                 </div>
@@ -321,7 +314,6 @@ function TemplePageContent() {
     )
   }
 
-  // ── Worship ──
   if (phase === "worship" && selectedDeity) {
     return (
       <WorshipScreen
@@ -332,7 +324,6 @@ function TemplePageContent() {
     )
   }
 
-  // ── Blessing ──
   if (phase === "blessing" && selectedDeity && blessingData) {
     return (
       <BlessingScreen
@@ -349,7 +340,11 @@ function TemplePageContent() {
     )
   }
 
-  return null
+  return (
+    <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+      加载祈福…
+    </div>
+  )
 }
 
 export default function TemplePage() {

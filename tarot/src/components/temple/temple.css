@@ -478,3 +478,269 @@
   border-radius: var(--radius-md);
   text-align: center;
 }
+
+/* ── Temple home ─────────────────────────────────────────────── */
+
+.temple-home {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px 96px;
+}
+
+.temple-home-shrine {
+  position: relative;
+  min-height: 40dvh;
+  margin: 0 -20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.temple-home-shrine-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 30%, rgba(255, 252, 245, 0.9), transparent 70%),
+    radial-gradient(ellipse 90% 80% at 50% 100%, rgba(201, 149, 74, 0.15), transparent 60%),
+    linear-gradient(180deg, rgba(250, 248, 244, 0.5), rgba(255, 255, 255, 0.9));
+}
+
+.temple-home-shrine-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.temple-home-deity-portrait {
+  width: min(168px, 42vw);
+  height: min(168px, 42vw);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 40px rgba(184, 148, 63, 0.28);
+  margin-bottom: 16px;
+}
+
+.temple-home-deity-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.temple-home-deity-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.temple-home-deity-en {
+  margin: 4px 0 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.temple-home-worship-btn {
+  min-width: 160px;
+}
+
+.temple-home-verse {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.temple-home-verse-label {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+}
+
+.temple-home-verse-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  white-space: pre-line;
+}
+
+.temple-home-verse-meta {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.temple-home-merit {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+}
+
+.temple-home-merit-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.temple-home-merit-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.temple-home-merit-level {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+}
+
+.temple-home-merit-total {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+}
+
+.temple-home-merit-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.temple-home-merit-fill {
+  height: 100%;
+  background: var(--gold-light);
+  border-radius: 2px;
+}
+
+.temple-home-merit-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.temple-home-merit-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.temple-home-leaderboard {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.temple-home-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+}
+
+.temple-home-section-sub {
+  margin: 4px 0 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.temple-home-leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.temple-home-leaderboard-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.temple-home-leaderboard-item:last-child {
+  border-bottom: none;
+}
+
+.temple-home-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.temple-home-rank.is-top {
+  background: rgba(201, 149, 74, 0.15);
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.temple-home-board-name {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.temple-home-board-level {
+  color: var(--text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.temple-home-board-merit {
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  min-width: 36px;
+  text-align: right;
+}
+
+.temple-home-donation .temple-donation {
+  margin-bottom: 0;
+  max-width: none;
+}
+
+.temple-home-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.temple-home-loading {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px 0;
+}

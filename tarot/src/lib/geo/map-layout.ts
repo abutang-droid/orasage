@@ -11,11 +11,11 @@ export type MapViewport = {
 };
 
 export const REGION_VIEWPORTS: Record<string, MapViewport> = {
-  asia: { centerX: 68, centerY: 42, scale: 1.7 },
-  europe: { centerX: 50, centerY: 32, scale: 1.85 },
-  africa: { centerX: 52, centerY: 52, scale: 1.7 },
-  americas: { centerX: 22, centerY: 48, scale: 1.6 },
-  oceania: { centerX: 84, centerY: 66, scale: 2.1 },
+  asia: { centerX: 68, centerY: 42, scale: 1.35 },
+  europe: { centerX: 50, centerY: 32, scale: 1.45 },
+  africa: { centerX: 52, centerY: 52, scale: 1.35 },
+  americas: { centerX: 22, centerY: 48, scale: 1.3 },
+  oceania: { centerX: 84, centerY: 66, scale: 1.55 },
 };
 
 export const WORLD_VIEWPORT: MapViewport = { centerX: 50, centerY: 50, scale: 1 };
@@ -62,5 +62,29 @@ export function viewportForCountry(
   coords?: { mapX?: number | null; mapY?: number | null },
 ): MapViewport {
   const { mapX, mapY } = countryMapCoords(countryCode, coords);
-  return { centerX: mapX, centerY: mapY, scale: 2.4 };
+  return { centerX: mapX, centerY: mapY, scale: 1.8 };
+}
+
+type MapPoint = { mapX: number; mapY: number };
+
+/** 根据热点包围盒自动适配缩放，避免裁切 */
+export function fitViewportToHotspots(hotspots: MapPoint[]): MapViewport {
+  if (hotspots.length === 0) return WORLD_VIEWPORT;
+  if (hotspots.length === 1) {
+    return { centerX: hotspots[0].mapX, centerY: hotspots[0].mapY, scale: 1.5 };
+  }
+
+  const xs = hotspots.map((h) => h.mapX);
+  const ys = hotspots.map((h) => h.mapY);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const spanX = Math.max(maxX - minX, 12);
+  const spanY = Math.max(maxY - minY, 10);
+  const scale = clamp(88 / Math.max(spanX, spanY * 1.6), 1.1, 2.2);
+
+  return { centerX, centerY, scale };
 }

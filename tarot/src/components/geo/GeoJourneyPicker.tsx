@@ -5,9 +5,8 @@ import { FaithPicker } from '@/components/FaithPicker';
 import { WorldMapSvg, type MapHotspot } from '@/components/geo/WorldMapSvg';
 import {
   countryMapCoords,
+  fitViewportToHotspots,
   spreadMapCoords,
-  viewportForCountry,
-  viewportForRegion,
   WORLD_VIEWPORT,
 } from '@/lib/geo/map-layout';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
@@ -241,14 +240,17 @@ export function GeoJourneyPicker({
     });
   }, [mapFaiths, selectedCountry]);
 
+  const activeHotspots =
+    step === 'region' ? regionHotspots : step === 'country' ? countryHotspots : faithHotspots;
+
   const viewport = useMemo(() => {
-    if (step === 'region') return WORLD_VIEWPORT;
-    if (step === 'country') return viewportForRegion(continentCode);
-    if (step === 'faith' && selectedCountry) {
-      return viewportForCountry(selectedCountry.code, selectedCountry);
-    }
+    if (step === 'region') return fitViewportToHotspots(regionHotspots);
+    if (step === 'country') return fitViewportToHotspots(countryHotspots);
+    if (step === 'faith') return fitViewportToHotspots(faithHotspots);
     return WORLD_VIEWPORT;
-  }, [step, continentCode, selectedCountry]);
+  }, [step, regionHotspots, countryHotspots, faithHotspots]);
+
+  const viewportKey = `${step}-${continentCode}-${countryCode}-${activeHotspots.length}`;
 
   const selectedMapId =
     step === 'region' ? continentCode || null : step === 'country' ? countryCode || null : pendingFaith;
@@ -299,10 +301,10 @@ export function GeoJourneyPicker({
 
   const stepHint =
     step === 'region'
-      ? '点选地图上的大洲'
+      ? '点选地图上的大洲，可拖动平移、双指缩放'
       : step === 'country'
-        ? '点选地图上的国家，或打开列表'
-        : '点选地图上的信仰标记';
+        ? '点选国家，或打开列表；地图可拖动缩放'
+        : '点选信仰标记，地图可拖动缩放';
 
   const listButtonLabel =
     step === 'region' ? '列表选大洲' : step === 'country' ? '列表选国家' : '列表选信仰';
@@ -321,12 +323,11 @@ export function GeoJourneyPicker({
     <div className={`geo-journey${fullscreen ? ' geo-journey--fullscreen' : ''}`}>
       <div className="geo-journey-map-layer">
         <WorldMapSvg
-          hotspots={
-            step === 'region' ? regionHotspots : step === 'country' ? countryHotspots : faithHotspots
-          }
+          hotspots={activeHotspots}
           selectedId={selectedMapId}
           onSelect={handleMapSelect}
           viewport={viewport}
+          viewportKey={viewportKey}
           ariaLabel={
             step === 'region'
               ? '世界地图，点选大洲'
