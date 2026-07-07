@@ -22,6 +22,8 @@ import { TarotHomeHero } from './globals/TarotHomeHero';
 import { BaziFeed } from './collections/BaziFeed';
 import { ZiweiFeed } from './collections/ZiweiFeed';
 import { ShopProductMedia } from './collections/ShopProductMedia';
+import { ShopProductPage } from './collections/ShopProductPage';
+import { ShopProductTestimonial } from './collections/ShopProductTestimonial';
 import { cmsZhTranslations } from './lib/cms-zh';
 
 const filename = fileURLToPath(import.meta.url);
@@ -75,7 +77,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Media, Pages, Faiths, Sanctuaries, GeoRegions, GeoCountries, CountryFaiths, BaziFeed, ZiweiFeed, ShopProductMedia],
+  collections: [Users, Media, Pages, Faiths, Sanctuaries, GeoRegions, GeoCountries, CountryFaiths, BaziFeed, ZiweiFeed, ShopProductMedia, ShopProductPage, ShopProductTestimonial],
   globals: [HomeHero, BaziHomeHero, ZiweiHomeHero, ShopHomeHero, TarotHomeHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

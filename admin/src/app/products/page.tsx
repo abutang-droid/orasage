@@ -2,9 +2,11 @@ import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts, getTarotBillingConfig } from '@/lib/api';
 import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
+import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { ProductImageCell } from '@/components/ProductImageCell';
 import { ProductImageField } from '@/components/ProductImageField';
 import { ProductInlineEditForm } from '@/components/ProductInlineEditForm';
+import { ProductCmsLinks } from '@/components/ProductCmsLinks';
 import { redirect } from 'next/navigation';
 
 const CATEGORIES = [
@@ -68,6 +70,7 @@ export default async function ProductsPage({
     recommendSkus: [] as string[],
   };
   let productImageMap = new Map<string, string>();
+  let productPageStatusMap = new Map<string, 'published' | 'draft' | 'none'>();
   try {
     ({ products } = await getProducts());
   } catch (err) {
@@ -77,6 +80,11 @@ export default async function ProductsPage({
     productImageMap = await fetchAdminProductImageMap();
   } catch (err) {
     console.error('[admin/product-images]', err);
+  }
+  try {
+    productPageStatusMap = await fetchCmsProductPageStatusMap();
+  } catch (err) {
+    console.error('[admin/product-pages]', err);
   }
   try {
     ({ skus: homepageSkus } = await getHomepageProducts());
@@ -128,7 +136,19 @@ export default async function ProductsPage({
       <section className="panel">
         <h2>主图配置概况</h2>
         <p className="muted" style={{ marginBottom: 0 }}>
-          已配置主图 {productImageMap.size} / {products.length} 个 SKU。在下方列表点击「编辑」可同时修改商品信息与上传主图。
+          已配置主图 {productImageMap.size} / {products.length} 个 SKU。列表缩略图使用「商品主图」；详情轮播与长文案请在 CMS「商品详情页」配置。
+        </p>
+      </section>
+
+      <section className="panel">
+        <h2>详情页与精选评价（CMS）</h2>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>
+          方案 C 内容驱动：详情多图、区块文案、精选评价在 CMS 维护；价格与上下架仍在本页编辑。首期仅 zh-CN。
+        </p>
+        <p className="muted" style={{ marginBottom: 0 }}>
+          已发布详情页{' '}
+          {[...productPageStatusMap.values()].filter((s) => s === 'published').length} / {products.length} ·
+          草稿 {[...productPageStatusMap.values()].filter((s) => s === 'draft').length}
         </p>
       </section>
 
@@ -457,6 +477,7 @@ export default async function ProductsPage({
                 <th>价格 CNY</th>
                 <th>价格 USD</th>
                 <th>状态</th>
+                <th>详情页</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -472,6 +493,12 @@ export default async function ProductsPage({
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
                   <td>{p.priceDisplayUsd ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
+                  <td>
+                    <ProductCmsLinks
+                      sku={p.sku}
+                      pageStatus={productPageStatusMap.get(p.sku) ?? 'none'}
+                    />
+                  </td>
                   <td>
                     <details>
                       <summary>编辑</summary>
