@@ -88,6 +88,22 @@ export const ShopProductPage: CollectionConfig = {
       label: 'SEO 描述',
     },
     {
+      name: 'galleryVideoUrl',
+      type: 'text',
+      label: '主图视频 URL',
+      admin: {
+        description: '可选。占用一个主图位（最多 4 图 + 1 视频），建议 1:1 或 16:9 MP4',
+      },
+    },
+    {
+      name: 'sceneVideoUrl',
+      type: 'text',
+      label: '场景视频 URL',
+      admin: {
+        description: '可选。展示在详情内容区的场景视频，建议 16:9 MP4',
+      },
+    },
+    {
       name: 'heroImages',
       label: '详情轮播图',
       type: 'array',

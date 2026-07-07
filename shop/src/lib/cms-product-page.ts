@@ -34,6 +34,8 @@ export type CmsProductPage = {
   subtitle?: string;
   seoTitle?: string;
   seoDescription?: string;
+  galleryVideoUrl?: string;
+  sceneVideoUrl?: string;
   heroImages: ProductPageHeroImage[];
   sections: ProductPageSection[];
 };
@@ -62,6 +64,8 @@ type CmsPageDoc = {
   subtitle?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
+  galleryVideoUrl?: string | null;
+  sceneVideoUrl?: string | null;
   heroImages?: CmsHeroRow[] | null;
   sections?: CmsSectionRow[] | null;
 };
@@ -110,6 +114,8 @@ function mapDoc(doc: CmsPageDoc): CmsProductPage | null {
     subtitle: doc.subtitle ?? undefined,
     seoTitle: doc.seoTitle ?? undefined,
     seoDescription: doc.seoDescription ?? undefined,
+    galleryVideoUrl: doc.galleryVideoUrl?.trim() || undefined,
+    sceneVideoUrl: doc.sceneVideoUrl?.trim() || undefined,
     heroImages: mapHeroImages(doc.heroImages),
     sections: mapSections(doc.sections),
   };

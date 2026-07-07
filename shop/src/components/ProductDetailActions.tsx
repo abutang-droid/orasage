@@ -51,21 +51,21 @@ export function ProductDetailActions({ product }: { product: Product }) {
   }
 
   return (
-    <div className="shop-pdp-actions">
+    <div className="shop-pdp-actions shop-pdp-actions--row">
+      <button
+        type="button"
+        onClick={handleAddToCart}
+        className="shop-btn-secondary shop-pdp-action-btn"
+      >
+        {added ? '已加入购物车' : '加入购物车'}
+      </button>
       <button
         type="button"
         onClick={() => void handleBuy()}
         disabled={loading}
-        className="shop-btn-primary w-full"
+        className="shop-btn-primary shop-pdp-action-btn"
       >
         {loading ? '处理中…' : '立即购买'}
-      </button>
-      <button
-        type="button"
-        onClick={handleAddToCart}
-        className="shop-btn-secondary w-full"
-      >
-        {added ? '已加入购物车' : '加入购物车'}
       </button>
       {error && <p className="shop-pdp-error">{error}</p>}
     </div>
