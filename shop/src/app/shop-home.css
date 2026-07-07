@@ -209,8 +209,6 @@
   flex-direction: column;
   gap: 1.5rem;
   padding-top: 0.5rem;
-  max-width: 68rem;
-  margin: 0 auto;
 }
 
 .shop-pdp--content {
@@ -244,28 +242,6 @@
   padding-top: 0.25rem;
 }
 
-@media (min-width: 768px) {
-  .shop-pdp-info {
-    position: sticky;
-    top: 1.5rem;
-  }
-}
-
-.shop-pdp-story {
-  width: 100%;
-  max-width: 40rem;
-  margin: 2.5rem auto 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3.5rem;
-  padding-top: 3rem;
-  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
-}
-
-.shop-pdp-passage {
-  margin: 0;
-}
-
 .shop-pdp-passage-heading {
   margin: 0 0 1.75rem;
   font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
@@ -288,13 +264,22 @@
 .shop-pdp-rich {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+}
+
+.shop-pdp-rich-banner {
+  margin: 0;
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--os-color-mono-black, #171717);
 }
 
 .shop-pdp-rich-paragraph {
   margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.9;
+  font-size: 0.875rem;
+  line-height: 1.85;
   color: var(--os-color-mono-gray-deep, #6b7280);
 }
 
@@ -322,7 +307,7 @@
 .shop-pdp-feature-list li {
   position: relative;
   padding-left: 1.125rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.75;
   color: var(--os-color-mono-gray-deep, #6b7280);
 }
@@ -336,7 +321,7 @@
 
 .shop-pdp-feature-para {
   margin: 0.75rem 0 0;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.85;
   color: var(--os-color-mono-gray-deep, #6b7280);
 }
@@ -389,10 +374,9 @@
 
 .shop-pdp-pairing-intro {
   margin: 0 0 0.5rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.8;
   color: var(--os-color-mono-gray-deep, #6b7280);
-  text-align: center;
 }
 
 .shop-pdp-pairing-list {
@@ -455,7 +439,9 @@
 }
 
 .shop-pdp-manifest {
-  padding: 1.5rem 0;
+  width: 100%;
+  max-width: 36rem;
+  margin: 3.5rem auto 0;
   text-align: center;
 }
 
@@ -502,9 +488,7 @@
 .shop-pdp-closure {
   width: 100%;
   max-width: 40rem;
-  margin: 3.5rem auto 0;
-  padding-top: 3rem;
-  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -711,7 +695,13 @@
 }
 
 .shop-pdp-related {
-  margin: 0;
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.shop-pdp-closure + .shop-pdp-related {
+  margin-top: 3rem;
 }
 
 .shop-pdp-related-grid {
@@ -749,7 +739,6 @@
 
 .shop-pdp-voices {
   width: 100%;
-  max-width: 40rem;
   margin: 3.5rem auto 0;
   padding-top: 3rem;
   border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
@@ -761,7 +750,19 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2rem;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .shop-pdp-voice-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
+    max-width: none;
+    align-items: start;
+  }
 }
 
 .shop-pdp-voice {
@@ -803,6 +804,13 @@
 
 .shop-pdp-media {
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .shop-pdp-media {
+    position: sticky;
+    top: 1.5rem;
+  }
 }
 
 .shop-pdp-image.shop-product-image-wrap {
@@ -848,11 +856,137 @@
 }
 
 .shop-pdp-price {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+  margin-top: 1rem;
   font-size: 1.375rem;
   font-weight: 500;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-pdp-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 1.25rem 0 0;
+  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+  border-bottom: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-fact {
+  padding: 0.75rem 0.5rem 0.75rem 0;
+}
+
+.shop-pdp-fact:nth-child(even) {
+  padding-left: 1.25rem;
+  border-left: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-fact:nth-child(n + 3) {
+  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-fact dt {
+  margin: 0 0 0.25rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--os-color-mono-gray-mid, #9ca3af);
+}
+
+.shop-pdp-fact dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-pdp-accordion {
+  margin-top: 1.75rem;
+  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-acc-item {
+  border-bottom: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-acc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9375rem 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-pdp-acc-summary::-webkit-details-marker {
+  display: none;
+}
+
+.shop-pdp-acc-summary::after {
+  content: '+';
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--os-color-mono-gray-mid, #9ca3af);
+}
+
+.shop-pdp-acc-item[open] .shop-pdp-acc-summary::after {
+  content: '−';
+}
+
+.shop-pdp-acc-body {
+  padding: 0.125rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.shop-pdp-acc-subhead {
+  margin: 0 0 0.625rem;
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-pdp-acc-faq-item + .shop-pdp-acc-faq-item {
+  margin-top: 1rem;
+}
+
+.shop-pdp-acc-faq-q {
+  margin: 0 0 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-pdp-acc-faq-a {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-pdp-advisor {
+  width: 100%;
+  max-width: 34rem;
+  margin: 3rem auto 0;
+  text-align: center;
+}
+
+.shop-pdp-finale {
+  margin-top: 3.5rem;
+  padding-top: 3rem;
+  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+.shop-pdp-related-heading {
+  margin: 0 0 1.5rem;
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
   color: var(--os-color-mono-black, #171717);
 }
 
