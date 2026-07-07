@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import { Icon } from '@orasage/ui';
 import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { shouldShowPortalBack } from '@/lib/portal-header';
@@ -19,7 +19,7 @@ export function PortalBackToolbar() {
         onClick={() => window.history.back()}
         className="orasage-page-back"
       >
-        <ArrowLeft className="h-[18px] w-[18px] rtl:rotate-180" aria-hidden />
+        <Icon name="chevronLeft" className="h-[18px] w-[18px] rtl:rotate-180" />
         {t('back')}
       </button>
     </div>

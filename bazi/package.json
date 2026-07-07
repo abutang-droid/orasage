@@ -13,12 +13,12 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
-    "@orasage/city": "file:../packages/city",
-    "@orasage/tokens": "file:../packages/tokens",
-    "@orasage/ui": "file:../packages/ui",
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@hookform/resolvers": "^5.2.2",
+    "@orasage/city": "file:../packages/city",
+    "@orasage/tokens": "file:../packages/tokens",
+    "@orasage/ui": "file:../packages/ui",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -65,7 +65,6 @@
     "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "jose": "6.1.0",
-    "lucide-react": "^0.453.0",
     "lunar-javascript": "^1.7.7",
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",

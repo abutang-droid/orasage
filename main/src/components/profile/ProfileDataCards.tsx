@@ -1,7 +1,6 @@
 'use client';
 
-import { Card } from '@orasage/ui';
-import { Lock } from 'lucide-react';
+import { Card, Icon } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -107,7 +106,7 @@ export function ProfileDataCards() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-foreground">{t(item.titleKey)}</p>
                     {locked ? (
-                      <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                      <Icon name="lock" className="h-4 w-4 shrink-0 text-muted-foreground" />
                     ) : (
                       <CountBadge count={count} loading={loading} />
                     )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode } from 'react';
+import { Icon } from '@orasage/ui';
 import { appBrandLabel, appHomeUrl, isAppSubpage, type AppId } from './config';
 import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
@@ -55,9 +56,7 @@ export function AppShell({
               onClick={() => window.history.back()}
               aria-label={pickLabel(SHELL_LABELS.back, locale)}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
+              <Icon name="chevronLeft" size={18} stroke={1.8} />
               <span>{pickLabel(SHELL_LABELS.back, locale)}</span>
             </button>
           </div>

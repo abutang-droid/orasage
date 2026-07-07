@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { Icon } from "@orasage/ui";
 import { Component, ReactNode } from "react";
 
 interface Props {
@@ -26,7 +26,8 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
           <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle
+            <Icon
+              name="alertTriangle"
               size={48}
               className="text-destructive mb-6 flex-shrink-0"
             />
@@ -47,7 +48,7 @@ class ErrorBoundary extends Component<Props, State> {
                 "hover:opacity-90 cursor-pointer"
               )}
             >
-              <RotateCcw size={16} />
+              <Icon name="refresh" size={16} />
               Reload Page
             </button>
           </div>
