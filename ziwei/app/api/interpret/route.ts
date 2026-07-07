@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
 import { authCookieHeader, resolveAuthUserIdFromCookies } from '@/lib/auth-user-server';
 import { ADULT_INTERPRET_SYSTEM, MINOR_INTERPRET_SYSTEM } from '@/lib/ai-prompts';
+import { buildSampleContextForInterpret } from '@/lib/samples';
 
 export const runtime = 'nodejs';
 
@@ -81,6 +82,15 @@ export async function POST(req: NextRequest) {
         ? (mode === 'heming' ? '合盘（含未成年人，整体按青少年保护解读）' : '单人命盘（未成年人）')
         : (mode === 'heming' ? '合盘（两人缘分）' : '单人命盘');
       systemContent += `\n\n当前解读模式：${modeLabel}\n命盘数据：\n${JSON.stringify(chartData, null, 2)}`;
+
+      const sampleCtx = await buildSampleContextForInterpret(chartData, {
+        mode,
+        minorMode: Boolean(minorMode),
+        messages,
+      });
+      if (sampleCtx) {
+        systemContent += `\n\n${sampleCtx}\n\n请结合上方样本库参考与命盘数据作答；样本仅供参考，须个性化表达，勿照抄。`;
+      }
     }
 
     const response = await fetch(`${baseUrl}/chat/completions`, {

@@ -83,6 +83,19 @@ deploy_native() {
         fi
       done
     fi
+
+    samples_root="${ZIWEI_SAMPLES_DIR:-/opt/orasage/data/ziwei-samples/ziwei-samples-toolkit}"
+    if [ -d "$samples_root/samples-out" ]; then
+      if grep -q '^ZIWEI_SAMPLES_DIR=' "$APP_DIR/.env"; then
+        sed -i "s|^ZIWEI_SAMPLES_DIR=.*|ZIWEI_SAMPLES_DIR=$samples_root|" "$APP_DIR/.env"
+      else
+        echo "ZIWEI_SAMPLES_DIR=$samples_root" >> "$APP_DIR/.env"
+      fi
+      log "已配置 ZIWEI_SAMPLES_DIR=$samples_root"
+    else
+      log "提示: 样本库未找到 ($samples_root)，AI 解读将不注入样本参考"
+      log "  运行: sudo bash $DEPLOY_DIR/deploy/download-ziwei-samples-on-vps.sh --extract"
+    fi
   fi
 
   cd "$APP_DIR"

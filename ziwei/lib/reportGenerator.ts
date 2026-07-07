@@ -1,8 +1,14 @@
 import type { ZiweiChart } from '@/lib/ziwei/types';
+import {
+  buildSampleContextForChart,
+  buildSampleContextForCouple,
+} from '@/lib/samples/prompt';
 
 const SYSTEM = `你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识。
 你的报告风格：温暖、专业、有洞察力；用现代语言诠释传统命理；结合心理学视角；客观中立，不做绝对化预言。
-请用中文撰写，输出 Markdown 格式，包含 ## 章节标题与 **重点** 标注。`;
+请用中文撰写，输出 Markdown 格式，包含 ## 章节标题与 **重点** 标注。
+
+若提供了「同盘型样本库参考」，请以其论断口径与倪海厦体系为基础，结合当前命盘数据个性化改写，不要照抄原文。`;
 
 function chartBrief(chart: ZiweiChart): string {
   const ming = chart.palaces.find((p) => p.name === '命宫');
@@ -11,17 +17,25 @@ function chartBrief(chart: ZiweiChart): string {
   return `${name} · ${chart.wuxingJuName} · 命宫 ${stars}`;
 }
 
-function buildSinglePrompt(chart: ZiweiChart, planType: string): string {
+async function buildSinglePrompt(chart: ZiweiChart, planType: string): Promise<string> {
   const depth = planType === 'basic'
     ? '撰写一份精炼的深度解读（约 800 字）'
     : planType === 'premium'
       ? '撰写一份完整终极报告（约 2000 字），含流年运势与开运建议'
       : '撰写一份完整深度报告（约 1200 字），含十二宫要点与能量手串建议';
 
+  const sampleCtx = await buildSampleContextForChart(chart, {
+    includeHeming: false,
+  });
+
+  const sampleSection = sampleCtx
+    ? `\n\n---\n${sampleCtx}\n---\n`
+    : '';
+
   return `${depth}，基于以下紫微命盘数据：
 
 ${JSON.stringify(chart, null, 2)}
-
+${sampleSection}
 报告须包含：
 ## 命盘总览
 ## 命宫与性格特质
@@ -31,12 +45,22 @@ ${JSON.stringify(chart, null, 2)}
 ## OraSage 建议`;
 }
 
-function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: string): string {
+async function buildCouplePrompt(
+  chartA: ZiweiChart,
+  chartB: ZiweiChart,
+  planType: string,
+): Promise<string> {
   const depth = planType === 'basic'
     ? '撰写一份精炼合盘解读（约 900 字）'
     : planType === 'premium'
       ? '撰写一份完整双人终极合盘报告（约 2200 字）'
       : '撰写一份完整合盘报告（约 1400 字）';
+
+  const sampleCtx = await buildSampleContextForCouple(chartA, chartB);
+
+  const sampleSection = sampleCtx
+    ? `\n\n---\n${sampleCtx}\n---\n`
+    : '';
 
   return `${depth}，分析以下两人紫微命盘的缘分匹配：
 
@@ -47,7 +71,7 @@ function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: str
 甲方：${JSON.stringify(chartA, null, 2)}
 
 乙方：${JSON.stringify(chartB, null, 2)}
-
+${sampleSection}
 报告须包含：
 ## 合盘总评
 ## 性格互补度
@@ -106,7 +130,7 @@ export async function generateZiweiReportContent(
   planType = 'advanced',
 ): Promise<string> {
   const prompt = type === 'couple'
-    ? buildCouplePrompt(payload.chartA!, payload.chartB!, planType)
-    : buildSinglePrompt(payload.chart!, planType);
+    ? await buildCouplePrompt(payload.chartA!, payload.chartB!, planType)
+    : await buildSinglePrompt(payload.chart!, planType);
   return callLlm(prompt);
 }

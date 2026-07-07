@@ -5,6 +5,7 @@ import {
   ADULT_PREVIEW_SYSTEM,
   MINOR_PREVIEW_SYSTEM,
 } from '@/lib/ai-prompts';
+import { buildSampleContextForChart } from '@/lib/samples';
 
 export const runtime = 'nodejs';
 
@@ -47,6 +48,14 @@ async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string
     process.env.AI_MODEL ||
     (process.env.DEEPSEEK_API_KEY ? 'deepseek-chat' : 'gpt-4o-mini');
 
+  const sampleCtx = await buildSampleContextForChart(chart, {
+    topicKeys: minorMode
+      ? ['overview', 'personality', 'health', 'spirit']
+      : ['overview', 'personality'],
+    minorMode,
+    includePatterns: false,
+  });
+
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -64,7 +73,9 @@ async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string
         },
         {
           role: 'user',
-          content: `命盘数据：\n${JSON.stringify(chart, null, 2)}`,
+          content: `命盘数据：\n${JSON.stringify(chart, null, 2)}${
+            sampleCtx ? `\n\n${sampleCtx}` : ''
+          }`,
         },
       ],
     }),
