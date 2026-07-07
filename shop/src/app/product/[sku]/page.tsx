@@ -10,6 +10,7 @@ import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductPageSections } from '@/components/ProductPageSections';
 import { ProductTestimonials } from '@/components/ProductTestimonials';
+import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 
 type PageProps = { params: Promise<{ sku: string }> };
@@ -54,6 +55,9 @@ export default async function ProductPage({ params }: PageProps) {
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
   const hasRichContent = Boolean(cmsPage?.sections.length || cmsPage?.heroImages.length);
+  const descTags = product.desc
+    ? product.desc.split('·').map((tag) => tag.trim()).filter(Boolean)
+    : [];
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -71,22 +75,36 @@ export default async function ProductPage({ params }: PageProps) {
             />
           </div>
 
-          <div className="shop-pdp-info">
+          <div className="shop-pdp-info-card">
+            <p className="shop-pdp-eyebrow">OraSage Energy Shop</p>
             <p className="shop-pdp-category">{categoryLabels[product.category]}</p>
             <h1 className="shop-pdp-title">{product.name}</h1>
             {englishSubtitle ? (
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
-            {product.element ? (
-              <p className="shop-pdp-element">五行 · {product.element}</p>
+            {descTags.length ? (
+              <ul className="shop-pdp-tag-list" aria-label="产品卖点">
+                {descTags.map((tag) => (
+                  <li key={tag} className="shop-pdp-tag">
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            ) : product.desc ? (
+              <p className="shop-pdp-desc">{product.desc}</p>
             ) : null}
-            {product.desc ? <p className="shop-pdp-desc">{product.desc}</p> : null}
             <p className="shop-pdp-price">{displayPrice}</p>
             <ProductDetailActions product={product} />
           </div>
         </div>
 
-        {hasRichContent ? <ProductPageSections sections={cmsPage?.sections ?? []} /> : null}
+        {hasRichContent ? (
+          <>
+            <div className="shop-pdp-divider" aria-hidden />
+            <ProductPageSections sections={cmsPage?.sections ?? []} />
+            <ProductBrandClosure element={product.element} sku={product.sku} />
+          </>
+        ) : null}
 
         {!hasRichContent && product.desc ? (
           <section className="shop-pdp-section shop-pdp-section--prose">
