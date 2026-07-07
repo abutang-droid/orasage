@@ -71,7 +71,7 @@ export function formatProduct(p: ProductRow, options?: { locale?: string }) {
     }),
     active: p.active,
     sortOrder: p.sortOrder,
-    shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,
+    shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
