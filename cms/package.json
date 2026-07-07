@@ -12,6 +12,7 @@
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "seed:tarot": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-tarot-faith.ts",
     "seed:tarot-geo": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-tarot-geo.ts",
+    "seed:shop-demo": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-shop-product-demo.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3120"
   },
