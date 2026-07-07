@@ -11,7 +11,7 @@ const CRYSTAL_LABELS: Record<string, string> = {
   'crystal-wood': '绿幽灵',
   'crystal-fire': '红玛瑙',
   'crystal-earth': '黄水晶',
-  'crystal-metal': '白水晶',
+  'crystal-metal': '澄明之境',
   'crystal-water': '海蓝宝',
 };
 
