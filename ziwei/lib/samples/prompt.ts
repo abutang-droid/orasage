@@ -3,6 +3,15 @@ import { detectPatterns } from '@/lib/ziwei/patterns';
 import { STAR_IN_FUQI_GU } from '@/lib/ziwei/heming-knowledge';
 import { lookupSampleTopics } from './lookup';
 import type { SampleTopicKey, SampleTopics } from './types';
+import { mergeTopicKeys, pickTopicsFromChart } from './chart-topics';
+import { formatDaXianLiuNianContext } from './daxian-context';
+import { buildClassicsContextForChart } from './classics-rag';
+import {
+  DEFAULT_MAX_CONTEXT_CHARS,
+  DEFAULT_MAX_TOPIC_CHARS,
+  limitTotalLength,
+  truncateText,
+} from './truncate';
 
 const TOPIC_LABELS: Record<SampleTopicKey, string> = {
   overview: '命格总览',
@@ -50,14 +59,27 @@ const CHAT_TOPIC_HINTS: Array<{ pattern: RegExp; keys: SampleTopicKey[] }> = [
   { pattern: /性格|命宫|为人/, keys: ['personality', 'overview'] },
 ];
 
+const LOVE_CHAT = /感情|婚姻|桃花|配偶|恋爱|夫妻|合盘|缘分/;
+
+function maxTopicChars(): number {
+  const n = Number(process.env.ZIWEI_SAMPLES_MAX_TOPIC_CHARS);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_TOPIC_CHARS;
+}
+
+function maxContextChars(): number {
+  const n = Number(process.env.ZIWEI_SAMPLES_MAX_CONTEXT_CHARS);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_CONTEXT_CHARS;
+}
+
 function formatTopicsBlock(
   topics: SampleTopics,
   keys: SampleTopicKey[],
   heading: string,
 ): string {
   const parts: string[] = [`【${heading}】`];
+  const cap = maxTopicChars();
   for (const key of keys) {
-    const text = topics[key]?.trim();
+    const text = truncateText(topics[key] ?? '', cap);
     if (!text) continue;
     parts.push(`## ${TOPIC_LABELS[key]}\n${text}`);
   }
@@ -69,7 +91,7 @@ function formatPatterns(chart: ZiweiChart): string {
   const patterns = detectPatterns(chart);
   if (!patterns.length) return '';
   const lines = patterns.slice(0, 8).map(
-    (p) => `- ${p.name}（${p.level}）：${p.description.slice(0, 120)}…`,
+    (p) => `- ${p.name}（${p.level}）：${truncateText(p.description, 120)}`,
   );
   return `【命盘格局识别】\n${lines.join('\n')}`;
 }
@@ -82,16 +104,33 @@ function formatHemingFuqi(chart: ZiweiChart): string {
   return `【夫妻宫参考（${major}）】\n${gu.summary}\n吉：${gu.good}\n注意：${gu.bad}`;
 }
 
+function shouldIncludeHeming(
+  chart: ZiweiChart,
+  userMessage: string,
+  mode?: string,
+): boolean {
+  if (mode === 'heming') return true;
+  if (LOVE_CHAT.test(userMessage)) return true;
+  const fuqi = chart.palaces.find((p) => p.name === '夫妻');
+  return Boolean(fuqi?.stars.some((s) => s.type === 'major'));
+}
+
 export function pickTopicsForChat(
   userMessage: string,
   minorMode: boolean,
+  chart?: ZiweiChart,
 ): SampleTopicKey[] {
   if (minorMode) return MINOR_TOPIC_KEYS;
-  const keys = new Set<SampleTopicKey>(['overview', 'personality']);
+
+  const fromMsg = new Set<SampleTopicKey>(['overview', 'personality']);
   for (const { pattern, keys: k } of CHAT_TOPIC_HINTS) {
-    if (pattern.test(userMessage)) k.forEach((x) => keys.add(x));
+    if (pattern.test(userMessage)) k.forEach((x) => fromMsg.add(x));
   }
-  return [...keys];
+
+  if (chart) {
+    return mergeTopicKeys([...fromMsg], pickTopicsFromChart(chart));
+  }
+  return [...fromMsg];
 }
 
 /** 为单人命盘构建样本库 + 格局参考块（注入 system prompt） */
@@ -102,24 +141,26 @@ export async function buildSampleContextForChart(
     minorMode?: boolean;
     includePatterns?: boolean;
     includeHeming?: boolean;
+    includeDaXian?: boolean;
+    includeClassics?: boolean;
     heading?: string;
   },
 ): Promise<string> {
   const topics = await lookupSampleTopics(chart.birthInfo);
-  if (!topics) return '';
-
-  const keys =
-    options?.topicKeys ??
-    (options?.minorMode ? MINOR_TOPIC_KEYS : REPORT_TOPIC_KEYS);
-
   const blocks: string[] = [];
 
-  const sampleBlock = formatTopicsBlock(
-    topics,
-    keys,
-    options?.heading ?? '同盘型样本库参考（倪海厦体系，请个性化改写勿照抄）',
-  );
-  if (sampleBlock) blocks.push(sampleBlock);
+  if (topics) {
+    const keys =
+      options?.topicKeys ??
+      (options?.minorMode ? MINOR_TOPIC_KEYS : REPORT_TOPIC_KEYS);
+
+    const sampleBlock = formatTopicsBlock(
+      topics,
+      keys,
+      options?.heading ?? '同盘型样本库参考（倪海厦体系，请个性化改写勿照抄）',
+    );
+    if (sampleBlock) blocks.push(sampleBlock);
+  }
 
   if (options?.includePatterns !== false) {
     const p = formatPatterns(chart);
@@ -131,14 +172,23 @@ export async function buildSampleContextForChart(
     if (h) blocks.push(h);
   }
 
-  return blocks.filter(Boolean).join('\n\n');
+  if (options?.includeDaXian !== false && !options?.minorMode) {
+    blocks.push(formatDaXianLiuNianContext(chart));
+  }
+
+  if (options?.includeClassics) {
+    const classics = buildClassicsContextForChart(chart);
+    if (classics) blocks.push(classics);
+  }
+
+  return limitTotalLength(blocks.filter(Boolean).join('\n\n'), maxContextChars());
 }
 
 /** 合盘：分别取两人样本参考 */
 export async function buildSampleContextForCouple(
   chartA: ZiweiChart,
   chartB: ZiweiChart,
-  options?: { minorMode?: boolean },
+  options?: { minorMode?: boolean; includeClassics?: boolean },
 ): Promise<string> {
   const [ctxA, ctxB] = await Promise.all([
     buildSampleContextForChart(chartA, {
@@ -147,6 +197,7 @@ export async function buildSampleContextForCouple(
         : ['overview', 'personality', 'love', 'career'],
       minorMode: options?.minorMode,
       includeHeming: true,
+      includeClassics: options?.includeClassics,
       heading: '甲方同盘型样本参考',
     }),
     buildSampleContextForChart(chartB, {
@@ -155,6 +206,7 @@ export async function buildSampleContextForCouple(
         : ['overview', 'personality', 'love', 'career'],
       minorMode: options?.minorMode,
       includeHeming: true,
+      includeClassics: options?.includeClassics,
       heading: '乙方同盘型样本参考',
     }),
   ]);
@@ -180,6 +232,7 @@ export async function buildSampleContextForInterpret(
     mode?: string;
     minorMode?: boolean;
     messages?: Array<{ role: string; content: string }>;
+    includeClassics?: boolean;
   },
 ): Promise<string> {
   const charts = extractChartsFromBody(chartData);
@@ -189,16 +242,81 @@ export async function buildSampleContextForInterpret(
     .reverse()
     .find((m) => m.role === 'user')?.content ?? '';
 
+  const includeClassics =
+    options.includeClassics ?? process.env.ZIWEI_CLASSICS_RAG !== 'false';
+
   if (options.mode === 'heming' && charts.length >= 2) {
     return buildSampleContextForCouple(charts[0], charts[1], {
       minorMode: options.minorMode,
+      includeClassics,
     });
   }
 
-  const topicKeys = pickTopicsForChat(lastUser, Boolean(options.minorMode));
-  return buildSampleContextForChart(charts[0], {
+  const chart = charts[0];
+  const topicKeys = pickTopicsForChat(
+    lastUser,
+    Boolean(options.minorMode),
+    chart,
+  );
+
+  return buildSampleContextForChart(chart, {
     topicKeys,
     minorMode: options.minorMode,
-    includeHeming: false,
+    includeHeming: shouldIncludeHeming(chart, lastUser, options.mode),
+    includeClassics,
   });
+}
+
+/** 预览页：直接取样本 overview（可选 personality 一句） */
+export async function buildPreviewFromSamples(
+  chart: ZiweiChart,
+  minorMode: boolean,
+): Promise<string | null> {
+  const topics = await lookupSampleTopics(chart.birthInfo);
+  if (!topics?.overview?.trim()) return null;
+
+  const name = chart.birthInfo.name?.trim() || '命主';
+  const ming = chart.palaces.find((p) => p.name === '命宫');
+  const major =
+    ming?.stars
+      .filter((s) => s.type === 'major')
+      .map((s) => s.name)
+      .join('、') || '空宫借星';
+
+  const overview = truncateText(topics.overview, 500);
+  const personality = minorMode
+    ? truncateText(topics.personality ?? '', 200)
+    : '';
+
+  const lines = [
+    `【${name}】${chart.wuxingJuName}命盘`,
+    '',
+    `命宫主星：${major}`,
+    '',
+    overview,
+  ];
+  if (personality) {
+    lines.push('', personality);
+  }
+
+  if (minorMode) {
+    lines.push(
+      '',
+      '登录后可向 Orasage 提问（每份排盘赠送 5 次免费对话），内容将限定在健康、学业与未来方向。',
+    );
+  } else {
+    const dx = chart.daXians[chart.currentDaXianIndex];
+    if (dx) {
+      lines.push(
+        '',
+        `当前大限在${chart.palaces.find((p) => p.branch === dx.palaceBranch)?.name ?? dx.palaceName}宫（${dx.startAge}–${dx.endAge}岁）。`,
+      );
+    }
+    lines.push(
+      '',
+      '登录后可向 Orasage 提问，获取针对你命盘的具体解读（每份排盘赠送 5 次免费对话）。',
+    );
+  }
+
+  return lines.join('\n');
 }

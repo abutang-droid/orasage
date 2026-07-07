@@ -5,7 +5,8 @@ import {
   ADULT_PREVIEW_SYSTEM,
   MINOR_PREVIEW_SYSTEM,
 } from '@/lib/ai-prompts';
-import { buildSampleContextForChart } from '@/lib/samples';
+import { buildPreviewFromSamples } from '@/lib/samples';
+import { truncateText } from '@/lib/samples/truncate';
 
 export const runtime = 'nodejs';
 
@@ -34,7 +35,12 @@ function ruleBasedPreview(chart: ZiweiChart, minorMode: boolean): string {
 登录后可向 Orasage 提问，获取针对你命盘的具体解读（每份排盘赠送 5 次免费对话）。`;
 }
 
-async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string | null> {
+/** 轻量 LLM 润色（默认关闭，设 ZIWEI_PREVIEW_LLM=true 开启） */
+async function polishPreviewWithLlm(
+  chart: ZiweiChart,
+  draft: string,
+  minorMode: boolean,
+): Promise<string | null> {
   const apiKey =
     process.env.MANUS_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
@@ -48,14 +54,6 @@ async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string
     process.env.AI_MODEL ||
     (process.env.DEEPSEEK_API_KEY ? 'deepseek-chat' : 'gpt-4o-mini');
 
-  const sampleCtx = await buildSampleContextForChart(chart, {
-    topicKeys: minorMode
-      ? ['overview', 'personality', 'health', 'spirit']
-      : ['overview', 'personality'],
-    minorMode,
-    includePatterns: false,
-  });
-
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -64,18 +62,16 @@ async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string
     },
     body: JSON.stringify({
       model,
-      temperature: 0.6,
-      max_tokens: 500,
+      temperature: 0.5,
+      max_tokens: 400,
       messages: [
         {
           role: 'system',
-          content: minorMode ? MINOR_PREVIEW_SYSTEM : ADULT_PREVIEW_SYSTEM,
+          content: `${minorMode ? MINOR_PREVIEW_SYSTEM : ADULT_PREVIEW_SYSTEM}\n\n请在不改变事实的前提下润色下方草稿，保持 200–350 字，勿添加新论断。`,
         },
         {
           role: 'user',
-          content: `命盘数据：\n${JSON.stringify(chart, null, 2)}${
-            sampleCtx ? `\n\n${sampleCtx}` : ''
-          }`,
+          content: `命盘摘要：${chart.wuxingJuName}，命宫主星 ${chart.palaces.find((p) => p.name === '命宫')?.stars.filter((s) => s.type === 'major').map((s) => s.name).join('、') || '空宫'}\n\n草稿：\n${truncateText(draft, 1200)}`,
         },
       ],
     }),
@@ -100,8 +96,19 @@ export async function POST(req: NextRequest) {
     if (!chart?.palaces?.length) {
       return NextResponse.json({ error: '缺少命盘数据' }, { status: 400 });
     }
-    const text = (await llmPreview(chart, minorMode)) ?? ruleBasedPreview(chart, minorMode);
-    return NextResponse.json({ text });
+
+    const sampleDraft = await buildPreviewFromSamples(chart, minorMode);
+    let text = sampleDraft;
+
+    if (text && process.env.ZIWEI_PREVIEW_LLM === 'true') {
+      text = (await polishPreviewWithLlm(chart, text, minorMode)) ?? text;
+    }
+
+    if (!text) {
+      text = ruleBasedPreview(chart, minorMode);
+    }
+
+    return NextResponse.json({ text, source: sampleDraft ? 'samples' : 'rule' });
   } catch (err) {
     console.error('[insight/preview]', err);
     return NextResponse.json({ error: '生成失败' }, { status: 500 });

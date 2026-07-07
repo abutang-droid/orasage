@@ -26,6 +26,7 @@ async function buildSinglePrompt(chart: ZiweiChart, planType: string): Promise<s
 
   const sampleCtx = await buildSampleContextForChart(chart, {
     includeHeming: false,
+    includeClassics: process.env.ZIWEI_CLASSICS_RAG !== 'false',
   });
 
   const sampleSection = sampleCtx
@@ -56,7 +57,9 @@ async function buildCouplePrompt(
       ? '撰写一份完整双人终极合盘报告（约 2200 字）'
       : '撰写一份完整合盘报告（约 1400 字）';
 
-  const sampleCtx = await buildSampleContextForCouple(chartA, chartB);
+  const sampleCtx = await buildSampleContextForCouple(chartA, chartB, {
+    includeClassics: process.env.ZIWEI_CLASSICS_RAG !== 'false',
+  });
 
   const sampleSection = sampleCtx
     ? `\n\n---\n${sampleCtx}\n---\n`

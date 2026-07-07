@@ -9,7 +9,8 @@
     "start": "next start -p 3111",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",
-    "prepare": "husky"
+    "prepare": "husky",
+    "eval:prompt": "npx --yes tsx scripts/eval-prompt-snapshots.ts"
   },
   "dependencies": {
     "@orasage/city": "file:../packages/city",

@@ -2,6 +2,7 @@ import { createReadStream } from 'node:fs';
 import { access } from 'node:fs/promises';
 import { createInterface } from 'node:readline';
 import { createGunzip } from 'node:zlib';
+import { DatabaseSync } from 'node:sqlite';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import {
   lookupKeyString,
@@ -20,6 +21,9 @@ const DEFAULT_SAMPLES_ROOT =
 const monthCache = new Map<string, Map<string, SampleTopics>>();
 const MONTH_CACHE_MAX = 8;
 
+let sqliteDb: DatabaseSync | null = null;
+let sqliteChecked = false;
+
 function samplesEnabled(): boolean {
   if (process.env.ZIWEI_SAMPLES_ENABLED === 'false') return false;
   return true;
@@ -29,12 +33,52 @@ function getSamplesRoot(): string {
   return process.env.ZIWEI_SAMPLES_DIR || DEFAULT_SAMPLES_ROOT;
 }
 
+function getSqliteIndexPath(): string | null {
+  const explicit = process.env.ZIWEI_SAMPLES_INDEX?.trim();
+  if (explicit) return explicit;
+  const root = getSamplesRoot();
+  return `${root}/samples-index.sqlite`;
+}
+
 async function fileExists(path: string): Promise<boolean> {
   try {
     await access(path);
     return true;
   } catch {
     return false;
+  }
+}
+
+function getSqliteDb(): DatabaseSync | null {
+  if (sqliteChecked) return sqliteDb;
+  sqliteChecked = true;
+
+  const path = getSqliteIndexPath();
+  if (!path) return null;
+
+  try {
+    const db = new DatabaseSync(path, { readOnly: true });
+    db.prepare('SELECT 1 FROM samples LIMIT 1').get();
+    sqliteDb = db;
+  } catch {
+    sqliteDb = null;
+  }
+  return sqliteDb;
+}
+
+function lookupFromSqlite(key: SampleLookupKey): SampleTopics | null {
+  const db = getSqliteDb();
+  if (!db) return null;
+
+  const row = db
+    .prepare('SELECT topics_json FROM samples WHERE lookup_key = ?')
+    .get(lookupKeyString(key)) as { topics_json?: string } | undefined;
+
+  if (!row?.topics_json) return null;
+  try {
+    return JSON.parse(row.topics_json) as SampleTopics;
+  } catch {
+    return null;
   }
 }
 
@@ -81,13 +125,7 @@ async function loadMonthCache(archivePath: string): Promise<Map<string, SampleTo
   return topicsByKey;
 }
 
-/** 按 birthInfo 查询样本库 topics；未命中返回 null */
-export async function lookupSampleTopics(
-  birthInfo: BirthInfo,
-): Promise<SampleTopics | null> {
-  if (!samplesEnabled()) return null;
-
-  const key = normalizeLookupKey(birthInfoToLookupKey(birthInfo));
+async function lookupFromGzip(key: SampleLookupKey): Promise<SampleTopics | null> {
   const root = getSamplesRoot();
   const archivePath = sampleArchivePath(root, key);
 
@@ -95,6 +133,20 @@ export async function lookupSampleTopics(
   if (!month) return null;
 
   return month.get(lookupKeyString(key)) ?? null;
+}
+
+/** 按 birthInfo 查询样本库 topics；未命中返回 null */
+export async function lookupSampleTopics(
+  birthInfo: BirthInfo,
+): Promise<SampleTopics | null> {
+  if (!samplesEnabled()) return null;
+
+  const key = normalizeLookupKey(birthInfoToLookupKey(birthInfo));
+
+  const fromSqlite = lookupFromSqlite(key);
+  if (fromSqlite) return fromSqlite;
+
+  return lookupFromGzip(key);
 }
 
 /** 完整样本记录（含 birthInfo 校验） */
@@ -112,6 +164,10 @@ export async function lookupSample(birthInfo: BirthInfo): Promise<SampleRecord |
 /** 预检：样本目录是否可用 */
 export async function isSampleLibraryAvailable(): Promise<boolean> {
   if (!samplesEnabled()) return false;
+
+  const indexPath = getSqliteIndexPath();
+  if (indexPath && (await fileExists(indexPath))) return true;
+
   const root = getSamplesRoot();
   const probe = sampleArchivePath(
     root,

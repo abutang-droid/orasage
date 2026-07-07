@@ -92,6 +92,16 @@ deploy_native() {
         echo "ZIWEI_SAMPLES_DIR=$samples_root" >> "$APP_DIR/.env"
       fi
       log "已配置 ZIWEI_SAMPLES_DIR=$samples_root"
+      if [ -f "$samples_root/samples-index.sqlite" ]; then
+        if grep -q '^ZIWEI_SAMPLES_INDEX=' "$APP_DIR/.env"; then
+          sed -i "s|^ZIWEI_SAMPLES_INDEX=.*|ZIWEI_SAMPLES_INDEX=$samples_root/samples-index.sqlite|" "$APP_DIR/.env"
+        else
+          echo "ZIWEI_SAMPLES_INDEX=$samples_root/samples-index.sqlite" >> "$APP_DIR/.env"
+        fi
+        log "已配置 ZIWEI_SAMPLES_INDEX（SQLite 加速）"
+      else
+        log "提示: 可运行 node $DEPLOY_DIR/scripts/ziwei-samples/build-sqlite-index.mjs 构建索引"
+      fi
     else
       log "提示: 样本库未找到 ($samples_root)，AI 解读将不注入样本参考"
       log "  运行: sudo bash $DEPLOY_DIR/deploy/download-ziwei-samples-on-vps.sh --extract"
