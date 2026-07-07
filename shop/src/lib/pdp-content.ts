@@ -22,18 +22,11 @@ const CRYSTAL_MATERIALS: Record<string, string> = {
   'crystal-water': '天然黑曜石',
 };
 
-export type QuickFact = { label: string; value: string };
-
-/** 首屏属性速览：五行 / 材质 / 珠径 / 手围（仅水晶 SKU） */
-export function buildQuickFacts(sku: string, element?: string | null): QuickFact[] {
+/** 标题上方小字：水晶 SKU 显示「五行·X · 材质」，其余返回 null 走类目回退 */
+export function productEyebrow(sku: string, element?: string | null): string | null {
   const material = CRYSTAL_MATERIALS[sku];
-  if (!material) return [];
-  return [
-    { label: '五行', value: element ? `${element}` : '—' },
-    { label: '材质', value: material },
-    { label: '珠径', value: '约 8mm' },
-    { label: '手围', value: '15–19cm 可选' },
-  ];
+  if (!material) return null;
+  return element ? `五行·${element} · ${material}` : material;
 }
 
 function firstRichTitle(body: string): string {

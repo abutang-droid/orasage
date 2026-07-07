@@ -6,12 +6,12 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
-import { buildPdpContent, buildQuickFacts } from '@/lib/pdp-content';
+import { buildPdpContent, productEyebrow } from '@/lib/pdp-content';
 import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
-import { ProductQuickFacts } from '@/components/ProductQuickFacts';
 import { ProductManifest } from '@/components/ProductManifest';
+import { ProductSceneVideo } from '@/components/ProductSceneVideo';
 import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: PageProps) {
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
   const content = buildPdpContent(cmsPage?.sections ?? []);
-  const quickFacts = buildQuickFacts(product.sku, product.element);
+  const eyebrow = productEyebrow(product.sku, product.element) ?? categoryLabels[product.category];
   const hasAccordion = content.accordions.length > 0;
 
   return (
@@ -75,27 +75,28 @@ export default async function ProductPage({ params }: PageProps) {
               images={cmsPage?.heroImages ?? []}
               productName={product.name}
               fallbackUrl={listThumbnail}
+              videoUrl={cmsPage?.galleryVideoUrl}
             />
           </div>
 
           <div className="shop-pdp-info">
-            <p className="shop-pdp-category">{categoryLabels[product.category]}</p>
+            <p className="shop-pdp-category">{eyebrow}</p>
             <h1 className="shop-pdp-title">{product.name}</h1>
             {englishSubtitle ? (
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
             <p className="shop-pdp-price">{displayPrice}</p>
-            <ProductQuickFacts facts={quickFacts} />
-            {!quickFacts.length && product.desc ? (
-              <p className="shop-pdp-desc">{product.desc}</p>
-            ) : null}
             <ProductDetailActions product={product} />
             {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
-            {!hasAccordion && product.desc && quickFacts.length ? (
+            {!hasAccordion && product.desc ? (
               <p className="shop-pdp-desc">{product.desc}</p>
             ) : null}
           </div>
         </div>
+
+        {cmsPage?.sceneVideoUrl ? (
+          <ProductSceneVideo src={cmsPage.sceneVideoUrl} productName={product.name} />
+        ) : null}
 
         {content.manifest ? <ProductManifest section={content.manifest} /> : null}
 

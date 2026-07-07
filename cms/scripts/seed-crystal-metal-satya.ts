@@ -13,6 +13,8 @@ const SATYA_PAGE = {
   seoTitle: '澄明之境 · 白水晶能量手串 | OraSage Energy Shop',
   seoDescription:
     '天然白水晶能量手串，被称为 Master Healer。净化能量场、放大正向意图，适合需要清晰决策与五行补金的你。',
+  galleryVideoUrl: 'https://shop.orasage.com/videos/crystal-metal-scene.mp4',
+  sceneVideoUrl: 'https://shop.orasage.com/videos/crystal-metal-scene.mp4',
   sections: [
     {
       type: 'richText',
@@ -181,6 +183,8 @@ async function main() {
     subtitle: SATYA_PAGE.subtitle,
     seoTitle: SATYA_PAGE.seoTitle,
     seoDescription: SATYA_PAGE.seoDescription,
+    galleryVideoUrl: SATYA_PAGE.galleryVideoUrl,
+    sceneVideoUrl: SATYA_PAGE.sceneVideoUrl,
     heroImages,
     sections: SATYA_PAGE.sections,
   };

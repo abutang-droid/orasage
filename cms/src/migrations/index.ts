@@ -21,6 +21,7 @@ import * as migration_20260706_100000_geo_faith from './20260706_100000_geo_fait
 import * as migration_20260706_120000_worship_facing from './20260706_120000_worship_facing';
 import * as migration_20260706_140000_shop_product_images from './20260706_140000_shop_product_images';
 import * as migration_20260707_100000_shop_product_pages from './20260707_100000_shop_product_pages';
+import * as migration_20260707_150000_shop_product_video from './20260707_150000_shop_product_video';
 
 export const migrations = [
   {
@@ -137,5 +138,10 @@ export const migrations = [
     up: migration_20260707_100000_shop_product_pages.up,
     down: migration_20260707_100000_shop_product_pages.down,
     name: '20260707_100000_shop_product_pages',
+  },
+  {
+    up: migration_20260707_150000_shop_product_video.up,
+    down: migration_20260707_150000_shop_product_video.down,
+    name: '20260707_150000_shop_product_video',
   },
 ];
