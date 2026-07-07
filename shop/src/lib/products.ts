@@ -20,11 +20,11 @@ export interface Product {
 
 /** 静态兜底（auth-service 不可用时） */
 export const FALLBACK_PRODUCTS: Product[] = [
-  { sku: 'crystal-wood', name: '绿幽灵手串', element: '木', desc: '招财旺运 · 五行补木', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
-  { sku: 'crystal-fire', name: '红玛瑙手串', element: '火', desc: '补火平衡 · 增强活力', priceCents: 9800, priceCentsUsd: 1361, category: 'crystal' },
-  { sku: 'crystal-earth', name: '黄水晶手串', element: '土', desc: '稳固根基 · 聚财守正', priceCents: 10800, priceCentsUsd: 1500, category: 'crystal' },
+  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 招财旺运 · 生机生长', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
+  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 提振活力 · 勇敢行动', priceCents: 9800, priceCentsUsd: 1361, category: 'crystal' },
+  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固根基 · 聚财守正', priceCents: 10800, priceCentsUsd: 1500, category: 'crystal' },
   { sku: 'crystal-metal', name: '澄明之境 · 白水晶能量手串', element: '金', desc: '五行属金 · 净化能量 · 思绪澄明', priceCents: 8800, priceCentsUsd: 1222, category: 'crystal' },
-  { sku: 'crystal-water', name: '黑曜石手串', element: '水', desc: '辟邪护身 · 吸收负能量', priceCents: 11800, priceCentsUsd: 1639, category: 'crystal' },
+  { sku: 'crystal-water', name: '深海静盾 · 黑曜石能量手串', element: '水', desc: '五行属水 · 辟邪护身 · 建立边界', priceCents: 11800, priceCentsUsd: 1639, category: 'crystal' },
   { sku: 'report-bazi', name: '八字深度报告', desc: '完整命盘解析 · PDF 交付', priceCents: 6800, priceCentsUsd: 944, category: 'report' },
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
   { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, priceCentsUsd: 1375, category: 'report' },
