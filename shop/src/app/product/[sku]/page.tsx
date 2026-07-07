@@ -55,9 +55,6 @@ export default async function ProductPage({ params }: PageProps) {
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
   const hasRichContent = Boolean(cmsPage?.sections.length || cmsPage?.heroImages.length);
-  const descTags = product.desc
-    ? product.desc.split('·').map((tag) => tag.trim()).filter(Boolean)
-    : [];
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -75,24 +72,13 @@ export default async function ProductPage({ params }: PageProps) {
             />
           </div>
 
-          <div className="shop-pdp-info-card">
-            <p className="shop-pdp-eyebrow">OraSage Energy Shop</p>
+          <div className="shop-pdp-info">
             <p className="shop-pdp-category">{categoryLabels[product.category]}</p>
             <h1 className="shop-pdp-title">{product.name}</h1>
             {englishSubtitle ? (
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
-            {descTags.length ? (
-              <ul className="shop-pdp-tag-list" aria-label="产品卖点">
-                {descTags.map((tag) => (
-                  <li key={tag} className="shop-pdp-tag">
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-            ) : product.desc ? (
-              <p className="shop-pdp-desc">{product.desc}</p>
-            ) : null}
+            {product.desc ? <p className="shop-pdp-desc">{product.desc}</p> : null}
             <p className="shop-pdp-price">{displayPrice}</p>
             <ProductDetailActions product={product} />
           </div>
@@ -100,7 +86,6 @@ export default async function ProductPage({ params }: PageProps) {
 
         {hasRichContent ? (
           <>
-            <div className="shop-pdp-divider" aria-hidden />
             <ProductPageSections sections={cmsPage?.sections ?? []} />
             <ProductBrandClosure element={product.element} sku={product.sku} />
           </>

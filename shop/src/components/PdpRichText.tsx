@@ -9,15 +9,15 @@ export function PdpRichText({ body }: { body: string }) {
       {blocks.map((block, index) => {
         if (block.type === 'banner') {
           return (
-            <p key={index} className="shop-pdp-rich-banner">
+            <h2 key={index} className="shop-pdp-passage-heading">
               {block.title}
-            </p>
+            </h2>
           );
         }
 
         if (block.type === 'feature') {
           return (
-            <article key={index} className="shop-pdp-feature">
+            <div key={index} className="shop-pdp-feature">
               <h3 className="shop-pdp-feature-title">{block.heading}</h3>
               {block.bullets.length ? (
                 <ul className="shop-pdp-feature-list">
@@ -31,7 +31,7 @@ export function PdpRichText({ body }: { body: string }) {
                   {para}
                 </p>
               ))}
-            </article>
+            </div>
           );
         }
 
@@ -43,10 +43,8 @@ export function PdpRichText({ body }: { body: string }) {
                   <span className="shop-pdp-timing-icon" aria-hidden>
                     {item.icon}
                   </span>
-                  <span className="shop-pdp-timing-copy">
-                    <span className="shop-pdp-timing-scene">{item.scene}</span>
-                    <span className="shop-pdp-timing-effect">{item.effect}</span>
-                  </span>
+                  <span className="shop-pdp-timing-scene">{item.scene}</span>
+                  <span className="shop-pdp-timing-effect">{item.effect}</span>
                 </li>
               ))}
             </ul>
