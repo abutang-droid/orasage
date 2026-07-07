@@ -168,11 +168,7 @@ export function ToolCards() {
               </div>
             </div>
             <span className="ml-auto shrink-0 self-center text-lg text-muted-foreground transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-foreground sm:hidden" aria-hidden>
-<<<<<<< Updated upstream
               ›
-=======
-              <Icon name="chevronRight" className="h-4 w-4" />
->>>>>>> Stashed changes
             </span>
           </a>
         ))}
