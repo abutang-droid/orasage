@@ -9,9 +9,9 @@ export function PdpRichText({ body }: { body: string }) {
       {blocks.map((block, index) => {
         if (block.type === 'banner') {
           return (
-            <h2 key={index} className="shop-pdp-passage-heading">
+            <h3 key={index} className="shop-pdp-rich-banner">
               {block.title}
-            </h2>
+            </h3>
           );
         }
 

@@ -1,0 +1,72 @@
+import Link from 'next/link';
+import type { Product } from '@/lib/products';
+import { ProductImage } from '@/components/ProductImage';
+import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import type { ShopCurrency } from '@/lib/currency';
+
+export async function RelatedProducts({ skus, title }: { skus: string[]; title?: string }) {
+  if (!skus.length) return null;
+
+  const { fetchProducts } = await import('@/lib/products');
+  const { fetchProductImageMap } = await import('@/lib/cms-product-images');
+  const { getServerShopLocale } = await import('@/lib/currency-server');
+
+  const locale = await getServerShopLocale();
+  const [products, imageMap] = await Promise.all([fetchProducts(locale), fetchProductImageMap()]);
+  const related = skus
+    .map((sku) => products.find((p) => p.sku === sku))
+    .filter((p): p is Product => Boolean(p))
+    .slice(0, 3);
+
+  if (!related.length) return null;
+
+  const currency = (await import('@/lib/currency')).currencyForLocale(locale);
+
+  return (
+    <div className="shop-pdp-related">
+      <h3 className="shop-pdp-related-heading">{title || '与之共振'}</h3>
+      <div className="shop-pdp-related-grid">
+        {related.map((product) => (
+          <RelatedProductCard
+            key={product.sku}
+            product={product}
+            imageUrl={imageMap.get(product.sku) ?? product.imageUrl ?? null}
+            currency={currency}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RelatedProductCard({
+  product,
+  imageUrl,
+  currency,
+}: {
+  product: Product;
+  imageUrl: string | null;
+  currency: ShopCurrency;
+}) {
+  const displayCents =
+    product.priceCentsResolved ??
+    resolvePriceCents(
+      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
+      currency,
+    );
+  const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
+
+  return (
+    <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-pdp-related-card">
+      <ProductImage
+        sku={product.sku}
+        name={product.name}
+        category={product.category}
+        imageUrl={imageUrl}
+        className="shop-pdp-related-image"
+      />
+      <span className="shop-pdp-related-name">{product.name}</span>
+      <span className="shop-pdp-related-price">{displayPrice}</span>
+    </Link>
+  );
+}

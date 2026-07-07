@@ -6,11 +6,15 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
+import { buildPdpContent, buildQuickFacts } from '@/lib/pdp-content';
 import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
-import { ProductPageSections } from '@/components/ProductPageSections';
+import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
+import { ProductQuickFacts } from '@/components/ProductQuickFacts';
+import { ProductManifest } from '@/components/ProductManifest';
 import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
+import { RelatedProducts } from '@/components/RelatedProducts';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 
 type PageProps = { params: Promise<{ sku: string }> };
@@ -54,7 +58,9 @@ export default async function ProductPage({ params }: PageProps) {
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
-  const hasRichContent = Boolean(cmsPage?.sections.length || cmsPage?.heroImages.length);
+  const content = buildPdpContent(cmsPage?.sections ?? []);
+  const quickFacts = buildQuickFacts(product.sku, product.element);
+  const hasAccordion = content.accordions.length > 0;
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -78,27 +84,38 @@ export default async function ProductPage({ params }: PageProps) {
             {englishSubtitle ? (
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
-            {product.desc ? <p className="shop-pdp-desc">{product.desc}</p> : null}
             <p className="shop-pdp-price">{displayPrice}</p>
+            <ProductQuickFacts facts={quickFacts} />
+            {!quickFacts.length && product.desc ? (
+              <p className="shop-pdp-desc">{product.desc}</p>
+            ) : null}
             <ProductDetailActions product={product} />
+            {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
+            {!hasAccordion && product.desc && quickFacts.length ? (
+              <p className="shop-pdp-desc">{product.desc}</p>
+            ) : null}
           </div>
         </div>
 
-        {hasRichContent ? (
-          <>
-            <ProductPageSections sections={cmsPage?.sections ?? []} />
-            <ProductBrandClosure element={product.element} sku={product.sku} />
-          </>
-        ) : null}
+        {content.manifest ? <ProductManifest section={content.manifest} /> : null}
 
-        {!hasRichContent && product.desc ? (
-          <section className="shop-pdp-section shop-pdp-section--prose">
-            <h2 className="shop-pdp-section-title">商品说明</h2>
-            <div className="shop-pdp-section-body">{product.desc}</div>
+        {content.quote?.quote ? (
+          <section className="shop-pdp-advisor">
+            <blockquote className="shop-pdp-quote">
+              <p>{content.quote.quote}</p>
+              {content.quote.attribution ? (
+                <footer className="shop-pdp-quote-footer">— {content.quote.attribution}</footer>
+              ) : null}
+            </blockquote>
           </section>
         ) : null}
 
         <ProductTestimonials items={testimonials} />
+
+        <section className="shop-pdp-finale">
+          <ProductBrandClosure element={product.element} sku={product.sku} />
+          <RelatedProducts skus={content.relatedSkus} title={content.relatedTitle} />
+        </section>
       </div>
     </main>
   );
