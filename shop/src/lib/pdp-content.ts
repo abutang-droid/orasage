@@ -14,6 +14,14 @@ export type PdpContent = {
   relatedTitle?: string;
 };
 
+const CRYSTAL_SKUS = [
+  'crystal-wood',
+  'crystal-fire',
+  'crystal-earth',
+  'crystal-metal',
+  'crystal-water',
+] as const;
+
 const CRYSTAL_MATERIALS: Record<string, string> = {
   'crystal-wood': '天然绿幽灵',
   'crystal-fire': '天然红玛瑙',
@@ -109,4 +117,22 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
     .filter((item): item is PdpAccordionItem => Boolean(item));
 
   return { accordions, manifest, quote, relatedSkus, relatedTitle };
+}
+
+/** 五行水晶 PDP：与之共振固定推荐其余 4 款水晶（CMS 可覆盖排序） */
+export function resolveRelatedCrystalSkus(currentSku: string, cmsSkus: string[]): string[] {
+  if (!CRYSTAL_SKUS.includes(currentSku as (typeof CRYSTAL_SKUS)[number])) {
+    return cmsSkus;
+  }
+  const others = CRYSTAL_SKUS.filter((sku) => sku !== currentSku);
+  const ordered: string[] = [];
+  for (const sku of cmsSkus) {
+    if (sku !== currentSku && others.includes(sku as (typeof CRYSTAL_SKUS)[number]) && !ordered.includes(sku)) {
+      ordered.push(sku);
+    }
+  }
+  for (const sku of others) {
+    if (!ordered.includes(sku)) ordered.push(sku);
+  }
+  return ordered.slice(0, 4);
 }

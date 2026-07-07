@@ -441,7 +441,7 @@
 .shop-pdp-manifest {
   width: 100%;
   max-width: 36rem;
-  margin: 3.5rem auto 0;
+  margin: 3rem auto 0;
   text-align: center;
 }
 
@@ -488,7 +488,9 @@
 .shop-pdp-closure {
   width: 100%;
   max-width: 40rem;
-  margin: 0 auto;
+  margin: 3.5rem auto 0;
+  padding-top: 3rem;
+  border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
   text-align: center;
 }
 
@@ -728,18 +730,20 @@
 
 .shop-pdp-related {
   width: 100%;
-  max-width: 44rem;
+  max-width: 52rem;
   margin: 0 auto;
-}
-
-.shop-pdp-closure + .shop-pdp-related {
-  margin-top: 3rem;
 }
 
 .shop-pdp-related-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .shop-pdp-related-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .shop-pdp-related-card {
@@ -771,7 +775,7 @@
 
 .shop-pdp-voices {
   width: 100%;
-  margin: 3.5rem auto 0;
+  margin: 3rem auto 0;
   padding-top: 3rem;
   border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
 }
@@ -973,7 +977,7 @@
 }
 
 .shop-pdp-finale {
-  margin-top: 3.5rem;
+  margin-top: 3rem;
   padding-top: 3rem;
   border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);
 }

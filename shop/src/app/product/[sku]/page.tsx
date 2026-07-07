@@ -6,7 +6,7 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
-import { buildPdpContent, productEyebrow } from '@/lib/pdp-content';
+import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus } from '@/lib/pdp-content';
 import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
@@ -59,6 +59,7 @@ export default async function ProductPage({ params }: PageProps) {
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
   const content = buildPdpContent(cmsPage?.sections ?? []);
+  const relatedSkus = resolveRelatedCrystalSkus(product.sku, content.relatedSkus);
   const eyebrow = productEyebrow(product.sku, product.element) ?? categoryLabels[product.category];
   const hasAccordion = content.accordions.length > 0;
 
@@ -94,11 +95,11 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
         </div>
 
+        {content.manifest ? <ProductManifest section={content.manifest} /> : null}
+
         {cmsPage?.sceneVideoUrl ? (
           <ProductSceneVideo src={cmsPage.sceneVideoUrl} productName={product.name} />
         ) : null}
-
-        {content.manifest ? <ProductManifest section={content.manifest} /> : null}
 
         {content.quote?.quote ? (
           <section className="shop-pdp-advisor">
@@ -111,11 +112,12 @@ export default async function ProductPage({ params }: PageProps) {
           </section>
         ) : null}
 
+        <ProductBrandClosure element={product.element} sku={product.sku} />
+
         <ProductTestimonials items={testimonials} />
 
         <section className="shop-pdp-finale">
-          <ProductBrandClosure element={product.element} sku={product.sku} />
-          <RelatedProducts skus={content.relatedSkus} title={content.relatedTitle} />
+          <RelatedProducts skus={relatedSkus} title={content.relatedTitle} />
         </section>
       </div>
     </main>
