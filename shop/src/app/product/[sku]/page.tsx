@@ -112,7 +112,7 @@ export default async function ProductPage({ params }: PageProps) {
           </section>
         ) : null}
 
-        <ProductBrandClosure element={product.element} sku={product.sku} />
+        <ProductBrandClosure element={product.element} sku={product.sku} category={product.category} />
 
         <ProductTestimonials items={testimonials} />
 

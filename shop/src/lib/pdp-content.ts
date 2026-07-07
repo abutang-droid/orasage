@@ -30,20 +30,44 @@ const CRYSTAL_MATERIALS: Record<string, string> = {
   'crystal-water': '天然黑曜石',
 };
 
-/** 标题上方小字：水晶 SKU 显示「五行·X · 材质」，其余返回 null 走类目回退 */
+const REPORT_EYEBROWS: Array<{ match: (sku: string) => boolean; label: string }> = [
+  { match: (sku) => sku.includes('bazi'), label: '八字解读 · 数字报告' },
+  { match: (sku) => sku.includes('ziwei'), label: '紫微斗数 · 数字报告' },
+  { match: (sku) => sku.includes('tarot') || sku === 'tarot-daily-draw', label: '塔罗解读 · 数字报告' },
+];
+
+const SERVICE_EYEBROWS: Record<string, string> = {
+  'service-consult': '能量咨询 · 一对一',
+  'ziwei-chat-pack-10': '紫微问答 · 加量包',
+  'ziwei-chat-yearly': '紫微问答 · 年卡',
+  'temple-donation': '祈福乐捐 · 自愿支持',
+};
+
+/** 标题上方小字：水晶/报告/服务类目标签 */
 export function productEyebrow(sku: string, element?: string | null): string | null {
   const material = CRYSTAL_MATERIALS[sku];
-  if (!material) return null;
-  return element ? `五行·${element} · ${material}` : material;
+  if (material) return element ? `五行·${element} · ${material}` : material;
+
+  const report = REPORT_EYEBROWS.find((r) => r.match(sku));
+  if (report) return report.label;
+
+  return SERVICE_EYEBROWS[sku] ?? null;
 }
 
 function firstRichTitle(body: string): string {
-  if (body.includes('✦')) return '能量详解';
+  if (body.includes('✦')) {
+    if (body.includes('解读') || body.includes('运势') || body.includes('牌阵')) return '报告详解';
+    if (body.includes('咨询') || body.includes('对话') || body.includes('乐捐')) return '服务详解';
+    return '能量详解';
+  }
   return '商品详情';
 }
 
 function laterRichTitle(body: string): string {
   if (body.includes('图谱') || body.includes('灵性')) return '灵性故事';
+  if (body.includes('方法论') || body.includes('意义') || body.includes('觉察') || body.includes('祈福')) {
+    return '深度解读';
+  }
   return '更多介绍';
 }
 
@@ -68,7 +92,7 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
 
   for (const section of sections) {
     if (section.type === 'quote' && section.quote) {
-      if (section.attribution?.includes('Wear to Manifest')) manifest = section;
+      if (section.attribution?.includes('Manifest')) manifest = section;
       else quote = section;
       continue;
     }
@@ -83,8 +107,8 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
       richCount += 1;
       if (richCount === 1) {
         put('details', firstRichTitle(section.body), section);
-      } else if (section.body.includes('搭配')) {
-        put('guide', '佩戴指南与搭配', section);
+      } else if (section.body.includes('搭配') || section.body.includes('升级路径')) {
+        put('guide', section.body.includes('升级') ? '升级路径' : '佩戴指南与搭配', section);
       } else {
         put(buckets.has('story') ? 'extra' : 'story', laterRichTitle(section.body), section);
       }
@@ -109,7 +133,10 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
 
   const guide = buckets.get('guide');
   if (guide && guide.sections.length > 1) {
-    guide.title = '佩戴指南与搭配';
+    const hasUpgrade = guide.sections.some(
+      (s) => s.type === 'richText' && s.body?.includes('升级'),
+    );
+    guide.title = hasUpgrade ? '使用指南与升级' : '佩戴指南与搭配';
   }
 
   const accordions = order
@@ -122,7 +149,7 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
 /** 五行水晶 PDP：与之共振固定推荐其余 4 款水晶（CMS 可覆盖排序） */
 export function resolveRelatedCrystalSkus(currentSku: string, cmsSkus: string[]): string[] {
   if (!CRYSTAL_SKUS.includes(currentSku as (typeof CRYSTAL_SKUS)[number])) {
-    return cmsSkus;
+    return cmsSkus.slice(0, 4);
   }
   const others = CRYSTAL_SKUS.filter((sku) => sku !== currentSku);
   const ordered: string[] = [];
