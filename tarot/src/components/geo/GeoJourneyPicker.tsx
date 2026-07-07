@@ -91,7 +91,6 @@ export function GeoJourneyPicker({
   const [manualListMode, setManualListMode] = useState(false);
   const [detectedSuggestion, setDetectedSuggestion] = useState<CountrySuggestion | null>(null);
   const initDone = useRef(false);
-  const detectionHandled = useRef(false);
 
   const { suggestion, resolving: locationResolving, resolved: locationResolved } = useCountrySuggestion(
     allCountries,
@@ -210,9 +209,9 @@ export function GeoJourneyPicker({
   );
 
   useEffect(() => {
-    if (!locationResolved || detectionHandled.current) return;
+    if (!locationResolved) return;
     if (value?.continentCode && value?.countryCode) return;
-    detectionHandled.current = true;
+    if (countryCode || manualListMode || detectedSuggestion) return;
 
     if (suggestion) {
       setDetectedSuggestion(suggestion);
@@ -221,7 +220,16 @@ export function GeoJourneyPicker({
     }
 
     setManualListMode(true);
-  }, [locationResolved, suggestion, value?.continentCode, value?.countryCode, loadCountries]);
+  }, [
+    locationResolved,
+    suggestion,
+    countryCode,
+    manualListMode,
+    detectedSuggestion,
+    value?.continentCode,
+    value?.countryCode,
+    loadCountries,
+  ]);
 
   const pickRegion = useCallback((code: string) => {
     setPendingRegion(code);
@@ -259,6 +267,16 @@ export function GeoJourneyPicker({
   }, [detectedSuggestion, applyDetectedCountry]);
 
   const rejectDetectedCountry = useCallback(() => {
+    setDetectedSuggestion(null);
+    setManualListMode(true);
+    setContinentCode('');
+    setCountryCode('');
+    setPendingCountry(null);
+    setPendingRegion(null);
+    setStep('region');
+  }, []);
+
+  const skipToManualSelection = useCallback(() => {
     setDetectedSuggestion(null);
     setManualListMode(true);
     setContinentCode('');
@@ -595,7 +613,16 @@ export function GeoJourneyPicker({
             <h1 className="geo-journey-title">{stepTitle}</h1>
             <p className="geo-journey-hint">{stepHint}</p>
             {locationResolving && !showDetectConfirm && !manualListMode ? (
-              <p className="geo-journey-locating">正在尝试根据你的位置识别国家…</p>
+              <div className="geo-journey-locating-wrap">
+                <p className="geo-journey-locating">正在尝试根据你的位置识别国家…</p>
+                <button
+                  type="button"
+                  className="geo-journey-locating-skip"
+                  onClick={skipToManualSelection}
+                >
+                  跳过，手动选择
+                </button>
+              </div>
             ) : null}
           </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { detectCountryFromGeolocation, type GeoDetectSource } from '@/lib/geo/detect-country';
+import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 import type { GeoCountry } from '@/lib/geo/types';
 
 export type CountrySuggestion = {
@@ -14,6 +15,9 @@ type IpSuggestResponse = {
   country: GeoCountry | null;
   source: string;
 };
+
+const RESOLVE_TIMEOUT_MS = 18_000;
+const IP_SUGGEST_TIMEOUT_MS = 8_000;
 
 function matchCountry(code: string, countries: GeoCountry[]): GeoCountry | null {
   const upper = code.toUpperCase();
@@ -35,29 +39,38 @@ export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolea
 
     let cancelled = false;
 
+    async function resolveLocation(): Promise<CountrySuggestion | null> {
+      const gpsCode = await detectCountryFromGeolocation();
+      if (gpsCode) {
+        const country = matchCountry(gpsCode, allCountries);
+        if (country) return { country, source: 'gps' };
+      }
+
+      const res = await fetchWithTimeout('/api/geo/suggest-country', {
+        timeoutMs: IP_SUGGEST_TIMEOUT_MS,
+      });
+      if (!res.ok) return null;
+      const data = (await res.json()) as IpSuggestResponse;
+      if (data.country) return { country: data.country, source: 'ip' };
+      return null;
+    }
+
     async function resolve() {
       setResolving(true);
-      try {
-        const gpsCode = await detectCountryFromGeolocation();
-        if (cancelled) return;
-        if (gpsCode) {
-          const country = matchCountry(gpsCode, allCountries);
-          if (country) {
-            setSuggestion({ country, source: 'gps' });
-            return;
-          }
-        }
+      let result: CountrySuggestion | null = null;
 
-        const res = await fetch('/api/geo/suggest-country');
-        if (cancelled || !res.ok) return;
-        const data = (await res.json()) as IpSuggestResponse;
-        if (data.country) {
-          setSuggestion({ country: data.country, source: 'ip' });
-        }
+      try {
+        result = await Promise.race([
+          resolveLocation(),
+          new Promise<null>((resolve) => {
+            setTimeout(() => resolve(null), RESOLVE_TIMEOUT_MS);
+          }),
+        ]);
       } catch {
         /* manual fallback */
       } finally {
         if (!cancelled) {
+          setSuggestion(result);
           setResolving(false);
           setResolved(true);
         }
