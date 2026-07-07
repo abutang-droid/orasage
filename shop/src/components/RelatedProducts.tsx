@@ -16,7 +16,7 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
   const related = skus
     .map((sku) => products.find((p) => p.sku === sku))
     .filter((p): p is Product => Boolean(p))
-    .slice(0, 3);
+    .slice(0, 4);
 
   if (!related.length) return null;
 

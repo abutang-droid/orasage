@@ -122,9 +122,10 @@ My mind is a still lake, reflecting truth.
     {
       type: 'relatedSkus',
       relatedSkus: [
-        { sku: 'crystal-water' },
-        { sku: 'crystal-earth' },
+        { sku: 'crystal-wood' },
         { sku: 'crystal-fire' },
+        { sku: 'crystal-earth' },
+        { sku: 'crystal-water' },
       ],
     },
   ],
