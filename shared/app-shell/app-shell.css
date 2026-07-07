@@ -469,12 +469,6 @@
   background: var(--shell-gold);
 }
 
-.orasage-app-nav-brand {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-}
-
 .orasage-app-explore-backdrop {
   position: fixed;
   inset: 0;
