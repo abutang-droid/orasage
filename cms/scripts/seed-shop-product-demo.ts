@@ -20,73 +20,40 @@ const DEMO_BY_SKU: Record<
   }
 > = {
   'crystal-metal': {
-    subtitle: '净化能量 · 清晰思绪 · 五行补金',
-    seoTitle: '白水晶手串 · 净化与专注 | OraSage Energy Shop',
+    subtitle: 'Clarity Unveiled Clear Quartz Bracelet',
+    seoTitle: '澄明之境 · 白水晶能量手串 | OraSage Energy Shop',
     seoDescription:
-      '天然白水晶手串，温和净化负能量，帮助稳定情绪、提升专注。适合五行缺金或需要清晰决策的你。',
+      '天然白水晶能量手串，被称为 Master Healer。净化能量场、放大正向意图，适合需要清晰决策与五行补金的你。',
     sections: [
       {
         type: 'richText',
-        body: '白水晶被誉为「水晶之王」，能量纯净而稳定。日常佩戴可帮助舒缓浮躁心绪，让思绪更清晰，也适合冥想、学习或重要会议前佩戴。\n\n本款手串选用天然石料，珠径约 8mm，手感温润，适合日常通勤与休闲场合。',
-      },
-      {
-        type: 'specList',
-        title: '商品规格',
-        specItems: [
-          { label: '材质', value: '天然白水晶' },
-          { label: '珠径', value: '约 8mm' },
-          { label: '五行', value: '金' },
-          { label: '手围', value: '下单时可选手围（15–19cm）' },
-          { label: '发货', value: '实体手串，付款后 3–5 个工作日发出' },
-        ],
-      },
-      {
-        type: 'guide',
-        title: '佩戴建议',
-        body: '建议佩戴在左手，便于吸收与稳定能量。避免与硬物碰撞，洗澡、游泳时取下可延长光泽。\n\n收到后可用清水轻冲、阴干即可，无需复杂消磁仪式。',
+        body: `✦ Clear Quartz — 水晶之王
+
+被称为「Master Healer」，其纯净振频能够：
+• 净化周围能量场，驱散思维迷雾
+• 放大正向意图，增强专注力和决断力
+• 平衡身心振动，如同为灵魂开了一扇窗
+
+✦ 五行属性 — 金
+
+金主收敛、主清晰、主边界。适合需要「看清方向」「做重要决定」「整理思绪」的人生阶段。`,
       },
       {
         type: 'quote',
-        quote: '白水晶像一束温和的光，不张扬，却能让心慢慢静下来。',
-        attribution: 'OraSage 能量顾问',
-      },
-      {
-        type: 'faq',
-        title: '常见问题',
-        faqItems: [
-          {
-            question: '如何选手围？',
-            answer: '结账时选择手围尺码；若介于两档之间，建议选大一号，佩戴更舒适。',
-          },
-          {
-            question: '可以和其他水晶一起戴吗？',
-            answer: '可以。白水晶性质温和，常与粉晶、黑曜石等搭配，注意避免长时间暴晒即可。',
-          },
-        ],
-      },
-      {
-        type: 'relatedSkus',
-        relatedSkus: [{ sku: 'crystal-earth' }, { sku: 'crystal-water' }],
+        quote: `I think clearly. I see through illusions.
+My mind is a still lake, reflecting truth.
+
+我想得清楚。我看透幻象。
+我的心是一面宁静的湖，映照真相。`,
+        attribution: '佩戴显化 · Wear to Manifest',
       },
     ],
     testimonials: [
       {
         author: '林**',
         rating: 5,
-        body: '收到比图片更有质感，戴了一周感觉心绪平稳了不少，包装也很用心。',
+        body: '戴上之后开会脑子清楚多了，不像以前那么容易被人带节奏。珠子很通透，像把杂念滤掉了一层。',
         sort: 10,
-      },
-      {
-        author: '周**',
-        rating: 5,
-        body: '五行缺金，顾问推荐这款。珠子通透，日常办公戴着很安心。',
-        sort: 20,
-      },
-      {
-        author: '陈**',
-        rating: 4,
-        body: '物流很快，手串做工精细。希望后续能出更大珠径的款式。',
-        sort: 30,
       },
     ],
   },

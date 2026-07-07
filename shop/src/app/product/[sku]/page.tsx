@@ -52,8 +52,7 @@ export default async function ProductPage({ params }: PageProps) {
     );
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
-  const subtitle = cmsPage?.subtitle?.trim();
-  const summaryDesc = subtitle || product.desc;
+  const englishSubtitle = cmsPage?.subtitle?.trim();
   const hasRichContent = Boolean(cmsPage?.sections.length || cmsPage?.heroImages.length);
 
   return (
@@ -75,10 +74,13 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="shop-pdp-info">
             <p className="shop-pdp-category">{categoryLabels[product.category]}</p>
             <h1 className="shop-pdp-title">{product.name}</h1>
+            {englishSubtitle ? (
+              <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
+            ) : null}
             {product.element ? (
               <p className="shop-pdp-element">五行 · {product.element}</p>
             ) : null}
-            <p className="shop-pdp-desc">{summaryDesc}</p>
+            {product.desc ? <p className="shop-pdp-desc">{product.desc}</p> : null}
             <p className="shop-pdp-price">{displayPrice}</p>
             <ProductDetailActions product={product} />
           </div>

@@ -46,11 +46,18 @@ export function ProductPageSections({ sections }: { sections: ProductPageSection
         }
 
         if (section.type === 'quote' && section.quote) {
+          const isManifest = section.attribution?.includes('Wear to Manifest');
           return (
-            <section key={index} className="shop-pdp-section shop-pdp-section--quote">
+            <section
+              key={index}
+              className={`shop-pdp-section shop-pdp-section--quote${isManifest ? ' shop-pdp-section--manifest' : ''}`}
+            >
+              {isManifest ? (
+                <p className="shop-pdp-manifest-label">{section.attribution}</p>
+              ) : null}
               <blockquote className="shop-pdp-quote">
                 <p>{section.quote}</p>
-                {section.attribution ? (
+                {!isManifest && section.attribution ? (
                   <footer className="shop-pdp-quote-footer">— {section.attribution}</footer>
                 ) : null}
               </blockquote>
