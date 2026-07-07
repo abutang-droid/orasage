@@ -366,6 +366,29 @@
   color: var(--text-muted);
 }
 
+.geo-journey-locating-wrap {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.geo-journey-locating-skip {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.geo-journey-locating-skip:hover {
+  color: var(--text-primary);
+}
+
 .geo-journey-detect-confirm {
   margin-top: 12px;
   max-width: min(420px, 92vw);
