@@ -47,15 +47,8 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  Icon,
 } from '@orasage/ui';
-import {
-  AlertCircle,
-  Check,
-  ChevronDown,
-  MoreHorizontal,
-  Settings,
-  Sparkles,
-} from 'lucide-react';
 
 const colorTokens = [
   ['background', 'bg-background text-foreground'],
@@ -176,7 +169,7 @@ export default function UiPreviewPage() {
               <Button>Default</Button>
               <Button size="lg">Large</Button>
               <Button size="icon" aria-label="Settings">
-                <Settings />
+                <Icon name="settings" />
               </Button>
               <Button loading>Loading</Button>
               <Button disabled>Disabled</Button>
@@ -200,7 +193,7 @@ export default function UiPreviewPage() {
                   <Label htmlFor="preview-invalid">Invalid field</Label>
                   <Input id="preview-invalid" aria-invalid="true" defaultValue="Needs review" />
                   <p className="flex items-center gap-2 text-sm text-destructive">
-                    <AlertCircle className="size-4" aria-hidden="true" />
+                    <Icon name="alertCircle" className="size-4" />
                     Include text and icon, not color alone.
                   </p>
                 </div>
@@ -256,14 +249,14 @@ export default function UiPreviewPage() {
         <Section title="Feedback, Cards, Tabs">
           <div className="grid gap-6 lg:grid-cols-3">
             <Alert className="lg:col-span-2">
-              <Sparkles className="mb-2 size-4" aria-hidden="true" />
+              <Icon name="sparkles" className="mb-2 size-4" />
               <AlertTitle>Accessible status</AlertTitle>
               <AlertDescription>
                 Status components include text. Tooltip content remains supplemental.
               </AlertDescription>
             </Alert>
             <Alert variant="destructive">
-              <AlertCircle className="mb-2 size-4" aria-hidden="true" />
+              <Icon name="alertCircle" className="mb-2 size-4" />
               <AlertTitle>Invalid state</AlertTitle>
               <AlertDescription>Errors include labels, icons, and messages.</AlertDescription>
             </Alert>
@@ -334,7 +327,7 @@ export default function UiPreviewPage() {
                 <DialogFooter>
                   <Button variant="outline">Cancel</Button>
                   <Button>
-                    <Check className="size-4" />
+                    <Icon name="check" className="size-4" />
                     Confirm
                   </Button>
                 </DialogFooter>
@@ -345,7 +338,7 @@ export default function UiPreviewPage() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
                   Dropdown
-                  <ChevronDown className="size-4" />
+                  <Icon name="chevronDown" className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
@@ -360,7 +353,7 @@ export default function UiPreviewPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="More information">
-                  <MoreHorizontal />
+                  <Icon name="dots" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Supplemental label only</TooltipContent>

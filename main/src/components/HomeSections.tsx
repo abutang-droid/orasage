@@ -148,7 +148,7 @@ export function ToolCards() {
               'home-tool-card group flex min-h-[80px] items-start gap-3 p-4 sm:min-h-0 sm:block sm:p-5',
             )}
           >
-            <div className="flex items-start gap-3 sm:block">
+            <div className="flex min-w-0 flex-1 items-start gap-3 sm:block">
               <span
                 className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl transition-colors duration-fast group-hover:bg-foreground group-hover:text-background sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
                 aria-hidden
@@ -167,7 +167,7 @@ export function ToolCards() {
                 </p>
               </div>
             </div>
-            <span className="self-center text-lg text-muted-foreground transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-foreground sm:hidden" aria-hidden>
+            <span className="ml-auto shrink-0 self-center text-lg text-muted-foreground transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-foreground sm:hidden" aria-hidden>
               ›
             </span>
           </a>

@@ -2,6 +2,7 @@ export { CONTROL_HEIGHT_PX, ORASAGE_COLORS } from '@orasage/tokens';
 
 export { cn } from './lib/utils';
 
+export { Icon, type IconName, type IconProps } from './components/icon';
 export { Alert, AlertTitle, AlertDescription } from './components/alert';
 export { Badge, badgeVariants, type BadgeProps } from './components/badge';
 export { Button, buttonVariants, type ButtonProps } from './components/button';
