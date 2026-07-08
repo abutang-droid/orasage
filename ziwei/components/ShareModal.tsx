@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Check, Download, Link2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import ShareCardCanvas, { captureShareCard, downloadDataURL } from './ShareCardCanvas';
 
@@ -67,16 +68,17 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             onClick={e => e.stopPropagation()}
-            className="rounded-2xl overflow-hidden"
-            style={{
-              background: 'white',
-              maxWidth: '680px',
-              width: '100%',
-              maxHeight: '92vh',
-              overflowY: 'auto',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
-            }}
           >
+            <Card
+              className="overflow-hidden rounded-2xl border-0 p-0 shadow-[0_24px_60px_rgba(0,0,0,0.3)]"
+              style={{
+                background: 'white',
+                maxWidth: '680px',
+                width: '100%',
+                maxHeight: '92vh',
+                overflowY: 'auto',
+              }}
+            >
             {/* 顶部标题 */}
             <div style={{
               padding: '14px 18px',
@@ -151,6 +153,7 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                 · 复制链接发给微信好友，对方点开看自己的盘起点
               </div>
             </div>
+            </Card>
           </motion.div>
         </motion.div>
       )}

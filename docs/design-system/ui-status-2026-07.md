@@ -77,4 +77,5 @@ cd admin && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
 
 ## 6. 剩余可选跟进
 
-- ziwei 其余零散页面（chart TopBar 历史副本已清理；BirthForm 分段控件等已接入）
+- ziwei `@orasage/ui` 业务组件接入已完成（Button / Card / Input / Badge / Checkbox；含 InsightPanel、知识库、古籍章节、ShareModal、BirthForm、AppShell 语言切换与返回）
+- 其余应用（main / shop / admin / cms / bazi / tarot）可按需逐步接入
