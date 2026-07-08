@@ -5,6 +5,7 @@
  */
 
 import { chromium } from 'playwright';
+import { flipDailyCard } from './lib/tarot-helpers.mjs';
 
 const BASE = {
   tarot: process.env.E2E_TAROT_URL ?? 'https://tarot.orasage.com',
@@ -40,13 +41,15 @@ async function main() {
   await page.goto(`${BASE.tarot}/daily-card`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.getByRole('heading', { name: '每日抽卡' }).waitFor({ state: 'visible', timeout: 30000 });
 
-  await page.getByText(/轻触卡牌|这是你今天抽到的牌/).waitFor({ state: 'visible', timeout: 60000 });
+  await page.getByText(/轻触卡牌|点击卡牌翻转|这是你今天抽到的牌/).waitFor({
+    state: 'visible',
+    timeout: 60000,
+  });
 
   const alreadyDrew = await page.getByText('这是你今天抽到的牌').isVisible().catch(() => false);
   if (!alreadyDrew) {
     console.log('[tarot-daily] flip card');
-    await page.locator('.animate-scale-in').click();
-    await page.waitForTimeout(800);
+    await flipDailyCard(page);
   } else {
     console.log('[tarot-daily] already drew today — verifying persisted card');
   }

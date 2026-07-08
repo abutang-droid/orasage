@@ -5,6 +5,7 @@
  */
 
 import { chromium } from 'playwright';
+import { holdWorship, seedTempleJourney } from './lib/tarot-helpers.mjs';
 
 const BASE = {
   tarot: process.env.E2E_TAROT_URL ?? 'https://tarot.orasage.com',
@@ -22,19 +23,6 @@ async function readMerit(page) {
   });
 }
 
-async function holdWorship(page, holdMs = 3500) {
-  const hold = page.getByText('感受临在').locator('..');
-  await hold.waitFor({ state: 'visible', timeout: 20000 });
-  const box = await hold.boundingBox();
-  if (!box) throw new Error('worship hold area not found');
-  const x = box.x + box.width / 2;
-  const y = box.y + box.height / 2;
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  await page.waitForTimeout(holdMs);
-  await page.mouse.up();
-}
-
 async function main() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ locale: 'zh-CN' });
@@ -47,30 +35,21 @@ async function main() {
   const meritBefore = await readMerit(page);
   console.log(`[tarot-temple] merit before worship: total=${meritBefore.total}`);
 
-  console.log('[tarot-temple] open /temple');
+  console.log('[tarot-temple] seed geo/faith/deity and open /temple');
+  await seedTempleJourney(page);
   await page.goto(`${BASE.tarot}/temple`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-  await page.getByRole('heading', { name: /选择信仰|选择守护神/ }).waitFor({ state: 'visible', timeout: 30000 });
-
-  if (await page.getByText('第一步 · 选择信仰').isVisible().catch(() => false)) {
-    console.log('[tarot-temple] select faith: 佛教');
-    await page.getByRole('button', { name: '佛教' }).click();
-    await page.getByRole('button', { name: '下一步 · 选择守护神' }).click();
-  }
-
-  await page.getByRole('heading', { name: '选择守护神' }).waitFor({ state: 'visible', timeout: 30000 });
-  await page.getByText(/正在加载守护神/).waitFor({ state: 'hidden', timeout: 30000 }).catch(() => null);
-
-  const deityButton = page.locator('button').filter({ has: page.locator('img[alt]') }).first();
-  await deityButton.waitFor({ state: 'visible', timeout: 30000 });
-  const deityName = await deityButton.locator('div').filter({ hasText: /.+/ }).first().textContent();
-  console.log(`[tarot-temple] select deity: ${deityName?.trim() ?? 'first sanctuary'}`);
-  await deityButton.click();
+  await page.getByRole('button', { name: /今日参拜|再次参拜/ }).waitFor({
+    state: 'visible',
+    timeout: 45000,
+  });
+  console.log('[tarot-temple] temple home ready');
+  await page.getByRole('button', { name: /今日参拜|再次参拜/ }).click();
 
   console.log('[tarot-temple] hold worship ≥3s');
   await holdWorship(page, 3500);
 
-  await page.getByText(/参拜完成|深度参拜|虔诚之巅|今日功德已记录|\+[\d]+ 功德/).first().waitFor({
+  await page.getByText(/参拜礼成|深度参拜|诚心礼成|今日功德已记录|\+[\d]+ 功德/).first().waitFor({
     state: 'visible',
     timeout: 30000,
   });

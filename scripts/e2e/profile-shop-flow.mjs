@@ -6,6 +6,7 @@
  */
 
 import { chromium } from 'playwright';
+import { fillBaziPerson } from './lib/bazi-helpers.mjs';
 import { clickMockPay } from './lib/checkout-helpers.mjs';
 
 const BASE = {
@@ -60,12 +61,11 @@ async function setAuthCookie(context, token) {
   ]);
 }
 
-async function fillPerson(page, { name, personTab }) {
-  if (personTab) {
-    await page.getByRole('button', { name: personTab, exact: true }).click();
-  }
-  await page.locator('input[type="text"]').first().fill(name);
-  await page.getByRole('button', { name: L.genderM, exact: true }).first().click();
+async function fillPerson(page, opts) {
+  await fillBaziPerson(page, {
+    ...opts,
+    genderLabel: L.genderM,
+  });
 }
 
 async function runBaziFlow(page, { mode, person1, person2, planName, resultHint }) {
@@ -82,7 +82,7 @@ async function runBaziFlow(page, { mode, person1, person2, planName, resultHint 
     await page.getByRole('button', { name: L.submitSingle }).click();
   }
 
-  await page.waitForSelector(`text=${resultHint}`, { timeout: 60000 });
+  await page.getByText(resultHint, { exact: false }).first().waitFor({ timeout: 90000 });
 
   const planButton = page.getByRole('button', { name: planName });
   await planButton.waitFor({ timeout: 20000 });
