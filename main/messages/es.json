@@ -76,7 +76,29 @@
     "disclaimer": "Las horas de nacimiento de este artículo son estimaciones basadas en registros públicos. La lectura es una interpretación tradicional de BaZi, ofrecida solo como estudio cultural y sin relación con la persona ni su familia.",
     "ctaTitle": "¿Quieres conocer tu propia carta BaZi?",
     "ctaDesc": "El mismo método: tus Cinco Elementos y tu estructura en segundos",
-    "ctaButton": "Carta gratuita"
+    "ctaButton": "Carta gratuita",
+    "zhTag": "Chino",
+    "zhNotice": "Esta sección está disponible solo en chino por ahora.",
+    "read": "Leer más",
+    "categoriesAria": "Categorías de personas",
+    "categories": {
+      "all": "Todos",
+      "politics": "Política",
+      "military": "Militar",
+      "business": "Negocios",
+      "arts": "Artes",
+      "sports": "Deportes",
+      "science": "Ciencia",
+      "other": "Otros"
+    },
+    "total": "{count} artículos",
+    "empty": "Aún no hay contenido",
+    "loadError": "Error al cargar el contenido",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "back": "Volver a la lista",
+    "sourceLink": "Fuente original",
+    "noBody": "Sin contenido"
   },
   "daozang": {
     "title": "Dao Canon",

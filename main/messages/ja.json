@@ -76,7 +76,29 @@
     "disclaimer": "本記事の出生時刻は公開文献に基づく推定値です。解説は伝統的な四柱推命の解釈であり、文化研究の参考としてのみ提供され、本人やご家族とは関係ありません。",
     "ctaTitle": "自分の八字（四柱推命）を知りたい？",
     "ctaDesc": "同じ手法で、あなたの五行と命式を数秒で確認",
-    "ctaButton": "無料で鑑定"
+    "ctaButton": "無料で鑑定",
+    "zhTag": "中国語",
+    "zhNotice": "このコーナーは現在中国語のみで提供しています。",
+    "read": "続きを読む",
+    "categoriesAria": "人物カテゴリー",
+    "categories": {
+      "all": "すべて",
+      "politics": "政治",
+      "military": "軍事",
+      "business": "ビジネス",
+      "arts": "文芸",
+      "sports": "スポーツ",
+      "science": "科学",
+      "other": "その他"
+    },
+    "total": "全 {count} 件",
+    "empty": "コンテンツはまだありません",
+    "loadError": "コンテンツの読み込みに失敗しました",
+    "prev": "前へ",
+    "next": "次へ",
+    "back": "一覧に戻る",
+    "sourceLink": "元記事リンク",
+    "noBody": "本文がありません"
   },
   "daozang": {
     "title": "Dao Canon",

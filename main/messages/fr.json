@@ -76,7 +76,29 @@
     "disclaimer": "Les heures de naissance citées sont des estimations issues de sources publiques. Cette lecture est une interprétation traditionnelle du BaZi, proposée à titre d'étude culturelle uniquement, sans lien avec la personne ou sa famille.",
     "ctaTitle": "Envie de découvrir votre propre thème BaZi ?",
     "ctaDesc": "La même méthode : vos Cinq Éléments et votre structure en quelques secondes",
-    "ctaButton": "Thème gratuit"
+    "ctaButton": "Thème gratuit",
+    "zhTag": "Chinois",
+    "zhNotice": "Cette rubrique est pour l'instant disponible uniquement en chinois.",
+    "read": "Lire la suite",
+    "categoriesAria": "Catégories de personnalités",
+    "categories": {
+      "all": "Tous",
+      "politics": "Politique",
+      "military": "Militaire",
+      "business": "Affaires",
+      "arts": "Arts",
+      "sports": "Sport",
+      "science": "Science",
+      "other": "Autres"
+    },
+    "total": "{count} articles",
+    "empty": "Aucun contenu pour le moment",
+    "loadError": "Échec du chargement du contenu",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "back": "Retour à la liste",
+    "sourceLink": "Source originale",
+    "noBody": "Aucun texte"
   },
   "daozang": {
     "title": "Dao Canon",

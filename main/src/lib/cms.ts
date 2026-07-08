@@ -177,6 +177,30 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
   return data.docs[0] ?? null;
 }
 
+/** 名人案例语言回退链：繁体界面回退 zh-HK，再回退 zh-CN；其余语言回退 zh-CN */
+export function famousLocaleChain(cmsLoc: string): string[] {
+  if (cmsLoc === 'zh-CN') return ['zh-CN'];
+  if (cmsLoc === 'zh-TW') return ['zh-HK', 'zh-CN'];
+  return [cmsLoc, 'zh-CN'];
+}
+
+export type FamousDoc = CmsPage & {
+  /** true = 来自回退语言（非当前界面语言）的内容 */
+  fallback: boolean;
+};
+
+/**
+ * 拉取名人案例全量列表（带语言回退链）。
+ * 分类过滤 / 去重 / 分页在 main 侧完成，故一次取全量（当前共 110 篇，revalidate 缓存 120s）。
+ */
+export async function fetchFamousPages(cmsLoc: string): Promise<FamousDoc[]> {
+  const chain = famousLocaleChain(cmsLoc);
+  const results = await Promise.all(
+    chain.map((locale) => fetchCmsPages({ section: 'famous', locale, limit: 200 })),
+  );
+  return results.flatMap((res, i) => res.docs.map((doc) => ({ ...doc, fallback: i > 0 })));
+}
+
 export function daozangArticlePath(slug: string): string {
   return `/daozang/${slug}`;
 }

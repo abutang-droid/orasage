@@ -76,7 +76,29 @@
     "disclaimer": "Giờ sinh trong bài viết là ước tính dựa trên tư liệu công khai. Phần luận giải theo Bát Tự truyền thống, chỉ mang tính tham khảo văn hóa, không liên quan đến nhân vật hay gia đình họ.",
     "ctaTitle": "Muốn biết lá số Bát Tự của chính bạn?",
     "ctaDesc": "Cùng phương pháp — xem Ngũ Hành và cách cục của bạn trong vài giây",
-    "ctaButton": "Lập lá số miễn phí"
+    "ctaButton": "Lập lá số miễn phí",
+    "zhTag": "Tiếng Trung",
+    "zhNotice": "Chuyên mục này hiện chỉ có bằng tiếng Trung.",
+    "read": "Đọc tiếp",
+    "categoriesAria": "Phân loại nhân vật",
+    "categories": {
+      "all": "Tất cả",
+      "politics": "Chính trị",
+      "military": "Quân sự",
+      "business": "Kinh doanh",
+      "arts": "Văn nghệ",
+      "sports": "Thể thao",
+      "science": "Khoa học",
+      "other": "Khác"
+    },
+    "total": "{count} bài viết",
+    "empty": "Chưa có nội dung",
+    "loadError": "Không tải được nội dung",
+    "prev": "Trước",
+    "next": "Sau",
+    "back": "Quay lại danh sách",
+    "sourceLink": "Liên kết bài gốc",
+    "noBody": "Chưa có nội dung chính"
   },
   "daozang": {
     "title": "Dao Canon",

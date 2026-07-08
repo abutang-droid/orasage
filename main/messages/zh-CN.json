@@ -124,7 +124,21 @@
     "disclaimer": "本文出生时辰依据公开文献估算，命理解读为传统命理学演绎，仅供文化研究参考，与本人及其亲属无关。",
     "ctaTitle": "想知道你自己的八字格局？",
     "ctaDesc": "同样的排盘方法，几秒钟看到你的五行与格局",
-    "ctaButton": "免费排盘"
+    "ctaButton": "免费排盘",
+    "zhTag": "中文",
+    "zhNotice": "本栏目内容暂以中文提供",
+    "read": "阅读全文",
+    "categoriesAria": "人物分类",
+    "categories": {
+      "all": "全部",
+      "politics": "政坛",
+      "military": "军事",
+      "business": "商界",
+      "arts": "文艺",
+      "sports": "体育",
+      "science": "科学",
+      "other": "其他"
+    }
   },
   "daozang": {
     "title": "道藏精选",

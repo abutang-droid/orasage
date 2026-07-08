@@ -76,7 +76,29 @@
     "disclaimer": "Os horários de nascimento neste artigo são estimativas baseadas em registros públicos. A leitura é uma interpretação tradicional de BaZi, oferecida apenas para estudo cultural, sem relação com a pessoa ou sua família.",
     "ctaTitle": "Curioso sobre o seu próprio mapa BaZi?",
     "ctaDesc": "O mesmo método — veja seus Cinco Elementos e estrutura em segundos",
-    "ctaButton": "Mapa gratuito"
+    "ctaButton": "Mapa gratuito",
+    "zhTag": "Chinês",
+    "zhNotice": "Esta seção está disponível apenas em chinês no momento.",
+    "read": "Ler mais",
+    "categoriesAria": "Categorias de pessoas",
+    "categories": {
+      "all": "Todos",
+      "politics": "Política",
+      "military": "Militar",
+      "business": "Negócios",
+      "arts": "Artes",
+      "sports": "Esportes",
+      "science": "Ciência",
+      "other": "Outros"
+    },
+    "total": "{count} artigos",
+    "empty": "Ainda não há conteúdo",
+    "loadError": "Falha ao carregar o conteúdo",
+    "prev": "Anterior",
+    "next": "Próxima",
+    "back": "Voltar à lista",
+    "sourceLink": "Fonte original",
+    "noBody": "Sem conteúdo"
   },
   "daozang": {
     "title": "Dao Canon",
