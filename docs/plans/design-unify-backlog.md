@@ -55,7 +55,7 @@
 - [x] shop next-intl + 商品 `name_i18n`（PR #206–#207）
 - [x] auth T1 四语静态页（PR #206）
 - [x] 浏览器 E2E（`scripts/e2e/`）支付→报告链路（PR #213）
-- [ ] shop ShippingForm / 地址簿 i18n（进行中）
+- [x] shop ShippingForm / 地址簿 i18n（PR #214）
 - [ ] Tailwind v4 全站收敛（main/shop/ziwei/admin v3；bazi/tarot v4）
 
 ---
