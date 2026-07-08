@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="robots" content="noindex" />
+<title>共振定制 · DIY 能量手串 | OraSage Energy Shop（视觉原型）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --mono-black: #171717;
+    --mono-gray-deep: #6b7280;
+    --mono-gray: #9ca3af;
+    --mono-line: #e5e7eb;
+    --mono-bg: #fafafa;
+    --serif: 'Noto Serif SC', serif;
+    --sans: 'Noto Sans SC', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--mono-black);
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding: 1rem 1rem 7rem;
+  }
+  @media (min-width: 640px) { .page { padding-inline: 1.5rem; } }
+
+  /* ── Header ─────────────────────── */
+  .hd { text-align: center; padding: 0.5rem 0 1.25rem; }
+  .hd-eyebrow {
+    font-family: var(--serif);
+    font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--mono-gray-deep);
+  }
+  .hd-title {
+    margin-top: 0.4rem;
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 4vw, 1.9rem);
+    font-weight: 700; letter-spacing: -0.02em;
+  }
+  .hd-sub { margin-top: 0.4rem; font-size: 0.8rem; color: var(--mono-gray-deep); }
+  .hd-badge {
+    display: inline-block; margin-top: 0.6rem;
+    font-size: 0.68rem; letter-spacing: 0.08em;
+    color: var(--mono-gray-deep);
+    border: 1px solid var(--mono-line);
+    border-radius: 999px; padding: 0.2rem 0.75rem;
+  }
+
+  /* ── Layout ─────────────────────── */
+  .layout { display: flex; flex-direction: column; gap: 1.25rem; }
+  @media (min-width: 900px) {
+    .layout { flex-direction: row; align-items: flex-start; gap: 2rem; }
+    .studio { position: sticky; top: 1rem; width: 26rem; flex-shrink: 0; }
+    .catalog { flex: 1; min-width: 0; }
+  }
+
+  /* ── Studio (canvas) ─────────────── */
+  .studio {
+    border: 1px solid var(--mono-line);
+    border-radius: 1rem;
+    padding: 1rem 1rem 1.25rem;
+    background: #fff;
+  }
+  .wrist-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+  .wrist-label { font-size: 0.75rem; color: var(--mono-gray-deep); letter-spacing: 0.04em; }
+  .wrist-chips { display: flex; gap: 0.35rem; }
+  .chip {
+    font-family: var(--sans);
+    font-size: 0.75rem; padding: 0.3rem 0.65rem;
+    border: 1px solid var(--mono-line); border-radius: 999px;
+    background: #fff; color: var(--mono-gray-deep);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .chip.on { background: var(--mono-black); color: #fff; border-color: var(--mono-black); }
+
+  .canvas-wrap { position: relative; margin: 0.5rem auto 0; max-width: 21rem; }
+  svg.bracelet { width: 100%; height: auto; display: block; }
+  .canvas-hint {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; pointer-events: none;
+  }
+  .canvas-hint p { font-size: 0.8rem; color: var(--mono-gray); line-height: 1.7; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--mono-line);
+    margin-top: 0.75rem; padding-top: 0.75rem;
+    text-align: center;
+  }
+  .stat-v { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; }
+  .stat-v small { font-size: 0.7rem; font-weight: 400; color: var(--mono-gray-deep); }
+  .stat-k { margin-top: 0.15rem; font-size: 0.65rem; letter-spacing: 0.06em; color: var(--mono-gray-deep); }
+  .fit-ok { color: #171717; }
+  .fit-warn { color: #9ca3af; }
+
+  .fitbar { margin-top: 0.7rem; height: 3px; background: var(--mono-line); border-radius: 2px; overflow: hidden; }
+  .fitbar i { display: block; height: 100%; background: var(--mono-black); width: 0%; transition: width 0.3s; }
+
+  /* selected bead action bar */
+  .bead-actions {
+    display: none;
+    margin-top: 0.75rem;
+    border: 1px solid var(--mono-line); border-radius: 0.6rem;
+    padding: 0.5rem 0.65rem;
+    align-items: center; gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+  .bead-actions.show { display: flex; }
+  .bead-actions .nm { flex: 1; font-weight: 600; }
+  .abtn {
+    border: 1px solid var(--mono-line); background: #fff; border-radius: 0.45rem;
+    font-size: 0.72rem; padding: 0.3rem 0.55rem; cursor: pointer; color: var(--mono-black);
+  }
+  .abtn.del { color: #fff; background: var(--mono-black); border-color: var(--mono-black); }
+
+  .studio-tools { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .tool {
+    flex: 1; font-size: 0.75rem; padding: 0.55rem 0;
+    border: 1px solid var(--mono-line); border-radius: 0.6rem;
+    background: #fff; color: var(--mono-black); cursor: pointer;
+    letter-spacing: 0.04em; transition: background 0.15s;
+  }
+  .tool:active { background: var(--mono-bg); }
+  .tool.primary { background: var(--mono-black); border-color: var(--mono-black); color: #fff; }
+
+  /* ── Catalog ────────────────────── */
+  .cat-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .cat-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; }
+  .cat-count { font-size: 0.7rem; color: var(--mono-gray-deep); }
+
+  .tabs { display: flex; gap: 0.4rem; margin-top: 0.75rem; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    font-size: 0.78rem; padding: 0.35rem 0.85rem;
+    border: 1px solid var(--mono-line); border-radius: 999px;
+    background: #fff; color: var(--mono-gray-deep); cursor: pointer;
+    transition: all 0.15s; letter-spacing: 0.03em;
+  }
+  .tab.on { background: var(--mono-black); color: #fff; border-color: var(--mono-black); }
+
+  .sizes { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+
+  .grid {
+    display: grid; gap: 0.6rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 0.9rem;
+  }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 1200px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+
+  .card {
+    border: 1px solid var(--mono-line); border-radius: 0.75rem;
+    padding: 0.7rem 0.5rem 0.6rem;
+    text-align: center; cursor: pointer;
+    background: #fff;
+    transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    user-select: none;
+  }
+  .card:hover { border-color: var(--mono-gray); }
+  .card:active { transform: scale(0.96); }
+  .card.flash { border-color: var(--mono-black); box-shadow: 0 0 0 1px var(--mono-black); }
+  .bead-vis { width: 2.6rem; height: 2.6rem; border-radius: 50%; margin: 0 auto; box-shadow: inset -3px -4px 8px rgba(0,0,0,0.18), inset 2px 3px 6px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.12); }
+  .card-nm { margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; line-height: 1.3; }
+  .card-meta { margin-top: 0.15rem; font-size: 0.66rem; color: var(--mono-gray-deep); }
+  .card-el {
+    display: inline-block; margin-top: 0.3rem;
+    font-size: 0.6rem; letter-spacing: 0.1em;
+    color: var(--mono-gray-deep);
+    border: 1px solid var(--mono-line); border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+  }
+
+  /* ── Bottom bar ─────────────────── */
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--mono-line);
+    padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom));
+  }
+  .bar-in { max-width: 72rem; margin-inline: auto; display: flex; align-items: center; gap: 1rem; }
+  .bar-price { flex: 1; }
+  .bar-price .p { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; }
+  .bar-price .d { font-size: 0.65rem; color: var(--mono-gray-deep); letter-spacing: 0.04em; }
+  .bar-cta {
+    background: var(--mono-black); color: #fff; border: none;
+    font-family: var(--sans); font-size: 0.85rem; font-weight: 600; letter-spacing: 0.15em;
+    padding: 0.8rem 2rem; border-radius: 999px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .bar-cta:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ── Modal（八字推荐）───────────── */
+  .modal-mask {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(23,23,23,0.45);
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  @media (min-width: 640px) { .modal-mask { align-items: center; } }
+  .modal-mask.show { display: flex; }
+  .modal {
+    background: #fff; width: 100%; max-width: 26rem;
+    border-radius: 1rem 1rem 0 0; padding: 1.5rem 1.25rem 2rem;
+  }
+  @media (min-width: 640px) { .modal { border-radius: 1rem; padding-bottom: 1.5rem; } }
+  .modal-eyebrow { font-family: var(--serif); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; color: var(--mono-gray-deep); text-transform: uppercase; text-align: center; }
+  .modal-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; text-align: center; margin-top: 0.35rem; }
+  .modal-sub { font-size: 0.75rem; color: var(--mono-gray-deep); text-align: center; margin-top: 0.4rem; line-height: 1.6; }
+  .el-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-top: 1.1rem; }
+  .el-btn {
+    border: 1px solid var(--mono-line); border-radius: 0.7rem; background: #fff;
+    padding: 0.7rem 0 0.55rem; cursor: pointer; text-align: center;
+    transition: all 0.15s;
+  }
+  .el-btn:hover { border-color: var(--mono-black); }
+  .el-zi { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; }
+  .el-nm { font-size: 0.6rem; color: var(--mono-gray-deep); margin-top: 0.15rem; }
+  .modal-close { display: block; margin: 1rem auto 0; border: none; background: none; font-size: 0.72rem; color: var(--mono-gray-deep); cursor: pointer; letter-spacing: 0.08em; }
+
+  /* ── Toast ──────────────────────── */
+  .toast {
+    position: fixed; left: 50%; bottom: 6.5rem; transform: translateX(-50%) translateY(8px);
+    z-index: 60; background: var(--mono-black); color: #fff;
+    font-size: 0.75rem; padding: 0.55rem 1.1rem; border-radius: 999px;
+    opacity: 0; pointer-events: none; transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hd">
+    <p class="hd-eyebrow">OraSage Energy Shop</p>
+    <h1 class="hd-title">共振定制 · 设计你的能量手串</h1>
+    <p class="hd-sub">Design Your Resonance — 逐颗挑选，让能量与你共振</p>
+    <span class="hd-badge">视觉原型 · 交互与数据为演示用</span>
+  </header>
+
+  <div class="layout">
+    <!-- ═══ 左：设计台 ═══ -->
+    <section class="studio">
+      <div class="wrist-row">
+        <span class="wrist-label">手围尺寸</span>
+        <div class="wrist-chips" id="wristChips"></div>
+      </div>
+
+      <div class="canvas-wrap">
+        <svg class="bracelet" id="svg" viewBox="0 0 340 340" aria-label="手串预览"></svg>
+        <div class="canvas-hint" id="hint">
+          <p>从下方选择珠子<br />开始你的设计</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div><div class="stat-v" id="stCount">0<small> 颗</small></div><div class="stat-k">珠子</div></div>
+        <div><div class="stat-v" id="stKinds">0<small> 种</small></div><div class="stat-k">材质</div></div>
+        <div><div class="stat-v" id="stLen">—</div><div class="stat-k">预估手围</div></div>
+        <div><div class="stat-v" id="stFit">—</div><div class="stat-k">合适度</div></div>
+      </div>
+      <div class="fitbar"><i id="fitFill"></i></div>
+
+      <div class="bead-actions" id="beadActions">
+        <span class="nm" id="baName"></span>
+        <button class="abtn" id="baLeft">← 左移</button>
+        <button class="abtn" id="baRight">右移 →</button>
+        <button class="abtn del" id="baDel">删除</button>
+      </div>
+
+      <div class="studio-tools">
+        <button class="tool primary" id="btnBazi">✦ 按八字推荐</button>
+        <button class="tool" id="btnShuffle">随机灵感</button>
+        <button class="tool" id="btnClear">清空</button>
+      </div>
+    </section>
+
+    <!-- ═══ 右：珠子目录 ═══ -->
+    <section class="catalog">
+      <div class="cat-head">
+        <h2 class="cat-title">选择珠子</h2>
+        <span class="cat-count" id="catCount"></span>
+      </div>
+      <div class="tabs" id="elTabs"></div>
+      <div class="sizes" id="sizeTabs"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </div>
+</div>
+
+<!-- 底部结算条 -->
+<div class="bar">
+  <div class="bar-in">
+    <div class="bar-price">
+      <div class="p" id="barPrice">¥0</div>
+      <div class="d">后端将按现价重新验算</div>
+    </div>
+    <button class="bar-cta" id="barCta" disabled>加入购物车</button>
+  </div>
+</div>
+
+<!-- 八字推荐弹层 -->
+<div class="modal-mask" id="baziMask">
+  <div class="modal">
+    <p class="modal-eyebrow">OraSage · Oracle + Sage</p>
+    <h3 class="modal-title">看见，然后携带</h3>
+    <p class="modal-sub">正式版将读取你的八字报告自动判断五行喜忌。<br />原型中请手动选择想调和的五行：</p>
+    <div class="el-grid" id="elPick"></div>
+    <button class="modal-close" id="baziClose">暂不需要</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════ 数据（演示用） ═══════════ */
+const MATERIALS = [
+  { id:'clear',   name:'净体白水晶', el:'金', grad:['#ffffff','#e8e8ec','#c9c9d1'], line:'#d5d5db' },
+  { id:'phantom', name:'绿幽灵',     el:'木', grad:['#e2f3e4','#8fbf95','#4e7a57'], line:'#6d9a74' },
+  { id:'obsidian',name:'黑曜石',     el:'水', grad:['#5a5a66','#26262e','#0c0c12'], line:'#3a3a44' },
+  { id:'carnelian',name:'红玛瑙',    el:'火', grad:['#f6c2a8','#cf5f3a','#8e3018'], line:'#b04a28' },
+  { id:'citrine', name:'黄水晶',     el:'土', grad:['#fdf3cf','#ecc65f','#c08c2c'], line:'#d1a844' },
+  { id:'rose',    name:'粉水晶',     el:'火', grad:['#fdeef2','#f0b7c8','#d97d9b'], line:'#e39cb2' },
+  { id:'aqua',    name:'海蓝宝',     el:'水', grad:['#eaf6fa','#a3d3e8','#5e9fc0'], line:'#7fb6d2' },
+  { id:'tiger',   name:'虎眼石',     el:'土', grad:['#e8c98f','#a5762f','#5f3d12'], line:'#8a6226' },
+  { id:'amethyst',name:'紫水晶',     el:'火', grad:['#f0e6f7','#b48ed6','#7b52a8'], line:'#9a72c2' },
+  { id:'moon',    name:'月光石',     el:'金', grad:['#ffffff','#e9ecf4','#c4cbdd'], line:'#d2d8e6' },
+  { id:'spacerS', name:'哑光银隔珠', el:'配', grad:['#f4f4f6','#c8c8ce','#96969e'], line:'#aeaeb6', sizes:[{d:4,p:2}] },
+  { id:'spacerG', name:'磨砂金隔珠', el:'配', grad:['#f7ecd4','#dcbd7e','#a9853f'], line:'#c4a25c', sizes:[{d:4,p:3}] },
+];
+const DEFAULT_SIZES = [ {d:6,p:3},{d:8,p:5},{d:10,p:8} ];
+const PRICE_FACTOR = { clear:1, phantom:1.8, obsidian:1.2, carnelian:1, citrine:1.5, rose:1.1, aqua:1.6, tiger:1.3, amethyst:1.4, moon:1.7, spacerS:1, spacerG:1 };
+
+const BEADS = [];
+for (const m of MATERIALS) {
+  const sizes = m.sizes || DEFAULT_SIZES;
+  for (const s of sizes) {
+    BEADS.push({
+      code:`${m.id}-${s.d}`, mat:m.id, name:m.name, el:m.el,
+      d:s.d, price: Math.round(s.p * (PRICE_FACTOR[m.id]||1)),
+      grad:m.grad, line:m.line,
+    });
+  }
+}
+const beadByCode = Object.fromEntries(BEADS.map(b=>[b.code,b]));
+
+/* 五行相生：补X → 主珠X + 生X的辅珠 */
+const ELEMENT_MAIN = { 金:'clear', 木:'phantom', 水:'obsidian', 火:'carnelian', 土:'citrine' };
+const ELEMENT_FEED = { 金:'citrine', 木:'obsidian', 水:'clear', 火:'phantom', 土:'carnelian' }; // 土生金 水生木(近似演示) 金生水 木生火 火生土
+
+/* ═══════════ 状态 ═══════════ */
+let design = [];            // bead code 数组（有序）
+let wrist = 16;             // cm
+let selIdx = -1;            // 画布选中的珠子
+let elFilter = '全部';
+let sizeFilter = 0;         // 0=全部
+
+/* ═══════════ 工具 ═══════════ */
+const $ = (id)=>document.getElementById(id);
+const fmt = (n)=>'¥'+n;
+function totalMm(){ return design.reduce((s,c)=>s+beadByCode[c].d,0); }
+function totalPrice(){ return design.reduce((s,c)=>s+beadByCode[c].price,0); }
+function targetMm(){ return wrist*10 + 10; } /* 手围 + 1cm 松量 */
+
+let toastTimer;
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+/* ═══════════ 画布渲染（SVG 圆环） ═══════════ */
+function renderCanvas(){
+  const svg=$('svg');
+  const C=170, R=118;
+  const tgt=targetMm(), tot=totalMm();
+  const scale = (2*Math.PI*R)/Math.max(tgt,tot);
+  let defs='<defs>';
+  const grads=new Set();
+  for(const code of design){
+    const b=beadByCode[code];
+    if(grads.has(b.mat))continue; grads.add(b.mat);
+    defs+=`<radialGradient id="g-${b.mat}" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="${b.grad[0]}"/>
+      <stop offset="55%" stop-color="${b.grad[1]}"/>
+      <stop offset="100%" stop-color="${b.grad[2]}"/>
+    </radialGradient>`;
+  }
+  defs+='</defs>';
+
+  /* 剩余弧度虚线圆 */
+  let body=`<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4 6"/>`;
+
+  let acc=0;
+  design.forEach((code,i)=>{
+    const b=beadByCode[code];
+    const arc=b.d*scale;
+    const midLen=acc+arc/2;
+    const ang=(midLen/(R))* (180/Math.PI); /* rad→deg? use rad */
+    const theta=(midLen/R) - Math.PI/2;
+    const x=C+R*Math.cos(theta), y=C+R*Math.sin(theta);
+    const r=(b.d*scale)/2 * 0.94;
+    const sel = i===selIdx;
+    body+=`<circle data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"
+      fill="url(#g-${b.mat})" stroke="${sel?'#171717':b.line}" stroke-width="${sel?2.5:1}"
+      style="cursor:pointer"/>`;
+    /* 高光 */
+    body+=`<ellipse cx="${(x-r*0.3).toFixed(1)}" cy="${(y-r*0.35).toFixed(1)}" rx="${(r*0.28).toFixed(1)}" ry="${(r*0.18).toFixed(1)}" fill="rgba(255,255,255,0.55)" style="pointer-events:none"/>`;
+    acc+=arc;
+  });
+
+  svg.innerHTML=defs+body;
+  $('hint').style.display = design.length? 'none':'flex';
+
+  svg.querySelectorAll('circle[data-i]').forEach(c=>{
+    c.addEventListener('click',()=>{ selectBead(parseInt(c.dataset.i)); });
+  });
+}
+
+function selectBead(i){
+  selIdx = (selIdx===i)? -1 : i;
+  const bar=$('beadActions');
+  if(selIdx>=0){
+    bar.classList.add('show');
+    $('baName').textContent = beadByCode[design[selIdx]].name + ' · ' + beadByCode[design[selIdx]].d + 'mm';
+  } else bar.classList.remove('show');
+  renderCanvas();
+}
+
+/* ═══════════ 统计 ═══════════ */
+function renderStats(){
+  const tot=totalMm(), tgt=targetMm();
+  $('stCount').innerHTML = design.length+'<small> 颗</small>';
+  $('stKinds').innerHTML = new Set(design.map(c=>beadByCode[c].mat)).size+'<small> 种</small>';
+  $('stLen').textContent = design.length? (tot/10).toFixed(1)+'cm' : '—';
+  const fitEl=$('stFit');
+  let fit='—', cls='';
+  if(design.length){
+    if(tot < tgt-8){ fit='偏小'; cls='fit-warn'; }
+    else if(tot > tgt+8){ fit='偏大'; cls='fit-warn'; }
+    else { fit='合适'; cls='fit-ok'; }
+  }
+  fitEl.textContent=fit; fitEl.className='stat-v '+cls;
+  $('fitFill').style.width = Math.min(100,(tot/tgt)*100)+'%';
+  $('barPrice').textContent = fmt(totalPrice());
+  $('barCta').disabled = !design.length || tot < tgt-8;
+}
+
+function renderAll(){ renderCanvas(); renderStats(); }
+
+/* ═══════════ 目录 ═══════════ */
+const EL_TABS=['全部','金','木','水','火','土','配'];
+function renderTabs(){
+  $('elTabs').innerHTML = EL_TABS.map(e=>
+    `<button class="tab ${elFilter===e?'on':''}" data-el="${e}">${e==='配'?'配件':e==='全部'?'全部':'五行·'+e}</button>`).join('');
+  $('elTabs').querySelectorAll('.tab').forEach(t=>t.onclick=()=>{ elFilter=t.dataset.el; renderTabs(); renderGrid(); });
+
+  const sizes=[0,6,8,10];
+  $('sizeTabs').innerHTML = sizes.map(s=>
+    `<button class="chip ${sizeFilter===s?'on':''}" data-s="${s}">${s===0?'全部尺寸':s+'mm'}</button>`).join('');
+  $('sizeTabs').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ sizeFilter=parseInt(c.dataset.s); renderTabs(); renderGrid(); });
+}
+
+function renderGrid(){
+  const list=BEADS.filter(b=>
+    (elFilter==='全部'||b.el===elFilter) && (sizeFilter===0||b.d===sizeFilter));
+  $('catCount').textContent = list.length+' 款';
+  $('grid').innerHTML=list.map(b=>`
+    <div class="card" data-code="${b.code}">
+      <div class="bead-vis" style="background:radial-gradient(circle at 35% 30%, ${b.grad[0]} 0%, ${b.grad[1]} 55%, ${b.grad[2]} 100%)"></div>
+      <div class="card-nm">${b.name}</div>
+      <div class="card-meta">${b.d}mm · ${fmt(b.price)}/颗</div>
+      <span class="card-el">${b.el==='配'?'配件':'五行·'+b.el}</span>
+    </div>`).join('');
+  $('grid').querySelectorAll('.card').forEach(card=>{
+    card.onclick=()=>{
+      if(totalMm()>=targetMm()+8){ toast('已达此手围上限，请先移除部分珠子'); return; }
+      design.push(card.dataset.code);
+      selIdx=-1; $('beadActions').classList.remove('show');
+      card.classList.add('flash'); setTimeout(()=>card.classList.remove('flash'),300);
+      renderAll();
+    };
+  });
+}
+
+/* ═══════════ 手围 ═══════════ */
+const WRISTS=[14,15,16,17,18];
+function renderWrist(){
+  $('wristChips').innerHTML=WRISTS.map(w=>
+    `<button class="chip ${wrist===w?'on':''}" data-w="${w}">${w}cm</button>`).join('');
+  $('wristChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+    wrist=parseInt(c.dataset.w); renderWrist(); renderAll();
+  });
+}
+
+/* ═══════════ 操作 ═══════════ */
+$('baDel').onclick=()=>{ if(selIdx<0)return; design.splice(selIdx,1); selIdx=-1; $('beadActions').classList.remove('show'); renderAll(); };
+$('baLeft').onclick=()=>{ if(selIdx<=0)return; [design[selIdx-1],design[selIdx]]=[design[selIdx],design[selIdx-1]]; selIdx--; renderAll(); $('baName').textContent=beadByCode[design[selIdx]].name+' · '+beadByCode[design[selIdx]].d+'mm'; };
+$('baRight').onclick=()=>{ if(selIdx<0||selIdx>=design.length-1)return; [design[selIdx+1],design[selIdx]]=[design[selIdx],design[selIdx+1]]; selIdx++; renderAll(); };
+$('btnClear').onclick=()=>{ if(!design.length)return; if(confirm('清空当前设计？')){ design=[]; selIdx=-1; $('beadActions').classList.remove('show'); renderAll(); } };
+$('btnShuffle').onclick=()=>{
+  const mats=MATERIALS.filter(m=>m.el!=='配');
+  const pick=mats.sort(()=>Math.random()-0.5).slice(0,3);
+  design=[]; selIdx=-1;
+  const tgt=targetMm();
+  let i=0;
+  while(totalMm()<tgt-6){
+    const m=pick[i%pick.length];
+    design.push(`${m.id}-8`);
+    if(i%4===3) design.push('spacerS-4');
+    i++;
+  }
+  $('beadActions').classList.remove('show');
+  renderAll(); toast('已生成随机灵感，可继续微调');
+};
+
+/* 八字推荐 */
+const ELS=['金','木','水','火','土'];
+$('elPick').innerHTML=ELS.map(e=>
+  `<button class="el-btn" data-e="${e}"><div class="el-zi">${e}</div><div class="el-nm">补${e}</div></button>`).join('');
+$('btnBazi').onclick=()=>$('baziMask').classList.add('show');
+$('baziClose').onclick=()=>$('baziMask').classList.remove('show');
+$('baziMask').onclick=(ev)=>{ if(ev.target===$('baziMask'))$('baziMask').classList.remove('show'); };
+$('elPick').querySelectorAll('.el-btn').forEach(b=>b.onclick=()=>{
+  const el=b.dataset.e;
+  const main=ELEMENT_MAIN[el], feed=ELEMENT_FEED[el];
+  design=[]; selIdx=-1;
+  const tgt=targetMm();
+  let i=0;
+  while(totalMm()<tgt-6){
+    /* 3 主珠 : 1 辅珠，每 4 颗后加一颗银隔珠 */
+    if(i%5===4) design.push('spacerS-4');
+    else if(i%4===3) design.push(`${feed}-6`);
+    else design.push(`${main}-8`);
+    i++;
+  }
+  $('baziMask').classList.remove('show');
+  $('beadActions').classList.remove('show');
+  renderAll();
+  toast(`已按「五行补${el}」生成推荐，正式版将读取你的八字报告`);
+});
+
+$('barCta').onclick=()=>toast('原型演示 · 正式版将进入购物车与后端验价');
+
+/* ═══════════ init ═══════════ */
+renderWrist(); renderTabs(); renderGrid(); renderAll();
+</script>
+</body>
+</html>
