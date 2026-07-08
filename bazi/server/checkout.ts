@@ -1,6 +1,8 @@
 import type { Express, Request, Response } from 'express';
 import { z } from 'zod';
-import { proxyShopCheckout, resolveAuthUserId } from '../../shared/shop-checkout/server';
+import shopCheckout from '../../shared/shop-checkout/server';
+
+const { proxyShopCheckout, resolveAuthUserId } = shopCheckout;
 
 const bodySchema = z.object({
   sku: z.string().min(1),
