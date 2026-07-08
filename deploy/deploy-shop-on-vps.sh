@@ -52,6 +52,14 @@ if [ -z "${JWT_SECRET:-}" ]; then
   exit 1
 fi
 
+# shop/main 通过 file: 引用 packages/ui、packages/tokens；需在构建前安装共享包依赖
+log "安装共享 UI 包依赖 (packages/ui, packages/tokens)..."
+for pkg in packages/ui packages/tokens; do
+  if [ -f "$DEPLOY_DIR/$pkg/package.json" ]; then
+    (cd "$DEPLOY_DIR/$pkg" && "$NPM_BIN" install --no-audit --no-fund)
+  fi
+done
+
 export JWT_SECRET
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
 export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
