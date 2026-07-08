@@ -81,6 +81,19 @@
     cursor: pointer; transition: all 0.15s;
   }
   .chip.on { background: var(--mono-black); color: #fff; border-color: var(--mono-black); }
+  .wrist-custom {
+    display: none; align-items: center; gap: 0.3rem;
+    font-size: 0.75rem; color: var(--mono-gray-deep);
+  }
+  .wrist-custom.show { display: inline-flex; }
+  .wrist-custom input {
+    width: 3.6rem; font-family: var(--sans); font-size: 0.8rem; text-align: center;
+    border: 1px solid var(--mono-black); border-radius: 999px;
+    padding: 0.26rem 0.3rem; outline: none; color: var(--mono-black);
+    -moz-appearance: textfield;
+  }
+  .wrist-custom input::-webkit-outer-spin-button,
+  .wrist-custom input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   .canvas-wrap { position: relative; margin: 0.5rem auto 0; max-width: 21rem; }
   svg.bracelet { width: 100%; height: auto; display: block; }
@@ -171,6 +184,14 @@
   .card:active { transform: scale(0.96); }
   .card.flash { border-color: var(--mono-black); box-shadow: 0 0 0 1px var(--mono-black); }
   .bead-vis { width: 2.6rem; height: 2.6rem; border-radius: 50%; margin: 0 auto; box-shadow: inset -3px -4px 8px rgba(0,0,0,0.18), inset 2px 3px 6px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.12); }
+  .bead-vis.disc { height: 0.8rem; margin-top: 0.9rem; margin-bottom: 0.9rem; border-radius: 0.4rem; }
+  .bead-vis.small { width: 1.8rem; height: 1.8rem; margin-top: 0.4rem; margin-bottom: 0.4rem; }
+  .card-type {
+    display: inline-block; margin-top: 0.3rem; margin-right: 0.25rem;
+    font-size: 0.6rem; letter-spacing: 0.1em;
+    color: #fff; background: var(--mono-gray-deep);
+    border-radius: 999px; padding: 0.05rem 0.45rem;
+  }
   .card-nm { margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; line-height: 1.3; }
   .card-meta { margin-top: 0.15rem; font-size: 0.66rem; color: var(--mono-gray-deep); }
   .card-el {
@@ -323,36 +344,50 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════ 数据（演示用） ═══════════ */
+/* ═══════════ 数据（演示用）═══════════
+   正式版：以下即后台 diy_beads 表的行，每一颗珠/隔珠/隔片都可在
+   admin 配置 —— 五行属性 / 材质 / 大小 / 价格 / 形状 / 库存。 */
 const MATERIALS = [
-  { id:'clear',   name:'净体白水晶', el:'金', grad:['#ffffff','#e8e8ec','#c9c9d1'], line:'#d5d5db' },
-  { id:'phantom', name:'绿幽灵',     el:'木', grad:['#e2f3e4','#8fbf95','#4e7a57'], line:'#6d9a74' },
-  { id:'obsidian',name:'黑曜石',     el:'水', grad:['#5a5a66','#26262e','#0c0c12'], line:'#3a3a44' },
-  { id:'carnelian',name:'红玛瑙',    el:'火', grad:['#f6c2a8','#cf5f3a','#8e3018'], line:'#b04a28' },
-  { id:'citrine', name:'黄水晶',     el:'土', grad:['#fdf3cf','#ecc65f','#c08c2c'], line:'#d1a844' },
-  { id:'rose',    name:'粉水晶',     el:'火', grad:['#fdeef2','#f0b7c8','#d97d9b'], line:'#e39cb2' },
-  { id:'aqua',    name:'海蓝宝',     el:'水', grad:['#eaf6fa','#a3d3e8','#5e9fc0'], line:'#7fb6d2' },
-  { id:'tiger',   name:'虎眼石',     el:'土', grad:['#e8c98f','#a5762f','#5f3d12'], line:'#8a6226' },
-  { id:'amethyst',name:'紫水晶',     el:'火', grad:['#f0e6f7','#b48ed6','#7b52a8'], line:'#9a72c2' },
-  { id:'moon',    name:'月光石',     el:'金', grad:['#ffffff','#e9ecf4','#c4cbdd'], line:'#d2d8e6' },
-  { id:'spacerS', name:'哑光银隔珠', el:'配', grad:['#f4f4f6','#c8c8ce','#96969e'], line:'#aeaeb6', sizes:[{d:4,p:2}] },
-  { id:'spacerG', name:'磨砂金隔珠', el:'配', grad:['#f7ecd4','#dcbd7e','#a9853f'], line:'#c4a25c', sizes:[{d:4,p:3}] },
+  /* 水晶主珠 type:'crystal' */
+  { id:'clear',   name:'净体白水晶', el:'金', type:'crystal', grad:['#ffffff','#e8e8ec','#c9c9d1'], line:'#d5d5db' },
+  { id:'phantom', name:'绿幽灵',     el:'木', type:'crystal', grad:['#e2f3e4','#8fbf95','#4e7a57'], line:'#6d9a74' },
+  { id:'obsidian',name:'黑曜石',     el:'水', type:'crystal', grad:['#5a5a66','#26262e','#0c0c12'], line:'#3a3a44' },
+  { id:'carnelian',name:'红玛瑙',    el:'火', type:'crystal', grad:['#f6c2a8','#cf5f3a','#8e3018'], line:'#b04a28' },
+  { id:'citrine', name:'黄水晶',     el:'土', type:'crystal', grad:['#fdf3cf','#ecc65f','#c08c2c'], line:'#d1a844' },
+  { id:'rose',    name:'粉水晶',     el:'火', type:'crystal', grad:['#fdeef2','#f0b7c8','#d97d9b'], line:'#e39cb2' },
+  { id:'aqua',    name:'海蓝宝',     el:'水', type:'crystal', grad:['#eaf6fa','#a3d3e8','#5e9fc0'], line:'#7fb6d2' },
+  { id:'tiger',   name:'虎眼石',     el:'土', type:'crystal', grad:['#e8c98f','#a5762f','#5f3d12'], line:'#8a6226' },
+  { id:'amethyst',name:'紫水晶',     el:'火', type:'crystal', grad:['#f0e6f7','#b48ed6','#7b52a8'], line:'#9a72c2' },
+  { id:'moon',    name:'月光石',     el:'金', type:'crystal', grad:['#ffffff','#e9ecf4','#c4cbdd'], line:'#d2d8e6' },
+  /* 隔珠 type:'spacer'（球形小珠，五行可配） */
+  { id:'silver',  name:'哑光银隔珠', el:'金', type:'spacer', grad:['#f4f4f6','#c8c8ce','#96969e'], line:'#aeaeb6', sizes:[{d:4,p:2},{d:6,p:3}] },
+  { id:'gold',    name:'磨砂金隔珠', el:'金', type:'spacer', grad:['#f7ecd4','#dcbd7e','#a9853f'], line:'#c4a25c', sizes:[{d:4,p:3},{d:6,p:4}] },
+  { id:'sandal',  name:'绿檀木隔珠', el:'木', type:'spacer', grad:['#dcead2','#7f9e6a','#46603a'], line:'#66845a', sizes:[{d:4,p:2},{d:6,p:3}] },
+  { id:'cinnabar',name:'朱砂隔珠',   el:'火', type:'spacer', grad:['#f3b8ac','#c1442e','#7e1f10'], line:'#a53823', sizes:[{d:4,p:4},{d:6,p:6}] },
+  /* 隔片 type:'disc'（薄片，厚度 t 占串长） */
+  { id:'tibet',   name:'藏银隔片',   el:'金', type:'disc', grad:['#f2f2f4','#bfbfc7','#8b8b95'], line:'#a5a5af', sizes:[{d:6,t:1.5,p:2},{d:8,t:2,p:3}] },
+  { id:'ebony',   name:'黑檀木隔片', el:'木', type:'disc', grad:['#6b5f58','#3a3028','#1c1712'], line:'#4a3f36', sizes:[{d:6,t:2,p:2},{d:8,t:2,p:3}] },
+  { id:'agateD',  name:'玛瑙隔片',   el:'火', type:'disc', grad:['#f0c4b0','#c96a48','#8e3a20'], line:'#b05436', sizes:[{d:6,t:2,p:3}] },
+  { id:'shell',   name:'砗磲隔片',   el:'水', type:'disc', grad:['#ffffff','#eef0ee','#d2d8d2'], line:'#dde2dd', sizes:[{d:6,t:2,p:3}] },
 ];
 const DEFAULT_SIZES = [ {d:6,p:3},{d:8,p:5},{d:10,p:8} ];
-const PRICE_FACTOR = { clear:1, phantom:1.8, obsidian:1.2, carnelian:1, citrine:1.5, rose:1.1, aqua:1.6, tiger:1.3, amethyst:1.4, moon:1.7, spacerS:1, spacerG:1 };
+const PRICE_FACTOR = { clear:1, phantom:1.8, obsidian:1.2, carnelian:1, citrine:1.5, rose:1.1, aqua:1.6, tiger:1.3, amethyst:1.4, moon:1.7 };
 
 const BEADS = [];
 for (const m of MATERIALS) {
   const sizes = m.sizes || DEFAULT_SIZES;
   for (const s of sizes) {
     BEADS.push({
-      code:`${m.id}-${s.d}`, mat:m.id, name:m.name, el:m.el,
-      d:s.d, price: Math.round(s.p * (PRICE_FACTOR[m.id]||1)),
+      code:`${m.id}-${s.d}`, mat:m.id, name:m.name, el:m.el, type:m.type,
+      d:s.d, t:s.t || null,                    /* 隔片：t=厚度(占串长), d=直径(径向) */
+      len: s.t || s.d,                          /* 占串长 mm */
+      price: Math.round(s.p * (PRICE_FACTOR[m.id]||1)),
       grad:m.grad, line:m.line,
     });
   }
 }
 const beadByCode = Object.fromEntries(BEADS.map(b=>[b.code,b]));
+const TYPE_LABEL = { crystal:'', spacer:'隔珠', disc:'隔片' };
 
 /* 五行相生：补X → 主珠X + 生X的辅珠 */
 const ELEMENT_MAIN = { 金:'clear', 木:'phantom', 水:'obsidian', 火:'carnelian', 土:'citrine' };
@@ -368,8 +403,9 @@ let sizeFilter = 0;         // 0=全部
 /* ═══════════ 工具 ═══════════ */
 const $ = (id)=>document.getElementById(id);
 const fmt = (n)=>'¥'+n;
-function totalMm(){ return design.reduce((s,c)=>s+beadByCode[c].d,0); }
+function totalMm(){ return design.reduce((s,c)=>s+beadByCode[c].len,0); }
 function totalPrice(){ return design.reduce((s,c)=>s+beadByCode[c].price,0); }
+function beadLabel(b){ return b.name+' · '+(b.type==='disc' ? b.d+'×'+b.t+'mm' : b.d+'mm'); }
 function targetMm(){ return wrist*10 + 10; } /* 手围 + 1cm 松量 */
 
 let toastTimer;
@@ -403,25 +439,37 @@ function renderCanvas(){
   let acc=0;
   design.forEach((code,i)=>{
     const b=beadByCode[code];
-    const arc=b.d*scale;
+    const arc=b.len*scale;
     const midLen=acc+arc/2;
-    const ang=(midLen/(R))* (180/Math.PI); /* rad→deg? use rad */
     const theta=(midLen/R) - Math.PI/2;
     const x=C+R*Math.cos(theta), y=C+R*Math.sin(theta);
-    const r=(b.d*scale)/2 * 0.94;
     const sel = i===selIdx;
-    body+=`<circle data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"
-      fill="url(#g-${b.mat})" stroke="${sel?'#171717':b.line}" stroke-width="${sel?2.5:1}"
-      style="cursor:pointer"/>`;
-    /* 高光 */
-    body+=`<ellipse cx="${(x-r*0.3).toFixed(1)}" cy="${(y-r*0.35).toFixed(1)}" rx="${(r*0.28).toFixed(1)}" ry="${(r*0.18).toFixed(1)}" fill="rgba(255,255,255,0.55)" style="pointer-events:none"/>`;
+
+    if(b.type==='disc'){
+      /* 隔片：径向长条（厚度沿串，直径沿径向） */
+      const w=Math.max(b.t*scale,3), h=b.d*scale*0.94;
+      const deg=(theta*180/Math.PI)+90;
+      body+=`<g transform="rotate(${deg.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})">
+        <rect data-i="${i}" x="${(x-w/2).toFixed(1)}" y="${(y-h/2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"
+          rx="${(w/2).toFixed(1)}" fill="url(#g-${b.mat})"
+          stroke="${sel?'#171717':b.line}" stroke-width="${sel?2.5:1}" style="cursor:pointer"/>
+      </g>`;
+    } else {
+      const r=(b.d*scale)/2 * 0.94;
+      body+=`<circle data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"
+        fill="url(#g-${b.mat})" stroke="${sel?'#171717':b.line}" stroke-width="${sel?2.5:1}"
+        style="cursor:pointer"/>`;
+      body+=`<ellipse cx="${(x-r*0.3).toFixed(1)}" cy="${(y-r*0.35).toFixed(1)}" rx="${(r*0.28).toFixed(1)}" ry="${(r*0.18).toFixed(1)}" fill="rgba(255,255,255,0.55)" style="pointer-events:none"/>`;
+    }
+    /* 透明扩大点击区（隔珠/隔片太细不好点） */
+    body+=`<circle data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="transparent" style="cursor:pointer"/>`;
     acc+=arc;
   });
 
   svg.innerHTML=defs+body;
   $('hint').style.display = design.length? 'none':'flex';
 
-  svg.querySelectorAll('circle[data-i]').forEach(c=>{
+  svg.querySelectorAll('[data-i]').forEach(c=>{
     c.addEventListener('click',()=>{ selectBead(parseInt(c.dataset.i)); });
   });
 }
@@ -431,7 +479,7 @@ function selectBead(i){
   const bar=$('beadActions');
   if(selIdx>=0){
     bar.classList.add('show');
-    $('baName').textContent = beadByCode[design[selIdx]].name + ' · ' + beadByCode[design[selIdx]].d + 'mm';
+    $('baName').textContent = beadLabel(beadByCode[design[selIdx]]);
   } else bar.classList.remove('show');
   renderCanvas();
 }
@@ -458,28 +506,39 @@ function renderStats(){
 function renderAll(){ renderCanvas(); renderStats(); }
 
 /* ═══════════ 目录 ═══════════ */
-const EL_TABS=['全部','金','木','水','火','土','配'];
+const EL_TABS=['全部','金','木','水','火','土','配件'];
 function renderTabs(){
   $('elTabs').innerHTML = EL_TABS.map(e=>
-    `<button class="tab ${elFilter===e?'on':''}" data-el="${e}">${e==='配'?'配件':e==='全部'?'全部':'五行·'+e}</button>`).join('');
+    `<button class="tab ${elFilter===e?'on':''}" data-el="${e}">${e==='全部'||e==='配件'?e:'五行·'+e}</button>`).join('');
   $('elTabs').querySelectorAll('.tab').forEach(t=>t.onclick=()=>{ elFilter=t.dataset.el; renderTabs(); renderGrid(); });
 
-  const sizes=[0,6,8,10];
+  const sizes=[0,4,6,8,10];
   $('sizeTabs').innerHTML = sizes.map(s=>
     `<button class="chip ${sizeFilter===s?'on':''}" data-s="${s}">${s===0?'全部尺寸':s+'mm'}</button>`).join('');
   $('sizeTabs').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ sizeFilter=parseInt(c.dataset.s); renderTabs(); renderGrid(); });
 }
 
+function beadVisual(b){
+  const bg=`background:radial-gradient(circle at 35% 30%, ${b.grad[0]} 0%, ${b.grad[1]} 55%, ${b.grad[2]} 100%)`;
+  if(b.type==='disc')  return `<div class="bead-vis disc" style="${bg}"></div>`;
+  if(b.type==='spacer')return `<div class="bead-vis small" style="${bg}"></div>`;
+  return `<div class="bead-vis" style="${bg}"></div>`;
+}
+
 function renderGrid(){
-  const list=BEADS.filter(b=>
-    (elFilter==='全部'||b.el===elFilter) && (sizeFilter===0||b.d===sizeFilter));
+  const list=BEADS.filter(b=>{
+    const elOk = elFilter==='全部' ? true
+      : elFilter==='配件' ? b.type!=='crystal'
+      : b.el===elFilter;
+    return elOk && (sizeFilter===0||b.d===sizeFilter);
+  });
   $('catCount').textContent = list.length+' 款';
   $('grid').innerHTML=list.map(b=>`
     <div class="card" data-code="${b.code}">
-      <div class="bead-vis" style="background:radial-gradient(circle at 35% 30%, ${b.grad[0]} 0%, ${b.grad[1]} 55%, ${b.grad[2]} 100%)"></div>
+      ${beadVisual(b)}
       <div class="card-nm">${b.name}</div>
-      <div class="card-meta">${b.d}mm · ${fmt(b.price)}/颗</div>
-      <span class="card-el">${b.el==='配'?'配件':'五行·'+b.el}</span>
+      <div class="card-meta">${b.type==='disc' ? b.d+'×'+b.t+'mm' : b.d+'mm'} · ${fmt(b.price)}/颗</div>
+      ${b.type!=='crystal'?`<span class="card-type">${TYPE_LABEL[b.type]}</span>`:''}<span class="card-el">五行·${b.el}</span>
     </div>`).join('');
   $('grid').querySelectorAll('.card').forEach(card=>{
     card.onclick=()=>{
@@ -494,29 +553,58 @@ function renderGrid(){
 
 /* ═══════════ 手围 ═══════════ */
 const WRISTS=[14,15,16,17,18];
+let wristCustom = false;
 function renderWrist(){
-  $('wristChips').innerHTML=WRISTS.map(w=>
-    `<button class="chip ${wrist===w?'on':''}" data-w="${w}">${w}cm</button>`).join('');
+  const isPreset = WRISTS.includes(wrist) && !wristCustom;
+  $('wristChips').innerHTML = WRISTS.map(w=>
+    `<button class="chip ${isPreset&&wrist===w?'on':''}" data-w="${w}">${w}cm</button>`).join('')
+    + `<button class="chip ${wristCustom?'on':''}" data-w="custom">自定义</button>`
+    + `<span class="wrist-custom ${wristCustom?'show':''}">
+         <input id="wristInput" type="number" min="10" max="25" step="0.5" value="${wrist}" inputmode="decimal" /> cm
+       </span>`;
   $('wristChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
-    wrist=parseInt(c.dataset.w); renderWrist(); renderAll();
+    if(c.dataset.w==='custom'){
+      wristCustom=true; renderWrist(); renderAll();
+      const inp=$('wristInput'); if(inp){ inp.focus(); inp.select(); }
+      return;
+    }
+    wristCustom=false; wrist=parseInt(c.dataset.w); renderWrist(); renderAll();
   });
+  const inp=$('wristInput');
+  if(inp){
+    inp.addEventListener('input',()=>{
+      const v=parseFloat(inp.value);
+      if(!isNaN(v) && v>=10 && v<=25){ wrist=v; renderAll(); }
+    });
+    inp.addEventListener('blur',()=>{
+      let v=parseFloat(inp.value);
+      if(isNaN(v)) v=16;
+      v=Math.min(25,Math.max(10,v));
+      wrist=v; inp.value=v; renderAll();
+    });
+  }
 }
 
 /* ═══════════ 操作 ═══════════ */
 $('baDel').onclick=()=>{ if(selIdx<0)return; design.splice(selIdx,1); selIdx=-1; $('beadActions').classList.remove('show'); renderAll(); };
-$('baLeft').onclick=()=>{ if(selIdx<=0)return; [design[selIdx-1],design[selIdx]]=[design[selIdx],design[selIdx-1]]; selIdx--; renderAll(); $('baName').textContent=beadByCode[design[selIdx]].name+' · '+beadByCode[design[selIdx]].d+'mm'; };
+$('baLeft').onclick=()=>{ if(selIdx<=0)return; [design[selIdx-1],design[selIdx]]=[design[selIdx],design[selIdx-1]]; selIdx--; renderAll(); $('baName').textContent=beadLabel(beadByCode[design[selIdx]]); };
 $('baRight').onclick=()=>{ if(selIdx<0||selIdx>=design.length-1)return; [design[selIdx+1],design[selIdx]]=[design[selIdx],design[selIdx+1]]; selIdx++; renderAll(); };
 $('btnClear').onclick=()=>{ if(!design.length)return; if(confirm('清空当前设计？')){ design=[]; selIdx=-1; $('beadActions').classList.remove('show'); renderAll(); } };
 $('btnShuffle').onclick=()=>{
-  const mats=MATERIALS.filter(m=>m.el!=='配');
+  const mats=MATERIALS.filter(m=>m.type==='crystal');
   const pick=mats.sort(()=>Math.random()-0.5).slice(0,3);
+  const spacers=MATERIALS.filter(m=>m.type==='spacer');
+  const discs=MATERIALS.filter(m=>m.type==='disc');
+  const sp=spacers[Math.floor(Math.random()*spacers.length)];
+  const dc=discs[Math.floor(Math.random()*discs.length)];
   design=[]; selIdx=-1;
   const tgt=targetMm();
   let i=0;
   while(totalMm()<tgt-6){
     const m=pick[i%pick.length];
     design.push(`${m.id}-8`);
-    if(i%4===3) design.push('spacerS-4');
+    if(i%6===2) design.push(`${dc.id}-${dc.sizes[0].d}`);
+    if(i%4===3) design.push(`${sp.id}-${sp.sizes[0].d}`);
     i++;
   }
   $('beadActions').classList.remove('show');
@@ -530,6 +618,9 @@ $('elPick').innerHTML=ELS.map(e=>
 $('btnBazi').onclick=()=>$('baziMask').classList.add('show');
 $('baziClose').onclick=()=>$('baziMask').classList.remove('show');
 $('baziMask').onclick=(ev)=>{ if(ev.target===$('baziMask'))$('baziMask').classList.remove('show'); };
+/* 与主五行同属性的隔珠/隔片（演示后台按五行配置配件的效果） */
+const ELEMENT_SPACER = { 金:'silver-4', 木:'sandal-4', 水:'silver-4', 火:'cinnabar-4', 土:'gold-4' };
+const ELEMENT_DISC   = { 金:'tibet-6',  木:'ebony-6',  水:'shell-6',  火:'agateD-6',   土:'tibet-6' };
 $('elPick').querySelectorAll('.el-btn').forEach(b=>b.onclick=()=>{
   const el=b.dataset.e;
   const main=ELEMENT_MAIN[el], feed=ELEMENT_FEED[el];
@@ -537,8 +628,9 @@ $('elPick').querySelectorAll('.el-btn').forEach(b=>b.onclick=()=>{
   const tgt=targetMm();
   let i=0;
   while(totalMm()<tgt-6){
-    /* 3 主珠 : 1 辅珠，每 4 颗后加一颗银隔珠 */
-    if(i%5===4) design.push('spacerS-4');
+    /* 3 主珠 : 1 辅珠；隔珠/隔片按同五行选配 */
+    if(i%7===5) design.push(ELEMENT_DISC[el]);
+    else if(i%5===4) design.push(ELEMENT_SPACER[el]);
     else if(i%4===3) design.push(`${feed}-6`);
     else design.push(`${main}-8`);
     i++;
