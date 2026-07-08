@@ -15,7 +15,7 @@
 | React 组件 | `packages/ui` → `@orasage/ui` | `transpilePackages` + `@source` | ✅ 见 §2 |
 | 静态 oui-* CSS | `packages/ui/src/styles/components.css` | `sync:auth-ui-css` / `sync:fortune-ui-css` | ✅ rgb 通道兼容 |
 | App Shell | `shared/app-shell/` | `npm run app-shell:sync` / `app-shell:check` | ✅ 8 应用 + auth |
-| 多语言基座 | `packages/i18n` + tarot `ui-strings.ts` | main/shop next-intl；tarot LangProvider | 🟡 tarot 核心流程已外化 |
+| 多语言基座 | `packages/i18n` + tarot `ui-strings.ts` | main/shop next-intl；tarot LangProvider | 🟡 tarot 主要用户流程已外化 |
 | 图标 | `lucide-react` | App Shell + 业务组件 | 🟡 内容数据 emoji 保留 |
 
 **CI**：`npm run ui:check` 已在 `.github/workflows/ui-check.yml` 门禁运行。
@@ -28,7 +28,7 @@
 |-----|:---:|:------:|:-------------:|:----:|------|
 | **main** | ✅ | 共享 | 全量 (~31 文件) | next-intl 12 语 | 参考实现 |
 | **shop** | ✅ | 共享 | Button + Card | next-intl T1 四语 | 已移除 deprecated `.shop-btn-*` |
-| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` / `reading-copy` | 核心流程+三牌阵/运势/历史四语 |
+| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` / `reading-copy` / `feature-copy` | 核心流程+三牌阵/运势/历史/onboarding/dream/angel 四语 |
 | **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card**（BirthForm/Chat/FamousPerson） | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
 | **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | 自研 4 语 | 命盘业务 CSS 保留 |
 | **admin** | ✅ | 共享 | **Button**（登录/表单提交） | 中文后台 | 运营页逐步迁移 |
@@ -77,5 +77,4 @@ cd admin && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
 
 ## 6. 剩余可选跟进
 
-- tarot onboarding / dream / angel-card 等其余页面 i18n
 - ziwei 更多业务组件接入 `@orasage/ui`

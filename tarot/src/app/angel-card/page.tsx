@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { useState } from 'react'
+import { useAngelCopy } from '@/lib/i18n/feature-copy'
 
 interface AngelCardData {
   cardId: string
@@ -137,6 +138,7 @@ function AngelCardSVG({ symbol, color, size = 200 }: { symbol: string; color: st
 }
 
 export default function AngelCardPage() {
+  const copy = useAngelCopy()
   const [step, setStep] = useState<'intro' | 'intention' | 'drawing' | 'result'>('intro')
   const [intention, setIntention] = useState('')
   const [card, setCard] = useState<AngelCardData | null>(null)
@@ -190,8 +192,8 @@ export default function AngelCardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '22px' }}>👼</span>
             <div>
-              <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>天使牌</h1>
-              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0 }}>Angel Cards · 神圣指引</p>
+              <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{copy.title}</h1>
+              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0 }}>{copy.subtitle}</p>
             </div>
           </div>
         </div>
@@ -213,22 +215,16 @@ export default function AngelCardPage() {
             }}>
               <div style={{ fontSize: '52px', marginBottom: '12px' }}>🌟</div>
               <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>
-                天使牌指引
+                {copy.introTitle}
               </h2>
               <p style={{ fontSize: '14px', color: '#5A4A3A', lineHeight: '1.7', marginBottom: '0' }}>
-                天使牌来自西方神秘学传统，每一张牌都承载着天使的讯息与智慧。
-                无论你正在经历什么，天使都在你身旁，等待为你指引方向。
+                {copy.introBody}
               </p>
             </div>
 
             {/* 功能说明 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-              {[
-                { icon: '💫', title: '44张天使牌', desc: '大天使 · 守护天使 · 元素天使' },
-                { icon: '🙏', title: '意图占卜', desc: '带着问题，获得专属指引' },
-                { icon: '✨', title: '正念肯定语', desc: '每日一句，滋养内心力量' },
-                { icon: '📖', title: '行动指引', desc: '具体建议，落地实践' },
-              ].map((item, i) => (
+              {copy.features.map((item, i) => (
                 <div key={i} style={{
                   background: '#fff',
                   border: '1px solid #EDE8E0',
@@ -236,7 +232,7 @@ export default function AngelCardPage() {
                   padding: '14px',
                   textAlign: 'center'
                 }}>
-                  <div style={{ fontSize: '24px', marginBottom: '6px' }}>{item.icon}</div>
+                  <div style={{ fontSize: '24px', marginBottom: '6px' }}>{copy.featureIcons[i]}</div>
                   <div style={{ fontSize: '12px', fontWeight: '600', color: '#1A1A1A', marginBottom: '4px' }}>{item.title}</div>
                   <div style={{ fontSize: '11px', color: '#8B7355' }}>{item.desc}</div>
                 </div>
@@ -258,7 +254,7 @@ export default function AngelCardPage() {
                 boxShadow: '0 4px 16px rgba(201,149,74,0.35)',
               }}
             >
-              ✨ 开始天使牌占卜
+              {copy.start}
             </button>
           </div>
         )}
@@ -274,16 +270,16 @@ export default function AngelCardPage() {
               marginBottom: '20px'
             }}>
               <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px', textAlign: 'center' }}>
-                🙏 设定你的意图
+                {copy.intentionTitle}
               </h2>
-              <p style={{ fontSize: '13px', color: '#8B7355', textAlign: 'center', marginBottom: '20px', lineHeight: '1.6' }}>
-                在抽卡之前，你可以在心中设定一个意图或问题，<br/>天使会为你带来最适合的指引。
+              <p style={{ fontSize: '13px', color: '#8B7355', textAlign: 'center', marginBottom: '20px', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                {copy.intentionLead}
               </p>
 
               <textarea
                 value={intention}
                 onChange={e => setIntention(e.target.value)}
-                placeholder="例如：我在感情上需要什么指引？&#10;或者：我的事业下一步该怎么走？&#10;&#10;也可以留空，接受天使的随机指引。"
+                placeholder={copy.intentionPlaceholder}
                 style={{
                   width: '100%',
                   minHeight: '120px',
@@ -315,7 +311,7 @@ export default function AngelCardPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  返回
+                  {copy.back}
                 </button>
                 <button
                   onClick={drawCard}
@@ -332,30 +328,30 @@ export default function AngelCardPage() {
                     boxShadow: '0 4px 16px rgba(201,149,74,0.35)',
                   }}
                 >
-                  🌟 抽取天使牌
+                  {copy.draw}
                 </button>
               </div>
             </div>
 
             {/* 快捷意图 */}
             <div style={{ marginBottom: '8px' }}>
-              <p style={{ fontSize: '12px', color: '#8B7355', marginBottom: '10px' }}>快捷意图：</p>
+              <p style={{ fontSize: '12px', color: '#8B7355', marginBottom: '10px' }}>{copy.quickIntentionsLabel}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {['感情指引', '事业方向', '健康提示', '财运建议', '今日指引', '内心成长'].map(q => (
+                {copy.quickIntentions.map((item) => (
                   <button
-                    key={q}
-                    onClick={() => setIntention(q)}
+                    key={item.key}
+                    onClick={() => setIntention(item.key)}
                     style={{
-                      background: intention === q ? '#C9954A' : '#fff',
-                      color: intention === q ? '#fff' : '#8B7355',
-                      border: `1px solid ${intention === q ? '#C9954A' : '#EDE8E0'}`,
+                      background: intention === item.key ? '#C9954A' : '#fff',
+                      color: intention === item.key ? '#fff' : '#8B7355',
+                      border: `1px solid ${intention === item.key ? '#C9954A' : '#EDE8E0'}`,
                       borderRadius: '20px',
                       padding: '6px 14px',
                       fontSize: '13px',
                       cursor: 'pointer',
                     }}
                   >
-                    {q}
+                    {item.label}
                   </button>
                 ))}
               </div>
@@ -381,8 +377,8 @@ export default function AngelCardPage() {
             }}>
               ✨
             </div>
-            <p style={{ fontSize: '16px', color: '#8B7355', fontWeight: '500' }}>天使正在为你选择...</p>
-            <p style={{ fontSize: '13px', color: '#B8A898' }}>请保持内心平静，感受天使的存在</p>
+            <p style={{ fontSize: '16px', color: '#8B7355', fontWeight: '500' }}>{copy.drawingTitle}</p>
+            <p style={{ fontSize: '13px', color: '#B8A898' }}>{copy.drawingHint}</p>
           </div>
         )}
 
@@ -409,14 +405,20 @@ export default function AngelCardPage() {
                   <AngelCardSVG symbol={card.symbol} color={card.color} size={160} />
                 </div>
                 <div style={{ fontSize: '13px', color: elementCfg.border, fontWeight: '500', marginBottom: '4px' }}>
-                  {elementCfg.icon} {card.element === 'fire' ? '火元素' : card.element === 'water' ? '水元素' : card.element === 'earth' ? '土元素' : card.element === 'air' ? '风元素' : '光元素'}
+                  {elementCfg.icon} {copy.elementLabel(card.element)}
                 </div>
                 <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 4px' }}>
-                  {card.cardName}
+                  {copy.cardDisplayName(card.cardName, card.cardNameEn)}
                 </h2>
-                <p style={{ fontSize: '13px', color: '#8B7355', margin: 0, fontStyle: 'italic' }}>
-                  {card.cardNameEn}
-                </p>
+                {copy.lang === 'zh' ? (
+                  <p style={{ fontSize: '13px', color: '#8B7355', margin: 0, fontStyle: 'italic' }}>
+                    {card.cardNameEn}
+                  </p>
+                ) : card.cardName ? (
+                  <p style={{ fontSize: '13px', color: '#8B7355', margin: 0, fontStyle: 'italic' }}>
+                    {card.cardName}
+                  </p>
+                ) : null}
               </div>
 
               {/* 正念肯定语 */}
@@ -427,7 +429,7 @@ export default function AngelCardPage() {
                 textAlign: 'center',
               }}>
                 <p style={{ fontSize: '13px', color: elementCfg.border, fontWeight: '600', margin: '0 0 6px' }}>
-                  ✨ 今日肯定语
+                  {copy.affirmationLabel}
                 </p>
                 <p style={{ fontSize: '15px', color: '#1A1A1A', fontWeight: '500', margin: 0, lineHeight: '1.6', fontStyle: 'italic' }}>
                   「{card.affirmation}」
@@ -437,7 +439,7 @@ export default function AngelCardPage() {
               {/* 天使讯息 */}
               <div style={{ padding: '20px 24px', borderBottom: `1px solid #EDE8E0` }}>
                 <p style={{ fontSize: '13px', color: '#8B7355', fontWeight: '600', margin: '0 0 10px' }}>
-                  💌 天使的讯息
+                  {copy.messageLabel}
                 </p>
                 <p style={{ fontSize: '14px', color: '#3A3A3A', lineHeight: '1.8', margin: 0 }}>
                   {card.message}
@@ -447,7 +449,7 @@ export default function AngelCardPage() {
               {/* 行动指引 */}
               <div style={{ padding: '20px 24px', borderBottom: `1px solid #EDE8E0` }}>
                 <p style={{ fontSize: '13px', color: '#8B7355', fontWeight: '600', margin: '0 0 10px' }}>
-                  🌱 行动指引
+                  {copy.guidanceLabel}
                 </p>
                 <p style={{ fontSize: '14px', color: '#3A3A3A', lineHeight: '1.8', margin: 0 }}>
                   {card.guidance}
@@ -457,7 +459,7 @@ export default function AngelCardPage() {
               {/* 关键词 */}
               <div style={{ padding: '16px 24px' }}>
                 <p style={{ fontSize: '13px', color: '#8B7355', fontWeight: '600', margin: '0 0 10px' }}>
-                  🏷️ 关键词
+                  {copy.keywordsLabel}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {card.keywords.map((kw, i) => (
@@ -494,7 +496,7 @@ export default function AngelCardPage() {
                   cursor: saved ? 'default' : 'pointer',
                 }}
               >
-                {saved ? '✅ 已保存' : '💾 保存记录'}
+                {saved ? copy.saved : copy.save}
               </button>
               <button
                 onClick={reset}
@@ -511,7 +513,7 @@ export default function AngelCardPage() {
                   boxShadow: '0 4px 16px rgba(201,149,74,0.35)',
                 }}
               >
-                🔄 再次占卜
+                {copy.again}
               </button>
             </div>
 
@@ -523,8 +525,8 @@ export default function AngelCardPage() {
               padding: '14px 16px',
               textAlign: 'center',
             }}>
-              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0, lineHeight: '1.6' }}>
-                💡 天使牌的指引是一种内在智慧的镜子，<br/>最终的选择和行动权永远在你自己手中。
+              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0, lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                {copy.footerHint}
               </p>
             </div>
           </div>

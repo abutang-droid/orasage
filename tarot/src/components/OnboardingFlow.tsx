@@ -8,7 +8,6 @@ import { GeoJourneyPicker } from '@/components/geo/GeoJourneyPicker';
 import {
   GENDER_OPTIONS,
   OCCUPATION_OPTIONS,
-  formatPrefillSummary,
   hasPrefillData,
   normalizeNickname,
   type GenderOption,
@@ -16,6 +15,7 @@ import {
   type OnboardingDraft,
   type OnboardingPrefill,
 } from '@/lib/onboarding-v2';
+import { useOnboardingCopy } from '@/lib/i18n/feature-copy';
 import { customFaithDisplayName, formatFaithLabel, isCustomFaithId } from '@/lib/faiths/religions';
 import { useUser } from '@/lib/user';
 
@@ -82,12 +82,12 @@ function TypewriterBubble({ text, onDone }: { text: string; onDone?: () => void 
   return <MentorRow text={shown} />;
 }
 
-function MantoHero() {
+function MantoHero({ alt, role }: { alt: string; role: string }) {
   return (
     <aside className="onboarding-hero">
       <Image
         src={MANTO_PORTRAIT}
-        alt="Manto，你的塔罗引导者"
+        alt={alt}
         width={320}
         height={427}
         className="onboarding-hero-portrait"
@@ -95,13 +95,14 @@ function MantoHero() {
       />
       <div className="onboarding-hero-caption">
         <div className="onboarding-mentor-name">Manto</div>
-        <div className="onboarding-mentor-role">你的塔罗引导者</div>
+        <div className="onboarding-mentor-role">{role}</div>
       </div>
     </aside>
   );
 }
 
 export function OnboardingFlow() {
+  const copy = useOnboardingCopy();
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -170,12 +171,10 @@ export function OnboardingFlow() {
       .finally(() => setPrefillLoaded(true));
   }, [userLoading, user?.onboardingCompleted, user?.nickname, router]);
 
-  const introText = useMemo(() => {
-    if (hasExternal && prefill?.sourceLabel) {
-      return `你好，我是 Manto，你的塔罗引导者。\n\n我注意到你曾在【${prefill.sourceLabel}】留下过足迹。接下来我会先确认你的基本信息，好让之后的运势与占卜更贴近你。`;
-    }
-    return '你好，我是 Manto，你的塔罗引导者。\n\n在翻开第一张牌之前，我想先认识你一点点——不会很久，就像老朋友聊天那样。';
-  }, [hasExternal, prefill?.sourceLabel]);
+  const introText = useMemo(
+    () => copy.introText(prefill?.sourceLabel),
+    [copy, prefill?.sourceLabel],
+  );
 
   const commitIntroToChat = useCallback(() => {
     pushMentor(introText);
@@ -184,19 +183,19 @@ export function OnboardingFlow() {
 
   const goAfterIntro = useCallback(() => {
     setStep('nickname');
-    pushMentor('首先，我该怎么称呼你？');
-  }, [pushMentor]);
+    pushMentor(copy.askNickname);
+  }, [copy.askNickname, pushMentor]);
 
   const showPrefillConfirm = useCallback(
     (source: OnboardingPrefill) => {
       if (prefillPushedRef.current) return;
       prefillPushedRef.current = true;
-      const summary = formatPrefillSummary(source);
+      const summary = copy.formatPrefillSummary(source);
       if (summary) pushMentor(summary);
-      pushMentor('这是我目前了解到的你，确认一下好吗？');
+      pushMentor(copy.prefillConfirm);
       setStep('prefill_confirm');
     },
-    [pushMentor],
+    [copy, pushMentor],
   );
 
   const onNicknameNext = () => {
@@ -208,45 +207,45 @@ export function OnboardingFlow() {
       return;
     }
     setStep('birthday');
-    pushMentor('很高兴认识你。你的生日是哪一天？我会据此调整运势解读的语气与节奏。');
+    pushMentor(copy.askBirthday);
   };
 
   const acceptPrefill = () => {
-    pushUser('信息没错，继续吧');
+    pushUser(copy.prefillOk);
     if (!draft.birthdate) {
       setStep('birthday');
-      pushMentor('还差生日这一项——你的出生日期是？');
+      pushMentor(copy.askBirthdayShort);
       return;
     }
     if (!draft.gender) {
       setStep('gender');
-      pushMentor('那告诉我你的性别认同，我会用更合适的称呼与你对话。');
+      pushMentor(copy.askGenderPrefill);
       return;
     }
     if (!draft.occupation) {
       setStep('occupation');
-      pushMentor('你现在的工作状态是？这会影响事业与财运的解读角度。');
+      pushMentor(copy.askOccupationDetail);
       return;
     }
     if (!draft.faith || !draft.countryCode) {
       setStep('geo_journey');
-      pushMentor('最后，确认你所在的国家，并选择一种精神归属。我们会自动尝试定位，你也可以手动选择。祈福与运势都会参考它。');
+      pushMentor(copy.askGeo);
       return;
     }
     void finishOnboarding(draft);
   };
 
   const editPrefill = () => {
-    pushUser('我想自己填写');
+    pushUser(copy.editMyself);
     setStep('birthday');
-    pushMentor('没问题，我们从生日开始。');
+    pushMentor(copy.editFromBirthday);
   };
 
   const finishOnboarding = async (finalDraft: OnboardingDraft) => {
     setStep('saving');
     setSaving(true);
     setError('');
-    pushMentor('很好，我正在为你铺好今日的星途……');
+    pushMentor(copy.saving);
     try {
       const res = await fetch('/api/onboarding/complete', {
         method: 'POST',
@@ -258,10 +257,10 @@ export function OnboardingFlow() {
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data as { error?: string }).error || '保存失败');
+      if (!res.ok) throw new Error((data as { error?: string }).error || copy.saveFailed);
       window.location.href = '/';
     } catch (err) {
-      setError(err instanceof Error ? err.message : '保存失败');
+      setError(err instanceof Error ? err.message : copy.saveFailed);
       setSaving(false);
       setStep('geo_journey');
     }
@@ -271,21 +270,21 @@ export function OnboardingFlow() {
     if (!draft.birthdate) return;
     pushUser(draft.birthdate);
     setStep('gender');
-    pushMentor('收到。那你的性别认同是？');
+    pushMentor(copy.askGender);
   };
 
   const onGenderPick = (gender: GenderOption) => {
     setDraft((d) => ({ ...d, gender }));
-    pushUser(gender);
+    pushUser(copy.genderLabel(gender));
     setStep('occupation');
-    pushMentor('你现在的工作状态是？');
+    pushMentor(copy.askOccupation);
   };
 
   const onOccupationPick = (occupation: OccupationOption) => {
     setDraft((d) => ({ ...d, occupation }));
-    pushUser(occupation);
+    pushUser(copy.occupationLabel(occupation));
     setStep('geo_journey');
-    pushMentor('最后一步——确认你的国家，并选择信仰或精神归属。');
+    pushMentor(copy.askGeoShort);
   };
 
   const onGeoJourneyComplete = (result: {
@@ -320,7 +319,7 @@ export function OnboardingFlow() {
   return (
     <div className="onboarding-page">
       <div className="onboarding-layout">
-        <MantoHero />
+        <MantoHero alt={copy.mentorAlt} role={copy.mentorRole} />
 
         <div className="onboarding-stage">
           <div className="onboarding-chat">
@@ -343,7 +342,7 @@ export function OnboardingFlow() {
             {step === 'intro' && introDone && (
               <div className="onboarding-actions">
                 <Button type="button" className="w-full" onClick={goAfterIntro}>
-                  开始吧
+                  {copy.start}
                 </Button>
               </div>
             )}
@@ -353,7 +352,7 @@ export function OnboardingFlow() {
                 <input
                   type="text"
                   className="onboarding-text-input"
-                  placeholder="你的昵称"
+                  placeholder={copy.nicknamePlaceholder}
                   value={draft.nickname}
                   maxLength={50}
                   autoFocus
@@ -369,7 +368,7 @@ export function OnboardingFlow() {
                     disabled={!draft.nickname.trim()}
                     onClick={onNicknameNext}
                   >
-                    继续
+                    {copy.continue}
                   </Button>
                 </div>
               </>
@@ -378,10 +377,10 @@ export function OnboardingFlow() {
             {step === 'prefill_confirm' && (
               <div className="onboarding-actions">
                 <Button type="button" className="w-full" onClick={acceptPrefill}>
-                  确认，继续
+                  {copy.confirmContinue}
                 </Button>
                 <Button type="button" variant="ghost" className="w-full" onClick={editPrefill}>
-                  我要修改
+                  {copy.editPrefill}
                 </Button>
               </div>
             )}
@@ -402,7 +401,7 @@ export function OnboardingFlow() {
                     disabled={!draft.birthdate}
                     onClick={onBirthdayNext}
                   >
-                    继续
+                    {copy.continue}
                   </Button>
                 </div>
               </>
@@ -410,14 +409,14 @@ export function OnboardingFlow() {
 
             {step === 'gender' && (
               <div className="onboarding-options">
-                {GENDER_OPTIONS.map((g) => (
+                {copy.genderOptions.map(({ key, label }) => (
                   <button
-                    key={g}
+                    key={key}
                     type="button"
-                    className={`onboarding-option${draft.gender === g ? ' is-selected' : ''}`}
-                    onClick={() => onGenderPick(g)}
+                    className={`onboarding-option${draft.gender === key ? ' is-selected' : ''}`}
+                    onClick={() => onGenderPick(key)}
                   >
-                    {g}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -425,14 +424,14 @@ export function OnboardingFlow() {
 
             {step === 'occupation' && (
               <div className="onboarding-options">
-                {OCCUPATION_OPTIONS.map((o) => (
+                {copy.occupationOptions.map(({ key, label }) => (
                   <button
-                    key={o}
+                    key={key}
                     type="button"
-                    className={`onboarding-option${draft.occupation === o ? ' is-selected' : ''}`}
-                    onClick={() => onOccupationPick(o)}
+                    className={`onboarding-option${draft.occupation === key ? ' is-selected' : ''}`}
+                    onClick={() => onOccupationPick(key)}
                   >
-                    {o}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -448,7 +447,7 @@ export function OnboardingFlow() {
                 onComplete={onGeoJourneyComplete}
                 title=""
                 subtitle=""
-                faithConfirmLabel="确认并完成引导"
+                faithConfirmLabel={copy.faithConfirm}
                 fullscreen
               />
             )}
@@ -456,7 +455,7 @@ export function OnboardingFlow() {
             {step === 'saving' && (
               <div className="onboarding-actions">
                 <Button type="button" className="w-full" disabled>
-                  {saving ? '正在保存…' : '完成'}
+                  {saving ? copy.savingBtn : copy.done}
                 </Button>
               </div>
             )}
