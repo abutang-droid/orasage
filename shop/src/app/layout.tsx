@@ -20,6 +20,7 @@ export const metadata: Metadata = buildOrasageMetadata({
     url: ORASAGE_URLS.shop,
     locale: 'zh_CN',
   },
+  ogImage: `${ORASAGE_URLS.shop}/og.png`,
 });
 
 export const viewport: Viewport = {

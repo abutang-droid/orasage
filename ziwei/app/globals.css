@@ -26,10 +26,11 @@
   --gold-light:     var(--orasage-gold-light, #d4b86a);
   --gold-pale:      var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
   --gold-border:    var(--orasage-gold-border, rgba(184, 148, 63, 0.22));
-  --ac:             #D9A441;
-  --ac-dim:         #F0B354;
-  --ac-bg:          rgba(217, 164, 65, 0.08);
-  --ac-bdr:         rgba(217, 164, 65, 0.22);
+  /* VI v1.0 §5.3: 子品牌无独立配色 — accent 收敛为灰度 */
+  --ac:             var(--orasage-brand-gold, #6b7280);
+  --ac-dim:         var(--orasage-gold-light, #a1a1aa);
+  --ac-bg:          rgba(107, 114, 128, 0.08);
+  --ac-bdr:         rgba(107, 114, 128, 0.22);
 
   /* ── 文字色 ── */
   --heading:    var(--orasage-primary, #171717);
@@ -67,7 +68,7 @@
   --sh-sm:  0 2px 8px rgba(46, 41, 91, 0.08), 0 1px 3px rgba(46, 41, 91, 0.04);
   --sh-md:  0 4px 20px rgba(46, 41, 91, 0.10), 0 2px 6px rgba(46, 41, 91, 0.06);
   --sh-lg:  0 8px 40px rgba(46, 41, 91, 0.14), 0 4px 12px rgba(46, 41, 91, 0.08);
-  --shadow-gold: 0 4px 20px rgba(217, 164, 65, 0.20);
+  --shadow-gold: 0 4px 20px rgba(23, 23, 23, 0.10);
 
   /* ── 圆角 ── */
   --r-xs:   4px;
@@ -99,10 +100,10 @@
   --sh-sm:   0 2px 8px rgba(46, 41, 91, 0.08);
   --sh-md:   0 4px 20px rgba(46, 41, 91, 0.10);
   --sh-lg:   0 8px 40px rgba(46, 41, 91, 0.14);
-  --ac:      #D9A441;
-  --ac-dim:  #F0B354;
-  --ac-bg:   rgba(217, 164, 65, 0.08);
-  --ac-bdr:  rgba(217, 164, 65, 0.22);
+  --ac:      var(--orasage-brand-gold, #6b7280);
+  --ac-dim:  var(--orasage-gold-light, #a1a1aa);
+  --ac-bg:   rgba(107, 114, 128, 0.08);
+  --ac-bdr:  rgba(107, 114, 128, 0.22);
 }
 
 
@@ -156,8 +157,8 @@ a:hover { color: var(--gold-light); }
 
 /* ─── 选中文字 ───────────────────────────────────────────── */
 ::selection {
-  background: rgba(217, 164, 65, 0.15);
-  color: var(--gold);
+  background: var(--orasage-selection, rgba(23, 23, 23, 0.08));
+  color: var(--tx-0);
 }
 
 /* ─── 工具类 ─────────────────────────────────────────────── */
@@ -234,9 +235,9 @@ a:hover { color: var(--gold-light); }
   white-space: nowrap;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--gold-light) 0%, #F5C070 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(217, 164, 65, 0.30);
+  box-shadow: 0 6px 24px rgba(23, 23, 23, 0.14);
   color: #FFFFFF;
 }
 .btn-primary:active { transform: translateY(0); }
@@ -262,7 +263,7 @@ a:hover { color: var(--gold-light); }
   text-decoration: none;
 }
 .btn-accent:hover {
-  background: linear-gradient(135deg, var(--gold-light) 0%, #F5C070 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
   transform: translateY(-1px);
   color: white;
 }
@@ -354,8 +355,8 @@ a:hover { color: var(--gold-light); }
   appearance: none;
 }
 .input-base:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.12);
+  border-color: var(--heading, #171717);
+  box-shadow: none;
 }
 .input-base::placeholder { color: var(--placeholder, #A89DB5); }
 

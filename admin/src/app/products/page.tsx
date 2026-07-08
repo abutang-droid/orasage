@@ -204,7 +204,7 @@ export default async function ProductsPage({
       <section className="panel">
         <h2>紫微问答商品（2 个固定 SKU）</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
-          紫微 Orasage 对话加量包与年卡。不含报告、不需发货；支付成功后为用户账户增加问答次数或年卡权益。
+          紫微 OraSage 对话加量包与年卡。不含报告、不需发货；支付成功后为用户账户增加问答次数或年卡权益。
         </p>
         <div className="table-wrap">
           <table className="data-table">

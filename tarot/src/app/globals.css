@@ -7,7 +7,7 @@
 @source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 /* ── Tarot app fonts ─────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ── Base Reset ────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -395,41 +395,6 @@ body {
 /* ══════════════════════════════════════════════════════════════════
    Tarot home — legacy layout helpers (visual: DS v1.1 monochrome)
    ══════════════════════════════════════════════════════════════════ */
-
-/* Gold gradient text (logo / headings) */
-.text-gold-gradient {
-  background: linear-gradient(135deg, #E9C877 0%, #D4A853 45%, #C9954A 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* ── Top App Header ────────────────────────────────────────────── */
-.mh-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: linear-gradient(180deg, rgba(13,13,13,0.92) 0%, rgba(13,13,13,0.6) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding-top: env(safe-area-inset-top);
-}
-.mh-header-inner {
-  max-width: var(--content-max);
-  margin: 0 auto;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-.mh-logo {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
 
 /* Icon buttons (bell / lang) */
 .mh-icon-btn {
