@@ -5,6 +5,7 @@
  */
 
 import { chromium } from 'playwright';
+import { completeShippingIfNeeded } from './lib/checkout-helpers.mjs';
 
 const BASE = {
   auth: process.env.E2E_AUTH_URL ?? 'https://auth.orasage.com',
@@ -74,6 +75,7 @@ async function main() {
     timeout: 60000,
   });
 
+  await completeShippingIfNeeded(page);
   const payBtn = page.getByTestId('checkout-mock-pay');
   await payBtn.waitFor({ state: 'visible', timeout: 15000 });
 

@@ -5,6 +5,7 @@
  */
 
 import { chromium } from 'playwright';
+import { BUY_BUTTON, clickMockPay } from './lib/checkout-helpers.mjs';
 
 const BASE = {
   auth: process.env.E2E_AUTH_URL ?? 'https://auth.orasage.com',
@@ -61,14 +62,14 @@ async function main() {
   await page.goto(`${BASE.shop}/?cat=crystal`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => null);
 
-  const buyButton = page.getByRole('button', { name: '购买' }).first();
+  const buyButton = page.getByRole('button', { name: BUY_BUTTON }).first();
   await buyButton.waitFor({ state: 'visible', timeout: 20000 });
   await buyButton.click();
 
   await page.waitForURL(/shop\.orasage\.com\/(checkout|success)/, { timeout: 60000 });
   if (page.url().includes('/checkout')) {
     console.log('[shop-crystal] on checkout — mock pay');
-    await page.getByTestId('checkout-mock-pay').click();
+    await clickMockPay(page);
     await page.waitForURL(/shop\.orasage\.com\/success/, { timeout: 60000 });
   } else {
     console.log('[shop-crystal] direct success (inline mock pay)');
