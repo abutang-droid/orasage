@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { startAppCheckout } from '@/lib/shop-checkout';
 import {
   fetchZiweiChatProducts,
@@ -74,11 +75,13 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
       </p>
       <div className="ziwei-chat-paywall-plans">
         {products.map((plan) => (
-          <button
+          <Button
             key={plan.sku}
             type="button"
+            variant="outline"
             className={`ziwei-chat-plan${plan.type === 'yearly' ? ' is-featured' : ''}`}
             disabled={Boolean(loadingSku)}
+            loading={loadingSku === plan.sku}
             onClick={() => void handlePay(plan.sku)}
           >
             <div>
@@ -86,7 +89,7 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
               <span>{plan.desc}</span>
             </div>
             <em>{plan.priceDisplay}</em>
-          </button>
+          </Button>
         ))}
       </div>
       {error ? <p className="ziwei-brief-error">{error}</p> : null}

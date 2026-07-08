@@ -27,7 +27,7 @@
 |------|------|------|
 | 设计令牌 | ✅ | `tokens:sync` / `tokens:check` |
 | App Shell | ✅ | `app-shell:sync` / `app-shell:check`；lucide 底栏 |
-| @orasage/ui | 🟡 | main 全量；shop/tarot Button；ziwei Button+Card；bazi 少量 |
+| @orasage/ui | 🟡 | main 全量；shop/tarot Button；ziwei Button+Card+Badge+Input；bazi 少量 |
 | 图标 lucide | 🟡 | Shell/main/shop/tarot/ziwei 内容层已清；nihai 数据层符号待页面接入时处理 |
 | packages/i18n | 🟡 | 基座已建；shop next-intl 四语；tarot 核心+功德/水晶/心愿 |
 | PostgreSQL 合一 | ✅ | bazi/tarot 已迁移 |

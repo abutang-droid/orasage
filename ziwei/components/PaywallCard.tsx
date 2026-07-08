@@ -4,6 +4,9 @@ import type { PlanType } from '@/lib/plan-types';
 import { PLAN_PRICES } from '@/lib/plan-types';
 import { useT } from '@/lib/i18n';
 import { useMemo } from 'react';
+import { Badge } from '@orasage/ui/badge';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 
 interface PlanConfig {
   type: PlanType;
@@ -34,85 +37,67 @@ export default function PaywallCard({ onPay, mode = 'single' }: PaywallCardProps
   const plans = useMemo(() => (mode === 'couple' ? COUPLE_PLANS : SINGLE_PLANS), [mode]);
 
   return (
-    <div
-      className="orasage-fade-in"
+    <Card
+      className="orasage-fade-in rounded-[var(--r-lg)] border-[var(--orasage-gold-border,var(--gold-border))] p-5 shadow-none"
       style={{
-        borderRadius: 'var(--r-lg)',
-        padding: '1.25rem',
         background: 'linear-gradient(180deg, var(--orasage-gold-pale, rgba(184,148,63,0.08)) 0%, var(--bg-card) 100%)',
-        border: '1px solid var(--orasage-gold-border, var(--gold-border))',
       }}
     >
-      <p style={{
-        color: 'var(--tx-3)',
-        fontSize: '0.75rem',
-        textAlign: 'center',
-        marginBottom: '0.75rem',
-        fontFamily: 'var(--font)',
-        letterSpacing: 'var(--orasage-letter-wide, 0.05em)',
-      }}>
+      <p
+        className="mb-3 text-center text-xs tracking-[var(--orasage-letter-wide,0.05em)]"
+        style={{ color: 'var(--tx-3)', fontFamily: 'var(--font)' }}
+      >
         {t('paywall.subtitle')}
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div className="flex flex-col gap-2">
         {plans.map((plan) => {
           const price = PLAN_PRICES[plan.type][mode];
           return (
-            <button
+            <Button
               key={plan.type}
               type="button"
+              variant="outline"
               onClick={() => onPay(plan.type)}
+              className="h-auto w-full justify-between rounded-[var(--r-md)] px-4 py-3 text-left font-normal"
               style={{
-                width: '100%',
-                borderRadius: 'var(--r-md)',
-                padding: '0.75rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
                 background: plan.highlight ? 'var(--bg-card)' : 'var(--bg-0)',
-                border: plan.highlight ? '1px solid var(--gold)' : '1px solid var(--bdr)',
-                cursor: 'pointer',
-                transition: 'transform 0.15s var(--orasage-ease-organic, ease), border-color 0.15s',
+                borderColor: plan.highlight ? 'var(--gold)' : 'var(--bdr)',
               }}
             >
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{
-                    color: plan.highlight ? 'var(--gold)' : 'var(--tx-0)',
-                    fontFamily: 'var(--font)',
-                    fontSize: '0.875rem',
-                    fontWeight: 700,
-                  }}>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-sm font-bold"
+                    style={{
+                      color: plan.highlight ? 'var(--gold)' : 'var(--tx-0)',
+                      fontFamily: 'var(--font)',
+                    }}
+                  >
                     {t(plan.nameKey)}
                   </span>
-                  {plan.highlight && (
-                    <span style={{
-                      background: 'var(--gold)',
-                      color: '#fff',
-                      fontSize: '0.625rem',
-                      fontWeight: 600,
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: 999,
-                    }}>
+                  {plan.highlight ? (
+                    <Badge
+                      className="border-0 px-2 py-0 text-[10px] font-semibold"
+                      style={{ background: 'var(--gold)', color: '#fff' }}
+                    >
                       {t('plan.popular')}
-                    </span>
-                  )}
+                    </Badge>
+                  ) : null}
                 </div>
-                <p style={{ color: 'var(--tx-3)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                <p className="mt-1 text-xs" style={{ color: 'var(--tx-3)' }}>
                   {t(plan.descKey)}
                 </p>
               </div>
-              <span style={{
-                color: 'var(--gold)',
-                fontFamily: 'var(--font-serif)',
-                fontSize: '1rem',
-                fontWeight: 700,
-              }}>
+              <span
+                className="text-base font-bold"
+                style={{ color: 'var(--gold)', fontFamily: 'var(--font-serif)' }}
+              >
                 {price}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

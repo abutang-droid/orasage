@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import { Card } from '@orasage/ui/card';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { detectPatterns } from '@/lib/ziwei/patterns';
 
@@ -19,8 +20,11 @@ export default function PatternsCard({ chart }: { chart: ZiweiChart }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="card-glass rounded-xl p-4 mb-4"
+      className="mb-4"
     >
+      <Card
+        className="card-glass rounded-xl border-0 p-4 shadow-none"
+      >
       <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
         <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◉</span>
         格局识别（严格古书条件）
@@ -88,6 +92,7 @@ export default function PatternsCard({ chart }: { chart: ZiweiChart }) {
           );
         })}
       </div>
+      </Card>
     </motion.div>
   );
 }
