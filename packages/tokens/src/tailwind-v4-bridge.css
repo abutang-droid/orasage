@@ -58,7 +58,33 @@
   --min-height-control-md: var(--os-size-button-md);
   --min-height-control-lg: var(--os-size-button-lg);
 
+  --duration-instant: var(--os-motion-instant);
   --duration-fast: var(--os-motion-fast);
   --duration-normal: var(--os-motion-normal);
+  --duration-slow: var(--os-motion-slow);
   --ease-standard: var(--os-ease-standard);
+  --ease-enter: var(--os-ease-enter);
+  --ease-exit: var(--os-ease-exit);
+  --ease-emphasis: var(--os-ease-emphasis);
+
+  --text-display-1: var(--os-font-display-1);
+  --text-display-1--line-height: var(--os-line-display-1);
+  --text-display-2: var(--os-font-display-2);
+  --text-display-2--line-height: var(--os-line-display-2);
+  --text-heading-1: var(--os-font-heading-1);
+  --text-heading-1--line-height: var(--os-line-heading-1);
+  --text-heading-2: var(--os-font-heading-2);
+  --text-heading-2--line-height: var(--os-line-heading-2);
+  --text-heading-3: var(--os-font-heading-3);
+  --text-heading-3--line-height: var(--os-line-heading-3);
+  --text-heading-4: var(--os-font-heading-4);
+  --text-heading-4--line-height: var(--os-line-heading-4);
+
+  --min-height-target: var(--os-size-target-preferred);
+
+  --shadow-surface-1: var(--os-shadow-surface-1);
+  --shadow-surface-2: var(--os-shadow-surface-2);
+  --shadow-surface-3: var(--os-shadow-surface-3);
+  --shadow-focus: var(--os-shadow-focus);
+  --shadow-image: var(--os-shadow-image);
 }
