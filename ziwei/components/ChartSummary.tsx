@@ -1,4 +1,5 @@
 'use client';
+import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
@@ -32,7 +33,8 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
     <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}>
       <div className="card-glass rounded-xl p-5">
         <div className="text-[10px] tracking-widest mb-4 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
-          <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>✦</span>{t('summary.title')}
+          <Sparkles size={12} strokeWidth={1.8} style={{ color: 'var(--t-gold)', opacity: 0.6 }} aria-hidden />
+          {t('summary.title')}
         </div>
         <div className="flex flex-wrap items-start gap-4">
           <div>

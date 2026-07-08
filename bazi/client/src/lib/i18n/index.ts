@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import { detectLocaleFromBrowser, toCoreLocale } from "@orasage/i18n";
 import { termData } from "./terms";
 
 export type Locale = "zh-CN" | "zh-TW" | "en" | "pt-BR";
@@ -37,20 +38,7 @@ export function useT() {
 
 export function detectLocale(): Locale {
   if (typeof window === "undefined") return "zh-CN";
-  const urlParams = new URLSearchParams(window.location.search);
-  const langParam = urlParams.get("lang");
-  if (langParam === "zh-TW" || langParam === "en" || langParam === "pt-BR") {
-    return langParam;
-  }
-  if (langParam === "zh-CN" || langParam === "zh") return "zh-CN";
-
-  const navLang = navigator.language?.toLowerCase() || "";
-  if (navLang.startsWith("zh-tw") || navLang.startsWith("zh-hk")) return "zh-TW";
-  if (navLang.startsWith("zh")) return "zh-CN";
-  if (navLang.startsWith("pt")) return "pt-BR";
-  if (navLang.startsWith("en")) return "en";
-
-  return "zh-CN";
+  return toCoreLocale(detectLocaleFromBrowser()) as Locale;
 }
 
 const uiLoaders: Record<Locale, () => Promise<TranslationDict>> = {

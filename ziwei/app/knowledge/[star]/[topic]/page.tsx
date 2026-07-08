@@ -13,6 +13,7 @@
  */
 
 import Link from 'next/link';
+import { ScrollText } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import type { TopicKey } from '@/lib/ziwei/db-analysis';
 import {
@@ -258,8 +259,9 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           <div style={{ fontSize: '11px', color: 'var(--ac-dim)', letterSpacing: '0.15em', marginBottom: '6px' }}>
             想读原典？
           </div>
-          <Link href="/library" style={{ fontSize: '13px', color: 'var(--ac)', fontWeight: 500, letterSpacing: '0.1em', textDecoration: 'none' }}>
-            📜 查阅古籍原典库 — 紫微斗数全集 / 全书 / 骨髓赋 →
+          <Link href="/library" style={{ fontSize: '13px', color: 'var(--ac)', fontWeight: 500, letterSpacing: '0.1em', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <ScrollText size={14} strokeWidth={1.8} aria-hidden />
+            查阅古籍原典库 — 紫微斗数全集 / 全书 / 骨髓赋 →
           </Link>
         </div>
       </article>

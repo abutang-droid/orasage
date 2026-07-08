@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check, Download, Link2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import ShareCardCanvas, { captureShareCard, downloadDataURL } from './ShareCardCanvas';
@@ -81,8 +82,9 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
               borderBottom: '1px solid rgba(184,146,42,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: '#3d2f10', letterSpacing: '0.12em' }}>
-                ✦ 分享命盘
+              <div style={{ fontSize: '14px', fontWeight: 600, color: '#3d2f10', letterSpacing: '0.12em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Sparkles size={14} strokeWidth={1.8} aria-hidden />
+                分享命盘
               </div>
               <button onClick={onClose}
                 style={{
@@ -116,7 +118,12 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                   opacity: downloading ? 0.7 : 1,
                 }}
               >
-                {downloading ? '生成中…' : '⬇ 下载分享图'}
+                {downloading ? '生成中…' : (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Download size={16} strokeWidth={2} aria-hidden />
+                    下载分享图
+                  </span>
+                )}
               </button>
 
               <button onClick={copyLink}
@@ -127,7 +134,17 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                   cursor: 'pointer',
                 }}
               >
-                {copied ? '✓ 已复制链接' : '🔗 复制命盘链接'}
+                {copied ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Check size={16} strokeWidth={2} aria-hidden />
+                    已复制链接
+                  </span>
+                ) : (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Link2 size={16} strokeWidth={2} aria-hidden />
+                    复制命盘链接
+                  </span>
+                )}
               </button>
 
               <div style={{

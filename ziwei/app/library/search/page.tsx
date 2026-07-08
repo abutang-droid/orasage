@@ -3,6 +3,7 @@
  */
 
 import Link from 'next/link';
+import { ScrollText } from 'lucide-react';
 import { searchClassics, getParagraphById } from '@/lib/classics';
 
 export const metadata = {
@@ -39,7 +40,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             color: 'var(--tx-2)',
             border: '1px solid rgba(184,146,42,0.15)',
           }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px', opacity: 0.4 }}>📜</div>
+            <ScrollText size={40} strokeWidth={1.5} style={{ marginBottom: '12px', opacity: 0.4 }} aria-hidden />
             {q ? (
               <>
                 <div style={{ fontSize: '14px', marginBottom: '6px' }}>暂未在已收录古籍中找到这个关键词</div>

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
@@ -105,13 +106,13 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
         })}</div>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-        {messages.length === 0 && <div className="flex flex-col items-center justify-center h-full text-center"><div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.1 }}>✦</div><p className="text-[10px] animate-pulse" style={{ color: 'var(--t-faint)' }}>{t('insight.loading')}</p></div>}
+        {messages.length === 0 && <div className="flex flex-col items-center justify-center h-full text-center"><Sparkles size={36} strokeWidth={1.5} className="mb-3" style={{ color: 'var(--t-gold)', opacity: 0.1 }} aria-hidden /><p className="text-[10px] animate-pulse" style={{ color: 'var(--t-faint)' }}>{t('insight.loading')}</p></div>}
         <AnimatePresence initial={false}>{messages.map((msg, i) => {
           if (msg.role === 'user' && msg.hidden) return null;
           if (msg.role === 'user') return (<motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end"><div className="max-w-[85%] rounded-xl px-3 py-2 text-[11px]" style={{ background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.18)', color: 'var(--t-gold)' }}>{msg.content}</div></motion.div>);
           const isLastMsg = i === messages.length - 1;
           return (<motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="text-[9px] tracking-widest mb-2 flex items-center gap-1.5" style={{ color: 'var(--t-faint)' }}><span style={{ color: 'var(--t-gold)', opacity: 0.4 }}>✦</span>{t('insight.label')}</div>
+            <div className="text-[9px] tracking-widest mb-2 flex items-center gap-1.5" style={{ color: 'var(--t-faint)' }}><Sparkles size={10} strokeWidth={1.8} style={{ color: 'var(--t-gold)', opacity: 0.4 }} aria-hidden />{t('insight.label')}</div>
             <AiContent text={msg.content} streaming={loading && isLastMsg} />
           </motion.div>);
         })}</AnimatePresence>
