@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { buildReportPageHtml } from './reportHtml.ts';
+import { resolveReportsDir } from './_core/reportsDir.ts';
 import { generateBaziReportContent } from './reportGenerator.ts';
 import { fetchReportProductRecommend } from './reportRecommend.ts';
 
@@ -55,10 +56,7 @@ async function writeReportHtml(
 ): Promise<string> {
   const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const fileName = `${reportId}.html`;
-  const reportsDir = process.env.NODE_ENV === 'development'
-    ? path.resolve(import.meta.dirname, '..', 'dist', 'public', 'reports')
-    : path.resolve(import.meta.dirname, 'public', 'reports');
-  fs.mkdirSync(reportsDir, { recursive: true });
+  const reportsDir = resolveReportsDir();
 
   const planLabelMap: Record<string, string> = {
     basic: '深度解读',

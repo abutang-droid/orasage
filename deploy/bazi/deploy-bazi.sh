@@ -78,10 +78,18 @@ deploy_native() {
 
   log "构建版本: $(git -C "$DEPLOY_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 
-  # sudo 部署时 build 产物归 root，但 systemd 以 ubuntu 运行
-  RUN_USER="${SUDO_USER:-${USER:-ubuntu}}"
+  # build 产物属主须与 systemd User= 一致。
+  # 注意不能用 SUDO_USER：remote-deploy-all → bootstrap（sudo）→ 本脚本（嵌套 sudo）时
+  # SUDO_USER=root，会把整个目录 chown 给 root，导致 ubuntu 运行的服务 EACCES。
+  RUN_USER="${SERVICE_USER:-ubuntu}"
   mkdir -p "$APP_DIR/dist/public/reports"
   chown -R "$RUN_USER:$RUN_USER" "$APP_DIR"
+
+  # 报告 HTML 持久目录（与 systemd 单元 REPORTS_DIR 一致），迁移 dist 内历史报告
+  REPORTS_PERSIST_DIR="${REPORTS_PERSIST_DIR:-/var/lib/orasage/bazi-reports}"
+  mkdir -p "$REPORTS_PERSIST_DIR"
+  cp -n "$APP_DIR/dist/public/reports/"*.html "$REPORTS_PERSIST_DIR/" 2>/dev/null || true
+  chown -R "$RUN_USER:$RUN_USER" "$REPORTS_PERSIST_DIR"
 
   cp "$DEPLOY_DIR/deploy/bazi/orasage-bazi.service" /etc/systemd/system/
   systemctl daemon-reload

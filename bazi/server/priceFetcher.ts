@@ -35,14 +35,17 @@ async function fetchPricesFromWP(): Promise<ProductPriceCache> {
 
   _fetchPromise = (async () => {
     try {
-      const url = getPriceApiUrl();
       const ck = ENV.wpWooKey;
       const cs = ENV.wpWooSecret;
-      const headers: Record<string, string> = { Accept: "application/json" };
-      if (ck && cs) {
-        const auth = Buffer.from(ck + ":" + cs).toString("base64");
-        headers["Authorization"] = "Basic " + auth;
+      // 未配置 Woo 凭据时（平台定价已迁 auth-service），跳过外呼，直接用默认价，
+      // 避免每次购买都打一次注定 401 的外部请求并刷警告日志
+      if (!ck || !cs) {
+        return { products: {}, fetchedAt: Date.now() };
       }
+      const url = getPriceApiUrl();
+      const headers: Record<string, string> = { Accept: "application/json" };
+      const auth = Buffer.from(ck + ":" + cs).toString("base64");
+      headers["Authorization"] = "Basic " + auth;
 
       const res = await fetch(url, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

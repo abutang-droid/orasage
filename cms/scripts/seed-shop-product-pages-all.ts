@@ -149,7 +149,15 @@ async function main() {
       }
     }
 
-    const generated = generateSatyaPage(product, products);
+    let generated;
+    try {
+      generated = generateSatyaPage(product, products);
+    } catch (err) {
+      // 无 SATYA 模板的商品（如 diy-bracelet 走独立设计器页）跳过，不中断整批 upsert
+      skipped++;
+      console.log(`[seed-shop-pages-all] skip ${product.sku} (${err instanceof Error ? err.message : err})`);
+      continue;
+    }
     const heroImages = await pickHeroImages(
       payload,
       product.sku,

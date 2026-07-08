@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { resolveReportsDir } from "./_core/reportsDir";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { saveBaziRecord, getUserBaziRecords, deleteBaziRecord, getDb } from "./db";
@@ -362,10 +363,7 @@ export const appRouter = router({
           try {
             const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
             const fileName = `${reportId}.html`;
-            const reportsDir = process.env.NODE_ENV === "development"
-              ? path.resolve(import.meta.dirname, "..", "dist", "public", "reports")
-              : path.resolve(import.meta.dirname, "public", "reports");
-            fs.mkdirSync(reportsDir, { recursive: true });
+            const reportsDir = resolveReportsDir();
             console.log('[StaticReport] reportsDir:', reportsDir, 'exists:', fs.existsSync(reportsDir));
 
             const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };

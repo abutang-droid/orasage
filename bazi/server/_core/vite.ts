@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
+import { resolveReportsDir } from "./reportsDir";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -60,12 +61,9 @@ export function serveStatic(app: Express) {
     console.error(`Could not find the build directory: ${distPath}, make sure to build the client first`);
   }
 
-  // 确保 reports 目录存在（用于静态报告 HTML）
-  const reportsDir = path.join(distPath, "reports");
-  if (!fs.existsSync(reportsDir)) {
-    fs.mkdirSync(reportsDir, { recursive: true });
-    console.log(`[serveStatic] Created reports dir: ${reportsDir}`);
-  }
+  // 确保 reports 目录存在（用于静态报告 HTML；REPORTS_DIR 可指向持久目录）
+  const reportsDir = resolveReportsDir();
+  console.log(`[serveStatic] reportsDir=${reportsDir}`);
 
   // /reports/* 路由必须在 app.use(express.static) 之前注册，否则 SPA fallback 会吃掉它
   app.use("/reports", (req, res, next) => {
