@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { DiyBead, DiyConfig } from '@/lib/diy';
 import { ELEMENT_TO_FEED_MATERIAL, ELEMENT_TO_MAIN_MATERIAL } from '@/lib/diy';
 import { formatShopPrice, resolvePriceCents, type ShopCurrency } from '@/lib/currency';
@@ -13,7 +14,6 @@ const PX_CM = 28;
 
 const EL_TABS = ['全部', '金', '木', '水', '火', '土', '配件'] as const;
 const SIZE_TABS = [0, 4, 6, 8, 10] as const;
-const TYPE_LABEL: Record<string, string> = { spacer: '隔珠', disc: '隔片' };
 
 /** 与主五行同属性的隔珠/隔片（八字推荐选配） */
 const ELEMENT_SPACER: Record<string, string> = {
@@ -53,6 +53,7 @@ function wristText(v: number): string {
 }
 
 export function DiyDesigner({ beads, config, currency, initialMaterial, initialElement }: DiyDesignerProps) {
+  const td = useTranslations('diy');
   const beadByCode = useMemo(() => new Map(beads.map((b) => [b.code, b])), [beads]);
 
   const [design, setDesign] = useState<string[]>([]);
@@ -109,6 +110,15 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
         : '合适';
   const belowMin = totalCents < config.minOrderCents;
   const canCheckout = design.length > 0 && fit === '合适' && !belowMin;
+
+  const fitLabel = (value: typeof fit) => {
+    if (value === '偏小') return td('fitTooSmall');
+    if (value === '偏大') return td('fitTooLarge');
+    if (value === '合适') return td('fitOk');
+    return '—';
+  };
+
+  const typeLabel = (type: string) => (type === 'spacer' ? td('spacer') : type === 'disc' ? td('disc') : type);
 
   /* ── 草稿：读 / 存 ────────────────────── */
   useEffect(() => {
@@ -183,7 +193,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
       return main;
     }, wristCm));
     setSelIdx(-1);
-    showToast(`已按「五行补${element}」生成推荐，可继续微调`);
+    showToast(td('toastBazi', { element }));
   }
 
   function shuffleInspiration() {
@@ -200,13 +210,13 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
       return `${pick[i % pick.length]}-8`;
     }, wrist));
     setSelIdx(-1);
-    showToast('已生成随机灵感，可继续微调');
+    showToast(td('toastRandom'));
   }
 
   /* ── 操作 ─────────────────────────────── */
   function addBead(code: string) {
     if (effectiveMm >= targetMm + config.fitToleranceMm) {
-      showToast('已达此手围上限，请先移除部分珠子');
+      showToast(td('toastWristLimit'));
       return;
     }
     setDesign((d) => [...d, code]);
@@ -235,7 +245,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
 
   function clearAll() {
     if (!design.length) return;
-    if (window.confirm('清空当前设计？')) {
+    if (window.confirm(td('clearConfirm'))) {
       setDesign([]);
       setSelIdx(-1);
     }
@@ -256,13 +266,13 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
         window.location.href = data.loginUrl;
         return;
       }
-      if (!res.ok) throw new Error(data.error || '下单失败');
+      if (!res.ok) throw new Error(data.error || td('checkoutFailed'));
       if (data.checkoutUrl) {
         try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
         window.location.href = data.checkoutUrl;
       }
     } catch (err) {
-      showToast(err instanceof Error ? err.message : '下单失败');
+      showToast(err instanceof Error ? err.message : td('checkoutFailed'));
     } finally {
       setCheckingOut(false);
     }
@@ -417,7 +427,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
   if (!beads.length) {
     return (
       <div className="shop-diy-empty">
-        <p>珠子目录暂时不可用，请稍后再试。</p>
+        <p>{td('catalogUnavailable')}</p>
       </div>
     );
   }
@@ -428,7 +438,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
         {/* ═══ 设计台 ═══ */}
         <section className="shop-diy-studio">
           <div className="shop-diy-wrist-head">
-            <span className="shop-diy-wrist-label">手围尺寸 · 左右滑动标尺</span>
+            <span className="shop-diy-wrist-label">{td('wristLabel')}</span>
             <span className="shop-diy-wrist-value"><b>{wristText(wrist)}</b><small>cm</small></span>
           </div>
           <div className="shop-diy-ruler">
@@ -521,27 +531,27 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
             </svg>
             {design.length === 0 ? (
               <div className="shop-diy-canvas-hint">
-                <p>从下方选择珠子<br />开始你的设计</p>
+                <p>{td('canvasHintLine1')}<br />{td('canvasHintLine2')}</p>
               </div>
             ) : null}
           </div>
 
           <div className="shop-diy-stats">
             <div>
-              <div className="shop-diy-stat-v">{design.length}<small> 颗</small></div>
-              <div className="shop-diy-stat-k">珠子</div>
+              <div className="shop-diy-stat-v">{design.length}<small>{td('beadsUnit')}</small></div>
+              <div className="shop-diy-stat-k">{td('beads')}</div>
             </div>
             <div>
-              <div className="shop-diy-stat-v">{crystalKinds}<small> 种</small></div>
-              <div className="shop-diy-stat-k">水晶</div>
+              <div className="shop-diy-stat-v">{crystalKinds}<small>{td('kindsUnit')}</small></div>
+              <div className="shop-diy-stat-k">{td('kinds')}</div>
             </div>
             <div>
               <div className="shop-diy-stat-v">{design.length ? `${(effectiveMm / 10).toFixed(1)}cm` : '—'}</div>
-              <div className="shop-diy-stat-k">预估手围</div>
+              <div className="shop-diy-stat-k">{td('estWrist')}</div>
             </div>
             <div>
-              <div className={`shop-diy-stat-v${fit && fit !== '合适' ? ' is-warn' : ''}`}>{fit || '—'}</div>
-              <div className="shop-diy-stat-k">合适度</div>
+              <div className={`shop-diy-stat-v${fit && fit !== '合适' ? ' is-warn' : ''}`}>{fitLabel(fit)}</div>
+              <div className="shop-diy-stat-k">{td('fit')}</div>
             </div>
           </div>
           <div className="shop-diy-fitbar">
@@ -551,24 +561,24 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
           {selBead ? (
             <div className="shop-diy-bead-actions">
               <span className="shop-diy-bead-actions-name">{selBead.name} · {sizeLabel(selBead)}</span>
-              <button type="button" className="shop-diy-abtn" onClick={() => moveSelected(-1)}>← 左移</button>
-              <button type="button" className="shop-diy-abtn" onClick={() => moveSelected(1)}>右移 →</button>
-              <button type="button" className="shop-diy-abtn is-del" onClick={removeSelected}>删除</button>
+              <button type="button" className="shop-diy-abtn" onClick={() => moveSelected(-1)}>{td('moveLeft')}</button>
+              <button type="button" className="shop-diy-abtn" onClick={() => moveSelected(1)}>{td('moveRight')}</button>
+              <button type="button" className="shop-diy-abtn is-del" onClick={removeSelected}>{td('delete')}</button>
             </div>
           ) : null}
 
           <div className="shop-diy-tools">
-            <button type="button" className="shop-diy-tool is-primary" onClick={() => setBaziOpen(true)}>✦ 按八字推荐</button>
-            <button type="button" className="shop-diy-tool" onClick={shuffleInspiration}>随机灵感</button>
-            <button type="button" className="shop-diy-tool" onClick={clearAll}>清空</button>
+            <button type="button" className="shop-diy-tool is-primary" onClick={() => setBaziOpen(true)}>{td('baziRecommend')}</button>
+            <button type="button" className="shop-diy-tool" onClick={shuffleInspiration}>{td('randomInspire')}</button>
+            <button type="button" className="shop-diy-tool" onClick={clearAll}>{td('clear')}</button>
           </div>
         </section>
 
         {/* ═══ 珠子目录 ═══ */}
         <section className="shop-diy-catalog">
           <div className="shop-diy-cat-head">
-            <h2 className="shop-diy-cat-title">选择珠子</h2>
-            <span className="shop-diy-cat-count">{catalogList.length} 款</span>
+            <h2 className="shop-diy-cat-title">{td('selectBeads')}</h2>
+            <span className="shop-diy-cat-count">{td('variants', { count: catalogList.length })}</span>
           </div>
           <div className="shop-diy-tabs">
             {EL_TABS.map((tab) => (
@@ -578,7 +588,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                 className={`shop-diy-tab${elFilter === tab ? ' is-on' : ''}`}
                 onClick={() => setElFilter(tab)}
               >
-                {tab === '全部' || tab === '配件' ? tab : `五行·${tab}`}
+                {tab === '全部' ? td('tabAll') : tab === '配件' ? td('tabAccessory') : td('tabElement', { el: tab })}
               </button>
             ))}
           </div>
@@ -590,7 +600,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                 className={`shop-diy-chip${sizeFilter === s ? ' is-on' : ''}`}
                 onClick={() => setSizeFilter(s)}
               >
-                {s === 0 ? '全部尺寸' : `${s}mm`}
+                {s === 0 ? td('sizeAll') : td('sizeMm', { size: s })}
               </button>
             ))}
           </div>
@@ -614,10 +624,10 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                     />
                   )}
                   <div className="shop-diy-card-nm">{bead.name}</div>
-                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatShopPrice(displayCents, currency)}/颗</div>
+                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatShopPrice(displayCents, currency)}{td('perBead')}</div>
                   <div className="shop-diy-card-tags">
-                    {bead.type !== 'crystal' ? <span className="shop-diy-card-type">{TYPE_LABEL[bead.type]}</span> : null}
-                    {bead.element ? <span className="shop-diy-card-el">五行·{bead.element}</span> : null}
+                    {bead.type !== 'crystal' ? <span className="shop-diy-card-type">{typeLabel(bead.type)}</span> : null}
+                    {bead.element ? <span className="shop-diy-card-el">{td('tabElement', { el: bead.element })}</span> : null}
                   </div>
                 </button>
               );
@@ -633,12 +643,12 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
             <div className="shop-diy-bar-amount">{formatShopPrice(totalDisplayCents, currency)}</div>
             <div className="shop-diy-bar-note">
               {design.length === 0
-                ? '开始设计你的手串'
+                ? td('startDesign')
                 : belowMin
-                  ? `最低金额 ${formatShopPrice(config.minOrderCents, 'cny')}`
+                  ? td('belowMin', { amount: formatShopPrice(config.minOrderCents, 'cny') })
                   : fit !== '合适'
-                    ? `串长${fit || '不足'} · 请调整珠子或手围`
-                    : '后端将按现价重新验算'}
+                    ? td('fitAdjust', { fit: fitLabel(fit) || '—' })
+                    : td('repriceNote')}
             </div>
           </div>
           <button
@@ -647,7 +657,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
             disabled={!canCheckout || checkingOut}
             onClick={() => void handleCheckout()}
           >
-            {checkingOut ? '处理中…' : '立即下单'}
+            {checkingOut ? td('processing') : td('checkout')}
           </button>
         </div>
       </div>
@@ -657,9 +667,9 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
         <div className="shop-diy-modal-mask" onClick={(e) => { if (e.target === e.currentTarget) setBaziOpen(false); }}>
           <div className="shop-diy-modal">
             <p className="shop-diy-modal-eyebrow">OraSage · Oracle + Sage</p>
-            <h3 className="shop-diy-modal-title">看见，然后携带</h3>
+            <h3 className="shop-diy-modal-title">{td('modalTitle')}</h3>
             <p className="shop-diy-modal-sub">
-              选择想调和的五行，为你生成一条基础配珠<br />（读取八字报告自动判断将在下一版本上线）
+              {td('modalHint')}
             </p>
             <div className="shop-diy-el-grid">
               {(['金', '木', '水', '火', '土'] as const).map((el) => (
@@ -670,11 +680,11 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                   onClick={() => { applyElementRecommend(el, wrist); setBaziOpen(false); }}
                 >
                   <div className="shop-diy-el-zi">{el}</div>
-                  <div className="shop-diy-el-nm">补{el}</div>
+                  <div className="shop-diy-el-nm">{td('supplement', { el })}</div>
                 </button>
               ))}
             </div>
-            <button type="button" className="shop-diy-modal-close" onClick={() => setBaziOpen(false)}>暂不需要</button>
+            <button type="button" className="shop-diy-modal-close" onClick={() => setBaziOpen(false)}>{td('modalLater')}</button>
           </div>
         </div>
       ) : null}

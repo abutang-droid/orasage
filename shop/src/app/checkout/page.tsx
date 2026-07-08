@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
@@ -48,6 +49,7 @@ function appendOrderToReturnUrl(returnUrl: string, orderNo: string): string {
 }
 
 function CheckoutContent() {
+  const t = useTranslations('checkout');
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clear: clearCart } = useCart();
@@ -116,13 +118,13 @@ function CheckoutContent() {
       body: JSON.stringify({ recipients }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || '保存收货信息失败');
+    if (!res.ok) throw new Error(data.error || t('saveShippingFailed'));
     setShippingDone(true);
   }, [coupleShipping]);
 
   const completePayment = useCallback(async (targetOrderNo: string) => {
     if (payingRef.current) {
-      throw new Error('支付正在进行，请稍候');
+      throw new Error(t('payInProgress'));
     }
     payingRef.current = true;
     setFlowPhase('paying');
@@ -133,7 +135,7 @@ function CheckoutContent() {
         credentials: 'include',
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || '支付失败');
+      if (!res.ok) throw new Error(data.error || t('payFailed'));
       setFlowPhase('done');
       clearCart();
       if (returnUrl) {
@@ -145,7 +147,7 @@ function CheckoutContent() {
     } catch (err) {
       payingRef.current = false;
       setFlowPhase('error');
-      setPayError(err instanceof Error ? err.message : '支付失败');
+      setPayError(err instanceof Error ? err.message : t('payFailed'));
       throw err;
     }
   }, [returnUrl, router, clearCart]);
@@ -167,7 +169,7 @@ function CheckoutContent() {
       autoFlowOrderRef.current = null;
       payingRef.current = false;
       setFlowPhase('error');
-      setPayError(err instanceof Error ? err.message : '结账失败');
+      setPayError(err instanceof Error ? err.message : t('checkoutFailed'));
     }
   }, [submitMockShipping, completePayment]);
 
@@ -178,7 +180,7 @@ function CheckoutContent() {
         try {
           const res = await fetch(`/api/orders/${encodeURIComponent(orderNo)}`, { credentials: 'include' });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.error || '加载订单失败');
+          if (!res.ok) throw new Error(data.error || t('loadOrderFailed'));
           if (cancelled) return;
           const loadedOrder = data.order as CheckoutOrder;
           const loadedFulfillment = data.fulfillment as Fulfillment;
@@ -201,7 +203,7 @@ function CheckoutContent() {
             );
           }
         } catch (err) {
-          if (!cancelled) setLoadError(err instanceof Error ? err.message : '加载失败');
+          if (!cancelled) setLoadError(err instanceof Error ? err.message : t('loadFailed'));
         } finally {
           if (!cancelled) setLoading(false);
         }
@@ -218,7 +220,7 @@ function CheckoutContent() {
         try {
           const res = await fetch(`/api/products?sku=${encodeURIComponent(sku)}`, { credentials: 'include' });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.error || '加载商品失败');
+          if (!res.ok) throw new Error(data.error || t('loadProductFailed'));
           const product = data.product as ProductPreview & { priceDisplay?: string; priceCents?: number };
           if (cancelled) return;
           const displayPrice = priceCents && Number.isFinite(priceCents)
@@ -239,14 +241,14 @@ function CheckoutContent() {
             guestStartedRef.current = false;
           }
         } catch (err) {
-          if (!cancelled) setLoadError(err instanceof Error ? err.message : '加载失败');
+          if (!cancelled) setLoadError(err instanceof Error ? err.message : t('loadFailed'));
           if (!cancelled) setLoading(false);
         }
       })();
       return () => { cancelled = true; };
     }
 
-    setLoadError('缺少订单号或商品');
+    setLoadError(t('missingOrderOrSku'));
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderNo, sku]);
@@ -278,7 +280,7 @@ function CheckoutContent() {
         setGuestStep('email');
         return false;
       }
-      if (!res.ok) throw new Error(data.error || '创建订单失败');
+      if (!res.ok) throw new Error(data.error || t('createOrderFailed'));
 
       const params = new URLSearchParams({ order: data.orderNo });
       if (returnUrl) params.set('return', returnUrl);
@@ -290,7 +292,7 @@ function CheckoutContent() {
       return true;
     } catch (err) {
       setGuestStep('email');
-      setEmailError(err instanceof Error ? err.message : '创建订单失败');
+      setEmailError(err instanceof Error ? err.message : t('createOrderFailed'));
       return false;
     } finally {
       setGuestLoading(false);
@@ -305,7 +307,7 @@ function CheckoutContent() {
     e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed) {
-      setEmailError('请输入邮箱');
+      setEmailError(t('emailRequired'));
       return;
     }
     setGuestLoading(true);
@@ -318,7 +320,7 @@ function CheckoutContent() {
         body: JSON.stringify({ email: trimmed }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || '邮箱验证失败');
+      if (!res.ok) throw new Error(data.error || t('emailVerifyFailed'));
 
       if (data.exists) {
         setGuestStep('exists');
@@ -327,7 +329,7 @@ function CheckoutContent() {
 
       await startOrderFromSku();
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : '邮箱验证失败');
+      setEmailError(err instanceof Error ? err.message : t('emailVerifyFailed'));
     } finally {
       setGuestLoading(false);
     }
@@ -344,10 +346,10 @@ function CheckoutContent() {
         body: JSON.stringify({ email: email.trim() }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || '绑定失败');
+      if (!res.ok) throw new Error(data.error || t('bindFailed'));
       await startOrderFromSku();
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : '绑定失败');
+      setEmailError(err instanceof Error ? err.message : t('bindFailed'));
     } finally {
       setGuestLoading(false);
     }
@@ -356,7 +358,7 @@ function CheckoutContent() {
   if (loading) {
     return (
       <main className="shop-page p-16 text-center text-sage-muted">
-        {isReportDigitalCheckout ? '正在解锁报告…' : '加载订单…'}
+        {isReportDigitalCheckout ? t('loadingReport') : t('loading')}
       </main>
     );
   }
@@ -371,13 +373,13 @@ function CheckoutContent() {
 
   if (!orderNo && productPreview) {
     if (guestStep === 'creating') {
-      return <main className="shop-page p-16 text-center text-sage-muted">正在准备订单…</main>;
+      return <main className="shop-page p-16 text-center text-sage-muted">{t('preparing')}</main>;
     }
 
     return (
       <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8 px-4">
         <CheckoutStepper current="contact" requiresShipping={false} />
-        <h1 className="font-serif text-2xl text-sage-primary text-center mt-6">确认购买</h1>
+        <h1 className="font-serif text-2xl text-sage-primary text-center mt-6">{t('confirmPurchase')}</h1>
         <div className="mt-6 rounded-xl border border-sage-border bg-white/60 p-5">
           <p className="text-xs text-sage-muted mb-1">{productPreview.sku}</p>
           <p className="font-semibold text-sage-primary">{productPreview.name}</p>
@@ -388,10 +390,10 @@ function CheckoutContent() {
         {guestStep === 'exists' ? (
           <div className="mt-6">
             <p className="text-sm text-sage-primary text-center">
-              该邮箱 <strong>{email}</strong> 已注册
+              {t('emailRegistered')} <strong>{email}</strong>
             </p>
             <p className="mt-2 text-xs text-sage-muted text-center">
-              是否直接使用此邮箱登录并完成购买？
+              {t('emailRegisteredHint')}
             </p>
             {emailError && <p className="mt-3 text-sm text-red-600 text-center">{emailError}</p>}
             <div className="mt-6 flex flex-col gap-3">
@@ -402,7 +404,7 @@ function CheckoutContent() {
                 onClick={() => void handleBindExisting()}
                 className="w-full"
               >
-                {guestLoading ? '处理中…' : '直接使用'}
+                {guestLoading ? t('processing') : t('useEmail')}
               </Button>
               <button
                 type="button"
@@ -410,14 +412,14 @@ function CheckoutContent() {
                 onClick={() => { setGuestStep('email'); setEmailError(null); }}
                 className="w-full py-2.5 text-sm text-sage-muted underline"
               >
-                重新填写邮箱
+                {t('reenterEmail')}
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={(e) => void handleEmailSubmit(e)} className="mt-6">
             <label className="block text-sm text-sage-muted mb-2">
-              用于接收订单与报告的邮箱
+              {t('emailLabel')}
               <input
                 type="email"
                 required
@@ -429,11 +431,11 @@ function CheckoutContent() {
               />
             </label>
             <p className="mt-3 text-xs text-sage-muted leading-relaxed">
-              若邮箱尚未注册，继续即表示同意以此邮箱创建账号并接收订单通知。
+              {t('emailConsent')}
             </p>
             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
             <Button type="submit" disabled={guestLoading} loading={guestLoading} className="mt-6 w-full">
-              {guestLoading ? '处理中…' : '继续解锁'}
+              {guestLoading ? t('processing') : t('continueUnlock')}
             </Button>
           </form>
         )}
@@ -444,7 +446,7 @@ function CheckoutContent() {
   if (loadError || !order) {
     return (
       <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-red-600">{loadError ?? '订单不存在'}</p>
+        <p className="text-sm text-red-600">{loadError ?? t('orderNotFound')}</p>
       </main>
     );
   }
@@ -457,7 +459,7 @@ function CheckoutContent() {
     return (
       <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center px-4">
         <CheckoutStepper current="payment" requiresShipping={false} />
-        <h1 className="font-serif text-2xl text-sage-primary">正在解锁报告</h1>
+        <h1 className="font-serif text-2xl text-sage-primary">{t('unlockReport')}</h1>
         <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
         <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
         {payError ? (
@@ -478,12 +480,12 @@ function CheckoutContent() {
                 );
               }}
             >
-              重试
+              {t('retry')}
             </Button>
           </>
         ) : (
           <p className="mt-6 text-sm text-sage-primary">
-            {flowPhase === 'shipping' ? '正在确认收货信息…' : flowPhase === 'done' ? '解锁成功，正在返回…' : '模拟支付处理中…'}
+            {flowPhase === 'shipping' ? t('confirmingShipping') : flowPhase === 'done' ? t('unlockSuccess') : t('mockPayProcessing')}
           </p>
         )}
       </main>
@@ -498,7 +500,7 @@ function CheckoutContent() {
         <CheckoutStepper current="shipping" requiresShipping />
         {mixedCartOrder ? (
           <p className="mb-4 text-sm text-sage-muted leading-relaxed">
-            订单含数字商品与实体商品。请填写收货地址，实体商品将按此地址发货；数字商品支付后自动交付，无需邮寄。
+            {t('mixedCartNote')}
           </p>
         ) : null}
         <ShippingForm
@@ -517,10 +519,10 @@ function CheckoutContent() {
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
       <CheckoutStepper current="payment" requiresShipping={fulfillment?.requiresShipping ?? false} />
-      <h1 className="font-serif text-2xl text-sage-primary mt-6">确认支付</h1>
+      <h1 className="font-serif text-2xl text-sage-primary mt-6">{t('confirmPay')}</h1>
       <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
       <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
-      <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
+      <p className="mt-3 text-sm text-sage-muted">{t('orderNo', { orderNo })}</p>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
       <Button
         type="button"
@@ -529,15 +531,20 @@ function CheckoutContent() {
         onClick={() => void completePayment(orderNo)}
         className="mt-8 px-8"
       >
-        {flowPhase === 'paying' ? '处理中…' : '模拟支付（完成订单）'}
+        {flowPhase === 'paying' ? t('processing') : t('mockPay')}
       </Button>
     </main>
   );
 }
 
+function CheckoutFallback() {
+  const t = useTranslations('checkout');
+  return <main className="shop-page p-16 text-center text-sage-muted">{t('loadingGeneric')}</main>;
+}
+
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<main className="shop-page p-16 text-center text-sage-muted">加载中…</main>}>
+    <Suspense fallback={<CheckoutFallback />}>
       <CheckoutContent />
     </Suspense>
   );
