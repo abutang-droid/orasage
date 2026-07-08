@@ -29,20 +29,21 @@ async function run() {
 
   for (const fx of EVAL_FIXTURES) {
     const chart = generateChart(fx.birthInfo);
+    const minorMode = 'minorMode' in fx ? Boolean(fx.minorMode) : false;
     const canonicalYear = normalizeSampleYear(fx.birthInfo.year);
     const topics = await lookupSampleTopics(fx.birthInfo);
     const topicKeysByHint = fx.chatHints.map((hint) => ({
       hint,
-      keys: pickTopicsForChat(hint, Boolean(fx.minorMode), chart),
+      keys: pickTopicsForChat(hint, minorMode, chart),
     }));
 
     const contextReport = await buildSampleContextForChart(chart, {
-      minorMode: Boolean(fx.minorMode),
+      minorMode,
       includeClassics: true,
     });
 
     const contextChat = await buildSampleContextForInterpret(chart, {
-      minorMode: Boolean(fx.minorMode),
+      minorMode,
       messages: [{ role: 'user', content: fx.chatHints[0] ?? '' }],
       includeClassics: true,
     });
