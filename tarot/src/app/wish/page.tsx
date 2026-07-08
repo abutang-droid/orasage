@@ -1,5 +1,7 @@
 "use client"
 import { useState } from "react"
+import { Sparkles } from "lucide-react"
+import { Button } from "@orasage/ui/button"
 
 const CONCLUSIONS: Record<string, { label: string; color: string; bg: string; desc: string }> = {
   "可行": { label: "可行",  color: "var(--green)",  bg: "var(--green-pale)",  desc: "星象支持，时机已到" },
@@ -72,11 +74,10 @@ export default function WishPage() {
           </div>
         </div>
 
-        <button
+        <Button
           onClick={handleSubmit}
           disabled={loading || !wish.trim()}
-          className="btn-primary"
-          style={{ width: '100%' }}
+          className="w-full"
         >
           {loading ? (
             <>
@@ -84,9 +85,12 @@ export default function WishPage() {
               <span>占卜中…</span>
             </>
           ) : (
-            "✦ 一键占卜"
+            <>
+              <Sparkles size={18} strokeWidth={1.75} aria-hidden />
+              一键占卜
+            </>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* ── Result ── */}
@@ -165,13 +169,13 @@ export default function WishPage() {
           </div>
 
           {/* Reset */}
-          <button
-            className="btn-outline"
+          <Button
+            variant="outline"
             onClick={() => { setResult(null); setWish("") }}
-            style={{ width: '100%' }}
+            className="w-full"
           >
             再次占卜
-          </button>
+          </Button>
         </div>
       )}
     </div>

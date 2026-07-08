@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@orasage/ui/button';
 import { GeoJourneyPicker } from '@/components/geo/GeoJourneyPicker';
 import {
   GENDER_OPTIONS,
@@ -341,9 +342,9 @@ export function OnboardingFlow() {
           <div className="onboarding-panel">
             {step === 'intro' && introDone && (
               <div className="onboarding-actions">
-                <button type="button" className="onboarding-btn-primary" onClick={goAfterIntro}>
+                <Button type="button" className="w-full" onClick={goAfterIntro}>
                   开始吧
-                </button>
+                </Button>
               </div>
             )}
 
@@ -362,26 +363,26 @@ export function OnboardingFlow() {
                   }}
                 />
                 <div className="onboarding-actions">
-                  <button
+                  <Button
                     type="button"
-                    className="onboarding-btn-primary"
+                    className="w-full"
                     disabled={!draft.nickname.trim()}
                     onClick={onNicknameNext}
                   >
                     继续
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
 
             {step === 'prefill_confirm' && (
               <div className="onboarding-actions">
-                <button type="button" className="onboarding-btn-primary" onClick={acceptPrefill}>
+                <Button type="button" className="w-full" onClick={acceptPrefill}>
                   确认，继续
-                </button>
-                <button type="button" className="onboarding-btn-ghost" onClick={editPrefill}>
+                </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={editPrefill}>
                   我要修改
-                </button>
+                </Button>
               </div>
             )}
 
@@ -395,14 +396,14 @@ export function OnboardingFlow() {
                   onChange={(e) => setDraft((d) => ({ ...d, birthdate: e.target.value }))}
                 />
                 <div className="onboarding-actions">
-                  <button
+                  <Button
                     type="button"
-                    className="onboarding-btn-primary"
+                    className="w-full"
                     disabled={!draft.birthdate}
                     onClick={onBirthdayNext}
                   >
                     继续
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -454,9 +455,9 @@ export function OnboardingFlow() {
 
             {step === 'saving' && (
               <div className="onboarding-actions">
-                <button type="button" className="onboarding-btn-primary" disabled>
+                <Button type="button" className="w-full" disabled>
                   {saving ? '正在保存…' : '完成'}
-                </button>
+                </Button>
               </div>
             )}
 

@@ -2,6 +2,7 @@
 @import '../../../shared/design-tokens/orasage-tokens.css';
 
 @source "../**/*.{ts,tsx}";
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 /* ── Tarot app fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -71,6 +72,28 @@
   --ease-out:       cubic-bezier(0,0,0.2,1);
   --ease-in-out:    cubic-bezier(0.4,0,0.2,1);
   --ease-card-flip: cubic-bezier(0.4,0,0.2,1);
+
+  /* @orasage/ui semantic bridge (TW4 / Button) */
+  --background: var(--orasage-background, #FAFAF8);
+  --foreground: var(--orasage-primary, #171717);
+  --primary: var(--orasage-primary, #171717);
+  --primary-foreground: #ffffff;
+  --secondary: var(--orasage-surface, #ffffff);
+  --secondary-foreground: var(--orasage-primary, #171717);
+  --muted: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --muted-foreground: var(--orasage-muted, #9CA3AF);
+  --accent: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --accent-foreground: var(--orasage-primary, #171717);
+  --destructive: var(--error, #C45B4A);
+  --destructive-foreground: #ffffff;
+  --border: var(--orasage-border, #E7E5E4);
+  --input: var(--orasage-border, #E7E5E4);
+  --ring: var(--orasage-gold, #B8943F);
+  --card: var(--orasage-surface, #ffffff);
+  --card-foreground: var(--orasage-primary, #171717);
+  --popover: var(--orasage-surface, #ffffff);
+  --popover-foreground: var(--orasage-primary, #171717);
+  --radius: var(--orasage-radius-md, 14px);
 }
 
 /* ── Base Reset ────────────────────────────────────────────────── */
@@ -150,15 +173,15 @@ body {
   animation: breath-glow 3s ease-in-out infinite;
 }
 
-/* ── Buttons ──────────────────────────────────────────────────── */
+/* ── Buttons (legacy — migrate to @orasage/ui Button) ─────────── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 14px 32px;
-  background: #171717;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
@@ -172,7 +195,7 @@ body {
   letter-spacing: 0.02em;
 }
 .btn-primary:hover:not(:disabled) {
-  background: #262626;
+  background: color-mix(in srgb, var(--primary) 85%, white);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(23, 23, 23, 0.2);
 }
