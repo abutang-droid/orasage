@@ -18,7 +18,7 @@ import { compareArticles, resolveArticleCategory } from '@/lib/daozang-taxonomy'
 import { injectHeadingAnchors, stripLeadingTitleHeading } from '@/lib/html-toc';
 import { DaozangBreadcrumb } from '../components';
 
-import { Alert, AlertDescription, Badge, Card, CardContent, Separator, buttonVariants } from '@orasage/ui';
+import { Alert, AlertDescription, Badge, Card, CardContent, Separator } from '@orasage/ui';
 
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
@@ -95,16 +95,6 @@ export default async function DaozangArticlePage({ params }: Props) {
             <Link href={`/daozang?cat=${category.key}`}>
               <Badge variant="muted">{categoryLabel}</Badge>
             </Link>
-          )}
-          {page.sourceUrl && (
-            <a
-              href={page.sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonVariants({ variant: 'outline', size: 'sm' })}
-            >
-              {t('sourceLink')}
-            </a>
           )}
         </div>
       </header>

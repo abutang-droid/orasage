@@ -75,7 +75,7 @@ export default async function FamousArticlePage({ params }: Props) {
       )}
 
       {neighbors && <FamousArticleNav neighbors={neighbors} />}
-      <FamousArticleCta sourceUrl={page.sourceUrl} />
+      <FamousArticleCta />
     </PageShell>
   );
 }

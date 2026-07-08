@@ -55,6 +55,19 @@ SKIP_WP=1 CMS_DATABASE_URL=... node scripts/migrate-c2pub/classify-daozang.mjs
 分类映射常量在 `lib/daozang-taxonomy.mjs`，与 `cms/src/collections/Pages.ts`、
 `main/src/lib/daozang-taxonomy.ts` 三处一致，改动需同步。
 
+## 四部全书章节标题规范化（normalize-daozang-books.mjs）
+
+对 slug 为 `docs/zh-cn/item-*` 的章节文档（三命通会/渊海子平/神峰通考/星命总括等），
+从正文 HTML 提取真实章名，改写标题为「书名 · 章名」，并用 `wp_id` 作为类内排序权重。
+误挂分类（如渊海子平下的紫微章节）会按正文书名自动校正。
+
+```bash
+DRY_RUN=1 CMS_DATABASE_URL=... node scripts/migrate-c2pub/normalize-daozang-books.mjs
+CMS_DATABASE_URL=... node scripts/migrate-c2pub/normalize-daozang-books.mjs
+```
+
+建议在 `classify-daozang.mjs` 之后执行。
+
 ## 一、迁移文章/页面到 CMS（可立即执行）
 
 在 VPS 上：
