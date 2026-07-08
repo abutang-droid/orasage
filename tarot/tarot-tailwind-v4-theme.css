@@ -47,8 +47,9 @@
   --radius-xl: 24px;
   --radius-pill: 999px;
 
-  --font-display: 'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
-  --font-serif: 'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
+  /* VI v1.0 §4: Playfair Display retired — serif display unified on Source Han/Noto Serif */
+  --font-display: 'Noto Serif SC', 'Noto Serif TC', serif;
+  --font-serif: 'Noto Serif SC', 'Noto Serif TC', serif;
   --font-sans: 'Inter', 'Noto Sans SC', 'Noto Sans TC', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 

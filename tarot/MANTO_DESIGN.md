@@ -1,4 +1,8 @@
-# Manto — 设计风格指南
+# Manto — 设计风格指南（已归档）
+
+> **⚠️ 已归档（2026-07-08）**：本文的「Web3 暗金美学」体系已被全站 VI 取代，仅作历史参考。
+> 现行规范：`docs/design-system/OraSage-VI-v1.0.md`（品牌）+ `docs/design-system/OraSage-Design-System-v1.1-Revised.md`(界面)。
+> 塔罗子品牌遵循 VI §5：单色 + 统一网格子标，无独立配色；Playfair Display 已退役。
 
 > Web3 暗金美学 · 神圣触感 · 五语适配
 > 2026-06-26

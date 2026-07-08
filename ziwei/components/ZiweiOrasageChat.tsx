@@ -234,7 +234,7 @@ export function ZiweiOrasageChat({
     <section className="ziwei-orasage-chat">
       <header className="ziwei-orasage-chat-header">
         <div>
-          <h2 className="ziwei-section-title">Orasage 对话</h2>
+          <h2 className="ziwei-section-title">OraSage 对话</h2>
           <p className="ziwei-orasage-chat-sub">{t('chat.subtitle')}</p>
         </div>
         <span className="ziwei-quota-badge">{formatZiweiQuotaLabel(quota, loggedIn)}</span>
@@ -242,7 +242,7 @@ export function ZiweiOrasageChat({
 
       {!loggedIn ? (
         <div className="ziwei-login-gate">
-          <p>登录即可获赠 <strong>5 次</strong> 免费 Orasage 对话，基于你的命盘答疑解惑。</p>
+          <p>登录即可获赠 <strong>5 次</strong> 免费 OraSage 对话，基于你的命盘答疑解惑。</p>
           <a href={loginUrl('/chart')} className="ziwei-login-btn">
             注册 / 登录开始对话
           </a>

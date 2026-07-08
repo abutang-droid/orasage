@@ -35,14 +35,14 @@ const FALLBACK_PRODUCTS: ZiweiChatProduct[] = [
     type: 'pack',
     sku: 'ziwei-chat-pack-10',
     name: '问答加量包',
-    desc: '额外 10 次 Orasage 对话（账户内跨排盘累积）',
+    desc: '额外 10 次 OraSage 对话（账户内跨排盘累积）',
     priceDisplay: '¥9.90',
   },
   {
     type: 'yearly',
     sku: 'ziwei-chat-yearly',
     name: '问答年卡',
-    desc: '365 天无限 Orasage 对话',
+    desc: '365 天无限 OraSage 对话',
     priceDisplay: '¥99.00',
   },
 ];
