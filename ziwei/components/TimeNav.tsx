@@ -1,5 +1,7 @@
 'use client';
+import type { CSSProperties, ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@orasage/ui/button';
 import { STEMS, SI_HUA_TABLE } from '@/lib/ziwei/constants';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { useT } from '@/lib/i18n';
@@ -21,6 +23,16 @@ export function buildSiHuaOverlay(stemIndex: number): Record<string, string> {
 
 const SIHUA_COLORS: Record<string, string> = { '禄': '#4ade80', '权': '#60a5fa', '科': '#facc15', '忌': '#f87171' };
 
+const tabButtonClass = 'h-auto min-h-0 flex-1 rounded-lg py-1.5 text-[10px] font-medium';
+
+function tabButtonStyle(active: boolean): CSSProperties {
+  return {
+    background: active ? 'rgba(212,168,67,0.12)' : 'transparent',
+    color: active ? 'var(--t-gold)' : 'var(--t-faint)',
+    borderColor: active ? 'rgba(212,168,67,0.25)' : 'transparent',
+  };
+}
+
 export default function TimeNav({ chart, view, liunianYear, onViewChange, onYearChange }: TimeNavProps) {
   const t = useT();
   const currentDx = chart.daXians[chart.currentDaXianIndex];
@@ -37,20 +49,54 @@ export default function TimeNav({ chart, view, liunianYear, onViewChange, onYear
   };
 
   const overlayInfo = getOverlayInfo();
+  const liunianActive = view === 'liunian';
 
   return (<div className="mb-3">
     <div className="flex items-center rounded-xl p-1 gap-1" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
       <TabButton active={view === 'mingpan'} onClick={() => onViewChange('mingpan')}>{t('timenav.mingpan')}</TabButton>
       <TabButton active={view === 'daxian'} onClick={() => onViewChange('daxian')}>{currentDx ? `${t('timenav.daxian')} ${currentDx.startAge}–${currentDx.endAge}` : t('timenav.daxian')}</TabButton>
-      <div className="relative flex-1 flex items-center justify-center rounded-lg py-1.5 gap-1 transition-all duration-200" style={{ background: view === 'liunian' ? 'rgba(212,168,67,0.12)' : 'transparent', border: view === 'liunian' ? '1px solid rgba(212,168,67,0.25)' : '1px solid transparent' }}>
-        <button onClick={() => onViewChange('liunian')} className="text-[10px] font-medium flex-1 text-center" style={{ color: view === 'liunian' ? 'var(--t-gold)' : 'var(--t-faint)' }}>{t('timenav.liunian')}</button>
+      <div
+        className="relative flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 transition-all duration-200"
+        style={{
+          background: liunianActive ? 'rgba(212,168,67,0.12)' : 'transparent',
+          border: liunianActive ? '1px solid rgba(212,168,67,0.25)' : '1px solid transparent',
+        }}
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => onViewChange('liunian')}
+          className={`${tabButtonClass} flex-1 text-center font-medium`}
+          style={{ color: liunianActive ? 'var(--t-gold)' : 'var(--t-faint)' }}
+        >
+          {t('timenav.liunian')}
+        </Button>
         <div className="flex items-center gap-0.5">
-          <button onClick={e => { e.stopPropagation(); onYearChange(liunianYear - 1); if (view !== 'liunian') onViewChange('liunian'); }}
-            className="text-[9px] w-4 h-4 flex items-center justify-center rounded" style={{ color: 'var(--t-faint)' }}>‹</button>
-          <span className="text-[10px] font-mono min-w-[28px] text-center cursor-pointer" style={{ color: view === 'liunian' ? 'var(--t-gold)' : 'var(--t-faint)' }}
-            onClick={() => onViewChange('liunian')}>{liunianYear}</span>
-          <button onClick={e => { e.stopPropagation(); onYearChange(liunianYear + 1); if (view !== 'liunian') onViewChange('liunian'); }}
-            className="text-[9px] w-4 h-4 flex items-center justify-center rounded" style={{ color: 'var(--t-faint)' }}>›</button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={(e) => { e.stopPropagation(); onYearChange(liunianYear - 1); if (view !== 'liunian') onViewChange('liunian'); }}
+            className="size-4 min-h-0 min-w-4 rounded text-[9px] text-[var(--t-faint)]"
+          >
+            ‹
+          </Button>
+          <span
+            className="min-w-[28px] cursor-pointer text-center font-mono text-[10px]"
+            style={{ color: liunianActive ? 'var(--t-gold)' : 'var(--t-faint)' }}
+            onClick={() => onViewChange('liunian')}
+          >
+            {liunianYear}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={(e) => { e.stopPropagation(); onYearChange(liunianYear + 1); if (view !== 'liunian') onViewChange('liunian'); }}
+            className="size-4 min-h-0 min-w-4 rounded text-[9px] text-[var(--t-faint)]"
+          >
+            ›
+          </Button>
         </div>
       </div>
     </div>
@@ -65,7 +111,16 @@ export default function TimeNav({ chart, view, liunianYear, onViewChange, onYear
   </div>);
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (<button onClick={onClick} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg transition-all duration-200"
-    style={{ background: active ? 'rgba(212,168,67,0.12)' : 'transparent', color: active ? 'var(--t-gold)' : 'var(--t-faint)', border: active ? '1px solid rgba(212,168,67,0.25)' : '1px solid transparent' }}>{children}</button>);
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={onClick}
+      className={tabButtonClass}
+      style={tabButtonStyle(active)}
+    >
+      {children}
+    </Button>
+  );
 }

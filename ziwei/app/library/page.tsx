@@ -5,6 +5,7 @@
  */
 
 import Link from 'next/link';
+import { Card } from '@orasage/ui/card';
 import { ALL_BOOKS, TOTAL_PARAGRAPHS } from '@/lib/classics';
 import LibrarySearch from './LibrarySearch';
 
@@ -42,20 +43,16 @@ export default function LibraryHomePage() {
       <div className="max-w-5xl mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {ALL_BOOKS.map(book => (
-            <Link
+            <Card
               key={book.slug}
+              variant="interactive"
+              asChild
+              className="rounded-[14px] border-[rgba(184,146,42,0.2)] p-6 shadow-[0_2px_8px_rgba(184,146,42,0.06)] transition-shadow hover:shadow-lg"
+              style={{ background: 'var(--bg-card)' }}
+            >
+            <Link
               href={`/library/${book.slug}`}
-              style={{
-                display: 'block',
-                background: 'var(--bg-card)',
-                border: '1px solid rgba(184,146,42,0.2)',
-                borderRadius: '14px',
-                padding: '24px',
-                textDecoration: 'none',
-                transition: 'all 0.2s',
-                boxShadow: '0 2px 8px rgba(184,146,42,0.06)',
-              }}
-              className="hover:shadow-lg"
+              style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
             >
               <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '6px' }}>
                 {book.dynasty} · {book.author.split(' ')[0]}
@@ -82,11 +79,16 @@ export default function LibraryHomePage() {
                 进入查阅 →
               </div>
             </Link>
+            </Card>
           ))}
         </div>
 
         {/* 底部说明 */}
-        <div style={{ marginTop: '60px', padding: '24px', background: 'rgba(184,146,42,0.05)', borderRadius: '10px', textAlign: 'center' }}>
+        <Card
+          variant="muted"
+          className="mt-[60px] rounded-[10px] border-0 p-6 text-center shadow-none"
+          style={{ background: 'rgba(184,146,42,0.05)' }}
+        >
           <div style={{ fontSize: '11px', color: 'var(--ac-dim)', fontWeight: 600, letterSpacing: '0.15em', marginBottom: '8px' }}>
             关于本库
           </div>
@@ -95,7 +97,7 @@ export default function LibraryHomePage() {
             内容持续完善，未来将补全《紫微斗数全集》全本与倪海夏《天纪》引证目录。<br />
             如发现任何错误请联系我们。
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
