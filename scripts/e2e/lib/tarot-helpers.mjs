@@ -1,4 +1,4 @@
-/** Shared tarot E2E helpers (temple journey seed, daily card flip, worship hold) */
+/** Shared tarot E2E helpers (temple journey seed, worship hold) */
 
 export const TEMPLE_SEED = {
   faith: { id: 'buddhism' },
@@ -6,21 +6,28 @@ export const TEMPLE_SEED = {
   deity: { id: 'guanyin', name: '观音' },
 };
 
-export async function seedTempleJourney(page) {
-  await page.evaluate((seed) => {
-    localStorage.setItem('manto:faith', JSON.stringify(seed.faith));
-    localStorage.setItem('manto:geo', JSON.stringify(seed.geo));
-    localStorage.setItem('manto:deity', JSON.stringify(seed.deity));
-  }, TEMPLE_SEED);
-}
-
-export async function flipDailyCard(page) {
-  await page.addStyleTag({
-    content: '.animate-scale-in, .animate-scale-in * { animation: none !important; }',
-  });
-  const card = page.locator('.animate-scale-in');
-  await card.click({ force: true, timeout: 15000 });
-  await page.waitForTimeout(600);
+export async function bootstrapTempleGuest(page, seed = TEMPLE_SEED) {
+  await page.evaluate(async (stored) => {
+    localStorage.setItem('manto:faith', JSON.stringify(stored.faith));
+    localStorage.setItem('manto:geo', JSON.stringify(stored.geo));
+    localStorage.setItem('manto:deity', JSON.stringify(stored.deity));
+    const res = await fetch('/api/profile/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        faith: stored.faith.id,
+        preferredDeity: stored.deity.id,
+        continentCode: stored.geo.continentCode,
+        countryCode: stored.geo.countryCode,
+        onboardingCompleted: true,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.saved) {
+      throw new Error(`profile save failed: ${res.status} ${JSON.stringify(data)}`);
+    }
+  }, seed);
 }
 
 export async function holdWorship(page, holdMs = 3500) {

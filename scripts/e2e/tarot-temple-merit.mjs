@@ -5,7 +5,7 @@
  */
 
 import { chromium } from 'playwright';
-import { holdWorship, seedTempleJourney } from './lib/tarot-helpers.mjs';
+import { bootstrapTempleGuest, holdWorship } from './lib/tarot-helpers.mjs';
 
 const BASE = {
   tarot: process.env.E2E_TAROT_URL ?? 'https://tarot.orasage.com',
@@ -35,16 +35,32 @@ async function main() {
   const meritBefore = await readMerit(page);
   console.log(`[tarot-temple] merit before worship: total=${meritBefore.total}`);
 
-  console.log('[tarot-temple] seed geo/faith/deity and open /temple');
-  await seedTempleJourney(page);
+  console.log('[tarot-temple] seed profile + local temple state');
+  await bootstrapTempleGuest(page);
+
+  console.log('[tarot-temple] open /temple');
   await page.goto(`${BASE.tarot}/temple`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-  await page.getByRole('button', { name: /今日参拜|再次参拜/ }).waitFor({
-    state: 'visible',
-    timeout: 45000,
-  });
-  console.log('[tarot-temple] temple home ready');
-  await page.getByRole('button', { name: /今日参拜|再次参拜/ }).click();
+  const worshipBtn = page.getByRole('button', { name: /今日参拜|再次参拜/ });
+  const pickHeading = page.getByRole('heading', { name: '选择守护神' });
+
+  const landed = await Promise.race([
+    worshipBtn.waitFor({ state: 'visible', timeout: 45000 }).then(() => 'home'),
+    pickHeading.waitFor({ state: 'visible', timeout: 45000 }).then(() => 'pick'),
+  ]).catch(() => null);
+
+  if (landed === 'pick') {
+    console.log('[tarot-temple] pick phase fallback — select guanyin');
+    await page.getByText(/正在加载守护神/).waitFor({ state: 'hidden', timeout: 30000 }).catch(() => null);
+    const deityButton = page.getByRole('button', { name: /观音/ }).first();
+    await deityButton.waitFor({ state: 'visible', timeout: 30000 });
+    await deityButton.click();
+  } else if (landed === 'home') {
+    console.log('[tarot-temple] temple home ready');
+    await worshipBtn.click();
+  } else {
+    throw new Error('temple did not reach home or pick phase');
+  }
 
   console.log('[tarot-temple] hold worship ≥3s');
   await holdWorship(page, 3500);

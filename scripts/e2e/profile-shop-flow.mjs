@@ -68,7 +68,13 @@ async function fillPerson(page, opts) {
   });
 }
 
-async function runBaziFlow(page, { mode, person1, person2, planName, resultHint }) {
+async function selectPlanAndPay(page, planType = 'advanced') {
+  await page.locator('[data-testid="bazi-paywall"]').waitFor({ state: 'visible', timeout: 60000 });
+  await page.locator(`[data-plan="${planType}"]`).click();
+  await page.locator('[data-testid="bazi-paywall-unlock"]').click();
+}
+
+async function runBaziFlow(page, { mode, person1, person2, planType, resultHint }) {
   await page.goto(`${BASE.bazi}?lang=${LANG}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => null);
 
@@ -84,9 +90,7 @@ async function runBaziFlow(page, { mode, person1, person2, planName, resultHint 
 
   await page.getByText(resultHint, { exact: false }).first().waitFor({ timeout: 90000 });
 
-  const planButton = page.getByRole('button', { name: planName });
-  await planButton.waitFor({ timeout: 20000 });
-  await planButton.click();
+  await selectPlanAndPay(page, planType ?? 'advanced');
 
   await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
   await clickMockPay(page);
@@ -145,7 +149,7 @@ async function main() {
     await runBaziFlow(page, {
       mode: 'single',
       person1: { name: 'UI单人测试' },
-      planName: L.planSingle,
+      planType: 'advanced',
       resultHint: L.dayMaster,
     });
     console.log('Single: paid + returned to bazi');
@@ -172,7 +176,7 @@ async function main() {
       mode: 'couple',
       person1: { name: 'UI甲' },
       person2: { name: 'UI乙' },
-      planName: L.planCouple,
+      planType: 'advanced',
       resultHint: L.coupleScore,
     });
     console.log('Couple: paid + returned to bazi');

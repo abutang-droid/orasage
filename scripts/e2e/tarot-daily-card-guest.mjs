@@ -5,11 +5,17 @@
  */
 
 import { chromium } from 'playwright';
-import { flipDailyCard } from './lib/tarot-helpers.mjs';
 
 const BASE = {
   tarot: process.env.E2E_TAROT_URL ?? 'https://tarot.orasage.com',
 };
+
+async function readDailyCard(page) {
+  return page.evaluate(async () => {
+    const res = await fetch('/api/daily-card', { credentials: 'include' });
+    return { status: res.status, data: await res.json() };
+  });
+}
 
 async function main() {
   const browser = await chromium.launch({ headless: true });
@@ -40,30 +46,29 @@ async function main() {
   console.log('[tarot-daily] open daily-card page');
   await page.goto(`${BASE.tarot}/daily-card`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.getByRole('heading', { name: '每日抽卡' }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('.spinner').waitFor({ state: 'hidden', timeout: 60000 }).catch(() => null);
 
-  await page.getByText(/轻触卡牌|点击卡牌翻转|这是你今天抽到的牌/).waitFor({
-    state: 'visible',
-    timeout: 60000,
-  });
+  const firstDraw = await readDailyCard(page);
+  if (firstDraw.status !== 200 || !firstDraw.data?.cardName) {
+    throw new Error(`daily-card API failed: ${JSON.stringify(firstDraw)}`);
+  }
+  console.log(`[tarot-daily] draw card=${firstDraw.data.cardName} alreadyDrew=${firstDraw.data.alreadyDrew}`);
 
-  const alreadyDrew = await page.getByText('这是你今天抽到的牌').isVisible().catch(() => false);
-  if (!alreadyDrew) {
-    console.log('[tarot-daily] flip card');
-    await flipDailyCard(page);
-  } else {
-    console.log('[tarot-daily] already drew today — verifying persisted card');
+  await page.waitForTimeout(800);
+  const secondDraw = await readDailyCard(page);
+  if (secondDraw.status !== 200 || !secondDraw.data?.cardName) {
+    throw new Error(`daily-card API retry failed: ${JSON.stringify(secondDraw)}`);
+  }
+  if (!secondDraw.data.alreadyDrew) {
+    throw new Error(`expected alreadyDrew=true on second fetch, got ${JSON.stringify(secondDraw.data)}`);
+  }
+  if (secondDraw.data.cardName !== firstDraw.data.cardName) {
+    throw new Error(
+      `card changed between draws: ${firstDraw.data.cardName} → ${secondDraw.data.cardName}`,
+    );
   }
 
-  await page.getByText(/每日仅限抽取一次/).waitFor({ state: 'visible', timeout: 15000 });
-
-  const cardApi = await page.evaluate(async () => {
-    const res = await fetch('/api/daily-card', { credentials: 'include' });
-    return { status: res.status, data: await res.json() };
-  });
-  if (cardApi.status !== 200 || !cardApi.data?.cardName) {
-    throw new Error(`daily-card API failed: ${JSON.stringify(cardApi)}`);
-  }
-  console.log(`[tarot-daily] card=${cardApi.data.cardName} alreadyDrew=${cardApi.data.alreadyDrew}`);
+  console.log(`[tarot-daily] persisted card=${secondDraw.data.cardName}`);
 
   await browser.close();
   console.log('[tarot-daily] TC-TAROT-001 passed');

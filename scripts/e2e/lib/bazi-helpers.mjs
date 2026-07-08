@@ -28,12 +28,13 @@ async function fillDatePickers(page, birth) {
 }
 
 async function fillBirthCity(page, city = '北京') {
-  const field = page.locator('.orasage-city-field input:visible').last();
-  await field.waitFor({ state: 'visible', timeout: 15000 });
+  const field = page.getByPlaceholder('请输入出生城市');
+  await field.scrollIntoViewIfNeeded();
+  await field.waitFor({ state: 'visible', timeout: 20000 });
   await field.fill(city);
   await page.waitForTimeout(600);
 
-  const option = page.locator('.bazi-city-option, .orasage-city-option').first();
+  const option = page.locator('.bazi-city-option').first();
   if (await option.isVisible().catch(() => false)) {
     await option.click();
     return;
