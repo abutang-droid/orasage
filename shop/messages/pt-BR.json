@@ -130,6 +130,24 @@
       "FR": "França"
     }
   },
+  "addresses": {
+    "title": "Catálogo de endereços",
+    "backToShop": "Voltar à loja",
+    "loading": "Carregando…",
+    "empty": "Nenhum endereço salvo. Você pode salvar um no checkout.",
+    "default": "Padrão",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleteConfirm": "Excluir este endereço?",
+    "addTitle": "Adicionar endereço",
+    "editTitle": "Editar endereço",
+    "labelOptional": "Rótulo (opcional)",
+    "postal": "CEP",
+    "add": "Adicionar endereço",
+    "update": "Atualizar endereço",
+    "loadFailed": "Falha ao carregar endereços",
+    "deleteFailed": "Falha ao excluir"
+  },
   "success": {
     "title": "Pagamento realizado",
     "orderNo": "Pedido: {order}",
