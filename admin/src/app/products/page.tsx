@@ -3,6 +3,7 @@ import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRec
 import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
+import { AdminSubmitButton } from '@/components/AdminButton';
 import { ProductImageCell } from '@/components/ProductImageCell';
 import { ProductImageField } from '@/components/ProductImageField';
 import { ProductInlineEditForm } from '@/components/ProductInlineEditForm';
@@ -322,7 +323,7 @@ export default async function ProductsPage({
               </select>
             </label>
           ))}
-          <button type="submit" className="btn-primary full-width">保存塔罗计费配置</button>
+          <AdminSubmitButton className="full-width">保存塔罗计费配置</AdminSubmitButton>
         </form>
       </section>
 
@@ -353,7 +354,7 @@ export default async function ProductsPage({
               </select>
             </label>
           ))}
-          <button type="submit" className="btn-primary">保存紫微推荐</button>
+          <AdminSubmitButton>保存紫微推荐</AdminSubmitButton>
         </form>
       </section>
 
@@ -411,7 +412,7 @@ export default async function ProductsPage({
               </div>
             );
           })}
-          <button type="submit" className="btn-primary full-width">保存八字推荐配置</button>
+          <AdminSubmitButton className="full-width">保存八字推荐配置</AdminSubmitButton>
         </form>
       </section>
 
@@ -434,7 +435,7 @@ export default async function ProductsPage({
               </select>
             </label>
           ))}
-          <button type="submit" className="btn-primary full-width">保存首页展示</button>
+          <AdminSubmitButton className="full-width">保存首页展示</AdminSubmitButton>
         </form>
       </section>
 
@@ -460,7 +461,7 @@ export default async function ProductsPage({
           <label className="checkbox-label"><input name="requiresShipping" type="checkbox" defaultChecked /> 需要收货地址（实体发货）</label>
           <label className="full-width">描述<textarea name="description" rows={2} required placeholder="招财旺运 · 五行补木" /></label>
           <ProductI18nFields />
-          <button type="submit" className="btn-primary">添加商品</button>
+          <AdminSubmitButton>添加商品</AdminSubmitButton>
         </form>
       </section>
 

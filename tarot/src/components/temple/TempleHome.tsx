@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { useLang } from '@/lib/i18n/context';
 import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
+import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import { TempleDonation } from '@/components/temple/TempleDonation';
 import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
@@ -45,6 +46,7 @@ export function TempleHome({
   latestBlessing,
 }: TempleHomeProps) {
   const { lang } = useLang();
+  const temple = useTempleCopy();
   const settingsHref = profileSettingsUrlFromLang(lang);
   const meritHref = profileMeritUrlFromLang(lang);
   const [summary, setSummary] = useState<MeritSummary | null>(null);
@@ -93,12 +95,12 @@ export function TempleHome({
   return (
     <div className="temple-home">
       {donated && (
-        <div className="temple-donation-toast">乐捐成功，功德已计入您的修行记录。</div>
+        <div className="temple-donation-toast">{temple.donationSuccess}</div>
       )}
 
       <TempleStatusCard />
 
-      <section className="temple-home-shrine" aria-label="我的守护神">
+      <section className="temple-home-shrine" aria-label={temple.myPatron}>
         <div className="temple-home-shrine-bg" aria-hidden />
         <div className="temple-home-shrine-inner">
           <div className="temple-home-deity-portrait">
@@ -108,14 +110,14 @@ export function TempleHome({
           <p className="temple-home-deity-en">{deity.nameEN}</p>
           <Button type="button" className="temple-home-worship-btn w-full" onClick={onWorship}>
             <Church size={18} strokeWidth={1.75} aria-hidden />
-            {summary?.prayedToday ? '再次参拜' : '今日参拜'}
+            {summary?.prayedToday ? temple.worshipAgain : temple.worshipToday}
           </Button>
         </div>
       </section>
 
       {displayBlessing ? (
-        <section className="temple-home-verse" aria-label="今日偈语">
-          <div className="temple-home-verse-label">── 今日偈语 ──</div>
+        <section className="temple-home-verse" aria-label={temple.verseAria}>
+          <div className="temple-home-verse-label">{temple.verseLabel}</div>
           <p className="temple-home-verse-text">{displayBlessing}</p>
           {blessing?.date ? (
             <p className="temple-home-verse-meta">
@@ -180,7 +182,7 @@ export function TempleHome({
       </section>
 
       <p className="temple-home-settings-hint">
-        更换守护神或信仰地区，请前往
+        {temple.changeFaithHint}
         <a href={settingsHref} className="temple-home-settings-link">
           我的 → 设置
         </a>

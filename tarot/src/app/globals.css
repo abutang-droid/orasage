@@ -1,115 +1,13 @@
 @import "tailwindcss";
 @import '../../../shared/design-tokens/orasage-tokens.css';
+@import '../../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../../tarot-tailwind-v4-theme.css';
 
 @source "../**/*.{ts,tsx}";
 @source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 /* ── Tarot app fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-/* ── OraSage DS v1.1 — app semantic tokens ───────────────────── */
-:root {
-  /* Brand colors */
-  --gold:           var(--orasage-gold, #B8943F);
-  --gold-light:     var(--orasage-gold-light, #D4B86A);
-  --gold-dark:      #96752f;
-  --gold-glow:      rgba(184, 148, 63, 0.25);
-
-  /* Background */
-  --bg-base:        var(--orasage-background, #FAFAF8);
-  --bg-card:        var(--orasage-surface, #FFFFFF);
-  --bg-card-hover:  var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
-  --bg-input:       #FFFFFF;
-  --bg-surface:     #FFFFFF;
-
-  /* Text */
-  --text-primary:   var(--orasage-primary, #171717);
-  --text-secondary: var(--orasage-secondary, #6B7280);
-  --text-muted:     var(--orasage-muted, #9CA3AF);
-  --text-faint:     #D1D5DB;
-
-  /* Borders */
-  --border:         var(--orasage-border, #E7E5E4);
-  --border-focus:   var(--orasage-gold-border, rgba(184, 148, 63, 0.35));
-  --border-card:    var(--orasage-border-subtle, #F1F1EF);
-
-  /* Accent */
-  --rose:           #C87B6E;
-  --rose-bg:        rgba(200, 123, 110, 0.12);
-  --blue:           #5B7FA6;
-  --blue-bg:        rgba(91, 127, 166, 0.12);
-  --purple:         #7E6FA8;
-  --purple-bg:      rgba(126, 111, 168, 0.12);
-  --success:        #5B8C5A;
-  --success-bg:     rgba(91, 140, 90, 0.12);
-  --error:          #C45B4A;
-  --error-bg:       rgba(196, 91, 74, 0.12);
-
-  /* Shadows */
-  --shadow-sm:      0 1px 3px rgba(23, 23, 23, 0.06);
-  --shadow-md:      0 2px 12px rgba(23, 23, 23, 0.08);
-  --shadow-lg:      0 8px 24px rgba(23, 23, 23, 0.10);
-  --shadow-gold:    0 4px 16px rgba(184, 148, 63, 0.15);
-  --shadow-button:  0 4px 12px rgba(184, 148, 63, 0.2);
-
-  /* Radius */
-  --radius-xs:      6px;
-  --radius-sm:      10px;
-  --radius-md:      14px;
-  --radius-lg:      18px;
-  --radius-xl:      24px;
-  --radius-pill:    999px;
-
-  /* Fonts */
-  --font-display:   'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
-  --font-serif:     'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
-  --font-sans:      'Inter', 'Noto Sans SC', 'Noto Sans TC', -apple-system, sans-serif;
-  --font-mono:      'JetBrains Mono', monospace;
-
-  /* Layout */
-  --content-max:    480px;
-  --nav-h:          56px;
-  --ease-out:       cubic-bezier(0,0,0.2,1);
-  --ease-in-out:    cubic-bezier(0.4,0,0.2,1);
-  --ease-card-flip: cubic-bezier(0.4,0,0.2,1);
-
-  /* @orasage/ui semantic bridge (TW4 / Button) */
-  --background: var(--orasage-background, #FAFAF8);
-  --foreground: var(--orasage-primary, #171717);
-  --primary: var(--orasage-primary, #171717);
-  --primary-foreground: #ffffff;
-  --secondary: var(--orasage-surface, #ffffff);
-  --secondary-foreground: var(--orasage-primary, #171717);
-  --muted: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
-  --muted-foreground: var(--orasage-muted, #9CA3AF);
-  --accent: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
-  --accent-foreground: var(--orasage-primary, #171717);
-  --destructive: var(--error, #C45B4A);
-  --destructive-foreground: #ffffff;
-  --border: var(--orasage-border, #E7E5E4);
-  --input: var(--orasage-border, #E7E5E4);
-  --ring: var(--orasage-gold, #B8943F);
-  --card: var(--orasage-surface, #ffffff);
-  --card-foreground: var(--orasage-primary, #171717);
-  --popover: var(--orasage-surface, #ffffff);
-  --popover-foreground: var(--orasage-primary, #171717);
-  --radius: var(--orasage-radius-md, 14px);
-
-  /* Feature surfaces (tarot-home / temple / geo-journey) */
-  --tarot-accent-rgb: 184 148 63;
-  --tarot-accent-alt-rgb: 201 149 74;
-  --tarot-accent-muted: var(--gold-dark, #96752f);
-  --tarot-ivory-warm: #faf8f4;
-  --tarot-ivory-map: #ebe4d8;
-  --tarot-ivory-sand: #f7f3ec;
-  --tarot-surface-glass: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.88);
-  --tarot-surface-glass-strong: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.92);
-  --tarot-surface-glass-soft: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.72);
-  --tarot-surface-glass-heavy: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.94);
-  --tarot-shadow-warm: rgb(42 33 24 / 0.06);
-  --tarot-overlay-dark: rgb(20 16 12 / 0.45);
-  --tarot-map-blue-rgb: 120 150 190;
-}
 
 /* ── Base Reset ────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
+import { useFaithCopy } from '@/lib/i18n/ui-strings';
 import {
   CUSTOM_FAITH_ID,
   FAITH_STORAGE_KEY,
@@ -64,11 +65,15 @@ export function FaithPicker({
   value,
   onChange,
   countryCode,
-  title = '你的信仰是什么？',
-  subtitle = '选择最贴近你内心的传统，我们会据此推荐守护神与祈福方式',
-  confirmLabel = '确认',
+  title,
+  subtitle,
+  confirmLabel,
   customFirst = true,
 }: FaithPickerProps) {
+  const faithCopy = useFaithCopy();
+  const resolvedTitle = title ?? faithCopy.title;
+  const resolvedSubtitle = subtitle ?? faithCopy.subtitle;
+  const resolvedConfirm = confirmLabel ?? faithCopy.confirm;
   const [showMore, setShowMore] = useState(false);
   const [otherText, setOtherText] = useState('');
   const [pending, setPending] = useState<string | null>(value ?? null);
@@ -170,11 +175,11 @@ export function FaithPicker({
 
   return (
     <div className={`faith-picker${isCollapsed ? ' faith-picker--collapsed' : ''}`}>
-      {(title || subtitle) && (
+      {(resolvedTitle || resolvedSubtitle) && (
         <div className="page-header" style={{ padding: '16px 0' }}>
           <span className="label">信仰</span>
-          {title ? <h1>{title}</h1> : null}
-          {subtitle ? <p>{subtitle}</p> : null}
+          {resolvedTitle ? <h1>{resolvedTitle}</h1> : null}
+          {resolvedSubtitle ? <p>{resolvedSubtitle}</p> : null}
         </div>
       )}
 
@@ -193,7 +198,7 @@ export function FaithPicker({
             已选择 <strong>{selectedFaith.nameZh}</strong>，确认后将进入下一步
           </p>
           <Button type="button" className="faith-picker-confirm-btn w-full" onClick={confirmSelection}>
-            {confirmLabel}
+            {resolvedConfirm}
           </Button>
           <Button type="button" variant="ghost" className="faith-picker-repick-btn w-full" onClick={clearSelection}>
             重新选择
@@ -274,7 +279,7 @@ export function FaithPicker({
             onClick={confirmOther}
             disabled={!otherText.trim()}
           >
-            {confirmLabel}
+            {resolvedConfirm}
           </Button>
         </div>
       )}

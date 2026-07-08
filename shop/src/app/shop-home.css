@@ -1245,48 +1245,6 @@
   color: var(--os-color-mono-black, #171717);
 }
 
-/* @deprecated — prefer @orasage/ui <Button>; kept for legacy markup during migration */
-.shop-btn-primary {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--os-color-mono-black, #171717);
-  padding: 0 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--os-color-mono-white, #fff);
-  transition: background 0.15s ease, opacity 0.15s ease;
-}
-
-.shop-btn-primary:hover:not(:disabled) {
-  background: var(--os-color-mono-black-hover, #333);
-}
-
-.shop-btn-primary:disabled {
-  opacity: 0.5;
-}
-
-.shop-btn-secondary {
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
-  padding: 0 1.25rem;
-  font-size: 0.875rem;
-  color: var(--os-color-mono-gray-deep, #6b7280);
-  text-decoration: none;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-
-.shop-btn-secondary:hover {
-  color: var(--os-color-mono-black, #171717);
-  border-color: var(--os-color-mono-gray-deep, #6b7280);
-}
-
 .shop-footer-note {
   margin-top: 2rem;
   text-align: center;

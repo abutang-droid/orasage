@@ -190,6 +190,22 @@ a:hover { color: var(--gold-light); }
   border-radius: var(--r-md);
 }
 
+/* Glass panels used in chart insight / summary components */
+.card-glass {
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-sm);
+}
+
+.card-inner {
+  background: var(--bg-1);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-sm);
+}
+
 /* 深色区块 */
 .section-dark {
   background: var(--bg-inv);

@@ -20,25 +20,25 @@
 }
 .oui-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  box-shadow: 0 0 0 2px rgb(var(--background)), 0 0 0 4px rgb(var(--ring));
 }
 .oui-btn:disabled {
   opacity: 0.5;
   pointer-events: none;
 }
 .oui-btn--default {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: rgb(var(--primary));
+  color: rgb(var(--primary-foreground));
 }
 .oui-btn--default:active { opacity: 0.85; }
 .oui-btn--outline {
   background: transparent;
-  border-color: var(--border);
-  color: var(--foreground);
+  border-color: rgb(var(--border));
+  color: rgb(var(--foreground));
 }
 .oui-btn--ghost {
   background: transparent;
-  color: var(--foreground);
+  color: rgb(var(--foreground));
 }
 .oui-btn[data-size='sm'] {
   min-height: var(--orasage-control-h-sm);
@@ -63,17 +63,17 @@
 .oui-select {
   display: block;
   width: 100%;
-  border: 1px solid var(--border);
+  border: 1px solid rgb(var(--border));
   border-radius: var(--orasage-radius-md);
-  background: var(--input);
-  color: var(--foreground);
+  background: rgb(var(--input));
+  color: rgb(var(--foreground));
   font-family: var(--orasage-font-sans);
   transition: box-shadow 0.15s;
 }
 .oui-input:focus,
 .oui-select:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  box-shadow: 0 0 0 2px rgb(var(--background)), 0 0 0 4px rgb(var(--ring));
 }
 .oui-input:disabled,
 .oui-select:disabled {
@@ -82,7 +82,7 @@
 }
 .oui-input[aria-invalid='true'],
 .oui-select[aria-invalid='true'] {
-  border-color: var(--destructive);
+  border-color: rgb(var(--destructive));
 }
 .oui-input[data-size='sm'],
 .oui-select[data-size='sm'] {
@@ -112,23 +112,23 @@
   margin-bottom: 0.35rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--foreground);
+  color: rgb(var(--foreground));
 }
 .oui-field-error {
   margin-top: 0.35rem;
   font-size: 0.875rem;
-  color: var(--destructive);
+  color: rgb(var(--destructive));
 }
 .oui-field-hint {
   margin-top: 0.35rem;
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: rgb(var(--muted-foreground));
 }
 
 .oui-checkbox {
   width: 1.25rem;
   height: 1.25rem;
-  accent-color: var(--primary);
+  accent-color: rgb(var(--primary));
 }
 
 .oui-dialog-backdrop {
@@ -146,8 +146,8 @@
   max-width: 28rem;
   transform: translate(-50%, -50%);
   border-radius: var(--orasage-radius-lg);
-  border: 1px solid var(--border);
-  background: var(--popover);
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--popover));
   padding: 1.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
 }

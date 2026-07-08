@@ -7,6 +7,7 @@ import { loadStoredFaith } from "@/components/FaithPicker"
 import { WorshipScreen } from "@/components/temple/WorshipScreen"
 import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
+import { useTempleCopy, temple, pick } from "@/lib/i18n/ui-strings"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
@@ -18,6 +19,7 @@ import "@/components/temple/temple.css"
 type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 
 function TemplePageContent() {
+  const temple = useTempleCopy()
   const searchParams = useSearchParams()
   const donated = searchParams.get("donated") === "1"
   const changeAction = searchParams.get("change")
@@ -262,12 +264,12 @@ function TemplePageContent() {
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ paddingTop: 32 }}>
           <div className="page-header" style={{ padding: '16px 0' }}>
-            <span className="label">🛐 守护神</span>
-            <h1>选择守护神</h1>
+            <span className="label">{temple.patronLabel}</span>
+            <h1>{temple.pickTitle}</h1>
             <p>
               {selectedFaith
-                ? `信仰：${formatFaithLabel(selectedFaith)}${selectedCountry ? ` · ${selectedCountry}` : ''} · 选定守护神，即可开始参拜`
-                : '点选一位守护神，即可开始参拜'}
+                ? temple.pickWithFaith(formatFaithLabel(selectedFaith), selectedCountry)
+                : temple.pickSimple}
             </p>
           </div>
 
@@ -278,12 +280,12 @@ function TemplePageContent() {
               className="w-full mb-4 text-[13px]"
               onClick={() => setPhase('home')}
             >
-              ← 返回祈福首页
+              {temple.backHome}
             </Button>
           )}
 
           <div style={{ marginBottom: 24 }}>
-            <input className="input-field" placeholder="🔍 搜索你想拜的神明..."
+            <input className="input-field" placeholder={temple.searchDeity}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
@@ -291,14 +293,14 @@ function TemplePageContent() {
 
           {sanctuariesLoading ? (
             <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 13 }}>
-              正在加载守护神列表…
+              {temple.loadingDeities}
             </div>
           ) : null}
 
           {!sanctuariesLoading && filteredDeities.length === 0 && !searchQuery && (
             <div className="card-gold" style={{ padding: '24px 20px', textAlign: 'center', marginBottom: 24 }}>
               <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-                此信仰暂未开放守护神，请先选择其他信仰。
+                {temple.noDeity}
               </div>
             </div>
           )}
@@ -366,7 +368,7 @@ function TemplePageContent() {
 
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-      加载祈福…
+      {temple.loading}
     </div>
   )
 }
@@ -375,7 +377,7 @@ export default function TemplePage() {
   return (
     <Suspense fallback={
       <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-        加载祈福…
+        {pick(temple.loading, 'zh')}
       </div>
     }>
       <TemplePageContent />

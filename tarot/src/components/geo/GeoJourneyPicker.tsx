@@ -15,13 +15,14 @@ import {
   type FaithOption,
 } from '@/lib/faiths/religions';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
+import { useGeoCopy, geo, formatTemplate } from '@/lib/i18n/ui-strings';
 import './geo-journey.css';
 
 const JourneyVectorMap = dynamic(
   () => import('@/components/geo/JourneyVectorMap').then((m) => m.JourneyVectorMap),
   {
     ssr: false,
-    loading: () => <div className="geo-journey-loading">正在加载世界地图…</div>,
+    loading: () => <div className="geo-journey-loading" />,
   },
 );
 
@@ -44,31 +45,28 @@ type FaithApiResponse = {
   regional?: boolean;
 };
 
-const LOCATION_SOURCE_LABEL: Record<GeoDetectSource, string> = {
-  gps: '定位服务',
-  ip: '网络位置',
-  manual: '手动选择',
-};
-
-const STEP_LABELS_BASE = ['大洲', '国家', '信仰'] as const;
-const STEP_LABEL_DEITY = '守护神';
-
-const CONFIRM_LABELS: Record<Exclude<JourneyStep, 'deity'>, string> = {
-  region: '确认大洲，选择国家',
-  country: '确认国家，选择信仰',
-  faith: '下一步 · 选择守护神',
-};
-
 export function GeoJourneyPicker({
   value,
   onComplete,
-  title = '第一步 · 你的心灵故乡',
-  subtitle = '从世界地图出发，找到与你最贴近的国家与信仰',
-  faithConfirmLabel = '确认信仰，选择守护神',
-  deityConfirmLabel = '确认守护神',
+  title,
+  subtitle,
+  faithConfirmLabel,
+  deityConfirmLabel,
   pickDeity = false,
   fullscreen = true,
 }: GeoJourneyPickerProps) {
+  const { p, sourceLabel } = useGeoCopy();
+  const resolvedTitle = title ?? p(geo.defaultTitle);
+  const resolvedSubtitle = subtitle ?? p(geo.defaultSubtitle);
+  const resolvedFaithConfirm = faithConfirmLabel ?? p(geo.faithConfirm);
+  const resolvedDeityConfirm = deityConfirmLabel ?? p(geo.deityConfirm);
+  const stepLabelsBase = [p(geo.stepContinent), p(geo.stepCountry), p(geo.stepFaith)] as const;
+  const stepLabels = pickDeity ? [...stepLabelsBase, p(geo.stepDeity)] : [...stepLabelsBase];
+  const confirmLabels: Record<Exclude<JourneyStep, 'deity'>, string> = {
+    region: p(geo.confirmRegion),
+    country: p(geo.confirmCountry),
+    faith: p(geo.nextFaith),
+  };
   const [step, setStep] = useState<JourneyStep>('region');
   const [regions, setRegions] = useState<GeoRegion[]>([]);
   const [allCountries, setAllCountries] = useState<GeoCountry[]>([]);
@@ -100,12 +98,10 @@ export function GeoJourneyPicker({
 
   const confirmLabel =
     step === 'faith'
-      ? faithConfirmLabel
+      ? resolvedFaithConfirm
       : step === 'deity'
-        ? deityConfirmLabel
-        : CONFIRM_LABELS[step as keyof typeof CONFIRM_LABELS];
-
-  const stepLabels = pickDeity ? [...STEP_LABELS_BASE, STEP_LABEL_DEITY] : [...STEP_LABELS_BASE];
+        ? resolvedDeityConfirm
+        : confirmLabels[step as keyof typeof confirmLabels];
 
   useEffect(() => {
     let cancelled = false;
@@ -491,31 +487,33 @@ export function GeoJourneyPicker({
 
   const stepTitle =
     showDetectConfirm && detectedSuggestion
-      ? '确认你的国家'
+      ? p(geo.confirmCountryTitle)
       : step === 'region'
-        ? title
+        ? resolvedTitle
         : step === 'country'
-          ? `选择国家 · ${regionName}`
+          ? formatTemplate(p(geo.titleCountry), { name: regionName })
           : step === 'faith'
-            ? `选择信仰 · ${countryName}`
-            : `选择守护神 · ${formatFaithLabel(pendingFaith, faiths)}`;
+            ? formatTemplate(p(geo.titleFaith), { name: countryName })
+            : formatTemplate(p(geo.titleDeity), { name: formatFaithLabel(pendingFaith, faiths) });
 
   const stepHint =
     showDetectConfirm
-      ? `根据${detectedSuggestion ? LOCATION_SOURCE_LABEL[detectedSuggestion.source] : '位置信息'}自动识别，请确认是否正确`
+      ? formatTemplate(p(geo.hintDetect), {
+          source: detectedSuggestion ? sourceLabel[detectedSuggestion.source] : p(geo.sourceManual),
+        })
       : manualListMode && step === 'region'
-        ? '从下方列表选择你的大洲'
+        ? p(geo.hintListRegion)
         : manualListMode && step === 'country'
-          ? '从下方列表选择你的国家'
+          ? p(geo.hintListCountry)
           : step === 'faith'
             ? faithRegional
-              ? `${countryName}的主流信仰推荐，选最贴近你内心的传统`
-              : '请从完整列表中选择你的信仰或精神归属'
+              ? formatTemplate(p(geo.hintFaithRegional), { country: countryName })
+              : p(geo.hintFaithGlobal)
             : step === 'deity'
-              ? '根据你的信仰，推荐以下守护神'
+              ? p(geo.hintDeity)
               : step === 'region'
-                ? '在地图上点选任意国家，或从列表选择大洲'
-                : '点选你的国家，确认后继续';
+                ? p(geo.hintRegionMap)
+                : p(geo.hintCountryMap);
 
   const showInlineRegionList = manualListMode && !showDetectConfirm && step === 'region';
   const showInlineCountryList = manualListMode && !showDetectConfirm && step === 'country';
@@ -529,7 +527,7 @@ export function GeoJourneyPicker({
     step !== 'deity';
 
   const listButtonLabel =
-    step === 'region' ? '列表选大洲' : step === 'country' ? '列表选国家' : '列表';
+    step === 'region' ? p(geo.listRegion) : step === 'country' ? p(geo.listCountry) : p(geo.listGeneric);
 
   const pendingConfirm =
     showDetectConfirm || manualListMode || step === 'faith' || step === 'deity'
@@ -551,7 +549,7 @@ export function GeoJourneyPicker({
   if (loading) {
     return (
       <div className={`geo-journey${fullscreen ? ' geo-journey--fullscreen' : ''}`}>
-        <div className="geo-journey-loading">正在加载世界地图…</div>
+        <div className="geo-journey-loading">{p(geo.loadingMap)}</div>
       </div>
     );
   }
@@ -575,12 +573,12 @@ export function GeoJourneyPicker({
           ambient={mapAmbient}
           ariaLabel={
             mapAmbient
-              ? '世界地图背景'
+              ? p(geo.mapBg)
               : step === 'region'
-                ? '世界地图，点选国家以选择大洲'
+                ? p(geo.mapRegion)
                 : step === 'country'
-                  ? '区域地图，点选国家'
-                  : '国家地图，点选信仰'
+                  ? p(geo.mapCountry)
+                  : p(geo.mapFaith)
           }
         />
       </div>
@@ -590,13 +588,13 @@ export function GeoJourneyPicker({
           <header className="geo-journey-header">
             {step !== 'region' ? (
               <button type="button" className="geo-journey-back" onClick={goBack}>
-                ← 返回
+                {p(geo.back)}
               </button>
             ) : (
               <span className="geo-journey-back-spacer" />
             )}
 
-            <div className="geo-journey-steps" aria-label="进度">
+            <div className="geo-journey-steps" aria-label={p(geo.progress)}>
               {stepLabels.map((label, i) => (
                 <div
                   key={label}
@@ -610,37 +608,39 @@ export function GeoJourneyPicker({
           </header>
 
           <div className="geo-journey-copy">
-            {step === 'region' && subtitle ? <p className="geo-journey-subtitle">{subtitle}</p> : null}
+            {step === 'region' && resolvedSubtitle ? (
+              <p className="geo-journey-subtitle">{resolvedSubtitle}</p>
+            ) : null}
             <h1 className="geo-journey-title">{stepTitle}</h1>
             <p className="geo-journey-hint">{stepHint}</p>
             {locationResolving && !showDetectConfirm && !manualListMode ? (
               <div className="geo-journey-locating-wrap">
-                <p className="geo-journey-locating">正在尝试根据你的位置识别国家…</p>
+                <p className="geo-journey-locating">{p(geo.locating)}</p>
                 <button
                   type="button"
                   className="geo-journey-locating-skip"
                   onClick={skipToManualSelection}
                 >
-                  跳过，手动选择
+                  {p(geo.skipManual)}
                 </button>
               </div>
             ) : null}
           </div>
 
           {showDetectConfirm && detectedSuggestion ? (
-            <div className="geo-journey-detect-confirm" role="region" aria-label="确认国家">
+            <div className="geo-journey-detect-confirm" role="region" aria-label={p(geo.confirmCountryRegion)}>
               <p className="geo-journey-detect-lead">
-                根据{LOCATION_SOURCE_LABEL[detectedSuggestion.source]}，我们判断你在
+                {formatTemplate(p(geo.detectLead), { source: sourceLabel[detectedSuggestion.source] })}
               </p>
               <p className="geo-journey-detect-country">{detectedSuggestion.country.nameZh}</p>
               <p className="geo-journey-detect-sub">{detectedSuggestion.country.nameEn}</p>
-              <p className="geo-journey-detect-question">这是你所在的国家吗？</p>
+              <p className="geo-journey-detect-question">{p(geo.detectQuestion)}</p>
               <div className="geo-journey-detect-actions">
                 <Button type="button" onClick={confirmDetectedCountry}>
-                  正确，继续
+                  {p(geo.detectYes)}
                 </Button>
                 <Button type="button" variant="outline" onClick={rejectDetectedCountry}>
-                  不是，手动选择
+                  {p(geo.detectNo)}
                 </Button>
               </div>
             </div>
@@ -671,13 +671,13 @@ export function GeoJourneyPicker({
               <div className="geo-country-search">
                 <input
                   className="input-field"
-                  placeholder="🔍 搜索国家或地区…"
+                  placeholder={p(geo.searchCountry)}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
               {countriesLoading ? (
-                <div className="geo-journey-loading">正在加载国家列表…</div>
+                <div className="geo-journey-loading">{p(geo.loadingCountries)}</div>
               ) : (
                 <div className="geo-country-list">
                   {filteredCountries.map((c) => (
@@ -701,11 +701,11 @@ export function GeoJourneyPicker({
           {showLocationBadge && (
             <div className="geo-journey-location-badge">
               <span>
-                已根据{LOCATION_SOURCE_LABEL[locationSource]}选择
+                {formatTemplate(p(geo.selectedBy), { source: sourceLabel[locationSource] })}
                 <strong>{countryName}</strong>
               </span>
               <button type="button" className="geo-journey-location-change" onClick={changeCountry}>
-                更改
+                {p(geo.change)}
               </button>
             </div>
           )}
@@ -713,7 +713,7 @@ export function GeoJourneyPicker({
           {showInlineFaithPicker && (
             <div className="geo-journey-faith-panel">
               {faithsLoading ? (
-                <div className="geo-journey-loading">正在加载信仰列表…</div>
+                <div className="geo-journey-loading">{p(geo.loadingFaiths)}</div>
               ) : (
                 <FaithPicker
                   value={pendingFaith ?? value?.faith}
@@ -721,7 +721,7 @@ export function GeoJourneyPicker({
                   onChange={onFaithPicked}
                   title=""
                   subtitle=""
-                  confirmLabel={faithConfirmLabel}
+                  confirmLabel={resolvedFaithConfirm}
                   customFirst
                 />
               )}
@@ -731,10 +731,10 @@ export function GeoJourneyPicker({
           {showInlineDeityPicker && (
             <div className="geo-journey-deity-panel">
               {sanctuariesLoading ? (
-                <div className="geo-journey-loading">正在加载守护神推荐…</div>
+                <div className="geo-journey-loading">{p(geo.loadingDeities)}</div>
               ) : sanctuaries.length === 0 ? (
                 <div className="geo-journey-empty-deity">
-                  此信仰暂未开放守护神，请返回上一步选择其他信仰。
+                  {p(geo.noDeity)}
                 </div>
               ) : (
                 <div className="geo-journey-deity-grid">
@@ -775,7 +775,7 @@ export function GeoJourneyPicker({
       </div>
 
       {pendingConfirm && !showInlineFaithPicker && (
-        <div className="geo-journey-confirm-dock" role="region" aria-label="确认选择">
+        <div className="geo-journey-confirm-dock" role="region" aria-label={p(geo.confirmSelection)}>
           <div className="geo-journey-faith-confirm">
             <div className="geo-journey-faith-confirm-card">
               <span className="geo-journey-faith-confirm-emoji">{pendingConfirm.emoji}</span>
@@ -800,7 +800,7 @@ export function GeoJourneyPicker({
           <button
             type="button"
             className="geo-journey-drawer-backdrop"
-            aria-label="关闭列表"
+            aria-label={p(geo.closeList)}
             onClick={() => setListOpen(false)}
           />
           <div className="geo-journey-drawer-panel">
@@ -808,7 +808,7 @@ export function GeoJourneyPicker({
             <div className="geo-journey-drawer-header">
               <h2>{listButtonLabel}</h2>
               <button type="button" className="geo-journey-drawer-close" onClick={() => setListOpen(false)}>
-                关闭
+                {p(geo.close)}
               </button>
             </div>
 
@@ -835,13 +835,13 @@ export function GeoJourneyPicker({
                 <div className="geo-country-search">
                   <input
                     className="input-field"
-                    placeholder="🔍 搜索国家或地区…"
+                    placeholder={p(geo.searchCountry)}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
                 {countriesLoading ? (
-                  <div className="geo-journey-loading">正在加载国家列表…</div>
+                  <div className="geo-journey-loading">{p(geo.loadingCountries)}</div>
                 ) : (
                   <div className="geo-country-list">
                     {filteredCountries.map((c) => (
