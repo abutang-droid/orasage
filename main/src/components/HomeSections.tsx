@@ -1,6 +1,7 @@
 'use client';
 
 import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
+import { Moon, Sparkles, SunMoon, type LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -13,7 +14,11 @@ import { cn } from '@/lib/utils';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
 const toolUrls = { bazi: externalUrls.bazi, ziwei: externalUrls.ziwei, tarot: externalUrls.tarot };
-const icons = { bazi: '☯', ziwei: '✦', tarot: '🌙' };
+const toolIcons: Record<(typeof toolKeys)[number], LucideIcon> = {
+  bazi: SunMoon,
+  ziwei: Sparkles,
+  tarot: Moon,
+};
 
 const ELEMENT_STYLES: Record<string, CSSProperties> = {
   木: {
@@ -139,7 +144,9 @@ export function ToolCards() {
     <section id="tools" className="home-section">
       <ModuleTitle>{t('title')}</ModuleTitle>
       <div className="flex flex-col gap-3 sm:gap-4 md:grid md:grid-cols-3 md:gap-4">
-        {toolKeys.map((key, index) => (
+        {toolKeys.map((key, index) => {
+          const Icon = toolIcons[key];
+          return (
           <a
             key={key}
             href={toolUrls[key]}
@@ -153,7 +160,11 @@ export function ToolCards() {
                 className="home-tool-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl transition-colors duration-fast group-hover:bg-foreground group-hover:text-background sm:mb-3 sm:h-11 sm:w-11 sm:text-2xl"
                 aria-hidden
               >
-                {icons[key]}
+                <Icon
+                  className="h-5 w-5 sm:h-6 sm:w-6"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
               </span>
               <div className="flex-1 sm:mt-0">
                 <div className="flex items-baseline justify-between gap-2">
@@ -171,7 +182,8 @@ export function ToolCards() {
               ›
             </span>
           </a>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

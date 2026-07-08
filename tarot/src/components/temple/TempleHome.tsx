@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { Church } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { useLang } from '@/lib/i18n/context';
 import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { TempleDonation } from '@/components/temple/TempleDonation';
@@ -104,9 +106,10 @@ export function TempleHome({
           </div>
           <h1 className="temple-home-deity-name">{deity.name}</h1>
           <p className="temple-home-deity-en">{deity.nameEN}</p>
-          <button type="button" className="btn-primary temple-home-worship-btn" onClick={onWorship}>
-            {summary?.prayedToday ? '🛐 再次参拜' : '🛐 今日参拜'}
-          </button>
+          <Button type="button" className="temple-home-worship-btn w-full" onClick={onWorship}>
+            <Church size={18} strokeWidth={1.75} aria-hidden />
+            {summary?.prayedToday ? '再次参拜' : '今日参拜'}
+          </Button>
         </div>
       </section>
 

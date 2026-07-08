@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { Button } from '@orasage/ui/button';
 import { buildLoginUrlFromWindow } from '@/lib/login-url';
 
 type GuestLoginWallProps = {
@@ -35,9 +36,9 @@ export function GuestLoginWall({
         <h3 className="guest-login-wall-title">{title}</h3>
         <p className="guest-login-wall-message">{message}</p>
         {hint ? <p className="guest-login-wall-hint">{hint}</p> : null}
-        <Link href={loginHref} className="btn-primary guest-login-wall-cta">
-          {ctaLabel}
-        </Link>
+        <Button asChild className="guest-login-wall-cta w-full">
+          <Link href={loginHref}>{ctaLabel}</Link>
+        </Button>
       </div>
       {children ? <div className="guest-login-wall-preview" aria-hidden>{children}</div> : null}
     </div>

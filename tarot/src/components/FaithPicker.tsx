@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import {
   CUSTOM_FAITH_ID,
   FAITH_STORAGE_KEY,
@@ -191,12 +192,12 @@ export function FaithPicker({
           <p className="faith-picker-confirm-hint">
             已选择 <strong>{selectedFaith.nameZh}</strong>，确认后将进入下一步
           </p>
-          <button type="button" className="btn-primary faith-picker-confirm-btn" onClick={confirmSelection}>
+          <Button type="button" className="faith-picker-confirm-btn w-full" onClick={confirmSelection}>
             {confirmLabel}
-          </button>
-          <button type="button" className="btn-ghost faith-picker-repick-btn" onClick={clearSelection}>
+          </Button>
+          <Button type="button" variant="ghost" className="faith-picker-repick-btn w-full" onClick={clearSelection}>
             重新选择
-          </button>
+          </Button>
         </div>
       ) : (
         <>
@@ -235,9 +236,9 @@ export function FaithPicker({
           ) : null}
 
           {!showMore ? (
-            <button type="button" className="btn-outline faith-picker-more-btn" onClick={() => setShowMore(true)}>
+            <Button type="button" variant="outline" className="faith-picker-more-btn w-full" onClick={() => setShowMore(true)}>
               更多信仰 →
-            </button>
+            </Button>
           ) : (
             <div className="faith-picker-more-list">
               <div className="section-label">更多信仰</div>
@@ -267,15 +268,14 @@ export function FaithPicker({
             maxLength={40}
             autoFocus
           />
-          <button
+          <Button
             type="button"
-            className="btn-primary"
-            style={{ width: '100%', marginTop: 12 }}
+            className="w-full mt-3"
             onClick={confirmOther}
             disabled={!otherText.trim()}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       )}
     </div>

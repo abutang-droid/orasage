@@ -1,6 +1,7 @@
 "use client"
 import { useState, useCallback, useEffect, useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { Button } from "@orasage/ui/button"
 import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
 import { loadStoredFaith } from "@/components/FaithPicker"
 import { WorshipScreen } from "@/components/temple/WorshipScreen"
@@ -271,14 +272,14 @@ function TemplePageContent() {
           </div>
 
           {savedDeity && (
-            <button
+            <Button
               type="button"
-              className="btn-ghost"
-              style={{ width: '100%', marginBottom: 16, fontSize: 13 }}
+              variant="ghost"
+              className="w-full mb-4 text-[13px]"
               onClick={() => setPhase('home')}
             >
               ← 返回祈福首页
-            </button>
+            </Button>
           )}
 
           <div style={{ marginBottom: 24 }}>

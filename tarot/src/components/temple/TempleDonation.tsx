@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { TEMPLE_DONATION, templeDonationMeritRange, templeDonationQuantity } from '@/lib/merit';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import './temple.css';
@@ -78,14 +79,14 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
         />
       </label>
 
-      <button
+      <Button
         type="button"
-        className="btn-primary temple-donation-submit"
+        className="temple-donation-submit w-full"
         onClick={() => void handleDonate()}
         disabled={loading}
       >
         {loading ? '跳转支付…' : `乐捐 ${formatUsd(amountCents)}`}
-      </button>
+      </Button>
 
       {error && <p className="temple-donation-error">{error}</p>}
     </div>

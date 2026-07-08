@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
@@ -274,9 +275,9 @@ export function DailyFortuneFlow() {
           <p className="daily-fortune-panel-lead">
             Manto 会先问你几个小问题，再为你翻开今日主牌，并生成四维运势解读。
           </p>
-          <button type="button" className="btn-primary daily-fortune-panel-btn" onClick={() => void beginQuestions()}>
+          <Button type="button" className="daily-fortune-panel-btn w-full" onClick={() => void beginQuestions()}>
             开始今日运势
-          </button>
+          </Button>
         </div>
       )}
 
@@ -400,21 +401,19 @@ export function DailyFortuneFlow() {
               <p className="daily-fortune-recommend-name">{recommend.name}</p>
               <p className="daily-fortune-recommend-desc">{recommend.desc}</p>
               <p className="daily-fortune-recommend-price">{recommend.priceDisplay}</p>
-              <a
-                href={shopUrlForSku(recommend.sku)}
-                className="btn-outline"
-                style={{ display: 'block', textAlign: 'center', marginTop: 12 }}
-              >
-                去看看 →
-              </a>
+              <Button asChild variant="outline" className="w-full mt-3">
+                <a href={shopUrlForSku(recommend.sku)} className="block text-center no-underline">
+                  去看看 →
+                </a>
+              </Button>
             </div>
           )}
 
           {session && session.quota.remaining > 0 && (
-            <button
+            <Button
               type="button"
-              className="btn-ghost"
-              style={{ width: '100%', marginTop: 12 }}
+              variant="ghost"
+              className="w-full mt-3"
               onClick={() => {
                 setRecord(null);
                 setCard(null);
@@ -423,7 +422,7 @@ export function DailyFortuneFlow() {
               }}
             >
               再抽一次（剩余 {session.quota.remaining} 次）
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -434,12 +433,14 @@ export function DailyFortuneFlow() {
           <p className="daily-fortune-paywall-desc">
             每日免费 1 次，神庙祈福可额外 +1 次。如需继续抽取，可购买额外次数。
           </p>
-          <Link href="/temple" className="btn-outline" style={{ display: 'block', marginBottom: 10, textAlign: 'center' }}>
-            去神庙祈福 +1
-          </Link>
-          <button type="button" className="btn-primary" style={{ width: '100%' }} onClick={() => void handlePayCheckout()}>
+          <Button asChild variant="outline" className="w-full mb-2.5">
+            <Link href="/temple" className="block text-center no-underline">
+              去神庙祈福 +1
+            </Link>
+          </Button>
+          <Button type="button" className="w-full" onClick={() => void handlePayCheckout()}>
             购买额外抽取
-          </button>
+          </Button>
         </div>
       )}
 
@@ -447,9 +448,9 @@ export function DailyFortuneFlow() {
         <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
       ) : null}
 
-      <Link href="/" className="btn-ghost daily-fortune-coming-back" style={{ marginTop: 20 }}>
-        返回首页
-      </Link>
+      <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5">
+        <Link href="/">返回首页</Link>
+      </Button>
     </div>
   );
 }

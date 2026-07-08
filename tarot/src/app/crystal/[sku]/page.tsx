@@ -1,7 +1,9 @@
 "use client"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { Church } from "lucide-react"
 import { useState } from "react"
+import { Button } from "@orasage/ui/button"
 import { WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
 import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
 
@@ -117,26 +119,23 @@ export default function CrystalDetailPage() {
           </div>
         </div>
 
-        <button
+        <Button
           type="button"
-          className="btn-primary"
-          style={{ width: '100%', marginBottom: 12 }}
+          className="w-full mb-3"
           disabled={loading || !shopSku}
           onClick={() => void handleBuy()}
         >
-          {loading ? '正在跳转…' : `📿 请一条 · ${crystal.name}`}
-        </button>
+          {loading ? '正在跳转…' : `请一条 · ${crystal.name}`}
+        </Button>
         {error && (
           <p style={{ color: 'var(--error, #c45b4a)', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>{error}</p>
         )}
-        <Link href="/temple" style={{
-          display: 'flex', justifyContent: 'center', width: '100%',
-          textDecoration: 'none',
-        }}>
-          <span className="btn-outline" style={{ width: '100%', textAlign: 'center' }}>
-            🛐 请守护神加持这条手串
-          </span>
-        </Link>
+        <Button asChild variant="outline" className="w-full">
+          <Link href="/temple" className="flex w-full justify-center no-underline">
+            <Church size={18} strokeWidth={1.75} aria-hidden />
+            请守护神加持这条手串
+          </Link>
+        </Button>
 
         <div style={{
           textAlign: 'center', marginTop: 16, marginBottom: 32,

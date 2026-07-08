@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { Flame, Home, LayoutGrid, ShoppingCart, User } from 'lucide-react';
 import {
   ORASAGE_URLS,
   mainPortalUrl,
@@ -14,41 +14,24 @@ import {
 } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 
+const ICON_SIZE = 20;
+const ICON_STROKE = 1.6;
+
 function NavIcon({ name, active }: { name: string; active: boolean }) {
   const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
-  const icons: Record<string, ReactNode> = {
-    home: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
-        <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" />
-      </svg>
-    ),
-    app: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
-        <rect x="4" y="4" width="16" height="16" rx="3" />
-        <path d="M9 9h6M9 12h6M9 15h4" />
-      </svg>
-    ),
-    blessing: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
-        <path d="M12 3v3M8 6l2 2M16 6l-2 2" />
-        <path d="M6 10h12v10H6z" />
-      </svg>
-    ),
-    shop: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
-        <path d="M6 6h15l-1.5 9h-12z" />
-        <circle cx="9" cy="19" r="1.5" />
-        <circle cx="18" cy="19" r="1.5" />
-      </svg>
-    ),
-    mine: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-      </svg>
-    ),
-  };
-  return <>{icons[name] ?? icons.app}</>;
+  const props = { size: ICON_SIZE, strokeWidth: ICON_STROKE, color, 'aria-hidden': true as const };
+  switch (name) {
+    case 'home':
+      return <Home {...props} />;
+    case 'blessing':
+      return <Flame {...props} />;
+    case 'shop':
+      return <ShoppingCart {...props} />;
+    case 'mine':
+      return <User {...props} />;
+    default:
+      return <LayoutGrid {...props} />;
+  }
 }
 
 export type FixedBottomNavProps = {

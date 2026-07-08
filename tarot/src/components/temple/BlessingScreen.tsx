@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
+import { Button } from '@orasage/ui/button';
 import { TempleDonation } from '@/components/temple/TempleDonation';
 import './temple.css';
 
@@ -65,9 +67,12 @@ export function BlessingScreen({
       <TempleDonation deityName={deity.name} />
 
       <div className="temple-blessing-actions">
-        <Link href="/daily-fortune" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', textDecoration: 'none' }}>
-          ✦ 去抽今日运势
-        </Link>
+        <Button asChild className="w-full">
+          <Link href="/daily-fortune" className="flex justify-center no-underline">
+            <Sparkles size={18} strokeWidth={1.75} aria-hidden />
+            去抽今日运势
+          </Link>
+        </Button>
         <button type="button" className="temple-blessing-back" onClick={onDone}>
           返回
         </button>

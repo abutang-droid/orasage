@@ -48,6 +48,12 @@ deploy_native() {
   fi
 
   cd "$APP_DIR"
+  for pkg in packages/ui packages/tokens packages/i18n; do
+    if [ -f "$DEPLOY_DIR/$pkg/package.json" ]; then
+      log "安装 $pkg 依赖..."
+      (cd "$DEPLOY_DIR/$pkg" && npm install --no-audit --no-fund)
+    fi
+  done
   npm ci --include=dev
 
   set -a

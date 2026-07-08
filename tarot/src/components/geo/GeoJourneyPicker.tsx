@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { FaithPicker } from '@/components/FaithPicker';
 import type { GeoDetectSource } from '@/lib/geo/detect-country';
 import { useCountrySuggestion, type CountrySuggestion } from '@/lib/geo/use-country-suggestion';
@@ -635,12 +636,12 @@ export function GeoJourneyPicker({
               <p className="geo-journey-detect-sub">{detectedSuggestion.country.nameEn}</p>
               <p className="geo-journey-detect-question">这是你所在的国家吗？</p>
               <div className="geo-journey-detect-actions">
-                <button type="button" className="btn-primary" onClick={confirmDetectedCountry}>
+                <Button type="button" onClick={confirmDetectedCountry}>
                   正确，继续
-                </button>
-                <button type="button" className="btn-outline" onClick={rejectDetectedCountry}>
+                </Button>
+                <Button type="button" variant="outline" onClick={rejectDetectedCountry}>
                   不是，手动选择
-                </button>
+                </Button>
               </div>
             </div>
           ) : null}
@@ -760,13 +761,14 @@ export function GeoJourneyPicker({
         <div className="geo-journey-bottom">
           {showListFooter ? (
             <footer className="geo-journey-footer">
-              <button
+              <Button
                 type="button"
-                className="btn-outline geo-journey-list-btn"
+                variant="outline"
+                className="geo-journey-list-btn"
                 onClick={() => setListOpen(true)}
               >
                 {listButtonLabel}
-              </button>
+              </Button>
             </footer>
           ) : null}
         </div>
@@ -782,13 +784,13 @@ export function GeoJourneyPicker({
                 <div className="geo-journey-faith-confirm-en">{pendingConfirm.sub}</div>
               </div>
             </div>
-            <button
+            <Button
               type="button"
-              className="btn-primary geo-journey-faith-confirm-btn"
+              className="geo-journey-faith-confirm-btn w-full"
               onClick={confirmCurrentStep}
             >
               {confirmLabel}
-            </button>
+            </Button>
           </div>
         </div>
       )}

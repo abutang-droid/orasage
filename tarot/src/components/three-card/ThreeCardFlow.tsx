@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
@@ -301,13 +302,13 @@ export function ThreeCardFlow() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <button
+          <Button
             type="button"
-            className="btn-primary daily-fortune-panel-btn"
+            className="daily-fortune-panel-btn w-full"
             onClick={() => void beginQuestions()}
           >
             开始三牌占卜
-          </button>
+          </Button>
         </div>
       )}
 
@@ -417,13 +418,15 @@ export function ThreeCardFlow() {
           <div className="card three-card-unlock-cta">
             <p>完整详读包含逐牌深度解读、行动建议与肯定语，登录后可购买解锁并保存到用户中心。</p>
             {!isLoggedIn ? (
-              <Link href={loginHref} className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
-                登录解锁完整报告
-              </Link>
+              <Button asChild className="w-full">
+                <Link href={loginHref} className="block text-center no-underline">
+                  登录解锁完整报告
+                </Link>
+              </Button>
             ) : (
-              <button type="button" className="btn-primary" style={{ width: '100%' }} onClick={goToPaywall}>
+              <Button type="button" className="w-full" onClick={goToPaywall}>
                 查看完整报告方案
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -452,10 +455,9 @@ export function ThreeCardFlow() {
                 ) : (
                   <p className="three-card-tier-desc">三牌阵完整详读报告</p>
                 )}
-                <button
+                <Button
                   type="button"
-                  className="btn-primary"
-                  style={{ width: '100%', marginTop: 12 }}
+                  className="w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(
@@ -466,7 +468,7 @@ export function ThreeCardFlow() {
                   {checkoutSku === (reportProduct?.sku ?? session?.billing.skus.threeCardReportSku)
                     ? '跳转中…'
                     : '购买完整报告'}
-                </button>
+                </Button>
               </div>
 
               <div className="card three-card-tier three-card-tier--bundle">
@@ -480,10 +482,10 @@ export function ThreeCardFlow() {
                 ) : (
                   <p className="three-card-tier-desc">完整报告 + 专属开运物品组合</p>
                 )}
-                <button
+                <Button
                   type="button"
-                  className="btn-outline"
-                  style={{ width: '100%', marginTop: 12 }}
+                  variant="outline"
+                  className="w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(
@@ -494,31 +496,26 @@ export function ThreeCardFlow() {
                   {checkoutSku === (bundleProduct?.sku ?? session?.billing.skus.threeCardBundleSku)
                     ? '跳转中…'
                     : '购买报告套装'}
-                </button>
+                </Button>
               </div>
 
               {pendingOrderNo && readingId && (
-                <button
+                <Button
                   type="button"
-                  className="btn-ghost"
-                  style={{ width: '100%', marginTop: 12 }}
+                  variant="ghost"
+                  className="w-full mt-3"
                   onClick={() => void fetchFullReport(readingId, pendingOrderNo)}
                 >
                   我已付款，查看完整报告
-                </button>
+                </Button>
               )}
             </>
           )}
 
           {brief && (
-            <button
-              type="button"
-              className="btn-ghost"
-              style={{ width: '100%', marginTop: 12 }}
-              onClick={() => setStep('brief')}
-            >
+            <Button type="button" variant="ghost" className="w-full mt-3" onClick={() => setStep('brief')}>
               返回简读
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -576,20 +573,21 @@ export function ThreeCardFlow() {
           {paidTier === 'bundle' && bundleProduct?.requiresShipping && (
             <div className="card three-card-bundle-note">
               <p>你购买的是报告+开运物套装，物品将按订单地址寄送。</p>
-              <a
-                href={`${profileUrl('zh-CN')}/orders`}
-                className="btn-outline"
-                style={{ display: 'block', textAlign: 'center', marginTop: 10 }}
-              >
-                查看订单 →
-              </a>
+              <Button asChild variant="outline" className="w-full mt-2.5">
+                <a
+                  href={`${profileUrl('zh-CN')}/orders`}
+                  className="block text-center no-underline"
+                >
+                  查看订单 →
+                </a>
+              </Button>
             </div>
           )}
 
-          <button
+          <Button
             type="button"
-            className="btn-ghost"
-            style={{ width: '100%', marginTop: 12 }}
+            variant="ghost"
+            className="w-full mt-3"
             onClick={() => {
               setQuestion('');
               setQuestions([]);
@@ -603,7 +601,7 @@ export function ThreeCardFlow() {
             }}
           >
             再占一次
-          </button>
+          </Button>
         </div>
       )}
 
@@ -611,9 +609,9 @@ export function ThreeCardFlow() {
         <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
       ) : null}
 
-      <Link href="/" className="btn-ghost daily-fortune-coming-back" style={{ marginTop: 20 }}>
-        返回首页
-      </Link>
+      <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5">
+        <Link href="/">返回首页</Link>
+      </Button>
     </div>
   );
 }

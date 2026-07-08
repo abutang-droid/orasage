@@ -1,15 +1,11 @@
 import type { Lang } from '@/lib/i18n/context';
+import { localeFromTarotLang, TAROT_LANG_TO_LOCALE } from '@orasage/i18n';
 import { profileUrl } from '@/lib/orasage-app-shell/config';
 
-export const LANG_TO_LOCALE: Record<Lang, string> = {
-  zh: 'zh-CN',
-  en: 'en',
-  pt: 'pt-BR',
-  es: 'es',
-};
+export const LANG_TO_LOCALE = TAROT_LANG_TO_LOCALE;
 
 export function localeFromLang(lang: Lang): string {
-  return LANG_TO_LOCALE[lang] ?? 'zh-CN';
+  return localeFromTarotLang(lang);
 }
 
 export function profileUrlFromLang(lang: Lang): string {
