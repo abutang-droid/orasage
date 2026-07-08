@@ -38,7 +38,7 @@
     "famous": "Famous Cases",
     "famousDesc": "Insights from historical figures",
     "daozang": "Dao Canon",
-    "daozangDesc": "Taoist classics, timeless wisdom",
+    "daozangDesc": "오술 지식 라이브러리",
     "comingSoon": "Coming soon",
     "moduleTitle": "Featured reading"
   },
@@ -74,8 +74,64 @@
     "desc": "Explore the destiny patterns of historical figures"
   },
   "daozang": {
-    "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "title": "도장 정선",
+    "desc": "산의명상복 · 오술 고전 지식 라이브러리",
+    "total": "총 {count}편",
+    "empty": "아직 콘텐츠가 없습니다",
+    "loadError": "불러오지 못했습니다",
+    "prev": "이전 페이지",
+    "next": "다음 페이지",
+    "back": "목록으로 돌아가기",
+    "sourceLink": "원문 보기",
+    "noBody": "본문 없음",
+    "searchPlaceholder": "고전 검색…",
+    "searchCrumb": "검색",
+    "searchResults": "“{query}” 검색 결과 {count}건",
+    "searchEmpty": "“{query}”에 대한 결과가 없습니다",
+    "clearSearch": "전체 카테고리로",
+    "toc": "목차",
+    "prevArticle": "이전 글",
+    "nextArticle": "다음 글",
+    "siblingNav": "같은 카테고리 글",
+    "uncategorized": "기타",
+    "articleCount": "{count}편",
+    "tops": {
+      "shan": {
+        "name": "산(山)",
+        "desc": "수련 · 양생 · 권법"
+      },
+      "yi": {
+        "name": "의(醫)",
+        "desc": "중의학 고전"
+      },
+      "ming": {
+        "name": "명(命)",
+        "desc": "명리 · 사주 · 성명학"
+      },
+      "xiang": {
+        "name": "상(相)",
+        "desc": "풍수 · 관상"
+      },
+      "bu": {
+        "name": "복(卜)",
+        "desc": "점술 · 역점"
+      }
+    },
+    "categories": {
+      "quanfa": "권법",
+      "zhongyi": "중의학",
+      "bazi": "사주팔자",
+      "ziweidoushu": "자미두수",
+      "qizhengsheyu": "칠정사여",
+      "yijing": "역경",
+      "liuyao": "육효",
+      "meihuayishu": "매화역수",
+      "qimendunjia": "기문둔갑",
+      "daliuren": "대육임",
+      "dixiang": "풍수",
+      "renxiang": "관상",
+      "xingxiang": "점성"
+    }
   },
   "shop": {
     "title": "Energy Shop",
