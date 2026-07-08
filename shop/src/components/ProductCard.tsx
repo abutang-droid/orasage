@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
 import {
@@ -18,6 +19,7 @@ import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 
 export function ProductCard({ product }: { product: Product }) {
+  const t = useTranslations('product');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
@@ -48,7 +50,7 @@ export function ProductCard({ product }: { product: Product }) {
         return;
       }
 
-      if (!res.ok) throw new Error(data.error || '购买失败');
+      if (!res.ok) throw new Error(data.error || t('buyFailed'));
 
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
@@ -60,7 +62,7 @@ export function ProductCard({ product }: { product: Product }) {
         return;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '购买失败');
+      setError(err instanceof Error ? err.message : t('buyFailed'));
     } finally {
       setLoading(false);
     }
@@ -104,10 +106,10 @@ export function ProductCard({ product }: { product: Product }) {
           loading={loading}
           className="flex-1"
         >
-          {loading ? '处理中…' : '购买'}
+          {loading ? t('buying') : t('buy')}
         </Button>
         <Button type="button" variant="secondary" onClick={handleAddToCart} className="flex-1">
-          {added ? '已加入' : '加购'}
+          {added ? t('added') : t('addToCart')}
         </Button>
       </CardFooter>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}

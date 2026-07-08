@@ -1,0 +1,49 @@
+{
+  "product": {
+    "buy": "購買",
+    "buying": "處理中…",
+    "addToCart": "加購",
+    "added": "已加入",
+    "buyFailed": "購買失敗"
+  },
+  "categories": {
+    "crystal": "水晶手串",
+    "report": "數位報告",
+    "service": "能量諮詢",
+    "all": "全部"
+  },
+  "shop": {
+    "title": "能量商城",
+    "subtitle": "水晶手串 · 數位報告 · 能量諮詢"
+  },
+  "cart": {
+    "title": "購物車",
+    "empty": "購物車是空的",
+    "browse": "去逛逛",
+    "loading": "載入購物車…",
+    "clear": "清空",
+    "quantity": "數量",
+    "remove": "移除",
+    "total": "合計",
+    "note": "購物車商品將合併為一筆訂單結算；含實體商品時需填寫配送資訊。",
+    "checkout": "去結帳",
+    "checkoutLoading": "準備訂單…",
+    "checkoutFailed": "建立訂單失敗",
+    "ariaLabel": "購物車，{count} 件商品"
+  },
+  "catalog": {
+    "loading": "載入商品…",
+    "featured": "精選推薦",
+    "featuredSubtitle": "命理解讀後最常搭配的能量好物",
+    "diy": "共振定制"
+  },
+  "home": {
+    "footerNote": "完成命理解讀後，可一鍵購買推薦水晶 · 訂單可在",
+    "userCenter": "用戶中心",
+    "footerView": "查看",
+    "heroEyebrow": "OraSage",
+    "heroTitle": "能量商城",
+    "heroSubtitle": "命理解讀推薦 · 水晶手串 · 數位報告",
+    "heroLoggedIn": "已登入，購買後訂單將同步至用戶中心"
+  }
+}

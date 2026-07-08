@@ -8,6 +8,7 @@
     "start": "next start -p 3102"
   },
   "dependencies": {
+    "@orasage/i18n": "file:../packages/i18n",
     "@orasage/tokens": "file:../packages/tokens",
     "@orasage/ui": "file:../packages/ui",
     "@radix-ui/react-slot": "^1.3.0",
@@ -16,6 +17,7 @@
     "jose": "^5.9.0",
     "lucide-react": "^1.23.0",
     "next": "^15.1.0",
+    "next-intl": "^3.26.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "stripe": "^17.7.0",

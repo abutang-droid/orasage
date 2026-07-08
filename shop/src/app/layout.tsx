@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { ShopShell } from '@/components/ShopShell';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
@@ -27,11 +29,16 @@ export const viewport: Viewport = {
   themeColor: '#fafaf8',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="zh-CN">
+    <html lang={locale}>
       <body className="min-h-dvh bg-sage-bg text-sage-primary antialiased">
-        <ShopShell>{children}</ShopShell>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ShopShell>{children}</ShopShell>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

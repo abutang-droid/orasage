@@ -43,9 +43,10 @@ productsRouter.get("/", async (req, res) => {
   res.json({ products: rows.map((row) => formatProduct(row, { locale })), locale });
 });
 
-productsRouter.get("/homepage", async (_req, res) => {
+productsRouter.get("/homepage", async (req, res) => {
   try {
-    const data = await resolveHomepageProducts();
+    const locale = localeFromRequest(req);
+    const data = await resolveHomepageProducts(locale);
     res.json(data);
   } catch (err) {
     console.error("[products] homepage:", err);
@@ -95,11 +96,15 @@ productsRouter.get("/:sku", async (req, res) => {
   res.json({ product: formatProduct(row, { locale }), locale });
 });
 
+const i18nMapSchema = z.record(z.string().min(1).max(2000)).optional().nullable();
+
 const productBodySchema = z.object({
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(200),
+  nameI18n: i18nMapSchema,
   element: z.string().max(10).optional().nullable(),
   description: z.string().min(1).max(2000),
+  descriptionI18n: i18nMapSchema,
   priceCents: z.number().int().nonnegative(),
   priceCentsUsd: z.number().int().nonnegative().optional().nullable(),
   category: z.enum(["crystal", "report", "service"]),

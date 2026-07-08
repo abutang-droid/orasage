@@ -1,0 +1,49 @@
+{
+  "product": {
+    "buy": "购买",
+    "buying": "处理中…",
+    "addToCart": "加购",
+    "added": "已加入",
+    "buyFailed": "购买失败"
+  },
+  "categories": {
+    "crystal": "水晶手串",
+    "report": "数字报告",
+    "service": "能量咨询",
+    "all": "全部"
+  },
+  "shop": {
+    "title": "能量商城",
+    "subtitle": "水晶手串 · 数字报告 · 能量咨询"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty": "购物车是空的",
+    "browse": "去逛逛",
+    "loading": "加载购物车…",
+    "clear": "清空",
+    "quantity": "数量",
+    "remove": "移除",
+    "total": "合计",
+    "note": "购物车商品将合并为一笔订单结算；含实体商品时需填写配送信息。",
+    "checkout": "去结账",
+    "checkoutLoading": "准备订单…",
+    "checkoutFailed": "创建订单失败",
+    "ariaLabel": "购物车，{count} 件商品"
+  },
+  "catalog": {
+    "loading": "加载商品…",
+    "featured": "精选推荐",
+    "featuredSubtitle": "命理解读后最常搭配的能量好物",
+    "diy": "共振定制"
+  },
+  "home": {
+    "footerNote": "完成命理解读后，可一键购买推荐水晶 · 订单可在",
+    "userCenter": "用户中心",
+    "footerView": "查看",
+    "heroEyebrow": "OraSage",
+    "heroTitle": "能量商城",
+    "heroSubtitle": "命理解读推荐 · 水晶手串 · 数字报告",
+    "heroLoggedIn": "已登录，购买后订单将同步至用户中心"
+  }
+}

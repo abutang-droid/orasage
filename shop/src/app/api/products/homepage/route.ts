@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
+import { cookies, headers } from 'next/headers';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
+import { detectShopLocale, SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../../shared/shop-locale/index';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
 export async function GET() {
   try {
+    const jar = await cookies();
+    const hdrs = await headers();
+    const locale = detectShopLocale({
+      cookieLocale: jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_COOKIE)?.value,
+      acceptLanguage: hdrs.get('accept-language'),
+    });
     const [res, imageMap] = await Promise.all([
-      fetch(`${authInternalUrl}/api/products/homepage`, {
+      fetch(`${authInternalUrl}/api/products/homepage?locale=${encodeURIComponent(locale)}`, {
         next: { revalidate: 60 },
       } as RequestInit),
       fetchProductImageMap(),

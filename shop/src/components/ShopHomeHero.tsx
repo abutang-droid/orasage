@@ -1,8 +1,8 @@
 import {
   fetchShopHomeHero,
   fallbackShopHomeHero,
-  type ShopHomeHeroContent,
 } from '@/lib/cms-shop-hero';
+import { getTranslations } from 'next-intl/server';
 
 function HeroVideo({
   src,
@@ -34,10 +34,11 @@ type Props = {
 
 /** CMS 可配置的商城首页 Hero */
 export async function ShopHomeHero({ loggedIn }: Props) {
+  const th = await getTranslations('home');
   const fallback = fallbackShopHomeHero({
-    eyebrow: 'OraSage',
-    title: '能量商城',
-    subtitle: '命理解读推荐 · 水晶手串 · 数字报告',
+    eyebrow: th('heroEyebrow'),
+    title: th('heroTitle'),
+    subtitle: th('heroSubtitle'),
   });
   const hero = await fetchShopHomeHero(fallback);
 
@@ -76,7 +77,7 @@ export async function ShopHomeHero({ loggedIn }: Props) {
         {hero.bodyText ? <p className="shop-hero-body">{hero.bodyText}</p> : null}
 
         {loggedIn ? (
-          <p className="shop-hero-meta">已登录，购买后订单将同步至用户中心</p>
+          <p className="shop-hero-meta">{th('heroLoggedIn')}</p>
         ) : null}
       </div>
     </section>

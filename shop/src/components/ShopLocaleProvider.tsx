@@ -1,5 +1,7 @@
 'use client';
 
+import { useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import {
   currencyForLocale,
@@ -28,34 +30,44 @@ function readCookie(name: string): string | null {
 }
 
 export function ShopLocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState('zh-CN');
+  const intlLocale = useLocale();
+  const router = useRouter();
+  const [locale, setLocaleState] = useState(intlLocale);
+
+  useEffect(() => {
+    setLocaleState(intlLocale);
+  }, [intlLocale]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get('locale');
     if (fromQuery) {
       const normalized = detectShopLocale({ queryLocale: fromQuery });
-      setLocale(normalized);
       document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+      setLocaleCookie(normalized);
+      router.refresh();
       return;
     }
 
     const override = readCookie(SHOP_LOCALE_OVERRIDE_COOKIE);
     const portal = readCookie(SHOP_LOCALE_COOKIE);
-    setLocale(
-      detectShopLocale({
-        cookieLocale: override ?? portal,
-        acceptLanguage: navigator.language,
-      }),
-    );
-  }, []);
+    const detected = detectShopLocale({
+      cookieLocale: override ?? portal,
+      acceptLanguage: navigator.language,
+    });
+    if (detected !== intlLocale) {
+      setLocaleCookie(detected);
+      router.refresh();
+    }
+  }, [intlLocale, router]);
 
   const applyLocale = useCallback((raw: string) => {
     const normalized = detectShopLocale({ queryLocale: raw });
     document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
     setLocaleCookie(normalized);
-    setLocale(normalized);
-  }, []);
+    setLocaleState(normalized);
+    router.refresh();
+  }, [router]);
 
   const value = useMemo(
     () => ({ locale, currency: currencyForLocale(locale), setLocale: applyLocale }),
