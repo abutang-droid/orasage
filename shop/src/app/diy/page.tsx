@@ -1,25 +1,30 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { PRODUCT_SKU_TO_BEAD_MATERIAL } from '@/lib/diy';
 import { fetchDiyCatalog } from '@/lib/diy-server';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { currencyForLocale } from '@/lib/currency';
 import { DiyDesigner } from '@/components/diy/DiyDesigner';
 
-export const metadata: Metadata = {
-  title: '共振定制 · 设计你的能量手串 | OraSage Energy Shop',
-  description: '逐颗挑选水晶、隔珠与隔片，按手围实时预览与计价，定制专属于你的五行能量手串。',
-};
-
 type PageProps = {
   searchParams: Promise<{ base?: string; element?: string }>;
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('diy');
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
+}
+
 export default async function DiyPage({ searchParams }: PageProps) {
-  const [{ base, element }, locale, catalog] = await Promise.all([
+  const [{ base, element }, locale, catalog, t] = await Promise.all([
     searchParams,
     getServerShopLocale(),
     fetchDiyCatalog(),
+    getTranslations('diy'),
   ]);
   const currency = currencyForLocale(locale);
 
@@ -30,13 +35,13 @@ export default async function DiyPage({ searchParams }: PageProps) {
     <main className="shop-page safe-bottom flex-1">
       <div className="shop-diy-page">
         <Link href="/" className="shop-pdp-back shop-pdp-back--top">
-          ← 返回商城
+          ← {t('backToShop')}
         </Link>
 
         <header className="shop-diy-header">
           <p className="shop-diy-eyebrow">OraSage Energy Shop</p>
-          <h1 className="shop-diy-title">共振定制 · 设计你的能量手串</h1>
-          <p className="shop-diy-sub">Design Your Resonance — 逐颗挑选，让能量与你共振</p>
+          <h1 className="shop-diy-title">{t('title')}</h1>
+          <p className="shop-diy-sub">{t('subtitle')}</p>
         </header>
 
         <DiyDesigner

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Button } from '@orasage/ui/button';
 
 export default async function SuccessPage({
@@ -7,28 +8,29 @@ export default async function SuccessPage({
   searchParams: Promise<{ order?: string }>;
 }) {
   const { order } = await searchParams;
+  const t = await getTranslations('success');
 
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60dvh] max-w-lg flex-1 flex-col items-center justify-center py-12 text-center">
       <div className="shop-success-icon">✓</div>
-      <h1 className="mt-4 font-serif text-2xl text-sage-primary">支付成功</h1>
+      <h1 className="mt-4 font-serif text-2xl text-sage-primary">{t('title')}</h1>
       {order && (
         <p className="mt-3 text-sm text-sage-muted">
-          订单号：<span className="text-sage-primary">{order}</span>
+          {t('orderNo', { order })}
         </p>
       )}
-      <p className="mt-2 text-sm text-sage-muted">订单已同步到您的用户中心</p>
+      <p className="mt-2 text-sm text-sage-muted">{t('synced')}</p>
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
         {order ? (
           <Button asChild className="w-full">
-            <Link href={`/orders/${encodeURIComponent(order)}`}>查看订单与物流</Link>
+            <Link href={`/orders/${encodeURIComponent(order)}`}>{t('viewOrder')}</Link>
           </Button>
         ) : null}
         <Button asChild variant={order ? 'secondary' : 'default'} className="w-full">
-          <a href="https://auth.orasage.com/center">查看我的订单</a>
+          <a href="https://auth.orasage.com/center">{t('myOrders')}</a>
         </Button>
         <Button asChild variant="secondary" className="w-full">
-          <Link href="/">继续购物</Link>
+          <Link href="/">{t('continueShopping')}</Link>
         </Button>
       </div>
     </main>

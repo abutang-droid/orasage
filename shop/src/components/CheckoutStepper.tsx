@@ -1,3 +1,7 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 type CheckoutStep = 'contact' | 'shipping' | 'payment';
 
 type CheckoutStepperProps = {
@@ -5,13 +9,15 @@ type CheckoutStepperProps = {
   requiresShipping: boolean;
 };
 
-const STEPS: Array<{ id: CheckoutStep; label: string }> = [
-  { id: 'contact', label: '联系' },
-  { id: 'shipping', label: '配送' },
-  { id: 'payment', label: '支付' },
-];
-
 export function CheckoutStepper({ current, requiresShipping }: CheckoutStepperProps) {
+  const t = useTranslations('checkout');
+
+  const STEPS: Array<{ id: CheckoutStep; label: string }> = [
+    { id: 'contact', label: t('stepContact') },
+    { id: 'shipping', label: t('stepShipping') },
+    { id: 'payment', label: t('stepPayment') },
+  ];
+
   const visible = requiresShipping
     ? STEPS
     : STEPS.filter((s) => s.id !== 'shipping');
@@ -19,7 +25,7 @@ export function CheckoutStepper({ current, requiresShipping }: CheckoutStepperPr
   const currentIndex = visible.findIndex((s) => s.id === current);
 
   return (
-    <nav className="shop-checkout-steps" aria-label="结账步骤">
+    <nav className="shop-checkout-steps" aria-label={t('stepsAria')}>
       <ol className="shop-checkout-steps-list">
         {visible.map((step, index) => {
           const state = index < currentIndex ? 'done' : index === currentIndex ? 'active' : 'pending';
