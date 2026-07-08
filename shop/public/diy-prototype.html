@@ -70,9 +70,10 @@
     padding: 1rem 1rem 1.25rem;
     background: #fff;
   }
-  .wrist-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
-  .wrist-label { font-size: 0.75rem; color: var(--mono-gray-deep); letter-spacing: 0.04em; }
-  .wrist-chips { display: flex; gap: 0.35rem; }
+  .wrist-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .wrist-label { font-size: 0.72rem; color: var(--mono-gray-deep); letter-spacing: 0.04em; }
+  .wrist-value { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; }
+  .wrist-value small { font-size: 0.68rem; font-weight: 400; color: var(--mono-gray-deep); margin-left: 0.1rem; }
   .chip {
     font-family: var(--sans);
     font-size: 0.75rem; padding: 0.3rem 0.65rem;
@@ -81,19 +82,41 @@
     cursor: pointer; transition: all 0.15s;
   }
   .chip.on { background: var(--mono-black); color: #fff; border-color: var(--mono-black); }
-  .wrist-custom {
-    display: none; align-items: center; gap: 0.3rem;
-    font-size: 0.75rem; color: var(--mono-gray-deep);
+
+  /* ── 手围标尺 ───────────────────── */
+  .ruler { position: relative; margin-top: 0.55rem; height: 3.1rem; }
+  .ruler-scroll {
+    overflow-x: auto; height: 100%; cursor: grab;
+    scrollbar-width: none; -ms-overflow-style: none;
+    touch-action: pan-x;
   }
-  .wrist-custom.show { display: inline-flex; }
-  .wrist-custom input {
-    width: 3.6rem; font-family: var(--sans); font-size: 0.8rem; text-align: center;
-    border: 1px solid var(--mono-black); border-radius: 999px;
-    padding: 0.26rem 0.3rem; outline: none; color: var(--mono-black);
-    -moz-appearance: textfield;
+  .ruler-scroll::-webkit-scrollbar { display: none; }
+  .ruler-track {
+    display: flex; align-items: flex-start;
+    width: max-content; height: 100%;
+    border-top: 1.5px solid var(--mono-black);
   }
-  .wrist-custom input::-webkit-outer-spin-button,
-  .wrist-custom input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .tick {
+    width: 14px; flex-shrink: 0; height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none;
+  }
+  .tick i { display: block; width: 1px; height: 0.55rem; background: var(--mono-gray); }
+  .tick.major i { width: 1.5px; height: 0.95rem; background: var(--mono-black); }
+  .tick span { margin-top: 0.2rem; font-size: 0.62rem; color: var(--mono-gray-deep); font-variant-numeric: tabular-nums; }
+  .ruler-pointer {
+    position: absolute; left: 50%; top: 0; bottom: 0.35rem; width: 2px;
+    background: var(--mono-black); transform: translateX(-50%);
+    pointer-events: none; z-index: 2;
+  }
+  .ruler-pointer::before {
+    content: ''; position: absolute; top: -1px; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--mono-black);
+  }
+  .ruler-fade { position: absolute; top: 0; bottom: 0; width: 2.2rem; pointer-events: none; z-index: 1; }
+  .ruler-fade.l { left: 0; background: linear-gradient(to right, #fff 15%, transparent); }
+  .ruler-fade.r { right: 0; background: linear-gradient(to left, #fff 15%, transparent); }
 
   .canvas-wrap { position: relative; margin: 0.5rem auto 0; max-width: 21rem; }
   svg.bracelet { width: 100%; height: auto; display: block; }
@@ -272,9 +295,17 @@
   <div class="layout">
     <!-- ═══ 左：设计台 ═══ -->
     <section class="studio">
-      <div class="wrist-row">
-        <span class="wrist-label">手围尺寸</span>
-        <div class="wrist-chips" id="wristChips"></div>
+      <div class="wrist-head">
+        <span class="wrist-label">手围尺寸 · 左右滑动标尺</span>
+        <span class="wrist-value"><b id="wristVal">16</b><small>cm</small></span>
+      </div>
+      <div class="ruler">
+        <div class="ruler-scroll" id="rulerScroll">
+          <div class="ruler-track" id="rulerTrack"></div>
+        </div>
+        <div class="ruler-pointer"></div>
+        <div class="ruler-fade l"></div>
+        <div class="ruler-fade r"></div>
       </div>
 
       <div class="canvas-wrap">
@@ -551,38 +582,78 @@ function renderGrid(){
   });
 }
 
-/* ═══════════ 手围 ═══════════ */
-const WRISTS=[14,15,16,17,18];
-let wristCustom = false;
+/* ═══════════ 手围标尺（左右滑动） ═══════════ */
+const RULER_MIN=10, RULER_MAX=25, PX_HALF=14, PX_CM=28;
+let rulerSyncing=false;
+
+function wristText(v){
+  const s=Math.round(v*2)/2;
+  return Number.isInteger(s) ? String(s) : s.toFixed(1);
+}
+
+function setRulerTo(v,smooth){
+  const scroll=$('rulerScroll');
+  rulerSyncing=true;
+  scroll.scrollTo({ left:(v-RULER_MIN)*PX_CM, behavior: smooth?'smooth':'auto' });
+  setTimeout(()=>{ rulerSyncing=false; }, smooth?260:30);
+}
+
 function renderWrist(){
-  const isPreset = WRISTS.includes(wrist) && !wristCustom;
-  $('wristChips').innerHTML = WRISTS.map(w=>
-    `<button class="chip ${isPreset&&wrist===w?'on':''}" data-w="${w}">${w}cm</button>`).join('')
-    + `<button class="chip ${wristCustom?'on':''}" data-w="custom">自定义</button>`
-    + `<span class="wrist-custom ${wristCustom?'show':''}">
-         <input id="wristInput" type="number" min="10" max="25" step="0.5" value="${wrist}" inputmode="decimal" /> cm
-       </span>`;
-  $('wristChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
-    if(c.dataset.w==='custom'){
-      wristCustom=true; renderWrist(); renderAll();
-      const inp=$('wristInput'); if(inp){ inp.focus(); inp.select(); }
-      return;
-    }
-    wristCustom=false; wrist=parseInt(c.dataset.w); renderWrist(); renderAll();
-  });
-  const inp=$('wristInput');
-  if(inp){
-    inp.addEventListener('input',()=>{
-      const v=parseFloat(inp.value);
-      if(!isNaN(v) && v>=10 && v<=25){ wrist=v; renderAll(); }
-    });
-    inp.addEventListener('blur',()=>{
-      let v=parseFloat(inp.value);
-      if(isNaN(v)) v=16;
-      v=Math.min(25,Math.max(10,v));
-      wrist=v; inp.value=v; renderAll();
-    });
+  const scroll=$('rulerScroll'), track=$('rulerTrack');
+  let html='';
+  for(let v=RULER_MIN; v<=RULER_MAX+0.001; v+=0.5){
+    const major=Math.abs(v-Math.round(v))<0.001;
+    html+=`<div class="tick ${major?'major':''}"><i></i>${major?`<span>${Math.round(v)}</span>`:''}</div>`;
   }
+  track.innerHTML=html;
+
+  const applyPad=()=>{
+    const pad=Math.max(0, scroll.clientWidth/2 - PX_HALF/2);
+    track.style.paddingLeft=pad+'px';
+    track.style.paddingRight=pad+'px';
+    setRulerTo(wrist,false);
+  };
+  applyPad();
+  window.addEventListener('resize',applyPad);
+
+  let raf=0, snapT;
+  scroll.addEventListener('scroll',()=>{
+    if(raf) return;
+    raf=requestAnimationFrame(()=>{
+      raf=0;
+      const v=RULER_MIN + scroll.scrollLeft/PX_CM;
+      wrist=Math.min(RULER_MAX,Math.max(RULER_MIN,Math.round(v*10)/10));
+      $('wristVal').textContent=wristText(wrist);
+      renderStats();
+      renderCanvas();
+      if(rulerSyncing) return;
+      clearTimeout(snapT);
+      snapT=setTimeout(()=>{
+        const snapped=Math.round(wrist*2)/2;
+        if(Math.abs(snapped-wrist)>0.001){ wrist=snapped; setRulerTo(snapped,true); }
+        else wrist=snapped;
+        $('wristVal').textContent=wristText(wrist);
+        renderStats();
+      },180);
+    });
+  });
+
+  /* 桌面端鼠标拖拽 */
+  let dragging=false, startX=0, startL=0;
+  scroll.addEventListener('pointerdown',(e)=>{
+    if(e.pointerType!=='mouse') return;
+    dragging=true; startX=e.clientX; startL=scroll.scrollLeft;
+    scroll.setPointerCapture(e.pointerId);
+    scroll.style.cursor='grabbing';
+  });
+  scroll.addEventListener('pointermove',(e)=>{
+    if(!dragging) return;
+    scroll.scrollLeft = startL - (e.clientX-startX);
+  });
+  ['pointerup','pointercancel'].forEach(ev=>
+    scroll.addEventListener(ev,()=>{ dragging=false; scroll.style.cursor='grab'; }));
+
+  $('wristVal').textContent=wristText(wrist);
 }
 
 /* ═══════════ 操作 ═══════════ */
