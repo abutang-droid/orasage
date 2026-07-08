@@ -130,6 +130,24 @@
       "FR": "法国"
     }
   },
+  "addresses": {
+    "title": "地址簿",
+    "backToShop": "返回商城",
+    "loading": "加载中…",
+    "empty": "暂无保存地址，结账时可勾选保存。",
+    "default": "默认",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定删除该地址？",
+    "addTitle": "新增地址",
+    "editTitle": "编辑地址",
+    "labelOptional": "标签（选填）",
+    "postal": "邮编",
+    "add": "添加地址",
+    "update": "更新地址",
+    "loadFailed": "加载失败",
+    "deleteFailed": "删除失败"
+  },
   "success": {
     "title": "支付成功",
     "orderNo": "订单号：{order}",

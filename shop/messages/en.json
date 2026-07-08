@@ -130,6 +130,24 @@
       "FR": "France"
     }
   },
+  "addresses": {
+    "title": "Address book",
+    "backToShop": "Back to shop",
+    "loading": "Loading…",
+    "empty": "No saved addresses yet. You can save one at checkout.",
+    "default": "Default",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this address?",
+    "addTitle": "Add address",
+    "editTitle": "Edit address",
+    "labelOptional": "Label (optional)",
+    "postal": "Postal code",
+    "add": "Add address",
+    "update": "Update address",
+    "loadFailed": "Could not load addresses",
+    "deleteFailed": "Could not delete"
+  },
   "success": {
     "title": "Payment successful",
     "orderNo": "Order: {order}",

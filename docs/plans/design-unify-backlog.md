@@ -1,6 +1,6 @@
 # OraSage 设计统一 & 平台 UI — 待完成计划
 
-> 最后更新：**2026-07-08**（PR #206–#207 shop/auth P2 i18n；PR #210 tarot-offer；PR #213 E2E smoke 全绿）  
+> 最后更新：**2026-07-08**（PR #214 shop ShippingForm i18n；CMS 生产 redeploy；地址簿 i18n 进行中）  
 > 关联：`docs/design-system/ui-phase-2.md`
 
 ---
@@ -11,8 +11,7 @@
 - [x] PR #195 — VPS 构建前安装 `packages/ui` 依赖
 - [x] PR #196 — tarot AppShell immersive/onboarding 属性
 - [x] PR #198 — tarot `@orasage/ui`、lucide 图标、`packages/i18n`
-- [x] 生产部署：main/auth/shop/admin/bazi/ziwei/tarot ✅
-- [ ] cms redeploy（lockfile hotfix 待合入）
+- [x] 生产部署：main/auth/shop/admin/bazi/ziwei/tarot/cms ✅
 
 ## Phase 2 合入 main（2026-07-03 历史）
 
@@ -32,30 +31,30 @@
 | 图标 lucide | 🟡 | Shell/main/shop/tarot 已统一；ziwei 内容层待清 |
 | packages/i18n | 🟡 | 基座已建；shop next-intl 四语已落地 |
 | PostgreSQL 合一 | ✅ | bazi/tarot 已迁移 |
-| VPS 部署 | 🟡 | cms lockfile 修复中 |
+| VPS 部署 | ✅ | cms 2026-07-08 redeploy |
 | E2E smoke | ✅ | `npm run test:smoke-all` 生产全绿（PR #213） |
 
 ---
 
 ## P0 — 当前
 
-- [ ] cms `package-lock.json` 同步 lucide 后 redeploy
-- [ ] PR 门禁加入 `npm run ui:check`
+- [x] cms `package-lock.json` 同步 lucide 后 redeploy（2026-07-08）
+- [x] PR 门禁加入 `npm run ui:check`（`.github/workflows/ui-check.yml`）
 
 ## P1 — 短期
 
-- [ ] tarot feature CSS（`tarot-home` / `temple` / `geo-journey`）token 化
+- [x] tarot feature CSS（`tarot-home` / `temple` / `geo-journey`）token 化
 - [ ] ziwei 业务 emoji → lucide（保留 ChartBoard SVG）
-- [ ] shop 商品卡/布局 `@orasage/ui` Card
-- [ ] bazi/ziwei `detectLocale` → `@orasage/i18n`
-- [ ] app-shell 语言切换器 + 跨子域 cookie
+- [x] shop 商品卡/布局 `@orasage/ui` Card
+- [x] bazi/ziwei `detectLocale` → `@orasage/i18n`
+- [x] app-shell 语言切换器 + 跨子域 cookie
 
 ## P2 — 中期
 
 - [x] shop next-intl + 商品 `name_i18n`（PR #206–#207）
 - [x] auth T1 四语静态页（PR #206）
 - [x] 浏览器 E2E（`scripts/e2e/`）支付→报告链路（PR #213）
-- [x] shop ShippingForm / 地址簿 i18n（PR #214）
+- [x] shop ShippingForm / 地址簿 i18n（PR #214 + 地址簿页）
 - [ ] Tailwind v4 全站收敛（main/shop/ziwei/admin v3；bazi/tarot v4）
 
 ---
