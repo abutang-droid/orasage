@@ -167,7 +167,8 @@
     "volumeNumber": "Quyển {number}",
     "volumeUpper": "Quyển thượng",
     "volumeMiddle": "Quyển trung",
-    "volumeLower": "Quyển hạ"
+    "volumeLower": "Quyển hạ",
+    "annotationLegend": "Chú thích lề (眉批), chú (注) và giải ca (歌释) là chú giải nguyên văn, được trình bày riêng."
   },
   "shop": {
     "title": "Energy Shop",

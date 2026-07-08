@@ -905,3 +905,154 @@
 .famous-article :is(.footer-wp, .footer) p {
   margin: 0.25rem 0;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   道藏典籍详情正文（.daozang-article 作用域）
+   c2.pub 书籍章节模板：去壳后按正文 / 眉批注释 / 歌释 / 短句分块排版
+   ══════════════════════════════════════════════════════════════ */
+
+.daozang-article {
+  color: rgb(var(--foreground));
+  font-family: var(--os-font-serif-zh);
+  font-size: 1rem;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+
+.daozang-article :where(h2, h3, h4) {
+  scroll-margin-top: 5rem;
+}
+
+.daozang-article :where(h3) {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgb(var(--border));
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: rgb(var(--foreground));
+}
+
+.daozang-article :where(p) {
+  margin: 0.85rem 0;
+  text-align: justify;
+  text-indent: 2em;
+  color: rgb(var(--foreground));
+}
+
+.daozang-article :where(p:first-child) {
+  text-indent: 0;
+}
+
+/* 连续短句（如「子未相穿，」） */
+.daozang-article .daozang-verse {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--os-radius-card);
+  background: rgb(var(--card));
+}
+
+.daozang-article .daozang-verse :where(p) {
+  margin: 0.25rem 0;
+  text-indent: 0;
+  text-align: center;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+}
+
+/* 原书眉批 / 注 */
+.daozang-article .daozang-note {
+  margin: 1rem 0 1.25rem;
+  padding: 0.875rem 1rem 0.875rem 0.875rem;
+  border-inline-start: 3px solid rgb(var(--foreground) / 0.35);
+  border-radius: 0 var(--os-radius-btn) var(--os-radius-btn) 0;
+  background: rgb(var(--muted) / 0.55);
+}
+
+.daozang-article .daozang-note :where(p) {
+  margin: 0;
+  text-indent: 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: rgb(var(--muted-foreground));
+}
+
+.daozang-article .daozang-note-label {
+  display: inline-block;
+  margin-bottom: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid rgb(var(--border));
+  border-radius: 9999px;
+  background: rgb(var(--card));
+  font-family: var(--os-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgb(var(--foreground));
+}
+
+.daozang-article .daozang-note--meipi .daozang-note-label {
+  border-color: rgb(var(--foreground) / 0.45);
+}
+
+/* 歌释 / 又韵 */
+.daozang-article .daozang-song {
+  margin: 1rem 0 1.25rem;
+  padding: 0.875rem 1rem;
+  border: 1px dashed rgb(var(--border));
+  border-radius: var(--os-radius-card);
+  background: rgb(var(--background));
+}
+
+.daozang-article .daozang-song :where(p) {
+  margin: 0;
+  text-indent: 0;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: rgb(var(--muted-foreground));
+}
+
+.daozang-article .daozang-song .daozang-note-label {
+  margin-bottom: 0.5rem;
+}
+
+/* 兜底：残留模板元素隐藏 */
+.daozang-article :is(
+  .catalog-box,
+  .book-popup,
+  .book-detail-btn-catalog,
+  .book-detail-btn-read,
+  .shadowMask,
+  .book-detail-title,
+  .book-detail-tip
+) {
+  display: none !important;
+}
+
+.daozang-article :where(blockquote) {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-inline-start: 2px solid rgb(var(--border));
+  text-indent: 0;
+  color: rgb(var(--muted-foreground));
+}
+
+.daozang-article :where(table) {
+  display: table;
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.daozang-article :where(th, td) {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgb(var(--border));
+  text-indent: 0;
+}
+
+.daozang-article :where(th) {
+  background: rgb(var(--muted));
+  font-weight: 600;
+}

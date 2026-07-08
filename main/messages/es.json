@@ -167,7 +167,8 @@
     "volumeNumber": "Vol. {number}",
     "volumeUpper": "Vol. 1 (superior)",
     "volumeMiddle": "Vol. 2 (medio)",
-    "volumeLower": "Vol. 3 (inferior)"
+    "volumeLower": "Vol. 3 (inferior)",
+    "annotationLegend": "Las notas al margen (眉批), anotaciones (注) y glosas (歌释) son comentarios originales, con formato aparte."
   },
   "shop": {
     "title": "Energy Shop",

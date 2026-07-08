@@ -11,9 +11,9 @@ import {
   daozangArticlePath,
   fetchCmsPageBySlug,
   fetchDaozangIndex,
-  sanitizeLegacyHtml,
   stripHtml,
 } from '@/lib/cms';
+import { prepareDaozangArticle } from '@/lib/daozang-article';
 import { compareArticles, resolveArticleCategory } from '@/lib/daozang-taxonomy';
 import {
   chapterDisplayTitle,
@@ -21,7 +21,6 @@ import {
   localizedVolumeLabel,
   resolveVolume,
 } from '@/lib/daozang-volumes';
-import { injectHeadingAnchors, stripLeadingTitleHeading } from '@/lib/html-toc';
 import { DaozangBreadcrumb } from '../components';
 
 import { Alert, AlertDescription, Badge, Card, CardContent, Separator } from '@orasage/ui';
@@ -81,10 +80,12 @@ export default async function DaozangArticlePage({ params }: Props) {
   }
 
   const rawHtml = page.legacyHtml?.trim();
-  const article = rawHtml
-    ? injectHeadingAnchors(stripLeadingTitleHeading(sanitizeLegacyHtml(rawHtml), page.title))
-    : null;
-  const showToc = (article?.headings.length ?? 0) >= 3;
+  const article = rawHtml ? prepareDaozangArticle(rawHtml, page.title) : null;
+  const showToc = (article?.headings.length ?? 0) >= 2;
+  const displayTitle =
+    category?.titlePrefix && page.title
+      ? chapterDisplayTitle(page.title, category.titlePrefix)
+      : decodeHtmlEntities(page.title);
 
   return (
     <PageShell hideBack>
@@ -108,7 +109,7 @@ export default async function DaozangArticlePage({ params }: Props) {
 
       <header>
         <PageTitle>
-          <ArticleTitle>{page.title}</ArticleTitle>
+          <ArticleTitle>{displayTitle}</ArticleTitle>
         </PageTitle>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {categoryLabel && category && (
@@ -116,38 +117,39 @@ export default async function DaozangArticlePage({ params }: Props) {
               <Badge variant="muted">{categoryLabel}</Badge>
             </Link>
           )}
+          {volumeLabel && category && (
+            <Link href={`/daozang?cat=${category.key}&vol=${encodeURIComponent(volume!.key)}`}>
+              <Badge variant="muted">{volumeLabel}</Badge>
+            </Link>
+          )}
         </div>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{t('annotationLegend')}</p>
       </header>
 
       <Separator className="my-6 sm:my-8" />
 
       {showToc && article && (
-        <Card className="mb-6 sm:mb-8">
-          <CardContent className="p-5 sm:p-6">
-            <details open={article.headings.length <= 24}>
-              <summary className="cursor-pointer select-none text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                {t('toc')}
-              </summary>
-              <ol className="mt-3 grid max-h-72 gap-1.5 overflow-y-auto text-sm sm:grid-cols-2">
-                {article.headings.map((heading) => (
-                  <li key={heading.id}>
-                    <a
-                      href={`#${heading.id}`}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {heading.text}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </details>
-          </CardContent>
-        </Card>
+        <nav
+          aria-label={t('toc')}
+          className="sticky top-0 z-20 -mx-5 mb-5 border-b border-border/80 bg-background/95 px-5 backdrop-blur-sm sm:-mx-6 sm:px-6"
+        >
+          <div className="flex gap-1.5 overflow-x-auto py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {article.headings.map((heading) => (
+              <a
+                key={heading.id}
+                href={`#${heading.id}`}
+                className="whitespace-nowrap rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {heading.text}
+              </a>
+            ))}
+          </div>
+        </nav>
       )}
 
       {article ? (
         <article
-          className="legacy-html-article prose-sage break-words portal-subpage-body"
+          className="legacy-html-article daozang-article prose-sage break-words"
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
       ) : (

@@ -167,7 +167,8 @@
     "volumeNumber": "巻{number}",
     "volumeUpper": "上巻",
     "volumeMiddle": "中巻",
-    "volumeLower": "下巻"
+    "volumeLower": "下巻",
+    "annotationLegend": "眉批・注・歌釈などは原書の注釈です。読みやすく別枠で表示しています。"
   },
   "shop": {
     "title": "Energy Shop",

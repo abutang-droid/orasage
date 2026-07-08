@@ -207,7 +207,8 @@
     "volumeNumber": "卷{number}",
     "volumeUpper": "卷上",
     "volumeMiddle": "卷中",
-    "volumeLower": "卷下"
+    "volumeLower": "卷下",
+    "annotationLegend": "眉批、注、歌释等为原书注释，已单独排版便于对照阅读。"
   },
   "profile": {
     "title": "我的",

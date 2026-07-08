@@ -167,7 +167,8 @@
     "volumeNumber": "卷{number}",
     "volumeUpper": "卷上",
     "volumeMiddle": "卷中",
-    "volumeLower": "卷下"
+    "volumeLower": "卷下",
+    "annotationLegend": "眉批、注、歌釋等為原書註釋，已單獨排版便於對照閱讀。"
   },
   "shop": {
     "title": "Energy Shop",
