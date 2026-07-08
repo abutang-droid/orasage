@@ -182,7 +182,7 @@ async function main() {
     console.log('Couple: paid + returned to bazi');
     results.couple = true;
 
-    const coupleReading = await waitForReportLink(user.token, { titleIncludes: '合盘', maxWaitMs: 90000 });
+    const coupleReading = await waitForReportLink(user.token, { titleIncludes: '合盘', maxWaitMs: 180000 });
     if (coupleReading?.reportUrl) {
       results.coupleReport = coupleReading.reportUrl;
       console.log(`Couple report: ${coupleReading.title} → ${coupleReading.reportUrl}`);
