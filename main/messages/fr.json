@@ -96,8 +96,6 @@
     "loadError": "Échec du chargement du contenu",
     "prev": "Précédent",
     "next": "Suivant",
-    "back": "Retour à la liste",
-    "sourceLink": "Source originale",
     "noBody": "Aucun texte",
     "navAria": "Personnalités de la même catégorie",
     "personPrev": "Précédent : {name}",
@@ -112,8 +110,6 @@
     "loadError": "Échec du chargement",
     "prev": "Précédent",
     "next": "Suivant",
-    "back": "Retour à la liste",
-    "sourceLink": "Source originale",
     "noBody": "Aucun contenu",
     "searchPlaceholder": "Rechercher des classiques…",
     "searchCrumb": "Recherche",
@@ -166,7 +162,12 @@
       "dixiang": "Feng Shui",
       "renxiang": "Lecture du visage",
       "xingxiang": "Astrologie"
-    }
+    },
+    "volumeBrowse": "Par volume",
+    "volumeNumber": "Vol. {number}",
+    "volumeUpper": "Vol. 1 (supérieur)",
+    "volumeMiddle": "Vol. 2 (moyen)",
+    "volumeLower": "Vol. 3 (inférieur)"
   },
   "shop": {
     "title": "Energy Shop",

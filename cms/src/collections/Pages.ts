@@ -132,6 +132,21 @@ export const Pages: CollectionConfig = {
       },
     },
     {
+      name: 'daozangVolume',
+      label: '道藏卷次',
+      type: 'text',
+      admin: {
+        description: '四部全书卷次（如 12、上）。由 normalize-daozang-books.mjs 从正文 QR id 回填',
+        position: 'sidebar',
+        condition: (data) =>
+          data?.appSource === 'daozang' &&
+          ['sanmingtonghui', 'yuanhaiziping', 'shenfengtongkao', 'xingmingzongkuo'].includes(
+            String(data?.daozangCategory),
+          ),
+      },
+      index: true,
+    },
+    {
       name: 'excerpt',
       label: '摘要',
       type: 'textarea',

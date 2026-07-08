@@ -96,8 +96,6 @@
     "loadError": "โหลดเนื้อหาไม่สำเร็จ",
     "prev": "ก่อนหน้า",
     "next": "ถัดไป",
-    "back": "กลับสู่รายการ",
-    "sourceLink": "ลิงก์ต้นฉบับ",
     "noBody": "ไม่มีเนื้อหา",
     "navAria": "บุคคลในหมวดเดียวกัน",
     "personPrev": "ก่อนหน้า: {name}",
@@ -112,8 +110,6 @@
     "loadError": "โหลดเนื้อหาไม่สำเร็จ",
     "prev": "ก่อนหน้า",
     "next": "ถัดไป",
-    "back": "กลับสู่รายการ",
-    "sourceLink": "แหล่งที่มา",
     "noBody": "ไม่มีเนื้อหา",
     "searchPlaceholder": "ค้นหาตำรา…",
     "searchCrumb": "ค้นหา",
@@ -166,7 +162,12 @@
       "dixiang": "Feng Shui",
       "renxiang": "Face Reading",
       "xingxiang": "Astrology"
-    }
+    },
+    "volumeBrowse": "เรียกดูตามเล่ม",
+    "volumeNumber": "เล่ม {number}",
+    "volumeUpper": "เล่มบน",
+    "volumeMiddle": "เล่มกลาง",
+    "volumeLower": "เล่มล่าง"
   },
   "shop": {
     "title": "Energy Shop",

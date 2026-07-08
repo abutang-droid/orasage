@@ -249,6 +249,10 @@ export interface Page {
    */
   sortWeight?: number | null;
   /**
+   * 四部全书卷次（如 12、上）。由 normalize-daozang-books.mjs 从正文 QR id 回填
+   */
+  daozangVolume?: string | null;
+  /**
    * 列表页展示的纯文本摘要（约 140 字）。留空时前台从正文自动截取
    */
   excerpt?: string | null;
@@ -820,6 +824,7 @@ export interface PagesSelect<T extends boolean = true> {
   wpStatus?: T;
   daozangCategory?: T;
   sortWeight?: T;
+  daozangVolume?: T;
   excerpt?: T;
   legacyHtml?: T;
   sourceUrl?: T;

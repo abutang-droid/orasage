@@ -9,6 +9,7 @@
  *   2. sort_weight 设为 wp_id（与源站导入顺序一致，类内唯一排序）
  *   3. 按正文书名校正 daozang_category（如误挂渊海子平的紫微章节 → ziweidoushu）
  *   4. 重生成 excerpt
+ *   5. daozang_volume 从正文 QR id 或标题「卷上/卷12」提取（供按卷二级目录）
  *
  * 用法:
  *   node scripts/migrate-c2pub/normalize-daozang-books.mjs
@@ -18,6 +19,7 @@
 import pg from 'pg';
 import { DAOZANG_CATEGORIES } from './lib/daozang-taxonomy.mjs';
 import { decodeHtmlEntities, makeExcerpt } from './lib/legacy-html.mjs';
+import { resolveVolumeKey } from './lib/daozang-volumes.mjs';
 
 const DRY_RUN = process.env.DRY_RUN === '1';
 
@@ -86,9 +88,13 @@ async function main() {
 
   const client = new pg.Client({ connectionString: cmsDatabaseUrl() });
   await client.connect();
+  await client.query(`
+    ALTER TABLE pages ADD COLUMN IF NOT EXISTS daozang_volume varchar(20);
+    CREATE INDEX IF NOT EXISTS pages_daozang_volume_idx ON pages (daozang_volume);
+  `);
 
   const { rows } = await client.query(
-    `SELECT id, title, slug, wp_id, legacy_html, daozang_category, sort_weight, excerpt
+    `SELECT id, title, slug, wp_id, legacy_html, daozang_category, sort_weight, daozang_volume, excerpt
      FROM pages
      WHERE app_source = 'daozang'
        AND wp_status = 'publish'
@@ -119,6 +125,9 @@ async function main() {
 
     const weight = row.wp_id != null ? Number(row.wp_id) : null;
     if (weight != null && Number(row.sort_weight) !== weight) updates.sort_weight = weight;
+
+    const volumeKey = resolveVolumeKey(newTitle, row.legacy_html);
+    if (volumeKey && row.daozang_volume !== volumeKey) updates.daozang_volume = volumeKey;
 
     if (htmlCategory && row.daozang_category !== htmlCategory) {
       updates.daozang_category = htmlCategory;

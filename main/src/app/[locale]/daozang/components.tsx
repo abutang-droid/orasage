@@ -66,17 +66,21 @@ export function DaozangSearchForm({
 export function DaozangArticleCard({
   item,
   categoryLabel,
+  displayTitle,
 }: {
   item: DaozangIndexItem;
   categoryLabel?: string;
+  /** 列表展示用短标题（如去掉「书名 · 」前缀） */
+  displayTitle?: string;
 }) {
+  const title = displayTitle ?? decodeHtmlEntities(item.title);
   return (
     <Card variant="interactive" asChild>
       <Link href={daozangArticlePath(item.slug)} className="group block">
         <CardContent className="p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <h2 className="font-serif text-heading-3 font-medium leading-snug text-foreground transition-colors group-hover:text-foreground/80">
-              {decodeHtmlEntities(item.title)}
+              {title}
             </h2>
             {categoryLabel && (
               <Badge variant="muted" className="shrink-0">

@@ -96,8 +96,6 @@
     "loadError": "فشل تحميل المحتوى",
     "prev": "السابق",
     "next": "التالي",
-    "back": "العودة إلى القائمة",
-    "sourceLink": "رابط المصدر الأصلي",
     "noBody": "لا يوجد نص",
     "navAria": "شخصيات من نفس الفئة",
     "personPrev": "السابق: {name}",
@@ -112,8 +110,6 @@
     "loadError": "فشل تحميل المحتوى",
     "prev": "السابق",
     "next": "التالي",
-    "back": "العودة إلى القائمة",
-    "sourceLink": "المصدر الأصلي",
     "noBody": "لا يوجد نص",
     "searchPlaceholder": "ابحث في الكلاسيكيات…",
     "searchCrumb": "بحث",
@@ -166,7 +162,12 @@
       "dixiang": "Feng Shui",
       "renxiang": "Face Reading",
       "xingxiang": "Astrology"
-    }
+    },
+    "volumeBrowse": "تصفح حسب الجزء",
+    "volumeNumber": "الجزء {number}",
+    "volumeUpper": "الجزء العلوي",
+    "volumeMiddle": "الجزء الأوسط",
+    "volumeLower": "الجزء السفلي"
   },
   "shop": {
     "title": "Energy Shop",

@@ -96,8 +96,6 @@
     "loadError": "コンテンツの読み込みに失敗しました",
     "prev": "前へ",
     "next": "次へ",
-    "back": "一覧に戻る",
-    "sourceLink": "元記事リンク",
     "noBody": "本文がありません",
     "navAria": "同じカテゴリーの人物",
     "personPrev": "前：{name}",
@@ -112,8 +110,6 @@
     "loadError": "読み込みに失敗しました",
     "prev": "前のページ",
     "next": "次のページ",
-    "back": "一覧に戻る",
-    "sourceLink": "元のページ",
     "noBody": "本文なし",
     "searchPlaceholder": "典籍を検索…",
     "searchCrumb": "検索",
@@ -166,7 +162,12 @@
       "dixiang": "風水",
       "renxiang": "人相",
       "xingxiang": "星相"
-    }
+    },
+    "volumeBrowse": "巻別に閲覧",
+    "volumeNumber": "巻{number}",
+    "volumeUpper": "上巻",
+    "volumeMiddle": "中巻",
+    "volumeLower": "下巻"
   },
   "shop": {
     "title": "Energy Shop",
