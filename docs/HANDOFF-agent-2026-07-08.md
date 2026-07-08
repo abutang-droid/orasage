@@ -39,13 +39,15 @@
 
 ## 2. 当前 `main` 与生产状态
 
-**Git：** `main` @ **`87bca99`**（Merge PR #229，2026-07-08）
+**Git：** `main` @ **`5e34732`**（PR #223 VI v1.0 全站落地 + main middleware 静态资源修复，2026-07-08）
 
 | 服务 | URL | 本轮是否重部署 | 验证 |
 |------|-----|----------------|------|
-| **ziwei** | https://ziwei.orasage.com | ✅ #226–#229 每批后均部署 | `curl -sI` → 307/200 |
-| **tarot** | https://tarot.orasage.com | ✅ #225 后部署 | onboarding/dream/angel 四语 |
-| main / shop / auth / admin / bazi / cms | 各子域 | 未在本轮重部署 | — |
+| **全部 8 应用** | 各子域 | ✅ PR #223 合入后 `remote-deploy-all.sh` 全量部署两轮（第二轮含 middleware 修复） | favicon `/icon.svg`、OG `/og.png` 全子域 200；玄璧底栏图形上线（门户非锚点页）；`products` 表与 CMS PDP「OraSage 对话」文案已数据订正 |
+| **ziwei** | https://ziwei.orasage.com | ✅（此前 #226–#229 亦部署） | `curl -sI` → 307/200 |
+| **tarot** | https://tarot.orasage.com | ✅ | onboarding/dream/angel 四语；Playfair 已退役 |
+
+已知非阻塞项：cms.orasage.com 301 → admin 为 nginx 有意配置；auth `tsc --noEmit` rootDir 报错为预存问题；cms `seed:shop-pages-all` 遇 `diy-bracelet` 抛 `unsupported product`（预存，不影响其余 SKU upsert）。
 
 **VPS：** `34.75.40.67`（GCP `ubuntu`），代码 `/opt/orasage`，SSH 密钥由 `deploy/remote-deploy-*.sh` 加载。
 
