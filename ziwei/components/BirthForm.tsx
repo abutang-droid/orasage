@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { Mars, Venus } from 'lucide-react';
 import type { BirthplaceValue } from '@orasage/city';
 import { loadCityCatalog } from '@orasage/city';
 import { CitySearchInput } from '@orasage/city/react';
@@ -200,7 +201,10 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               className={`ziwei-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}
               onClick={() => setForm({ ...form, gender: g })}
             >
-              {g === 'male' ? t('form.gender.male') : t('form.gender.female')}
+              <span className="inline-flex items-center gap-1">
+                {g === 'male' ? <Mars size={14} strokeWidth={2} aria-hidden /> : <Venus size={14} strokeWidth={2} aria-hidden />}
+                {g === 'male' ? t('form.gender.male') : t('form.gender.female')}
+              </span>
             </button>
           ))}
         </div>

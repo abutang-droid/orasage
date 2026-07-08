@@ -1,5 +1,6 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Briefcase, Gem, Heart, type LucideIcon } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import type { Star } from '@/lib/ziwei/types';
 import { STAR_DESCRIPTIONS } from '@/lib/ziwei/constants';
@@ -50,16 +51,22 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
         {desc && <div><div className="text-[10px] tracking-widest mb-1.5" style={{ color: 'var(--t-faint)' }}>{t('star.traits')}</div>
           <div className="flex flex-wrap gap-1.5">{desc.keywords.split('·').map(k => (<span key={k} className="text-[11px] px-2 py-0.5 rounded-full" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.2)', background: 'rgba(212,168,67,0.06)' }}>{k.trim()}</span>))}</div></div>}
         <div className="grid grid-cols-1 gap-2">
-          {[
-            { label: t('star.career'), value: '事业方向描述', icon: '◈' },
-            { label: t('star.relationship'), value: '感情特质描述', icon: '♡' },
-            { label: t('star.wealth'), value: '财运分析描述', icon: '◆' },
-            { label: t('star.health'), value: '健康提示描述', icon: '☯' },
-          ].map(item => (
+          {([
+            { label: t('star.career'), value: '事业方向描述', icon: Briefcase },
+            { label: t('star.relationship'), value: '感情特质描述', icon: Heart },
+            { label: t('star.wealth'), value: '财运分析描述', icon: Gem },
+            { label: t('star.health'), value: '健康提示描述', icon: Activity },
+          ] as { label: string; value: string; icon: LucideIcon }[]).map((item) => {
+            const Icon = item.icon;
+            return (
             <div key={item.label} className="card-inner rounded-lg p-3">
-              <div className="text-[10px] mb-1 flex items-center gap-1" style={{ color: 'var(--t-faint)' }}><span>{item.icon}</span><span>{item.label}</span></div>
+              <div className="text-[10px] mb-1 flex items-center gap-1" style={{ color: 'var(--t-faint)' }}>
+                <Icon size={12} strokeWidth={2} aria-hidden />
+                <span>{item.label}</span>
+              </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
     </motion.div>
