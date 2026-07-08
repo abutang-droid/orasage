@@ -5,7 +5,7 @@
  */
 
 import { chromium } from 'playwright';
-import { completeShippingIfNeeded } from './lib/checkout-helpers.mjs';
+import { completeShippingIfNeeded, mockPayButton } from './lib/checkout-helpers.mjs';
 
 const BASE = {
   auth: process.env.E2E_AUTH_URL ?? 'https://auth.orasage.com',

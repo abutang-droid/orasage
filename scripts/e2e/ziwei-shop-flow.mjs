@@ -87,7 +87,7 @@ async function runSingleFlow(page) {
 
   await planButton.click();
   await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
-  await page.getByTestId('checkout-mock-pay').click();
+  await clickMockPay(page);
   await page.waitForURL(/ziwei\.orasage\.com.*paid=1/, { timeout: 90000 });
 }
 
@@ -111,7 +111,7 @@ async function runCoupleFlow(page) {
   await planButton.click();
 
   await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
-  await page.getByTestId('checkout-mock-pay').click();
+  await clickMockPay(page);
   await page.waitForURL(/ziwei\.orasage\.com.*paid=1/, { timeout: 90000 });
 }
 

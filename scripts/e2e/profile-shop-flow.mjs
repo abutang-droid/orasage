@@ -89,7 +89,7 @@ async function runBaziFlow(page, { mode, person1, person2, planName, resultHint 
   await planButton.click();
 
   await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
-  await page.getByTestId('checkout-mock-pay').click();
+  await clickMockPay(page);
 
   await page.waitForURL(/bazi\.orasage\.com.*paid=1/, { timeout: 90000 });
   await page.getByText(L.paidToast).waitFor({ timeout: 15000 }).catch(() => null);
