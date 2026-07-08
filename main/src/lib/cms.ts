@@ -19,8 +19,17 @@ export type CmsPage = {
   wpStatus?: 'publish' | 'draft' | null;
   locale?: string | null;
   sourceUrl?: string | null;
+  daozangCategory?: string | null;
+  sortWeight?: number | null;
+  excerpt?: string | null;
   updatedAt?: string;
 };
+
+/** 道藏轻量索引条目（不含 legacyHtml 正文，用于目录/搜索/上下篇） */
+export type DaozangIndexItem = Pick<
+  CmsPage,
+  'id' | 'title' | 'slug' | 'daozangCategory' | 'sortWeight' | 'excerpt'
+>;
 
 type CmsListResponse = {
   docs: CmsPage[];
@@ -116,6 +125,17 @@ export function sanitizeLegacyHtml(html: string): string {
     return tag;
   });
 
+  // WordPress 正文用 <p><font class='gold'>…</font></p> 标记章节标题，短文本转为语义化 h3（排版 + 文内目录）
+  out = out.replace(
+    /<p[^>]*>\s*<font[^>]*class=["']gold["'][^>]*>([\s\S]*?)<\/font>\s*<\/p>/gi,
+    (match, inner: string) => {
+      const text = inner.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      // 过长或含句读的 gold 段落是强调正文而非章节标题
+      if (!text || text.length > 32 || /[。；：!？]/.test(text)) return match;
+      return `<h3>${inner}</h3>`;
+    },
+  );
+
   // 常见 UTF-8 被误读为 Latin-1 的乱码（如 Ã©、â€œ）
   if (/Ã.|Â.|â./.test(out)) {
     try {
@@ -160,6 +180,38 @@ export async function fetchCmsPages(options: {
   }
   const data: CmsListResponse = await res.json();
   return { ...data, docs: data.docs.filter((page) => !isJunkCmsPage(page)) };
+}
+
+/**
+ * 拉取道藏全量轻量索引（不含正文，132 篇量级）。
+ * 分类总览、分类列表、搜索与详情页上下篇共用此索引，
+ * 归类过滤在应用层完成，兼容 CMS 尚未回填 daozangCategory 的数据。
+ */
+export async function fetchDaozangIndex(locale?: string): Promise<DaozangIndexItem[]> {
+  const items: DaozangIndexItem[] = [];
+  let page = 1;
+  while (page <= 10) {
+    const params = buildWhere('daozang', locale);
+    params.set('limit', '200');
+    params.set('page', String(page));
+    params.set('depth', '0');
+    params.set('sort', 'title');
+    for (const field of ['title', 'slug', 'daozangCategory', 'sortWeight', 'excerpt']) {
+      params.set(`select[${field}]`, 'true');
+    }
+
+    const res = await fetch(`${CMS_INTERNAL_URL}/api/pages?${params}`, {
+      next: { revalidate: 120 },
+    });
+    if (!res.ok) {
+      throw new Error(`CMS fetch failed: ${res.status}`);
+    }
+    const data: CmsListResponse = await res.json();
+    items.push(...data.docs.filter((item) => !isJunkCmsPage(item)));
+    if (!data.hasNextPage) break;
+    page += 1;
+  }
+  return items;
 }
 
 export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> {

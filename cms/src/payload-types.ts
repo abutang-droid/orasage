@@ -77,6 +77,9 @@ export interface Config {
     'country-faiths': CountryFaith;
     'bazi-feed': BaziFeed;
     'ziwei-feed': ZiweiFeed;
+    'shop-product-images': ShopProductImage;
+    'shop-product-pages': ShopProductPage;
+    'shop-product-testimonials': ShopProductTestimonial;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +97,9 @@ export interface Config {
     'country-faiths': CountryFaithsSelect<false> | CountryFaithsSelect<true>;
     'bazi-feed': BaziFeedSelect<false> | BaziFeedSelect<true>;
     'ziwei-feed': ZiweiFeedSelect<false> | ZiweiFeedSelect<true>;
+    'shop-product-images': ShopProductImagesSelect<false> | ShopProductImagesSelect<true>;
+    'shop-product-pages': ShopProductPagesSelect<false> | ShopProductPagesSelect<true>;
+    'shop-product-testimonials': ShopProductTestimonialsSelect<false> | ShopProductTestimonialsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -214,6 +220,34 @@ export interface Page {
    * 草稿不会出现在主站与各 App 列表中
    */
   wpStatus?: ('publish' | 'draft') | null;
+  /**
+   * 山医命卜相 · 五术分类，仅道藏栏目内容需要。批量归类见 scripts/migrate-c2pub/classify-daozang.mjs
+   */
+  daozangCategory?:
+    | (
+        | 'quanfa'
+        | 'zhongyi'
+        | 'bazi'
+        | 'ziweidoushu'
+        | 'qizhengsheyu'
+        | 'yijing'
+        | 'liuyao'
+        | 'meihuayishu'
+        | 'qimendunjia'
+        | 'daliuren'
+        | 'dixiang'
+        | 'renxiang'
+        | 'xingxiang'
+      )
+    | null;
+  /**
+   * 同一分类内按此值升序排列（缺省按标题排序），数字越小越靠前
+   */
+  sortWeight?: number | null;
+  /**
+   * 列表页展示的纯文本摘要（约 140 字）。留空时前台从正文自动截取
+   */
+  excerpt?: string | null;
   /**
    * 从 c2.pub WordPress 迁移的原始 HTML。主站道藏页与各 /view 路由会渲染此字段。
    */
@@ -501,6 +535,131 @@ export interface ZiweiFeed {
   createdAt: string;
 }
 /**
+ * 商城 SKU 主图数据存储于此，由运营后台「商品管理」统一编辑上传。每条记录对应一个 SKU。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-images".
+ */
+export interface ShopProductImage {
+  id: number;
+  /**
+   * 例如 crystal-wood、report-bazi-basic。可在 admin.orasage.com/products 复制。
+   */
+  sku: string;
+  /**
+   * 建议 1:1 或 4:5，JPG/PNG/WebP。可先上传到「媒体库」再在此选择。
+   */
+  image: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 商品 PDP 内容：详情轮播多图与区块化文案。列表缩略图仍用「商品主图」集合；此处 heroImages 仅用于详情页。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-pages".
+ */
+export interface ShopProductPage {
+  id: number;
+  /**
+   * 与 auth-service products.sku 一致，例如 crystal-wood
+   */
+  sku: string;
+  locale: 'zh-CN';
+  /**
+   * 草稿不会在商城详情页展示（将降级为简版 PDP）
+   */
+  status: 'draft' | 'published';
+  /**
+   * 显示在商品名称下方
+   */
+  subtitle?: string | null;
+  /**
+   * 留空则使用商品名称
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  /**
+   * 可选。占用一个主图位（最多 4 图 + 1 视频），建议 1:1 或 16:9 MP4
+   */
+  galleryVideoUrl?: string | null;
+  /**
+   * 可选。展示在详情内容区的场景视频，建议 16:9 MP4
+   */
+  sceneVideoUrl?: string | null;
+  /**
+   * 建议 1:1 或 4:5，首张为详情页默认主图。列表缩略图仍使用「商品主图」。
+   */
+  heroImages?:
+    | {
+        image: number | Media;
+        alt?: string | null;
+        sort?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * 按顺序渲染在详情页购买区下方
+   */
+  sections?:
+    | {
+        type: 'richText' | 'specList' | 'guide' | 'quote' | 'faq' | 'relatedSkus';
+        title?: string | null;
+        body?: string | null;
+        quote?: string | null;
+        attribution?: string | null;
+        specItems?:
+          | {
+              label: string;
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        faqItems?:
+          | {
+              question: string;
+              answer: string;
+              id?: string | null;
+            }[]
+          | null;
+        relatedSkus?:
+          | {
+              sku: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 按 SKU 配置精选用户评价，显示在商品详情页。与用户真实评价（二期）分区展示。
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-testimonials".
+ */
+export interface ShopProductTestimonial {
+  id: number;
+  sku: string;
+  /**
+   * 可脱敏，如「李**」
+   */
+  author: string;
+  rating: number;
+  body: string;
+  avatar?: (number | null) | Media;
+  locale?: 'zh-CN' | null;
+  sort?: number | null;
+  /**
+   * 取消勾选后不在前台展示
+   */
+  enabled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -563,6 +722,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'ziwei-feed';
         value: number | ZiweiFeed;
+      } | null)
+    | ({
+        relationTo: 'shop-product-images';
+        value: number | ShopProductImage;
+      } | null)
+    | ({
+        relationTo: 'shop-product-pages';
+        value: number | ShopProductPage;
+      } | null)
+    | ({
+        relationTo: 'shop-product-testimonials';
+        value: number | ShopProductTestimonial;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -643,6 +814,9 @@ export interface PagesSelect<T extends boolean = true> {
   slug?: T;
   appSource?: T;
   wpStatus?: T;
+  daozangCategory?: T;
+  sortWeight?: T;
+  excerpt?: T;
   legacyHtml?: T;
   sourceUrl?: T;
   wpType?: T;
@@ -767,6 +941,86 @@ export interface BaziFeedSelect<T extends boolean = true> {
 export interface ZiweiFeedSelect<T extends boolean = true> {
   kind?: T;
   message?: T;
+  locale?: T;
+  sort?: T;
+  enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-images_select".
+ */
+export interface ShopProductImagesSelect<T extends boolean = true> {
+  sku?: T;
+  image?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-pages_select".
+ */
+export interface ShopProductPagesSelect<T extends boolean = true> {
+  sku?: T;
+  locale?: T;
+  status?: T;
+  subtitle?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  galleryVideoUrl?: T;
+  sceneVideoUrl?: T;
+  heroImages?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        sort?: T;
+        id?: T;
+      };
+  sections?:
+    | T
+    | {
+        type?: T;
+        title?: T;
+        body?: T;
+        quote?: T;
+        attribution?: T;
+        specItems?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+        faqItems?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        relatedSkus?:
+          | T
+          | {
+              sku?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-product-testimonials_select".
+ */
+export interface ShopProductTestimonialsSelect<T extends boolean = true> {
+  sku?: T;
+  author?: T;
+  rating?: T;
+  body?: T;
+  avatar?: T;
   locale?: T;
   sort?: T;
   enabled?: T;

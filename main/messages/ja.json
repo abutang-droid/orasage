@@ -38,7 +38,7 @@
     "famous": "Famous Cases",
     "famousDesc": "Insights from historical figures",
     "daozang": "Dao Canon",
-    "daozangDesc": "Taoist classics, timeless wisdom",
+    "daozangDesc": "五術の知識ライブラリー",
     "comingSoon": "Coming soon",
     "moduleTitle": "Featured reading"
   },
@@ -74,8 +74,64 @@
     "desc": "Explore the destiny patterns of historical figures"
   },
   "daozang": {
-    "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "title": "道蔵精選",
+    "desc": "山医命相卜 · 五術典籍ライブラリー、千年の知恵",
+    "total": "全 {count} 篇",
+    "empty": "コンテンツはまだありません",
+    "loadError": "読み込みに失敗しました",
+    "prev": "前のページ",
+    "next": "次のページ",
+    "back": "一覧に戻る",
+    "sourceLink": "元のページ",
+    "noBody": "本文なし",
+    "searchPlaceholder": "典籍を検索…",
+    "searchCrumb": "検索",
+    "searchResults": "「{query}」の検索結果：{count} 件",
+    "searchEmpty": "「{query}」に一致する内容はありません",
+    "clearSearch": "すべてのカテゴリへ",
+    "toc": "目次",
+    "prevArticle": "前の記事",
+    "nextArticle": "次の記事",
+    "siblingNav": "同カテゴリの記事",
+    "uncategorized": "その他",
+    "articleCount": "{count} 篇",
+    "tops": {
+      "shan": {
+        "name": "山",
+        "desc": "養生・導引・拳法"
+      },
+      "yi": {
+        "name": "医",
+        "desc": "中医の古典"
+      },
+      "ming": {
+        "name": "命",
+        "desc": "命理・八字・星命"
+      },
+      "xiang": {
+        "name": "相",
+        "desc": "風水・人相・観相"
+      },
+      "bu": {
+        "name": "卜",
+        "desc": "占い・易占"
+      }
+    },
+    "categories": {
+      "quanfa": "拳法",
+      "zhongyi": "中医学",
+      "bazi": "八字",
+      "ziweidoushu": "紫微斗数",
+      "qizhengsheyu": "七政四余",
+      "yijing": "易経",
+      "liuyao": "六爻",
+      "meihuayishu": "梅花易数",
+      "qimendunjia": "奇門遁甲",
+      "daliuren": "大六壬",
+      "dixiang": "風水",
+      "renxiang": "人相",
+      "xingxiang": "星相"
+    }
   },
   "shop": {
     "title": "Energy Shop",

@@ -28,6 +28,33 @@ CMS_DATABASE_URL=$(grep DATABASE_URL /opt/orasage/cms/.env | cut -d= -f2-) \
 
 筛选：`wp_type = doc` 即为知识库条目。
 
+## 道藏自动归类 + 摘要（classify-daozang.mjs）
+
+对已迁移的道藏内容（`app_source = 'daozang'`）批量回填：
+
+- `daozang_category` — 山医命相卜五术分类（权威来源：c2.pub `doc_category`；
+  API 不可达时按 slug 编号段 `docs/zh-cn/A_B_C` 的 `A_B` 兜底）
+- `sort_weight` — 类内排序权重（slug 编号最后一节）
+- `excerpt` — 清洗后的纯文本摘要（约 140 字，列表页直接展示）
+- junk 页面与人工裁决的跨类重复条目（如中医类下重复的「滴天髓阐微」）转为 `draft`
+
+```bash
+# 预览（不写库）
+DRY_RUN=1 CMS_DATABASE_URL=... node scripts/migrate-c2pub/classify-daozang.mjs
+
+# 实际执行（幂等，可重复跑）
+CMS_DATABASE_URL=... node scripts/migrate-c2pub/classify-daozang.mjs
+
+# 无法访问 c2.pub 时仅用 slug 规则
+SKIP_WP=1 CMS_DATABASE_URL=... node scripts/migrate-c2pub/classify-daozang.mjs
+```
+
+执行完输出每类篇数、slug 兜底数量、转 draft 与未归类清单。
+`migrate-wp-content.mjs` 重跑时也会自动带上分类与摘要（新导入内容无需再跑本脚本）。
+
+分类映射常量在 `lib/daozang-taxonomy.mjs`，与 `cms/src/collections/Pages.ts`、
+`main/src/lib/daozang-taxonomy.ts` 三处一致，改动需同步。
+
 ## 一、迁移文章/页面到 CMS（可立即执行）
 
 在 VPS 上：

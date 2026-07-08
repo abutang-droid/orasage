@@ -38,7 +38,7 @@
     "famous": "Famous Cases",
     "famousDesc": "Insights from historical figures",
     "daozang": "Dao Canon",
-    "daozangDesc": "Taoist classics, timeless wisdom",
+    "daozangDesc": "Bibliothek der Fünf Künste",
     "comingSoon": "Coming soon",
     "moduleTitle": "Featured reading"
   },
@@ -75,7 +75,63 @@
   },
   "daozang": {
     "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "desc": "Bibliothek der Fünf Künste: Klassiker zu Kultivierung, Medizin, Schicksal, Physiognomie und Wahrsagung",
+    "total": "{count} Artikel",
+    "empty": "Noch keine Inhalte",
+    "loadError": "Laden fehlgeschlagen",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "back": "Zurück zur Liste",
+    "sourceLink": "Originalquelle",
+    "noBody": "Kein Inhalt",
+    "searchPlaceholder": "Klassiker durchsuchen…",
+    "searchCrumb": "Suche",
+    "searchResults": "{count} Ergebnisse für „{query}“",
+    "searchEmpty": "Nichts gefunden für „{query}“",
+    "clearSearch": "Alle Kategorien",
+    "toc": "Inhalt",
+    "prevArticle": "Vorheriger Artikel",
+    "nextArticle": "Nächster Artikel",
+    "siblingNav": "Mehr in dieser Kategorie",
+    "uncategorized": "Sonstige",
+    "articleCount": "{count} Artikel",
+    "tops": {
+      "shan": {
+        "name": "Shan · Cultivation",
+        "desc": "Body cultivation and martial arts"
+      },
+      "yi": {
+        "name": "Yi · Medicine",
+        "desc": "Classical Chinese medicine"
+      },
+      "ming": {
+        "name": "Ming · Destiny",
+        "desc": "Destiny reading and astrology"
+      },
+      "xiang": {
+        "name": "Xiang · Physiognomy",
+        "desc": "Feng Shui and physiognomy"
+      },
+      "bu": {
+        "name": "Bu · Divination",
+        "desc": "Divination classics"
+      }
+    },
+    "categories": {
+      "quanfa": "Kampfkunst",
+      "zhongyi": "Chinesische Medizin",
+      "bazi": "BaZi",
+      "ziweidoushu": "Zi Wei Dou Shu",
+      "qizhengsheyu": "Seven Luminaries Astrology",
+      "yijing": "I Ching",
+      "liuyao": "Liu Yao",
+      "meihuayishu": "Plum Blossom Numerology",
+      "qimendunjia": "Qi Men Dun Jia",
+      "daliuren": "Da Liu Ren",
+      "dixiang": "Feng Shui",
+      "renxiang": "Gesichtslesen",
+      "xingxiang": "Astrologie"
+    }
   },
   "shop": {
     "title": "Energy Shop",

@@ -38,7 +38,7 @@
     "famous": "Famous Cases",
     "famousDesc": "Insights from historical figures",
     "daozang": "Dao Canon",
-    "daozangDesc": "Taoist classics, timeless wisdom",
+    "daozangDesc": "山醫命相卜，五術知識庫",
     "comingSoon": "Coming soon",
     "moduleTitle": "精选阅读"
   },
@@ -74,8 +74,64 @@
     "desc": "Explore the destiny patterns of historical figures"
   },
   "daozang": {
-    "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "title": "道藏精選",
+    "desc": "山醫命相卜 · 五術典籍知識庫，千年智慧傳承",
+    "total": "共 {count} 篇",
+    "empty": "暫無內容，請稍後再來",
+    "loadError": "內容載入失敗，請稍後重新整理",
+    "prev": "上一頁",
+    "next": "下一頁",
+    "back": "返回道藏列表",
+    "sourceLink": "查看原站連結",
+    "noBody": "暫無正文",
+    "searchPlaceholder": "搜尋典籍名稱或內容…",
+    "searchCrumb": "搜尋",
+    "searchResults": "「{query}」共 {count} 條結果",
+    "searchEmpty": "沒有找到與「{query}」相關的內容",
+    "clearSearch": "返回全部分類",
+    "toc": "本篇目錄",
+    "prevArticle": "上一篇",
+    "nextArticle": "下一篇",
+    "siblingNav": "同類閱讀",
+    "uncategorized": "其他",
+    "articleCount": "{count} 篇",
+    "tops": {
+      "shan": {
+        "name": "山",
+        "desc": "修身養生 · 導引拳法"
+      },
+      "yi": {
+        "name": "醫",
+        "desc": "中醫典籍 · 本草方脈"
+      },
+      "ming": {
+        "name": "命",
+        "desc": "命理推演 · 八字星命"
+      },
+      "xiang": {
+        "name": "相",
+        "desc": "堪輿相術 · 觀形察勢"
+      },
+      "bu": {
+        "name": "卜",
+        "desc": "占卜筮法 · 預測決疑"
+      }
+    },
+    "categories": {
+      "quanfa": "拳法",
+      "zhongyi": "中醫",
+      "bazi": "八字",
+      "ziweidoushu": "紫微斗數",
+      "qizhengsheyu": "七政四餘",
+      "yijing": "易經",
+      "liuyao": "六爻",
+      "meihuayishu": "梅花易數",
+      "qimendunjia": "奇門遁甲",
+      "daliuren": "大六壬",
+      "dixiang": "地相風水",
+      "renxiang": "人相",
+      "xingxiang": "星相"
+    }
   },
   "shop": {
     "title": "Energy Shop",

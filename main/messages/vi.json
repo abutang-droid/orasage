@@ -38,7 +38,7 @@
     "famous": "Famous Cases",
     "famousDesc": "Insights from historical figures",
     "daozang": "Dao Canon",
-    "daozangDesc": "Taoist classics, timeless wisdom",
+    "daozangDesc": "Thư viện tri thức Ngũ Thuật",
     "comingSoon": "Coming soon",
     "moduleTitle": "Featured reading"
   },
@@ -75,7 +75,63 @@
   },
   "daozang": {
     "title": "Dao Canon",
-    "desc": "Taoist classics, wisdom passed through millennia"
+    "desc": "Thư viện Ngũ Thuật: kinh điển về tu luyện, y học, mệnh lý, tướng pháp và bói toán",
+    "total": "{count} bài",
+    "empty": "Chưa có nội dung",
+    "loadError": "Tải nội dung thất bại",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "back": "Về danh sách",
+    "sourceLink": "Nguồn gốc",
+    "noBody": "Không có nội dung",
+    "searchPlaceholder": "Tìm kinh điển…",
+    "searchCrumb": "Tìm kiếm",
+    "searchResults": "{count} kết quả cho “{query}”",
+    "searchEmpty": "Không tìm thấy “{query}”",
+    "clearSearch": "Tất cả danh mục",
+    "toc": "Mục lục",
+    "prevArticle": "Bài trước",
+    "nextArticle": "Bài sau",
+    "siblingNav": "Cùng danh mục",
+    "uncategorized": "Khác",
+    "articleCount": "{count} bài",
+    "tops": {
+      "shan": {
+        "name": "Shan · Cultivation",
+        "desc": "Body cultivation and martial arts"
+      },
+      "yi": {
+        "name": "Yi · Medicine",
+        "desc": "Classical Chinese medicine"
+      },
+      "ming": {
+        "name": "Ming · Destiny",
+        "desc": "Destiny reading and astrology"
+      },
+      "xiang": {
+        "name": "Xiang · Physiognomy",
+        "desc": "Feng Shui and physiognomy"
+      },
+      "bu": {
+        "name": "Bu · Divination",
+        "desc": "Divination classics"
+      }
+    },
+    "categories": {
+      "quanfa": "Quyền pháp",
+      "zhongyi": "Trung y",
+      "bazi": "Bát Tự",
+      "ziweidoushu": "Tử Vi Đẩu Số",
+      "qizhengsheyu": "Thất Chính Tứ Dư",
+      "yijing": "Kinh Dịch",
+      "liuyao": "Lục Hào",
+      "meihuayishu": "Mai Hoa Dịch Số",
+      "qimendunjia": "Kỳ Môn Độn Giáp",
+      "daliuren": "Đại Lục Nhâm",
+      "dixiang": "Phong thủy",
+      "renxiang": "Nhân tướng",
+      "xingxiang": "Chiêm tinh"
+    }
   },
   "shop": {
     "title": "Energy Shop",

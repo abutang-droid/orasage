@@ -5,15 +5,17 @@ import { cn } from '@/lib/utils';
 /** 内容页通用容器 — DS v1.1 阅读宽度与间距 */
 type PageShellProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;
+  /** 页面自带面包屑等导航时隐藏默认「返回」工具条 */
+  hideBack?: boolean;
 };
 
-export function PageShell({ children, className, ...props }: PageShellProps) {
+export function PageShell({ children, className, hideBack = false, ...props }: PageShellProps) {
   return (
     <article
       className={cn('portal-subpage mx-auto w-full max-w-3xl px-5 py-10 sm:px-6 sm:py-12', className)}
       {...props}
     >
-      <PortalBackToolbar />
+      {!hideBack && <PortalBackToolbar />}
       {children}
     </article>
   );
