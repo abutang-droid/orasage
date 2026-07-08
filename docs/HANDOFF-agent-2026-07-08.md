@@ -39,7 +39,13 @@
 
 ## 2. 当前 `main` 与生产状态
 
-**Git：** `main` @ **`5e34732`**（PR #223 VI v1.0 全站落地 + main middleware 静态资源修复，2026-07-08）
+**Git：** `main` @ **`0f5d51e`**（PR #232「我的」菜单重构，2026-07-08）
+
+**2026-07-08 晚间增量：**
+- PR #231（分应用 bug 修复）已合并部署：bazi 报告持久化 `REPORTS_DIR=/var/lib/orasage/bazi-reports`（dist 不再存业务产物）、部署脚本弃用嵌套 sudo 下错误的 `SUDO_USER`、auth `tsc --noEmit` 清零、cms seed 跳过无模板 SKU
+- PR #232（「我的」菜单重构）已合并部署：全局语言切换器进 main 顶栏（设置页语言卡移除）、祈福偏好迁入 `/profile/merit`、设置页更名「账户与设置」为唯一账户入口、法律页 `.legal-article` 归一化、**联系表单全链路**（`contact_messages` 表 + drizzle 0023 + internal/admin API + main `/api/contact` + admin `/messages` 工单页）
+- 生产已验证：联系表单游客提交落库、admin /messages 门禁 307、顶栏切换器渲染；测试留言 id=1 已标记 resolved
+- 注意：核心应用部署 `deploy-shop-on-vps.sh` 须以 sudo 运行（node_modules 属主为 root）
 
 | 服务 | URL | 本轮是否重部署 | 验证 |
 |------|-----|----------------|------|
