@@ -28,6 +28,9 @@ importers:
       '@orasage/city':
         specifier: file:../packages/city
         version: file:../packages/city(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@orasage/i18n':
+        specifier: file:../packages/i18n
+        version: file:../packages/i18n
       '@orasage/tokens':
         specifier: file:../packages/tokens
         version: file:../packages/tokens
@@ -1206,6 +1209,9 @@ packages:
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
+
+  '@orasage/i18n@file:../packages/i18n':
+    resolution: {directory: ../packages/i18n, type: directory}
 
   '@orasage/tokens@file:../packages/tokens':
     resolution: {directory: ../packages/tokens, type: directory}
@@ -5678,6 +5684,8 @@ snapshots:
       pinyin-pro: 3.28.1
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
+
+  '@orasage/i18n@file:../packages/i18n': {}
 
   '@orasage/tokens@file:../packages/tokens': {}
 
