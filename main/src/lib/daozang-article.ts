@@ -6,32 +6,70 @@ export type PreparedDaozangArticle = {
   headings: ArticleHeading[];
 };
 
+/** 源站模板中的推广 / UI 文案（整段丢弃） */
+const JUNK_TEXT =
+  /(?:扫码下载|打开问真|问真八字|手机阅读|在手机上继续阅读|继续阅读本书|下载问真|bzapi|bookcode|关注公众号|目录\s*手机阅读)/i;
+
 function stripInlineTags(html: string): string {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
 
-/** 去掉 c2.pub 书籍模板外壳，只保留正文区 */
+/** 只保留 book-detail-content 内层 HTML */
 function extractDaozangBody(html: string): string {
-  let out = html;
+  const start = html.search(/<div class="book-detail-content"[^>]*>/i);
+  if (start >= 0) {
+    const innerStart = html.indexOf('>', start) + 1;
+    const innerEnd = html.indexOf('</div>', innerStart);
+    if (innerEnd > innerStart) return html.slice(innerStart, innerEnd);
+  }
 
-  // 整页目录弹层、二维码弹窗、阴影遮罩
+  // 非书籍章节模板：去掉外壳后再返回
+  let out = html;
   out = out.replace(/<div class="catalog-box"[\s\S]*$/i, '');
   out = out.replace(/<div id="bookcode"[\s\S]*?<\/div>\s*<\/div>/gi, '');
   out = out.replace(/<div class="shadowMask"[\s\S]*?<\/div>/gi, '');
   out = out.replace(/<div class="book-detail-btn[^"]*"[\s\S]*?<\/div>/gi, '');
   out = out.replace(/<div class="book-detail-title"[^>]*>[\s\S]*?<\/div>/gi, '');
   out = out.replace(/<div class="book-detail-tip"[^>]*>[\s\S]*?<\/div>/gi, '');
-
-  const contentMatch = out.match(/<div class="book-detail-content"[^>]*>([\s\S]*?)<\/div>/i);
-  if (contentMatch) return contentMatch[1];
-
-  // 非书籍模板：去掉误迁入的 HTML 文档头（被包在 <p> 里）
-  out = out.replace(/<p>\s*<!DOCTYPE[\s\S]*?<\/p>/gi, '');
-  out = out.replace(/<p>\s*<html[\s\S]*?<\/p>/gi, '');
-  out = out.replace(/<p>\s*<head[\s\S]*?<\/p>/gi, '');
-  out = out.replace(/<p>\s*<body[\s\S]*?<\/p>/gi, '');
-  out = out.replace(/<div id="container"[^>]*>/gi, '');
   out = out.replace(/<div class="book-detail"[^>]*>/gi, '');
+  out = out.replace(/<div id="container"[^>]*>/gi, '');
+  out = out.replace(/<p>\s*<!DOCTYPE[\s\S]*?<\/p>/gi, '');
+  out = out.replace(/<p>\s*<(?:html|head|body)[\s\S]*?<\/p>/gi, '');
+  return out;
+}
+
+/** 去掉正文内残留的图片、无效链接、推广块，链接保留纯文本 */
+function stripDaozangJunk(html: string): string {
+  let out = html.replace(/<!--[\s\S]*?-->/g, '');
+
+  // 模板 UI 块（content 外泄或 fallback 路径）
+  out = out.replace(/<div[^>]*class="[^"]*catalog[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '');
+  out = out.replace(/<div[^>]*class="[^"]*book-popup[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '');
+  out = out.replace(/<div[^>]*class="[^"]*book-detail-btn[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '');
+  out = out.replace(/<div[^>]*class="[^"]*bookDetailBtn[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '');
+
+  // 正文内不需要图片（图标、封面、二维码）
+  out = out.replace(/<img\b[^>]*>/gi, '');
+
+  // 无效链接 → 纯文本（章内 .html、#、外链推广等）
+  out = out.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1');
+
+  // 推广段落 / 块
+  out = out.replace(/<p[^>]*>[\s\S]*?<\/p>/gi, (block) =>
+    JUNK_TEXT.test(stripInlineTags(block)) ? '' : block,
+  );
+  out = out.replace(/<div[^>]*>[\s\S]*?<\/div>/gi, (block) =>
+    JUNK_TEXT.test(stripInlineTags(block)) ? '' : block,
+  );
+  out = out.replace(/<span[^>]*>[\s\S]*?<\/span>/gi, (block) =>
+    JUNK_TEXT.test(stripInlineTags(block)) ? '' : block,
+  );
+
+  // 误迁入的 HTML 标签（被包在 <p> 里）
+  out = out.replace(/<p[^>]*>\s*<\/?(?:link|meta|script|title|html|head|body|div|container)[^>]*>[\s\S]*?<\/p>/gi, '');
+
+  // 去掉 UI class 的空壳
+  out = out.replace(/<[^>]+class="[^"]*(?:openbookcode|bookDetailBtn|catalogitem|childitems|citems)[^"]*"[^>]*>[\s\S]*?<\/[^>]+>/gi, '');
 
   return out;
 }
@@ -114,8 +152,9 @@ function groupVerseLines(html: string): string {
  * 道藏章节正文预处理：去模板壳、标注注释、合并诗行、注入目录锚点。
  */
 export function prepareDaozangArticle(rawHtml: string, pageTitle: string): PreparedDaozangArticle {
-  let html = sanitizeLegacyHtml(rawHtml);
-  html = extractDaozangBody(html);
+  let html = extractDaozangBody(rawHtml);
+  html = sanitizeLegacyHtml(html);
+  html = stripDaozangJunk(html);
   html = stripLeadingTitleHeading(html, pageTitle);
   html = removeEmptyParagraphs(html);
   html = markAnnotationBlocks(html);

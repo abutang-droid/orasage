@@ -1020,14 +1020,30 @@
 /* 兜底：残留模板元素隐藏 */
 .daozang-article :is(
   .catalog-box,
+  .catalog-box-content,
+  .catalogitem,
+  .childitems,
+  .citems,
   .book-popup,
+  .book-popup-tip,
+  .book-popup-qrcode,
   .book-detail-btn-catalog,
   .book-detail-btn-read,
+  .bookDetailBtn,
+  .openbookcode,
   .shadowMask,
   .book-detail-title,
-  .book-detail-tip
+  .book-detail-tip,
+  a[href$=".html"],
+  a[href="#"]
 ) {
   display: none !important;
+}
+
+.daozang-article :where(a) {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;
 }
 
 .daozang-article :where(blockquote) {
