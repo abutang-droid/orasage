@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeartHandshake } from 'lucide-react';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 
 // 公告版本号——以后想再弹新公告，改这里就行（旧版 key 失效，新版重新弹一次）
 const ANNOUNCEMENT_VERSION = '2026-05-01';
@@ -63,20 +65,14 @@ export default function AnnouncementModal() {
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'linear-gradient(180deg, #fefcf6 0%, #faf3e3 100%)',
-              borderRadius: '20px',
-              width: '100%',
-              maxWidth: '640px',
-              maxHeight: 'min(85vh, 760px)',
-              overflow: 'hidden',
-              boxShadow: '0 24px 80px rgba(60,30,10,0.4), 0 4px 16px rgba(60,30,10,0.2)',
-              border: '1px solid rgba(184,146,42,0.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              fontFamily: '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
-            }}
           >
+            <Card
+              className="flex max-h-[min(85vh,760px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[20px] border-[rgba(184,146,42,0.25)] shadow-[0_24px_80px_rgba(60,30,10,0.4),0_4px_16px_rgba(60,30,10,0.2)]"
+              style={{
+                background: 'linear-gradient(180deg, #fefcf6 0%, #faf3e3 100%)',
+                fontFamily: '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+              }}
+            >
             {/* 顶部装饰 + 关闭按钮 */}
             <div style={{
               padding: '22px 28px 14px',
@@ -91,20 +87,16 @@ export default function AnnouncementModal() {
               <h2 style={{ fontSize: '19px', fontWeight: 700, color: '#3d2f10', letterSpacing: '0.08em', margin: 0 }}>
                 致正在使用这个平台的你
               </h2>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
                 onClick={close}
                 aria-label="关闭"
-                style={{
-                  position: 'absolute', top: '14px', right: '16px',
-                  width: '28px', height: '28px',
-                  background: 'rgba(184,146,42,0.08)',
-                  border: '1px solid rgba(184,146,42,0.2)',
-                  borderRadius: '50%',
-                  color: '#7a5e2a', fontSize: '14px',
-                  cursor: 'pointer', lineHeight: 1,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >×</button>
+                className="absolute right-4 top-3.5 size-7 min-h-0 min-w-7 rounded-full border border-[rgba(184,146,42,0.2)] bg-[rgba(184,146,42,0.08)] text-sm text-[#7a5e2a]"
+              >
+                ×
+              </Button>
             </div>
 
             {/* 限时免费 banner（最关键信息，置顶强调）*/}
@@ -184,24 +176,15 @@ export default function AnnouncementModal() {
               gap: '10px',
               flexShrink: 0,
             }}>
-              <button
+              <Button
+                type="button"
                 onClick={close}
-                style={{
-                  padding: '10px 24px',
-                  background: 'linear-gradient(135deg, #b8922a 0%, #9a7a20 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  letterSpacing: '0.1em',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(184,146,42,0.3)',
-                }}
+                className="h-auto min-h-0 rounded-[10px] border-0 bg-gradient-to-br from-[#b8922a] to-[#9a7a20] px-6 py-2.5 text-[13px] font-medium tracking-[0.1em] text-white shadow-[0_4px_12px_rgba(184,146,42,0.3)] hover:from-[#b8922a] hover:to-[#9a7a20]"
               >
                 我知道了
-              </button>
+              </Button>
             </div>
+            </Card>
           </motion.div>
         </motion.div>
       )}

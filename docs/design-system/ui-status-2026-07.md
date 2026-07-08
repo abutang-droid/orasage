@@ -77,4 +77,4 @@ cd admin && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
 
 ## 6. 剩余可选跟进
 
-- ziwei 其余页面（StarDetailPanel、ScrollIntro、AnnouncementModal 等）继续接入 `@orasage/ui`
+- ziwei 其余零散页面（chart TopBar 历史副本已清理；BirthForm 分段控件等已接入）

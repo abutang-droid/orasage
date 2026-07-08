@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Mars, Venus } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
+import { Input } from '@orasage/ui/input';
 import type { BirthplaceValue } from '@orasage/city';
 import { loadCityCatalog } from '@orasage/city';
 import { CitySearchInput } from '@orasage/city/react';
@@ -186,9 +187,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       {/* 姓名 / 性别 / 公农历 */}
       <div className="ziwei-birth-form-row">
         <div className="ziwei-birth-form-name">
-          <input
+          <Input
             type="text"
-            className="ziwei-field-input"
+            className="ziwei-field-input h-auto min-h-0 shadow-none"
             placeholder={t('form.name.placeholder')}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -196,29 +197,31 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         </div>
         <div className="ziwei-calc-segment" role="group" aria-label={t('form.gender')}>
           {(['male', 'female'] as const).map((g) => (
-            <button
+            <Button
               key={g}
               type="button"
-              className={`ziwei-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}
+              variant="outline"
+              className={`ziwei-calc-segment-btn h-auto min-h-0${form.gender === g ? ' is-active' : ''}`}
               onClick={() => setForm({ ...form, gender: g })}
             >
               <span className="inline-flex items-center gap-1">
                 {g === 'male' ? <Mars size={14} strokeWidth={2} aria-hidden /> : <Venus size={14} strokeWidth={2} aria-hidden />}
                 {g === 'male' ? t('form.gender.male') : t('form.gender.female')}
               </span>
-            </button>
+            </Button>
           ))}
         </div>
         <div className="ziwei-calc-segment" role="group" aria-label={t('form.calendar.label')}>
           {(['solar', 'lunar'] as const).map((c) => (
-            <button
+            <Button
               key={c}
               type="button"
-              className={`ziwei-calc-segment-btn${form.calendar === c ? ' is-active' : ''}`}
+              variant="outline"
+              className={`ziwei-calc-segment-btn h-auto min-h-0${form.calendar === c ? ' is-active' : ''}`}
               onClick={() => setForm({ ...form, calendar: c })}
             >
               {c === 'solar' ? t('form.calendar.solar') : t('form.calendar.lunar')}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@orasage/ui/button';
 import ScrollIntro from '@/components/ScrollIntro';
 
 export default function PreviewPage() {
@@ -51,37 +52,23 @@ export default function PreviewPage() {
           </p>
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
-            <button
+            <Button
+              type="button"
               onClick={() => { setDone(false); setReplayKey(k => k + 1); }}
-              style={{
-                background: '#a8302a',
-                color: '#f5ecd7',
-                padding: '14px 28px',
-                fontSize: '14px',
-                fontFamily: '"STSong", serif',
-                letterSpacing: '0.3em',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
+              className="h-auto min-h-0 border-0 bg-[#a8302a] px-7 py-3.5 text-sm font-semibold tracking-[0.3em] text-[#f5ecd7] hover:bg-[#a8302a]"
+              style={{ fontFamily: '"STSong", serif' }}
             >
               再 播 放 一 次
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => router.push('/')}
-              style={{
-                background: 'transparent',
-                color: '#e8dcc4',
-                padding: '14px 28px',
-                fontSize: '14px',
-                fontFamily: '"STSong", serif',
-                letterSpacing: '0.3em',
-                border: '1px solid rgba(232,220,196,0.25)',
-                cursor: 'pointer',
-              }}
+              className="h-auto min-h-0 border-[rgba(232,220,196,0.25)] bg-transparent px-7 py-3.5 text-sm tracking-[0.3em] text-[#e8dcc4] hover:bg-transparent hover:text-[#e8dcc4]"
+              style={{ fontFamily: '"STSong", serif' }}
             >
               进 入 原 版 首 页
-            </button>
+            </Button>
           </div>
 
           <div style={{
