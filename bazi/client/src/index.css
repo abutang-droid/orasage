@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../../../shared/design-tokens/orasage-tokens.css";
+@import "../../../packages/tokens/src/tailwind-v4-bridge.css";
+@import "../../bazi-tailwind-v4-theme.css";
 @import "./assets/orasage-ui.css";
 @import "./bazi-home.css";
 
@@ -11,110 +13,11 @@
 /* ── Google Fonts 已在 index.html 中引入 ── */
 
 /* ══════════════════════════════════════════════════════════════
-   OraSage Design System v1.1 — 单色克制
-   ══════════════════════════════════════════════════════════════ */
-:root {
-  --gold:          var(--orasage-brand-gold);
-  --gold-light:    var(--orasage-gold-light);
-  --gold-bright:   var(--orasage-brand-gold);
-  --gold-faint:    var(--orasage-gold-border);
-  --gold-ghost:    var(--orasage-gold-pale);
-  --gold-glow:     rgb(var(--brand-gold) / 0.15);
-
-  --heading:       var(--orasage-text-primary);
-  --body:          var(--orasage-text-secondary);
-  --muted-text:    var(--orasage-text-muted);
-
-  --ink-deep:      rgb(var(--os-rgb-ink-950));
-  --ink-border:    var(--os-color-mono-gray-light);
-
-  --bg-page:       var(--orasage-background);
-  --bg-card:       var(--orasage-surface);
-  --bg-white:      rgb(var(--popover));
-  --border-color:  var(--orasage-border);
-
-  --font-serif: var(--orasage-font-serif, 'Noto Serif SC', serif);
-  --font-sans:  var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
-
-  --radius: 0.75rem;
-  --background:              var(--bg-page);
-  --foreground:              var(--heading);
-  --card:                    var(--bg-card);
-  --card-foreground:         var(--heading);
-  --popover:                 var(--os-color-mono-white);
-  --popover-foreground:      var(--heading);
-  --primary:                 var(--orasage-brand-primary);
-  --primary-foreground:      var(--os-color-mono-white);
-  --secondary:               var(--os-rgb-mono-bg);
-  --secondary-foreground:    var(--heading);
-  --muted:                   var(--os-rgb-mono-bg);
-  --muted-foreground:        var(--muted-text);
-  --accent:                  var(--os-color-mono-gray-deep);
-  --accent-foreground:       var(--heading);
-  --destructive:             rgb(var(--os-rgb-status-error));
-  --destructive-foreground:  rgb(var(--os-rgb-ink-900));
-  --border:                  var(--border-color);
-  --input:                   var(--border-color);
-  --ring:                    var(--orasage-focus-ring);
-  --sidebar:                 var(--bg-card);
-  --sidebar-foreground:      var(--heading);
-  --sidebar-primary:         var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent:          var(--muted);
-  --sidebar-accent-foreground: var(--heading);
-  --sidebar-border:          var(--border-color);
-  --sidebar-ring:            var(--ring);
-  --chart-1: var(--orasage-brand-gold);
-  --chart-2: var(--orasage-brand-purple);
-  --chart-3: var(--orasage-brand-primary);
-  --chart-4: var(--os-color-element-fire);
-  --chart-5: var(--os-color-element-water);
-
-  /* ── Tailwind 颜色映射 ── */
-  --color-background:                var(--background);
-  --color-foreground:                var(--foreground);
-  --color-card:                      var(--card);
-  --color-card-foreground:           var(--card-foreground);
-  --color-popover:                   var(--popover);
-  --color-popover-foreground:        var(--popover-foreground);
-  --color-primary:                   var(--primary);
-  --color-primary-foreground:        var(--primary-foreground);
-  --color-secondary:                 var(--secondary);
-  --color-secondary-foreground:      var(--secondary-foreground);
-  --color-muted:                     var(--muted);
-  --color-muted-foreground:          var(--muted-foreground);
-  --color-accent:                    var(--accent);
-  --color-accent-foreground:         var(--accent-foreground);
-  --color-destructive:               var(--destructive);
-  --color-destructive-foreground:    var(--destructive-foreground);
-  --color-border:                    var(--border);
-  --color-input:                     var(--input);
-  --color-ring:                      var(--ring);
-  --color-sidebar:                   var(--sidebar);
-  --color-sidebar-foreground:        var(--sidebar-foreground);
-  --color-sidebar-primary:           var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent:            var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border:            var(--sidebar-border);
-  --color-sidebar-ring:              var(--sidebar-ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 4px);
-  --radius-xl: calc(var(--radius) + 8px);
-}
-
-/* ══════════════════════════════════════════════════════════════
    Base Reset
    ══════════════════════════════════════════════════════════════ */
 @layer base {
   * {
-    border-color: var(--color-border);
+    border-color: rgb(var(--border));
     box-sizing: border-box;
   }
 
@@ -276,8 +179,8 @@
   }
   .option-btn.active {
     background: rgb(var(--brand-primary) / 0.1);
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: rgb(var(--primary));
+    color: rgb(var(--primary));
     box-shadow: 0 0 0 2px rgb(var(--brand-primary) / 0.16);
   }
   .option-btn:hover:not(.active) {
@@ -292,8 +195,8 @@
   .btn-primary {
     width: 100%;
     padding: 0.875rem 1.5rem;
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: rgb(var(--primary));
+    color: rgb(var(--primary-foreground));
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 600;

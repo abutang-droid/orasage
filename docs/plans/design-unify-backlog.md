@@ -1,6 +1,6 @@
 # OraSage 设计统一 & 平台 UI — 待完成计划
 
-> 最后更新：**2026-07-08**（PR #214 shop ShippingForm i18n；CMS 生产 redeploy；地址簿 i18n 进行中）  
+> 最后更新：**2026-07-08**（TW4 全站收敛；UI 风险项 #1–#6 修复）  
 > 关联：`docs/design-system/ui-phase-2.md`
 
 ---
@@ -55,7 +55,7 @@
 - [x] auth T1 四语静态页（PR #206）
 - [x] 浏览器 E2E（`scripts/e2e/`）支付→报告链路（PR #213）
 - [x] shop ShippingForm / 地址簿 i18n（PR #214 + 地址簿页）
-- [ ] Tailwind v4 全站收敛（**shop/main/ziwei/admin ✅ TW4**；bazi/tarot 已 v4）
+- [x] Tailwind v4 全站收敛（**shop/main/ziwei/admin/tarot/bazi ✅ TW4** + 共享 bridge）
 
 ---
 

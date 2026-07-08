@@ -1,0 +1,74 @@
+/**
+ * Tarot-specific tokens (feature surfaces, fonts, layout).
+ * Import after shared tailwind-v4-bridge.css.
+ */
+:root {
+  --gold: var(--orasage-gold, #b8943f);
+  --gold-light: var(--orasage-gold-light, #d4b86a);
+  --gold-dark: #96752f;
+  --gold-glow: rgba(184, 148, 63, 0.25);
+
+  --bg-base: var(--orasage-background, #fafaf8);
+  --bg-card: var(--orasage-surface, #ffffff);
+  --bg-card-hover: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --bg-input: #ffffff;
+  --bg-surface: #ffffff;
+
+  --text-primary: var(--orasage-primary, #171717);
+  --text-secondary: var(--orasage-secondary, #6b7280);
+  --text-muted: var(--orasage-muted, #9ca3af);
+  --text-faint: #d1d5db;
+
+  --border: var(--orasage-border, #e7e5e4);
+  --border-focus: var(--orasage-gold-border, rgba(184, 148, 63, 0.35));
+  --border-card: var(--orasage-border-subtle, #f1f1ef);
+
+  --rose: #c87b6e;
+  --rose-bg: rgba(200, 123, 110, 0.12);
+  --blue: #5b7fa6;
+  --blue-bg: rgba(91, 127, 166, 0.12);
+  --purple: #7e6fa8;
+  --purple-bg: rgba(126, 111, 168, 0.12);
+  --success: #5b8c5a;
+  --success-bg: rgba(91, 140, 90, 0.12);
+  --error: #c45b4a;
+  --error-bg: rgba(196, 91, 74, 0.12);
+
+  --shadow-sm: 0 1px 3px rgba(23, 23, 23, 0.06);
+  --shadow-md: 0 2px 12px rgba(23, 23, 23, 0.08);
+  --shadow-lg: 0 8px 24px rgba(23, 23, 23, 0.1);
+  --shadow-gold: 0 4px 16px rgba(184, 148, 63, 0.15);
+  --shadow-button: 0 4px 12px rgba(184, 148, 63, 0.2);
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  --font-display: 'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
+  --font-serif: 'Playfair Display', 'Noto Serif SC', 'Noto Serif TC', serif;
+  --font-sans: 'Inter', 'Noto Sans SC', 'Noto Sans TC', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --content-max: 480px;
+  --nav-h: 56px;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-card-flip: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --tarot-accent-rgb: 184 148 63;
+  --tarot-accent-alt-rgb: 201 149 74;
+  --tarot-accent-muted: var(--gold-dark, #96752f);
+  --tarot-ivory-warm: #faf8f4;
+  --tarot-ivory-map: #ebe4d8;
+  --tarot-ivory-sand: #f7f3ec;
+  --tarot-surface-glass: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.88);
+  --tarot-surface-glass-strong: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.92);
+  --tarot-surface-glass-soft: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.72);
+  --tarot-surface-glass-heavy: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.94);
+  --tarot-shadow-warm: rgb(42 33 24 / 0.06);
+  --tarot-overlay-dark: rgb(20 16 12 / 0.45);
+  --tarot-map-blue-rgb: 120 150 190;
+}

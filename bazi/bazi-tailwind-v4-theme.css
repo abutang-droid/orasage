@@ -1,0 +1,35 @@
+/**
+ * Bazi-specific aliases on top of shared tailwind-v4-bridge.
+ * Do not override --primary / --background channel tokens from orasage-tokens.
+ */
+:root {
+  --gold: var(--orasage-brand-gold);
+  --gold-light: var(--orasage-gold-light);
+  --gold-bright: var(--orasage-brand-gold);
+  --gold-faint: var(--orasage-gold-border);
+  --gold-ghost: var(--orasage-gold-pale);
+  --gold-glow: rgb(var(--brand-gold) / 0.15);
+
+  --heading: var(--orasage-text-primary);
+  --body: var(--orasage-text-secondary);
+  --muted-text: var(--orasage-text-muted);
+
+  --ink-deep: rgb(var(--os-rgb-ink-950));
+  --ink-border: var(--os-color-mono-gray-light);
+
+  --bg-page: var(--orasage-background);
+  --bg-card: var(--orasage-surface);
+  --bg-white: rgb(var(--popover));
+  --border-color: var(--orasage-border);
+
+  --font-serif: var(--orasage-font-serif, 'Noto Serif SC', serif);
+  --font-sans: var(--orasage-font-sans, 'Noto Sans SC', sans-serif);
+
+  --radius: 0.75rem;
+
+  --chart-1: var(--orasage-brand-gold);
+  --chart-2: var(--orasage-brand-purple);
+  --chart-3: var(--orasage-brand-primary);
+  --chart-4: var(--os-color-element-fire);
+  --chart-5: var(--os-color-element-water);
+}

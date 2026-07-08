@@ -2,6 +2,7 @@ import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getDiyBeads, getDiyConfig, type AdminDiyBead } from '@/lib/api';
 import { saveDiyBeadAction, saveDiyConfigAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
+import { AdminSubmitButton } from '@/components/AdminButton';
 
 const BEAD_TYPES = [
   { value: 'crystal', label: '水晶主珠' },
@@ -39,7 +40,7 @@ function BeadForm({ bead }: { bead?: AdminDiyBead }) {
       <label className="full-width">图片 URL<input name="imageUrl" defaultValue={bead?.imageUrl ?? ''} placeholder="留空使用渐变色占位（可粘贴 CMS 媒体库图片地址）" /></label>
       <label className="full-width">渐变色（g0,g1,g2,line）<input name="colors" defaultValue={bead?.colors ?? ''} placeholder="#ffffff,#e8e8ec,#c9c9d1,#d5d5db" /></label>
       <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked={bead ? bead.active : true} /> 上架</label>
-      <button type="submit" className="btn-primary">{bead ? '保存修改' : '添加珠子'}</button>
+      <AdminSubmitButton>{bead ? '保存修改' : '添加珠子'}</AdminSubmitButton>
     </form>
   );
 }
@@ -113,7 +114,7 @@ export default async function BeadsPage({
           <label>最低下单金额 CNY（元）<input name="minOrderYuan" type="number" step="1" min="0" defaultValue={(config.minOrderCents / 100).toFixed(0)} /></label>
           <label>合适度容差 mm<input name="fitToleranceMm" type="number" step="0.5" min="1" defaultValue={config.fitToleranceMm} /></label>
           <label>手围松量 mm<input name="wristEaseMm" type="number" step="0.5" min="0" defaultValue={config.wristEaseMm} /></label>
-          <button type="submit" className="btn-primary">保存配置</button>
+          <AdminSubmitButton>保存配置</AdminSubmitButton>
         </form>
       </section>
 

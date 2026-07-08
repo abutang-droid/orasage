@@ -1,6 +1,7 @@
 import { saveProductAction } from '@/app/actions';
 import { ProductImageField } from './ProductImageField';
 import { ProductI18nFields } from './ProductI18nFields';
+import { AdminSubmitButton } from './AdminButton';
 
 const CATEGORIES = [
   { value: 'crystal', label: '水晶手串' },
@@ -79,9 +80,9 @@ export function ProductInlineEditForm({
         nameI18n={product.nameI18n}
         descriptionI18n={product.descriptionI18n}
       />
-      <button type="submit" className="btn-small">
+      <AdminSubmitButton size="sm">
         保存
-      </button>
+      </AdminSubmitButton>
     </form>
   );
 }

@@ -4,6 +4,7 @@ import { updateOrderStatusAction, createShipmentAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { formatShippingDisplay, SHIPMENT_STATUS_LABELS } from '../../../../shared/shop-fulfillment/index';
 import { parseDiyOrderContext, formatDiySequence } from '../../../../shared/shop-diy/order-context';
+import { AdminSubmitButton } from '@/components/AdminButton';
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
 
@@ -99,14 +100,14 @@ export default async function OrdersPage() {
                       <input type="hidden" name="orderNo" value={o.orderNo} />
                       <input type="text" name="carrier" placeholder="承运商" className="shipment-input" required />
                       <input type="text" name="trackingNo" placeholder="运单号" className="shipment-input" required />
-                      <button type="submit" className="btn-small">发货</button>
+                      <AdminSubmitButton size="sm">发货</AdminSubmitButton>
                     </form>
                     <form action={updateOrderStatusAction} className="inline-status-form">
                       <input type="hidden" name="orderNo" value={o.orderNo} />
                       <select name="status" defaultValue={o.status}>
                         {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      <button type="submit" className="btn-small">更新</button>
+                      <AdminSubmitButton size="sm">更新</AdminSubmitButton>
                     </form>
                   </td>
                 </tr>

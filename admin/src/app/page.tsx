@@ -1,6 +1,7 @@
 import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getStats } from '@/lib/api';
 import Link from 'next/link';
+import { AdminLoginButton } from '@/components/AdminButton';
 
 export default async function AdminHome() {
   const admin = await getAdminUser();
@@ -10,9 +11,7 @@ export default async function AdminHome() {
       <div className="login-card">
         <h1>OraSage 管理后台</h1>
         <p>使用 orasage 管理员账号登录，即可管理商品、订单与全站内容。</p>
-        <a className="btn-primary" href={loginUrl()}>
-          登录
-        </a>
+        <AdminLoginButton href={loginUrl()}>登录</AdminLoginButton>
       </div>
     );
   }
