@@ -18,20 +18,24 @@ for svc in orasage-bazi orasage-tarot; do
   fi
 done
 
-if systemctl is-active --quiet mariadb 2>/dev/null; then
-  log "Stopping MariaDB..."
-  systemctl stop mariadb
-  systemctl disable mariadb
-fi
+for svc in mariadb mysql; do
+  if systemctl list-unit-files "${svc}.service" 2>/dev/null | grep -q "${svc}.service"; then
+    if systemctl is-active --quiet "$svc" 2>/dev/null; then
+      log "Stopping $svc..."
+      systemctl stop "$svc"
+      systemctl disable "$svc"
+    fi
+  fi
+done
 
 if command -v mysql >/dev/null 2>&1; then
-  log "Purging MariaDB packages..."
-  apt-get purge -y mariadb-server mariadb-client mariadb-common 2>/dev/null || true
+  log "Purging MySQL/MariaDB packages..."
+  apt-get purge -y mysql-server mysql-client mysql-common mariadb-server mariadb-client mariadb-common 2>/dev/null || true
   apt-get autoremove -y 2>/dev/null || true
   rm -rf /var/lib/mysql
   log "MySQL data directory removed."
 else
-  log "MariaDB not installed — nothing to purge."
+  log "MySQL client not installed — nothing to purge."
 fi
 
 log "MySQL decommission complete. PostgreSQL is now the only database engine."
