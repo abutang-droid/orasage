@@ -109,6 +109,34 @@ export function updateProduct(sku: string, body: Record<string, unknown>) {
   });
 }
 
+export interface AdminContactMessage {
+  id: number;
+  userId: number | null;
+  name: string;
+  email: string;
+  subject: string | null;
+  body: string;
+  locale: string | null;
+  status: 'new' | 'processing' | 'resolved';
+  statusLabel: string;
+  adminNote: string | null;
+  handledBy: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function getContactMessages(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  return adminFetch<{ messages: AdminContactMessage[] }>(`/contact-messages${query}`);
+}
+
+export function updateContactMessage(id: number, body: { status?: string; adminNote?: string }) {
+  return adminFetch<{ success: boolean }>(`/contact-messages/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
 export function updateOrderStatus(orderNo: string, status: string) {
   return adminFetch<{ success: boolean }>(`/orders/${encodeURIComponent(orderNo)}`, {
     method: 'PATCH',

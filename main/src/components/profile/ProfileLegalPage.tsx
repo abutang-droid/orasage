@@ -26,7 +26,7 @@ export async function ProfileLegalPage({ params, slug, titleKey }: Props) {
     <ProfileSection title={<ArticleTitle>{page.title || t(titleKey)}</ArticleTitle>}>
       <Separator className="my-2 sm:my-4" />
       {legacyHtml ? (
-        <LegacyHtmlArticle html={legacyHtml} className="portal-subpage-body" />
+        <LegacyHtmlArticle html={legacyHtml} className="portal-subpage-body legal-article" />
       ) : (
         <PageBody>
           <p>{t('noBody')}</p>

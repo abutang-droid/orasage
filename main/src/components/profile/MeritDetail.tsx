@@ -1,10 +1,12 @@
 'use client';
 
 import { Alert, AlertDescription, Badge, Card, CardContent } from '@orasage/ui';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { BlessingMeritDetail, MeritDetailRules, MeritRuleRow } from '@/lib/tarot-merit';
 import { externalUrls } from '@/lib/urls';
+import { BlessingPrefsCard } from './BlessingPrefsCard';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 function formatUsd(cents: number): string {
@@ -146,11 +148,10 @@ export function MeritDetail() {
     <div className="space-y-6">
       <div className="text-center">
         <div
-          className="mx-auto mb-3 flex size-[4.5rem] items-center justify-center rounded-full text-3xl text-primary-foreground"
-          style={{ background: 'linear-gradient(160deg, #a67c2a, #d4a853)' }}
+          className="mx-auto mb-3 flex size-[4.5rem] items-center justify-center rounded-full bg-primary text-primary-foreground"
           aria-hidden
         >
-          ✦
+          <Sparkles size={28} strokeWidth={1.6} />
         </div>
         <h2 className="font-serif text-xl font-bold text-foreground">{levelTitle}</h2>
         <p className="mt-1 text-xs text-muted-foreground">{levelSubtitle}</p>
@@ -199,6 +200,8 @@ export function MeritDetail() {
           </CardContent>
         </Card>
       </div>
+
+      <BlessingPrefsCard />
 
       {s.meritShare > 0 ? (
         <Card className="border-dashed opacity-75">

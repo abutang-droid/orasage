@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { desc, eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { savedProfiles, userAddresses, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
+import { contactMessages, savedProfiles, userAddresses, userOrders, userReadings, userRecommendations } from "../db/schema.ts";
 import { getAuthUser } from "../lib/auth-user.ts";
 import { resolveReadingDetailUrl } from "../lib/reading-detail-url.ts";
 import { formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
@@ -738,6 +738,38 @@ internalRouter.post("/orders", async (req, res) => {
       return;
     }
     console.error("[internal] order error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const contactMessageSchema = z.object({
+  userId: z.number().int().positive().nullable().optional(),
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email().max(320),
+  subject: z.string().trim().max(200).optional(),
+  body: z.string().trim().min(1).max(5000),
+  locale: z.string().trim().max(10).optional(),
+});
+
+/** main 门户「联系我们」表单 → 留言工单（admin 后台处理） */
+internalRouter.post("/contact-messages", async (req, res) => {
+  try {
+    const body = contactMessageSchema.parse(req.body);
+    const [row] = await db.insert(contactMessages).values({
+      userId: body.userId ?? null,
+      name: body.name,
+      email: body.email,
+      subject: body.subject || null,
+      body: body.body,
+      locale: body.locale || null,
+    }).returning();
+    res.status(201).json({ success: true, id: row.id });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[internal] contact message error:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

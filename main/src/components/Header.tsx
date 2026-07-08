@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
+import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
 
 /** 门户顶栏：PC 左品牌 + 右导航；移动左品牌 + 右登录芯片（与子应用一致） */
 export function Header() {
@@ -30,7 +31,10 @@ export function Header() {
         <Link href="/" className="orasage-site-mobile-bar-brand font-serif text-lg tracking-wide text-foreground">
           OraSage
         </Link>
-        <OrasageAuthChip locale={locale} />
+        <div className="flex items-center gap-2">
+          <PortalLocaleSwitcher />
+          <OrasageAuthChip locale={locale} />
+        </div>
       </header>
 
       <header className="safe-top hidden border-b border-border/80 bg-background lg:block">
@@ -62,6 +66,7 @@ export function Header() {
                 </Link>
               ),
             )}
+            <PortalLocaleSwitcher />
             <OrasageAuthChip locale={locale} />
           </nav>
         </div>
