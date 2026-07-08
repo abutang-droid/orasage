@@ -4,6 +4,7 @@
  */
 
 import Link from 'next/link';
+import { Card } from '@orasage/ui/card';
 import { ALL_STARS, ALL_TOPICS, getKnowledge, STAR_BRIEF_SEO, STAR_TO_SLUG } from '@/lib/seo/knowledge';
 import { TOPIC_LABEL } from '@/lib/ziwei/db-analysis';
 
@@ -42,37 +43,30 @@ export default function KnowledgeHomePage() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {ALL_STARS.map(star => (
-            <Link
+            <Card
               key={star}
-              href={`/knowledge/${STAR_TO_SLUG[star]}/overview`}
-              style={{
-                display: 'block',
-                padding: '14px 10px',
-                background: 'var(--bg-card)',
-                border: '1px solid rgba(184,146,42,0.2)',
-                borderRadius: '10px',
-                textDecoration: 'none',
-                textAlign: 'center',
-                transition: 'all 0.2s',
-              }}
-              className="hover:shadow-md hover:border-amber-400"
+              variant="interactive"
+              asChild
+              className="rounded-[10px] border-[rgba(184,146,42,0.2)] p-[14px_10px] text-center shadow-none transition-shadow hover:shadow-md hover:border-amber-400"
+              style={{ background: 'var(--bg-card)' }}
             >
-              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.15em' }}>
-                {star}
-              </div>
-            </Link>
+              <Link href={`/knowledge/${STAR_TO_SLUG[star]}/overview`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.15em' }}>
+                  {star}
+                </div>
+              </Link>
+            </Card>
           ))}
         </div>
 
         {/* 详细列表（每个主星 + 简介 + 进入按钮） */}
         <div className="mt-14 space-y-4">
           {ALL_STARS.map(star => (
-            <div key={star} style={{
-              background: 'var(--bg-card)',
-              border: '1px solid rgba(184,146,42,0.18)',
-              borderRadius: '12px',
-              padding: '18px 22px',
-            }}>
+            <Card
+              key={star}
+              className="rounded-xl border-[rgba(184,146,42,0.18)] p-[18px_22px] shadow-none"
+              style={{ background: 'var(--bg-card)' }}
+            >
               <div className="flex items-baseline gap-3 mb-2">
                 <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.1em' }}>
                   {star}星
@@ -107,7 +101,7 @@ export default function KnowledgeHomePage() {
                   );
                 })}
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

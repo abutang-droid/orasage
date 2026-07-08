@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Mars, Venus } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
+import { Checkbox } from '@orasage/ui/checkbox';
 import { Input } from '@orasage/ui/input';
 import type { BirthplaceValue } from '@orasage/city';
 import { loadCityCatalog } from '@orasage/city';
@@ -289,10 +290,10 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           </p>
         )}
         <label className="ziwei-checkbox-row" style={{ marginTop: '0.5rem' }}>
-          <input
-            type="checkbox"
+          <Checkbox
             checked={form.unknownTime}
-            onChange={(e) => setForm({ ...form, unknownTime: e.target.checked })}
+            onCheckedChange={(checked) => setForm({ ...form, unknownTime: checked === true })}
+            className="size-3.5 rounded-xs border-[var(--ziwei-control-border)] data-[state=checked]:border-[var(--os-color-mono-black)] data-[state=checked]:bg-[var(--os-color-mono-black)]"
           />
           <span>{t('form.unknown.time')}</span>
         </label>

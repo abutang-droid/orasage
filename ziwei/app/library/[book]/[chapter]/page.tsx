@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Card } from '@orasage/ui/card';
 import { ALL_BOOKS, getChapter } from '@/lib/classics';
 
 export async function generateStaticParams() {
@@ -51,7 +52,10 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
         </div>
 
         {/* 段落 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: '14px', border: '1px solid rgba(184,146,42,0.2)', padding: '32px 28px' }}>
+        <Card
+          className="rounded-[14px] border-[rgba(184,146,42,0.2)] p-[32px_28px] shadow-none"
+          style={{ background: 'var(--bg-card)' }}
+        >
           {chapter.paragraphs.map((p, i) => (
             <div
               key={p.id}
@@ -120,44 +124,35 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
               )}
             </div>
           ))}
-        </div>
+        </Card>
 
         {/* 章节导航 */}
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
           {prevIdx >= 0 ? (
-            <Link
-              href={`/library/${book.slug}/${prevIdx}`}
-              style={{
-                flex: 1,
-                padding: '14px 18px',
-                background: 'var(--bg-card)',
-                border: '1px solid rgba(184,146,42,0.2)',
-                borderRadius: '10px',
-                textDecoration: 'none',
-                color: 'var(--tx-0)',
-              }}
+            <Card
+              variant="interactive"
+              asChild
+              className="flex-1 rounded-[10px] border-[rgba(184,146,42,0.2)] p-[14px_18px] shadow-none"
+              style={{ background: 'var(--bg-card)' }}
             >
-              <div style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '2px' }}>← 上一章</div>
-              <div style={{ fontSize: '13px', fontWeight: 500 }}>{book.chapters[prevIdx].title}</div>
-            </Link>
+              <Link href={`/library/${book.slug}/${prevIdx}`} style={{ textDecoration: 'none', color: 'var(--tx-0)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '2px' }}>← 上一章</div>
+                <div style={{ fontSize: '13px', fontWeight: 500 }}>{book.chapters[prevIdx].title}</div>
+              </Link>
+            </Card>
           ) : <div style={{ flex: 1 }} />}
           {nextIdx < book.chapters.length ? (
-            <Link
-              href={`/library/${book.slug}/${nextIdx}`}
-              style={{
-                flex: 1,
-                padding: '14px 18px',
-                background: 'var(--bg-card)',
-                border: '1px solid rgba(184,146,42,0.2)',
-                borderRadius: '10px',
-                textDecoration: 'none',
-                color: 'var(--tx-0)',
-                textAlign: 'right',
-              }}
+            <Card
+              variant="interactive"
+              asChild
+              className="flex-1 rounded-[10px] border-[rgba(184,146,42,0.2)] p-[14px_18px] text-right shadow-none"
+              style={{ background: 'var(--bg-card)' }}
             >
-              <div style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '2px' }}>下一章 →</div>
-              <div style={{ fontSize: '13px', fontWeight: 500 }}>{book.chapters[nextIdx].title}</div>
-            </Link>
+              <Link href={`/library/${book.slug}/${nextIdx}`} style={{ textDecoration: 'none', color: 'var(--tx-0)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '2px' }}>下一章 →</div>
+                <div style={{ fontSize: '13px', fontWeight: 500 }}>{book.chapters[nextIdx].title}</div>
+              </Link>
+            </Card>
           ) : <div style={{ flex: 1 }} />}
         </div>
       </article>

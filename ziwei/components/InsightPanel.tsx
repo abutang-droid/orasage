@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 import { Input } from '@orasage/ui/input';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
@@ -118,7 +119,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   const handleSend = () => { sendMessage(input); };
 
   return (
-    <div className="flex flex-col h-full rounded-xl overflow-hidden card-glass">
+    <Card className="flex flex-col h-full rounded-xl overflow-hidden card-glass border-0 shadow-none">
       <div className="flex-shrink-0 px-2 pt-2.5 pb-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
         <div className="grid grid-cols-6 gap-1">{TOPICS.map(t => {
           const isActive = activeTopic === t.key;
@@ -182,6 +183,6 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

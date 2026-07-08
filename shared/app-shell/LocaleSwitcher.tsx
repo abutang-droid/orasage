@@ -2,6 +2,7 @@
 
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import type { NavContext } from './config';
 import {
   applyLocaleChange,
@@ -46,9 +47,10 @@ export function LocaleSwitcher({
 
   return (
     <div className={`orasage-app-lang${className ? ` ${className}` : ''}`} ref={wrapRef}>
-      <button
+      <Button
         type="button"
-        className="orasage-app-lang-btn"
+        variant="ghost"
+        className="orasage-app-lang-btn h-auto min-h-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
         aria-label="Select language"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -56,20 +58,21 @@ export function LocaleSwitcher({
       >
         <span>{localeLabel(active)}</span>
         <ChevronDown size={14} strokeWidth={2} aria-hidden />
-      </button>
+      </Button>
       {open && (
         <div className="orasage-app-lang-menu" role="listbox" aria-label="Languages">
           {CORE_LOCALES.map((code) => (
-            <button
+            <Button
               key={code}
               type="button"
-              className="orasage-app-lang-item"
+              variant="ghost"
+              className="orasage-app-lang-item h-auto min-h-0 w-full justify-start border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
               role="option"
               aria-current={code === active ? 'true' : undefined}
               onClick={() => select(code)}
             >
               {LOCALE_LABELS[code]}
-            </button>
+            </Button>
           ))}
         </div>
       )}

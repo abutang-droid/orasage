@@ -15,6 +15,8 @@
 import Link from 'next/link';
 import { ScrollText } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 import type { TopicKey } from '@/lib/ziwei/db-analysis';
 import {
   ALL_STARS,
@@ -168,35 +170,24 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         )}
 
         {/* CTA */}
-        <div style={{
-          margin: '40px 0 30px',
-          padding: '24px',
-          background: 'linear-gradient(135deg, rgba(212,169,72,0.15) 0%, rgba(184,146,42,0.06) 100%)',
-          borderRadius: '14px',
-          border: '1px solid rgba(184,146,42,0.3)',
-          textAlign: 'center',
-        }}>
+        <Card
+          className="my-10 mb-[30px] rounded-[14px] border-[rgba(184,146,42,0.3)] p-6 text-center shadow-none"
+          style={{ background: 'linear-gradient(135deg, rgba(212,169,72,0.15) 0%, rgba(184,146,42,0.06) 100%)' }}
+        >
           <div style={{ fontSize: '14px', color: 'var(--tx-0)', fontWeight: 600, letterSpacing: '0.1em', marginBottom: '6px' }}>
             想看你自己命盘的{data.topicLabel}？
           </div>
           <div style={{ fontSize: '12px', color: 'var(--tx-2)', marginBottom: '16px' }}>
             输入生辰起盘 · 倪师正宗解读 · AI 答疑伴学
           </div>
-          <Link href="/chart" style={{
-            display: 'inline-block',
-            padding: '12px 28px',
-            background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
-            color: 'white',
-            borderRadius: '999px',
-            fontSize: '14px',
-            fontWeight: 600,
-            letterSpacing: '0.15em',
-            textDecoration: 'none',
-            boxShadow: '0 4px 12px rgba(184,146,42,0.3)',
-          }}>
-            立即起盘 →
-          </Link>
-        </div>
+          <Button
+            asChild
+            className="rounded-full px-7 py-3 text-sm font-semibold tracking-[0.15em] shadow-[0_4px_12px_rgba(184,146,42,0.3)]"
+            style={{ background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)' }}
+          >
+            <Link href="/chart">立即起盘 →</Link>
+          </Button>
+        </Card>
 
         {/* 内链：同主星其他 topic */}
         <Section title={`${star}星的其他宫位解读`} minimal>
@@ -291,16 +282,17 @@ function Section({ title, children, gradient, minimal }: { title: string; childr
         <span style={{ width: '4px', height: '14px', background: 'var(--ac)', borderRadius: '2px' }} />
         {title}
       </h2>
-      <div style={{
-        background: gradient
-          ? 'linear-gradient(135deg, rgba(212,169,72,0.12) 0%, rgba(184,146,42,0.04) 100%)'
-          : 'white',
-        border: '1px solid rgba(184,146,42,0.15)',
-        borderRadius: '10px',
-        padding: minimal ? '14px 18px' : '20px 22px',
-      }}>
+      <Card
+        className="rounded-[10px] border-[rgba(184,146,42,0.15)] shadow-none"
+        style={{
+          background: gradient
+            ? 'linear-gradient(135deg, rgba(212,169,72,0.12) 0%, rgba(184,146,42,0.04) 100%)'
+            : 'white',
+          padding: minimal ? '14px 18px' : '20px 22px',
+        }}
+      >
         {children}
-      </div>
+      </Card>
     </section>
   );
 }

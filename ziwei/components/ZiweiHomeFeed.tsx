@@ -1,14 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Badge } from '@orasage/ui/badge';
 import { fetchZiweiFeed, type ZiweiFeedItem } from '@/lib/cms-ziwei-feed';
 import { useT, useLocale } from '@/lib/i18n';
 
 function FeedChip({ kind, label }: { kind: ZiweiFeedItem['kind']; label: string }) {
   return (
-    <span className={`ziwei-feed-chip ziwei-feed-chip--${kind}`} aria-hidden>
+    <Badge
+      variant="outline"
+      className={`ziwei-feed-chip ziwei-feed-chip--${kind} h-auto rounded-full px-2 py-0.5 text-[0.625rem] font-semibold`}
+      aria-hidden
+    >
       {label}
-    </span>
+    </Badge>
   );
 }
 
