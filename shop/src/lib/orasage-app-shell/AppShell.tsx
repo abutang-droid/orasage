@@ -19,6 +19,7 @@ export type AppShellProps = {
   pathname?: string;
   showBottomNav?: boolean;
   footer?: ReactNode;
+  /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
   headerExtra?: ReactNode;
   children: ReactNode;
 };

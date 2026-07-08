@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button } from '@orasage/ui/button';
 
 export default async function SuccessPage({
   searchParams,
@@ -19,16 +20,16 @@ export default async function SuccessPage({
       <p className="mt-2 text-sm text-sage-muted">订单已同步到您的用户中心</p>
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
         {order ? (
-          <Link href={`/orders/${encodeURIComponent(order)}`} className="shop-btn-primary w-full">
-            查看订单与物流
-          </Link>
+          <Button asChild className="w-full">
+            <Link href={`/orders/${encodeURIComponent(order)}`}>查看订单与物流</Link>
+          </Button>
         ) : null}
-        <a href="https://auth.orasage.com/center" className={order ? 'shop-btn-secondary w-full' : 'shop-btn-primary w-full'}>
-          查看我的订单
-        </a>
-        <Link href="/" className="shop-btn-secondary w-full">
-          继续购物
-        </Link>
+        <Button asChild variant={order ? 'secondary' : 'default'} className="w-full">
+          <a href="https://auth.orasage.com/center">查看我的订单</a>
+        </Button>
+        <Button asChild variant="secondary" className="w-full">
+          <Link href="/">继续购物</Link>
+        </Button>
       </div>
     </main>
   );

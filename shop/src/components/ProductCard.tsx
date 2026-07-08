@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
@@ -82,21 +83,18 @@ export function ProductCard({ product }: { product: Product }) {
         <span className="shop-product-price">{displayPrice}</span>
       </div>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <button
+        <Button
           type="button"
           onClick={() => void handleBuy()}
           disabled={loading}
-          className="shop-btn-primary flex-1"
+          loading={loading}
+          className="flex-1"
         >
           {loading ? '处理中…' : '购买'}
-        </button>
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          className="shop-btn-secondary flex-1"
-        >
+        </Button>
+        <Button type="button" variant="secondary" onClick={handleAddToCart} className="flex-1">
           {added ? '已加入' : '加购'}
-        </button>
+        </Button>
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </article>

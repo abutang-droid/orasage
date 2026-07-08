@@ -1,3 +1,8 @@
+:root {
+  --shell-top-h: 52px;
+  --shell-bottom-h: 56px;
+}
+
 .orasage-app-shell {
   --shell-bg: #0f0e17;
   --shell-surface: rgba(21, 18, 42, 0.96);
@@ -138,7 +143,7 @@
 }
 
 .orasage-portal-main {
-  padding-bottom: calc(var(--shell-bottom-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 @media (min-width: 1024px) {
@@ -219,7 +224,7 @@
 }
 
 .orasage-site-topnav-link:hover {
-  color: var(--shell-gold);
+  color: var(--shell-text);
 }
 
 .orasage-site-topnav-menu .orasage-auth-chip {
@@ -248,6 +253,12 @@
   letter-spacing: 0.08em;
   color: var(--shell-gold);
   text-decoration: none;
+}
+
+.orasage-site-mobile-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 @media (min-width: 1024px) {
@@ -321,14 +332,14 @@
   color: var(--shell-gold);
 }
 
-.orasage-page-toolbar--subpage {
-  justify-content: flex-start;
-}
-
 @media (min-width: 1024px) {
   .orasage-app-bottomnav {
     display: none !important;
   }
+}
+
+.orasage-page-toolbar--subpage {
+  justify-content: flex-start;
 }
 
 .orasage-page-toolbar {

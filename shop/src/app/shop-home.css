@@ -1241,6 +1241,7 @@
   color: var(--os-color-mono-black, #171717);
 }
 
+/* @deprecated — prefer @orasage/ui <Button>; kept for legacy markup during migration */
 .shop-btn-primary {
   display: inline-flex;
   min-height: 44px;

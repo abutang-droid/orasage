@@ -2,6 +2,11 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  transpilePackages: ['@orasage/ui', '@orasage/tokens'],
+  webpack(config) {
+    config.resolve.symlinks = false;
+    return config;
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'admin.orasage.com', pathname: '/cms/**' },

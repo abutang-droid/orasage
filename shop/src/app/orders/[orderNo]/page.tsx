@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { Button } from '@orasage/ui/button';
 import {
   SHIPMENT_STATUS_LABELS,
   formatShippingDisplay,
@@ -59,7 +60,9 @@ export default function OrderDetailPage() {
     return (
       <main className="shop-page safe-bottom mx-auto max-w-md flex-1 py-16 text-center">
         <p className="text-sm text-red-600">{error ?? '订单不存在'}</p>
-        <Link href="/" className="shop-btn-secondary mt-6 inline-block">返回商城</Link>
+        <Button asChild variant="secondary" className="mt-6">
+          <Link href="/">返回商城</Link>
+        </Button>
       </main>
     );
   }
@@ -121,10 +124,12 @@ export default function OrderDetailPage() {
       </section>
 
       <div className="mt-8 flex flex-col gap-3">
-        <Link href="/" className="shop-btn-secondary w-full text-center">继续购物</Link>
-        <a href="https://auth.orasage.com/center" className="shop-btn-primary w-full text-center">
-          用户中心
-        </a>
+        <Button asChild variant="secondary" className="w-full">
+          <Link href="/">继续购物</Link>
+        </Button>
+        <Button asChild className="w-full">
+          <a href="https://auth.orasage.com/center">用户中心</a>
+        </Button>
       </div>
     </main>
   );

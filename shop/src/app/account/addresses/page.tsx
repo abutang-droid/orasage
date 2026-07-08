@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import {
   SHIPPING_COUNTRIES,
   type ShippingRecipient,
@@ -188,9 +189,9 @@ export default function AddressBookPage() {
           <input className="shop-shipping-input" value={form.postalCode ?? ''} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
         </label>
         {error ? <p className="shop-shipping-error">{error}</p> : null}
-        <button type="submit" className="shop-btn-primary shop-shipping-submit" disabled={saving}>
+        <Button type="submit" className="shop-shipping-submit w-full" disabled={saving} loading={saving}>
           {saving ? '保存中…' : editingId ? '更新地址' : '添加地址'}
-        </button>
+        </Button>
       </form>
     </main>
   );

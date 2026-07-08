@@ -7,6 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./button": "./src/components/button.tsx",
     "./styles": "./src/styles/globals.css",
     "./css": "./src/styles/components.css",
     "./tailwind-preset": "./src/tailwind-preset.ts"
