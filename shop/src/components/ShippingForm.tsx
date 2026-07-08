@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import {
   SHIPPING_COUNTRIES,
@@ -33,6 +34,7 @@ export function ShippingForm({
   requireWrist = false,
   onSaved,
 }: Props) {
+  const t = useTranslations('shipping');
   const [recipients, setRecipients] = useState<ShippingRecipient[]>(
     couple ? [emptyRecipient(), emptyRecipient()] : [emptyRecipient()],
   );
@@ -69,6 +71,10 @@ export function ShippingForm({
     return estimateShippingFeeCents(primary, couple ? 2 : 1);
   }, [recipients, couple]);
 
+  function countryLabel(code: string) {
+    return t(`countries.${code}` as 'countries.CN');
+  }
+
   function updateRecipient(index: number, field: keyof ShippingRecipient, value: string) {
     setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
   }
@@ -93,10 +99,10 @@ export function ShippingForm({
         body: JSON.stringify({ ...payload, saveToAddressBook }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || '保存失败');
+      if (!res.ok) throw new Error(data.error || t('saveFailed'));
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '保存失败');
+      setError(err instanceof Error ? err.message : t('saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -104,13 +110,13 @@ export function ShippingForm({
 
   return (
     <form className="shop-shipping-form" onSubmit={(e) => void handleSubmit(e)}>
-      <h1 className="shop-shipping-title">填写收货信息</h1>
+      <h1 className="shop-shipping-title">{t('title')}</h1>
       <p className="shop-shipping-subtitle">{productTitle}</p>
-      <p className="shop-shipping-note">全球配送 · 7-14 个工作日发货</p>
+      <p className="shop-shipping-note">{t('deliveryNote')}</p>
 
       {coupleEligible ? (
         <fieldset className="shop-shipping-couple-toggle">
-          <legend className="shop-shipping-legend">配送人数</legend>
+          <legend className="shop-shipping-legend">{t('recipientCount')}</legend>
           <label className="shop-shipping-toggle-option">
             <input
               type="radio"
@@ -118,7 +124,7 @@ export function ShippingForm({
               checked={!couple}
               onChange={() => onCoupleChange?.(false)}
             />
-            仅 1 人地址
+            {t('singleAddress')}
           </label>
           <label className="shop-shipping-toggle-option">
             <input
@@ -127,32 +133,36 @@ export function ShippingForm({
               checked={couple}
               onChange={() => onCoupleChange?.(true)}
             />
-            2 人各一地址
+            {t('coupleAddresses')}
           </label>
         </fieldset>
       ) : null}
 
       {shippingFeeCents > 0 ? (
-        <p className="shop-shipping-fee">预估运费：¥{(shippingFeeCents / 100).toFixed(2)}</p>
+        <p className="shop-shipping-fee">
+          {t('estimatedFee', { amount: (shippingFeeCents / 100).toFixed(2) })}
+        </p>
       ) : (
-        <p className="shop-shipping-fee shop-shipping-fee--free">运费：免邮</p>
+        <p className="shop-shipping-fee shop-shipping-fee--free">{t('freeShipping')}</p>
       )}
 
       {recipients.map((recipient, index) => (
         <fieldset key={index} className="shop-shipping-fieldset">
           {couple ? (
-            <legend className="shop-shipping-legend">{index === 0 ? '第一位' : '第二位'}</legend>
+            <legend className="shop-shipping-legend">
+              {index === 0 ? t('personFirst') : t('personSecond')}
+            </legend>
           ) : null}
 
           {savedAddresses.length > 0 ? (
             <label className="shop-shipping-label">
-              从地址簿选择
+              {t('pickFromBook')}
               <select
                 className="shop-shipping-input"
                 defaultValue=""
                 onChange={(e) => applySavedAddress(index, e.target.value)}
               >
-                <option value="">手动填写</option>
+                <option value="">{t('manualEntry')}</option>
                 {savedAddresses.map((addr) => (
                   <option key={addr.id} value={addr.id}>
                     {(addr.label ? `${addr.label} · ` : '') + addr.name}
@@ -163,7 +173,7 @@ export function ShippingForm({
           ) : null}
 
           <label className="shop-shipping-label">
-            收货人姓名
+            {t('name')}
             <input
               type="text"
               className="shop-shipping-input"
@@ -175,7 +185,7 @@ export function ShippingForm({
           </label>
 
           <label className="shop-shipping-label">
-            联系电话
+            {t('phone')}
             <input
               type="tel"
               className="shop-shipping-input"
@@ -187,7 +197,7 @@ export function ShippingForm({
           </label>
 
           <label className="shop-shipping-label">
-            国家/地区
+            {t('country')}
             <select
               className="shop-shipping-input"
               value={recipient.countryCode ?? 'CN'}
@@ -195,13 +205,13 @@ export function ShippingForm({
               required
             >
               {SHIPPING_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.label}</option>
+                <option key={c.code} value={c.code}>{countryLabel(c.code)}</option>
               ))}
             </select>
           </label>
 
           <label className="shop-shipping-label">
-            省 / 州
+            {t('province')}
             <input
               type="text"
               className="shop-shipping-input"
@@ -212,7 +222,7 @@ export function ShippingForm({
           </label>
 
           <label className="shop-shipping-label">
-            城市
+            {t('city')}
             <input
               type="text"
               className="shop-shipping-input"
@@ -223,7 +233,7 @@ export function ShippingForm({
           </label>
 
           <label className="shop-shipping-label">
-            详细地址
+            {t('address')}
             <textarea
               className="shop-shipping-textarea"
               rows={3}
@@ -235,7 +245,7 @@ export function ShippingForm({
           </label>
 
           <label className="shop-shipping-label">
-            邮编（选填）
+            {t('postalOptional')}
             <input
               type="text"
               className="shop-shipping-input"
@@ -247,12 +257,12 @@ export function ShippingForm({
 
           {requireWrist ? (
             <label className="shop-shipping-label">
-              手腕周长（cm）
+              {t('wristCm')}
               <input
                 type="text"
                 inputMode="decimal"
                 className="shop-shipping-input"
-                placeholder="例如 16"
+                placeholder={t('wristPlaceholder')}
                 value={recipient.wristCm ?? ''}
                 onChange={(e) => updateRecipient(index, 'wristCm', e.target.value)}
                 required
@@ -268,17 +278,17 @@ export function ShippingForm({
           checked={saveToAddressBook}
           onChange={(e) => setSaveToAddressBook(e.target.checked)}
         />
-        保存到地址簿
+        {t('saveToBook')}
       </label>
 
       {error ? <p className="shop-shipping-error">{error}</p> : null}
 
       <Button type="submit" className="shop-shipping-submit w-full" disabled={loading} loading={loading}>
-        {loading ? '保存中…' : '确认收货信息'}
+        {loading ? t('saving') : t('submit')}
       </Button>
 
       <p className="shop-shipping-manage">
-        <a href="/account/addresses">管理地址簿</a>
+        <a href="/account/addresses">{t('manageAddresses')}</a>
       </p>
     </form>
   );
