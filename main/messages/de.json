@@ -96,8 +96,6 @@
     "loadError": "Inhalt konnte nicht geladen werden",
     "prev": "Zurück",
     "next": "Weiter",
-    "back": "Zurück zur Liste",
-    "sourceLink": "Originalquelle",
     "noBody": "Kein Inhalt",
     "navAria": "Personen derselben Kategorie",
     "personPrev": "Zurück: {name}",
@@ -112,8 +110,6 @@
     "loadError": "Laden fehlgeschlagen",
     "prev": "Zurück",
     "next": "Weiter",
-    "back": "Zurück zur Liste",
-    "sourceLink": "Originalquelle",
     "noBody": "Kein Inhalt",
     "searchPlaceholder": "Klassiker durchsuchen…",
     "searchCrumb": "Suche",
@@ -166,7 +162,12 @@
       "dixiang": "Feng Shui",
       "renxiang": "Gesichtslesen",
       "xingxiang": "Astrologie"
-    }
+    },
+    "volumeBrowse": "Nach Band",
+    "volumeNumber": "Band {number}",
+    "volumeUpper": "Oberer Band",
+    "volumeMiddle": "Mittlerer Band",
+    "volumeLower": "Unterer Band"
   },
   "shop": {
     "title": "Energy Shop",

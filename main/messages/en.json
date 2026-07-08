@@ -117,8 +117,6 @@
     "loadError": "Failed to load content",
     "prev": "Previous",
     "next": "Next",
-    "back": "Back to list",
-    "sourceLink": "Original source",
     "noBody": "No content",
     "toc": "Sections",
     "disclaimer": "Birth times in this article are estimates based on public records. The reading is a traditional BaZi interpretation offered for cultural study only, and is unrelated to the person or their family.",
@@ -152,8 +150,6 @@
     "loadError": "Failed to load content",
     "prev": "Previous",
     "next": "Next",
-    "back": "Back to list",
-    "sourceLink": "Original source",
     "noBody": "No content",
     "searchPlaceholder": "Search classics…",
     "searchCrumb": "Search",
@@ -206,7 +202,12 @@
       "dixiang": "Feng Shui",
       "renxiang": "Face Reading",
       "xingxiang": "Astrology"
-    }
+    },
+    "volumeBrowse": "Browse by volume",
+    "volumeNumber": "Vol. {number}",
+    "volumeUpper": "Vol. 1 (Upper)",
+    "volumeMiddle": "Vol. 2 (Middle)",
+    "volumeLower": "Vol. 3 (Lower)"
   },
   "profile": {
     "title": "My Account",

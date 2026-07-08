@@ -96,8 +96,6 @@
     "loadError": "Không tải được nội dung",
     "prev": "Trước",
     "next": "Sau",
-    "back": "Quay lại danh sách",
-    "sourceLink": "Liên kết bài gốc",
     "noBody": "Chưa có nội dung chính",
     "navAria": "Nhân vật cùng phân loại",
     "personPrev": "Trước: {name}",
@@ -112,8 +110,6 @@
     "loadError": "Tải nội dung thất bại",
     "prev": "Trang trước",
     "next": "Trang sau",
-    "back": "Về danh sách",
-    "sourceLink": "Nguồn gốc",
     "noBody": "Không có nội dung",
     "searchPlaceholder": "Tìm kinh điển…",
     "searchCrumb": "Tìm kiếm",
@@ -166,7 +162,12 @@
       "dixiang": "Phong thủy",
       "renxiang": "Nhân tướng",
       "xingxiang": "Chiêm tinh"
-    }
+    },
+    "volumeBrowse": "Duyệt theo quyển",
+    "volumeNumber": "Quyển {number}",
+    "volumeUpper": "Quyển thượng",
+    "volumeMiddle": "Quyển trung",
+    "volumeLower": "Quyển hạ"
   },
   "shop": {
     "title": "Energy Shop",

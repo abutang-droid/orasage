@@ -15,6 +15,12 @@ import {
   stripHtml,
 } from '@/lib/cms';
 import { compareArticles, resolveArticleCategory } from '@/lib/daozang-taxonomy';
+import {
+  chapterDisplayTitle,
+  isBookCategory,
+  localizedVolumeLabel,
+  resolveVolume,
+} from '@/lib/daozang-volumes';
 import { injectHeadingAnchors, stripLeadingTitleHeading } from '@/lib/html-toc';
 import { DaozangBreadcrumb } from '../components';
 
@@ -50,8 +56,10 @@ export default async function DaozangArticlePage({ params }: Props) {
   const categoryLabel = category
     ? `${t(`tops.${category.top}.name`)} · ${t(`categories.${category.key}`)}`
     : null;
+  const volume = category && isBookCategory(category.key) ? resolveVolume(page) : null;
+  const volumeLabel = volume ? localizedVolumeLabel(volume.key, t) : null;
 
-  // 同分类上下篇（轻量索引，失败时静默降级）
+  // 同分类（全书类同卷）上下篇（轻量索引，失败时静默降级）
   let prevArticle: { title: string; slug: string } | null = null;
   let nextArticle: { title: string; slug: string } | null = null;
   if (category) {
@@ -59,6 +67,10 @@ export default async function DaozangArticlePage({ params }: Props) {
       const index = await fetchDaozangIndex(cmsLocale(locale));
       const siblings = index
         .filter((item) => resolveArticleCategory(item)?.key === category.key)
+        .filter((item) => {
+          if (!volume) return true;
+          return resolveVolume(item)?.key === volume.key;
+        })
         .sort(compareArticles);
       const position = siblings.findIndex((item) => item.slug === page.slug);
       if (position > 0) prevArticle = siblings[position - 1];
@@ -81,6 +93,14 @@ export default async function DaozangArticlePage({ params }: Props) {
           { label: t('title'), href: '/daozang' },
           ...(category && categoryLabel
             ? [{ label: categoryLabel, href: `/daozang?cat=${category.key}` }]
+            : []),
+          ...(category && volume && volumeLabel
+            ? [
+                {
+                  label: volumeLabel,
+                  href: `/daozang?cat=${category.key}&vol=${encodeURIComponent(volume.key)}`,
+                },
+              ]
             : []),
           { label: decodeHtmlEntities(page.title) },
         ]}
@@ -150,7 +170,11 @@ export default async function DaozangArticlePage({ params }: Props) {
                     {t('prevArticle')}
                   </p>
                   <p className="mt-1.5 font-serif font-medium text-foreground transition-colors group-hover:text-foreground/80">
-                    {decodeHtmlEntities(prevArticle.title)}
+                    {decodeHtmlEntities(
+                      category?.titlePrefix
+                        ? chapterDisplayTitle(prevArticle.title, category.titlePrefix)
+                        : prevArticle.title,
+                    )}
                   </p>
                 </CardContent>
               </Link>
@@ -167,7 +191,11 @@ export default async function DaozangArticlePage({ params }: Props) {
                     <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden />
                   </p>
                   <p className="mt-1.5 font-serif font-medium text-foreground transition-colors group-hover:text-foreground/80">
-                    {decodeHtmlEntities(nextArticle.title)}
+                    {decodeHtmlEntities(
+                      category?.titlePrefix
+                        ? chapterDisplayTitle(nextArticle.title, category.titlePrefix)
+                        : nextArticle.title,
+                    )}
                   </p>
                 </CardContent>
               </Link>

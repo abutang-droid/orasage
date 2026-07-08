@@ -12,6 +12,13 @@ import {
   isDaozangCategoryKey,
   resolveArticleCategory,
 } from '@/lib/daozang-taxonomy';
+import {
+  chapterDisplayTitle,
+  isBookCategory,
+  localizedVolumeLabel,
+  resolveVolume,
+  sortedVolumeGroups,
+} from '@/lib/daozang-volumes';
 import { DaozangArticleCard, DaozangBreadcrumb, DaozangSearchForm } from './components';
 
 import { Alert, AlertDescription, Badge, Card, CardContent, buttonVariants } from '@orasage/ui';
@@ -20,20 +27,29 @@ const PAGE_SIZE = 30;
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ page?: string; cat?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; cat?: string; q?: string; vol?: string }>;
 };
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const { cat } = await searchParams;
+  const { cat, vol } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'daozang' });
-  const title = isDaozangCategoryKey(cat) ? `${t(`categories.${cat}`)} · ${t('title')}` : t('title');
-  return { title, description: t('desc') };
+  if (isDaozangCategoryKey(cat)) {
+    const categoryTitle = t(`categories.${cat}`);
+    if (vol && isBookCategory(cat)) {
+      return {
+        title: `${localizedVolumeLabel(vol, t)} · ${categoryTitle} · ${t('title')}`,
+        description: t('desc'),
+      };
+    }
+    return { title: `${categoryTitle} · ${t('title')}`, description: t('desc') };
+  }
+  return { title: t('title'), description: t('desc') };
 }
 
 export default async function DaozangPage({ params, searchParams }: Props) {
   const { locale } = await params;
-  const { page: pageParam, cat, q } = await searchParams;
+  const { page: pageParam, cat, q, vol } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations('daozang');
 
@@ -56,13 +72,26 @@ export default async function DaozangPage({ params, searchParams }: Props) {
 
   const query = q?.trim();
   if (query) {
-    return (
-      <SearchResults t={t} locale={locale} index={index} query={query} />
-    );
+    return <SearchResults t={t} locale={locale} index={index} query={query} />;
   }
 
   if (isDaozangCategoryKey(cat)) {
     const page = Math.max(1, Number(pageParam) || 1);
+    if (isBookCategory(cat)) {
+      if (vol) {
+        return (
+          <VolumeChapterList
+            t={t}
+            locale={locale}
+            index={index}
+            categoryKey={cat}
+            volumeKey={vol}
+            page={page}
+          />
+        );
+      }
+      return <BookVolumeOverview t={t} locale={locale} index={index} categoryKey={cat} />;
+    }
     return <CategoryList t={t} locale={locale} index={index} categoryKey={cat} page={page} />;
   }
 
@@ -97,6 +126,10 @@ function DaozangShell({
       {children}
     </PageShell>
   );
+}
+
+function categoryBreadcrumbLabel(t: Translator, category: ReturnType<typeof getDaozangCategory>) {
+  return `${t(`tops.${category.top}.name`)} · ${t(`categories.${category.key}`)}`;
 }
 
 /** 分类总览：山医命相卜 五术分组 */
@@ -193,6 +226,193 @@ function CategoryOverview({
   );
 }
 
+/** 四部全书：按卷二级目录 */
+function BookVolumeOverview({
+  t,
+  locale,
+  index,
+  categoryKey,
+}: {
+  t: Translator;
+  locale: string;
+  index: DaozangIndexItem[];
+  categoryKey: Parameters<typeof getDaozangCategory>[0];
+}) {
+  const category = getDaozangCategory(categoryKey);
+  const { byCategory } = groupArticlesByCategory(index);
+  const items = byCategory.get(category.key) ?? [];
+  const volumeGroups = sortedVolumeGroups(items);
+  const categoryLabel = categoryBreadcrumbLabel(t, category);
+
+  return (
+    <PageShell className="max-w-5xl" hideBack>
+      <DaozangBreadcrumb
+        items={[
+          { label: t('title'), href: '/daozang' },
+          { label: categoryLabel },
+        ]}
+      />
+      <header className="max-w-3xl">
+        <PageTitle>{t(`categories.${category.key}`)}</PageTitle>
+        <PageLead>{t(`tops.${category.top}.desc`)}</PageLead>
+      </header>
+
+      <div className="mt-5 sm:mt-6">
+        <DaozangSearchForm locale={locale} placeholder={t('searchPlaceholder')} />
+      </div>
+
+      {items.length === 0 ? (
+        <Alert className="mt-6 border-dashed sm:mt-8">
+          <AlertDescription>{t('empty')}</AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          <Badge variant="muted" className="mt-5">
+            {t('total', { count: items.length })}
+          </Badge>
+
+          <section className="mt-6 sm:mt-8" aria-labelledby="daozang-volume-browse">
+            <h2 id="daozang-volume-browse" className="font-serif text-heading-3 font-semibold text-foreground">
+              {t('volumeBrowse')}
+            </h2>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+              {volumeGroups.map(({ volume, items: volItems }) => (
+                <li key={volume.key}>
+                  <Card variant="interactive" asChild>
+                    <Link
+                      href={`/daozang?cat=${category.key}&vol=${encodeURIComponent(volume.key)}`}
+                      className="group block h-full"
+                    >
+                      <CardContent className="p-5 sm:p-6">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-serif text-heading-3 font-medium leading-snug text-foreground transition-colors group-hover:text-foreground/80">
+                            {localizedVolumeLabel(volume.key, t)}
+                          </h3>
+                          <Badge variant="muted" className="shrink-0">
+                            {t('articleCount', { count: volItems.length })}
+                          </Badge>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                          {volItems
+                            .slice(0, 3)
+                            .map((item) =>
+                              decodeHtmlEntities(
+                                chapterDisplayTitle(item.title, category.titlePrefix),
+                              ),
+                            )
+                            .join(' · ')}
+                        </p>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
+    </PageShell>
+  );
+}
+
+/** 四部全书：某卷章节列表 */
+function VolumeChapterList({
+  t,
+  locale,
+  index,
+  categoryKey,
+  volumeKey,
+  page,
+}: {
+  t: Translator;
+  locale: string;
+  index: DaozangIndexItem[];
+  categoryKey: Parameters<typeof getDaozangCategory>[0];
+  volumeKey: string;
+  page: number;
+}) {
+  const category = getDaozangCategory(categoryKey);
+  const { byCategory } = groupArticlesByCategory(index);
+  const allItems = byCategory.get(category.key) ?? [];
+  const items = allItems.filter((item) => resolveVolume(item)?.key === volumeKey);
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = items.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const categoryLabel = categoryBreadcrumbLabel(t, category);
+  const volumeLabel = localizedVolumeLabel(volumeKey, t);
+
+  return (
+    <PageShell className="max-w-5xl" hideBack>
+      <DaozangBreadcrumb
+        items={[
+          { label: t('title'), href: '/daozang' },
+          { label: categoryLabel, href: `/daozang?cat=${category.key}` },
+          { label: volumeLabel },
+        ]}
+      />
+      <header className="max-w-3xl">
+        <PageTitle>{volumeLabel}</PageTitle>
+        <PageLead>{t(`categories.${category.key}`)}</PageLead>
+      </header>
+
+      <div className="mt-5 sm:mt-6">
+        <DaozangSearchForm locale={locale} placeholder={t('searchPlaceholder')} />
+      </div>
+
+      {items.length === 0 ? (
+        <Alert className="mt-6 border-dashed sm:mt-8">
+          <AlertDescription>{t('empty')}</AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          <Badge variant="muted" className="mt-5">
+            {t('total', { count: items.length })}
+          </Badge>
+
+          <ul className="mt-6 grid gap-3 sm:gap-4">
+            {pageItems.map((item) => (
+              <li key={item.id}>
+                <DaozangArticleCard
+                  item={item}
+                  displayTitle={chapterDisplayTitle(item.title, category.titlePrefix)}
+                />
+              </li>
+            ))}
+          </ul>
+
+          {totalPages > 1 && (
+            <nav className="mt-8 flex items-center justify-between gap-4 text-sm" aria-label="Pagination">
+              {currentPage > 1 ? (
+                <Link
+                  href={`/daozang?cat=${category.key}&vol=${encodeURIComponent(volumeKey)}&page=${currentPage - 1}`}
+                  className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                >
+                  {t('prev')}
+                </Link>
+              ) : (
+                <span />
+              )}
+              <span className="text-sm text-muted-foreground" aria-current="page">
+                {currentPage} / {totalPages}
+              </span>
+              {currentPage < totalPages ? (
+                <Link
+                  href={`/daozang?cat=${category.key}&vol=${encodeURIComponent(volumeKey)}&page=${currentPage + 1}`}
+                  className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                >
+                  {t('next')}
+                </Link>
+              ) : (
+                <span />
+              )}
+            </nav>
+          )}
+        </>
+      )}
+    </PageShell>
+  );
+}
+
 /** 分类文章列表（带分页与面包屑） */
 function CategoryList({
   t,
@@ -213,7 +433,7 @@ function CategoryList({
   const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageItems = items.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const categoryLabel = `${t(`tops.${category.top}.name`)} · ${t(`categories.${category.key}`)}`;
+  const categoryLabel = categoryBreadcrumbLabel(t, category);
 
   return (
     <PageShell className="max-w-5xl" hideBack>
@@ -331,9 +551,16 @@ function SearchResults({
               const label = category
                 ? `${t(`tops.${category.top}.name`)} · ${t(`categories.${category.key}`)}`
                 : undefined;
+              const bookPrefix = category?.titlePrefix;
               return (
                 <li key={item.id}>
-                  <DaozangArticleCard item={item} categoryLabel={label} />
+                  <DaozangArticleCard
+                    item={item}
+                    categoryLabel={label}
+                    displayTitle={
+                      bookPrefix ? chapterDisplayTitle(item.title, bookPrefix) : undefined
+                    }
+                  />
                 </li>
               );
             })}

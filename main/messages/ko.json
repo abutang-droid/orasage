@@ -96,8 +96,6 @@
     "loadError": "콘텐츠를 불러오지 못했습니다",
     "prev": "이전",
     "next": "다음",
-    "back": "목록으로 돌아가기",
-    "sourceLink": "원문 링크",
     "noBody": "본문 없음",
     "navAria": "같은 분류의 인물",
     "personPrev": "이전: {name}",
@@ -112,8 +110,6 @@
     "loadError": "불러오지 못했습니다",
     "prev": "이전 페이지",
     "next": "다음 페이지",
-    "back": "목록으로 돌아가기",
-    "sourceLink": "원문 보기",
     "noBody": "본문 없음",
     "searchPlaceholder": "고전 검색…",
     "searchCrumb": "검색",
@@ -166,7 +162,12 @@
       "dixiang": "풍수",
       "renxiang": "관상",
       "xingxiang": "점성"
-    }
+    },
+    "volumeBrowse": "권별 보기",
+    "volumeNumber": "제{number}권",
+    "volumeUpper": "상권",
+    "volumeMiddle": "중권",
+    "volumeLower": "하권"
   },
   "shop": {
     "title": "Energy Shop",

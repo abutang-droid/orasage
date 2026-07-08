@@ -22,6 +22,7 @@ export type CmsPage = {
   sourceUrl?: string | null;
   daozangCategory?: string | null;
   sortWeight?: number | null;
+  daozangVolume?: string | null;
   excerpt?: string | null;
   updatedAt?: string;
 };
@@ -29,7 +30,7 @@ export type CmsPage = {
 /** 道藏轻量索引条目（不含 legacyHtml 正文，用于目录/搜索/上下篇） */
 export type DaozangIndexItem = Pick<
   CmsPage,
-  'id' | 'title' | 'slug' | 'daozangCategory' | 'sortWeight' | 'excerpt'
+  'id' | 'title' | 'slug' | 'daozangCategory' | 'sortWeight' | 'daozangVolume' | 'excerpt'
 >;
 
 type CmsListResponse = {
@@ -197,7 +198,7 @@ export async function fetchDaozangIndex(locale?: string): Promise<DaozangIndexIt
     params.set('page', String(page));
     params.set('depth', '0');
     params.set('sort', 'title');
-    for (const field of ['title', 'slug', 'wpType', 'daozangCategory', 'sortWeight', 'excerpt']) {
+    for (const field of ['title', 'slug', 'wpType', 'daozangCategory', 'sortWeight', 'daozangVolume', 'excerpt']) {
       params.set(`select[${field}]`, 'true');
     }
 

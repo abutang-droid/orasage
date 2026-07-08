@@ -117,8 +117,6 @@
     "loadError": "内容加载失败，请稍后刷新",
     "prev": "上一页",
     "next": "下一页",
-    "back": "返回名人案例列表",
-    "sourceLink": "查看原站链接",
     "noBody": "暂无正文",
     "toc": "章节导航",
     "disclaimer": "本文出生时辰依据公开文献估算，命理解读为传统命理学演绎，仅供文化研究参考，与本人及其亲属无关。",
@@ -152,8 +150,6 @@
     "loadError": "内容加载失败，请稍后刷新",
     "prev": "上一页",
     "next": "下一页",
-    "back": "返回道藏列表",
-    "sourceLink": "查看原站链接",
     "noBody": "暂无正文",
     "searchPlaceholder": "搜索典籍名称或内容…",
     "searchCrumb": "搜索",
@@ -206,7 +202,12 @@
       "dixiang": "地相风水",
       "renxiang": "人相",
       "xingxiang": "星相"
-    }
+    },
+    "volumeBrowse": "按卷浏览",
+    "volumeNumber": "卷{number}",
+    "volumeUpper": "卷上",
+    "volumeMiddle": "卷中",
+    "volumeLower": "卷下"
   },
   "profile": {
     "title": "我的",
