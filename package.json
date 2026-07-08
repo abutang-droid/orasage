@@ -9,6 +9,9 @@
     "build:tokens": "npm run build -w @orasage/tokens",
     "tokens:sync": "node scripts/tokens/sync-tokens.mjs sync",
     "tokens:check": "node scripts/tokens/sync-tokens.mjs check",
+    "app-shell:sync": "node scripts/app-shell/sync-app-shell.mjs sync",
+    "app-shell:check": "node scripts/app-shell/sync-app-shell.mjs check",
+    "ui:check": "npm run tokens:check && npm run app-shell:check",
     "sync:auth-ui-css": "cp packages/ui/src/styles/components.css auth-service/public/assets/orasage-ui.css && sed -i '1,/^$/d' auth-service/public/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — tokens via style.css */' auth-service/public/assets/orasage-ui.css",
     "sync:fortune-ui-css": "npm run sync:auth-ui-css && mkdir -p bazi/client/src/assets ziwei/app/assets && tail -n +7 packages/ui/src/styles/components.css > bazi/client/src/assets/orasage-ui.css && cp bazi/client/src/assets/orasage-ui.css ziwei/app/assets/orasage-ui.css && sed -i '1i/** Synced from @orasage/ui — load after orasage-tokens */' bazi/client/src/assets/orasage-ui.css ziwei/app/assets/orasage-ui.css"
   },

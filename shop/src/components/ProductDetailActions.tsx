@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
 
@@ -52,21 +53,23 @@ export function ProductDetailActions({ product }: { product: Product }) {
 
   return (
     <div className="shop-pdp-actions shop-pdp-actions--row">
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={handleAddToCart}
-        className="shop-btn-secondary shop-pdp-action-btn"
+        className="shop-pdp-action-btn flex-1"
       >
         {added ? '已加入购物车' : '加入购物车'}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={() => void handleBuy()}
         disabled={loading}
-        className="shop-btn-primary shop-pdp-action-btn"
+        loading={loading}
+        className="shop-pdp-action-btn flex-1"
       >
         {loading ? '处理中…' : '立即购买'}
-      </button>
+      </Button>
       {error && <p className="shop-pdp-error">{error}</p>}
     </div>
   );

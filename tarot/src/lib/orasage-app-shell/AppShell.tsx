@@ -18,10 +18,9 @@ export type AppShellProps = {
   theme?: 'light' | 'dark';
   pathname?: string;
   showBottomNav?: boolean;
-  showMobileBar?: boolean;
-  showSiteTopNav?: boolean;
-  immersive?: boolean;
   footer?: ReactNode;
+  /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
+  headerExtra?: ReactNode;
   children: ReactNode;
 };
 
@@ -32,29 +31,28 @@ export function AppShell({
   theme = 'dark',
   pathname = '/',
   showBottomNav = true,
-  showMobileBar = true,
-  showSiteTopNav = true,
-  immersive = false,
   footer = null,
+  headerExtra = null,
   children,
 }: AppShellProps) {
-  const showBack = isAppSubpage(appId, pathname) && !immersive;
+  const showBack = isAppSubpage(appId, pathname);
   const brandLabel = appBrandLabel(appId, locale);
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
-      {showSiteTopNav && <SiteTopNav locale={locale} context={appId} />}
+      <SiteTopNav locale={locale} context={appId} trailing={headerExtra} />
 
-      {showMobileBar && (
-        <header className="orasage-site-mobile-bar lg:hidden">
-          <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
-            {brandLabel}
-          </a>
+      <header className="orasage-site-mobile-bar lg:hidden">
+        <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
+          {brandLabel}
+        </a>
+        <div className="orasage-site-mobile-bar-actions">
+          {headerExtra}
           <OrasageAuthChip locale={locale} />
-        </header>
-      )}
+        </div>
+      </header>
 
-      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
+      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}`}>
         {showBack && (
           <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
             <button

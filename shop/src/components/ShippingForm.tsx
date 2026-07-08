@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import {
   SHIPPING_COUNTRIES,
   estimateShippingFeeCents,
@@ -272,9 +273,9 @@ export function ShippingForm({
 
       {error ? <p className="shop-shipping-error">{error}</p> : null}
 
-      <button type="submit" className="shop-btn-primary shop-shipping-submit" disabled={loading}>
+      <Button type="submit" className="shop-shipping-submit w-full" disabled={loading} loading={loading}>
         {loading ? '保存中…' : '确认收货信息'}
-      </button>
+      </Button>
 
       <p className="shop-shipping-manage">
         <a href="/account/addresses">管理地址簿</a>

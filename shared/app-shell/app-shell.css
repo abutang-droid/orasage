@@ -133,6 +133,11 @@
   padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
+.orasage-app-main--column {
+  display: flex;
+  flex-direction: column;
+}
+
 .orasage-app-main--no-bottomnav {
   padding-bottom: 12px;
 }
@@ -250,6 +255,12 @@
   text-decoration: none;
 }
 
+.orasage-site-mobile-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 @media (min-width: 1024px) {
   .orasage-site-mobile-bar {
     display: none;
@@ -325,6 +336,10 @@
   .orasage-app-bottomnav {
     display: none !important;
   }
+}
+
+.orasage-page-toolbar--subpage {
+  justify-content: flex-start;
 }
 
 .orasage-page-toolbar {

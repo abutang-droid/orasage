@@ -4,6 +4,7 @@ export { OrasageAuthChip } from './OrasageAuthChip';
 export { SiteTopNav } from './SiteTopNav';
 export type { AppId, NavContext } from './config';
 export {
+  appBrandLabel,
   appHomeUrl,
   profileUrl,
   famousUrl,
@@ -12,4 +13,5 @@ export {
   isCurrentAppHome,
   isAppSubpage,
   isMainPortalHome,
+  resolveSecondNavSlot,
 } from './config';

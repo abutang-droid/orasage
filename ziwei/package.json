@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@orasage/city": "file:../packages/city",
+    "@orasage/tokens": "file:../packages/tokens",
     "@anthropic-ai/sdk": "^0.27.0",
     "@types/pg": "^8.20.0",
     "@vercel/analytics": "^2.0.1",

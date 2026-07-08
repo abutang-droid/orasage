@@ -4,11 +4,13 @@
 }
 
 .orasage-app-shell {
-  --shell-bg: #fafaf8;
-  --shell-text: #171717;
-  --shell-muted: #6b7280;
-  --shell-gold: #171717;
-  --shell-border: #e7e5e4;
+  --shell-bg: #0f0e17;
+  --shell-surface: rgba(21, 18, 42, 0.96);
+  --shell-border: rgba(255, 255, 255, 0.08);
+  --shell-border-subtle: rgba(255, 255, 255, 0.04);
+  --shell-text: #e8e4dc;
+  --shell-muted: #9a9588;
+  --shell-gold: #c9a05a;
   --shell-top-h: 52px;
   --shell-bottom-h: 56px;
   min-height: 100dvh;
@@ -131,6 +133,11 @@
   padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
+.orasage-app-main--column {
+  display: flex;
+  flex-direction: column;
+}
+
 .orasage-app-main--no-bottomnav {
   padding-bottom: 12px;
 }
@@ -248,6 +255,12 @@
   text-decoration: none;
 }
 
+.orasage-site-mobile-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 @media (min-width: 1024px) {
   .orasage-site-mobile-bar {
     display: none;
@@ -323,6 +336,10 @@
   .orasage-app-bottomnav {
     display: none !important;
   }
+}
+
+.orasage-page-toolbar--subpage {
+  justify-content: flex-start;
 }
 
 .orasage-page-toolbar {

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
@@ -92,9 +93,9 @@ export default function CartPage() {
       <main className="shop-page safe-bottom flex-1 py-12 text-center">
         <h1 className="font-serif text-2xl text-sage-primary">购物车</h1>
         <p className="mt-4 text-sm text-sage-muted">购物车是空的</p>
-        <Link href="/" className="shop-btn-primary mt-8 inline-flex px-8">
-          去逛逛
-        </Link>
+        <Button asChild className="mt-8 px-8">
+          <Link href="/">去逛逛</Link>
+        </Button>
       </main>
     );
   }
@@ -171,14 +172,15 @@ export default function CartPage() {
         </p>
         <p className="shop-cart-note">购物车商品将合并为一笔订单结算；含实体商品时需填写配送信息。</p>
         {checkoutError ? <p className="mt-2 text-sm text-red-600">{checkoutError}</p> : null}
-        <button
+        <Button
           type="button"
           onClick={() => void handleCheckout()}
           disabled={checkingOut}
-          className="shop-btn-primary w-full"
+          loading={checkingOut}
+          className="w-full"
         >
           {checkingOut ? '准备订单…' : '去结账'}
-        </button>
+        </Button>
       </div>
     </main>
   );

@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
+import { Button } from '@orasage/ui/button';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
@@ -394,14 +395,15 @@ function CheckoutContent() {
             </p>
             {emailError && <p className="mt-3 text-sm text-red-600 text-center">{emailError}</p>}
             <div className="mt-6 flex flex-col gap-3">
-              <button
+              <Button
                 type="button"
                 disabled={guestLoading}
+                loading={guestLoading}
                 onClick={() => void handleBindExisting()}
-                className="shop-btn-primary w-full"
+                className="w-full"
               >
                 {guestLoading ? '处理中…' : '直接使用'}
-              </button>
+              </Button>
               <button
                 type="button"
                 disabled={guestLoading}
@@ -430,9 +432,9 @@ function CheckoutContent() {
               若邮箱尚未注册，继续即表示同意以此邮箱创建账号并接收订单通知。
             </p>
             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
-            <button type="submit" disabled={guestLoading} className="shop-btn-primary mt-6 w-full">
+            <Button type="submit" disabled={guestLoading} loading={guestLoading} className="mt-6 w-full">
               {guestLoading ? '处理中…' : '继续解锁'}
-            </button>
+            </Button>
           </form>
         )}
       </main>
@@ -461,9 +463,9 @@ function CheckoutContent() {
         {payError ? (
           <>
             <p className="mt-4 text-sm text-red-600">{payError}</p>
-            <button
+            <Button
               type="button"
-              className="shop-btn-primary mt-6 px-8"
+              className="mt-6 px-8"
               onClick={() => {
                 autoFlowOrderRef.current = null;
                 payingRef.current = false;
@@ -477,7 +479,7 @@ function CheckoutContent() {
               }}
             >
               重试
-            </button>
+            </Button>
           </>
         ) : (
           <p className="mt-6 text-sm text-sage-primary">
@@ -520,14 +522,15 @@ function CheckoutContent() {
       <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
       <p className="mt-3 text-sm text-sage-muted">订单号：{orderNo}</p>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
-      <button
+      <Button
         type="button"
         disabled={flowPhase === 'paying'}
+        loading={flowPhase === 'paying'}
         onClick={() => void completePayment(orderNo)}
-        className="shop-btn-primary mt-8 px-8"
+        className="mt-8 px-8"
       >
         {flowPhase === 'paying' ? '处理中…' : '模拟支付（完成订单）'}
-      </button>
+      </Button>
     </main>
   );
 }
