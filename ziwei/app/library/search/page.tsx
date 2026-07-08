@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { ScrollText } from 'lucide-react';
+import { Card } from '@orasage/ui/card';
 import { searchClassics, getParagraphById } from '@/lib/classics';
 
 export const metadata = {
@@ -32,14 +33,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </div>
 
         {hits.length === 0 ? (
-          <div style={{
-            background: 'var(--bg-card)',
-            padding: '40px 20px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            color: 'var(--tx-2)',
-            border: '1px solid rgba(184,146,42,0.15)',
-          }}>
+          <Card
+            className="rounded-xl border-[rgba(184,146,42,0.15)] px-5 py-10 text-center shadow-none"
+            style={{ background: 'var(--bg-card)', color: 'var(--tx-2)' }}
+          >
             <ScrollText size={40} strokeWidth={1.5} style={{ marginBottom: '12px', opacity: 0.4 }} aria-hidden />
             {q ? (
               <>
@@ -52,26 +49,23 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             ) : (
               <div style={{ fontSize: '13px' }}>请输入要搜索的关键词</div>
             )}
-          </div>
+          </Card>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {hits.map((hit, i) => {
               const ctx = getParagraphById(hit.paragraphId);
               const chapterIdx = ctx?.chapterIdx ?? 0;
               return (
-                <Link
+                <Card
                   key={i}
+                  variant="interactive"
+                  asChild
+                  className="rounded-[10px] border-[rgba(184,146,42,0.18)] px-5 py-4 shadow-none transition-[border-color]"
+                  style={{ background: 'var(--bg-card)' }}
+                >
+                <Link
                   href={`/library/${hit.bookSlug}/${chapterIdx}#${hit.paragraphId}`}
-                  style={{
-                    display: 'block',
-                    background: 'var(--bg-card)',
-                    padding: '16px 20px',
-                    borderRadius: '10px',
-                    border: '1px solid rgba(184,146,42,0.18)',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    transition: 'border-color 0.15s',
-                  }}
+                  style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
                 >
                   <div style={{
                     display: 'flex',
@@ -96,6 +90,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                     dangerouslySetInnerHTML={{ __html: hit.snippet }}
                   />
                 </Link>
+                </Card>
               );
             })}
           </div>

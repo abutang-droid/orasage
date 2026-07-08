@@ -8,6 +8,9 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
+import { Input } from '@orasage/ui/input';
 
 export default function LibrarySearch() {
   const [q, setQ] = useState('');
@@ -23,48 +26,26 @@ export default function LibrarySearch() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      gap: '8px',
-      padding: '6px',
-      background: 'var(--bg-card)',
-      border: '1px solid rgba(184,146,42,0.3)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 16px rgba(184,146,42,0.08)',
-    }}>
-      <input
+    <Card
+      className="flex gap-2 rounded-xl border-[rgba(184,146,42,0.3)] p-1.5 shadow-[0_4px_16px_rgba(184,146,42,0.08)]"
+      style={{ background: 'var(--bg-card)' }}
+    >
+      <Input
         value={q}
-        onChange={e => setQ(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && submit()}
+        onChange={(e) => setQ(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && submit()}
         placeholder="搜索古籍原文，如：七杀朝斗 / 双禄朝垣 / 化忌"
-        style={{
-          flex: 1,
-          padding: '10px 14px',
-          border: 'none',
-          outline: 'none',
-          fontSize: '14px',
-          color: 'var(--tx-0)',
-          background: 'transparent',
-        }}
+        className="h-auto min-h-0 flex-1 border-0 bg-transparent px-3.5 py-2.5 text-sm text-[var(--tx-0)] shadow-none focus-visible:ring-0"
       />
-      <button
+      <Button
+        type="button"
         onClick={submit}
         disabled={isPending || !q.trim()}
-        style={{
-          padding: '10px 22px',
-          borderRadius: '8px',
-          border: 'none',
-          background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
-          color: 'white',
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '0.15em',
-          cursor: q.trim() ? 'pointer' : 'not-allowed',
-          opacity: q.trim() ? 1 : 0.5,
-        }}
+        loading={isPending}
+        className="ziwei-calc-submit shrink-0 rounded-lg px-5 py-2.5 text-[13px] tracking-[0.15em]"
       >
-        {isPending ? '…' : '搜索'}
-      </button>
-    </div>
+        搜索
+      </Button>
+    </Card>
   );
 }
