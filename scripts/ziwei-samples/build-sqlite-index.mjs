@@ -104,18 +104,15 @@ async function main() {
 
   let files = 0;
   let records = 0;
-  const insertMany = db.transaction((batch) => {
-    for (const row of batch) {
-      const key = normalizeKey(row.birthInfo);
-      insert.run(lookupKeyString(key), JSON.stringify(row.topics));
-      records++;
-    }
-  });
 
   for await (const archive of iterArchives()) {
     files++;
     const rows = await readGzLines(archive);
-    insertMany(rows);
+    for (const row of rows) {
+      const key = normalizeKey(row.birthInfo);
+      insert.run(lookupKeyString(key), JSON.stringify(row.topics));
+      records++;
+    }
     if (files % 60 === 0) {
       console.log(`[build-index] ${files} archives, ${records} records…`);
     }
