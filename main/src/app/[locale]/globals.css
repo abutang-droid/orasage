@@ -279,6 +279,34 @@
   .portal-subpage-body :where(li) {
     @apply my-2;
   }
+
+  /* ── 法律/帮助页正文归一化（关于我们 / 用户协议 / 隐私 / 联系） ──
+     CMS legacyHtml 携带 WordPress Stackable 区块的内联颜色、居中排版与
+     背景装饰，导致四页样式互不一致；此作用域把它们统一回 DS v1.1 单色
+     排版。famous / daozang 等其它 CMS 页不受影响（未挂 .legal-article）。 */
+  .legal-article :where([style]) {
+    color: inherit !important;
+    background: none !important;
+  }
+
+  .legal-article :where(.stk-block-background, .stk--has-background-overlay, [class*='stk-block']) {
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  .legal-article :where(.has-text-align-center, .has-text-align-justify, .has-text-align-right, .has-text-align-center-mobile) {
+    text-align: start !important;
+  }
+
+  /* 正文内嵌 h1 与页面 ProfileSection h1 并存时，视觉降级为二级标题 */
+  .legal-article :where(h1) {
+    @apply text-heading-2 tracking-[-0.01em];
+  }
+
+  .legal-article > :first-child,
+  .legal-article :where(h1, h2, h3):first-child {
+    margin-top: 0;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════

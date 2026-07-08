@@ -30,6 +30,12 @@ export const shipmentStatusEnum = pgEnum("shipment_status", [
   "delivered",
 ]);
 
+export const contactMessageStatusEnum = pgEnum("contact_message_status", [
+  "new",
+  "processing",
+  "resolved",
+]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
@@ -274,6 +280,25 @@ export const diyConfig = pgTable("diy_config", {
   minOrderCents: integer("min_order_cents").notNull().default(9900),
   fitToleranceMm: real("fit_tolerance_mm").notNull().default(8),
   wristEaseMm: real("wrist_ease_mm").notNull().default(10),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 用户联系留言 / 工单（main 门户「联系我们」表单 → admin 运营后台处理） */
+export const contactMessages = pgTable("contact_messages", {
+  id: serial("id").primaryKey(),
+  /** 提交时已登录则记录用户 id；游客留言为 null */
+  userId: integer("user_id"),
+  name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 200 }),
+  body: text("body").notNull(),
+  locale: varchar("locale", { length: 10 }),
+  status: contactMessageStatusEnum("status").notNull().default("new"),
+  /** 运营处理备注 */
+  adminNote: text("admin_note"),
+  /** 处理人（admin 用户 id） */
+  handledBy: integer("handled_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
 import { parseI18nMapFromForm } from '@/lib/product-i18n-form';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
@@ -156,6 +156,15 @@ export async function updateOrderStatusAction(formData: FormData) {
   await updateOrderStatus(orderNo, status);
   revalidatePath('/orders');
   revalidatePath('/');
+}
+
+export async function updateContactMessageAction(formData: FormData) {
+  const id = Number(formData.get('id') ?? 0);
+  const status = String(formData.get('status') ?? '').trim();
+  const adminNote = String(formData.get('adminNote') ?? '').trim();
+  if (!Number.isInteger(id) || id <= 0 || !status) throw new Error('参数不完整');
+  await updateContactMessage(id, { status, adminNote });
+  revalidatePath('/messages');
 }
 
 export async function createShipmentAction(formData: FormData) {

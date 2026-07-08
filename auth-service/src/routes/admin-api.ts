@@ -2,7 +2,7 @@ import { Router } from "express";
 import { count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { products, userOrders, userReadings, users } from "../db/schema.ts";
+import { contactMessages, products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct, formatProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
@@ -479,6 +479,78 @@ adminApiRouter.get("/orders", async (req, res) => {
     };
   }));
   res.json({ orders });
+});
+
+const CONTACT_STATUS_LABELS: Record<string, string> = {
+  new: "待处理",
+  processing: "处理中",
+  resolved: "已解决",
+};
+
+adminApiRouter.get("/contact-messages", async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 100, 200);
+  const statusFilter = String(req.query.status ?? "");
+  const base = db.select().from(contactMessages);
+  const rows = await (
+    statusFilter && statusFilter in CONTACT_STATUS_LABELS
+      ? base.where(eq(contactMessages.status, statusFilter as "new" | "processing" | "resolved"))
+      : base
+  ).orderBy(desc(contactMessages.createdAt)).limit(limit);
+
+  res.json({
+    messages: rows.map((m) => ({
+      id: m.id,
+      userId: m.userId,
+      name: m.name,
+      email: m.email,
+      subject: m.subject,
+      body: m.body,
+      locale: m.locale,
+      status: m.status,
+      statusLabel: CONTACT_STATUS_LABELS[m.status] ?? m.status,
+      adminNote: m.adminNote,
+      handledBy: m.handledBy,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+    })),
+  });
+});
+
+const contactMessagePatchSchema = z.object({
+  status: z.enum(["new", "processing", "resolved"]).optional(),
+  adminNote: z.string().max(2000).optional(),
+}).refine((b) => b.status !== undefined || b.adminNote !== undefined, {
+  message: "至少提供一个更新字段",
+});
+
+adminApiRouter.patch("/contact-messages/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "参数错误" });
+      return;
+    }
+    const body = contactMessagePatchSchema.parse(req.body);
+    const existing = await db.select().from(contactMessages).where(eq(contactMessages.id, id)).limit(1);
+    if (existing.length === 0) {
+      res.status(404).json({ error: "留言不存在" });
+      return;
+    }
+    const adminUser = (req as typeof req & { adminUser?: { id: number } }).adminUser;
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.adminNote !== undefined) updates.adminNote = body.adminNote || null;
+    if (adminUser?.id) updates.handledBy = adminUser.id;
+    await db.update(contactMessages).set(updates).where(eq(contactMessages.id, id));
+    res.json({ success: true, id });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] update contact message:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 const orderStatusSchema = z.object({

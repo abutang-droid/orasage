@@ -26,6 +26,11 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     href: '/orders',
     isActive: (p) => p.startsWith('/orders'),
   },
+  {
+    label: '留言',
+    href: '/messages',
+    isActive: (p) => p.startsWith('/messages'),
+  },
 ];
 
 /** CMS 管理路径（经 admin.orasage.com/cms 反代，href 用浏览器完整路径） */
