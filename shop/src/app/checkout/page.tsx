@@ -530,6 +530,7 @@ function CheckoutContent() {
         loading={flowPhase === 'paying'}
         onClick={() => void completePayment(orderNo)}
         className="mt-8 px-8"
+        data-testid="checkout-mock-pay"
       >
         {flowPhase === 'paying' ? t('processing') : t('mockPay')}
       </Button>

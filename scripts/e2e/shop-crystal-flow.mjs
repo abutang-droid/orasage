@@ -68,7 +68,7 @@ async function main() {
   await page.waitForURL(/shop\.orasage\.com\/(checkout|success)/, { timeout: 60000 });
   if (page.url().includes('/checkout')) {
     console.log('[shop-crystal] on checkout — mock pay');
-    await page.getByRole('button', { name: '模拟支付（完成订单）' }).click();
+    await page.getByTestId('checkout-mock-pay').click();
     await page.waitForURL(/shop\.orasage\.com\/success/, { timeout: 60000 });
   } else {
     console.log('[shop-crystal] direct success (inline mock pay)');

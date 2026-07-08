@@ -74,7 +74,7 @@ async function main() {
     timeout: 60000,
   });
 
-  const payBtn = page.getByRole('button', { name: '模拟支付（完成订单）' });
+  const payBtn = page.getByTestId('checkout-mock-pay');
   await payBtn.waitFor({ state: 'visible', timeout: 15000 });
 
   console.log('[pay-net] go offline and attempt pay');
