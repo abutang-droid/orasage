@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { fetchDiyCatalog, PRODUCT_SKU_TO_BEAD_MATERIAL } from '@/lib/diy';
+import { PRODUCT_SKU_TO_BEAD_MATERIAL } from '@/lib/diy';
+import { fetchDiyCatalog } from '@/lib/diy-server';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { currencyForLocale } from '@/lib/currency';
 import { DiyDesigner } from '@/components/diy/DiyDesigner';

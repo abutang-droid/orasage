@@ -1,4 +1,7 @@
-import { ENV } from './env';
+/**
+ * 共振定制：类型与常量（客户端组件也会引用，禁止 import 服务端 env）
+ * 服务端数据获取见 ./diy-server.ts
+ */
 
 export { DIY_ORDER_SKU } from '../../../shared/shop-diy/order-context';
 
@@ -34,29 +37,12 @@ export type DiyCatalog = {
   config: DiyConfig;
 };
 
-const FALLBACK_CONFIG: DiyConfig = {
+export const FALLBACK_DIY_CONFIG: DiyConfig = {
   lengthCorrectionMm: 3,
   minOrderCents: 9900,
   fitToleranceMm: 8,
   wristEaseMm: 10,
 };
-
-export async function fetchDiyCatalog(): Promise<DiyCatalog> {
-  try {
-    const res = await fetch(`${ENV.authInternalUrl}/api/diy/catalog`, {
-      next: { revalidate: 60 },
-    } as RequestInit);
-    if (!res.ok) throw new Error(`diy catalog ${res.status}`);
-    const data = await res.json() as DiyCatalog;
-    return {
-      beads: (data.beads ?? []).filter((b) => b && b.code),
-      config: data.config ?? FALLBACK_CONFIG,
-    };
-  } catch (err) {
-    console.warn('[shop] fetchDiyCatalog failed:', err);
-    return { beads: [], config: FALLBACK_CONFIG };
-  }
-}
 
 /** 商城水晶 SKU → 珠子材质前缀（PDP「定制手链」预填基底） */
 export const PRODUCT_SKU_TO_BEAD_MATERIAL: Record<string, string> = {
