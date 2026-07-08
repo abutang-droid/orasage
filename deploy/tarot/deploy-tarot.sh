@@ -62,6 +62,18 @@ deploy_native() {
   fi
   set +a
 
+  ensure_tarot_env_kv() {
+    local key="$1" val="$2"
+    local file="$APP_DIR/.env"
+    touch "$file"
+    if grep -q "^${key}=" "$file" 2>/dev/null; then
+      sed -i "s|^${key}=.*|${key}=${val}|" "$file"
+    else
+      echo "${key}=${val}" >> "$file"
+    fi
+  }
+  ensure_tarot_env_kv MERIT_SHARE_PATH_ENABLED true
+
   if [ -z "${DATABASE_URL:-}" ]; then
     log "错误: 缺少 DATABASE_URL（PostgreSQL），请在 $APP_DIR/.env 中配置"
     exit 1
