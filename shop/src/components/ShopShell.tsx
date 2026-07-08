@@ -9,13 +9,14 @@ import { CartProvider } from '@/lib/cart';
 import { CartLink } from '@/components/CartLink';
 
 function ShopShellInner({ children }: { children: ReactNode }) {
-  const { locale } = useShopLocale();
+  const { locale, setLocale } = useShopLocale();
   const pathname = usePathname() ?? '/';
 
   return (
     <AppShell
       appId="shop"
       locale={locale}
+      onLocaleChange={setLocale}
       theme="light"
       pathname={pathname}
       footer={<PortalFooter />}

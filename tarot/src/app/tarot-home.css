@@ -285,7 +285,7 @@
   border-radius: 50%;
   object-fit: cover;
   object-position: center top;
-  border: 2px solid rgba(184, 148, 63, 0.35);
+  border: 2px solid rgb(var(--tarot-accent-rgb) / 0.35);
   flex-shrink: 0;
 }
 
@@ -309,7 +309,7 @@
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gold, #b8943f);
+  color: var(--gold, var(--gold));
 }
 
 .tarot-home-hero-cms-image {
@@ -342,8 +342,8 @@
 
 .tarot-home-hero-card-inner--gold {
   font-size: 1.5rem;
-  color: #b8943f;
-  background: linear-gradient(180deg, #fff 0%, #faf8f4 100%);
+  color: var(--gold);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--tarot-ivory-warm) 100%);
 }
 
 .tarot-home-v2-actions {
@@ -372,14 +372,14 @@
 }
 
 .tarot-home-v2-card:hover {
-  border-color: rgba(184, 148, 63, 0.45);
-  box-shadow: 0 8px 24px rgba(42, 33, 24, 0.06);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.45);
+  box-shadow: 0 8px 24px var(--tarot-shadow-warm);
   transform: translateY(-1px);
 }
 
 .tarot-home-v2-card--primary {
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.1) 0%, rgba(255, 255, 255, 0.96) 55%);
-  border-color: rgba(184, 148, 63, 0.28);
+  background: linear-gradient(135deg, rgb(var(--tarot-accent-alt-rgb) / 0.1) 0%, rgb(var(--os-rgb-mono-white, 255 255 255) / 0.96) 55%);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.28);
 }
 
 .tarot-home-v2-card-head {
@@ -395,7 +395,7 @@
   border-radius: 12px;
   display: grid;
   place-items: center;
-  background: rgba(184, 148, 63, 0.12);
+  background: rgb(var(--tarot-accent-rgb) / 0.12);
   font-size: 1.25rem;
   flex-shrink: 0;
 }
@@ -426,8 +426,8 @@
   font-size: 0.6875rem;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(184, 148, 63, 0.14);
-  color: #8a6d2b;
+  background: rgb(var(--tarot-accent-rgb) / 0.14);
+  color: var(--tarot-accent-muted);
   font-weight: 600;
 }
 
@@ -446,7 +446,7 @@
 .tarot-home-v2-card-cta {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #b8943f;
+  color: var(--gold);
 }
 
 .tarot-home-v2-temple-link {
@@ -467,7 +467,7 @@
 }
 
 .tarot-home-v2-temple-link:hover .tarot-home-v2-temple-inner {
-  border-color: rgba(184, 148, 63, 0.35);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.35);
 }
 
 .tarot-home-v2-temple-icon {
@@ -532,7 +532,7 @@
 
 .daily-fortune-quota-row strong {
   font-family: var(--font-serif);
-  color: var(--gold, #b8943f);
+  color: var(--gold, var(--gold));
 }
 
 .daily-fortune-quota-hint {
@@ -543,7 +543,7 @@
 }
 
 .daily-fortune-quota-hint a {
-  color: var(--gold, #b8943f);
+  color: var(--gold, var(--gold));
   text-decoration: none;
 }
 
@@ -621,7 +621,7 @@
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--bg-card);
   text-align: left;
   font-size: 14px;
   color: var(--text-secondary);
@@ -630,8 +630,8 @@
 }
 
 .daily-fortune-q-option:hover {
-  border-color: rgba(184, 148, 63, 0.45);
-  background: rgba(184, 148, 63, 0.06);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.45);
+  background: rgb(var(--tarot-accent-rgb) / 0.06);
   color: var(--text-primary);
 }
 
@@ -705,8 +705,8 @@
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(184, 148, 63, 0.14);
-  color: #8a6d2b;
+  background: rgb(var(--tarot-accent-rgb) / 0.14);
+  color: var(--tarot-accent-muted);
 }
 
 .daily-fortune-dim p {
@@ -717,7 +717,7 @@
 }
 
 .daily-fortune-dim--summary {
-  background: rgba(184, 148, 63, 0.06);
+  background: rgb(var(--tarot-accent-rgb) / 0.06);
 }
 
 .daily-fortune-guest-wall {
@@ -758,7 +758,7 @@
 .daily-fortune-recommend-price {
   margin: 0;
   font-size: 14px;
-  color: #b8943f;
+  color: var(--gold);
   font-weight: 600;
 }
 
@@ -799,12 +799,12 @@
   margin-bottom: 16px;
   font-family: inherit;
   color: var(--text-primary);
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .three-card-question-input:focus {
   outline: none;
-  border-color: rgba(184, 148, 63, 0.5);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.5);
 }
 
 .three-card-reveal {
@@ -907,8 +907,8 @@
 }
 
 .three-card-tier--bundle {
-  border-color: rgba(184, 148, 63, 0.35);
-  background: rgba(184, 148, 63, 0.04);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.35);
+  background: rgb(var(--tarot-accent-rgb) / 0.04);
 }
 
 .three-card-tier-name {
@@ -927,7 +927,7 @@
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #b8943f;
+  color: var(--gold);
 }
 
 .three-card-full-card {
@@ -952,7 +952,7 @@
   margin: 0;
   font-size: 11px;
   font-style: italic;
-  color: var(--gold, #b8943f);
+  color: var(--gold, var(--gold));
   text-align: center;
 }
 
@@ -977,8 +977,8 @@
   padding: 16px;
   margin-bottom: 16px;
   text-align: center;
-  background: rgba(184, 148, 63, 0.08);
-  border-color: rgba(184, 148, 63, 0.25);
+  background: rgb(var(--tarot-accent-rgb) / 0.08);
+  border-color: rgb(var(--tarot-accent-rgb) / 0.25);
 }
 
 .three-card-affirmation p {
@@ -1006,8 +1006,8 @@
   padding: 20px 16px;
   margin-bottom: 12px;
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(184, 148, 63, 0.08) 0%, rgba(255, 255, 255, 0.9) 100%);
-  border: 1px solid rgba(184, 148, 63, 0.22);
+  background: linear-gradient(180deg, rgb(var(--tarot-accent-rgb) / 0.08) 0%, var(--tarot-surface-glass-strong) 100%);
+  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.22);
 }
 
 .guest-login-wall-inner {

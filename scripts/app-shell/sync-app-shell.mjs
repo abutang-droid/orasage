@@ -22,6 +22,8 @@ const TS_FILES = [
   'AppBrandMark.tsx',
   'OrasageAuthChip.tsx',
   'SiteTopNav.tsx',
+  'LocaleSwitcher.tsx',
+  'locale-cookie.ts',
   'BottomNav.tsx',
   'config.ts',
   'labels.ts',

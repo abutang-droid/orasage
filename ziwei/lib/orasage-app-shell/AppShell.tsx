@@ -7,6 +7,7 @@ import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
 import { OrasageAuthChip } from './OrasageAuthChip';
+import { LocaleSwitcher } from './LocaleSwitcher';
 import './app-shell.css';
 
 export type LocaleOption = { code: string; label: string };
@@ -22,6 +23,7 @@ export type AppShellProps = {
   showMobileBar?: boolean;
   showSiteTopNav?: boolean;
   immersive?: boolean;
+  showLocaleSwitcher?: boolean;
   footer?: ReactNode;
   /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
   headerExtra?: ReactNode;
@@ -38,8 +40,10 @@ export function AppShell({
   showMobileBar = true,
   showSiteTopNav = true,
   immersive = false,
+  showLocaleSwitcher = true,
   footer = null,
   headerExtra = null,
+  onLocaleChange,
   children,
 }: AppShellProps) {
   const showBack = isAppSubpage(appId, pathname) && !immersive;
@@ -47,7 +51,15 @@ export function AppShell({
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
-      {showSiteTopNav && <SiteTopNav locale={locale} context={appId} trailing={headerExtra} />}
+      {showSiteTopNav && (
+        <SiteTopNav
+          locale={locale}
+          context={appId}
+          trailing={headerExtra}
+          showLocaleSwitcher={showLocaleSwitcher}
+          onLocaleChange={onLocaleChange}
+        />
+      )}
 
       {showMobileBar && (
         <header className="orasage-site-mobile-bar lg:hidden">
@@ -56,6 +68,9 @@ export function AppShell({
           </a>
           <div className="orasage-site-mobile-bar-actions">
             {headerExtra}
+            {showLocaleSwitcher && (
+              <LocaleSwitcher locale={locale} context={appId} onLocaleChange={onLocaleChange} />
+            )}
             <OrasageAuthChip locale={locale} />
           </div>
         </header>

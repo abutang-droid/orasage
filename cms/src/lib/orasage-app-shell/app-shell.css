@@ -93,6 +93,9 @@
   color: var(--shell-muted);
   font-size: 12px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .orasage-app-lang-menu {

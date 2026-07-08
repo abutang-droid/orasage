@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
+import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
 
 const TOP_NAV_ITEMS = [
@@ -22,10 +23,18 @@ export type SiteTopNavProps = {
   context?: NavContext;
   /** 导航右侧、登录芯片前的插槽（如 shop 购物车） */
   trailing?: ReactNode;
+  showLocaleSwitcher?: boolean;
+  onLocaleChange?: (locale: string) => void;
 };
 
 /** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
-export function SiteTopNav({ locale = 'zh-CN', context = 'portal', trailing = null }: SiteTopNavProps) {
+export function SiteTopNav({
+  locale = 'zh-CN',
+  context = 'portal',
+  trailing = null,
+  showLocaleSwitcher = true,
+  onLocaleChange,
+}: SiteTopNavProps) {
   const isPortal = context === 'portal';
   const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
   const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
@@ -47,6 +56,9 @@ export function SiteTopNav({ locale = 'zh-CN', context = 'portal', trailing = nu
             );
           })}
           {trailing}
+          {showLocaleSwitcher && (
+            <LocaleSwitcher locale={locale} context={context} onLocaleChange={onLocaleChange} />
+          )}
           <OrasageAuthChip locale={locale} />
         </nav>
       </div>

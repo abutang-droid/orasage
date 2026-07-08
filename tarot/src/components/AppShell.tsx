@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation"
 import { AppShell as OraSageAppShell } from "@/lib/orasage-app-shell"
 import { useLang } from "@/lib/i18n/context"
-import { localeFromLang } from "@/lib/orasage-locale"
+import { localeFromLang, tarotLangFromLocale } from "@/lib/orasage-locale"
 import { OnboardingGate } from "@/components/OnboardingGate"
 import { PortalFooter } from "@/components/PortalFooter"
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { lang } = useLang()
+  const { lang, setLang } = useLang()
   const locale = localeFromLang(lang)
   const isOnboarding = pathname.startsWith("/onboarding")
 
@@ -18,6 +18,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <OraSageAppShell
         appId="tarot"
         locale={locale}
+        onLocaleChange={(next) => setLang(tarotLangFromLocale(next))}
         theme="light"
         pathname={pathname}
         showBottomNav={!isOnboarding}

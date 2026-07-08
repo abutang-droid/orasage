@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import {
   currencyForLocale,
   detectShopLocale,
@@ -8,10 +8,12 @@ import {
   SHOP_LOCALE_OVERRIDE_COOKIE,
   type ShopCurrency,
 } from '../../../shared/shop-locale/index';
+import { setLocaleCookie } from '@/lib/orasage-app-shell';
 
 type ShopLocaleContextValue = {
   locale: string;
   currency: ShopCurrency;
+  setLocale: (locale: string) => void;
 };
 
 const ShopLocaleContext = createContext<ShopLocaleContextValue | null>(null);
@@ -48,9 +50,16 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     );
   }, []);
 
+  const applyLocale = useCallback((raw: string) => {
+    const normalized = detectShopLocale({ queryLocale: raw });
+    document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+    setLocaleCookie(normalized);
+    setLocale(normalized);
+  }, []);
+
   const value = useMemo(
-    () => ({ locale, currency: currencyForLocale(locale) }),
-    [locale],
+    () => ({ locale, currency: currencyForLocale(locale), setLocale: applyLocale }),
+    [locale, applyLocale],
   );
 
   return <ShopLocaleContext.Provider value={value}>{children}</ShopLocaleContext.Provider>;

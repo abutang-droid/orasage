@@ -94,6 +94,21 @@
   --popover: var(--orasage-surface, #ffffff);
   --popover-foreground: var(--orasage-primary, #171717);
   --radius: var(--orasage-radius-md, 14px);
+
+  /* Feature surfaces (tarot-home / temple / geo-journey) */
+  --tarot-accent-rgb: 184 148 63;
+  --tarot-accent-alt-rgb: 201 149 74;
+  --tarot-accent-muted: var(--gold-dark, #96752f);
+  --tarot-ivory-warm: #faf8f4;
+  --tarot-ivory-map: #ebe4d8;
+  --tarot-ivory-sand: #f7f3ec;
+  --tarot-surface-glass: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.88);
+  --tarot-surface-glass-strong: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.92);
+  --tarot-surface-glass-soft: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.72);
+  --tarot-surface-glass-heavy: rgb(var(--os-rgb-mono-white, 255 255 255) / 0.94);
+  --tarot-shadow-warm: rgb(42 33 24 / 0.06);
+  --tarot-overlay-dark: rgb(20 16 12 / 0.45);
+  --tarot-map-blue-rgb: 120 150 190;
 }
 
 /* ── Base Reset ────────────────────────────────────────────────── */
