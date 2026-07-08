@@ -51,5 +51,10 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/(zh-CN|zh-TW|en|pt-BR|es|fr|de|ja|ko|vi|th|ar)/:path*', '/((?!_next|api|favicon.ico).*)'],
+  matcher: [
+    '/',
+    '/(zh-CN|zh-TW|en|pt-BR|es|fr|de|ja|ko|vi|th|ar)/:path*',
+    // 排除静态资源：Next 内部、API、品牌图标（VI v1.0 §6.1）与 public 下的分享图
+    '/((?!_next|api|favicon.ico|icon.svg|apple-icon.png|og.png|robots.txt|sitemap.xml).*)',
+  ],
 };
