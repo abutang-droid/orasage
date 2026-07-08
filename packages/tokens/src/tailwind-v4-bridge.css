@@ -1,32 +1,35 @@
 /**
  * Tailwind v4 theme bridge for OraSage Next.js apps.
  * Import after shared/design-tokens/orasage-tokens.css (or @orasage/tokens/css).
+ *
+ * Use @theme inline so utilities resolve rgb(var(--token)) at compile time.
+ * Avoids unresolved <alpha-value> placeholders breaking bg-primary / text-* on buttons.
  */
-@theme {
+@theme inline {
   /* Semantic shadcn-style colors (rgb channels from orasage-tokens) */
-  --color-background: rgb(var(--background) / <alpha-value>);
-  --color-foreground: rgb(var(--foreground) / <alpha-value>);
-  --color-card: rgb(var(--card) / <alpha-value>);
-  --color-card-foreground: rgb(var(--card-foreground) / <alpha-value>);
-  --color-popover: rgb(var(--popover) / <alpha-value>);
-  --color-popover-foreground: rgb(var(--popover-foreground) / <alpha-value>);
-  --color-primary: rgb(var(--primary) / <alpha-value>);
-  --color-primary-foreground: rgb(var(--primary-foreground) / <alpha-value>);
-  --color-secondary: rgb(var(--secondary) / <alpha-value>);
-  --color-secondary-foreground: rgb(var(--secondary-foreground) / <alpha-value>);
-  --color-muted: rgb(var(--muted) / <alpha-value>);
-  --color-muted-foreground: rgb(var(--muted-foreground) / <alpha-value>);
-  --color-accent: rgb(var(--accent) / <alpha-value>);
-  --color-accent-foreground: rgb(var(--accent-foreground) / <alpha-value>);
-  --color-destructive: rgb(var(--destructive) / <alpha-value>);
-  --color-destructive-foreground: rgb(var(--destructive-foreground) / <alpha-value>);
-  --color-border: rgb(var(--border) / <alpha-value>);
-  --color-input: rgb(var(--input) / <alpha-value>);
-  --color-ring: rgb(var(--ring) / <alpha-value>);
-  --color-placeholder: rgb(var(--placeholder) / <alpha-value>);
-  --color-brand-primary: rgb(var(--brand-primary) / <alpha-value>);
-  --color-brand-gold: rgb(var(--brand-gold) / <alpha-value>);
-  --color-brand-purple: rgb(var(--brand-purple) / <alpha-value>);
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-placeholder: rgb(var(--placeholder));
+  --color-brand-primary: rgb(var(--brand-primary));
+  --color-brand-gold: rgb(var(--brand-gold));
+  --color-brand-purple: rgb(var(--brand-purple));
 
   /* Legacy sage.* utilities used across shop / main */
   --color-sage-bg: var(--orasage-background);
@@ -54,4 +57,8 @@
   --min-height-control-sm: var(--os-size-button-sm);
   --min-height-control-md: var(--os-size-button-md);
   --min-height-control-lg: var(--os-size-button-lg);
+
+  --duration-fast: var(--os-motion-fast);
+  --duration-normal: var(--os-motion-normal);
+  --ease-standard: var(--os-ease-standard);
 }
