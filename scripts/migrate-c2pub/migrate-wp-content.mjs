@@ -9,6 +9,8 @@
  */
 
 import pg from 'pg';
+import { categoryFromWpTerms, categoryFromSlug, sortWeightFromSlug } from './lib/daozang-taxonomy.mjs';
+import { makeExcerpt } from './lib/legacy-html.mjs';
 
 const WP_BASE = (process.env.C2PUB_URL || 'https://www.c2.pub').replace(/\/$/, '');
 const DRY_RUN = process.env.DRY_RUN === '1';
@@ -100,6 +102,23 @@ async function ensureColumns(client) {
   await client.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS pages_wp_type_id_idx ON pages (wp_type, wp_id);
   `).catch(() => {});
+  // 道藏分类字段（与 cms/src/migrations/20260708_090000_daozang_taxonomy.ts 一致）
+  await client.query(`
+    DO $$ BEGIN
+      CREATE TYPE "public"."enum_pages_daozang_category" AS ENUM(
+        'quanfa', 'zhongyi', 'bazi', 'ziweidoushu', 'qizhengsheyu',
+        'yijing', 'liuyao', 'meihuayishu', 'qimendunjia', 'daliuren',
+        'dixiang', 'renxiang', 'xingxiang'
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `);
+  await client.query(`
+    ALTER TABLE pages ADD COLUMN IF NOT EXISTS daozang_category "enum_pages_daozang_category";
+    ALTER TABLE pages ADD COLUMN IF NOT EXISTS sort_weight numeric;
+    ALTER TABLE pages ADD COLUMN IF NOT EXISTS excerpt text;
+    CREATE INDEX IF NOT EXISTS pages_daozang_category_idx ON pages (daozang_category);
+  `);
 }
 
 async function upsertPage(client, item, type) {
@@ -113,6 +132,14 @@ async function upsertPage(client, item, type) {
 
   const wpStatus = item.status || 'publish';
 
+  // 道藏归类 + 摘要（doc_category 权威，slug 编号规则兜底）
+  const daozangCategory =
+    appSource === 'daozang'
+      ? (categoryFromWpTerms(item.doc_category) || categoryFromSlug(slug))?.key ?? null
+      : null;
+  const sortWeight = appSource === 'daozang' ? sortWeightFromSlug(slug) : null;
+  const excerpt = legacyHtml ? makeExcerpt(legacyHtml, title) : null;
+
   const existing = await client.query(
     'SELECT id, slug FROM pages WHERE wp_type = $1 AND wp_id = $2',
     [type, wpId],
@@ -124,9 +151,10 @@ async function upsertPage(client, item, type) {
       return 'updated';
     }
     await client.query(
-      `UPDATE pages SET title=$1, slug=$2, app_source=$3, legacy_html=$4, source_url=$5, locale=$6, wp_status=$7, updated_at=now()
-       WHERE wp_type=$8 AND wp_id=$9`,
-      [title, slug, appSource, legacyHtml, sourceUrl, locale, wpStatus, type, wpId],
+      `UPDATE pages SET title=$1, slug=$2, app_source=$3, legacy_html=$4, source_url=$5, locale=$6, wp_status=$7,
+         daozang_category=$8, sort_weight=$9, excerpt=$10, updated_at=now()
+       WHERE wp_type=$11 AND wp_id=$12`,
+      [title, slug, appSource, legacyHtml, sourceUrl, locale, wpStatus, daozangCategory, sortWeight, excerpt, type, wpId],
     );
     return 'updated';
   }
@@ -142,9 +170,10 @@ async function upsertPage(client, item, type) {
   }
 
   await client.query(
-    `INSERT INTO pages (title, slug, app_source, legacy_html, source_url, wp_type, wp_id, locale, wp_status, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())`,
-    [title, finalSlug, appSource, legacyHtml, sourceUrl, type, wpId, locale, wpStatus],
+    `INSERT INTO pages (title, slug, app_source, legacy_html, source_url, wp_type, wp_id, locale, wp_status,
+       daozang_category, sort_weight, excerpt, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now(), now())`,
+    [title, finalSlug, appSource, legacyHtml, sourceUrl, type, wpId, locale, wpStatus, daozangCategory, sortWeight, excerpt],
   );
   return 'inserted';
 }
