@@ -1,10 +1,12 @@
+@import "tailwindcss";
+@import "tw-animate-css";
 @import '../../../shared/design-tokens/orasage-tokens.css';
+@import '../../../packages/tokens/src/tailwind-v4-bridge.css';
 @import '../lib/orasage-app-shell/app-shell.css';
 @import './shop-home.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "../**/*.{ts,tsx}";
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 @layer base {
   * {

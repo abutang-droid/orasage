@@ -1,0 +1,57 @@
+/**
+ * Tailwind v4 theme bridge for OraSage Next.js apps.
+ * Import after shared/design-tokens/orasage-tokens.css (or @orasage/tokens/css).
+ */
+@theme {
+  /* Semantic shadcn-style colors (rgb channels from orasage-tokens) */
+  --color-background: rgb(var(--background) / <alpha-value>);
+  --color-foreground: rgb(var(--foreground) / <alpha-value>);
+  --color-card: rgb(var(--card) / <alpha-value>);
+  --color-card-foreground: rgb(var(--card-foreground) / <alpha-value>);
+  --color-popover: rgb(var(--popover) / <alpha-value>);
+  --color-popover-foreground: rgb(var(--popover-foreground) / <alpha-value>);
+  --color-primary: rgb(var(--primary) / <alpha-value>);
+  --color-primary-foreground: rgb(var(--primary-foreground) / <alpha-value>);
+  --color-secondary: rgb(var(--secondary) / <alpha-value>);
+  --color-secondary-foreground: rgb(var(--secondary-foreground) / <alpha-value>);
+  --color-muted: rgb(var(--muted) / <alpha-value>);
+  --color-muted-foreground: rgb(var(--muted-foreground) / <alpha-value>);
+  --color-accent: rgb(var(--accent) / <alpha-value>);
+  --color-accent-foreground: rgb(var(--accent-foreground) / <alpha-value>);
+  --color-destructive: rgb(var(--destructive) / <alpha-value>);
+  --color-destructive-foreground: rgb(var(--destructive-foreground) / <alpha-value>);
+  --color-border: rgb(var(--border) / <alpha-value>);
+  --color-input: rgb(var(--input) / <alpha-value>);
+  --color-ring: rgb(var(--ring) / <alpha-value>);
+  --color-placeholder: rgb(var(--placeholder) / <alpha-value>);
+  --color-brand-primary: rgb(var(--brand-primary) / <alpha-value>);
+  --color-brand-gold: rgb(var(--brand-gold) / <alpha-value>);
+  --color-brand-purple: rgb(var(--brand-purple) / <alpha-value>);
+
+  /* Legacy sage.* utilities used across shop / main */
+  --color-sage-bg: var(--orasage-background);
+  --color-sage-card: var(--orasage-surface);
+  --color-sage-border: var(--orasage-border);
+  --color-sage-gold: var(--orasage-gold);
+  --color-sage-purple: var(--orasage-purple);
+  --color-sage-muted: var(--orasage-muted);
+  --color-sage-primary: var(--orasage-primary);
+
+  --radius-sm: var(--os-radius-sm);
+  --radius-md: var(--os-radius-btn);
+  --radius-lg: var(--os-radius-card);
+  --radius-xl: var(--os-radius-xl);
+
+  --font-sans: var(--os-font-sans);
+  --font-serif: var(--os-font-serif-zh);
+  --font-serif-latin: var(--os-font-serif-latin);
+  --font-numeric: var(--os-font-numeric);
+  --font-mono: var(--os-font-mono);
+
+  --height-control-sm: var(--os-size-button-sm);
+  --height-control-md: var(--os-size-button-md);
+  --height-control-lg: var(--os-size-button-lg);
+  --min-height-control-sm: var(--os-size-button-sm);
+  --min-height-control-md: var(--os-size-button-md);
+  --min-height-control-lg: var(--os-size-button-lg);
+}
