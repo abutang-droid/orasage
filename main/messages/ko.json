@@ -167,7 +167,8 @@
     "volumeNumber": "제{number}권",
     "volumeUpper": "상권",
     "volumeMiddle": "중권",
-    "volumeLower": "하권"
+    "volumeLower": "하권",
+    "annotationLegend": "미批·주·가석 등은 원서 주석이며, 대조 읽기를 위해 별도로 표시합니다."
   },
   "shop": {
     "title": "Energy Shop",

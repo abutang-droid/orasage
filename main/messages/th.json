@@ -167,7 +167,8 @@
     "volumeNumber": "เล่ม {number}",
     "volumeUpper": "เล่มบน",
     "volumeMiddle": "เล่มกลาง",
-    "volumeLower": "เล่มล่าง"
+    "volumeLower": "เล่มล่าง",
+    "annotationLegend": "หมายเหตุขอบ (眉批) คำอธิบาย (注) และคำกวี (歌释) เป็นคำอธิบายต้นฉบับ จัดรูปแบบแยกเพื่ออ่านง่าย"
   },
   "shop": {
     "title": "Energy Shop",

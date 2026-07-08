@@ -167,7 +167,8 @@
     "volumeNumber": "الجزء {number}",
     "volumeUpper": "الجزء العلوي",
     "volumeMiddle": "الجزء الأوسط",
-    "volumeLower": "الجزء السفلي"
+    "volumeLower": "الجزء السفلي",
+    "annotationLegend": "الهوامش (眉批) والحاشيات (注) والشروح (歌释) من النص الأصلي، وقد عُرضت بشكل منفصل."
   },
   "shop": {
     "title": "Energy Shop",

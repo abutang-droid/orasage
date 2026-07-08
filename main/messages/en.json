@@ -207,7 +207,8 @@
     "volumeNumber": "Vol. {number}",
     "volumeUpper": "Vol. 1 (Upper)",
     "volumeMiddle": "Vol. 2 (Middle)",
-    "volumeLower": "Vol. 3 (Lower)"
+    "volumeLower": "Vol. 3 (Lower)",
+    "annotationLegend": "Marginal notes (眉批), footnotes (注), and verse glosses (歌释) are original commentary, styled separately for easier reading."
   },
   "profile": {
     "title": "My Account",

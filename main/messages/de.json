@@ -167,7 +167,8 @@
     "volumeNumber": "Band {number}",
     "volumeUpper": "Oberer Band",
     "volumeMiddle": "Mittlerer Band",
-    "volumeLower": "Unterer Band"
+    "volumeLower": "Unterer Band",
+    "annotationLegend": "Randglossen (眉批), Anmerkungen (注) und Erläuterungen (歌释) stammen aus dem Original und sind separat gesetzt."
   },
   "shop": {
     "title": "Energy Shop",

@@ -118,7 +118,9 @@ export function sanitizeLegacyHtml(html: string): string {
     .replace(/<div[^>]*(qr|qrcode|wechat|weixin|related|share|social|promo|广告)[^>]*>[\s\S]*?<\/div>/gi, '')
     .replace(/<p[^>]*(qr|qrcode|wechat|weixin|扫码|关注公众号)[^>]*>[\s\S]*?<\/p>/gi, '')
   // 问真八字等第三方 App 推广行
-    .replace(/<p[^>]*>[\s\S]*?(手机阅读|扫码下载|问真八字|在手机上继续阅读)[\s\S]*?<\/p>/gi, '')
+    .replace(/<p[^>]*>[\s\S]*?(手机阅读|扫码下载|打开问真|问真八字|在手机上继续阅读|bookcode|bzapi)[\s\S]*?<\/p>/gi, '')
+    .replace(/<span[^>]*>[\s\S]*?(手机阅读|扫码下载|打开问真|问真八字)[\s\S]*?<\/span>/gi, '')
+    .replace(/<div[^>]*>[\s\S]*?(book-popup-tip|扫码下载|打开问真)[\s\S]*?<\/div>/gi, '')
     .replace(/目录\s*手机阅读[\s\S]*?在手机上继续阅读本书/gi, '');
 
   // 移除孤立小尺寸图片（常见二维码 80–400px）
