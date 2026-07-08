@@ -37,11 +37,6 @@ export default async function PageView({ params }: Props) {
     >
       <header style={{ marginBottom: 32, borderBottom: '1px solid #e5e5e5', paddingBottom: 16 }}>
         <h1 style={{ margin: '0 0 8px', fontSize: 28 }}>{page.title}</h1>
-        {page.sourceUrl && (
-          <a href={page.sourceUrl} style={{ fontSize: 14, color: '#666' }} target="_blank" rel="noreferrer">
-            原站链接
-          </a>
-        )}
       </header>
 
       {hasLegacy ? (

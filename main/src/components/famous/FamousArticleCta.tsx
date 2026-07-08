@@ -2,12 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import { externalUrls } from '@/lib/urls';
 import { buttonVariants, Card, CardContent } from '@orasage/ui';
 
-type Props = {
-  sourceUrl?: string | null;
-};
-
-/** 名人案例文末区：免责声明 + 排盘转化 CTA + 原站链接 */
-export async function FamousArticleCta({ sourceUrl }: Props) {
+/** 名人案例文末区：免责声明 + 排盘转化 CTA */
+export async function FamousArticleCta() {
   const t = await getTranslations('famous');
 
   return (
@@ -25,19 +21,6 @@ export async function FamousArticleCta({ sourceUrl }: Props) {
           </a>
         </CardContent>
       </Card>
-
-      {sourceUrl && (
-        <div className="text-center">
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-          >
-            {t('sourceLink')}
-          </a>
-        </div>
-      )}
     </footer>
   );
 }
