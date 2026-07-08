@@ -19,7 +19,7 @@ const TOP_NAV_ITEMS = [
 
 export type SiteTopNavProps = {
   locale?: string;
-  /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / ManTo） */
+  /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / Manto） */
   context?: NavContext;
   /** 导航右侧、登录芯片前的插槽（如 shop 购物车） */
   trailing?: ReactNode;

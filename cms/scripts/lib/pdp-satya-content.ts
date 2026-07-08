@@ -739,7 +739,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
 
 已经体验过免费问答、想要更深入追问排盘细节的用户。`,
       specs: [
-        { label: '额度', value: '10 次 Orasage 对话' },
+        { label: '额度', value: '10 次 OraSage 对话' },
         { label: '有效期', value: '永久累积，不过期' },
         { label: '生效方式', value: '付款后自动充值到紫微账户' },
       ],
@@ -759,7 +759,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
       subtitle: 'Zi Wei Chat Yearly · Unlimited',
       body: `✦ 紫微问答年卡 — 365 天无限对话
 
-一整年 unlimited Orasage 对话权限：
+一整年 unlimited OraSage 对话权限：
 • 任意排盘、任意追问
 • 适合深度使用者与学习者
 • 日均成本远低于单次加量
@@ -768,7 +768,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
 
 紫微爱好者、从业者、或一年内有多张命盘要解读的用户。`,
       specs: [
-        { label: '权益', value: '365 天无限 Orasage 对话' },
+        { label: '权益', value: '365 天无限 OraSage 对话' },
         { label: '生效', value: '付款后立即生效' },
         { label: '续费', value: '到期前可续费延长' },
       ],
@@ -831,7 +831,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
 
 每一分钱都用于基础设施与内容建设，透明、轻量、无压力。`
     : isChat
-      ? `紫微斗数博大精深，排盘之后的「追问」往往是理解的关键。Orasage 对话将 AI 与命理知识库结合，让你可以用自然语言深入探索命盘细节。
+      ? `紫微斗数博大精深，排盘之后的「追问」往往是理解的关键。OraSage 对话将 AI 与命理知识库结合，让你可以用自然语言深入探索命盘细节。
 
 加量包与年卡让不同深度的用户都能找到适合自己的方式。`
       : `有时我们需要的不是一份报告，而是一个愿意认真听、能帮你理清的人。30 分钟咨询聚焦你的真实困惑，结合命理视角给出可执行的建议。`;

@@ -10,4 +10,4 @@ Synced copies (update together when changing):
 - `ziwei/lib/orasage-seo.ts`
 - `admin/src/lib/orasage-seo.ts`
 
-**Policy:** Product UI brands (BaZi, ZiWei, ManTo, 能量商城) stay in app chrome. Page titles, Open Graph, and JSON-LD use `OraSage` via `orasageTitle()` / `buildOrasageMetadata()`.
+**Policy:** Product UI brands (BaZi, ZiWei, Manto, 能量商城) stay in app chrome. Page titles, Open Graph, and JSON-LD use `OraSage` via `orasageTitle()` / `buildOrasageMetadata()`.

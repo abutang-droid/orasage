@@ -17,6 +17,22 @@ import { pickLabel, SHELL_LABELS } from './labels';
 const ICON_SIZE = 20;
 const ICON_STROKE = 1.6;
 
+/** 玄璧图形标（VI v1.0 §2.2）— 符号位仅图形，20px 档光学描边 */
+function OrasageMark({ active }: { active: boolean }) {
+  const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
+  return (
+    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 64 64" fill="none" aria-hidden>
+      <path
+        d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355"
+        stroke={color}
+        strokeWidth="5.5"
+        strokeLinecap="round"
+      />
+      <circle cx="32" cy="32" r="5" fill={color} />
+    </svg>
+  );
+}
+
 function NavIcon({ name, active }: { name: string; active: boolean }) {
   const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
   const props = { size: ICON_SIZE, strokeWidth: ICON_STROKE, color, 'aria-hidden': true as const };
@@ -29,6 +45,8 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
       return <ShoppingCart {...props} />;
     case 'mine':
       return <User {...props} />;
+    case 'orasage':
+      return <OrasageMark active={active} />;
     default:
       return <LayoutGrid {...props} />;
   }
@@ -63,7 +81,7 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
         </a>
 
         <a href={slot2.href} className="orasage-app-nav-item" data-active={slot2.active ? 'true' : 'false'}>
-          <NavIcon name="app" active={slot2.active} />
+          <NavIcon name={slot2.kind === 'orasage' ? 'orasage' : 'app'} active={slot2.active} />
           <span className="orasage-app-nav-brand">{slot2.label}</span>
         </a>
 

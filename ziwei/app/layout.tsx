@@ -20,6 +20,7 @@ export const metadata: Metadata = buildOrasageMetadata({
     url: ORASAGE_URLS.ziwei,
     locale: 'zh_CN',
   },
+  ogImage: `${ORASAGE_URLS.ziwei}/og.png`,
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

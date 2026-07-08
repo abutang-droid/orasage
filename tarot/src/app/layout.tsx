@@ -21,6 +21,7 @@ export const metadata: Metadata = buildOrasageMetadata({
     url: ORASAGE_URLS.tarot,
     locale: "zh_CN",
   },
+  ogImage: `${ORASAGE_URLS.tarot}/og.png`,
 })
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

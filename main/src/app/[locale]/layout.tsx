@@ -50,8 +50,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `${ORASAGE_URLS.main}/${locale}`,
       locale: locale.replace('-', '_'),
+      image: `${ORASAGE_URLS.main}/og.png`,
     }),
-    twitter: orasageTwitter(title, description),
+    twitter: orasageTwitter(title, description, `${ORASAGE_URLS.main}/og.png`),
   };
 }
 

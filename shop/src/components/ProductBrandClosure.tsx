@@ -44,7 +44,7 @@ function closureCopy(sku: string, category: ProductCategory, element?: string | 
       return {
         title: '读懂星盘，再迈出一步',
         sub: 'Read your stars. Walk with intention.',
-        body: '紫微报告描绘十二宫的人生面向；读懂之后，用 Orasage 对话深入追问，或搭配能量手串让平衡触手可及。',
+        body: '紫微报告描绘十二宫的人生面向；读懂之后，用 OraSage 对话深入追问，或搭配能量手串让平衡触手可及。',
         cta: '前往紫微斗数',
         href: 'https://ziwei.orasage.com',
         note: '在 App 内查看完整命盘解读',
@@ -75,7 +75,7 @@ function closureCopy(sku: string, category: ProductCategory, element?: string | 
     return {
       title: '对话即成长',
       sub: 'Ask deeper. Understand more.',
-      body: '排盘之后的追问，往往是理解的关键。Orasage 对话让命盘从「看见」走向「懂得」。',
+      body: '排盘之后的追问，往往是理解的关键。OraSage 对话让命盘从「看见」走向「懂得」。',
       cta: '前往紫微斗数',
       href: 'https://ziwei.orasage.com',
       note: '额度自动充值到账户',

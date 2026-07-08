@@ -13,7 +13,7 @@ export function isMainPortalHome(pathname: string): boolean {
 export const APP_BRANDS: Record<AppId, string> = {
   bazi: 'BaZi',
   ziwei: 'ZiWei',
-  tarot: 'ManTo',
+  tarot: 'Manto',
   shop: 'Energy',
 };
 
@@ -182,6 +182,8 @@ export type SecondNavSlot = {
   href: string;
   label: string;
   active: boolean;
+  /** orasage = 门户品牌（玄璧图形，VI §6.3）；explore = 轮换探索项；app = 当前子应用品牌 */
+  kind: 'orasage' | 'explore' | 'app';
 };
 
 /** 底栏第 2 键：锚点页用探索轮换，否则为当前子应用品牌 */
@@ -193,11 +195,11 @@ export function resolveSecondNavSlot(
   const anchor = detectNavAnchor(context, pathname);
   if (anchor) {
     const link = rotationExploreLink(ANCHOR_ROTATION_SLOT[anchor], locale);
-    return { href: link.href, label: link.label, active: false };
+    return { href: link.href, label: link.label, active: false, kind: 'explore' };
   }
 
   if (context === 'portal') {
-    return { href: mainPortalUrl(locale), label: 'OraSage', active: false };
+    return { href: mainPortalUrl(locale), label: 'OraSage', active: false, kind: 'orasage' };
   }
 
   const appId = context;
@@ -205,5 +207,6 @@ export function resolveSecondNavSlot(
     href: appHomeUrl(appId),
     label: appBrandLabel(appId, locale),
     active: isCurrentAppHome(appId, pathname),
+    kind: 'app',
   };
 }
