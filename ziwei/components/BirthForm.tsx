@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Mars, Venus } from 'lucide-react';
+import { Button } from '@orasage/ui/button';
 import type { BirthplaceValue } from '@orasage/city';
 import { loadCityCatalog } from '@orasage/city';
 import { CitySearchInput } from '@orasage/city/react';
@@ -311,9 +312,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       </div>
 
       {!hideSubmit && (
-        <button type="submit" className="ziwei-calc-submit" disabled={loading}>
+        <Button type="submit" className="ziwei-calc-submit w-full" disabled={loading}>
           {loading ? t('form.submit.loading') : t('form.submit')}
-        </button>
+        </Button>
       )}
     </form>
   );

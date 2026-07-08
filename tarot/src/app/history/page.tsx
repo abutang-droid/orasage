@@ -1,23 +1,15 @@
 "use client"
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { useHistoryCopy } from "@/lib/i18n/reading-copy"
+import { useWishCopy } from "@/lib/i18n/ui-strings"
 
 type TabType = "reading" | "daily-card" | "wish"
 
-const TABS = [
-  { key: "reading" as TabType,    label: "牌阵占卜" },
-  { key: "daily-card" as TabType, label: "每日抽卡" },
-  { key: "wish" as TabType,       label: "心愿占卜" },
-]
-
-function fmt(s: string) {
-  const d = new Date(s)
-  return `${d.getMonth() + 1}月${d.getDate()}日`
-}
-
 function HistoryContent() {
+  const history = useHistoryCopy()
+  const wish = useWishCopy()
   const searchParams = useSearchParams()
-  // Support ?tab=xxx to jump to specific tab (fixes history redirect bug)
   const defaultTab = (searchParams.get("tab") as TabType) || "reading"
   const [tab, setTab] = useState<TabType>(defaultTab)
   const [data, setData] = useState<any>(null)
@@ -36,16 +28,14 @@ function HistoryContent() {
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
 
-      {/* ── Header ── */}
       <div className="page-header animate-fade-in-up">
-        <span className="label">ARCHIVE</span>
-        <h1>历史记录</h1>
-        <p>回顾你的占卜档案</p>
+        <span className="label">{history.label}</span>
+        <h1>{history.title}</h1>
+        <p>{history.subtitle}</p>
       </div>
 
-      {/* ── Tab Bar ── */}
       <div className="tab-bar animate-fade-in-up" style={{ marginBottom: 20, animationDelay: '0.1s' }}>
-        {TABS.map(t => (
+        {history.tabs.map(t => (
           <button
             key={t.key}
             className={`tab-item${tab === t.key ? ' active' : ''}`}
@@ -56,7 +46,6 @@ function HistoryContent() {
         ))}
       </div>
 
-      {/* ── Content ── */}
       {loading && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
           <div className="spinner" />
@@ -66,16 +55,14 @@ function HistoryContent() {
       {!loading && data && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          {/* Empty state */}
           {data.records?.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
               <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>◈</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>暂无记录</div>
-              <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>开始你的第一次占卜吧</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{history.empty}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>{history.emptyHint}</div>
             </div>
           )}
 
-          {/* Reading records */}
           {tab === "reading" && data.records?.map((r: any, i: number) => (
             <div
               key={r.id}
@@ -97,10 +84,10 @@ function HistoryContent() {
                   flex: 1, marginRight: 8,
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {r.question || "占卜"}
+                  {r.question || history.defaultQuestion}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-faint)', flexShrink: 0 }}>
-                  {fmt(r.createdAt)}
+                  {history.formatDate(r.createdAt)}
                 </div>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
@@ -119,13 +106,12 @@ function HistoryContent() {
               )}
               {r.crystalName && (
                 <div style={{ fontSize: 11, color: 'var(--gold)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span>✦</span> 推荐水晶：{r.crystalName}
+                  <span>✦</span> {history.crystalRec(r.crystalName)}
                 </div>
               )}
             </div>
           ))}
 
-          {/* Daily card records */}
           {tab === "daily-card" && data.records?.map((r: any, i: number) => (
             <div
               key={r.id}
@@ -150,7 +136,7 @@ function HistoryContent() {
                     {r.cardName}
                   </span>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{fmt(r.createdAt)}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{history.formatDate(r.createdAt)}</div>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
                 {r.message}
@@ -158,7 +144,6 @@ function HistoryContent() {
             </div>
           ))}
 
-          {/* Wish records */}
           {tab === "wish" && data.records?.map((r: any, i: number) => (
             <div
               key={r.id}
@@ -173,8 +158,8 @@ function HistoryContent() {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>心愿占卜</div>
-                <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{fmt(r.createdAt)}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{history.wishLabel}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{history.formatDate(r.createdAt)}</div>
               </div>
               <div style={{
                 fontSize: 14, fontWeight: 600,
@@ -187,13 +172,12 @@ function HistoryContent() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.cardName}</span>
                 {r.conclusion && (
-                  <span className="tag">{r.conclusion}</span>
+                  <span className="tag">{wish.conclusionKey(r.conclusion)}</span>
                 )}
               </div>
             </div>
           ))}
 
-          {/* Pagination */}
           {data.totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, paddingTop: 16 }}>
               {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(p => (

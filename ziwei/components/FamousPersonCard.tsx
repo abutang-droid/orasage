@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Star, TriangleAlert } from 'lucide-react';
+import { Card } from '@orasage/ui/card';
 import type { FamousPerson } from '@/lib/ziwei/famous';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -18,12 +19,15 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="card-glass rounded-xl p-4 mb-4"
-      style={{
-        border: `1px solid ${catColor}40`,
-        background: `linear-gradient(135deg, ${catColor}06, transparent 60%)`,
-      }}
+      className="mb-4"
     >
+      <Card
+        className="card-glass rounded-xl p-4 border-0 shadow-none"
+        style={{
+          border: `1px solid ${catColor}40`,
+          background: `linear-gradient(135deg, ${catColor}06, transparent 60%)`,
+        }}
+      >
       <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
         <Star size={12} strokeWidth={2} style={{ color: catColor, opacity: 0.9 }} aria-hidden />
         名人命盘
@@ -62,6 +66,7 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
           <span>出生时辰为公开文献估算值，仅供研究参考。下方 AI 解读基于此命盘自动生成，与本人无关。</span>
         </div>
       </div>
+      </Card>
     </motion.div>
   );
 }
