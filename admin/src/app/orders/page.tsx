@@ -3,6 +3,7 @@ import { getOrders } from '@/lib/api';
 import { updateOrderStatusAction, createShipmentAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { formatShippingDisplay, SHIPMENT_STATUS_LABELS } from '../../../../shared/shop-fulfillment/index';
+import { parseDiyOrderContext, formatDiySequence } from '../../../../shared/shop-diy/order-context';
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
 
@@ -45,11 +46,30 @@ export default async function OrdersPage() {
             <tbody>
               {orders.length === 0 ? (
                 <tr><td colSpan={11} className="muted">暂无订单</td></tr>
-              ) : orders.map((o) => (
+              ) : orders.map((o) => {
+                const diy = parseDiyOrderContext(o.recommendationContext);
+                return (
                 <tr key={o.orderNo}>
                   <td><code>{o.orderNo}</code></td>
                   <td>{o.userId}</td>
-                  <td>{o.title}</td>
+                  <td>
+                    {o.title}
+                    {diy ? (
+                      <details className="diy-config-details">
+                        <summary>定制配置（手围 {diy.wristCm}cm · 串长 {(diy.lengthMm / 10).toFixed(1)}cm）</summary>
+                        <div className="diy-config-body">
+                          <p className="muted" style={{ margin: '0.35rem 0' }}>
+                            用料：{diy.items.map((item) => `${item.name} ${item.sizeLabel} ×${item.quantity}`).join('、')}
+                          </p>
+                          <ol className="diy-sequence">
+                            {formatDiySequence(diy).map((line) => (
+                              <li key={line}>{line.replace(/^\d+\.\s*/, '')}</li>
+                            ))}
+                          </ol>
+                        </div>
+                      </details>
+                    ) : null}
+                  </td>
                   <td>{o.sku ? <code>{o.sku}</code> : '—'}</td>
                   <td>{o.amountDisplay}</td>
                   <td>{o.appLabel ?? '—'}</td>
@@ -90,7 +110,8 @@ export default async function OrdersPage() {
                     </form>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

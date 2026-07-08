@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig } from '@/lib/api';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
 
@@ -64,6 +64,86 @@ export async function saveProductAction(formData: FormData) {
   if (imageError) {
     redirect(`/products?image_err=${encodeURIComponent(imageError)}&sku=${encodeURIComponent(sku)}`);
   }
+}
+
+export async function saveDiyBeadAction(formData: FormData) {
+  const code = String(formData.get('code') ?? '').trim();
+  const name = String(formData.get('name') ?? '').trim();
+  const element = String(formData.get('element') ?? '').trim();
+  const material = String(formData.get('material') ?? '').trim();
+  const beadType = String(formData.get('beadType') ?? 'crystal') as 'crystal' | 'spacer' | 'disc';
+  const diameterMm = Number(formData.get('diameterMm') ?? 0);
+  const thicknessRaw = String(formData.get('thicknessMm') ?? '').trim();
+  const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
+  const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
+  const imageUrl = String(formData.get('imageUrl') ?? '').trim();
+  const colors = String(formData.get('colors') ?? '').trim();
+  const stock = Number(formData.get('stock') ?? 999);
+  const sortOrder = Number(formData.get('sortOrder') ?? 0);
+  const active = formData.get('active') === 'on';
+  const isEdit = formData.get('isEdit') === '1';
+
+  if (!code || !name || !material || diameterMm <= 0 || priceCents < 0) {
+    throw new Error('请填写完整珠子信息');
+  }
+
+  const payload = {
+    code,
+    name,
+    element: element || null,
+    material,
+    beadType,
+    diameterMm,
+    thicknessMm: beadType === 'disc' && thicknessRaw ? Number(thicknessRaw) : null,
+    priceCents,
+    priceCentsUsd: priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null,
+    imageUrl: imageUrl || null,
+    colors: colors || null,
+    stock: Number.isFinite(stock) ? stock : 999,
+    sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+    active,
+  };
+
+  let errorMsg: string | null = null;
+  try {
+    if (isEdit) {
+      const { code: _code, ...patch } = payload;
+      await updateDiyBead(code, patch);
+    } else {
+      await createDiyBead(payload);
+    }
+    revalidatePath('/beads');
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '保存失败';
+  }
+  if (errorMsg) {
+    redirect(`/beads?bead_err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect('/beads?bead=ok');
+}
+
+export async function saveDiyConfigAction(formData: FormData) {
+  const lengthCorrectionMm = Number(formData.get('lengthCorrectionMm') ?? 3);
+  const minOrderYuan = Number(formData.get('minOrderYuan') ?? 99);
+  const fitToleranceMm = Number(formData.get('fitToleranceMm') ?? 8);
+  const wristEaseMm = Number(formData.get('wristEaseMm') ?? 10);
+
+  let errorMsg: string | null = null;
+  try {
+    await saveDiyConfig({
+      lengthCorrectionMm,
+      minOrderCents: Math.round(minOrderYuan * 100),
+      fitToleranceMm,
+      wristEaseMm,
+    });
+    revalidatePath('/beads');
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '保存失败';
+  }
+  if (errorMsg) {
+    redirect(`/beads?config_err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect('/beads?config=ok');
 }
 
 export async function updateOrderStatusAction(formData: FormData) {

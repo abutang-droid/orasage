@@ -63,6 +63,9 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
             {cat === 'all' ? '全部' : categoryLabels[cat]}
           </a>
         ))}
+        <a href="/diy" className="shop-category-pill shop-category-pill--diy">
+          ✦ 共振定制
+        </a>
       </div>
 
       {activeCategory === 'all' && featured.length > 0 && (

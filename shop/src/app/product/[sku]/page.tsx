@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getProduct, categoryLabels } from '@/lib/products';
 import { getServerShopLocale } from '@/lib/currency-server';
@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { sku } = await params;
+  if (sku === 'diy-bracelet') redirect('/diy');
   const locale = await getServerShopLocale();
   const [product, imageMap, cmsPage, testimonials] = await Promise.all([
     getProduct(sku, locale),

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
+import { PRODUCT_SKU_TO_BEAD_MATERIAL } from '@/lib/diy';
 
 export function ProductDetailActions({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
@@ -51,25 +53,34 @@ export function ProductDetailActions({ product }: { product: Product }) {
     window.setTimeout(() => setAdded(false), 1500);
   }
 
+  const diyBase = PRODUCT_SKU_TO_BEAD_MATERIAL[product.sku] ? product.sku : null;
+
   return (
-    <div className="shop-pdp-actions shop-pdp-actions--row">
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={handleAddToCart}
-        className="shop-pdp-action-btn flex-1"
-      >
-        {added ? '已加入购物车' : '加入购物车'}
-      </Button>
-      <Button
-        type="button"
-        onClick={() => void handleBuy()}
-        disabled={loading}
-        loading={loading}
-        className="shop-pdp-action-btn flex-1"
-      >
-        {loading ? '处理中…' : '立即购买'}
-      </Button>
+    <div>
+      <div className="shop-pdp-actions shop-pdp-actions--row">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleAddToCart}
+          className="shop-pdp-action-btn flex-1"
+        >
+          {added ? '已加入购物车' : '加入购物车'}
+        </Button>
+        <Button
+          type="button"
+          onClick={() => void handleBuy()}
+          disabled={loading}
+          loading={loading}
+          className="shop-pdp-action-btn flex-1"
+        >
+          {loading ? '处理中…' : '立即购买'}
+        </Button>
+      </div>
+      {diyBase ? (
+        <Link href={`/diy?base=${encodeURIComponent(diyBase)}`} className="shop-pdp-diy-link">
+          ✦ 定制手链 — 以同款珠子为基底自由设计
+        </Link>
+      ) : null}
       {error && <p className="shop-pdp-error">{error}</p>}
     </div>
   );

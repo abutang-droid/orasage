@@ -1437,3 +1437,748 @@
   font-size: 1.875rem;
   color: var(--os-color-mono-black, #171717);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   共振定制（DIY 手串设计器）
+   ══════════════════════════════════════════════════════════════ */
+
+.shop-diy-page {
+  padding-top: 0.5rem;
+}
+
+.shop-diy-header {
+  text-align: center;
+  padding: 0.25rem 0 1.25rem;
+}
+
+.shop-diy-eyebrow {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy-title {
+  margin-top: 0.4rem;
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-sub {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy {
+  padding-bottom: 6.5rem;
+}
+
+.shop-diy-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .shop-diy-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  .shop-diy-studio {
+    position: sticky;
+    top: 1rem;
+    width: 26rem;
+    flex-shrink: 0;
+  }
+  .shop-diy-catalog {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.shop-diy-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  font-size: 0.875rem;
+}
+
+/* ── 设计台 ── */
+.shop-diy-studio {
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 1rem;
+  padding: 1rem 1rem 1.25rem;
+  background: #fff;
+}
+
+.shop-diy-wrist-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.shop-diy-wrist-label {
+  font-size: 0.72rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  letter-spacing: 0.04em;
+}
+
+.shop-diy-wrist-value {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.shop-diy-wrist-value small {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  margin-left: 0.1rem;
+}
+
+/* ── 手围标尺 ── */
+.shop-diy-ruler {
+  position: relative;
+  margin-top: 0.55rem;
+  height: 3.1rem;
+}
+
+.shop-diy-ruler-scroll {
+  overflow-x: auto;
+  height: 100%;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x;
+}
+
+.shop-diy-ruler-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.shop-diy-ruler-track {
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  height: 100%;
+  border-top: 1.5px solid var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-tick {
+  width: 14px;
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.shop-diy-tick i {
+  display: block;
+  width: 1px;
+  height: 0.55rem;
+  background: var(--os-color-mono-gray, #9ca3af);
+}
+
+.shop-diy-tick.is-major i {
+  width: 1.5px;
+  height: 0.95rem;
+  background: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-tick span {
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.shop-diy-ruler-pointer {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0.35rem;
+  width: 2px;
+  background: var(--os-color-mono-black, #171717);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.shop-diy-ruler-pointer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-ruler-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.2rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shop-diy-ruler-fade.is-l {
+  left: 0;
+  background: linear-gradient(to right, #fff 15%, transparent);
+}
+
+.shop-diy-ruler-fade.is-r {
+  right: 0;
+  background: linear-gradient(to left, #fff 15%, transparent);
+}
+
+/* ── 画布 ── */
+.shop-diy-canvas-wrap {
+  position: relative;
+  margin: 0.5rem auto 0;
+  max-width: 21rem;
+}
+
+.shop-diy-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.shop-diy-canvas-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.shop-diy-canvas-hint p {
+  font-size: 0.8rem;
+  color: var(--os-color-mono-gray, #9ca3af);
+  line-height: 1.7;
+}
+
+/* ── 统计 ── */
+.shop-diy-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--os-color-mono-line, #e5e7eb);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  text-align: center;
+}
+
+.shop-diy-stat-v {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-stat-v.is-warn {
+  color: var(--os-color-mono-gray, #9ca3af);
+}
+
+.shop-diy-stat-v small {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy-stat-k {
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy-fitbar {
+  margin-top: 0.7rem;
+  height: 3px;
+  background: var(--os-color-mono-line, #e5e7eb);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.shop-diy-fitbar i {
+  display: block;
+  height: 100%;
+  background: var(--os-color-mono-black, #171717);
+  transition: width 0.3s;
+}
+
+/* ── 选中珠子操作 ── */
+.shop-diy-bead-actions {
+  display: flex;
+  margin-top: 0.75rem;
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.shop-diy-bead-actions-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.shop-diy-abtn {
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  background: #fff;
+  border-radius: 0.45rem;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-abtn.is-del {
+  color: #fff;
+  background: var(--os-color-mono-black, #171717);
+  border-color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-tools {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.shop-diy-tool {
+  flex: 1;
+  font-size: 0.75rem;
+  padding: 0.55rem 0;
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 0.6rem;
+  background: #fff;
+  color: var(--os-color-mono-black, #171717);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+}
+
+.shop-diy-tool:active {
+  background: var(--os-color-mono-bg, #fafafa);
+}
+
+.shop-diy-tool.is-primary {
+  background: var(--os-color-mono-black, #171717);
+  border-color: var(--os-color-mono-black, #171717);
+  color: #fff;
+}
+
+/* ── 目录 ── */
+.shop-diy-cat-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.shop-diy-cat-title {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.shop-diy-cat-count {
+  font-size: 0.7rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.shop-diy-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.shop-diy-tab {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+
+.shop-diy-tab.is-on {
+  background: var(--os-color-mono-black, #171717);
+  color: #fff;
+  border-color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-sizes {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.shop-diy-chip {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.shop-diy-chip.is-on {
+  background: var(--os-color-mono-black, #171717);
+  color: #fff;
+  border-color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 0.9rem;
+}
+
+@media (min-width: 640px) {
+  .shop-diy-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .shop-diy-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.shop-diy-card {
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.5rem 0.6rem;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.15s, transform 0.1s;
+  user-select: none;
+  font-family: inherit;
+}
+
+.shop-diy-card:hover {
+  border-color: var(--os-color-mono-gray, #9ca3af);
+}
+
+.shop-diy-card:active {
+  transform: scale(0.96);
+}
+
+.shop-diy-bead-vis {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  margin: 0 auto;
+  box-shadow:
+    inset -3px -4px 8px rgba(0, 0, 0, 0.18),
+    inset 2px 3px 6px rgba(255, 255, 255, 0.5),
+    0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.shop-diy-bead-vis.is-disc {
+  height: 0.8rem;
+  margin-top: 0.9rem;
+  margin-bottom: 0.9rem;
+  border-radius: 0.4rem;
+}
+
+.shop-diy-bead-vis.is-small {
+  width: 1.8rem;
+  height: 1.8rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.shop-diy-bead-img {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+  display: block;
+}
+
+.shop-diy-card-nm {
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-card-meta {
+  margin-top: 0.15rem;
+  font-size: 0.66rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.shop-diy-card-tags {
+  margin-top: 0.3rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.shop-diy-card-type {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--os-color-mono-gray-deep, #6b7280);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+}
+
+.shop-diy-card-el {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+}
+
+/* ── 底部结算条 ── */
+.shop-diy-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--os-color-mono-line, #e5e7eb);
+  padding: 0.7rem 1rem;
+}
+
+@media (min-width: 1024px) {
+  .shop-diy-bar {
+    bottom: 0;
+    padding-bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.shop-diy-bar-in {
+  max-width: 72rem;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.shop-diy-bar-price {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-diy-bar-amount {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.shop-diy-bar-note {
+  font-size: 0.65rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  letter-spacing: 0.04em;
+}
+
+.shop-diy-bar-cta {
+  background: var(--os-color-mono-black, #171717);
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  padding: 0.8rem 2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.shop-diy-bar-cta:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── 八字推荐弹层 ── */
+.shop-diy-modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(23, 23, 23, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .shop-diy-modal-mask {
+    align-items: center;
+  }
+}
+
+.shop-diy-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 26rem;
+  border-radius: 1rem 1rem 0 0;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+@media (min-width: 640px) {
+  .shop-diy-modal {
+    border-radius: 1rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+.shop-diy-modal-eyebrow {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.shop-diy-modal-title {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.35rem;
+}
+
+.shop-diy-modal-sub {
+  font-size: 0.75rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  text-align: center;
+  margin-top: 0.4rem;
+  line-height: 1.6;
+}
+
+.shop-diy-el-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.shop-diy-el-btn {
+  border: 1px solid var(--os-color-mono-line, #e5e7eb);
+  border-radius: 0.7rem;
+  background: #fff;
+  padding: 0.7rem 0 0.55rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.shop-diy-el-btn:hover {
+  border-color: var(--os-color-mono-black, #171717);
+}
+
+.shop-diy-el-zi {
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.shop-diy-el-nm {
+  font-size: 0.6rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  margin-top: 0.15rem;
+}
+
+.shop-diy-modal-close {
+  display: block;
+  margin: 1rem auto 0;
+  border: none;
+  background: none;
+  font-size: 0.72rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+/* ── Toast ── */
+.shop-diy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 6rem);
+  transform: translateX(-50%);
+  z-index: 60;
+  background: var(--os-color-mono-black, #171717);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .shop-diy-toast {
+    bottom: 6.5rem;
+  }
+}
+
+/* ── 入口 ── */
+.shop-category-pill--diy {
+  background: var(--os-color-mono-black, #171717) !important;
+  color: #fff !important;
+  border-color: var(--os-color-mono-black, #171717) !important;
+}
+
+.shop-pdp-diy-link {
+  display: block;
+  margin-top: 0.6rem;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  border: 1px dashed var(--os-color-mono-line, #e5e7eb);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  transition: all 0.15s;
+}
+
+.shop-pdp-diy-link:hover {
+  color: var(--os-color-mono-black, #171717);
+  border-color: var(--os-color-mono-gray, #9ca3af);
+}

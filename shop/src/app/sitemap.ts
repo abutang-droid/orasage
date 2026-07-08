@@ -1,15 +1,18 @@
 import type { MetadataRoute } from 'next';
 import { ORASAGE_URLS } from '@/lib/orasage-seo';
 import { fetchProducts } from '@/lib/products';
+import { DIY_ORDER_SKU } from '@/lib/diy';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await fetchProducts('zh-CN');
-  const productEntries = products.map((product) => ({
-    url: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(product.sku)}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  const productEntries = products
+    .filter((product) => product.sku !== DIY_ORDER_SKU)
+    .map((product) => ({
+      url: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(product.sku)}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
 
   return [
     {
@@ -17,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
+    },
+    {
+      url: `${ORASAGE_URLS.shop}/diy`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     ...productEntries,
   ];

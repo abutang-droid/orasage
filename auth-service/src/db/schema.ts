@@ -7,6 +7,8 @@ import {
   integer,
   text,
   boolean,
+  real,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -223,6 +225,54 @@ export const userRecommendations = pgTable("user_recommendations", {
   reason: text("reason").notNull(),
   readingId: varchar("reading_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** 共振定制：珠子目录（水晶主珠 / 隔珠 / 隔片，逐颗计价） */
+export const diyBeads = pgTable("diy_beads", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 100 }).notNull().unique(),
+  name: varchar("name", { length: 100 }).notNull(),
+  element: varchar("element", { length: 10 }),
+  material: varchar("material", { length: 100 }).notNull(),
+  beadType: varchar("bead_type", { length: 20 }).notNull().default("crystal"),
+  diameterMm: real("diameter_mm").notNull(),
+  thicknessMm: real("thickness_mm"),
+  priceCents: integer("price_cents").notNull(),
+  priceCentsUsd: integer("price_cents_usd"),
+  imageUrl: varchar("image_url", { length: 500 }),
+  /** 渐变色占位（g0,g1,g2,line），上传实拍图后前台优先用 imageUrl */
+  colors: varchar("colors", { length: 120 }),
+  stock: integer("stock").notNull().default(999),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 共振定制：用户设计稿（下单时固化为 ordered） */
+export const diyDesigns = pgTable("diy_designs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id"),
+  shareToken: varchar("share_token", { length: 32 }).unique(),
+  name: varchar("name", { length: 100 }),
+  beads: jsonb("beads").notNull().$type<string[]>(),
+  wristCm: real("wrist_cm"),
+  totalCents: integer("total_cents"),
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
+  orderNo: varchar("order_no", { length: 64 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 共振定制：全局配置（单行） */
+export const diyConfig = pgTable("diy_config", {
+  id: integer("id").primaryKey().default(1),
+  /** 绳结/弹力余量修正（加在珠长总和上） */
+  lengthCorrectionMm: real("length_correction_mm").notNull().default(3),
+  minOrderCents: integer("min_order_cents").notNull().default(9900),
+  fitToleranceMm: real("fit_tolerance_mm").notNull().default(8),
+  wristEaseMm: real("wrist_ease_mm").notNull().default(10),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;

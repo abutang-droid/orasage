@@ -397,3 +397,32 @@ details summary {
   color: var(--orasage-gold, #b8943f);
   font-size: 0.85rem;
 }
+
+/* ── 共振定制订单配置 ── */
+.diy-config-details {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.diy-config-details summary {
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.diy-config-body {
+  padding: 0.25rem 0 0.25rem 0.25rem;
+  max-width: 24rem;
+}
+
+.diy-sequence {
+  margin: 0.25rem 0 0;
+  padding-left: 1.4rem;
+  columns: 2;
+  column-gap: 1.5rem;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.diy-sequence li {
+  break-inside: avoid;
+}

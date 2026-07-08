@@ -62,6 +62,7 @@ export interface AdminOrder {
   appSource?: string | null;
   appLabel?: string | null;
   shippingAddress?: string | null;
+  recommendationContext?: string | null;
   createdAt: string;
   shipments?: AdminShipment[];
 }
@@ -203,4 +204,60 @@ export function saveTarotDailyRecommendProducts(skus: string[]) {
     '/tarot-daily-recommend-products',
     { method: 'PUT', body: JSON.stringify({ skus }) },
   );
+}
+
+/* ── 共振定制（DIY）珠子与配置 ─────────────────────── */
+
+export interface AdminDiyBead {
+  code: string;
+  name: string;
+  element?: string | null;
+  material: string;
+  type: 'crystal' | 'spacer' | 'disc';
+  diameterMm: number;
+  thicknessMm?: number | null;
+  lengthMm: number;
+  priceCents: number;
+  priceCentsUsd?: number | null;
+  imageUrl?: string | null;
+  colors?: string | null;
+  stock: number;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface AdminDiyConfig {
+  lengthCorrectionMm: number;
+  minOrderCents: number;
+  fitToleranceMm: number;
+  wristEaseMm: number;
+}
+
+export function getDiyBeads() {
+  return adminFetch<{ beads: AdminDiyBead[] }>('/diy/beads');
+}
+
+export function createDiyBead(body: Record<string, unknown>) {
+  return adminFetch<{ bead: AdminDiyBead }>('/diy/beads', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateDiyBead(code: string, body: Record<string, unknown>) {
+  return adminFetch<{ bead: AdminDiyBead }>(`/diy/beads/${encodeURIComponent(code)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+export function getDiyConfig() {
+  return adminFetch<{ config: AdminDiyConfig }>('/diy/config');
+}
+
+export function saveDiyConfig(body: AdminDiyConfig) {
+  return adminFetch<{ config: AdminDiyConfig }>('/diy/config', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
 }
