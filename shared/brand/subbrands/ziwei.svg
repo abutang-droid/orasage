@@ -1,0 +1,5 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ZiWei by OraSage">
+  <!-- ZiWei sub-brand mark  unified grid (VI §5.2) -->
+  <circle cx="32" cy="32" r="22" stroke="#171717" stroke-width="3"/>
+  <path d="M32 14 L35.4 28.6 L50 32 L35.4 35.4 L32 50 L28.6 35.4 L14 32 L28.6 28.6 Z" fill="#171717" fill-opacity="0.12" stroke="#171717" stroke-width="1.6"/>
+</svg>

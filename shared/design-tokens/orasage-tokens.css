@@ -83,6 +83,12 @@
   --os-color-element-metal: #b0b5b2;
   --os-color-element-water: #9ca3af;
 
+  /* Cinnabar seal color (VI v1.0 §3.2) — seal/blessing accents only, <=5% area, never buttons/links/nav */
+  --os-color-cinnabar-600: #a63f33;
+  --os-color-cinnabar-700: #8c3529;
+  --os-color-cinnabar-100: #f6e8e4;
+  --os-rgb-cinnabar-600: 166 63 51;
+
   --os-color-status-success: #16a34a;
   --os-color-status-warning: #d97706;
   --os-color-status-error: #dc2626;
