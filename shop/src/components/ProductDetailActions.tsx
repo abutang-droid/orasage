@@ -56,31 +56,30 @@ export function ProductDetailActions({ product }: { product: Product }) {
   const diyBase = PRODUCT_SKU_TO_BEAD_MATERIAL[product.sku] ? product.sku : null;
 
   return (
-    <div>
-      <div className="shop-pdp-actions shop-pdp-actions--row">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleAddToCart}
-          className="shop-pdp-action-btn flex-1"
-        >
-          {added ? '已加入购物车' : '加入购物车'}
-        </Button>
-        <Button
-          type="button"
-          onClick={() => void handleBuy()}
-          disabled={loading}
-          loading={loading}
-          className="shop-pdp-action-btn flex-1"
-        >
-          {loading ? '处理中…' : '立即购买'}
-        </Button>
-      </div>
+    <div className="shop-pdp-actions shop-pdp-actions--row">
       {diyBase ? (
-        <Link href={`/diy?base=${encodeURIComponent(diyBase)}`} className="shop-pdp-diy-link">
-          ✦ 定制手链 — 以同款珠子为基底自由设计
-        </Link>
+        <Button asChild className="shop-pdp-action-btn flex-1 px-2 sm:px-4">
+          <Link href={`/diy?base=${encodeURIComponent(diyBase)}`}>✦ 定制手链</Link>
+        </Button>
       ) : null}
+      <Button
+        type="button"
+        variant={diyBase ? 'outline' : 'secondary'}
+        onClick={handleAddToCart}
+        className="shop-pdp-action-btn flex-1 px-2 sm:px-4"
+      >
+        {added ? '已加入购物车' : '加入购物车'}
+      </Button>
+      <Button
+        type="button"
+        variant={diyBase ? 'secondary' : 'default'}
+        onClick={() => void handleBuy()}
+        disabled={loading}
+        loading={loading}
+        className="shop-pdp-action-btn flex-1 px-2 sm:px-4"
+      >
+        {loading ? '处理中…' : '立即购买'}
+      </Button>
       {error && <p className="shop-pdp-error">{error}</p>}
     </div>
   );
