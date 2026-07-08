@@ -1,10 +1,11 @@
-import { DEFAULT_LOCALE } from './locales';
+import { DEFAULT_LOCALE, isExtendedLocale, type ExtendedLocale } from './locales';
 
 /** BCP 47 locale normalization — single source for all apps */
 export function normalizeLocale(input?: string | null): string {
   if (!input?.trim()) return DEFAULT_LOCALE;
   const tag = input.trim().replace('_', '-');
   const lower = tag.toLowerCase();
+  if (lower === '*' || lower === 'und') return DEFAULT_LOCALE;
   if (lower === 'zh' || lower === 'zh-hans') return 'zh-CN';
   if (lower.startsWith('zh-tw') || lower === 'zh-hant' || lower.startsWith('zh-hk')) return 'zh-TW';
   if (lower.startsWith('zh')) return 'zh-CN';
@@ -18,5 +19,6 @@ export function normalizeLocale(input?: string | null): string {
   if (lower.startsWith('vi')) return 'vi';
   if (lower.startsWith('th')) return 'th';
   if (lower.startsWith('ar')) return 'ar';
-  return tag;
+  if (isExtendedLocale(tag as ExtendedLocale)) return tag;
+  return DEFAULT_LOCALE;
 }
