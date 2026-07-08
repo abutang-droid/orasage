@@ -87,4 +87,4 @@ curl -sf -o /dev/null -w "tarot:%{http_code}\n" http://127.0.0.1:3112/
 curl -sf -o /dev/null -w "bazi:%{http_code}\n" http://127.0.0.1:3110/
 
 log "Cutover complete. Run decommission after manual smoke:"
-log "  CONFIRM_DECOMMISSION=yes sudo bash $DEPLOY_DIR/scripts/db-migration/decommission-mysql.sh"
+log "  sudo CONFIRM_DECOMMISSION=yes bash $DEPLOY_DIR/scripts/db-migration/decommission-mysql.sh"

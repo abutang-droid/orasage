@@ -39,3 +39,6 @@ else
 fi
 
 log "MySQL decommission complete. PostgreSQL is now the only database engine."
+
+log "Restarting bazi + tarot..."
+systemctl start orasage-bazi orasage-tarot 2>/dev/null || true

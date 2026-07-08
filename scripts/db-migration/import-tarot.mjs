@@ -68,7 +68,6 @@ async function main() {
       console.log(`[tarot] ${table}: imported ${list.length} rows`);
     }
 
-    await sql`SET session_replication_role = 'origin'`;
     console.log("[tarot] Import complete.");
   } finally {
     await mysqlConn.end();

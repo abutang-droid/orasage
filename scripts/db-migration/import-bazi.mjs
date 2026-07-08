@@ -63,7 +63,6 @@ async function main() {
       console.log(`[bazi] Reset serial for ${table}`);
     }
 
-    await sql`SET session_replication_role = 'origin'`;
     console.log("[bazi] Import complete.");
   } finally {
     await mysqlConn.end();
