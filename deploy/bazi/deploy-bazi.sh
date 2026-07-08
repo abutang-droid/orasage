@@ -6,7 +6,7 @@
 # 模式:
 #   native (默认) — 构建本仓库内已 vendor 进来的 bazi/ 源码（server + client，
 #                    对应 abutang-droid/bazi-calculator），通过 systemd 常驻运行。
-#                    需要 MySQL（DATABASE_URL）+ JWT_SECRET（与 auth-service 共享）。
+#                    需要 PostgreSQL（DATABASE_URL）+ JWT_SECRET（与 auth-service 共享）。
 #   proxy         — 回滚用：3110 反代到迁移前的现有线上服务，不需要本仓库源码。
 
 set -euo pipefail
@@ -64,7 +64,7 @@ deploy_native() {
   set +a
 
   if [ -z "${DATABASE_URL:-}" ]; then
-    log "错误: 缺少 DATABASE_URL（MySQL），请在 $APP_DIR/.env 中配置"
+    log "错误: 缺少 DATABASE_URL（PostgreSQL），请在 $APP_DIR/.env 中配置"
     exit 1
   fi
   npx drizzle-kit push --force

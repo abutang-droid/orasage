@@ -20,23 +20,22 @@ units, and remote deploy scripts targeting a single production VPS.
 
 ### Services
 
-- PostgreSQL 16 is required for `auth-service`, `shop` (via auth-service) and
-  `cms`. Start it each session with `sudo pg_ctlcluster 16 main start` (check
-  with `pg_lsclusters`).
-- MySQL/MariaDB is required for `bazi` and `tarot`. If not already running,
-  `sudo apt-get install -y mariadb-server && sudo service mariadb start`,
-  then create per-app databases/users as needed.
-- Create per-app Postgres databases as needed, e.g.
-  `sudo -u postgres psql -c "CREATE DATABASE orasage_auth;"` (also
-  `orasage_shop`-equivalent data lives in `orasage_auth` since shop delegates
-  persistence to auth-service's internal API; `orasage_cms` for Payload).
+- PostgreSQL 16 is required for `auth-service`, `shop` (via auth-service), `cms`,
+  `bazi`, and `tarot`. Start it each session with
+  `sudo pg_ctlcluster 16 main start` (check with `pg_lsclusters`).
+- Create per-app Postgres databases as needed:
+  `orasage_auth` (auth-service + shop order data via internal API),
+  `orasage_cms` (Payload), `orasage_bazi` (bazi), `orasage_tarot` (tarot).
+  Helper: `bash scripts/db-migration/create-pg-databases.sh`
 - `auth-service` schema is managed by Drizzle: `DATABASE_URL=... npx drizzle-kit push --force`
   (or apply the SQL files under `auth-service/drizzle/` in order).
 - `cms` schema is managed by Payload migrations: `npm run migrate` (creates
   tables) after setting `DATABASE_URL` / `PAYLOAD_SECRET`.
-- `bazi` schema is managed by Drizzle (MySQL): `DATABASE_URL=... npx drizzle-kit push --force`.
+- `bazi` schema is managed by Drizzle (PostgreSQL):
+  `DATABASE_URL=postgresql://.../orasage_bazi npx drizzle-kit push --force`.
   Uses `pnpm`, not `npm` (`corepack enable` first if pnpm isn't installed).
-- `tarot` schema is managed by Prisma (MySQL): `DATABASE_URL=... npx prisma db push`.
+- `tarot` schema is managed by Prisma (PostgreSQL):
+  `DATABASE_URL=postgresql://.../orasage_tarot npx prisma migrate deploy`.
 
 ### Running auth-service
 
@@ -71,14 +70,14 @@ units, and remote deploy scripts targeting a single production VPS.
 
 ### Running bazi / ziwei / tarot
 
-- `bazi`: `pnpm install`, `DATABASE_URL=mysql://... npx drizzle-kit push --force`,
+- `bazi`: `pnpm install`, `DATABASE_URL=postgresql://.../orasage_bazi npx drizzle-kit push --force`,
   then `DATABASE_URL=... JWT_SECRET=... pnpm run build && node dist/index.js`
   (port from `PORT` env, default 3000; the deploy scripts set it to 3110).
   `NODE_ENV=production` and missing `JWT_SECRET` will throw at startup.
 - `ziwei`: `npm install && npm run build && npm start` (port 3111 by default
   now, see `package.json`). No database. `JWT_SECRET`/`AUTH_URL` are optional —
   without them the app is fully anonymous (unchanged from upstream).
-- `tarot`: `npm install`, `DATABASE_URL=mysql://... npx prisma db push`, then
+- `tarot`: `npm install`, `DATABASE_URL=postgresql://.../orasage_tarot npx prisma migrate deploy`, then
   `DATABASE_URL=... JWT_SECRET=... npm run build && npm start` (reads `PORT`
   env, no `-p` flag in the script; deploy scripts set `PORT=3112`).
 - All three accept the shared `orasage_token` cookie (same `JWT_SECRET` as

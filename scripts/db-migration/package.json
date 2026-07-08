@@ -1,0 +1,17 @@
+{
+  "name": "@orasage/db-migration",
+  "private": true,
+  "type": "module",
+  "description": "One-time MySQL → PostgreSQL data migration for bazi and tarot",
+  "scripts": {
+    "create-databases": "bash create-pg-databases.sh",
+    "import:tarot": "node import-tarot.mjs",
+    "import:bazi": "node import-bazi.mjs",
+    "verify": "node verify-counts.mjs",
+    "decommission-mysql": "bash decommission-mysql.sh"
+  },
+  "dependencies": {
+    "mysql2": "^3.15.0",
+    "postgres": "^3.4.5"
+  }
+}

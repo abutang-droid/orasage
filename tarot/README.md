@@ -12,7 +12,7 @@
 - **个人中心 & 历史记录**
 
 ## 技术栈
-Next.js 15 + TypeScript + Tailwind v4 + MySQL + Prisma + JWT
+Next.js 15 + TypeScript + Tailwind v4 + PostgreSQL + Prisma + JWT
 
 ## 快速开始
 ```bash

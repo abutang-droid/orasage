@@ -36,12 +36,7 @@ if ! command -v node >/dev/null 2>&1 || [ "$(node -v | sed 's/^v//' | cut -d. -f
 fi
 corepack enable 2>/dev/null || npm install -g pnpm  # bazi 使用 pnpm
 
-# MariaDB（bazi / tarot 使用 MySQL 兼容数据库；ziwei 无状态不需要）
-if ! command -v mysql >/dev/null 2>&1; then
-  log "安装 MariaDB..."
-  apt-get install -y -qq mariadb-server
-  systemctl enable --now mariadb
-fi
+# MariaDB 已废弃（bazi/tarot 已迁 PostgreSQL）。仅当从旧环境回滚数据时需要临时安装。
 
 # ── 2. 拉取配置仓库 ──────────────────────────────────────────
 log "拉取 orasage 配置..."

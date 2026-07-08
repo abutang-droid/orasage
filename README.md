@@ -25,9 +25,9 @@ cms.orasage.com       → cms     :3120   Payload CMS
 | `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建，部署至 VPS |
 | `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | ✅ 已开发，部署至 VPS |
 | `admin.orasage.com` | admin | 3103 | Next.js SPA | PostgreSQL | 🚧 骨架已建，部署至 VPS |
-| `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC + Drizzle | MySQL | ✅ 源码已接入，本地构建/运行验证通过 |
+| `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC + Drizzle | PostgreSQL (`orasage_bazi`) | ✅ 源码已接入，本地构建/运行验证通过 |
 | `ziwei.orasage.com` | ziwei | 3111 | Next.js 15 + iztro | 无（纯计算+AI） | ✅ 源码已接入，本地构建/运行验证通过 |
-| `tarot.orasage.com` | tarot | 3112 | Next.js 15 + Prisma | MySQL | ✅ 源码已接入，本地构建/运行验证通过 |
+| `tarot.orasage.com` | tarot | 3112 | Next.js 15 + Prisma | PostgreSQL (`orasage_tarot`) | ✅ 源码已接入，本地构建/运行验证通过 |
 | `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 🚧 骨架已建，部署至 VPS |
 
 ## 方案 B 要点
@@ -50,7 +50,7 @@ cms.orasage.com       → cms     :3120   Payload CMS
 3. App 内浮层购买，不跳转 shop 页面
 4. `recommendationContext` 传递推荐理由到订单
 5. 共享 JWT cookie（`.orasage.com`）跨子域认证
-6. PostgreSQL + MySQL 双数据库
+6. PostgreSQL only（`orasage_auth` / `orasage_cms` / `orasage_bazi` / `orasage_tarot`）
 7. 应用间通过 `127.0.0.1` 内网 API 通信
 8. 独立 admin App
 9. 命理 App 内网 API 不暴露公网
@@ -116,7 +116,8 @@ SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-ziwei.sh
 ```
 
 native 模式部署前需在 VPS 上为每个 App 准备 `.env`（参考各自目录下的
-`.env.example`），bazi / tarot 需要 MySQL（`DATABASE_URL`），三者都需要与
+`.env.example`），bazi / tarot 需要 PostgreSQL（`DATABASE_URL` 指向
+`orasage_bazi` / `orasage_tarot`），三者都需要与
 auth-service 共享同一个 `JWT_SECRET`。
 
 GitHub Actions：在仓库 Settings → Secrets 配置 `SSH_PRIVATE_KEY` 后，
@@ -171,7 +172,7 @@ deploy/
 ## 已知遗留事项 / 后续优先级（按序执行）
 
 1. **P0** — 在真实 VPS 上跑通全部 native 部署脚本，验证 DNS/SSL/Nginx/
-   systemd/MySQL 全链路（当前仅在本地沙箱验证过各 App 单独构建、运行与
+   systemd/PostgreSQL 全链路（当前仅在本地沙箱验证过各 App 单独构建、运行与
    JWT 桥接逻辑，未在真实 VPS 环境跑过）。
 2. **P0** — bazi 涉及真实付费用户与 WooCommerce 支付，从 proxy 切到 native
    前建议先在测试环境完整跑一遍下单流程，确认 WordPress 集成不受影响。

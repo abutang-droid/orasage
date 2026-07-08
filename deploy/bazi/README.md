@@ -17,7 +17,7 @@ SSH_KEY=~/.ssh/id_rsa DEPLOY_MODE=proxy bash deploy/remote-deploy-bazi.sh
 
 native 模式部署前，需在 VPS 上准备 `/opt/orasage/bazi/.env`
 （参考 [`bazi/.env.example`](../../bazi/.env.example)），至少配置
-`DATABASE_URL`（MySQL）与 `JWT_SECRET`（与 auth-service 共用同一个值）。
+`DATABASE_URL`（PostgreSQL，`orasage_bazi`）与 `JWT_SECRET`（与 auth-service 共用同一个值）。
 
 ## GitHub Actions 配置
 
