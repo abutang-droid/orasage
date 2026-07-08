@@ -447,7 +447,283 @@ export const temple = {
     pt: 'Para trocar patrono ou região, vá em',
     es: 'Para cambiar patrón o región, ve a',
   },
+  settingsLink: {
+    zh: '我的 → 设置',
+    en: 'Profile → Settings',
+    pt: 'Perfil → Configurações',
+    es: 'Perfil → Ajustes',
+  },
+  meritAria: {
+    zh: '我的功德',
+    en: 'My merit',
+    pt: 'Meu mérito',
+    es: 'Mi mérito',
+  },
+  meritLoading: {
+    zh: '加载功德…',
+    en: 'Loading merit…',
+    pt: 'Carregando mérito…',
+    es: 'Cargando mérito…',
+  },
+  meritLabel: {
+    zh: '我的功德',
+    en: 'My merit',
+    pt: 'Meu mérito',
+    es: 'Mi mérito',
+  },
+  meritTimeOffer: {
+    zh: '日积月累 {time} · 诚心供养 {offer}',
+    en: 'Time path {time} · Offerings {offer}',
+    pt: 'Caminho do tempo {time} · Ofertas {offer}',
+    es: 'Camino del tiempo {time} · Ofrendas {offer}',
+  },
+  meritStreak: {
+    zh: ' · 连续 {days} 天',
+    en: ' · {days}-day streak',
+    pt: ' · sequência de {days} dias',
+    es: ' · racha de {days} días',
+  },
+  meritDetails: {
+    zh: '查看功德详情 →',
+    en: 'View merit details →',
+    pt: 'Ver detalhes do mérito →',
+    es: 'Ver detalles del mérito →',
+  },
+  leaderboardAria: {
+    zh: '功德排行榜',
+    en: 'Merit leaderboard',
+    pt: 'Ranking de mérito',
+    es: 'Clasificación de mérito',
+  },
+  leaderboardTitle: {
+    zh: '功德排行榜',
+    en: 'Merit leaderboard',
+    pt: 'Ranking de mérito',
+    es: 'Clasificación de mérito',
+  },
+  leaderboardSub: {
+    zh: '持光者及以上信徒',
+    en: 'Lightbearers and above',
+    pt: 'Portadores da Luz em diante',
+    es: 'Portadores de la Luz en adelante',
+  },
+  leaderboardEmpty: {
+    zh: '暂无上榜信徒',
+    en: 'No devotees on the board yet',
+    pt: 'Nenhum devoto no ranking ainda',
+    es: 'Aún no hay devotos en la lista',
+  },
+  donationAria: {
+    zh: '乐捐',
+    en: 'Donation',
+    pt: 'Doação',
+    es: 'Donación',
+  },
 } as const satisfies Record<string, LangMap>;
+
+export const donation = {
+  label: {
+    zh: '── 自愿乐捐 ──',
+    en: '── Voluntary offering ──',
+    pt: '── Oferta voluntária ──',
+    es: '── Ofrenda voluntaria ──',
+  },
+  explanation: {
+    zh: '自愿供养，用于庙宇日常护持；功德计入您的修行记录。',
+    en: 'Voluntary support for temple upkeep; merit is added to your record.',
+    pt: 'Apoio voluntário ao templo; o mérito entra no seu registro.',
+    es: 'Apoyo voluntario al templo; el mérito se añade a tu registro.',
+  },
+  estimatedMerit: {
+    zh: '预计功德',
+    en: 'Estimated merit',
+    pt: 'Mérito estimado',
+    es: 'Mérito estimado',
+  },
+  customAmount: {
+    zh: '自定义金额',
+    en: 'Custom amount',
+    pt: 'Valor personalizado',
+    es: 'Monto personalizado',
+  },
+  submitLoading: {
+    zh: '跳转支付…',
+    en: 'Redirecting to pay…',
+    pt: 'Redirecionando…',
+    es: 'Redirigiendo al pago…',
+  },
+  submit: {
+    zh: '乐捐 {amount}',
+    en: 'Donate {amount}',
+    pt: 'Doar {amount}',
+    es: 'Donar {amount}',
+  },
+  error: {
+    zh: '乐捐失败',
+    en: 'Donation failed',
+    pt: 'Falha na doação',
+    es: 'Error en la donación',
+  },
+} as const satisfies Record<string, LangMap>;
+
+export const wish = {
+  label: {
+    zh: 'WISH DIVINATION',
+    en: 'WISH DIVINATION',
+    pt: 'WISH DIVINATION',
+    es: 'WISH DIVINATION',
+  },
+  title: {
+    zh: '心愿占卜',
+    en: 'Wish reading',
+    pt: 'Leitura de desejo',
+    es: 'Lectura de deseo',
+  },
+  subtitle: {
+    zh: '写下心愿，获取塔罗指引',
+    en: 'Write a wish and receive tarot guidance',
+    pt: 'Escreva um desejo e receba orientação do tarô',
+    es: 'Escribe un deseo y recibe guía del tarot',
+  },
+  wishLabel: {
+    zh: '你的心愿',
+    en: 'Your wish',
+    pt: 'Seu desejo',
+    es: 'Tu deseo',
+  },
+  placeholder: {
+    zh: '写下一个简短的心愿，例如：希望这段感情顺利…',
+    en: 'Write a short wish, e.g. hoping this relationship goes well…',
+    pt: 'Escreva um desejo curto, ex.: que este relacionamento dê certo…',
+    es: 'Escribe un deseo breve, p. ej. que esta relación salga bien…',
+  },
+  divining: {
+    zh: '占卜中…',
+    en: 'Reading…',
+    pt: 'Consultando…',
+    es: 'Leyendo…',
+  },
+  submit: {
+    zh: '一键占卜',
+    en: 'Draw a card',
+    pt: 'Tirar carta',
+    es: 'Sacar carta',
+  },
+  cardDrawn: {
+    zh: '抽到的牌',
+    en: 'Card drawn',
+    pt: 'Carta sorteada',
+    es: 'Carta sacada',
+  },
+  upright: {
+    zh: '↑ 正位',
+    en: '↑ Upright',
+    pt: '↑ Normal',
+    es: '↑ Derecha',
+  },
+  reversed: {
+    zh: '↓ 逆位',
+    en: '↓ Reversed',
+    pt: '↓ Invertida',
+    es: '↓ Invertida',
+  },
+  again: {
+    zh: '再次占卜',
+    en: 'Read again',
+    pt: 'Consultar de novo',
+    es: 'Leer de nuevo',
+  },
+  conclusion: {
+    可行: {
+      zh: '可行',
+      en: 'Go ahead',
+      pt: 'Viável',
+      es: 'Adelante',
+    },
+    蓄力: {
+      zh: '蓄力',
+      en: 'Build momentum',
+      pt: 'Acumular',
+      es: 'Acumular',
+    },
+    暂缓: {
+      zh: '暂缓',
+      en: 'Wait',
+      pt: 'Aguardar',
+      es: 'Esperar',
+    },
+  } as const satisfies Record<string, LangMap>,
+  conclusionDesc: {
+    可行: {
+      zh: '星象支持，时机已到',
+      en: 'The stars support you — the time is now',
+      pt: 'Os astros apoiam — o momento é agora',
+      es: 'Los astros te apoyan — el momento es ahora',
+    },
+    蓄力: {
+      zh: '积累能量，静待时机',
+      en: 'Gather energy and wait for the right moment',
+      pt: 'Acumule energia e aguarde o momento certo',
+      es: 'Acumula energía y espera el momento adecuado',
+    },
+    暂缓: {
+      zh: '星象提示，需要耐心',
+      en: 'The stars suggest patience',
+      pt: 'Os astros pedem paciência',
+      es: 'Los astros piden paciencia',
+    },
+  } as const satisfies Record<string, LangMap>,
+  advice: [
+    {
+      zh: '大胆去做，宇宙在支持你的这个心愿。',
+      en: 'Go for it — the universe supports this wish.',
+      pt: 'Vá em frente — o universo apoia este desejo.',
+      es: 'Hazlo — el universo apoya este deseo.',
+    },
+    {
+      zh: '时机稍纵即逝，今天就行动起来。',
+      en: 'The window is brief — act today.',
+      pt: 'A janela é curta — aja hoje.',
+      es: 'La ventana es breve — actúa hoy.',
+    },
+    {
+      zh: '再准备一下会更好，不用急着出手。',
+      en: 'A little more preparation will help — no rush.',
+      pt: 'Um pouco mais de preparo ajuda — sem pressa.',
+      es: 'Un poco más de preparación ayudará — sin prisa.',
+    },
+    {
+      zh: '保持耐心，好事多磨。',
+      en: 'Stay patient — good things take time.',
+      pt: 'Tenha paciência — o bom leva tempo.',
+      es: 'Ten paciencia — lo bueno toma tiempo.',
+    },
+    {
+      zh: '跟随直觉走，你的心已经知道答案。',
+      en: 'Follow your intuition — your heart already knows.',
+      pt: 'Siga sua intuição — seu coração já sabe.',
+      es: 'Sigue tu intuición — tu corazón ya lo sabe.',
+    },
+    {
+      zh: '先放一放，过两天再回头看这个决定。',
+      en: 'Set it aside and revisit this decision in a few days.',
+      pt: 'Deixe de lado e reavalie em alguns dias.',
+      es: 'Déjalo reposar y revisa esta decisión en unos días.',
+    },
+    {
+      zh: '这个方向是对的，但节奏需要放慢一些。',
+      en: 'The direction is right, but slow the pace.',
+      pt: 'A direção está certa, mas diminua o ritmo.',
+      es: 'La dirección es correcta, pero baja el ritmo.',
+    },
+    {
+      zh: '缺少一些关键信息，先收集再行动。',
+      en: 'Key information is missing — gather more before acting.',
+      pt: 'Faltam informações — colete mais antes de agir.',
+      es: 'Falta información clave — reúne más antes de actuar.',
+    },
+  ] as const satisfies ReadonlyArray<LangMap>,
+} as const satisfies Record<string, LangMap | ReadonlyArray<LangMap> | Record<string, LangMap>>;
 
 export function formatTemplate(template: string, vars: Record<string, string>): string {
   return Object.entries(vars).reduce(
@@ -500,11 +776,82 @@ export function useTempleCopy() {
       verseAria: p(temple.verseAria),
       donationSuccess: p(temple.donationSuccess),
       changeFaithHint: p(temple.changeFaithHint),
+      settingsLink: p(temple.settingsLink),
+      meritAria: p(temple.meritAria),
+      meritLoading: p(temple.meritLoading),
+      meritLabel: p(temple.meritLabel),
+      meritDetails: p(temple.meritDetails),
+      leaderboardAria: p(temple.leaderboardAria),
+      leaderboardTitle: p(temple.leaderboardTitle),
+      leaderboardSub: p(temple.leaderboardSub),
+      leaderboardEmpty: p(temple.leaderboardEmpty),
+      donationAria: p(temple.donationAria),
+      meritTimeOffer: (time: number, offer: number) =>
+        formatTemplate(p(temple.meritTimeOffer), { time: String(time), offer: String(offer) }),
+      meritStreak: (days: number) => formatTemplate(p(temple.meritStreak), { days: String(days) }),
       pickWithFaith: (faith: string, country?: string | null) =>
         formatTemplate(p(temple.pickWithFaith), {
           faith,
           country: country ? ` · ${country}` : '',
         }),
+    };
+  }, [lang]);
+}
+
+export function useDonationCopy() {
+  const { lang } = useLang();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    return {
+      label: p(donation.label),
+      explanation: p(donation.explanation),
+      estimatedMerit: p(donation.estimatedMerit),
+      customAmount: p(donation.customAmount),
+      submitLoading: p(donation.submitLoading),
+      submit: (amount: string) => formatTemplate(p(donation.submit), { amount }),
+      error: p(donation.error),
+    };
+  }, [lang]);
+}
+
+export function useWishCopy() {
+  const { lang } = useLang();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    const conclusionKey = (key: string) => {
+      const map = wish.conclusion[key as keyof typeof wish.conclusion];
+      return map ? p(map) : key;
+    };
+    const conclusionDesc = (key: string) => {
+      const map = wish.conclusionDesc[key as keyof typeof wish.conclusionDesc];
+      return map ? p(map) : '';
+    };
+    return {
+      label: p(wish.label as LangMap),
+      title: p(wish.title as LangMap),
+      subtitle: p(wish.subtitle as LangMap),
+      wishLabel: p(wish.wishLabel as LangMap),
+      placeholder: p(wish.placeholder as LangMap),
+      divining: p(wish.divining as LangMap),
+      submit: p(wish.submit as LangMap),
+      cardDrawn: p(wish.cardDrawn as LangMap),
+      upright: p(wish.upright as LangMap),
+      reversed: p(wish.reversed as LangMap),
+      again: p(wish.again as LangMap),
+      conclusionKey,
+      conclusionDesc,
+      adviceAt: (idx: number) => {
+        const row = wish.advice[idx % wish.advice.length];
+        return row ? p(row) : '';
+      },
+      conclusionStyle: (key: string) => {
+        const styles: Record<string, { color: string; bg: string }> = {
+          可行: { color: 'var(--green)', bg: 'var(--green-pale)' },
+          蓄力: { color: 'var(--gold)', bg: 'var(--gold-pale)' },
+          暂缓: { color: 'var(--rose)', bg: 'var(--rose-pale)' },
+        };
+        return styles[key] ?? { color: 'var(--gold)', bg: 'var(--gold-pale)' };
+      },
     };
   }, [lang]);
 }

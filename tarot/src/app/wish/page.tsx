@@ -2,46 +2,63 @@
 import { useState } from "react"
 import { Sparkles } from "lucide-react"
 import { Button } from "@orasage/ui/button"
+import { useCardName } from "@/lib/i18n/context"
+import { useWishCopy } from "@/lib/i18n/ui-strings"
+import { getCardById } from "@/lib/tarot/cards"
 
-const CONCLUSIONS: Record<string, { label: string; color: string; bg: string; desc: string }> = {
-  "可行": { label: "可行",  color: "var(--green)",  bg: "var(--green-pale)",  desc: "星象支持，时机已到" },
-  "蓄力": { label: "蓄力",  color: "var(--gold)",   bg: "var(--gold-pale)",   desc: "积累能量，静待时机" },
-  "暂缓": { label: "暂缓",  color: "var(--rose)",   bg: "var(--rose-pale)",   desc: "星象提示，需要耐心" },
+type WishResult = {
+  cardId?: number
+  cardName: string
+  orientation: "正位" | "逆位"
+  conclusion: string
+  advice?: string
+  adviceIdx?: number
 }
 
 export default function WishPage() {
-  const [wish, setWish] = useState("")
-  const [result, setResult] = useState<any>(null)
+  const wish = useWishCopy()
+  const cardNameFor = useCardName()
+  const [wishText, setWishText] = useState("")
+  const [result, setResult] = useState<WishResult | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit() {
-    if (!wish.trim()) return
+    if (!wishText.trim()) return
     setLoading(true)
     setResult(null)
     try {
       const res = await fetch("/api/wish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wish: wish.trim() }),
+        body: JSON.stringify({ wish: wishText.trim() }),
       })
       if (res.ok) setResult(await res.json())
     } catch (e) {}
     finally { setLoading(false) }
   }
 
-  const conclusionInfo = result ? (CONCLUSIONS[result.conclusion] || { label: result.conclusion, color: 'var(--gold)', bg: 'var(--gold-pale)', desc: '' }) : null
+  const conclusionKey = result?.conclusion ?? ""
+  const conclusionStyle = wish.conclusionStyle(conclusionKey)
+  const localizedAdvice =
+    result?.adviceIdx != null
+      ? wish.adviceAt(result.adviceIdx)
+      : result?.advice ?? ""
+  const displayCardName = result
+    ? (() => {
+        const card = result.cardId != null ? getCardById(result.cardId) : undefined
+        return card ? cardNameFor(card) : result.cardName
+      })()
+    : ""
 
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
 
-      {/* ── Header ── */}
       <div className="page-header animate-fade-in-up">
-        <span className="label">WISH DIVINATION</span>
-        <h1>心愿占卜</h1>
-        <p>写下心愿，获取塔罗指引</p>
+        <span className="label">{wish.label}</span>
+        <h1>{wish.title}</h1>
+        <p>{wish.subtitle}</p>
       </div>
 
-      {/* ── Input Card ── */}
       <div className="animate-fade-in-up" style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
@@ -56,12 +73,12 @@ export default function WishPage() {
             display: 'block', fontSize: 12,
             color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 500,
           }}>
-            你的心愿
+            {wish.wishLabel}
           </label>
           <textarea
-            value={wish}
-            onChange={e => setWish(e.target.value)}
-            placeholder="写下一个简短的心愿，例如：希望这段感情顺利…"
+            value={wishText}
+            onChange={e => setWishText(e.target.value)}
+            placeholder={wish.placeholder}
             className="input-field"
             rows={4}
             maxLength={200}
@@ -70,34 +87,32 @@ export default function WishPage() {
             textAlign: 'right', fontSize: 11,
             color: 'var(--text-faint)', marginTop: 4,
           }}>
-            {wish.length}/200
+            {wishText.length}/200
           </div>
         </div>
 
         <Button
           onClick={handleSubmit}
-          disabled={loading || !wish.trim()}
+          disabled={loading || !wishText.trim()}
           className="w-full"
         >
           {loading ? (
             <>
               <div className="spinner" style={{ width: 16, height: 16, borderWidth: 1.5 }} />
-              <span>占卜中…</span>
+              <span>{wish.divining}</span>
             </>
           ) : (
             <>
               <Sparkles size={18} strokeWidth={1.75} aria-hidden />
-              一键占卜
+              {wish.submit}
             </>
           )}
         </Button>
       </div>
 
-      {/* ── Result ── */}
       {result && (
         <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-          {/* Card drawn */}
           <div style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border)',
@@ -106,14 +121,14 @@ export default function WishPage() {
             boxShadow: 'var(--shadow-sm)',
             textAlign: 'center',
           }}>
-            <div className="section-label" style={{ marginBottom: 10 }}>抽到的牌</div>
+            <div className="section-label" style={{ marginBottom: 10 }}>{wish.cardDrawn}</div>
             <div style={{
               fontSize: 20, fontWeight: 700,
               color: 'var(--text-primary)',
               fontFamily: 'var(--font-serif)',
               marginBottom: 4,
             }}>
-              {result.cardName}
+              {displayCardName}
             </div>
             <div style={{
               fontSize: 11, fontWeight: 500,
@@ -122,15 +137,14 @@ export default function WishPage() {
               padding: '2px 12px', borderRadius: 20,
               display: 'inline-block',
             }}>
-              {result.orientation === '正位' ? '↑ 正位' : '↓ 逆位'}
+              {result.orientation === '正位' ? wish.upright : wish.reversed}
             </div>
           </div>
 
-          {/* Conclusion */}
-          {conclusionInfo && (
+          {conclusionKey && (
             <div style={{
-              background: conclusionInfo.bg,
-              border: `1px solid ${conclusionInfo.color}30`,
+              background: conclusionStyle.bg,
+              border: `1px solid ${conclusionStyle.color}30`,
               borderRadius: 'var(--radius-lg)',
               padding: '22px',
               textAlign: 'center',
@@ -138,23 +152,22 @@ export default function WishPage() {
             }}>
               <div style={{
                 fontSize: 36, fontWeight: 700,
-                color: conclusionInfo.color,
+                color: conclusionStyle.color,
                 fontFamily: 'var(--font-serif)',
                 marginBottom: 4,
               }}>
-                {conclusionInfo.label}
+                {wish.conclusionKey(conclusionKey)}
               </div>
-              <div style={{ fontSize: 12, color: conclusionInfo.color, opacity: 0.7, marginBottom: 14 }}>
-                {conclusionInfo.desc}
+              <div style={{ fontSize: 12, color: conclusionStyle.color, opacity: 0.7, marginBottom: 14 }}>
+                {wish.conclusionDesc(conclusionKey)}
               </div>
               <div className="divider" style={{ margin: '14px 0' }} />
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.85 }}>
-                {result.advice}
+                {localizedAdvice}
               </div>
             </div>
           )}
 
-          {/* Wish recap */}
           <div style={{
             background: 'var(--gold-subtle)',
             border: '1px solid rgba(201,149,74,0.15)',
@@ -164,17 +177,16 @@ export default function WishPage() {
           }}>
             <span style={{ fontSize: 14, color: 'var(--gold)', flexShrink: 0 }}>💫</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-serif)' }}>
-              「{wish}」
+              「{wishText}」
             </span>
           </div>
 
-          {/* Reset */}
           <Button
             variant="outline"
-            onClick={() => { setResult(null); setWish("") }}
+            onClick={() => { setResult(null); setWishText("") }}
             className="w-full"
           >
-            再次占卜
+            {wish.again}
           </Button>
         </div>
       )}
