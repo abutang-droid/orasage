@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import { Star, TriangleAlert } from 'lucide-react';
 import type { FamousPerson } from '@/lib/ziwei/famous';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -24,7 +25,7 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
       }}
     >
       <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
-        <span style={{ color: catColor, opacity: 0.9, fontSize: '12px' }}>★</span>
+        <Star size={12} strokeWidth={2} style={{ color: catColor, opacity: 0.9 }} aria-hidden />
         名人命盘
         <span className="text-[9px] px-2 py-0.5 rounded-full ml-auto"
           style={{ color: catColor, background: catColor + '18', border: `1px solid ${catColor}40` }}>
@@ -56,8 +57,9 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
           {person.notable}
         </div>
 
-        <div className="text-[10px] mt-2" style={{ color: 'var(--t-faint)', opacity: 0.6, lineHeight: 1.5 }}>
-          ⚠️ 出生时辰为公开文献估算值，仅供研究参考。下方 AI 解读基于此命盘自动生成，与本人无关。
+        <div className="text-[10px] mt-2 flex items-start gap-1.5" style={{ color: 'var(--t-faint)', opacity: 0.6, lineHeight: 1.5 }}>
+          <TriangleAlert size={12} strokeWidth={2} className="mt-0.5 shrink-0" aria-hidden />
+          <span>出生时辰为公开文献估算值，仅供研究参考。下方 AI 解读基于此命盘自动生成，与本人无关。</span>
         </div>
       </div>
     </motion.div>

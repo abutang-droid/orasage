@@ -28,7 +28,7 @@
 | 设计令牌 | ✅ | `tokens:sync` / `tokens:check` |
 | App Shell | ✅ | `app-shell:sync` / `app-shell:check`；lucide 底栏 |
 | @orasage/ui | 🟡 | main 全量；shop/tarot Button；bazi 少量 |
-| 图标 lucide | 🟡 | Shell/main/shop/tarot 已统一；ziwei 内容层待清 |
+| 图标 lucide | 🟡 | Shell/main/shop/tarot/ziwei 内容层已清；nihai 数据层符号待页面接入时处理 |
 | packages/i18n | 🟡 | 基座已建；shop next-intl 四语已落地 |
 | PostgreSQL 合一 | ✅ | bazi/tarot 已迁移 |
 | VPS 部署 | ✅ | cms 2026-07-08 redeploy |
@@ -44,7 +44,7 @@
 ## P1 — 短期
 
 - [x] tarot feature CSS（`tarot-home` / `temple` / `geo-journey`）token 化
-- [ ] ziwei 业务 emoji → lucide（保留 ChartBoard SVG）
+- [x] ziwei 业务 emoji → lucide（StarDetailPanel / FamousPersonCard / BirthForm / AnnouncementModal；ChartBoard ☯ 保留）
 - [x] shop 商品卡/布局 `@orasage/ui` Card
 - [x] bazi/ziwei `detectLocale` → `@orasage/i18n`
 - [x] app-shell 语言切换器 + 跨子域 cookie

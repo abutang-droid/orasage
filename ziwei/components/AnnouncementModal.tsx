@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HeartHandshake } from 'lucide-react';
 
 // 公告版本号——以后想再弹新公告，改这里就行（旧版 key 失效，新版重新弹一次）
 const ANNOUNCEMENT_VERSION = '2026-05-01';
@@ -167,8 +168,9 @@ export default function AnnouncementModal() {
               <p style={{ margin: '0 0 16px', color: '#3d2f10', fontWeight: 500 }}>
                 最后，真心祝愿大家都能越来越了解自己，越来越爱自己，也越来越有能力爱身边的人。
               </p>
-              <p style={{ margin: 0, textAlign: 'right', fontSize: '13px', color: '#7a5e2a' }}>
-                ——谢谢大家 🙏
+              <p style={{ margin: 0, textAlign: 'right', fontSize: '13px', color: '#7a5e2a', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                <span>——谢谢大家</span>
+                <HeartHandshake size={14} strokeWidth={2} aria-hidden />
               </p>
             </div>
 
