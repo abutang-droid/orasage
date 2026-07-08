@@ -73,7 +73,7 @@ export const OFFER_SPENT_MILESTONES: ReadonlyArray<{ cents: number; bonus: numbe
   { cents: 10000000, bonus: 10000 },
 ];
 
-/** 传播之路常量保留；发功由 MERIT_SHARE_PATH_ENABLED 关闭 */
+/** 传播之路常量保留；可通过 MERIT_SHARE_PATH_ENABLED 关闭 */
 export const SHARE_MERIT = {
   link_click: 1,
   daily_cap: 5,
@@ -82,7 +82,16 @@ export const SHARE_MERIT = {
   referral_crystal: 100,
 } as const;
 
-export const MERIT_SHARE_PATH_ENABLED = false;
+function parseMeritSharePathEnabled(): boolean {
+  const raw = process.env.MERIT_SHARE_PATH_ENABLED;
+  if (raw === undefined || raw === '') return true;
+  const norm = raw.trim().toLowerCase();
+  if (norm === '0' || norm === 'false' || norm === 'no') return false;
+  return true;
+}
+
+/** 传播之路发功开关（默认开启；设 MERIT_SHARE_PATH_ENABLED=false 可关闭） */
+export const MERIT_SHARE_PATH_ENABLED = parseMeritSharePathEnabled();
 
 export const REFERRAL_LEVEL_BONUS: Record<number, number> = {
   1: 200,
@@ -289,8 +298,10 @@ export const MERIT_RULES = {
   share: {
     label: '传播之路',
     accent: 'share' as const,
-    active: false,
-    pausedNote: '分享与推荐奖励已暂停，历史传播功德仍计入总功德。',
+    active: MERIT_SHARE_PATH_ENABLED,
+    ...(MERIT_SHARE_PATH_ENABLED
+      ? {}
+      : { pausedNote: '分享与推荐奖励已暂停，历史传播功德仍计入总功德。' }),
     rules: [
       { condition: '分享链接被点击', amount: '+1/次', note: '日上限 5' },
       { condition: '被分享者完成首次参拜', amount: '+10/人' },
