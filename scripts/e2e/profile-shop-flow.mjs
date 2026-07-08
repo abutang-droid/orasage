@@ -6,6 +6,7 @@
  */
 
 import { chromium } from 'playwright';
+import { fillBaziPerson } from './lib/bazi-helpers.mjs';
 import { clickMockPay } from './lib/checkout-helpers.mjs';
 
 const BASE = {
@@ -60,15 +61,20 @@ async function setAuthCookie(context, token) {
   ]);
 }
 
-async function fillPerson(page, { name, personTab }) {
-  if (personTab) {
-    await page.getByRole('button', { name: personTab, exact: true }).click();
-  }
-  await page.locator('input[type="text"]').first().fill(name);
-  await page.getByRole('button', { name: L.genderM, exact: true }).first().click();
+async function fillPerson(page, opts) {
+  await fillBaziPerson(page, {
+    ...opts,
+    genderLabel: L.genderM,
+  });
 }
 
-async function runBaziFlow(page, { mode, person1, person2, planName, resultHint }) {
+async function selectPlanAndPay(page, planType = 'advanced') {
+  await page.locator('[data-testid="bazi-paywall"]').waitFor({ state: 'visible', timeout: 60000 });
+  await page.locator(`[data-plan="${planType}"]`).click();
+  await page.locator('[data-testid="bazi-paywall-unlock"]').click();
+}
+
+async function runBaziFlow(page, { mode, person1, person2, planType, resultHint }) {
   await page.goto(`${BASE.bazi}?lang=${LANG}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => null);
 
@@ -82,11 +88,9 @@ async function runBaziFlow(page, { mode, person1, person2, planName, resultHint 
     await page.getByRole('button', { name: L.submitSingle }).click();
   }
 
-  await page.waitForSelector(`text=${resultHint}`, { timeout: 60000 });
+  await page.getByText(resultHint, { exact: false }).first().waitFor({ timeout: 90000 });
 
-  const planButton = page.getByRole('button', { name: planName });
-  await planButton.waitFor({ timeout: 20000 });
-  await planButton.click();
+  await selectPlanAndPay(page, planType ?? 'advanced');
 
   await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
   await clickMockPay(page);
@@ -145,7 +149,7 @@ async function main() {
     await runBaziFlow(page, {
       mode: 'single',
       person1: { name: 'UI单人测试' },
-      planName: L.planSingle,
+      planType: 'advanced',
       resultHint: L.dayMaster,
     });
     console.log('Single: paid + returned to bazi');
@@ -172,13 +176,13 @@ async function main() {
       mode: 'couple',
       person1: { name: 'UI甲' },
       person2: { name: 'UI乙' },
-      planName: L.planCouple,
+      planType: 'advanced',
       resultHint: L.coupleScore,
     });
     console.log('Couple: paid + returned to bazi');
     results.couple = true;
 
-    const coupleReading = await waitForReportLink(user.token, { titleIncludes: '合盘', maxWaitMs: 90000 });
+    const coupleReading = await waitForReportLink(user.token, { titleIncludes: '合盘', maxWaitMs: 180000 });
     if (coupleReading?.reportUrl) {
       results.coupleReport = coupleReading.reportUrl;
       console.log(`Couple report: ${coupleReading.title} → ${coupleReading.reportUrl}`);

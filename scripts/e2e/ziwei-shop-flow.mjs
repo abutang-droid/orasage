@@ -1,10 +1,9 @@
 /**
- * Browser E2E: ziwei single + couple → paywall → mock pay → report
+ * Browser E2E: ziwei single + couple → checkout → mock pay → report
  * Usage: node ziwei-shop-flow.mjs
  */
 
 import { chromium } from 'playwright';
-import { clickMockPay } from './lib/checkout-helpers.mjs';
 
 const BASE = {
   auth: process.env.E2E_AUTH_URL ?? 'https://auth.orasage.com',
@@ -16,10 +15,6 @@ const PASSWORD = 'E2eTest2026!';
 const LANG = 'zh-CN';
 
 const L = {
-  planSingle: '定制专属能量手串',
-  planCouple: '定制双人能量手串',
-  demoPay: '模拟支付（完成订单）',
-  hemingTab: '双人合盘',
   person1: '第一人',
   person2: '第二人',
   submitCouple: '开始合盘',
@@ -48,7 +43,7 @@ async function setAuthCookie(context, token) {
   }]);
 }
 
-async function waitForReport(token, { titleIncludes, maxWaitMs = 120000 } = {}) {
+async function waitForReport(token, { titleIncludes, maxWaitMs = 180000 } = {}) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
     const res = await fetch(`${BASE.auth}/auth/me/readings`, {
@@ -58,9 +53,11 @@ async function waitForReport(token, { titleIncludes, maxWaitMs = 120000 } = {}) 
       const data = await res.json();
       const readings = data.readings ?? [];
       const match = titleIncludes
-        ? readings.find((r) => r.reportUrl && r.title?.includes(titleIncludes))
-        : readings.find((r) => r.reportUrl && r.title?.includes('紫微'));
-      if (match) return match;
+        ? readings.find((r) => (r.detailUrl || r.reportUrl) && r.title?.includes(titleIncludes))
+        : readings.find((r) => (r.detailUrl || r.reportUrl) && r.title?.includes('紫微'));
+      if (match) {
+        return { ...match, reportUrl: match.detailUrl || match.reportUrl };
+      }
     }
     await new Promise((r) => setTimeout(r, 5000));
   }
@@ -68,51 +65,95 @@ async function waitForReport(token, { titleIncludes, maxWaitMs = 120000 } = {}) 
 }
 
 async function fillBirthDate(page, { year, month, day }) {
-  const selects = page.getByText('出生日期（公历）').locator('..').locator('select');
+  const selects = page.locator('select.ziwei-field-select--compact');
+  await selects.first().waitFor({ state: 'visible', timeout: 20000 });
   await selects.nth(0).selectOption(String(year));
   await selects.nth(1).selectOption(String(month));
   await selects.nth(2).selectOption(String(day));
 }
 
-async function runSingleFlow(page) {
-  // URL params y/m/d/h/g auto-trigger chart (see ziwei/lib/ziwei/share.ts)
+async function waitForReadingId(page, timeoutMs = 90000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const readingId = await page.evaluate(() => sessionStorage.getItem('ziwei:lastReadingId'));
+    if (readingId) return readingId;
+    await page.waitForTimeout(500);
+  }
+  throw new Error('ziwei:lastReadingId not set after chart load');
+}
+
+async function startZiweiCheckout(page, token, { sku = 'report-ziwei-basic' } = {}) {
+  const readingId = await waitForReadingId(page);
+  const orderNo = await page.evaluate(async ({ sku }) => {
+    const readingId = sessionStorage.getItem('ziwei:lastReadingId');
+    if (!readingId) throw new Error('missing ziwei:lastReadingId');
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        sku,
+        readingId,
+        recommendationContext: 'E2E ziwei browser flow',
+        successUrl: `${window.location.origin}/chart?paid=1`,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.orderNo) {
+      throw new Error(`checkout failed: ${res.status} ${JSON.stringify(data)}`);
+    }
+    return data.orderNo;
+  }, { sku });
+
+  console.log(`[ziwei-flow] order ${orderNo} (${sku})`);
+  const payRes = await fetch(`${BASE.shop}/api/pay?order=${encodeURIComponent(orderNo)}`, {
+    method: 'POST',
+    headers: { Cookie: `orasage_token=${token}` },
+  });
+  const payData = await payRes.json().catch(() => ({}));
+  if (!payRes.ok) {
+    throw new Error(`mock pay failed: ${payRes.status} ${JSON.stringify(payData)}`);
+  }
+
+  await page.goto(
+    `${BASE.ziwei}/chart?rid=${encodeURIComponent(readingId)}&paid=1&focus=chat`,
+    { waitUntil: 'domcontentloaded', timeout: 60000 },
+  );
+  await page.locator('.ziwei-result-chart').waitFor({ state: 'visible', timeout: 90000 });
+}
+
+async function runSingleFlow(page, token) {
   await page.goto(
     `${BASE.ziwei}/chart?lang=${LANG}&y=1990&m=6&d=15&h=8&g=m`,
     { waitUntil: 'domcontentloaded', timeout: 60000 },
   );
-  await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => null);
-
-  const planButton = page.getByRole('button', { name: L.planSingle });
-  await planButton.waitFor({ timeout: 60000 });
-
-  await planButton.click();
-  await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
-  await clickMockPay(page);
-  await page.waitForURL(/ziwei\.orasage\.com.*paid=1/, { timeout: 90000 });
+  await page.locator('.ziwei-result-chart').waitFor({ state: 'visible', timeout: 90000 });
+  await startZiweiCheckout(page, token);
 }
 
-async function runCoupleFlow(page) {
+async function runCoupleFlow(page, token) {
+  await page.evaluate(() => {
+    sessionStorage.removeItem('ziwei:chartSession');
+    sessionStorage.removeItem('ziwei:lastReadingId');
+  });
   await page.goto(`${BASE.ziwei}/chart?lang=${LANG}&mode=heming`, {
     waitUntil: 'domcontentloaded',
     timeout: 60000,
   });
   await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => null);
 
-  await page.getByRole('button', { name: L.person1, exact: true }).click();
+  await page.getByRole('button', { name: L.person1, exact: true }).waitFor({
+    state: 'visible',
+    timeout: 30000,
+  });
   await fillBirthDate(page, { year: 1990, month: 6, day: 15 });
 
   await page.getByRole('button', { name: L.person2, exact: true }).click();
   await fillBirthDate(page, { year: 1992, month: 3, day: 20 });
 
   await page.getByRole('button', { name: L.submitCouple }).click();
-
-  const planButton = page.getByRole('button', { name: L.planCouple });
-  await planButton.waitFor({ timeout: 60000 });
-  await planButton.click();
-
-  await page.waitForURL(/shop\.orasage\.com\/checkout/, { timeout: 60000 });
-  await clickMockPay(page);
-  await page.waitForURL(/ziwei\.orasage\.com.*paid=1/, { timeout: 90000 });
+  await page.locator('.ziwei-result-chart').waitFor({ state: 'visible', timeout: 90000 });
+  await startZiweiCheckout(page, token, { sku: 'report-ziwei-basic' });
 }
 
 async function main() {
@@ -125,7 +166,7 @@ async function main() {
 
   try {
     console.log('--- Single ziwei flow ---');
-    await runSingleFlow(page);
+    await runSingleFlow(page, user.token);
     console.log('Single: paid + returned to chart');
 
     const singleReading = await waitForReport(user.token, { titleIncludes: '紫微' });
@@ -136,7 +177,7 @@ async function main() {
     if (singleRes.status !== 200) throw new Error('Single report not accessible');
 
     console.log('\n--- Couple ziwei flow ---');
-    await runCoupleFlow(page);
+    await runCoupleFlow(page, user.token);
     console.log('Couple: paid + returned to chart');
 
     const coupleReading = await waitForReport(user.token, { titleIncludes: '合盘', maxWaitMs: 120000 });

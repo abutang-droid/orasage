@@ -76,7 +76,7 @@ async function main() {
   });
 
   await completeShippingIfNeeded(page);
-  const payBtn = page.getByTestId('checkout-mock-pay');
+  const payBtn = mockPayButton(page);
   await payBtn.waitFor({ state: 'visible', timeout: 15000 });
 
   console.log('[pay-net] go offline and attempt pay');
