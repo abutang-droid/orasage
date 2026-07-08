@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardTitle,
+} from '@orasage/ui/card';
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
@@ -64,10 +72,10 @@ export function ProductCard({ product }: { product: Product }) {
     window.setTimeout(() => setAdded(false), 1500);
   }
 
-  const badgeLabel = product.element ?? '✦';
+  const badgeLabel = product.element;
 
   return (
-    <article className="shop-product-card">
+    <Card variant="interactive" className="flex h-full flex-col p-3 shadow-none">
       <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-product-card-link">
         <ProductImage
           sku={product.sku}
@@ -75,14 +83,20 @@ export function ProductCard({ product }: { product: Product }) {
           category={product.category}
           imageUrl={product.imageUrl}
         />
-        <span className="shop-product-badge">{badgeLabel}</span>
-        <h3 className="shop-product-name">{product.name}</h3>
-        <p className="shop-product-desc">{product.desc}</p>
+        <span className="shop-product-badge">
+          {badgeLabel ?? <Sparkles size={12} strokeWidth={1.8} aria-hidden />}
+        </span>
+        <CardTitle className="shop-product-name text-base font-semibold leading-snug">
+          {product.name}
+        </CardTitle>
+        <CardDescription className="shop-product-desc line-clamp-2">
+          {product.desc}
+        </CardDescription>
       </Link>
-      <div className="mt-3 flex items-center justify-between gap-2">
+      <CardContent className="mt-3 flex items-center justify-between gap-2 p-0">
         <span className="shop-product-price">{displayPrice}</span>
-      </div>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+      </CardContent>
+      <CardFooter className="mt-3 flex flex-col gap-2 p-0 sm:flex-row">
         <Button
           type="button"
           onClick={() => void handleBuy()}
@@ -95,8 +109,8 @@ export function ProductCard({ product }: { product: Product }) {
         <Button type="button" variant="secondary" onClick={handleAddToCart} className="flex-1">
           {added ? '已加入' : '加购'}
         </Button>
-      </div>
+      </CardFooter>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-    </article>
+    </Card>
   );
 }

@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@orasage/city": "file:../packages/city",
+    "@orasage/i18n": "file:../packages/i18n",
     "@orasage/tokens": "file:../packages/tokens",
     "@orasage/ui": "file:../packages/ui",
     "@aws-sdk/client-s3": "^3.693.0",

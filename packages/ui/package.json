@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./button": "./src/components/button.tsx",
+    "./card": "./src/components/card.tsx",
     "./styles": "./src/styles/globals.css",
     "./css": "./src/styles/components.css",
     "./tailwind-preset": "./src/tailwind-preset.ts"

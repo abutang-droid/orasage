@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@orasage/city": "file:../packages/city",
+    "@orasage/i18n": "file:../packages/i18n",
     "@orasage/tokens": "file:../packages/tokens",
     "@anthropic-ai/sdk": "^0.27.0",
     "@types/pg": "^8.20.0",

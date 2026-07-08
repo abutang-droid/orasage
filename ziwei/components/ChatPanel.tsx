@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
@@ -58,14 +59,14 @@ export default function ChatPanel({ chart, mode = 'single', chartData }: ChatPan
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', overflow: 'hidden', border: '1px solid var(--bdr)' }}>
       <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--bdr)', flexShrink: 0, background: 'var(--bg-0)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '16px', color: 'var(--gold)', opacity: 0.7 }}>✦</span>
+          <Sparkles size={16} strokeWidth={1.8} style={{ color: 'var(--gold)', opacity: 0.7 }} aria-hidden />
           <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--tx-0)', letterSpacing: '0.1em' }}>{t('chat.title')}</h3>
           <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--gold)', background: 'var(--gold-pale)', border: '1px solid var(--gold-border)', borderRadius: 'var(--r-pill)', padding: '2px 8px', fontWeight: 600 }}>{mode === 'heming' ? t('chat.label.heming') : t('chat.label.single')}</span>
         </div>
         <p style={{ fontSize: '11px', color: 'var(--tx-3)', marginTop: '3px' }}>{t('chat.subtitle')}</p>
       </div>
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', minHeight: 0 }}>
-        {messages.length === 0 && <div style={{ textAlign: 'center', padding: '32px 16px' }}><div style={{ fontSize: '32px', color: 'var(--gold)', opacity: 0.12, marginBottom: '12px' }}>✦</div><p style={{ fontSize: '12px', color: 'var(--tx-3)', lineHeight: 1.8 }}>{t('chat.empty')}</p></div>}
+        {messages.length === 0 && <div style={{ textAlign: 'center', padding: '32px 16px' }}><Sparkles size={32} strokeWidth={1.5} style={{ color: 'var(--gold)', opacity: 0.12, marginBottom: '12px' }} aria-hidden /><p style={{ fontSize: '12px', color: 'var(--tx-3)', lineHeight: 1.8 }}>{t('chat.empty')}</p></div>}
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
             <div style={msg.role === 'user' ? { background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)', color: '#FFFFFF', borderRadius: '12px 12px 4px 12px', padding: '10px 14px', fontSize: '13px', lineHeight: 1.6, maxWidth: '82%' } : { background: 'var(--bg-0)', border: '1px solid var(--bdr)', color: 'var(--tx-1)', borderRadius: '12px 12px 12px 4px', padding: '10px 14px', fontSize: '13px', lineHeight: 1.7, maxWidth: '92%' }}>

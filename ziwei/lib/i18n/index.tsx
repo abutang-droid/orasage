@@ -1,5 +1,6 @@
 'use client';
 
+import { detectLocaleFromBrowser, toCoreLocale } from '@orasage/i18n';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import zhCN from './zh-CN';
 import zhTW from './zh-TW';
@@ -40,20 +41,9 @@ const LocaleContext = createContext<LocaleContextType>({
   allLocales: [],
 });
 
-function getLocaleFromUrl(): Locale {
+function getLocaleFromBrowser(): Locale {
   if (typeof window === 'undefined') return 'zh-CN';
-  const params = new URLSearchParams(window.location.search);
-  const lang = params.get('lang');
-  if (lang === 'zh-TW' || lang === 'en' || lang === 'pt-BR') return lang;
-  if (lang === 'zh-CN' || lang === 'zh') return 'zh-CN';
-
-  const navLang = navigator.language?.toLowerCase() || '';
-  if (navLang.startsWith('zh-tw') || navLang.startsWith('zh-hk')) return 'zh-TW';
-  if (navLang.startsWith('zh')) return 'zh-CN';
-  if (navLang.startsWith('pt')) return 'pt-BR';
-  if (navLang.startsWith('en')) return 'en';
-
-  return 'zh-CN';
+  return toCoreLocale(detectLocaleFromBrowser()) as Locale;
 }
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
@@ -61,7 +51,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setLocaleState(getLocaleFromUrl());
+    setLocaleState(getLocaleFromBrowser());
     setReady(true);
   }, []);
 
