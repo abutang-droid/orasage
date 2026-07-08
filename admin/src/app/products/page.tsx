@@ -6,6 +6,7 @@ import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { ProductImageCell } from '@/components/ProductImageCell';
 import { ProductImageField } from '@/components/ProductImageField';
 import { ProductInlineEditForm } from '@/components/ProductInlineEditForm';
+import { ProductI18nFields } from '@/components/ProductI18nFields';
 import { ProductCmsLinks } from '@/components/ProductCmsLinks';
 import { redirect } from 'next/navigation';
 
@@ -458,6 +459,7 @@ export default async function ProductsPage({
           <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked /> 上架</label>
           <label className="checkbox-label"><input name="requiresShipping" type="checkbox" defaultChecked /> 需要收货地址（实体发货）</label>
           <label className="full-width">描述<textarea name="description" rows={2} required placeholder="招财旺运 · 五行补木" /></label>
+          <ProductI18nFields />
           <button type="submit" className="btn-primary">添加商品</button>
         </form>
       </section>

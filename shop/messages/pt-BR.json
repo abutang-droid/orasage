@@ -1,0 +1,49 @@
+{
+  "product": {
+    "buy": "Comprar",
+    "buying": "Processando…",
+    "addToCart": "Adicionar",
+    "added": "Adicionado",
+    "buyFailed": "Falha na compra"
+  },
+  "categories": {
+    "crystal": "Pulseiras de Cristal",
+    "report": "Relatórios Digitais",
+    "service": "Consultas de Energia",
+    "all": "Todos"
+  },
+  "shop": {
+    "title": "Loja de Energia",
+    "subtitle": "Pulseiras · Relatórios · Consultas de energia"
+  },
+  "cart": {
+    "title": "Carrinho",
+    "empty": "Seu carrinho está vazio",
+    "browse": "Ver loja",
+    "loading": "Carregando carrinho…",
+    "clear": "Limpar",
+    "quantity": "Qtd",
+    "remove": "Remover",
+    "total": "Total",
+    "note": "Os itens do carrinho são combinados em um pedido. Itens físicos exigem endereço de entrega.",
+    "checkout": "Finalizar",
+    "checkoutLoading": "Preparando pedido…",
+    "checkoutFailed": "Não foi possível criar o pedido",
+    "ariaLabel": "Carrinho, {count} itens"
+  },
+  "catalog": {
+    "loading": "Carregando produtos…",
+    "featured": "Destaques",
+    "featuredSubtitle": "Combinações populares após uma leitura",
+    "diy": "Ressonância personalizada"
+  },
+  "home": {
+    "footerNote": "Após sua leitura, compre cristais recomendados com um toque · Veja pedidos na",
+    "userCenter": "Central do usuário",
+    "footerView": "",
+    "heroEyebrow": "OraSage",
+    "heroTitle": "Loja de Energia",
+    "heroSubtitle": "Sugestões da leitura · Pulseiras · Relatórios digitais",
+    "heroLoggedIn": "Conectado — pedidos sincronizam com sua central"
+  }
+}

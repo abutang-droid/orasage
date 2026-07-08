@@ -1,7 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
-import { authPageLayout, localeFromRedirect } from "../lib/site-chrome-html.ts";
+import { authPageLayout } from "../lib/site-chrome-html.ts";
+import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
 
 export const pagesRouter = Router();
 
@@ -106,7 +107,7 @@ pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 pagesRouter.get("/login", (req, res) => {
   const redirectParamValue = redirectParam(req);
   const redirect = safeRedirect(redirectParamValue);
-  const locale = localeFromRedirect(redirectParamValue ?? redirect);
+  const locale = resolveAuthPageLocale(req, redirectParamValue ?? redirect);
   const c = authPageCopy(locale);
   res.send(authPageLayout(c.loginTitle, loginCardHtml(locale, redirect), locale));
 });
@@ -114,14 +115,14 @@ pagesRouter.get("/login", (req, res) => {
 pagesRouter.get("/register", (req, res) => {
   const redirectParamValue = redirectParam(req);
   const redirect = safeRedirect(redirectParamValue);
-  const locale = localeFromRedirect(redirectParamValue ?? redirect);
+  const locale = resolveAuthPageLocale(req, redirectParamValue ?? redirect);
   const c = authPageCopy(locale);
   res.send(authPageLayout(c.registerTitle, registerCardHtml(locale, redirect), locale));
 });
 
 pagesRouter.get("/center", async (req, res) => {
   const user = await getAuthUser(req);
-  const locale = "zh-CN";
+  const locale = resolveAuthPageLocale(req);
   const target = `https://orasage.com/${locale}/profile`;
   if (!user) {
     res.redirect(`/login?redirect=${encodeURIComponent(target)}`);

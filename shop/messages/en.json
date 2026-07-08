@@ -1,0 +1,49 @@
+{
+  "product": {
+    "buy": "Buy",
+    "buying": "Processing…",
+    "addToCart": "Add to cart",
+    "added": "Added",
+    "buyFailed": "Purchase failed"
+  },
+  "categories": {
+    "crystal": "Crystal Bracelets",
+    "report": "Digital Reports",
+    "service": "Energy Consultations",
+    "all": "All"
+  },
+  "shop": {
+    "title": "Energy Shop",
+    "subtitle": "Crystal bracelets · Digital reports · Energy consultations"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "browse": "Browse shop",
+    "loading": "Loading cart…",
+    "clear": "Clear",
+    "quantity": "Qty",
+    "remove": "Remove",
+    "total": "Total",
+    "note": "Cart items are combined into one order. Physical items require shipping details.",
+    "checkout": "Checkout",
+    "checkoutLoading": "Preparing order…",
+    "checkoutFailed": "Could not create order",
+    "ariaLabel": "Cart, {count} items"
+  },
+  "catalog": {
+    "loading": "Loading products…",
+    "featured": "Featured",
+    "featuredSubtitle": "Popular pairings after a reading",
+    "diy": "Custom resonance"
+  },
+  "home": {
+    "footerNote": "After your reading, buy recommended crystals in one tap · View orders in",
+    "userCenter": "Account Center",
+    "footerView": "",
+    "heroEyebrow": "OraSage",
+    "heroTitle": "Energy Shop",
+    "heroSubtitle": "Reading picks · Crystal bracelets · Digital reports",
+    "heroLoggedIn": "Signed in — orders sync to your account center"
+  }
+}

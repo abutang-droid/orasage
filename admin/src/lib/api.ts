@@ -36,6 +36,8 @@ export interface AdminProduct {
   name: string;
   element?: string | null;
   desc: string;
+  nameI18n?: Record<string, string> | null;
+  descriptionI18n?: Record<string, string> | null;
   priceCents: number;
   priceCentsUsd?: number | null;
   priceDisplay: string;

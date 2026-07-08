@@ -1,3 +1,17 @@
+const qs = (s) => document.querySelector(s);
+const qsa = (s) => document.querySelectorAll(s);
+
+function requestFailedMessage() {
+  const lang = document.documentElement.lang || "zh-CN";
+  const failLabels = {
+    "zh-CN": "请求失败",
+    "zh-TW": "請求失敗",
+    en: "Request failed",
+    "pt-BR": "Falha na solicitação",
+  };
+  return failLabels[lang] || failLabels[lang.startsWith("pt") ? "pt-BR" : "en"] || failLabels.en;
+}
+
 async function api(path, options = {}) {
   const res = await fetch(path, {
     credentials: "include",
@@ -5,11 +19,9 @@ async function api(path, options = {}) {
     ...options,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || "请求失败");
+  if (!res.ok) throw new Error(data.error || requestFailedMessage());
   return data;
 }
-const qs = (s) => document.querySelector(s);
-const qsa = (s) => document.querySelectorAll(s);
 
 async function hydrateAuthChips() {
   const chips = qsa(".orasage-auth-chip[data-hydrate-auth]");
@@ -24,7 +36,13 @@ async function hydrateAuthChips() {
   }
 
   const lang = document.documentElement.lang || "zh-CN";
-  const loginLabel = lang.startsWith("zh") ? "登录" : "Login";
+  const loginLabels = {
+    "zh-CN": "登录",
+    "zh-TW": "登入",
+    en: "Login",
+    "pt-BR": "Entrar",
+  };
+  const loginLabel = loginLabels[lang] || loginLabels[lang.startsWith("pt") ? "pt-BR" : "en"] || "Login";
 
   chips.forEach((chip) => {
     chip.classList.remove("orasage-auth-chip--loading");

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig } from '@/lib/api';
+import { parseI18nMapFromForm } from '@/lib/product-i18n-form';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
 
@@ -26,7 +27,9 @@ export async function saveProductAction(formData: FormData) {
   const payload = {
     sku,
     name,
+    nameI18n: parseI18nMapFromForm(formData, 'name_i18n'),
     description,
+    descriptionI18n: parseI18nMapFromForm(formData, 'description_i18n'),
     element: element || null,
     category,
     priceCents,

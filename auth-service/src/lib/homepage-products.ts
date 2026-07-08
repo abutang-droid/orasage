@@ -2,8 +2,16 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { homepageFeaturedProducts, products } from "../db/schema.ts";
 import { CATEGORY_LABELS, formatProduct } from "./product-format.ts";
+import { detectShopLocale } from "../../../shared/shop-locale/index.ts";
 
 const MAX_HOMEPAGE_PRODUCTS = 6;
+
+function categoryLabel(category: string, locale: string): string {
+  const labels = CATEGORY_LABELS[category];
+  if (!labels) return category;
+  const norm = detectShopLocale({ queryLocale: locale });
+  return labels[norm] ?? labels["zh-CN"] ?? labels.en ?? category;
+}
 
 export async function listHomepageFeaturedSkus(): Promise<string[]> {
   const rows = await db
@@ -13,7 +21,7 @@ export async function listHomepageFeaturedSkus(): Promise<string[]> {
   return rows.map((r) => r.sku);
 }
 
-export async function resolveHomepageProducts() {
+export async function resolveHomepageProducts(locale = "zh-CN") {
   const featuredSkus = await listHomepageFeaturedSkus();
 
   let rows;
@@ -35,11 +43,11 @@ export async function resolveHomepageProducts() {
       .limit(MAX_HOMEPAGE_PRODUCTS);
   }
 
-  const formatted = rows.map(formatProduct);
+  const formatted = rows.map((row) => formatProduct(row, { locale }));
   const categorySet = new Set(formatted.map((p) => p.category));
   const categories = (["crystal", "report", "service"] as const)
     .filter((id) => categorySet.has(id))
-    .map((id) => ({ id, label: CATEGORY_LABELS[id] ?? id }));
+    .map((id) => ({ id, label: categoryLabel(id, locale) }));
 
   return { products: formatted, categories };
 }

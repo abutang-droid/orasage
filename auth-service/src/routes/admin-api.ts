@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
-import { formatProduct } from "../lib/product-format.ts";
+import { formatAdminProduct, formatProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import {
   BAZI_ELEMENTS,
@@ -64,7 +64,7 @@ adminApiRouter.get("/stats", async (_req, res) => {
 
 adminApiRouter.get("/products", async (_req, res) => {
   const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
-  res.json({ products: rows.map(formatProduct) });
+  res.json({ products: rows.map(formatAdminProduct) });
 });
 
 const homepageSkusSchema = z.object({
@@ -269,8 +269,10 @@ adminApiRouter.post("/products", async (req, res) => {
     const [row] = await db.insert(products).values({
       sku: body.sku,
       name: body.name,
+      nameI18n: body.nameI18n ?? null,
       element: body.element ?? null,
       description: body.description,
+      descriptionI18n: body.descriptionI18n ?? null,
       priceCents: body.priceCents,
       priceCentsUsd: body.priceCentsUsd ?? null,
       category: body.category,
@@ -301,8 +303,10 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
 
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (body.name !== undefined) updates.name = body.name;
+    if (body.nameI18n !== undefined) updates.nameI18n = body.nameI18n;
     if (body.element !== undefined) updates.element = body.element;
     if (body.description !== undefined) updates.description = body.description;
+    if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
     if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
     if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
     if (body.category !== undefined) updates.category = body.category;

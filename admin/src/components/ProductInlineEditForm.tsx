@@ -1,5 +1,6 @@
 import { saveProductAction } from '@/app/actions';
 import { ProductImageField } from './ProductImageField';
+import { ProductI18nFields } from './ProductI18nFields';
 
 const CATEGORIES = [
   { value: 'crystal', label: '水晶手串' },
@@ -19,6 +20,8 @@ type ProductInlineEditFormProps = {
     active: boolean;
     requiresShipping: boolean;
     desc?: string;
+    nameI18n?: Record<string, string> | null;
+    descriptionI18n?: Record<string, string> | null;
   };
   imageUrl?: string | null;
   showDescription?: boolean;
@@ -72,6 +75,10 @@ export function ProductInlineEditForm({
       {showDescription ? (
         <textarea name="description" rows={2} defaultValue={product.desc ?? ''} required />
       ) : null}
+      <ProductI18nFields
+        nameI18n={product.nameI18n}
+        descriptionI18n={product.descriptionI18n}
+      />
       <button type="submit" className="btn-small">
         保存
       </button>
