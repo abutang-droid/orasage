@@ -2,6 +2,7 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
+import { Button } from '@orasage/ui/button';
 import { appBrandLabel, appHomeUrl, isAppSubpage, type AppId } from './config';
 import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
@@ -79,15 +80,16 @@ export function AppShell({
       <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
         {showBack && (
           <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
-            <button
+            <Button
               type="button"
-              className="orasage-page-back"
+              variant="ghost"
+              className="orasage-page-back h-auto min-h-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
               onClick={() => window.history.back()}
               aria-label={pickLabel(SHELL_LABELS.back, locale)}
             >
               <ChevronLeft size={18} strokeWidth={1.8} aria-hidden />
               <span>{pickLabel(SHELL_LABELS.back, locale)}</span>
-            </button>
+            </Button>
           </div>
         )}
         {children}

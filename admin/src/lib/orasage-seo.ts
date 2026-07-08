@@ -35,6 +35,8 @@ export function orasageOpenGraph(opts: {
   url?: string;
   locale?: string;
   type?: 'website' | 'article';
+  /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
+  image?: string;
 }) {
   return {
     siteName: ORASAGE_SITE_NAME,
@@ -43,14 +45,16 @@ export function orasageOpenGraph(opts: {
     type: opts.type ?? 'website',
     ...(opts.url ? { url: opts.url } : {}),
     ...(opts.locale ? { locale: opts.locale } : {}),
+    ...(opts.image ? { images: [{ url: opts.image, width: 1200, height: 630 }] } : {}),
   };
 }
 
-export function orasageTwitter(title: string, description: string) {
+export function orasageTwitter(title: string, description: string, image?: string) {
   return {
     card: 'summary_large_image' as const,
     title: orasageTitle(title),
     description,
+    ...(image ? { images: [image] } : {}),
   };
 }
 
@@ -62,6 +66,8 @@ export function buildOrasageMetadata(opts: {
   canonical?: string;
   openGraph?: Parameters<typeof orasageOpenGraph>[0];
   robots?: Metadata['robots'];
+  /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
+  ogImage?: string;
 }): Metadata {
   const keywords = opts.keywords
     ? (Array.isArray(opts.keywords) ? opts.keywords : opts.keywords.split(',').map((k) => k.trim()))
@@ -73,8 +79,11 @@ export function buildOrasageMetadata(opts: {
     keywords,
     ...(opts.metadataBase ? { metadataBase: opts.metadataBase } : {}),
     ...(opts.canonical ? { alternates: { canonical: opts.canonical } } : {}),
-    openGraph: orasageOpenGraph(opts.openGraph ?? { title: opts.title, description: opts.description }),
-    twitter: orasageTwitter(opts.title, opts.description),
+    openGraph: orasageOpenGraph({
+      ...(opts.openGraph ?? { title: opts.title, description: opts.description }),
+      ...(opts.ogImage ? { image: opts.ogImage } : {}),
+    }),
+    twitter: orasageTwitter(opts.title, opts.description, opts.ogImage),
     ...(opts.robots ? { robots: opts.robots } : {}),
   };
 }
