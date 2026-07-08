@@ -4,6 +4,8 @@ import type { ZiweiChart } from '@/lib/ziwei/types';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import { useT } from '@/lib/i18n';
 import { useState } from 'react';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 
 interface CrystalShopCardProps {
   reason: string;
@@ -31,37 +33,22 @@ export default function CrystalShopCard({ reason, crystalSku }: CrystalShopCardP
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      gap: 12,
-      padding: '14px 16px',
-      borderRadius: 'var(--r-md)',
-      background: 'var(--bg-card)',
-      border: '1px solid var(--orasage-gold-border, var(--gold-border))',
-    }}>
-      <span style={{ flex: 1, fontSize: 13, color: 'var(--tx-2)', lineHeight: 1.55 }}>
+    <Card
+      className="flex flex-wrap items-center gap-3 rounded-[var(--r-md)] border-[var(--orasage-gold-border,var(--gold-border))] p-4 shadow-none"
+      style={{ background: 'var(--bg-card)' }}
+    >
+      <span className="flex-1 text-[13px] leading-relaxed" style={{ color: 'var(--tx-2)' }}>
         {reason}
       </span>
-      <button
+      <Button
         type="button"
         disabled={loading}
+        loading={loading}
         onClick={() => void handleBuy()}
-        style={{
-          padding: '8px 16px',
-          borderRadius: 'var(--r-md)',
-          border: 'none',
-          cursor: 'pointer',
-          background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)',
-          color: '#fff',
-          fontSize: 13,
-          fontWeight: 700,
-          opacity: loading ? 0.7 : 1,
-        }}
+        className="ziwei-calc-submit shrink-0 px-4 py-2 text-[13px]"
       >
-        {loading ? t('checkout.loading') : t('crystal.shop.buy')}
-      </button>
-    </div>
+        {t('crystal.shop.buy')}
+      </Button>
+    </Card>
   );
 }

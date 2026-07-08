@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { Button } from '@orasage/ui/button';
+import { Input } from '@orasage/ui/input';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { loginUrl } from '@/lib/login-url';
@@ -277,15 +279,17 @@ export function ZiweiOrasageChat({
                     <p className="ziwei-brief-muted ziwei-preset-loading">正在生成追问建议…</p>
                   ) : null}
                   {quickQuestions.map((q, i) => (
-                    <button
+                    <Button
                       key={`${q}-${i}`}
                       type="button"
-                      className="ziwei-preset-btn"
+                      variant="outline"
+                      size="sm"
+                      className="ziwei-preset-btn h-auto justify-start whitespace-normal font-normal"
                       disabled={loading || loadingFollowUps}
                       onClick={() => void sendMessage(q)}
                     >
                       {q}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               ) : null}
@@ -296,16 +300,20 @@ export function ZiweiOrasageChat({
                   void sendMessage(input);
                 }}
               >
-                <input
+                <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={minorMode ? t('chat.placeholder.minor') : t('insight.placeholder')}
                   disabled={loading}
-                  className="ziwei-chat-input"
+                  className="ziwei-chat-input h-auto min-h-0 flex-1 shadow-none"
                 />
-                <button type="submit" disabled={loading || !input.trim()} className="ziwei-chat-send">
+                <Button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="ziwei-chat-send"
+                >
                   {loading ? '…' : '发送'}
-                </button>
+                </Button>
               </form>
             </>
           )}

@@ -1,6 +1,7 @@
 'use client';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card } from '@orasage/ui/card';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
@@ -31,7 +32,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
 
   return (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.5 }} className="space-y-4">
     <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}>
-      <div className="card-glass rounded-xl p-5">
+      <Card className="card-glass rounded-xl border-0 p-5 shadow-none">
         <div className="text-[10px] tracking-widest mb-4 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
           <Sparkles size={12} strokeWidth={1.8} style={{ color: 'var(--t-gold)', opacity: 0.6 }} aria-hidden />
           {t('summary.title')}
@@ -55,11 +56,11 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
           <span>{STEMS[chart.lunarInfo.yearStem]}{BRANCHES[chart.lunarInfo.yearBranch]}年 · {BRANCHES[chart.birthInfo.hour]}时</span>
           <span>{t('chart.center.minggong')}{BRANCHES[chart.mingGongBranch]} · {t('chart.center.shengong')}{BRANCHES[chart.shenGongBranch]}</span>
         </div>
-      </div>
+      </Card>
     </motion.div>
 
     {siHuaSummary.length > 0 && (<motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}>
-      <div className="card-glass rounded-xl p-4">
+      <Card className="card-glass rounded-xl border-0 p-4 shadow-none">
         <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}><span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◆</span>{t('summary.sihua.title')}</div>
         <div className="grid grid-cols-2 gap-2">{siHuaSummary.map(({ name, siHua, palaceName }) => {
           const colors: Record<string, { text: string; bg: string; border: string }> = {
@@ -73,11 +74,11 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
             <span className="font-medium">{name}</span><div className="flex items-center gap-1.5 text-right"><span style={{ opacity: 0.6 }} className="text-[9px]">{palaceName.replace('宫', '')}</span><span className="font-bold">化{siHua}</span></div>
           </div>);
         })}</div>
-      </div>
+      </Card>
     </motion.div>)}
 
     {patterns.length > 0 && (<motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.72, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}>
-      <div className="card-glass rounded-xl p-4">
+      <Card className="card-glass rounded-xl border-0 p-4 shadow-none">
         <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}><span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◉</span>{t('summary.pattern.title')}<span className="text-[9px] ml-auto" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{t('summary.pattern.count', { count: patterns.length })}</span></div>
         <div className="space-y-2">{patterns.map((p, i) => {
           const st = PatternLevelStyle[p.level];
@@ -92,11 +93,11 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
             {p.source && <div className="text-[9px] mt-1.5 pl-3.5" style={{ color: 'var(--t-faint)', opacity: 0.5 }}>{t('summary.pattern.source')} · {p.source}</div>}
           </motion.div>);
         })}</div>
-      </div>
+      </Card>
     </motion.div>)}
 
     <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.88, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}>
-      <div className="card-glass rounded-xl p-4">
+      <Card className="card-glass rounded-xl border-0 p-4 shadow-none">
         <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}><span className="text-purple-500/60">◎</span>{t('summary.daxian.title')}</div>
         <div className="grid grid-cols-3 gap-2">{chart.daXians.slice(0, 9).map((dx, i) => {
           const isCurrent = i === chart.currentDaXianIndex;
@@ -105,7 +106,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
             <div className="text-[9px] mt-0.5" style={{ opacity: 0.7 }}>{dx.palaceName.replace('宫', '')}</div>
           </div>);
         })}</div>
-      </div>
+      </Card>
     </motion.div>
   </motion.div>);
 }
