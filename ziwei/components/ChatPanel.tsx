@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
+import { Button } from '@orasage/ui/button';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
@@ -84,8 +85,14 @@ export default function ChatPanel({ chart, mode = 'single', chartData }: ChatPan
         <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage(input)} placeholder={t('chat.placeholder')} disabled={loading}
           style={{ flex: 1, height: '40px', background: 'var(--bg-0)', border: '1.5px solid var(--bdr-med)', borderRadius: '8px', padding: '0 12px', fontSize: '13px', color: 'var(--tx-1)', outline: 'none' }}
           onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold)'; }} onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr-med)'; }} />
-        <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()}
-          style={{ height: '40px', padding: '0 16px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)', color: '#FFFFFF', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: loading || !input.trim() ? 0.45 : 1, whiteSpace: 'nowrap' }}>{loading ? '…' : t('chat.submit')}</button>
+        <Button
+          type="button"
+          onClick={() => sendMessage(input)}
+          disabled={loading || !input.trim()}
+          className="h-10 shrink-0 px-4"
+        >
+          {loading ? '…' : t('chat.submit')}
+        </Button>
       </div>
     </div>
   );

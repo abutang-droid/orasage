@@ -28,8 +28,8 @@
 |-----|:---:|:------:|:-------------:|:----:|------|
 | **main** | ✅ | 共享 | 全量 (~31 文件) | next-intl 12 语 | 参考实现 |
 | **shop** | ✅ | 共享 | Button + Card | next-intl T1 四语 | 已移除 deprecated `.shop-btn-*` |
-| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` geo/temple/faith/**merit/crystal/wish** | geo/temple/功德/水晶/心愿四语 |
-| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | 静态 oui CSS | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
+| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` / `reading-copy` | 核心流程+三牌阵/运势/历史四语 |
+| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card**（BirthForm/Chat/FamousPerson） | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
 | **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | 自研 4 语 | 命盘业务 CSS 保留 |
 | **admin** | ✅ | 共享 | **Button**（登录/表单提交） | 中文后台 | 运营页逐步迁移 |
 | **cms** | — | Payload UI | ❌ | 中文 | 内容 locale 字段 |
@@ -55,7 +55,7 @@
 | main / shop / admin / ziwei | `packages/tokens/tailwind-v4-bridge.css` |
 | tarot | 共享 bridge + `tarot/tarot-tailwind-v4-theme.css` |
 | bazi | 共享 bridge + `bazi/bazi-tailwind-v4-theme.css` |
-| packages/ui | TW3 构建（组件库 devDependency） |
+| packages/ui | TW4 dev toolchain（postcss + bridge） |
 
 **全站 Next/Vite 前台应用均已 TW4。**
 
@@ -77,6 +77,5 @@ cd admin && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
 
 ## 6. 剩余可选跟进
 
-- tarot 三牌阵/历史页等其余业务文案 i18n
-- ziwei 接入 `@orasage/ui` React 包（当前静态 oui）
-- packages/ui 构建链升级 TW4
+- tarot onboarding / dream / angel-card 等其余页面 i18n
+- ziwei 更多业务组件接入 `@orasage/ui`

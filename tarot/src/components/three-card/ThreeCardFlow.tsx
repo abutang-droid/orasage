@@ -7,7 +7,9 @@ import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { buildLoginUrl } from '@/lib/login-url';
-import { profileUrl } from '@/lib/orasage-app-shell/config';
+import { profileUrlFromLang } from '@/lib/orasage-locale';
+import { useCardName } from '@/lib/i18n/context';
+import { POSITION_KEYS, useThreeCardCopy } from '@/lib/i18n/reading-copy';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
@@ -35,9 +37,11 @@ type SessionPayload = {
 
 type Step = 'loading' | 'intro' | 'questions' | 'revealing' | 'brief' | 'paywall' | 'full_report';
 
-const POSITION_ORDER = ['过去', '现在', '未来'];
+const POSITION_ORDER = [...POSITION_KEYS];
 
 export function ThreeCardFlow() {
+  const copy = useThreeCardCopy();
+  const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [question, setQuestion] = useState('');
@@ -59,7 +63,9 @@ export function ThreeCardFlow() {
   const [drawLoading, setDrawLoading] = useState(false);
 
   const sortedCards = [...cards].sort(
-    (a, b) => POSITION_ORDER.indexOf(a.positionLabel) - POSITION_ORDER.indexOf(b.positionLabel),
+    (a, b) =>
+      POSITION_ORDER.indexOf(a.positionLabel as (typeof POSITION_ORDER)[number]) -
+      POSITION_ORDER.indexOf(b.positionLabel as (typeof POSITION_ORDER)[number]),
   );
 
   const hydrateRecord = useCallback((rec: ThreeCardRecordDto, loggedIn: boolean) => {
@@ -94,7 +100,7 @@ export function ThreeCardFlow() {
       setStep('paywall');
       return;
     }
-    if (!res.ok) throw new Error(data.error || '详读加载失败');
+    if (!res.ok) throw new Error(data.error || copy.fullFailed);
     setFullReport(data.fullReport);
     setPaidTier(data.tier);
     setStep('full_report');
@@ -131,7 +137,7 @@ export function ThreeCardFlow() {
   }, [fetchFullReport, hydrateRecord]);
 
   useEffect(() => {
-    void loadSession().catch(() => setError('加载失败'));
+    void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession]);
 
   const beginQuestions = async () => {
@@ -150,7 +156,7 @@ export function ThreeCardFlow() {
       const data = await res.json();
       setQuestions(data.questions ?? []);
     } catch {
-      setError('问题加载失败，请重试');
+      setError(copy.questionsFailed);
       setStep('intro');
     } finally {
       setQuestionsLoading(false);
@@ -186,11 +192,11 @@ export function ThreeCardFlow() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '抽牌失败');
+      if (!res.ok) throw new Error(data.error || copy.drawFailed);
       setReadingId(data.readingId);
       setCards(data.cards);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '抽牌失败');
+      setError(err instanceof Error ? err.message : copy.drawFailed);
       setStep('questions');
     } finally {
       setDrawLoading(false);
@@ -218,11 +224,11 @@ export function ThreeCardFlow() {
         body: JSON.stringify({ readingId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '简读生成失败');
+      if (!res.ok) throw new Error(data.error || copy.briefFailed);
       setBrief(data.brief);
       setStep('brief');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '简读生成失败');
+      setError(err instanceof Error ? err.message : copy.briefFailed);
     } finally {
       setBriefLoading(false);
     }
@@ -234,7 +240,7 @@ export function ThreeCardFlow() {
 
   const handleCheckout = async (sku: string) => {
     if (!isLoggedIn) {
-      setError('请先登录后再购买完整报告');
+      setError(copy.loginBeforeBuy);
       return;
     }
     if (!readingId) return;
@@ -250,7 +256,7 @@ export function ThreeCardFlow() {
       });
       redirectAfterCheckout(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '结账失败');
+      setError(err instanceof Error ? err.message : copy.checkoutFailed);
     } finally {
       setCheckoutSku(null);
     }
@@ -277,28 +283,26 @@ export function ThreeCardFlow() {
   return (
     <div className="three-card-page">
       <div className="page-header animate-fade-in-up">
-        <span className="label">三牌阵</span>
-        <h1>过去 · 现在 · 未来</h1>
+        <span className="label">{copy.label}</span>
+        <h1>{copy.title}</h1>
         <p>
-          {session?.nickname && session.nickname !== '旅人' ? `${session.nickname}，` : ''}
-          简读免费，完整详读需解锁
+          {copy.nicknameGreeting(session?.nickname)}
+          {copy.subtitle}
         </p>
       </div>
 
       {step === 'intro' && (
         <div className="daily-fortune-panel card animate-fade-in-up delay-100">
-          <p className="daily-fortune-panel-lead">
-            写下你想问的事（可留空做一般指引）。Manto 会先问你几个小问题，再为你翻开三张牌。
-          </p>
+          <p className="daily-fortune-panel-lead">{copy.introLead}</p>
           <label className="three-card-question-label" htmlFor="three-card-question">
-            你的问题
+            {copy.questionLabel}
           </label>
           <textarea
             id="three-card-question"
             className="three-card-question-input"
             rows={3}
             maxLength={500}
-            placeholder="例如：这段感情会走向哪里？"
+            placeholder={copy.questionPlaceholder}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
@@ -307,19 +311,19 @@ export function ThreeCardFlow() {
             className="daily-fortune-panel-btn w-full"
             onClick={() => void beginQuestions()}
           >
-            开始三牌占卜
+            {copy.start}
           </Button>
         </div>
       )}
 
       {step === 'questions' && questionsLoading && (
-        <MantoThinking message="Manto 正在感应你的问题…" hint="AI 正在准备引导问答，请稍候" />
+        <MantoThinking message={copy.sensing} hint={copy.sensingHint} />
       )}
 
       {step === 'questions' && !questionsLoading && currentQ && (
         <div className="daily-fortune-panel card animate-fade-in-up">
           <div className="daily-fortune-q-progress">
-            问题 {qIndex + 1} / {questions.length}
+            {copy.questionProgress(qIndex + 1, questions.length)}
           </div>
           <p className="daily-fortune-q-text">{currentQ.text}</p>
           <div className="daily-fortune-q-options">
@@ -340,24 +344,25 @@ export function ThreeCardFlow() {
       {step === 'revealing' && (
         <div className="three-card-reveal animate-fade-in-up">
           {drawLoading || sortedCards.length === 0 ? (
-            <MantoThinking message="正在为你抽取三牌阵…" hint="过去 · 现在 · 未来，牌阵成形中" />
+            <MantoThinking message={copy.drawing} hint={copy.drawingHint} />
           ) : (
             <>
               <p className="daily-fortune-draw-hint">
                 {revealedCount < cards.length
-                  ? `轻触翻开第 ${revealedCount + 1} 张牌`
+                  ? copy.tapReveal(revealedCount + 1)
                   : briefLoading
-                    ? '正在生成简读…'
-                    : '三张牌已全部翻开'}
+                    ? copy.briefGenerating
+                    : copy.allRevealed}
               </p>
               <div className="three-card-grid">
                 {sortedCards.map((c, i) => {
                   const meta = getCardById(c.cardId);
                   if (!meta) return null;
                   const isRevealed = i < revealedCount;
+                  const localizedName = cardNameFor(meta);
                   return (
                     <div key={c.positionLabel} className="three-card-slot">
-                      <span className="three-card-position">{c.positionLabel}</span>
+                      <span className="three-card-position">{copy.position(c.positionLabel)}</span>
                       <TarotFlipCard
                         card={meta}
                         flipped={isRevealed}
@@ -366,14 +371,18 @@ export function ThreeCardFlow() {
                         orientation={c.orientation}
                         disabled={!isRevealed && i !== revealedCount}
                         onClick={i === revealedCount && !isRevealed ? revealNext : undefined}
-                        caption={isRevealed ? `${c.cardName} · ${c.orientation}` : undefined}
+                        caption={
+                          isRevealed
+                            ? `${localizedName} · ${copy.orientation(c.orientation)}`
+                            : undefined
+                        }
                       />
                     </div>
                   );
                 })}
               </div>
               {briefLoading && (
-                <MantoThinking message="Manto 正在撰写简读…" hint="结合你的回答与牌面，生成解读中" />
+                <MantoThinking message={copy.writingBrief} hint={copy.writingBriefHint} />
               )}
             </>
           )}
@@ -393,7 +402,7 @@ export function ThreeCardFlow() {
                       flipped
                       size="sm"
                       orientation={c.orientation}
-                      caption={`${c.positionLabel} · ${c.cardName}`}
+                      caption={`${copy.position(c.positionLabel)} · ${cardNameFor(meta)}`}
                     />
                   ) : null}
                 </div>
@@ -402,30 +411,30 @@ export function ThreeCardFlow() {
           </div>
 
           <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">免费简读</h2>
+            <h2 className="daily-fortune-section-title">{copy.freeBrief}</h2>
             {brief.perCard.map((item) => (
               <div key={item.position} className="three-card-brief-item">
-                <strong>{item.position}</strong>
+                <strong>{copy.position(item.position)}</strong>
                 <p>{item.text}</p>
               </div>
             ))}
             <div className="three-card-brief-synthesis">
-              <strong>综合</strong>
+              <strong>{copy.synthesis}</strong>
               <p>{brief.synthesis}</p>
             </div>
           </div>
 
           <div className="card three-card-unlock-cta">
-            <p>完整详读包含逐牌深度解读、行动建议与肯定语，登录后可购买解锁并保存到用户中心。</p>
+            <p>{copy.unlockLead}</p>
             {!isLoggedIn ? (
               <Button asChild className="w-full">
                 <Link href={loginHref} className="block text-center no-underline">
-                  登录解锁完整报告
+                  {copy.loginUnlock}
                 </Link>
               </Button>
             ) : (
               <Button type="button" className="w-full" onClick={goToPaywall}>
-                查看完整报告方案
+                {copy.viewPlans}
               </Button>
             )}
           </div>
@@ -436,16 +445,16 @@ export function ThreeCardFlow() {
         <div className="three-card-paywall animate-fade-in-up">
           {!isLoggedIn ? (
             <GuestLoginWall
-              title="登录后购买完整报告"
-              message="访客可免费完成问答、抽牌与简读。完整详读与支付需先登录账号。"
-              hint="登录后将自动回到本页，已抽的牌与简读不会丢失。"
-              ctaLabel="去登录"
+              title={copy.paywallTitle}
+              message={copy.paywallMessage}
+              hint={copy.paywallHint}
+              ctaLabel={copy.paywallCta}
               returnPath={readingReturnPath}
             />
           ) : (
             <>
               <div className="card three-card-tier">
-                <h2 className="daily-fortune-section-title">方案一 · 完整报告</h2>
+                <h2 className="daily-fortune-section-title">{copy.tier1Title}</h2>
                 {reportProduct ? (
                   <>
                     <p className="three-card-tier-name">{reportProduct.name}</p>
@@ -453,7 +462,7 @@ export function ThreeCardFlow() {
                     <p className="three-card-tier-price">{reportProduct.priceDisplay}</p>
                   </>
                 ) : (
-                  <p className="three-card-tier-desc">三牌阵完整详读报告</p>
+                  <p className="three-card-tier-desc">{copy.tier1Fallback}</p>
                 )}
                 <Button
                   type="button"
@@ -466,13 +475,13 @@ export function ThreeCardFlow() {
                   }
                 >
                   {checkoutSku === (reportProduct?.sku ?? session?.billing.skus.threeCardReportSku)
-                    ? '跳转中…'
-                    : '购买完整报告'}
+                    ? copy.redirecting
+                    : copy.buyReport}
                 </Button>
               </div>
 
               <div className="card three-card-tier three-card-tier--bundle">
-                <h2 className="daily-fortune-section-title">方案二 · 报告 + 开运物</h2>
+                <h2 className="daily-fortune-section-title">{copy.tier2Title}</h2>
                 {bundleProduct ? (
                   <>
                     <p className="three-card-tier-name">{bundleProduct.name}</p>
@@ -480,7 +489,7 @@ export function ThreeCardFlow() {
                     <p className="three-card-tier-price">{bundleProduct.priceDisplay}</p>
                   </>
                 ) : (
-                  <p className="three-card-tier-desc">完整报告 + 专属开运物品组合</p>
+                  <p className="three-card-tier-desc">{copy.tier2Fallback}</p>
                 )}
                 <Button
                   type="button"
@@ -494,8 +503,8 @@ export function ThreeCardFlow() {
                   }
                 >
                   {checkoutSku === (bundleProduct?.sku ?? session?.billing.skus.threeCardBundleSku)
-                    ? '跳转中…'
-                    : '购买报告套装'}
+                    ? copy.redirecting
+                    : copy.buyBundle}
                 </Button>
               </div>
 
@@ -506,7 +515,7 @@ export function ThreeCardFlow() {
                   className="w-full mt-3"
                   onClick={() => void fetchFullReport(readingId, pendingOrderNo)}
                 >
-                  我已付款，查看完整报告
+                  {copy.paidView}
                 </Button>
               )}
             </>
@@ -514,7 +523,7 @@ export function ThreeCardFlow() {
 
           {brief && (
             <Button type="button" variant="ghost" className="w-full mt-3" onClick={() => setStep('brief')}>
-              返回简读
+              {copy.backBrief}
             </Button>
           )}
         </div>
@@ -539,7 +548,8 @@ export function ThreeCardFlow() {
                     </div>
                   ) : null}
                   <p className="three-card-caption">
-                    {c.positionLabel} · {c.cardName} · {c.orientation}
+                    {copy.position(c.positionLabel)} · {meta ? cardNameFor(meta) : c.cardName} ·{' '}
+                    {copy.orientation(c.orientation)}
                   </p>
                   {cardReport && (
                     <>
@@ -553,12 +563,12 @@ export function ThreeCardFlow() {
           </div>
 
           <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">综合解读</h2>
+            <h2 className="daily-fortune-section-title">{copy.fullSynthesis}</h2>
             <p>{fullReport.synthesis}</p>
           </div>
 
           <div className="card three-card-suggestions">
-            <h2 className="daily-fortune-section-title">行动建议</h2>
+            <h2 className="daily-fortune-section-title">{copy.suggestions}</h2>
             <ul>
               {fullReport.suggestions.map((s) => (
                 <li key={s}>{s}</li>
@@ -572,13 +582,13 @@ export function ThreeCardFlow() {
 
           {paidTier === 'bundle' && bundleProduct?.requiresShipping && (
             <div className="card three-card-bundle-note">
-              <p>你购买的是报告+开运物套装，物品将按订单地址寄送。</p>
+              <p>{copy.bundleNote}</p>
               <Button asChild variant="outline" className="w-full mt-2.5">
                 <a
-                  href={`${profileUrl('zh-CN')}/orders`}
+                  href={`${profileUrlFromLang(copy.lang)}/orders`}
                   className="block text-center no-underline"
                 >
-                  查看订单 →
+                  {copy.viewOrders}
                 </a>
               </Button>
             </div>
@@ -600,7 +610,7 @@ export function ThreeCardFlow() {
               setStep('intro');
             }}
           >
-            再占一次
+            {copy.again}
           </Button>
         </div>
       )}
@@ -610,7 +620,7 @@ export function ThreeCardFlow() {
       ) : null}
 
       <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5">
-        <Link href="/">返回首页</Link>
+        <Link href="/">{copy.backHome}</Link>
       </Button>
     </div>
   );

@@ -15,6 +15,7 @@
     "@orasage/city": "file:../packages/city",
     "@orasage/i18n": "file:../packages/i18n",
     "@orasage/tokens": "file:../packages/tokens",
+    "@orasage/ui": "file:../packages/ui",
     "@anthropic-ai/sdk": "^0.27.0",
     "@types/pg": "^8.20.0",
     "@vercel/analytics": "^2.0.1",
