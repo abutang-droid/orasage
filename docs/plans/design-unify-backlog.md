@@ -55,7 +55,7 @@
 - [x] auth T1 四语静态页（PR #206）
 - [x] 浏览器 E2E（`scripts/e2e/`）支付→报告链路（PR #213）
 - [x] shop ShippingForm / 地址簿 i18n（PR #214 + 地址簿页）
-- [ ] Tailwind v4 全站收敛（**shop ✅ TW4**；**main ✅ TW4**；ziwei/admin 仍 v3；bazi/tarot 已 v4）
+- [ ] Tailwind v4 全站收敛（**shop/main/ziwei/admin ✅ TW4**；bazi/tarot 已 v4）
 
 ---
 

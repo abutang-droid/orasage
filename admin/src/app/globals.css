@@ -1,6 +1,11 @@
+@import "tailwindcss";
+@import "tw-animate-css";
 @import '../../../shared/design-tokens/orasage-tokens.css';
+@import '../../../packages/tokens/src/tailwind-v4-bridge.css';
 @import '../../../shared/admin-backend/admin-backend.css';
 @import '../lib/orasage-app-shell/app-shell.css';
+
+@source "../../**/*.{ts,tsx}";
 
 * {
   box-sizing: border-box;

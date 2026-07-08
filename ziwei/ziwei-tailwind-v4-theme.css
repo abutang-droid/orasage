@@ -1,0 +1,63 @@
+/**
+ * Ziwei-specific Tailwind v4 theme extensions.
+ * Import after @orasage/tokens/tailwind-v4 bridge.
+ */
+@theme inline {
+  --font-sans: var(--font);
+  --font-mono: var(--font-mono);
+
+  /* Layout neutrals — legacy bg-bg-* / text-tx-* utilities */
+  --color-bg-0: var(--orasage-background);
+  --color-bg-1: var(--orasage-surface);
+  --color-bg-2: var(--orasage-border);
+  --color-bg-inv: var(--orasage-primary);
+  --color-tx-0: var(--orasage-primary);
+  --color-tx-1: var(--orasage-primary);
+  --color-tx-2: var(--orasage-muted);
+  --color-tx-3: var(--orasage-muted);
+  --color-tx-inv: var(--orasage-background);
+  --color-ac: var(--orasage-gold);
+  --color-ac-dim: var(--orasage-gold-light);
+
+  /* 四化语义色 */
+  --color-lu: #2d7a4a;
+  --color-quan: #1a56a8;
+  --color-ke: #8a7018;
+  --color-ji: #a83228;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  --animate-fade-up: fade-up 0.5s ease forwards;
+  --animate-fade-in: fade-in 0.4s ease forwards;
+  --animate-spin-slow: spin 20s linear infinite;
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
