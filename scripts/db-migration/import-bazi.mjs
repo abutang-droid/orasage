@@ -34,8 +34,6 @@ async function main() {
   const sql = postgres(PG_URL, { max: 1 });
 
   try {
-    await sql`SET session_replication_role = 'replica'`;
-
     for (const table of TABLES) {
       const [rows] = await mysqlConn.query(`SELECT * FROM \`${table}\``);
       const list = rows;
