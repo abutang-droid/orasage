@@ -1,12 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
 @import '../../shared/design-tokens/orasage-tokens.css';
+@import '../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../ziwei-tailwind-v4-theme.css';
 @import './assets/orasage-ui.css';
 @import './ziwei-home.css';
 @import '@orasage/city/city.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "../**/*.{ts,tsx}";
+@source "../../packages/ui/src/**/*.{ts,tsx}";
 
 /* =====================================================
    OraSage 紫微斗数 — DS v1.1 语义 token（单色黑/白/灰）
