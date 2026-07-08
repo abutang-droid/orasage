@@ -9,6 +9,8 @@ WorkingDirectory=/opt/orasage/bazi
 EnvironmentFile=-/opt/orasage/bazi/.env
 Environment=NODE_ENV=production
 Environment=PORT=3110
+# 报告 HTML 持久目录（dist/ 每次部署重建，不能存业务产物）
+Environment=REPORTS_DIR=/var/lib/orasage/bazi-reports
 ExecStart=/usr/local/bin/node dist/index.js
 Restart=always
 RestartSec=5

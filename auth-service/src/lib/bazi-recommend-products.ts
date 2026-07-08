@@ -118,7 +118,7 @@ export async function setBaziElementRecommendations(
     .map((element) => {
       const raw = input[element];
       const sku = raw?.sku?.trim();
-      if (!sku) return null;
+      if (!raw || !sku) return null;
       const priceCents = raw.priceCents ?? null;
       const priceCentsUsd = raw.priceCentsUsd ?? null;
       return { element, sku, priceCents, priceCentsUsd };
