@@ -9,7 +9,13 @@
  */
 
 import pg from 'pg';
-import { categoryFromWpTerms, categoryFromSlug, sortWeightFromSlug } from './lib/daozang-taxonomy.mjs';
+import {
+  categoryFromWpTerms,
+  categoryFromSlug,
+  categoryFromTitle,
+  sortWeightFromSlug,
+  sortWeightFromTitle,
+} from './lib/daozang-taxonomy.mjs';
 import { makeExcerpt } from './lib/legacy-html.mjs';
 
 const WP_BASE = (process.env.C2PUB_URL || 'https://www.c2.pub').replace(/\/$/, '');
@@ -102,7 +108,7 @@ async function ensureColumns(client) {
   await client.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS pages_wp_type_id_idx ON pages (wp_type, wp_id);
   `).catch(() => {});
-  // 道藏分类字段（与 cms/src/migrations/20260708_090000_daozang_taxonomy.ts 一致）
+  // 道藏分类字段（与 cms/src/migrations/2026070*_daozang_* 迁移一致）
   await client.query(`
     DO $$ BEGIN
       CREATE TYPE "public"."enum_pages_daozang_category" AS ENUM(
@@ -113,6 +119,14 @@ async function ensureColumns(client) {
     EXCEPTION WHEN duplicate_object THEN NULL;
     END $$;
   `);
+  for (const key of ['sanmingtonghui', 'yuanhaiziping', 'shenfengtongkao', 'xingmingzongkuo']) {
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "public"."enum_pages_daozang_category" ADD VALUE IF NOT EXISTS '${key}';
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+  }
   await client.query(`
     ALTER TABLE pages ADD COLUMN IF NOT EXISTS daozang_category "enum_pages_daozang_category";
     ALTER TABLE pages ADD COLUMN IF NOT EXISTS sort_weight numeric;
@@ -132,12 +146,13 @@ async function upsertPage(client, item, type) {
 
   const wpStatus = item.status || 'publish';
 
-  // 道藏归类 + 摘要（doc_category 权威，slug 编号规则兜底）
-  const daozangCategory =
-    appSource === 'daozang'
-      ? (categoryFromWpTerms(item.doc_category) || categoryFromSlug(slug))?.key ?? null
-      : null;
-  const sortWeight = appSource === 'daozang' ? sortWeightFromSlug(slug) : null;
+  // 道藏归类 + 摘要（doc_category 权威，slug 编号段、标题前缀依次兜底；WP 静态页不归类）
+  const isKnowledge = appSource === 'daozang' && type !== 'page';
+  const daozangCategory = isKnowledge
+    ? (categoryFromWpTerms(item.doc_category) || categoryFromSlug(slug) || categoryFromTitle(title))
+        ?.key ?? null
+    : null;
+  const sortWeight = isKnowledge ? sortWeightFromSlug(slug) ?? sortWeightFromTitle(title) : null;
   const excerpt = legacyHtml ? makeExcerpt(legacyHtml, title) : null;
 
   const existing = await client.query(

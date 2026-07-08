@@ -23,6 +23,7 @@ import * as migration_20260706_140000_shop_product_images from './20260706_14000
 import * as migration_20260707_100000_shop_product_pages from './20260707_100000_shop_product_pages';
 import * as migration_20260707_150000_shop_product_video from './20260707_150000_shop_product_video';
 import * as migration_20260708_090000_daozang_taxonomy from './20260708_090000_daozang_taxonomy';
+import * as migration_20260708_120000_daozang_book_categories from './20260708_120000_daozang_book_categories';
 
 export const migrations = [
   {
@@ -149,5 +150,10 @@ export const migrations = [
     up: migration_20260708_090000_daozang_taxonomy.up,
     down: migration_20260708_090000_daozang_taxonomy.down,
     name: '20260708_090000_daozang_taxonomy',
+  },
+  {
+    up: migration_20260708_120000_daozang_book_categories.up,
+    down: migration_20260708_120000_daozang_book_categories.down,
+    name: '20260708_120000_daozang_book_categories',
   },
 ];

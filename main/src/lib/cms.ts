@@ -17,6 +17,7 @@ export type CmsPage = {
   appSource?: PublishSection | null;
   legacyHtml?: string | null;
   wpStatus?: 'publish' | 'draft' | null;
+  wpType?: 'doc' | 'post' | 'page' | null;
   locale?: string | null;
   sourceUrl?: string | null;
   daozangCategory?: string | null;
@@ -190,13 +191,13 @@ export async function fetchCmsPages(options: {
 export async function fetchDaozangIndex(locale?: string): Promise<DaozangIndexItem[]> {
   const items: DaozangIndexItem[] = [];
   let page = 1;
-  while (page <= 10) {
+  while (page <= 20) {
     const params = buildWhere('daozang', locale);
     params.set('limit', '200');
     params.set('page', String(page));
     params.set('depth', '0');
     params.set('sort', 'title');
-    for (const field of ['title', 'slug', 'daozangCategory', 'sortWeight', 'excerpt']) {
+    for (const field of ['title', 'slug', 'wpType', 'daozangCategory', 'sortWeight', 'excerpt']) {
       params.set(`select[${field}]`, 'true');
     }
 
@@ -207,7 +208,10 @@ export async function fetchDaozangIndex(locale?: string): Promise<DaozangIndexIt
       throw new Error(`CMS fetch failed: ${res.status}`);
     }
     const data: CmsListResponse = await res.json();
-    items.push(...data.docs.filter((item) => !isJunkCmsPage(item)));
+    items.push(
+      // WordPress 静态页（cart/团队成员等）误挂在道藏栏目，不属于知识库目录
+      ...data.docs.filter((item) => item.wpType !== 'page' && !isJunkCmsPage(item)),
+    );
     if (!data.hasNextPage) break;
     page += 1;
   }

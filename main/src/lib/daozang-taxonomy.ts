@@ -17,6 +17,10 @@ export type DaozangCategoryKey =
   | 'bazi'
   | 'ziweidoushu'
   | 'qizhengsheyu'
+  | 'sanmingtonghui'
+  | 'yuanhaiziping'
+  | 'shenfengtongkao'
+  | 'xingmingzongkuo'
   | 'dixiang'
   | 'renxiang'
   | 'xingxiang'
@@ -30,7 +34,10 @@ export type DaozangCategory = {
   key: DaozangCategoryKey;
   top: DaozangTopKey;
   wpCategoryId: number;
-  slugPrefix: string;
+  /** 迁移 slug `docs/zh-cn/A_B_C` 的 `A_B` 编号段（归类兜底） */
+  slugPrefix?: string;
+  /** 章节化全书：标题前缀（如「三命通会 – 第8章」）归类兜底 */
+  titlePrefix?: string;
 };
 
 /** 五术顶级分类，按传统「山医命相卜」次序（与 slug 编号 1–5 一致） */
@@ -42,6 +49,11 @@ export const DAOZANG_CATEGORIES: DaozangCategory[] = [
   { key: 'bazi', top: 'ming', wpCategoryId: 60, slugPrefix: '3_1' },
   { key: 'ziweidoushu', top: 'ming', wpCategoryId: 61, slugPrefix: '3_2' },
   { key: 'qizhengsheyu', top: 'ming', wpCategoryId: 62, slugPrefix: '3_3' },
+  // 章节化全书（WP 顶级空分类，章节文档 slug 为 item-<id>，按标题前缀归类）
+  { key: 'sanmingtonghui', top: 'ming', wpCategoryId: 72, titlePrefix: '三命通会' },
+  { key: 'yuanhaiziping', top: 'ming', wpCategoryId: 71, titlePrefix: '渊海子平' },
+  { key: 'shenfengtongkao', top: 'ming', wpCategoryId: 73, titlePrefix: '神峰通考' },
+  { key: 'xingmingzongkuo', top: 'ming', wpCategoryId: 74, titlePrefix: '星命总括' },
   { key: 'dixiang', top: 'xiang', wpCategoryId: 63, slugPrefix: '4_1' },
   { key: 'renxiang', top: 'xiang', wpCategoryId: 64, slugPrefix: '4_2' },
   { key: 'xingxiang', top: 'xiang', wpCategoryId: 65, slugPrefix: '4_3' },
@@ -78,20 +90,34 @@ export function categoryFromArticleSlug(slug: string): DaozangCategory | null {
   return DAOZANG_CATEGORIES.find((c) => c.slugPrefix === match[1]) ?? null;
 }
 
-type Classifiable = { slug: string; daozangCategory?: string | null };
+/** 章节化全书：从标题「第 N 章」提取章号（类内排序兜底） */
+export function chapterWeightFromTitle(title: string): number | null {
+  const match = title.match(/第\s*(\d+)\s*[章回卷节]/);
+  return match ? Number(match[1]) : null;
+}
 
-/** 单篇内容的归属分类：CMS 字段优先，slug 编号规则兜底 */
+/** 章节化全书：标题前缀归类兜底（如「三命通会 – 第8章」） */
+export function categoryFromArticleTitle(title: string): DaozangCategory | null {
+  const clean = title.trim();
+  return DAOZANG_CATEGORIES.find((c) => c.titlePrefix && clean.startsWith(c.titlePrefix)) ?? null;
+}
+
+type Classifiable = { slug: string; title?: string; daozangCategory?: string | null };
+
+/** 单篇内容的归属分类：CMS 字段优先，slug 编号段、标题前缀依次兜底 */
 export function resolveArticleCategory(item: Classifiable): DaozangCategory | null {
   if (isDaozangCategoryKey(item.daozangCategory)) return getDaozangCategory(item.daozangCategory);
-  return categoryFromArticleSlug(item.slug);
+  const bySlug = categoryFromArticleSlug(item.slug);
+  if (bySlug) return bySlug;
+  return item.title ? categoryFromArticleTitle(item.title) : null;
 }
 
 type Sortable = { title: string; sortWeight?: number | null };
 
-/** 类内排序：sortWeight 升序（缺省排后），同权重按标题 */
+/** 类内排序：sortWeight（缺省用标题章号）升序，均缺省排后，同权重按标题 */
 export function compareArticles(a: Sortable, b: Sortable): number {
-  const wa = a.sortWeight ?? Number.MAX_SAFE_INTEGER;
-  const wb = b.sortWeight ?? Number.MAX_SAFE_INTEGER;
+  const wa = a.sortWeight ?? chapterWeightFromTitle(a.title) ?? Number.MAX_SAFE_INTEGER;
+  const wb = b.sortWeight ?? chapterWeightFromTitle(b.title) ?? Number.MAX_SAFE_INTEGER;
   if (wa !== wb) return wa - wb;
   return a.title.localeCompare(b.title, 'zh-Hans-CN');
 }

@@ -17,7 +17,15 @@
  */
 
 import pg from 'pg';
-import { DAOZANG_CATEGORIES, categoryFromWpTerms, categoryFromSlug, sortWeightFromSlug } from './lib/daozang-taxonomy.mjs';
+import {
+  DAOZANG_CATEGORIES,
+  DAOZANG_CATEGORY_KEYS,
+  categoryFromWpTerms,
+  categoryFromSlug,
+  categoryFromTitle,
+  sortWeightFromSlug,
+  sortWeightFromTitle,
+} from './lib/daozang-taxonomy.mjs';
 import { decodeHtmlEntities, makeExcerpt } from './lib/legacy-html.mjs';
 
 const WP_BASE = (process.env.C2PUB_URL || 'https://www.c2.pub').replace(/\/$/, '');
@@ -62,6 +70,14 @@ async function ensureColumns(client) {
     EXCEPTION WHEN duplicate_object THEN NULL;
     END $$;
   `);
+  for (const key of DAOZANG_CATEGORY_KEYS) {
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TYPE "public"."enum_pages_daozang_category" ADD VALUE IF NOT EXISTS '${key}';
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+  }
   await client.query(`
     ALTER TABLE pages ADD COLUMN IF NOT EXISTS daozang_category "enum_pages_daozang_category";
     ALTER TABLE pages ADD COLUMN IF NOT EXISTS sort_weight numeric;
@@ -109,11 +125,13 @@ async function main() {
   await client.connect();
   await ensureColumns(client);
 
+  // wp_type='page' 是误挂在道藏栏目的 WordPress 静态页（cart/团队成员等），
+  // 前台目录已排除，不参与知识库归类
   const { rows } = await client.query(
     `SELECT id, title, slug, wp_id, wp_status, legacy_html, daozang_category, sort_weight, excerpt
-     FROM pages WHERE app_source = 'daozang' ORDER BY slug`,
+     FROM pages WHERE app_source = 'daozang' AND (wp_type IS DISTINCT FROM 'page') ORDER BY slug`,
   );
-  console.log(`[classify-daozang] 道藏内容共 ${rows.length} 条`);
+  console.log(`[classify-daozang] 道藏知识库内容共 ${rows.length} 条（不含 WP 静态页）`);
 
   const stats = { classified: 0, bySlugRule: 0, unclassified: [], drafted: [], updated: 0 };
   const perCategory = Object.fromEntries(DAOZANG_CATEGORIES.map((c) => [c.key, 0]));
@@ -129,12 +147,12 @@ async function main() {
       stats.drafted.push(`${row.slug} ${decodeHtmlEntities(row.title)}`);
     }
 
-    // 2) 归类：WP doc_category 优先，slug 编号规则兜底
+    // 2) 归类：WP doc_category 优先，slug 编号段、标题前缀依次兜底
     if (!shouldDraft) {
       const wpTerms = row.wp_id != null ? wpCategoryMap.get(Number(row.wp_id)) : undefined;
       let category = categoryFromWpTerms(wpTerms);
       if (!category) {
-        category = categoryFromSlug(row.slug);
+        category = categoryFromSlug(row.slug) || categoryFromTitle(decodeHtmlEntities(row.title));
         if (category) stats.bySlugRule += 1;
       }
       if (category) {
@@ -154,8 +172,8 @@ async function main() {
       if (!seen) titleIndex.set(titleKey, { slug: row.slug, category: category?.key });
     }
 
-    // 3) 类内排序权重
-    const weight = sortWeightFromSlug(row.slug);
+    // 3) 类内排序权重（slug 编号段，或章节标题「第 N 章」）
+    const weight = sortWeightFromSlug(row.slug) ?? sortWeightFromTitle(decodeHtmlEntities(row.title));
     if (weight != null && Number(row.sort_weight) !== weight) updates.sort_weight = weight;
 
     // 4) 摘要
