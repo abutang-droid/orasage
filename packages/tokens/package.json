@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./css": "./src/orasage-tokens.css",
-    "./tailwind-preset": "./src/tailwind-preset.ts"
+    "./tailwind-preset": "./src/tailwind-preset.ts",
+    "./tailwind-v4": "./src/tailwind-v4-bridge.css"
   },
   "files": [
     "src"
