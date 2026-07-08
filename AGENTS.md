@@ -97,3 +97,32 @@ units, and remote deploy scripts targeting a single production VPS.
   Both `auth-service/compose.yml` and `deploy/auth/docker-compose.yml` set
   `HOST=0.0.0.0` for this reason, while still restricting host-side exposure
   via `127.0.0.1:<port>:<port>` port mappings.
+
+### Non-obvious local-dev gotchas (verified in Cursor Cloud)
+
+- Local Postgres role used for dev is `orasage` / password `orasage`; the four
+  databases (`orasage_auth` / `orasage_cms` / `orasage_bazi` / `orasage_tarot`)
+  are pre-created, so `.env` files use
+  `postgresql://orasage:orasage@127.0.0.1:5432/<db>`. All apps share one
+  `JWT_SECRET`. Each app has its own gitignored `.env` in its directory.
+- Do NOT `source`/`. ./.env` an app's env file into your interactive shell:
+  it exports `PORT`, `DATABASE_URL`, etc. into every child process you launch
+  afterwards, and since `dotenv` does not override already-set vars, other apps
+  silently bind the wrong port / hit the wrong DB. Prefer per-command env
+  (`PORT=3110 pnpm start`) or a subshell.
+- `bazi`: `pnpm dev` (tsx watch) currently crashes with a Node ESM
+  "does not provide an export named …" error on the `shared/*` modules. Run
+  bazi via the documented build path instead: `pnpm run build` then
+  `PORT=3110 pnpm start`. (The pnpm "Ignored build scripts" warning for
+  `esbuild` / `@tailwindcss/oxide` is benign — both ship prebuilt binaries and
+  the build succeeds.)
+- `tarot`: its `next dev` / `next start` scripts have no `-p` flag and do NOT
+  read `PORT` from `.env`; pass it in the shell env (`PORT=3112 npm run dev`),
+  otherwise it defaults to 3000.
+- Fortune-app birthplace field: `ziwei` uses the local `@orasage/city` DB,
+  keyed by pinyin abbreviation — type `BJ` → 北京, `SH` → 上海 (typing
+  "Beijing" fails). `bazi`'s city field additionally calls external Google
+  Maps geocoding, which is blocked in the sandbox (CORS), so its birthplace
+  autocomplete is non-functional here. Browser-console CORS errors to
+  `auth.orasage.com` / `127.0.0.1:3101` are the optional login bridge and do
+  not block the anonymous fortune features.
