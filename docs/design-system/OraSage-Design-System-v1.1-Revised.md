@@ -255,3 +255,47 @@ OraSage 的视觉应如同一张**铺在木质桌面上的宣纸**：
 静态页须使用显式 hex 色值（`auth-*`），不可依赖 `rgb(var(--token))` 未解析的 `oui-*` 类。
 
 实现：`auth-service/src/lib/site-chrome-html.ts`、`auth-service/src/routes/pages.ts`、`auth-service/public/assets/style.css`
+
+---
+
+## 9. 图标（Icons）
+
+**规范（2026-07-08）**：全站 UI chrome（导航、按钮、工具栏）统一使用 [`lucide-react`](https://lucide.dev)。
+
+| 场景 | 图标示例 | 说明 |
+| :--- | :--- | :--- |
+| 底栏首页 | `Home` | `shared/app-shell/BottomNav` |
+| 底栏探索/应用 | `LayoutGrid` | 第二键动态品牌 |
+| 底栏祈福 | `Flame` | 链向神庙/祈福 |
+| 底栏商城 | `ShoppingCart` | |
+| 底栏我的 | `User` | |
+| 子页返回 | `ChevronLeft` | `AppShell` 工具条 |
+| 门户工具卡 | `SunMoon` / `Sparkles` / `Moon` | 八字 / 紫微 / 塔罗 |
+
+- 尺寸：导航 20px、`strokeWidth` 1.6；按钮内 18px 常见。
+- **禁止**在导航/主按钮使用 emoji（🛒✦🌙）替代图标。
+- 命理内容数据（信仰符号、水晶五行 emoji）可保留，但不得与 chrome 混用同一语义。
+
+修改 App Shell 图标后执行 `npm run app-shell:sync`；各 App 须声明 `lucide-react` 依赖。
+
+---
+
+## 10. 多语言与 Locale（i18n）
+
+**基座包**：`packages/i18n`（`@orasage/i18n`）
+
+| 级别 | 语言 | 用途 |
+| :--- | :--- | :--- |
+| T1 核心 | zh-CN、zh-TW、en、pt-BR | 命理 App + 全站保证 |
+| T2 扩展 | + es/fr/de/ja/ko/vi/th/ar | main 门户展示 |
+
+检测优先级：`?lang=` → cookie `NEXT_LOCALE` → `Accept-Language` → 默认 `zh-CN`。
+
+- main：next-intl + `messages/*.json`
+- shop：locale/货币经 `shared/shop-locale`（委托 i18n）
+- bazi/ziwei/tarot：自研字典；locale 来源待统一为共享 cookie
+- admin/cms/auth 后台：中文豁免
+
+全站语言切换器（待实现）应写入 `.orasage.com` cookie，各子域读取同一 `normalizeLocale` 结果。
+
+详见 `packages/i18n/README.md`、`docs/design-system/ui-status-2026-07.md`。
