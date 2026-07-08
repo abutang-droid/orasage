@@ -121,7 +121,7 @@ fi
 # ── 5. 部署 main 主门户 ──────────────────────────────────────
 log "安装 main 依赖..."
 cd "$DEPLOY_DIR/main"
-"$NPM_BIN" install
+NODE_ENV=development "$NPM_BIN" install
 
 log "构建 main..."
 export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
@@ -137,7 +137,7 @@ sudo systemctl restart orasage-main
 # ── 6. 部署 admin ────────────────────────────────────────────
 log "安装 admin 依赖..."
 cd "$DEPLOY_DIR/admin"
-"$NPM_BIN" install
+NODE_ENV=development "$NPM_BIN" install
 
 log "构建 admin..."
 export JWT_SECRET="${JWT_SECRET}"
@@ -155,7 +155,7 @@ sudo systemctl restart orasage-admin
 # ── 7. 部署 shop ─────────────────────────────────────────────
 log "安装 shop 依赖..."
 cd "$DEPLOY_DIR/shop"
-"$NPM_BIN" install
+NODE_ENV=development "$NPM_BIN" install
 
 log "构建 shop..."
 export JWT_SECRET="${JWT_SECRET:-}"
