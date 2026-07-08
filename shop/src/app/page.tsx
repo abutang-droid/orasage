@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { ProductCatalog } from '@/components/ProductCatalog';
 import { ShopHomeHero } from '@/components/ShopHomeHero';
 import { fetchProducts } from '@/lib/products';
+import { DIY_ORDER_SKU } from '@/lib/diy';
 import { getAuthUser } from '@/lib/auth';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
@@ -29,10 +30,12 @@ export default async function ShopPage() {
     loadFeaturedSkus(),
   ]);
 
-  const productsWithImages = products.map((p) => ({
-    ...p,
-    imageUrl: imageMap.get(p.sku) ?? p.imageUrl ?? null,
-  }));
+  const productsWithImages = products
+    .filter((p) => p.sku !== DIY_ORDER_SKU)
+    .map((p) => ({
+      ...p,
+      imageUrl: imageMap.get(p.sku) ?? p.imageUrl ?? null,
+    }));
 
   return (
     <main className="shop-page safe-bottom flex-1">

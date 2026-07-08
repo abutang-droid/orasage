@@ -24,6 +24,9 @@ import {
 } from "../lib/tarot-billing.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 import { createShipment, formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
+import { diyBeads, diyConfig } from "../db/schema.ts";
+import { formatBead, formatDiyConfig, getDiyConfigRow } from "./diy.ts";
+import { asc } from "drizzle-orm";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireAdmin);
@@ -319,6 +322,134 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
   }
 });
 
+/* ── 共振定制（DIY）珠子与配置 ─────────────────────── */
+
+const beadBodySchema = z.object({
+  code: z.string().min(1).max(100),
+  name: z.string().min(1).max(100),
+  element: z.string().max(10).optional().nullable(),
+  material: z.string().min(1).max(100),
+  beadType: z.enum(["crystal", "spacer", "disc"]),
+  diameterMm: z.number().positive().max(30),
+  thicknessMm: z.number().positive().max(10).optional().nullable(),
+  priceCents: z.number().int().nonnegative(),
+  priceCentsUsd: z.number().int().nonnegative().optional().nullable(),
+  imageUrl: z.string().max(500).optional().nullable(),
+  colors: z.string().max(120).optional().nullable(),
+  stock: z.number().int().nonnegative().optional(),
+  active: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+});
+
+const beadPatchSchema = beadBodySchema.partial().omit({ code: true });
+
+adminApiRouter.get("/diy/beads", async (_req, res) => {
+  const rows = await db.select().from(diyBeads).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
+  res.json({ beads: rows.map(formatBead) });
+});
+
+adminApiRouter.post("/diy/beads", async (req, res) => {
+  try {
+    const body = beadBodySchema.parse(req.body);
+    const dup = await db.select().from(diyBeads).where(eq(diyBeads.code, body.code)).limit(1);
+    if (dup.length > 0) {
+      res.status(409).json({ error: "珠子编码已存在" });
+      return;
+    }
+    const [row] = await db.insert(diyBeads).values({
+      code: body.code,
+      name: body.name,
+      element: body.element ?? null,
+      material: body.material,
+      beadType: body.beadType,
+      diameterMm: body.diameterMm,
+      thicknessMm: body.beadType === "disc" ? (body.thicknessMm ?? null) : null,
+      priceCents: body.priceCents,
+      priceCentsUsd: body.priceCentsUsd ?? null,
+      imageUrl: body.imageUrl ?? null,
+      colors: body.colors ?? null,
+      stock: body.stock ?? 999,
+      active: body.active ?? true,
+      sortOrder: body.sortOrder ?? 0,
+    }).returning();
+    res.status(201).json({ bead: formatBead(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] create bead:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.patch("/diy/beads/:code", async (req, res) => {
+  try {
+    const code = String(req.params.code);
+    const body = beadPatchSchema.parse(req.body);
+    const existing = await db.select().from(diyBeads).where(eq(diyBeads.code, code)).limit(1);
+    if (existing.length === 0) {
+      res.status(404).json({ error: "珠子不存在" });
+      return;
+    }
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (body.name !== undefined) updates.name = body.name;
+    if (body.element !== undefined) updates.element = body.element;
+    if (body.material !== undefined) updates.material = body.material;
+    if (body.beadType !== undefined) updates.beadType = body.beadType;
+    if (body.diameterMm !== undefined) updates.diameterMm = body.diameterMm;
+    if (body.thicknessMm !== undefined) updates.thicknessMm = body.thicknessMm;
+    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
+    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
+    if (body.colors !== undefined) updates.colors = body.colors;
+    if (body.stock !== undefined) updates.stock = body.stock;
+    if (body.active !== undefined) updates.active = body.active;
+    if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
+
+    const [row] = await db.update(diyBeads).set(updates).where(eq(diyBeads.code, code)).returning();
+    res.json({ bead: formatBead(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] update bead:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const diyConfigSchema = z.object({
+  lengthCorrectionMm: z.number().min(0).max(30),
+  minOrderCents: z.number().int().nonnegative(),
+  fitToleranceMm: z.number().min(1).max(30),
+  wristEaseMm: z.number().min(0).max(30),
+});
+
+adminApiRouter.get("/diy/config", async (_req, res) => {
+  const row = await getDiyConfigRow();
+  res.json({ config: formatDiyConfig(row) });
+});
+
+adminApiRouter.put("/diy/config", async (req, res) => {
+  try {
+    const body = diyConfigSchema.parse(req.body);
+    await db.insert(diyConfig).values({ id: 1, ...body }).onConflictDoUpdate({
+      target: diyConfig.id,
+      set: { ...body, updatedAt: new Date() },
+    });
+    const row = await getDiyConfigRow();
+    res.json({ config: formatDiyConfig(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] update diy config:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
 adminApiRouter.get("/orders", async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 100, 200);
   const rows = await db.select().from(userOrders).orderBy(desc(userOrders.createdAt)).limit(limit);
@@ -338,6 +469,7 @@ adminApiRouter.get("/orders", async (req, res) => {
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
       shippingAddress: o.shippingAddress,
+      recommendationContext: o.recommendationContext,
       createdAt: o.createdAt,
       shipments: shipmentRows.map(({ shipment, events }) => formatShipment(shipment, events)),
     };

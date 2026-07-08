@@ -17,6 +17,11 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/products'),
   },
   {
+    label: '珠子',
+    href: '/beads',
+    isActive: (p) => p.startsWith('/beads'),
+  },
+  {
     label: '订单',
     href: '/orders',
     isActive: (p) => p.startsWith('/orders'),
