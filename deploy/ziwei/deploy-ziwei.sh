@@ -86,6 +86,10 @@ deploy_native() {
   fi
 
   cd "$APP_DIR"
+  if [ -f "$DEPLOY_DIR/packages/tokens/package.json" ]; then
+    log "安装 packages/tokens 依赖（tailwind preset）..."
+    (cd "$DEPLOY_DIR/packages/tokens" && npm install --no-audit --no-fund)
+  fi
   npm ci
 
   set -a
