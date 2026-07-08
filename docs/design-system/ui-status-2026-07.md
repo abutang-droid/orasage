@@ -1,6 +1,6 @@
 # OraSage 全站 UI 状况审查（2026-07-08）
 
-> 审查基准：`main` @ PR #220+（TW4 全站收敛、UI 风险修复）  
+> 审查基准：`main` @ PR #229（ziwei UI 扫尾完成）  
 > 关联：`ui-phase-2.md`、`design-unify-backlog.md`
 
 ---
@@ -29,7 +29,7 @@
 | **main** | ✅ | 共享 | 全量 (~31 文件) | next-intl 12 语 | 参考实现 |
 | **shop** | ✅ | 共享 | Button + Card | next-intl T1 四语 | 已移除 deprecated `.shop-btn-*` |
 | **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` / `reading-copy` / `feature-copy` | 核心流程+三牌阵/运势/历史/onboarding/dream/angel 四语 |
-| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card + Badge + Input**（命盘/聊天/付费/分享/library/chart） | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
+| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card + Badge + Input + Checkbox**（业务组件已全量接入） | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
 | **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | 自研 4 语 | 命盘业务 CSS 保留 |
 | **admin** | ✅ | 共享 | **Button**（登录/表单提交） | 中文后台 | 运营页逐步迁移 |
 | **cms** | — | Payload UI | ❌ | 中文 | 内容 locale 字段 |
