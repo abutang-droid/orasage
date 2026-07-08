@@ -3,7 +3,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
 import { FamousArticleCta } from '@/components/famous/FamousArticleCta';
-import { fetchCmsPageBySlug } from '@/lib/cms';
+import { FamousArticleNav } from '@/components/famous/FamousArticleNav';
+import { cmsLocale, fetchCmsPageBySlug, fetchFamousPages } from '@/lib/cms';
+import { buildFamousListItems, resolveFamousNeighbors } from '@/lib/famous-list';
 import { prepareFamousArticle } from '@/lib/famous-meta';
 
 import { Alert, AlertDescription, Separator } from '@orasage/ui';
@@ -22,6 +24,14 @@ export default async function FamousArticlePage({ params }: Props) {
 
   const legacyHtml = page.legacyHtml?.trim();
   const article = legacyHtml ? prepareFamousArticle(legacyHtml) : null;
+
+  let neighbors = null;
+  try {
+    const docs = await fetchFamousPages(cmsLocale(locale));
+    neighbors = resolveFamousNeighbors(buildFamousListItems(docs), slug);
+  } catch {
+    neighbors = null;
+  }
 
   return (
     <PageShell>
@@ -64,6 +74,7 @@ export default async function FamousArticlePage({ params }: Props) {
         </Alert>
       )}
 
+      {neighbors && <FamousArticleNav neighbors={neighbors} />}
       <FamousArticleCta sourceUrl={page.sourceUrl} />
     </PageShell>
   );

@@ -138,7 +138,11 @@
       "sports": "体育",
       "science": "科学",
       "other": "其他"
-    }
+    },
+    "navAria": "同分类人物导航",
+    "personPrev": "上一位：{name}",
+    "personNext": "下一位：{name}",
+    "relatedTitle": "相关人物"
   },
   "daozang": {
     "title": "道藏精选",

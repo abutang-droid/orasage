@@ -98,7 +98,11 @@
     "next": "다음",
     "back": "목록으로 돌아가기",
     "sourceLink": "원문 링크",
-    "noBody": "본문 없음"
+    "noBody": "본문 없음",
+    "navAria": "같은 분류의 인물",
+    "personPrev": "이전: {name}",
+    "personNext": "다음: {name}",
+    "relatedTitle": "관련 인물"
   },
   "daozang": {
     "title": "Dao Canon",

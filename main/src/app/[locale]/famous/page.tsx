@@ -2,10 +2,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { FamousCategoryTabs, type FamousCategoryFilter } from '@/components/famous/FamousCategoryTabs';
-import { FamousPersonCard, type FamousCardData } from '@/components/famous/FamousPersonCard';
-import { cmsLocale, decodeHtmlEntities, fetchFamousPages, type FamousDoc } from '@/lib/cms';
-import { FAMOUS_CATEGORIES, FAMOUS_INDEX, type FamousCategory } from '@/lib/famous-index';
-import { extractFamousCardMeta, nameFromTitle } from '@/lib/famous-meta';
+import { FamousPersonCard } from '@/components/famous/FamousPersonCard';
+import { cmsLocale, fetchFamousPages, type FamousDoc } from '@/lib/cms';
+import { FAMOUS_CATEGORIES, type FamousCategory } from '@/lib/famous-index';
+import { buildFamousListItems } from '@/lib/famous-list';
 
 import { Alert, AlertDescription, Badge, buttonVariants } from '@orasage/ui';
 
@@ -15,40 +15,6 @@ type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ page?: string; cat?: string }>;
 };
-
-type ListItem = FamousCardData & { category: FamousCategory };
-
-/** 跨语言 / 跨版本去重 + 元数据解析 + 拼音排序 */
-function buildListItems(docs: FamousDoc[]): ListItem[] {
-  const seen = new Set<string>();
-  const items: ListItem[] = [];
-
-  for (const doc of docs) {
-    const indexed = FAMOUS_INDEX[doc.slug];
-    if (indexed?.canonical === false) continue;
-    const person = indexed?.person ?? doc.slug;
-    if (seen.has(person)) continue;
-    seen.add(person);
-
-    const meta = doc.legacyHtml
-      ? extractFamousCardMeta(doc.legacyHtml)
-      : { name: null, birth: null, pillars: null, pattern: null };
-
-    items.push({
-      slug: doc.slug,
-      name: meta.name ?? nameFromTitle(decodeHtmlEntities(doc.title)),
-      description: indexed?.description,
-      category: indexed?.category ?? 'other',
-      birth: meta.birth,
-      pillars: meta.pillars,
-      pattern: meta.pattern,
-      fallback: doc.fallback,
-    });
-  }
-
-  const collator = new Intl.Collator('zh');
-  return items.sort((a, b) => collator.compare(a.name, b.name));
-}
 
 export default async function FamousPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -69,7 +35,7 @@ export default async function FamousPage({ params, searchParams }: Props) {
     docs = null;
   }
 
-  const items = docs ? buildListItems(docs) : [];
+  const items = docs ? buildFamousListItems(docs) : [];
   const filtered = activeCat === 'all' ? items : items.filter((item) => item.category === activeCat);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));

@@ -1,6 +1,6 @@
 # 名人案例内容优化 · 页面设计方案 v1
 
-> 状态：**P1 详情页 + P2 列表页已实施（P3 待启动）**
+> 状态：**P1–P3 已全部实施**
 > 范围：main 门户 `/{locale}/famous`（列表页）与 `/{locale}/famous/[slug]`（详情页）
 > 设计基线：`docs/design-system/OraSage-Design-System-v1.1-Revised.md`（黑白灰单色系）
 

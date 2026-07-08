@@ -138,7 +138,11 @@
       "sports": "Sports",
       "science": "Science",
       "other": "Other"
-    }
+    },
+    "navAria": "People in the same category",
+    "personPrev": "Previous: {name}",
+    "personNext": "Next: {name}",
+    "relatedTitle": "Related figures"
   },
   "daozang": {
     "title": "Dao Canon",

@@ -98,7 +98,11 @@
     "next": "ถัดไป",
     "back": "กลับสู่รายการ",
     "sourceLink": "ลิงก์ต้นฉบับ",
-    "noBody": "ไม่มีเนื้อหา"
+    "noBody": "ไม่มีเนื้อหา",
+    "navAria": "บุคคลในหมวดเดียวกัน",
+    "personPrev": "ก่อนหน้า: {name}",
+    "personNext": "ถัดไป: {name}",
+    "relatedTitle": "บุคคลที่เกี่ยวข้อง"
   },
   "daozang": {
     "title": "Dao Canon",

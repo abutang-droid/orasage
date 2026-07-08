@@ -98,7 +98,11 @@
     "next": "下一頁",
     "back": "返回名人案例列表",
     "sourceLink": "查看原站連結",
-    "noBody": "暫無正文"
+    "noBody": "暫無正文",
+    "navAria": "同分類人物導航",
+    "personPrev": "上一位：{name}",
+    "personNext": "下一位：{name}",
+    "relatedTitle": "相關人物"
   },
   "daozang": {
     "title": "Dao Canon",

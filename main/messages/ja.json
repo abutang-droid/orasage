@@ -98,7 +98,11 @@
     "next": "次へ",
     "back": "一覧に戻る",
     "sourceLink": "元記事リンク",
-    "noBody": "本文がありません"
+    "noBody": "本文がありません",
+    "navAria": "同じカテゴリーの人物",
+    "personPrev": "前：{name}",
+    "personNext": "次：{name}",
+    "relatedTitle": "関連人物"
   },
   "daozang": {
     "title": "Dao Canon",

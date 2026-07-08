@@ -98,7 +98,11 @@
     "next": "Sau",
     "back": "Quay lại danh sách",
     "sourceLink": "Liên kết bài gốc",
-    "noBody": "Chưa có nội dung chính"
+    "noBody": "Chưa có nội dung chính",
+    "navAria": "Nhân vật cùng phân loại",
+    "personPrev": "Trước: {name}",
+    "personNext": "Sau: {name}",
+    "relatedTitle": "Nhân vật liên quan"
   },
   "daozang": {
     "title": "Dao Canon",
