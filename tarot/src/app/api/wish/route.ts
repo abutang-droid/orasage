@@ -34,5 +34,14 @@ export async function POST(req: NextRequest) {
     data: { userId: auth.userId, wish, cardName: card.cardName, conclusion: CONCLUSIONS[conclusionIdx], advice: ADVICE_POOL[adviceIdx] },
   })
 
-  return NextResponse.json({ id: record.id, cardName: card.cardName, orientation: card.orientation, conclusion: CONCLUSIONS[conclusionIdx], advice: ADVICE_POOL[adviceIdx], seed: result.seed })
+  return NextResponse.json({
+    id: record.id,
+    cardId: card.cardId,
+    cardName: card.cardName,
+    orientation: card.orientation,
+    conclusion: CONCLUSIONS[conclusionIdx],
+    advice: ADVICE_POOL[adviceIdx],
+    adviceIdx,
+    seed: result.seed,
+  })
 }

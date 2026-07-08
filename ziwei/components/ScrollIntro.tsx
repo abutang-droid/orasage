@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@orasage/ui/button';
 
 interface ScrollIntroProps {
   onComplete: () => void;
@@ -286,32 +287,15 @@ export default function ScrollIntro({ onComplete, skipLabel = '跳 过' }: Scrol
           </div>
 
           {/* 跳过按钮 */}
-          <button
+          <Button
+            type="button"
+            variant="outline"
             onClick={handleSkip}
-            style={{
-              position: 'absolute', bottom: '32px', right: '32px',
-              padding: '8px 18px',
-              background: 'transparent',
-              color: 'rgba(232,220,196,0.55)',
-              border: '1px solid rgba(232,220,196,0.18)',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              fontFamily: '"STSong", serif',
-              letterSpacing: '0.25em',
-              transition: 'border-color 0.2s, color 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(232,220,196,0.4)';
-              e.currentTarget.style.color = 'rgba(232,220,196,0.9)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(232,220,196,0.18)';
-              e.currentTarget.style.color = 'rgba(232,220,196,0.55)';
-            }}
+            className="absolute bottom-8 right-8 h-auto min-h-0 border-[rgba(232,220,196,0.18)] bg-transparent px-[18px] py-2 text-xs tracking-[0.25em] text-[rgba(232,220,196,0.55)] hover:border-[rgba(232,220,196,0.4)] hover:bg-transparent hover:text-[rgba(232,220,196,0.9)]"
+            style={{ fontFamily: '"STSong", serif' }}
           >
             {skipLabel} →
-          </button>
+          </Button>
         </motion.div>
       )}
     </AnimatePresence>

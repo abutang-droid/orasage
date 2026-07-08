@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from '@orasage/ui/button';
 import { useT } from '@/lib/i18n';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
@@ -47,14 +48,15 @@ function HemingPanel({
       <div className="ziwei-calc-person-tabs">
         <span className="ziwei-calc-person-hint">{t('form.person.editing')}</span>
         {([0, 1] as const).map((idx) => (
-          <button
+          <Button
             key={idx}
             type="button"
+            variant="outline"
             onClick={() => setActivePerson(idx)}
             className={`ziwei-calc-person-tab${activePerson === idx ? ' is-active' : ''}`}
           >
             {idx === 0 ? t('form.person.first') : t('form.person.second')}
-          </button>
+          </Button>
         ))}
       </div>
       <BirthForm
@@ -71,14 +73,15 @@ function HemingPanel({
           });
         }}
       />
-      <button
+      <Button
         type="button"
         onClick={() => onSubmit(formToBirthInfo(forms[0]), formToBirthInfo(forms[1]), forms[0], forms[1])}
         disabled={!canSubmit || loading}
-        className="ziwei-calc-submit"
+        loading={loading}
+        className="ziwei-calc-submit w-full"
       >
-        {loading ? t('heming.submit.loading') : t('heming.submit')}
-      </button>
+        {t('heming.submit')}
+      </Button>
     </>
   );
 }
@@ -285,14 +288,15 @@ export default function ChartPage() {
         <div className="ziwei-calc-form ziwei-calc-section">
           <div className="ziwei-calc-mode-bar">
             {(['single', 'heming'] as const).map((m) => (
-              <button
+              <Button
                 key={m}
                 type="button"
+                variant="outline"
                 onClick={() => setMode(m)}
                 className={`ziwei-calc-mode-btn${mode === m ? ' is-active' : ''}`}
               >
                 {m === 'single' ? t('tab.single') : t('tab.heming')}
-              </button>
+              </Button>
             ))}
           </div>
           {mode === 'single' ? (
@@ -329,22 +333,23 @@ export default function ChartPage() {
   return (
     <div className="chart-page-root orasage-fade-in">
       <div className="ziwei-chart-toolbar">
-        <button type="button" onClick={handleReset} className="ziwei-reset-btn">
+        <Button type="button" variant="ghost" onClick={handleReset} className="ziwei-reset-btn h-auto min-h-0 px-0">
           <span>‹</span>
           {t('chart.reset')}
-        </button>
+        </Button>
         <div className="ziwei-chart-toolbar-sep" />
         {mode === 'heming' && chartB ? (
           <div className="ziwei-heming-tabs">
             {(['A', 'B'] as const).map((tab) => (
-              <button
+              <Button
                 key={tab}
                 type="button"
+                variant="outline"
                 onClick={() => setHemingTab(tab)}
                 className={`ziwei-heming-tab${hemingTab === tab ? ' is-active' : ''}`}
               >
                 {tab === 'A' ? `甲 · ${t('heming.person.a')}` : `乙 · ${t('heming.person.b')}`}
-              </button>
+              </Button>
             ))}
           </div>
         ) : (

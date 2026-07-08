@@ -1,0 +1,233 @@
+# Agent 交接备忘录 — 2026-07-08
+
+> 写给下一任 Cloud Agent / 开发者（含「未来的自己」）。  
+> 覆盖本轮多轮对话主线：**塔罗 i18n 补全 → ziwei `@orasage/ui` 三批 + 扫尾 → 合并部署**。  
+> 平台总览仍见 [`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)（§2 部分已过期，**以本文 + `ui-status-2026-07.md` 为准**）。
+
+**关联文档（按优先级）：**
+
+| 文档 | 用途 |
+|------|------|
+| [`docs/AGENT-RULES.md`](./AGENT-RULES.md) | **最高宪法**：关联分支穿透、全站范围、导航规范 |
+| [`docs/design-system/ui-status-2026-07.md`](./design-system/ui-status-2026-07.md) | 全站 UI / TW4 / `@orasage/ui` 接入矩阵（最新） |
+| [`docs/plans/platform-roadmap-2026-07.md`](./plans/platform-roadmap-2026-07.md) | 六大工作项长期路线（DB 合一、i18n 基座等） |
+| [`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md) | 设计统一待办（部分已完成，读前核对日期） |
+| [`docs/HANDOFF-tarot.md`](./HANDOFF-tarot.md) | 塔罗专项（P4–P7、功德、CMS 圣地等） |
+
+---
+
+## 1. 用户意图脉络（本轮会话）
+
+| 顺序 | 用户要求 | 结果 |
+|------|----------|------|
+| 1 | tarot onboarding / dream / angel-card i18n | PR **#225** ✅ merged + deployed |
+| 2 | 合并并部署 | #225 合入 + tarot 上线 |
+| 3 | ziwei：更多业务组件逐步接入 `@orasage/ui` | PR **#226** ✅ merged + deployed |
+| 4 | 合并并部署 ziwei；继续 library、chart TopBar、TimeNav | PR **#227** ✅ merged + deployed |
+| 5 | StarDetailPanel、ScrollIntro、AnnouncementModal 等继续接入 | PR **#228** ✅ merged + deployed |
+| 6 | **继续扫尾** | PR **#229** ✅ merged + deployed |
+| 7 | **写整体交接文档** | 本文 |
+
+**隐含约束（从多轮对话归纳，未书面撤销前仍有效）：**
+
+- 改动 ziwei / `shared/app-shell` 时，评估是否需 `app-shell:sync` 到其它 8 个应用副本。
+- 保留各 App 既有视觉语义类（如 ziwei 的 `card-glass`、`ziwei-calc-submit`），通过 `className` 叠在 `@orasage/ui` 上，不要裸换肤。
+- 合入后用户习惯：**merge → `ORASAGE_REF=main bash deploy/remote-deploy-<app>.sh`**。
+- Cloud Agent 分支命名：`cursor/<descriptive-name>-2e83`，PR base 为 `main`。
+
+---
+
+## 2. 当前 `main` 与生产状态
+
+**Git：** `main` @ **`87bca99`**（Merge PR #229，2026-07-08）
+
+| 服务 | URL | 本轮是否重部署 | 验证 |
+|------|-----|----------------|------|
+| **ziwei** | https://ziwei.orasage.com | ✅ #226–#229 每批后均部署 | `curl -sI` → 307/200 |
+| **tarot** | https://tarot.orasage.com | ✅ #225 后部署 | onboarding/dream/angel 四语 |
+| main / shop / auth / admin / bazi / cms | 各子域 | 未在本轮重部署 | — |
+
+**VPS：** `34.75.40.67`（GCP `ubuntu`），代码 `/opt/orasage`，SSH 密钥由 `deploy/remote-deploy-*.sh` 加载。
+
+---
+
+## 3. 本轮合入 PR 一览（#222–#229）
+
+```
+#229 feat(ziwei): complete @orasage/ui sweep          ← 扫尾（Card/Checkbox/Badge/AppShell）
+#228 feat(ziwei): StarDetailPanel, ScrollIntro, AnnouncementModal, BirthForm, insight
+#227 feat(ziwei): library, chart toolbar, TimeNav
+#226 feat(ziwei): PaywallCard, ChartSummary, ChatPanel, ShareModal, …
+#225 feat(tarot): i18n onboarding / dream / angel-card
+#224 feat(tarot): reading i18n（前序）
+#222 feat(tarot): secondary pages i18n（前序）
+```
+
+更早背景（同系列但未在本轮重复部署）：#216 ziwei lucide、#217–#218 shop TW4、#220+ TW4 全站收敛与 UI 风险修复（见 `ui-status-2026-07.md`）。
+
+---
+
+## 4. 已完成工作详情
+
+### 4.1 Tarot i18n（#222 / #224 / #225）
+
+**机制：** `tarot/src/lib/i18n/` — `LangProvider` + 分域 copy 文件。
+
+| 文件 | 职责 |
+|------|------|
+| `ui-strings.ts` | 通用 UI 文案 |
+| `reading-copy.ts` | 三牌阵、每日运势、历史等 |
+| `feature-copy.ts` | **#225 新增** onboarding / dream / angel-card hooks |
+| `crystal-copy.ts` | 水晶相关 |
+| `context.tsx` | Provider + `useT` |
+
+**四语：** zh-CN、zh-TW、en、pt-BR（部分 API 返回字段如情绪/意图仍中文，属数据层未外化）。
+
+**#225 接线：**
+
+- `OnboardingFlow.tsx` → `useOnboardingCopy()`
+- `dream/page.tsx` → `useDreamCopy()`
+- `angel-card/page.tsx` → `useAngelCopy()`
+
+### 4.2 Ziwei `@orasage/ui`（#226–#229，现已视为 **完成**）
+
+**包 exports（`packages/ui/package.json`）：**
+
+```json
+"./button", "./card", "./input", "./badge", "./checkbox"
+```
+
+**接入矩阵（按批次）：**
+
+| 批次 | PR | 主要文件 |
+|------|-----|----------|
+| 1 | #226 | `PaywallCard`, `CrystalShopCard`, `PatternsCard`, `ChartSummary`, `ShareModal`（按钮）, `ZiweiChatPaywall`, `ZiweiRecommendCard`, `ChatPanel`, `InsightPanel`（按钮/输入）, `ZiweiOrasageChat` |
+| 2 | #227 | `LibrarySearch`, `library/*`, `chart/page` 工具栏, `TimeNav`；`chart/TopBar.tsx` 去重为 re-export |
+| 3 | #228 | `StarDetailPanel`, `ScrollIntro`, `AnnouncementModal`, `BirthForm`（分段+姓名）, `insight/InsightPanel`, `preview/page` |
+| 扫尾 | #229 | 两路 `InsightPanel` / `ZiweiBriefInsight` / `ShareModal` **Card**；knowledge + library 章节 **Card**；`ZiweiHomeFeed` **Badge**；`BirthForm` **Checkbox**；`AppShell` 返回 + `LocaleSwitcher` **Button**（`shared/app-shell` 同步） |
+
+**验收：** `ziwei` 组件树内已无原生 `<button>` / `<input>`（`select` 等表单控件保留）。
+
+**样式约定：**
+
+```tsx
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
+
+<Card className="card-glass rounded-xl border-0 shadow-none" />
+<Button className="ziwei-calc-submit w-full" />
+<Card variant="interactive" asChild><Link href="..." /></Card>
+```
+
+App Shell 按钮需压掉默认样式，保留 `orasage-app-*` / `orasage-page-back` 类：
+
+```tsx
+<Button variant="ghost" className="orasage-app-lang-btn h-auto min-h-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent" />
+```
+
+### 4.3 设计系统 / TW4（背景，非本轮主 diff）
+
+- 全站 Next/Vite 前台 **均已 Tailwind v4** + `packages/tokens` bridge。
+- `npm run ui:check` 在 CI（`.github/workflows/ui-check.yml`）。
+- `shared/app-shell/` 为权威源；ziwei 内为 `ziwei/lib/orasage-app-shell/` 副本，改 shell 后跑 `npm run app-shell:sync` 并检查其它应用。
+
+---
+
+## 5. 关键文件索引
+
+| 用途 | 路径 |
+|------|------|
+| Agent 规则 | `docs/AGENT-RULES.md` |
+| UI 现状审查 | `docs/design-system/ui-status-2026-07.md` |
+| `@orasage/ui` 组件 | `packages/ui/src/components/*.tsx` |
+| UI exports | `packages/ui/package.json` → `exports` |
+| Tarot i18n | `tarot/src/lib/i18n/` |
+| Ziwei i18n | `ziwei/lib/i18n/` |
+| Ziwei 命盘页 | `ziwei/app/chart/page.tsx` |
+| Ziwei 付费流 | `ziwei/lib/usePaymentFlow.ts`, `components/PaywallCard.tsx` |
+| App Shell 源 | `shared/app-shell/` |
+| Ziwei shell 副本 | `ziwei/lib/orasage-app-shell/` |
+| 部署脚本 | `deploy/remote-deploy-{ziwei,tarot,bazi,shop}.sh` |
+| 仓库 runnable 说明 | 根目录 `AGENTS.md` |
+
+---
+
+## 6. 常用命令
+
+### 本地验证
+
+```bash
+npm run ui:check
+cd ziwei && npm run build
+cd tarot && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
+```
+
+### 部署（本轮用过的）
+
+```bash
+ORASAGE_REF=main bash deploy/remote-deploy-ziwei.sh
+ORASAGE_REF=main bash deploy/remote-deploy-tarot.sh
+```
+
+### App Shell 同步（改 `shared/app-shell` 后）
+
+```bash
+npm run app-shell:sync
+npm run app-shell:check
+```
+
+### 本地起服务（见 `AGENTS.md`）
+
+- Postgres：`sudo pg_ctlcluster 16 main start`
+- auth-service：`DATABASE_URL=... JWT_SECRET=... npm run build && npm start`（3101）
+- ziwei：`npm run build && npm start`（3111）
+
+---
+
+## 7. 已知陷阱
+
+| 问题 | 处理 |
+|------|------|
+| 改 `BirthForm` 后类型报错 | 确认 `import type { BirthplaceValue } from '@orasage/city'` 仍在 |
+| 新增 `@orasage/ui` 子路径 | 须在 `packages/ui/package.json` `exports` 声明（#226 的 `./input` 教训） |
+| `Card` 迁移 JSX 未闭合 | 对照 `ChartSummary.tsx` / `ShareModal.tsx` 模式；改完 `npm run build` |
+| 本地 cookie 登录 | `orasage_token` 为 `secure` + `.orasage.com`；本地用 JSON `token` → `Authorization: Bearer` |
+| `shared/app-shell` vs ziwei 副本漂移 | 本轮 #229 两边都改了；以后优先改 `shared/` 再 sync |
+| `package-lock.json` 噪音 | 提交时只 add  intentional 文件，勿把无关 lock 变更合入 |
+| deploy 脚本 | 仅在 VPS 执行，sandbox 内用于 review 编辑，不要指望本地跑通 SSH |
+
+---
+
+## 8. 建议的下一步（未接单，按优先级）
+
+1. **Tarot i18n 余量**：CMS/API 中文内容字段、剩余硬编码页面（对照 `ui-status` §2 tarot 行）。
+2. **其它 App 的 `@orasage/ui`**：shop / bazi / admin 按需接入（ziwei 已完成，可作参考）。
+3. **`app-shell:sync` 门禁**：改 shell 后 CI 检查各应用副本 diff（见 `platform-roadmap` §1）。
+4. **Bazi UI**：`BAZI-PHASE2-HANDOFF.md`、`design-unify-backlog` P1。
+5. **长期**：DB 合一（MySQL → PG）、`packages/i18n` 全站基座 — 见 `platform-roadmap-2026-07.md`，**大工程，勿与小型 UI PR 混做**。
+
+---
+
+## 9. Cloud Agent 工作流备忘
+
+1. 读 `docs/AGENT-RULES.md` + 本文 + 任务相关 HANDOFF。
+2. `git checkout main && git pull`
+3. `git checkout -b cursor/<name>-2e83`
+4. 实现 → `npm run build`（受影响 app）→ commit → push
+5. 创建 PR（`base: main`）→ 用户若说「合并并部署」则 merge + `deploy/remote-deploy-*.sh`
+6. 更新相关 HANDOFF / `ui-status`（若有架构变化）
+
+**本轮活跃过分支（均已 merge，勿重复开）：**
+
+- `cursor/tarot-feature-i18n-2e83`
+- `cursor/ziwei-orasage-ui-2e83` / `phase2` / `phase3` / `sweep`
+
+---
+
+## 10. 快速状态一句话
+
+> **2026-07-08：`main` 上 tarot 核心用户流程四语 i18n 已铺完一轮；ziwei 业务组件 `@orasage/ui`（Button/Card/Input/Badge/Checkbox）已全部接入且无原生 button/input；ziwei + tarot 生产已部署。下一任优先读 `ui-status-2026-07.md` 挑 tarot/shop/bazi 余量或平台级任务。**
+
+---
+
+*完成新一轮合入部署后，请更新本文 §2–§3 的 commit/PR 表，并在 `HANDOFF-orasage-platform.md` 顶部保持指向最新 HANDOFF。*

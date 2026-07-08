@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useDreamCopy } from '@/lib/i18n/feature-copy'
 
 interface DreamSymbol {
   keyword: string
@@ -18,22 +19,8 @@ interface DreamResult {
   suggestion: string
 }
 
-const EMOTIONS = [
-  { id: '平静', label: '平静', emoji: '😌', color: '#5B7FA6' },
-  { id: '喜悦', label: '喜悦', emoji: '😊', color: '#F5C842' },
-  { id: '焦虑', label: '焦虑', emoji: '😰', color: '#E8783A' },
-  { id: '悲伤', label: '悲伤', emoji: '😢', color: '#7E9BAF' },
-  { id: '困惑', label: '困惑', emoji: '😕', color: '#9B8E82' },
-]
-
-const EXAMPLE_DREAMS = [
-  '我梦见自己在飞翔，飞过一片广阔的大海，感觉非常自由...',
-  '我梦见一条大蛇追着我跑，我很害怕，拼命逃跑...',
-  '我梦见自己在一个陌生的房子里迷路，找不到出口...',
-  '我梦见和已故的亲人在一起，他们看起来很平静...',
-]
-
 export default function DreamPage() {
+  const copy = useDreamCopy()
   const [step, setStep] = useState<'input' | 'analyzing' | 'result'>('input')
   const [dreamContent, setDreamContent] = useState('')
   const [selectedEmotion, setSelectedEmotion] = useState('')
@@ -44,7 +31,7 @@ export default function DreamPage() {
 
   async function analyzeDream() {
     if (dreamContent.trim().length < 5) {
-      setError('请至少描述5个字的梦境内容')
+      setError(copy.minLength)
       return
     }
     setError('')
@@ -62,11 +49,11 @@ export default function DreamPage() {
         setResult(data)
         setTimeout(() => setStep('result'), 1500)
       } else {
-        setError(data.error || '解析失败，请重试')
+        setError(data.error || copy.parseFailed)
         setStep('input')
       }
     } catch (e) {
-      setError('网络错误，请重试')
+      setError(copy.networkError)
       setStep('input')
     } finally {
       setLoading(false)
@@ -82,29 +69,26 @@ export default function DreamPage() {
     setError('')
   }
 
-  const emotionCfg = EMOTIONS.find(e => e.id === (result?.emotion || selectedEmotion)) || EMOTIONS[4]
+  const emotionCfg =
+    copy.emotions.find((e) => e.id === (result?.emotion || selectedEmotion)) || copy.emotions[4]
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F6F1', paddingBottom: '80px' }}>
-      {/* 页面标题 */}
       <div style={{ background: '#fff', borderBottom: '1px solid #EDE8E0', padding: '20px 20px 16px' }}>
         <div style={{ maxWidth: '480px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '22px' }}>🌙</span>
             <div>
-              <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>梦境解析</h1>
-              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0 }}>Dream Interpretation · 潜意识探索</p>
+              <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{copy.title}</h1>
+              <p style={{ fontSize: '12px', color: '#8B7355', margin: 0 }}>{copy.subtitle}</p>
             </div>
           </div>
         </div>
       </div>
 
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px' }}>
-
-        {/* 输入页 */}
         {step === 'input' && (
           <div>
-            {/* 说明卡 */}
             <div style={{
               background: 'linear-gradient(135deg, #F0EDF8 0%, #E8E4F5 100%)',
               border: '1px solid #C8B8E8',
@@ -118,16 +102,14 @@ export default function DreamPage() {
               <span style={{ fontSize: '32px', flexShrink: 0 }}>🌌</span>
               <div>
                 <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 6px' }}>
-                  梦境是潜意识的语言
+                  {copy.introTitle}
                 </h3>
                 <p style={{ fontSize: '13px', color: '#5A4A6A', lineHeight: '1.6', margin: 0 }}>
-                  每一个梦境都包含着你内心深处的信息。通过解析梦境中的符号，
-                  我们可以了解你的潜意识正在处理什么，以及它想告诉你什么。
+                  {copy.introBody}
                 </p>
               </div>
             </div>
 
-            {/* 梦境描述输入 */}
             <div style={{
               background: '#fff',
               border: '1px solid #EDE8E0',
@@ -136,12 +118,12 @@ export default function DreamPage() {
               marginBottom: '16px',
             }}>
               <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', display: 'block', marginBottom: '12px' }}>
-                🌙 描述你的梦境
+                {copy.describeLabel}
               </label>
               <textarea
                 value={dreamContent}
                 onChange={e => { setDreamContent(e.target.value); setError('') }}
-                placeholder="尽量详细地描述你梦见了什么...&#10;&#10;例如：梦见了什么人、什么地方、发生了什么事、有什么感受..."
+                placeholder={copy.placeholder}
                 style={{
                   width: '100%',
                   minHeight: '140px',
@@ -163,11 +145,10 @@ export default function DreamPage() {
               />
               {error && <p style={{ fontSize: '12px', color: '#E87070', margin: '6px 0 0' }}>{error}</p>}
               <p style={{ fontSize: '12px', color: '#B8A898', margin: '8px 0 0', textAlign: 'right' }}>
-                {dreamContent.length} 字
+                {copy.charCount(dreamContent.length)}
               </p>
             </div>
 
-            {/* 情绪选择 */}
             <div style={{
               background: '#fff',
               border: '1px solid #EDE8E0',
@@ -176,10 +157,10 @@ export default function DreamPage() {
               marginBottom: '16px',
             }}>
               <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', display: 'block', marginBottom: '12px' }}>
-                💭 梦中的情绪感受（可选）
+                {copy.emotionLabel}
               </label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {EMOTIONS.map(e => (
+                {copy.emotions.map(e => (
                   <button
                     key={e.id}
                     onClick={() => setSelectedEmotion(selectedEmotion === e.id ? '' : e.id)}
@@ -205,13 +186,12 @@ export default function DreamPage() {
               </div>
             </div>
 
-            {/* 示例梦境 */}
             <div style={{ marginBottom: '20px' }}>
               <p style={{ fontSize: '12px', color: '#8B7355', marginBottom: '10px', fontWeight: '500' }}>
-                💡 示例梦境（点击填入）：
+                {copy.examplesLabel}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {EXAMPLE_DREAMS.map((dream, i) => (
+                {copy.examples.map((dream, i) => (
                   <button
                     key={i}
                     onClick={() => setDreamContent(dream)}
@@ -252,12 +232,11 @@ export default function DreamPage() {
                 transition: 'all 0.2s',
               }}
             >
-              🔮 解析我的梦境
+              {copy.analyze}
             </button>
           </div>
         )}
 
-        {/* 解析中动画 */}
         {step === 'analyzing' && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <div style={{
@@ -276,18 +255,16 @@ export default function DreamPage() {
               🌙
             </div>
             <p style={{ fontSize: '16px', color: '#7E6FA8', fontWeight: '600', marginBottom: '8px' }}>
-              正在解析你的梦境...
+              {copy.analyzingTitle}
             </p>
-            <p style={{ fontSize: '13px', color: '#B8A898', lineHeight: '1.6' }}>
-              潜意识的语言正在被翻译<br/>请稍候片刻
+            <p style={{ fontSize: '13px', color: '#B8A898', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+              {copy.analyzingHint}
             </p>
           </div>
         )}
 
-        {/* 解析结果 */}
         {step === 'result' && result && (
           <div>
-            {/* 情绪标签 */}
             <div style={{
               background: '#fff',
               border: '1px solid #EDE8E0',
@@ -299,20 +276,19 @@ export default function DreamPage() {
               justifyContent: 'space-between',
             }}>
               <div>
-                <p style={{ fontSize: '12px', color: '#8B7355', margin: '0 0 4px' }}>梦境情绪</p>
+                <p style={{ fontSize: '12px', color: '#8B7355', margin: '0 0 4px' }}>{copy.emotionResult}</p>
                 <p style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>
-                  {emotionCfg.emoji} {result.emotion}
+                  {emotionCfg.emoji} {copy.emotionLabelFor(result.emotion)}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '12px', color: '#8B7355', margin: '0 0 4px' }}>识别符号</p>
+                <p style={{ fontSize: '12px', color: '#8B7355', margin: '0 0 4px' }}>{copy.symbolsCount}</p>
                 <p style={{ fontSize: '16px', fontWeight: '700', color: '#C9954A', margin: 0 }}>
-                  {result.symbols.length} 个
+                  {copy.symbolsUnit(result.symbols.length)}
                 </p>
               </div>
             </div>
 
-            {/* 梦境符号 */}
             {result.symbols.length > 0 && (
               <div style={{
                 background: '#fff',
@@ -322,7 +298,7 @@ export default function DreamPage() {
                 marginBottom: '14px',
               }}>
                 <p style={{ fontSize: '13px', color: '#8B7355', fontWeight: '600', margin: '0 0 14px' }}>
-                  🔍 梦境符号解析
+                  {copy.symbolsTitle}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {result.symbols.map((sym, i) => (
@@ -356,7 +332,6 @@ export default function DreamPage() {
               </div>
             )}
 
-            {/* 综合解析 */}
             <div style={{
               background: 'linear-gradient(135deg, #F0EDF8 0%, #EAE6F5 100%)',
               border: '1px solid #C8B8E8',
@@ -365,14 +340,13 @@ export default function DreamPage() {
               marginBottom: '14px',
             }}>
               <p style={{ fontSize: '13px', color: '#7E6FA8', fontWeight: '600', margin: '0 0 12px' }}>
-                🔮 梦境综合解析
+                {copy.synthesisTitle}
               </p>
               <p style={{ fontSize: '14px', color: '#3A3A4A', lineHeight: '1.8', margin: 0 }}>
                 {result.interpretation}
               </p>
             </div>
 
-            {/* 潜意识信息 */}
             <div style={{
               background: '#fff',
               border: '1px solid #EDE8E0',
@@ -381,14 +355,13 @@ export default function DreamPage() {
               marginBottom: '14px',
             }}>
               <p style={{ fontSize: '13px', color: '#8B7355', fontWeight: '600', margin: '0 0 12px' }}>
-                💭 潜意识的信息
+                {copy.subconsciousTitle}
               </p>
               <p style={{ fontSize: '14px', color: '#3A3A3A', lineHeight: '1.8', margin: 0 }}>
                 {result.subconscious}
               </p>
             </div>
 
-            {/* 行动建议 */}
             <div style={{
               background: 'linear-gradient(135deg, #EEFAF4 0%, #E4F5EC 100%)',
               border: '1px solid #B8E0CC',
@@ -397,14 +370,13 @@ export default function DreamPage() {
               marginBottom: '20px',
             }}>
               <p style={{ fontSize: '13px', color: '#5A9A78', fontWeight: '600', margin: '0 0 12px' }}>
-                🌱 行动建议
+                {copy.suggestionTitle}
               </p>
               <p style={{ fontSize: '14px', color: '#2A5A3A', lineHeight: '1.8', margin: 0 }}>
                 {result.suggestion}
               </p>
             </div>
 
-            {/* 操作按钮 */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
               <button
                 onClick={reset}
@@ -420,7 +392,7 @@ export default function DreamPage() {
                   cursor: 'pointer',
                 }}
               >
-                🌙 解析新梦境
+                {copy.newDream}
               </button>
               <button
                 onClick={() => window.location.href = '/history?tab=dream'}
@@ -437,11 +409,10 @@ export default function DreamPage() {
                   boxShadow: '0 4px 16px rgba(126,111,168,0.35)',
                 }}
               >
-                📖 查看历史
+                {copy.viewHistory}
               </button>
             </div>
 
-            {/* 免责声明 */}
             <div style={{
               background: '#F8F6F1',
               border: '1px solid #EDE8E0',
@@ -449,9 +420,8 @@ export default function DreamPage() {
               padding: '14px 16px',
               textAlign: 'center',
             }}>
-              <p style={{ fontSize: '11px', color: '#B8A898', margin: 0, lineHeight: '1.6' }}>
-                梦境解析基于荣格心理学和符号学理论，<br/>
-                仅供参考，不构成心理诊断或医疗建议。
+              <p style={{ fontSize: '11px', color: '#B8A898', margin: 0, lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                {copy.disclaimer}
               </p>
             </div>
           </div>

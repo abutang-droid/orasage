@@ -2,6 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
+import { Input } from '@orasage/ui/input';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 
@@ -116,13 +119,28 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   const handleSend = () => { sendMessage(input); };
 
   return (
-    <div className="flex flex-col h-full rounded-xl overflow-hidden card-glass">
+    <Card className="flex flex-col h-full rounded-xl overflow-hidden card-glass border-0 shadow-none">
       <div className="flex-shrink-0 px-2 pt-2.5 pb-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
         <div className="grid grid-cols-6 gap-1">{TOPICS.map(t => {
           const isActive = activeTopic === t.key;
-          return (<button key={t.key} onClick={() => handleTopicClick(t.key)} disabled={loading}
-            className="py-1.5 text-[10px] font-medium rounded-lg transition-all duration-150 disabled:opacity-40"
-            style={{ background: isActive ? 'rgba(212,168,67,0.12)' : 'transparent', border: `1px solid ${isActive ? 'rgba(212,168,67,0.3)' : 'var(--t-border)'}`, color: isActive ? 'var(--t-gold)' : 'var(--t-faint)' }}>{t.label}</button>);
+          return (
+            <Button
+              key={t.key}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleTopicClick(t.key)}
+              disabled={loading}
+              className="h-auto rounded-lg py-1.5 text-[10px] font-medium disabled:opacity-40"
+              style={{
+                background: isActive ? 'rgba(212,168,67,0.12)' : 'transparent',
+                borderColor: isActive ? 'rgba(212,168,67,0.3)' : 'var(--t-border)',
+                color: isActive ? 'var(--t-gold)' : 'var(--t-faint)',
+              }}
+            >
+              {t.label}
+            </Button>
+          );
         })}</div>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
@@ -139,13 +157,32 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       </div>
       <div className="flex-shrink-0 px-3 pb-3 pt-2" style={{ borderTop: '1px solid var(--t-border)' }}>
         <div className="flex gap-2">
-          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()} placeholder="继续追问，如：今年适合换工作吗？" disabled={loading}
-            className="flex-1 rounded-lg px-3 py-2 text-[11px] focus:outline-none transition-colors" style={{ background: 'var(--t-card)', border: '1px solid var(--t-border)', color: 'var(--t-text)' }} />
-          <button onClick={handleSend} disabled={loading || !input.trim()}
-            className="px-3 py-2 rounded-lg text-[11px] font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(212,168,67,0.15)', border: '1px solid rgba(212,168,67,0.25)', color: 'var(--t-gold)' }}>{loading ? '…' : '追问'}</button>
+          <Input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+            placeholder="继续追问，如：今年适合换工作吗？"
+            disabled={loading}
+            className="h-auto flex-1 rounded-lg border-[var(--t-border)] bg-[var(--t-card)] px-3 py-2 text-[11px] text-[var(--t-text)] shadow-none focus-visible:ring-[var(--t-gold)]"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
+            className="h-auto rounded-lg px-3 py-2 text-[11px] font-medium disabled:cursor-not-allowed disabled:opacity-30"
+            style={{
+              background: 'rgba(212,168,67,0.15)',
+              borderColor: 'rgba(212,168,67,0.25)',
+              color: 'var(--t-gold)',
+            }}
+          >
+            {loading ? '…' : '追问'}
+          </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -1,6 +1,16 @@
-@import '../../../tokens/src/orasage-tokens.css';
+@import 'tailwindcss';
+@import '../../tokens/src/orasage-tokens.css';
+@import '../../tokens/src/tailwind-v4-bridge.css';
+
+@source "../**/*.{ts,tsx}";
 
 /* shadcn semantic vars — sourced from OraSage tokens */
 :root {
   --radius: var(--orasage-radius-md);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
 }

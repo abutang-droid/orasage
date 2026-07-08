@@ -7,6 +7,7 @@ import { Button } from '@orasage/ui/button';
 import { useLang } from '@/lib/i18n/context';
 import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { useTempleCopy } from '@/lib/i18n/ui-strings';
+import { meritLevelTitle } from '@/lib/merit';
 import { TempleDonation } from '@/components/temple/TempleDonation';
 import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
@@ -16,7 +17,6 @@ import './temple.css';
 type MeritSummary = {
   total: number;
   level: number;
-  levelTitleZh: string;
   streak: number;
   prayedToday: boolean;
   meritTime: number;
@@ -29,7 +29,7 @@ type LeaderboardEntry = {
   rank: number;
   nickname: string;
   meritTotal: number;
-  levelTitleZh: string;
+  level: number;
 };
 
 type TempleHomeProps = {
@@ -71,7 +71,6 @@ export function TempleHome({
           setSummary({
             total: templeData.summary.total,
             level: templeData.summary.level,
-            levelTitleZh: templeData.summary.levelTitleZh,
             streak: templeData.summary.streak,
             prayedToday: templeData.summary.prayedToday,
             meritTime: templeData.summary.meritTime,
@@ -80,7 +79,16 @@ export function TempleHome({
             neededForNext: templeData.summary.neededForNext,
           });
         }
-        if (boardData?.entries) setLeaderboard(boardData.entries);
+        if (boardData?.entries) {
+          setLeaderboard(
+            boardData.entries.map((entry: LeaderboardEntry & { levelTitleZh?: string }) => ({
+              rank: entry.rank,
+              nickname: entry.nickname,
+              meritTotal: entry.meritTotal,
+              level: entry.level,
+            })),
+          );
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -127,15 +135,17 @@ export function TempleHome({
         </section>
       ) : null}
 
-      <section className="temple-home-merit card-gold" aria-label="我的功德">
+      <section className="temple-home-merit card-gold" aria-label={temple.meritAria}>
         {loading ? (
-          <p className="temple-home-loading">加载功德…</p>
+          <p className="temple-home-loading">{temple.meritLoading}</p>
         ) : (
           <>
             <div className="temple-home-merit-head">
               <div>
-                <div className="temple-home-merit-label">我的功德</div>
-                <div className="temple-home-merit-level">{summary?.levelTitleZh ?? '朝圣者'}</div>
+                <div className="temple-home-merit-label">{temple.meritLabel}</div>
+                <div className="temple-home-merit-level">
+                  {meritLevelTitle(lang, summary?.level ?? 0)}
+                </div>
               </div>
               <div className="temple-home-merit-total">{summary?.total ?? 0}</div>
             </div>
@@ -146,21 +156,21 @@ export function TempleHome({
               />
             </div>
             <div className="temple-home-merit-meta">
-              日积月累 {summary?.meritTime ?? 0} · 诚心供养 {summary?.meritOffer ?? 0}
-              {summary?.streak && summary.streak > 1 ? ` · 连续 ${summary.streak} 天` : ''}
+              {temple.meritTimeOffer(summary?.meritTime ?? 0, summary?.meritOffer ?? 0)}
+              {summary?.streak && summary.streak > 1 ? temple.meritStreak(summary.streak) : ''}
             </div>
             <a href={meritHref} className="temple-home-merit-link">
-              查看功德详情 →
+              {temple.meritDetails}
             </a>
           </>
         )}
       </section>
 
-      <section className="temple-home-leaderboard" aria-label="功德排行榜">
-        <div className="temple-home-section-title">功德排行榜</div>
-        <p className="temple-home-section-sub">持光者及以上信徒</p>
+      <section className="temple-home-leaderboard" aria-label={temple.leaderboardAria}>
+        <div className="temple-home-section-title">{temple.leaderboardTitle}</div>
+        <p className="temple-home-section-sub">{temple.leaderboardSub}</p>
         {leaderboard.length === 0 ? (
-          <p className="temple-home-loading">暂无上榜信徒</p>
+          <p className="temple-home-loading">{temple.leaderboardEmpty}</p>
         ) : (
           <ol className="temple-home-leaderboard-list">
             {leaderboard.map((entry) => (
@@ -169,7 +179,7 @@ export function TempleHome({
                   {entry.rank}
                 </span>
                 <span className="temple-home-board-name">{entry.nickname}</span>
-                <span className="temple-home-board-level">{entry.levelTitleZh}</span>
+                <span className="temple-home-board-level">{meritLevelTitle(lang, entry.level)}</span>
                 <span className="temple-home-board-merit">{entry.meritTotal}</span>
               </li>
             ))}
@@ -177,14 +187,14 @@ export function TempleHome({
         )}
       </section>
 
-      <section className="temple-home-donation" aria-label="乐捐">
+      <section className="temple-home-donation" aria-label={temple.donationAria}>
         <TempleDonation deityName={deity.name} />
       </section>
 
       <p className="temple-home-settings-hint">
         {temple.changeFaithHint}
         <a href={settingsHref} className="temple-home-settings-link">
-          我的 → 设置
+          {temple.settingsLink}
         </a>
       </p>
     </div>

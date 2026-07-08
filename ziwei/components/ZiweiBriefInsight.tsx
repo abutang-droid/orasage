@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Card } from '@orasage/ui/card';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
 type Props = {
@@ -39,15 +40,17 @@ export function ZiweiBriefInsight({ chart, minorMode = false }: Props) {
   }, [chart, minorMode]);
 
   return (
-    <section className="ziwei-brief-insight">
-      <h2 className="ziwei-section-title">{minorMode ? '命理简读（青少年版）' : '命理简读'}</h2>
-      {loading ? (
-        <p className="ziwei-brief-muted">正在生成简读…</p>
-      ) : error ? (
-        <p className="ziwei-brief-error">{error}</p>
-      ) : (
-        <div className="ziwei-brief-body">{text}</div>
-      )}
-    </section>
+    <Card asChild className="ziwei-brief-insight border-0 shadow-none">
+      <section>
+        <h2 className="ziwei-section-title">{minorMode ? '命理简读（青少年版）' : '命理简读'}</h2>
+        {loading ? (
+          <p className="ziwei-brief-muted">正在生成简读…</p>
+        ) : error ? (
+          <p className="ziwei-brief-error">{error}</p>
+        ) : (
+          <div className="ziwei-brief-body">{text}</div>
+        )}
+      </section>
+    </Card>
   );
 }

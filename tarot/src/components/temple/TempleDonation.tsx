@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { TEMPLE_DONATION, templeDonationMeritRange, templeDonationQuantity } from '@/lib/merit';
+import { useDonationCopy } from '@/lib/i18n/ui-strings';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import './temple.css';
 
@@ -17,6 +18,7 @@ type TempleDonationProps = {
 };
 
 export function TempleDonation({ deityName }: TempleDonationProps) {
+  const copy = useDonationCopy();
   const [amountCents, setAmountCents] = useState<number>(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
       });
       redirectAfterCheckout(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '乐捐失败');
+      setError(err instanceof Error ? err.message : copy.error);
     } finally {
       setLoading(false);
     }
@@ -45,10 +47,13 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
 
   return (
     <div className="temple-donation">
-      <div className="temple-donation-label">── 自愿乐捐 ──</div>
-      <p className="temple-donation-note">{TEMPLE_DONATION.explanationZh}</p>
+      <div className="temple-donation-label">{copy.label}</div>
+      <p className="temple-donation-note">{copy.explanation}</p>
       <p className="temple-donation-formula">
-        预计功德 <span className="temple-donation-merit">{meritRange.min}–{meritRange.max}</span>
+        {copy.estimatedMerit}{' '}
+        <span className="temple-donation-merit">
+          {meritRange.min}–{meritRange.max}
+        </span>
       </p>
 
       <div className="temple-donation-presets">
@@ -66,7 +71,7 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
       </div>
 
       <label className="temple-donation-slider-label">
-        自定义金额 {formatUsd(amountCents)}
+        {copy.customAmount} {formatUsd(amountCents)}
         <input
           type="range"
           className="temple-donation-slider"
@@ -85,7 +90,7 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
         onClick={() => void handleDonate()}
         disabled={loading}
       >
-        {loading ? '跳转支付…' : `乐捐 ${formatUsd(amountCents)}`}
+        {loading ? copy.submitLoading : copy.submit(formatUsd(amountCents))}
       </Button>
 
       {error && <p className="temple-donation-error">{error}</p>}

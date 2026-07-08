@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Card } from '@orasage/ui/card';
 import { ALL_BOOKS, getBookBySlug } from '@/lib/classics';
 
 export async function generateStaticParams() {
@@ -43,7 +44,10 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
         </div>
 
         {/* 章节目录 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: '14px', border: '1px solid rgba(184,146,42,0.2)', overflow: 'hidden' }}>
+        <Card
+          className="overflow-hidden rounded-[14px] border-[rgba(184,146,42,0.2)] shadow-none"
+          style={{ background: 'var(--bg-card)' }}
+        >
           <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(184,146,42,0.15)', fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.3em' }}>
             CHAPTERS · 章节目录
           </div>
@@ -82,7 +86,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
               <div style={{ fontSize: '12px', color: 'var(--ac)' }}>→</div>
             </Link>
           ))}
-        </div>
+        </Card>
       </div>
     </div>
   );

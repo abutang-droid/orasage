@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 import { fetchZiweiRecommendProduct, type RecommendProduct } from '@/lib/ziwei-chat-client';
 
 type Props = {
@@ -23,19 +25,28 @@ export function ZiweiRecommendCard({ readingId, sessionKey, dismissed, onDismiss
   const shopUrl = `https://shop.orasage.com/product/${encodeURIComponent(product.sku)}`;
 
   return (
-    <aside className="ziwei-recommend-card" aria-label="商品推荐">
-      <button type="button" className="ziwei-recommend-close" onClick={onDismiss} aria-label="关闭推荐">
-        ×
-      </button>
-      <p className="ziwei-recommend-label">为你推荐</p>
-      <h3 className="ziwei-recommend-name">{product.name}</h3>
-      <p className="ziwei-recommend-desc">{product.desc}</p>
-      <div className="ziwei-recommend-foot">
-        <span className="ziwei-recommend-price">{product.priceDisplay}</span>
-        <a href={shopUrl} className="ziwei-recommend-link" target="_blank" rel="noopener noreferrer">
-          去看看
-        </a>
-      </div>
-    </aside>
+    <Card className="ziwei-recommend-card border-0 shadow-none" aria-label="商品推荐">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ziwei-recommend-close"
+          onClick={onDismiss}
+          aria-label="关闭推荐"
+        >
+          ×
+        </Button>
+        <p className="ziwei-recommend-label">为你推荐</p>
+        <h3 className="ziwei-recommend-name">{product.name}</h3>
+        <p className="ziwei-recommend-desc">{product.desc}</p>
+        <div className="ziwei-recommend-foot">
+          <span className="ziwei-recommend-price">{product.priceDisplay}</span>
+          <Button asChild variant="outline" size="sm" className="ziwei-recommend-link h-auto min-h-0 border-0 bg-transparent p-0 shadow-none">
+            <a href={shopUrl} target="_blank" rel="noopener noreferrer">
+              去看看
+            </a>
+          </Button>
+        </div>
+    </Card>
   );
 }

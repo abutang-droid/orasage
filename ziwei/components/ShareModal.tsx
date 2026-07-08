@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Check, Download, Link2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@orasage/ui/button';
+import { Card } from '@orasage/ui/card';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import ShareCardCanvas, { captureShareCard, downloadDataURL } from './ShareCardCanvas';
 
@@ -66,16 +68,17 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             onClick={e => e.stopPropagation()}
-            className="rounded-2xl overflow-hidden"
-            style={{
-              background: 'white',
-              maxWidth: '680px',
-              width: '100%',
-              maxHeight: '92vh',
-              overflowY: 'auto',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
-            }}
           >
+            <Card
+              className="overflow-hidden rounded-2xl border-0 p-0 shadow-[0_24px_60px_rgba(0,0,0,0.3)]"
+              style={{
+                background: 'white',
+                maxWidth: '680px',
+                width: '100%',
+                maxHeight: '92vh',
+                overflowY: 'auto',
+              }}
+            >
             {/* 顶部标题 */}
             <div style={{
               padding: '14px 18px',
@@ -86,13 +89,15 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                 <Sparkles size={14} strokeWidth={1.8} aria-hidden />
                 分享命盘
               </div>
-              <button onClick={onClose}
-                style={{
-                  width: '28px', height: '28px', borderRadius: '50%', border: 'none',
-                  background: 'rgba(0,0,0,0.05)', color: '#666', fontSize: '16px',
-                  cursor: 'pointer', lineHeight: 1,
-                }}
-              >×</button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="size-7 min-h-0 min-w-7 rounded-full border-0 bg-black/5 text-base text-[#666]"
+              >
+                ×
+              </Button>
             </div>
 
             {/* 卡片图预览（实际渲染） */}
@@ -108,31 +113,22 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
 
             {/* 操作区 */}
             <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button onClick={downloadImage} disabled={downloading}
-                style={{
-                  padding: '14px', borderRadius: '10px', border: 'none',
-                  background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
-                  color: 'white', fontSize: '14px', fontWeight: 600, letterSpacing: '0.15em',
-                  cursor: downloading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(184,146,42,0.3)',
-                  opacity: downloading ? 0.7 : 1,
-                }}
+              <Button
+                type="button"
+                onClick={downloadImage}
+                disabled={downloading}
+                loading={downloading}
+                className="ziwei-calc-submit w-full rounded-[10px] py-3.5 text-sm tracking-[0.15em]"
               >
-                {downloading ? '生成中…' : (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <Download size={16} strokeWidth={2} aria-hidden />
-                    下载分享图
-                  </span>
-                )}
-              </button>
+                <Download size={16} strokeWidth={2} aria-hidden />
+                {downloading ? '生成中…' : '下载分享图'}
+              </Button>
 
-              <button onClick={copyLink}
-                style={{
-                  padding: '14px', borderRadius: '10px',
-                  border: '1px solid rgba(184,146,42,0.4)', background: 'white',
-                  color: '#b8922a', fontSize: '14px', fontWeight: 500, letterSpacing: '0.12em',
-                  cursor: 'pointer',
-                }}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={copyLink}
+                className="w-full rounded-[10px] border-[rgba(184,146,42,0.4)] bg-white py-3.5 text-sm tracking-[0.12em] text-[#b8922a]"
               >
                 {copied ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
@@ -145,7 +141,7 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                     复制命盘链接
                   </span>
                 )}
-              </button>
+              </Button>
 
               <div style={{
                 fontSize: '11px', color: '#a89b7c', lineHeight: 1.7,
@@ -157,6 +153,7 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
                 · 复制链接发给微信好友，对方点开看自己的盘起点
               </div>
             </div>
+            </Card>
           </motion.div>
         </motion.div>
       )}

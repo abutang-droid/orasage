@@ -1,6 +1,8 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
+import { Button } from '@orasage/ui/button';
+import { Input } from '@orasage/ui/input';
 import { useT } from '@/lib/i18n';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
@@ -77,15 +79,44 @@ export default function ChatPanel({ chart, mode = 'single', chartData }: ChatPan
         ))}
         {apiError && <div style={{ padding: '10px 14px', background: 'rgba(168,50,40,0.06)', border: '1px solid rgba(168,50,40,0.2)', borderRadius: '8px', fontSize: '12px', color: '#c0392b', textAlign: 'center' }}>{apiError}</div>}
       </div>
-      {messages.length === 0 && <div style={{ padding: '0 12px 8px', flexShrink: 0 }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>{PRESET_QUESTIONS.map((q, i) => (<button key={i} onClick={() => sendMessage(q)} disabled={loading} style={{ textAlign: 'left', fontSize: '11px', borderRadius: '8px', padding: '8px 10px', color: 'var(--tx-2)', border: '1px solid var(--bdr)', background: 'transparent', cursor: 'pointer', lineHeight: 1.5 }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold-border)'; (e.currentTarget as HTMLElement).style.color = 'var(--gold)'; (e.currentTarget as HTMLElement).style.background = 'var(--gold-pale)'; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr)'; (e.currentTarget as HTMLElement).style.color = 'var(--tx-2)'; (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>{q}</button>))}</div></div>}
+      {messages.length === 0 && (
+        <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            {PRESET_QUESTIONS.map((q, i) => (
+              <Button
+                key={i}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => sendMessage(q)}
+                disabled={loading}
+                className="h-auto justify-start whitespace-normal px-2.5 py-2 text-left text-[11px] font-normal leading-snug"
+                style={{ color: 'var(--tx-2)', borderColor: 'var(--bdr)', background: 'transparent' }}
+              >
+                {q}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
       <div style={{ padding: '10px 12px 14px', borderTop: '1px solid var(--bdr)', flexShrink: 0, display: 'flex', gap: '8px' }}>
-        <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage(input)} placeholder={t('chat.placeholder')} disabled={loading}
-          style={{ flex: 1, height: '40px', background: 'var(--bg-0)', border: '1.5px solid var(--bdr-med)', borderRadius: '8px', padding: '0 12px', fontSize: '13px', color: 'var(--tx-1)', outline: 'none' }}
-          onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold)'; }} onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr-med)'; }} />
-        <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()}
-          style={{ height: '40px', padding: '0 16px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)', color: '#FFFFFF', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: loading || !input.trim() ? 0.45 : 1, whiteSpace: 'nowrap' }}>{loading ? '…' : t('chat.submit')}</button>
+        <Input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage(input)}
+          placeholder={t('chat.placeholder')}
+          disabled={loading}
+          className="h-10 flex-1 rounded-lg border-[1.5px] border-[var(--bdr-med)] bg-[var(--bg-0)] px-3 text-[13px] text-[var(--tx-1)] shadow-none focus-visible:ring-[var(--gold)]"
+        />
+        <Button
+          type="button"
+          onClick={() => sendMessage(input)}
+          disabled={loading || !input.trim()}
+          className="h-10 shrink-0 px-4"
+        >
+          {loading ? '…' : t('chat.submit')}
+        </Button>
       </div>
     </div>
   );
