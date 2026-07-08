@@ -8,7 +8,7 @@ export function mockPayButton(page) {
 
 export async function completeShippingIfNeeded(page) {
   const form = page.locator('.shop-shipping-form');
-  const heading = page.getByRole('heading', { name: /填写收货|Shipping|Entrega/i });
+  const heading = page.getByRole('heading', { name: /填写收货|填寫收貨|Shipping details|Dados de entrega|Entrega/i });
   const needsShipping = await Promise.race([
     form.waitFor({ state: 'visible', timeout: 12000 }).then(() => true),
     heading.waitFor({ state: 'visible', timeout: 12000 }).then(() => true),

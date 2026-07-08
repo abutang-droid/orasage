@@ -1,6 +1,6 @@
 # OraSage 设计统一 & 平台 UI — 待完成计划
 
-> 最后更新：**2026-07-08**（PR #194–#198 合入；全站 UI 审查见 `docs/design-system/ui-status-2026-07.md`）  
+> 最后更新：**2026-07-08**（PR #206–#207 shop/auth P2 i18n；PR #210 tarot-offer；PR #213 E2E smoke 全绿）  
 > 关联：`docs/design-system/ui-phase-2.md`
 
 ---
@@ -30,9 +30,10 @@
 | App Shell | ✅ | `app-shell:sync` / `app-shell:check`；lucide 底栏 |
 | @orasage/ui | 🟡 | main 全量；shop/tarot Button；bazi 少量 |
 | 图标 lucide | 🟡 | Shell/main/shop/tarot 已统一；ziwei 内容层待清 |
-| packages/i18n | 🟡 | 基座已建；cookie 切换器待做 |
+| packages/i18n | 🟡 | 基座已建；shop next-intl 四语已落地 |
 | PostgreSQL 合一 | ✅ | bazi/tarot 已迁移 |
 | VPS 部署 | 🟡 | cms lockfile 修复中 |
+| E2E smoke | ✅ | `npm run test:smoke-all` 生产全绿（PR #213） |
 
 ---
 
@@ -51,10 +52,11 @@
 
 ## P2 — 中期
 
-- [ ] shop next-intl + 商品 `name_i18n`
-- [ ] auth T1 四语静态页
-- [ ] Tailwind v4 全站收敛
-- [ ] 浏览器 E2E（`scripts/e2e/`）复验支付→报告链路
+- [x] shop next-intl + 商品 `name_i18n`（PR #206–#207）
+- [x] auth T1 四语静态页（PR #206）
+- [x] 浏览器 E2E（`scripts/e2e/`）支付→报告链路（PR #213）
+- [ ] shop ShippingForm / 地址簿 i18n（进行中）
+- [ ] Tailwind v4 全站收敛（main/shop/ziwei/admin v3；bazi/tarot v4）
 
 ---
 
@@ -74,6 +76,9 @@
 ```bash
 # UI 一致性校验
 npm run ui:check
+
+# E2E 生产冒烟
+cd scripts/e2e && npm run test:smoke-all
 
 # 本地构建
 cd main && npm run build
