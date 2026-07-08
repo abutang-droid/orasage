@@ -119,7 +119,30 @@
     "next": "Next",
     "back": "Back to list",
     "sourceLink": "Original source",
-    "noBody": "No content"
+    "noBody": "No content",
+    "toc": "Sections",
+    "disclaimer": "Birth times in this article are estimates based on public records. The reading is a traditional BaZi interpretation offered for cultural study only, and is unrelated to the person or their family.",
+    "ctaTitle": "Curious about your own BaZi chart?",
+    "ctaDesc": "Same method — see your Five Elements and chart structure in seconds",
+    "ctaButton": "Free chart reading",
+    "zhTag": "Chinese",
+    "zhNotice": "This section is currently available in Chinese only.",
+    "read": "Read more",
+    "categoriesAria": "Person categories",
+    "categories": {
+      "all": "All",
+      "politics": "Politics",
+      "military": "Military",
+      "business": "Business",
+      "arts": "Arts",
+      "sports": "Sports",
+      "science": "Science",
+      "other": "Other"
+    },
+    "navAria": "People in the same category",
+    "personPrev": "Previous: {name}",
+    "personNext": "Next: {name}",
+    "relatedTitle": "Related figures"
   },
   "daozang": {
     "title": "Dao Canon",
