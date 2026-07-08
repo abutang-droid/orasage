@@ -1,4 +1,0 @@
-{
-  "install": "mkdir -p ~/.ssh && chmod 700 ~/.ssh",
-  "start": "for i in $(seq 1 30); do [ -n \"${SSH_PRIVATE_KEY:-}\" ] && break; sleep 1; done; echo 'Cloud Agent ready for bazi deploy'"
-}
