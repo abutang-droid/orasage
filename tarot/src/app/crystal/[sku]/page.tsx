@@ -4,31 +4,15 @@ import Link from "next/link"
 import { Church } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@orasage/ui/button"
+import { useCrystalCopy } from "@/lib/i18n/crystal-copy"
 import { WUXING_CRYSTAL_SKU } from "@/lib/reading-sync"
 import { startAppCheckout, redirectAfterCheckout } from "@/lib/shop-checkout"
 
-const CRYSTAL_MAP: Record<string, { name: string; nameEN: string; emoji: string; wuxing: string; domains: string[]; desc: string; color: string }> = {
-  "木": { name: "绿幽灵", nameEN: "Green Phantom Quartz", emoji: "🌿", wuxing: "木", color: "#5B8C5A",
-    domains: ["生长","突破","事业上升"],
-    desc: "绿幽灵是事业与财富的催化剂。五行属木——木能生火，当你的权杖之火需要持续燃烧时，绿幽灵提供源源不断的生长能量。适合正在起步、转型、或渴望突破停滞的你。" },
-  "火": { name: "红玛瑙", nameEN: "Red Carnelian", emoji: "🔥", wuxing: "火", color: "#C45B4A",
-    domains: ["热情","勇气","行动力"],
-    desc: "红玛瑙点燃内在的火焰。五行属火——火能暖水，当圣杯之水寒冷淤滞时，红玛瑙带来温暖的流动。适合陷入情绪低潮或需要做出勇敢决定的你。" },
-  "土": { name: "黄水晶", nameEN: "Citrine", emoji: "⛰️", wuxing: "土", color: "#D4A853",
-    domains: ["稳定","财运","贵人"],
-    desc: "黄水晶是丰盛与稳固的象征。五行属土——土承载万物，当命运的重牌出现时，黄水晶帮你站稳脚跟。适合正在迎接重大转变的你。" },
-  "金": { name: "白水晶", nameEN: "Clear Quartz", emoji: "✨", wuxing: "金", color: "#E8E0D5",
-    domains: ["净化","决断","智慧"],
-    desc: "白水晶是净化与聚焦的明镜。五行属金——金能聚神，当思绪如宝剑四散时，白水晶帮你把注意力的光聚成一道。适合思绪纷乱、需要做出清晰判断的你。" },
-  "水": { name: "黑曜石", nameEN: "Black Obsidian", emoji: "💧", wuxing: "水", color: "#3A3A3A",
-    domains: ["保护","辟邪","内在平静"],
-    desc: "黑曜石是守护与平静的屏障。五行属水——水能以柔克刚，当牌面逆位增多时，黑曜石把外界暗涌挡在外面。适合逆流中需要保护的你。" },
-}
-
 export default function CrystalDetailPage() {
   const params = useParams()
+  const crystalCopy = useCrystalCopy()
   const sku = (params?.sku as string) || "金"
-  const crystal = CRYSTAL_MAP[sku] || CRYSTAL_MAP["金"]
+  const crystal = crystalCopy.get(sku)
   const shopSku = WUXING_CRYSTAL_SKU[crystal.wuxing]
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +29,7 @@ export default function CrystalDetailPage() {
       })
       redirectAfterCheckout(result)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "结账失败")
+      setError(err instanceof Error ? err.message : crystalCopy.checkoutError)
     } finally {
       setLoading(false)
     }
@@ -59,7 +43,7 @@ export default function CrystalDetailPage() {
           display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 24,
           fontFamily: 'var(--font-sans)',
         }}>
-          ← 返回商城
+          {crystalCopy.backToShop}
         </Link>
 
         <div style={{
@@ -76,7 +60,7 @@ export default function CrystalDetailPage() {
             position: 'absolute', bottom: 16,
             fontSize: 11, color: 'var(--text-muted)',
           }}>
-            8mm × 23颗 · 弹力绳
+            {crystalCopy.beadSpec}
           </div>
         </div>
 
@@ -88,19 +72,19 @@ export default function CrystalDetailPage() {
             {crystal.emoji} {crystal.name}
           </h1>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
-            {crystal.nameEN} · 五行属{crystal.wuxing}
+            {crystal.nameEN} · {crystalCopy.wuxingLabel(crystal.wuxingLabel)}
           </div>
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <span style={{ color: 'var(--gold-light)', fontSize: 14 }}>⭐ 4.8</span>
-          <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 8 }}>(1,234 条评价)</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 8 }}>{crystalCopy.rating}</span>
         </div>
 
         <div className="card" style={{ padding: '20px', marginBottom: 16 }}>
-          <div className="section-label" style={{ marginBottom: 12 }}>能量属性</div>
+          <div className="section-label" style={{ marginBottom: 12 }}>{crystalCopy.energyAttrs}</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            {crystal.domains.map(d => (
+            {crystal.domains.map((d) => (
               <span key={d} className="tag" style={{ fontSize: 11 }}>{d}</span>
             ))}
           </div>
@@ -110,12 +94,12 @@ export default function CrystalDetailPage() {
         </div>
 
         <div className="card" style={{ padding: '20px', marginBottom: 24 }}>
-          <div className="section-label" style={{ marginBottom: 12 }}>佩戴故事</div>
+          <div className="section-label" style={{ marginBottom: 12 }}>{crystalCopy.wearingStory}</div>
           <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, fontStyle: 'italic' }}>
-            "戴上它去面试，拿到了offer。不知道是不是水晶的关系，但那天我特别敢说话。"
+            &ldquo;{crystal.story}&rdquo;
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>
-            — 🇧🇷 Ana
+            — {crystal.storyAuthor}
           </div>
         </div>
 
@@ -125,7 +109,7 @@ export default function CrystalDetailPage() {
           disabled={loading || !shopSku}
           onClick={() => void handleBuy()}
         >
-          {loading ? '正在跳转…' : `请一条 · ${crystal.name}`}
+          {loading ? crystalCopy.buyLoading : crystalCopy.buy(crystal.name)}
         </Button>
         {error && (
           <p style={{ color: 'var(--error, #c45b4a)', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>{error}</p>
@@ -133,7 +117,7 @@ export default function CrystalDetailPage() {
         <Button asChild variant="outline" className="w-full">
           <Link href="/temple" className="flex w-full justify-center no-underline">
             <Church size={18} strokeWidth={1.75} aria-hidden />
-            请守护神加持这条手串
+            {crystalCopy.blessLink}
           </Link>
         </Button>
 
@@ -141,7 +125,7 @@ export default function CrystalDetailPage() {
           textAlign: 'center', marginTop: 16, marginBottom: 32,
           fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)',
         }}>
-          已佩戴 2,341 人 · 配送 7-10 天（巴西）
+          {crystalCopy.wornBy}
         </div>
       </div>
     </div>

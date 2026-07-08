@@ -28,7 +28,7 @@
 |-----|:---:|:------:|:-------------:|:----:|------|
 | **main** | ✅ | 共享 | 全量 (~31 文件) | next-intl 12 语 | 参考实现 |
 | **shop** | ✅ | 共享 | Button + Card | next-intl T1 四语 | 已移除 deprecated `.shop-btn-*` |
-| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` geo/temple/faith | geo/temple 引导流程四语 |
+| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` geo/temple/faith/**merit/crystal/wish** | geo/temple/功德/水晶/心愿四语 |
 | **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | 静态 oui CSS | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
 | **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | 自研 4 语 | 命盘业务 CSS 保留 |
 | **admin** | ✅ | 共享 | **Button**（登录/表单提交） | 中文后台 | 运营页逐步迁移 |
@@ -77,6 +77,6 @@ cd admin && JWT_SECRET=dev-secret-key-at-least-32-chars-long npm run build
 
 ## 6. 剩余可选跟进
 
-- tarot 功德榜/水晶页等次要文案 i18n
+- tarot 三牌阵/历史页等其余业务文案 i18n
 - ziwei 接入 `@orasage/ui` React 包（当前静态 oui）
 - packages/ui 构建链升级 TW4

@@ -4,12 +4,29 @@
  */
 
 export const MERIT_LEVELS = [
-  { level: 0, min: 0, max: 99, titleZh: '朝圣者', titleEn: 'Pilgrim', titlePt: 'Peregrino' },
-  { level: 1, min: 100, max: 499, titleZh: '虔信者', titleEn: 'Devotee', titlePt: 'Devoto' },
-  { level: 2, min: 500, max: 1999, titleZh: '持光者', titleEn: 'Lightbearer', titlePt: 'Portador da Luz' },
-  { level: 3, min: 2000, max: 9999, titleZh: '圣侍', titleEn: 'Sacred Servant', titlePt: 'Servo Sagrado' },
-  { level: 4, min: 10000, max: Infinity, titleZh: '近神者', titleEn: 'Close to the Divine', titlePt: 'Próximo ao Divino' },
+  { level: 0, min: 0, max: 99, titleZh: '朝圣者', titleEn: 'Pilgrim', titlePt: 'Peregrino', titleEs: 'Peregrino' },
+  { level: 1, min: 100, max: 499, titleZh: '虔信者', titleEn: 'Devotee', titlePt: 'Devoto', titleEs: 'Devoto' },
+  { level: 2, min: 500, max: 1999, titleZh: '持光者', titleEn: 'Lightbearer', titlePt: 'Portador da Luz', titleEs: 'Portador de la Luz' },
+  { level: 3, min: 2000, max: 9999, titleZh: '圣侍', titleEn: 'Sacred Servant', titlePt: 'Servo Sagrado', titleEs: 'Siervo Sagrado' },
+  { level: 4, min: 10000, max: Infinity, titleZh: '近神者', titleEn: 'Close to the Divine', titlePt: 'Próximo ao Divino', titleEs: 'Cercano a lo Divino' },
 ] as const;
+
+export type MeritLang = 'zh' | 'en' | 'pt' | 'es';
+
+/** Localized merit rank title for UI (client or server). */
+export function meritLevelTitle(lang: MeritLang, level: number): string {
+  const info = MERIT_LEVELS.find((l) => l.level === level) ?? MERIT_LEVELS[0];
+  switch (lang) {
+    case 'en':
+      return info.titleEn;
+    case 'pt':
+      return info.titlePt;
+    case 'es':
+      return info.titleEs;
+    default:
+      return info.titleZh;
+  }
+}
 
 export type MeritLevel = (typeof MERIT_LEVELS)[number];
 
