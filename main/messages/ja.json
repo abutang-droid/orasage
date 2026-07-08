@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "目次",
+    "disclaimer": "本記事の出生時刻は公開文献に基づく推定値です。解説は伝統的な四柱推命の解釈であり、文化研究の参考としてのみ提供され、本人やご家族とは関係ありません。",
+    "ctaTitle": "自分の八字（四柱推命）を知りたい？",
+    "ctaDesc": "同じ手法で、あなたの五行と命式を数秒で確認",
+    "ctaButton": "無料で鑑定"
   },
   "daozang": {
     "title": "Dao Canon",

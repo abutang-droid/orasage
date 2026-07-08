@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "สารบัญ",
+    "disclaimer": "เวลาเกิดในบทความนี้เป็นการประมาณจากบันทึกสาธารณะ คำวิเคราะห์เป็นการตีความตามศาสตร์ปาจื้อดั้งเดิม เพื่อการศึกษาเชิงวัฒนธรรมเท่านั้น ไม่เกี่ยวข้องกับบุคคลหรือครอบครัวของบุคคลนั้น",
+    "ctaTitle": "อยากรู้ดวงปาจื้อของคุณเอง?",
+    "ctaDesc": "วิธีเดียวกัน ดูธาตุทั้งห้าและโครงสร้างดวงของคุณได้ในไม่กี่วินาที",
+    "ctaButton": "ดูดวงฟรี"
   },
   "daozang": {
     "title": "Dao Canon",

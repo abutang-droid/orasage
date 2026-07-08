@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "章節導航",
+    "disclaimer": "本文出生時辰依據公開文獻估算，命理解讀為傳統命理學演繹，僅供文化研究參考，與本人及其親屬無關。",
+    "ctaTitle": "想知道你自己的八字格局？",
+    "ctaDesc": "同樣的排盤方法，幾秒鐘看到你的五行與格局",
+    "ctaButton": "免費排盤"
   },
   "daozang": {
     "title": "Dao Canon",

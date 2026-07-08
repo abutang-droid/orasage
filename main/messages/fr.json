@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "Sections",
+    "disclaimer": "Les heures de naissance citées sont des estimations issues de sources publiques. Cette lecture est une interprétation traditionnelle du BaZi, proposée à titre d'étude culturelle uniquement, sans lien avec la personne ou sa famille.",
+    "ctaTitle": "Envie de découvrir votre propre thème BaZi ?",
+    "ctaDesc": "La même méthode : vos Cinq Éléments et votre structure en quelques secondes",
+    "ctaButton": "Thème gratuit"
   },
   "daozang": {
     "title": "Dao Canon",

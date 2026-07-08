@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "Mục lục",
+    "disclaimer": "Giờ sinh trong bài viết là ước tính dựa trên tư liệu công khai. Phần luận giải theo Bát Tự truyền thống, chỉ mang tính tham khảo văn hóa, không liên quan đến nhân vật hay gia đình họ.",
+    "ctaTitle": "Muốn biết lá số Bát Tự của chính bạn?",
+    "ctaDesc": "Cùng phương pháp — xem Ngũ Hành và cách cục của bạn trong vài giây",
+    "ctaButton": "Lập lá số miễn phí"
   },
   "daozang": {
     "title": "Dao Canon",

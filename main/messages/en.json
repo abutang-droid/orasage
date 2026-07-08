@@ -119,7 +119,12 @@
     "next": "Next",
     "back": "Back to list",
     "sourceLink": "Original source",
-    "noBody": "No content"
+    "noBody": "No content",
+    "toc": "Sections",
+    "disclaimer": "Birth times in this article are estimates based on public records. The reading is a traditional BaZi interpretation offered for cultural study only, and is unrelated to the person or their family.",
+    "ctaTitle": "Curious about your own BaZi chart?",
+    "ctaDesc": "Same method — see your Five Elements and chart structure in seconds",
+    "ctaButton": "Free chart reading"
   },
   "daozang": {
     "title": "Dao Canon",

@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "목차",
+    "disclaimer": "본문의 출생 시각은 공개 문헌에 근거한 추정치입니다. 해석은 전통 사주명리학의 풀이로 문화 연구 참고용이며, 본인 및 가족과 무관합니다.",
+    "ctaTitle": "내 사주 구조가 궁금하다면?",
+    "ctaDesc": "같은 방법으로 몇 초 만에 나의 오행과 격국 확인",
+    "ctaButton": "무료 사주 보기"
   },
   "daozang": {
     "title": "Dao Canon",

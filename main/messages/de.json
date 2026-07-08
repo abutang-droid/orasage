@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "Abschnitte",
+    "disclaimer": "Die Geburtszeiten in diesem Artikel sind Schätzungen auf Basis öffentlicher Quellen. Die Deutung ist eine traditionelle BaZi-Interpretation, dient nur der kulturellen Betrachtung und steht in keinem Zusammenhang mit der Person oder ihrer Familie.",
+    "ctaTitle": "Neugierig auf dein eigenes BaZi-Horoskop?",
+    "ctaDesc": "Dieselbe Methode – deine Fünf Elemente und Struktur in Sekunden",
+    "ctaButton": "Kostenlos berechnen"
   },
   "daozang": {
     "title": "Dao Canon",

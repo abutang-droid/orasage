@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "الأقسام",
+    "disclaimer": "أوقات الولادة في هذا المقال تقديرية استنادًا إلى مصادر عامة. القراءة تفسير تقليدي لعلم باتزي، وتُقدَّم للدراسة الثقافية فقط ولا علاقة لها بالشخص أو عائلته.",
+    "ctaTitle": "هل تريد معرفة خريطة باتزي الخاصة بك؟",
+    "ctaDesc": "بالطريقة نفسها — شاهد عناصرك الخمسة وبنية خريطتك في ثوانٍ",
+    "ctaButton": "خريطة مجانية"
   },
   "daozang": {
     "title": "Dao Canon",

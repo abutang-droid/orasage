@@ -71,7 +71,12 @@
   },
   "famous": {
     "title": "Famous Cases",
-    "desc": "Explore the destiny patterns of historical figures"
+    "desc": "Explore the destiny patterns of historical figures",
+    "toc": "Seções",
+    "disclaimer": "Os horários de nascimento neste artigo são estimativas baseadas em registros públicos. A leitura é uma interpretação tradicional de BaZi, oferecida apenas para estudo cultural, sem relação com a pessoa ou sua família.",
+    "ctaTitle": "Curioso sobre o seu próprio mapa BaZi?",
+    "ctaDesc": "O mesmo método — veja seus Cinco Elementos e estrutura em segundos",
+    "ctaButton": "Mapa gratuito"
   },
   "daozang": {
     "title": "Dao Canon",
