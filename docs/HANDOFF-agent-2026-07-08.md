@@ -39,7 +39,13 @@
 
 ## 2. 当前 `main` 与生产状态
 
-**Git：** `main` @ **`c741bef`**（PR #239 商城后台 Phase A，2026-07-09）
+**Git：** `main` @ **`f69878f`**（PR #241 商城 Phase B，2026-07-09）
+
+**2026-07-09 傍晚增量（PR #241 商城 Phase B，已合并 + 全量部署 + 生产实测）：**
+- **CMS 4 语**：shop-product-pages / shop-product-testimonials locale 扩 zh-CN/zh-TW/en/pt-BR（Payload 迁移 `20260709_120000` 为枚举 ADD VALUE；部署时自动 migrate 未生效，已在 VPS 手动 `npm run migrate` + 重启 cms，生产枚举已确认 4 语）。
+- **shop PDP**：按访客语言取 CMS 内容（缺失回退 zh-CN）；新增「资料下载」（attachments）与「媒体与用户报道」（product_links）区块，4 语 `pdp` 命名空间文案。
+- **admin 原生内容编辑（Q2-b）**：`/products/[sku]/content?locale=` 语言 Tab ×4；状态/副标题/SEO/视频、轮播图上传/排序/删除、区块编辑器（PdpSectionsEditor 序列化 JSON）、精选评价 CRUD；写操作全部走 CMS REST + admin JWT（orasage SSO）。商品列表「编辑详情与评价」不再外跳 CMS。
+- 媒体 R2/CDN（Phase B′）按用户决策推迟到服务器迁移期。
 
 **2026-07-09 下午增量（PR #236 / #237 / #238 / #239，均已合并 + 全量部署 + 生产实测）：**
 - **PR #236 商品结构化属性**：`products` 增 material/color/weight/尺寸/packaging/attachments（迁移 0024）；admin Tab 编辑器 + `/products/[sku]/edit`；`shared/product-units` 公制存储按 locale 换算；PDP 无 CMS specList 时自动注入规格面板。部署时发现部署脚本迁移清单缺 0023/0024 致 auth 502，已手动补迁移 + hotfix `1d49dfe` 更新清单。
