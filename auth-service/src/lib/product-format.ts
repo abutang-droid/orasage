@@ -41,12 +41,24 @@ export const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
-function categoryLabel(category: string, locale: string): string {
-  const labels = CATEGORY_LABELS[category];
+function categoryLabel(
+  category: string,
+  locale: string,
+  overrides?: Map<string, Record<string, string>>,
+): string {
+  const labels = overrides?.get(category) ?? CATEGORY_LABELS[category];
   if (!labels) return category;
   const norm = detectShopLocale({ queryLocale: locale });
   return labels[norm] ?? labels["zh-CN"] ?? labels.en ?? category;
 }
+
+export type ProductFormatOptions = {
+  locale?: string;
+  /** Q3：分类标签可配置表（getCategoryLabelMap()），缺省回退内置 CATEGORY_LABELS */
+  categoryLabels?: Map<string, Record<string, string>>;
+  /** 标签（tagsForProducts() 预取后传入） */
+  tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
+};
 
 export function resolveProductLocale(req?: {
   queryLocale?: string | null;
@@ -56,8 +68,8 @@ export function resolveProductLocale(req?: {
   return detectShopLocale(req);
 }
 
-export function formatAdminProduct(p: ProductRow) {
-  const base = formatProduct(p);
+export function formatAdminProduct(p: ProductRow, options?: ProductFormatOptions) {
+  const base = formatProduct(p, options);
   return {
     ...base,
     nameI18n: p.nameI18n ?? null,
@@ -65,6 +77,8 @@ export function formatAdminProduct(p: ProductRow) {
     materialI18n: p.materialI18n ?? null,
     colorI18n: p.colorI18n ?? null,
     packagingI18n: p.packagingI18n ?? null,
+    seoTitleI18n: p.seoTitleI18n ?? null,
+    seoDescI18n: p.seoDescI18n ?? null,
     attachments: p.attachments ?? null,
   };
 }
@@ -80,7 +94,7 @@ function localizedAttributes(p: ProductRow, locale: string) {
   };
 }
 
-export function formatProduct(p: ProductRow, options?: { locale?: string }) {
+export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
   const locale = options?.locale ?? "zh-CN";
   const currency: ShopCurrency = currencyForLocale(locale);
   const resolvedCents = resolvePriceCents(
@@ -129,7 +143,15 @@ export function formatProduct(p: ProductRow, options?: { locale?: string }) {
       "usd",
     ),
     category: p.category,
-    categoryLabel: categoryLabel(p.category, locale),
+    categoryLabel: categoryLabel(p.category, locale, options?.categoryLabels),
+    kind: p.kind,
+    visibility: p.visibility,
+    stock: p.stock,
+    lowStockAt: p.lowStockAt,
+    slug: p.slug,
+    tags: options?.tags ?? [],
+    seoTitle: pickLocalized(p.seoTitleI18n, locale, "") || null,
+    seoDescription: pickLocalized(p.seoDescI18n, locale, "") || null,
     requiresShipping: inferRequiresShipping({
       category: p.category,
       sku: p.sku,

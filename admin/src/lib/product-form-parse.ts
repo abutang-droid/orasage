@@ -25,13 +25,23 @@ export function parseProductFormPayload(formData: FormData) {
   const material = String(formData.get('material') ?? '').trim();
   const color = String(formData.get('color') ?? '').trim();
   const packaging = String(formData.get('packaging') ?? '').trim();
-  const category = String(formData.get('category') ?? 'crystal') as 'crystal' | 'report' | 'service';
+  const category = String(formData.get('category') ?? 'crystal').trim();
+  const kind = String(formData.get('kind') ?? 'standard') as 'standard' | 'digital' | 'service' | 'diy';
+  const visibility = String(formData.get('visibility') ?? 'public') as 'public' | 'unlisted' | 'app_only';
+  const slug = String(formData.get('slug') ?? '').trim();
   const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
   const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
   const priceCentsUsd = priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null;
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
   const requiresShipping = formData.get('requiresShipping') === 'on';
+
+  const tagIds = formData
+    .getAll('tagIds')
+    .map((v) => Number(v))
+    .filter((n) => Number.isInteger(n) && n > 0);
+
+  const stockRaw = parseOptionalNumber(formData.get('stock'));
 
   return {
     sku,
@@ -53,6 +63,14 @@ export function parseProductFormPayload(formData: FormData) {
     packagingI18n: parseI18nMapFromForm(formData, 'packaging_i18n'),
     attachments: parseAttachmentsFromForm(formData),
     category,
+    kind,
+    visibility,
+    stock: stockRaw != null && stockRaw >= 0 ? Math.round(stockRaw) : null,
+    lowStockAt: parseOptionalNumber(formData.get('lowStockAt')),
+    slug: slug || null,
+    seoTitleI18n: parseI18nMapFromForm(formData, 'seo_title_i18n'),
+    seoDescI18n: parseI18nMapFromForm(formData, 'seo_desc_i18n'),
+    tagIds,
     priceCents,
     priceCentsUsd: priceCentsUsd != null && priceCentsUsd >= 0 ? priceCentsUsd : null,
     sortOrder,

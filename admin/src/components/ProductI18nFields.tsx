@@ -11,7 +11,10 @@ type ProductI18nFieldsProps = {
   materialI18n?: Record<string, string> | null;
   colorI18n?: Record<string, string> | null;
   packagingI18n?: Record<string, string> | null;
+  seoTitleI18n?: Record<string, string> | null;
+  seoDescI18n?: Record<string, string> | null;
   showAttributes?: boolean;
+  showSeo?: boolean;
 };
 
 export function ProductI18nFields({
@@ -20,7 +23,10 @@ export function ProductI18nFields({
   materialI18n,
   colorI18n,
   packagingI18n,
+  seoTitleI18n,
+  seoDescI18n,
   showAttributes = false,
+  showSeo = false,
 }: ProductI18nFieldsProps) {
   return (
     <fieldset className="full-width product-i18n-fields">
@@ -69,6 +75,27 @@ export function ProductI18nFields({
                   name={`packaging_i18n_${loc.code}`}
                   rows={2}
                   defaultValue={packagingI18n?.[loc.code] ?? ''}
+                  placeholder={loc.code}
+                />
+              </label>
+            </>
+          ) : null}
+          {showSeo ? (
+            <>
+              <label>
+                SEO 标题
+                <input
+                  name={`seo_title_i18n_${loc.code}`}
+                  defaultValue={seoTitleI18n?.[loc.code] ?? ''}
+                  placeholder={loc.code}
+                />
+              </label>
+              <label>
+                SEO 描述
+                <textarea
+                  name={`seo_desc_i18n_${loc.code}`}
+                  rows={2}
+                  defaultValue={seoDescI18n?.[loc.code] ?? ''}
                   placeholder={loc.code}
                 />
               </label>

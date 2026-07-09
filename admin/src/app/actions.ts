@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
+import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
 import { parseProductFormPayload } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
@@ -167,76 +167,139 @@ export async function saveHomepageProductsAction(formData: FormData) {
   revalidatePath('/products');
 }
 
-const BAZI_ELEMENTS = ['木', '火', '土', '金', '水'] as const;
+/* ── 应用计费槽位（R6）────────────────────────────── */
 
-export async function saveBaziRecommendProductsAction(formData: FormData) {
-  const items: Record<string, { sku: string; priceCents: number | null; priceCentsUsd: number | null }> = {};
-  for (const element of BAZI_ELEMENTS) {
-    const sku = String(formData.get(`bazi_rec_${element}`) ?? '').trim();
+const SLOT_ENTRY_ROWS = 6;
+
+export async function saveBillingSlotAction(formData: FormData) {
+  const app = String(formData.get('app') ?? '').trim();
+  const key = String(formData.get('key') ?? '').trim();
+  if (!app || !key) throw new Error('缺少 app 或 key');
+
+  const entries: Array<{
+    sku: string;
+    priceOverrideCents: number | null;
+    priceOverrideUsdCents: number | null;
+  }> = [];
+  for (let i = 0; i < SLOT_ENTRY_ROWS; i += 1) {
+    const sku = String(formData.get(`entry_sku_${i}`) ?? '').trim();
     if (!sku) continue;
-    const priceYuan = String(formData.get(`bazi_rec_price_cny_${element}`) ?? '').trim();
-    const priceUsd = String(formData.get(`bazi_rec_price_usd_${element}`) ?? '').trim();
-    items[element] = {
+    const cny = String(formData.get(`entry_cny_${i}`) ?? '').trim();
+    const usd = String(formData.get(`entry_usd_${i}`) ?? '').trim();
+    entries.push({
       sku,
-      priceCents: priceYuan ? Math.round(Number(priceYuan) * 100) : null,
-      priceCentsUsd: priceUsd ? Math.round(Number(priceUsd) * 100) : null,
-    };
+      priceOverrideCents: cny ? Math.round(Number(cny) * 100) : null,
+      priceOverrideUsdCents: usd ? Math.round(Number(usd) * 100) : null,
+    });
   }
-  await saveBaziRecommendProducts(items);
+
+  let errorMsg: string | null = null;
+  try {
+    await saveBillingSlotEntries(app, key, entries);
+    revalidatePath('/billing');
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '保存失败';
+  }
+  if (errorMsg) {
+    redirect(`/billing?err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect('/billing?saved=ok');
+}
+
+export async function deleteBillingSlotAction(formData: FormData) {
+  const app = String(formData.get('app') ?? '').trim();
+  const key = String(formData.get('key') ?? '').trim();
+  if (!app || !key) throw new Error('缺少 app 或 key');
+  await deleteBillingSlot(app, key);
+  revalidatePath('/billing');
+  redirect('/billing?saved=ok');
+}
+
+/* ── 标签与分类（R2 / Q3）──────────────────────────── */
+
+const I18N_LOCALES = ['zh-CN', 'zh-TW', 'en', 'pt-BR'] as const;
+
+function labelI18nFromForm(formData: FormData, prefix: string): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const code of I18N_LOCALES) {
+    const value = String(formData.get(`${prefix}_${code}`) ?? '').trim();
+    if (value) map[code] = value;
+  }
+  return map;
+}
+
+export async function saveTagGroupAction(formData: FormData) {
+  const code = String(formData.get('code') ?? '').trim();
+  const labelI18n = labelI18nFromForm(formData, 'label');
+  if (!code || !labelI18n['zh-CN']) throw new Error('请填写编码与中文名');
+  const sortOrder = Number(formData.get('sortOrder') ?? 0);
+  await saveTagGroup({ code, labelI18n, sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0 });
+  revalidatePath('/shop/tags');
+  redirect('/shop/tags?saved=ok');
+}
+
+export async function saveTagAction(formData: FormData) {
+  const groupId = Number(formData.get('groupId') ?? 0);
+  const code = String(formData.get('code') ?? '').trim();
+  const labelI18n = labelI18nFromForm(formData, 'label');
+  if (!groupId || !code || !labelI18n['zh-CN']) throw new Error('请填写分组、编码与中文名');
+  const sortOrder = Number(formData.get('sortOrder') ?? 0);
+  const active = formData.get('active') === 'on';
+  await saveTag({
+    groupId,
+    code,
+    labelI18n,
+    sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+    active,
+  });
+  revalidatePath('/shop/tags');
+  redirect('/shop/tags?saved=ok');
+}
+
+export async function saveCategoryAction(formData: FormData) {
+  const code = String(formData.get('code') ?? '').trim();
+  const labelI18n = labelI18nFromForm(formData, 'label');
+  if (!code || !labelI18n['zh-CN']) throw new Error('请填写编码与中文名');
+  const sortOrder = Number(formData.get('sortOrder') ?? 0);
+  const active = formData.get('active') === 'on';
+  await saveCategory({
+    code,
+    labelI18n,
+    sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+    active,
+  });
+  revalidatePath('/shop/categories');
   revalidatePath('/products');
+  redirect('/shop/categories?saved=ok');
 }
 
-const ZIWEI_REC_SLOTS = 6;
+/* ── 商品关联页面（R5）──────────────────────────────── */
 
-export async function saveZiweiRecommendProductsAction(formData: FormData) {
-  const skus: string[] = [];
-  for (let i = 0; i < ZIWEI_REC_SLOTS; i += 1) {
-    const sku = String(formData.get(`ziwei_rec_${i}`) ?? '').trim();
-    if (sku) skus.push(sku);
-  }
-  let errorMsg: string | null = null;
-  try {
-    await saveZiweiRecommendProducts(skus);
-    revalidatePath('/products');
-  } catch (err) {
-    errorMsg = err instanceof Error ? err.message : '保存失败';
-  }
-  if (errorMsg) {
-    redirect(`/products?ziwei_rec_err=${encodeURIComponent(errorMsg)}`);
-  }
-  redirect('/products?ziwei_rec=ok');
-}
+const LINK_ROWS = 8;
 
-const TAROT_REC_SLOTS = 6;
-
-const TAROT_BILLING_SKU_FIELDS = [
-  { key: 'dailyOverageSku', form: 'tarot_daily_overage_sku', label: '每日运势超额加抽' },
-  { key: 'threeCardReportSku', form: 'tarot_three_report_sku', label: '三牌阵 · 仅报告' },
-  { key: 'threeCardBundleSku', form: 'tarot_three_bundle_sku', label: '三牌阵 · 报告+法器' },
-] as const;
-
-export async function saveTarotBillingConfigAction(formData: FormData) {
-  const dailyOverageSku = String(formData.get('tarot_daily_overage_sku') ?? '').trim();
-  const threeCardReportSku = String(formData.get('tarot_three_report_sku') ?? '').trim();
-  const threeCardBundleSku = String(formData.get('tarot_three_bundle_sku') ?? '').trim();
-  const recommendSkus: string[] = [];
-  for (let i = 0; i < TAROT_REC_SLOTS; i += 1) {
-    const sku = String(formData.get(`tarot_rec_${i}`) ?? '').trim();
-    if (sku) recommendSkus.push(sku);
+export async function saveProductLinksAction(formData: FormData) {
+  const sku = String(formData.get('sku') ?? '').trim();
+  if (!sku) throw new Error('缺少 SKU');
+  const links: Array<{
+    kind: string;
+    title: string;
+    url: string;
+    sourceName?: string | null;
+    locale?: string | null;
+  }> = [];
+  for (let i = 0; i < LINK_ROWS; i += 1) {
+    const title = String(formData.get(`link_title_${i}`) ?? '').trim();
+    const url = String(formData.get(`link_url_${i}`) ?? '').trim();
+    if (!title || !url) continue;
+    links.push({
+      kind: String(formData.get(`link_kind_${i}`) ?? 'media').trim() || 'media',
+      title,
+      url,
+      sourceName: String(formData.get(`link_source_${i}`) ?? '').trim() || null,
+      locale: String(formData.get(`link_locale_${i}`) ?? '').trim() || null,
+    });
   }
-  let errorMsg: string | null = null;
-  try {
-    if (!dailyOverageSku || !threeCardReportSku || !threeCardBundleSku) {
-      throw new Error('请选择三个计费 SKU');
-    }
-    await saveTarotBillingSkus({ dailyOverageSku, threeCardReportSku, threeCardBundleSku });
-    await saveTarotDailyRecommendProducts(recommendSkus);
-    revalidatePath('/products');
-  } catch (err) {
-    errorMsg = err instanceof Error ? err.message : '保存失败';
-  }
-  if (errorMsg) {
-    redirect(`/products?tarot_billing_err=${encodeURIComponent(errorMsg)}`);
-  }
-  redirect('/products?tarot_billing=ok');
+  await saveProductLinks(sku, links);
+  revalidatePath(`/products/${encodeURIComponent(sku)}/edit`);
+  redirect(`/products/${encodeURIComponent(sku)}/edit?links=ok`);
 }

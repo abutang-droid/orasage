@@ -5,7 +5,9 @@ export type I18nFormPrefix =
   | 'description_i18n'
   | 'material_i18n'
   | 'color_i18n'
-  | 'packaging_i18n';
+  | 'packaging_i18n'
+  | 'seo_title_i18n'
+  | 'seo_desc_i18n';
 
 export function parseI18nMapFromForm(
   formData: FormData,

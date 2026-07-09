@@ -1,12 +1,9 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import {
-  products,
   ziweiChatAccounts,
-  ziweiProductRecommendations,
   ziweiReadingChat,
 } from "../db/schema.ts";
-import { formatProduct } from "./product-format.ts";
 import {
   ZIWEI_CHAT_PACK_SKU,
   ZIWEI_CHAT_YEARLY_SKU,
@@ -181,72 +178,6 @@ export async function grantZiweiChatPurchase(userId: number, sku: string) {
   }
 
   throw new Error(`unsupported ziwei chat sku: ${sku}`);
-}
-
-export async function listZiweiRecommendSkus() {
-  const rows = await db
-    .select()
-    .from(ziweiProductRecommendations)
-    .where(eq(ziweiProductRecommendations.active, true))
-    .orderBy(asc(ziweiProductRecommendations.sortOrder), asc(ziweiProductRecommendations.id));
-  return rows.map((r) => r.sku);
-}
-
-export async function resolveZiweiRecommendProduct(readingId: string, locale = "zh-CN") {
-  const rows = await db
-    .select()
-    .from(ziweiProductRecommendations)
-    .where(eq(ziweiProductRecommendations.active, true))
-    .orderBy(asc(ziweiProductRecommendations.sortOrder), asc(ziweiProductRecommendations.id));
-
-  if (rows.length === 0) return null;
-
-  let hash = 0;
-  for (let i = 0; i < readingId.length; i++) {
-    hash = (hash * 31 + readingId.charCodeAt(i)) >>> 0;
-  }
-  const pick = rows[hash % rows.length];
-  const catalog = await db
-    .select()
-    .from(products)
-    .where(and(eq(products.sku, pick.sku), eq(products.active, true)))
-    .limit(1);
-  if (!catalog[0]) return null;
-  return formatProduct(catalog[0], { locale });
-}
-
-export async function listZiweiRecommendRows() {
-  return db
-    .select()
-    .from(ziweiProductRecommendations)
-    .orderBy(asc(ziweiProductRecommendations.sortOrder), asc(ziweiProductRecommendations.id));
-}
-
-export async function setZiweiRecommendSkus(skus: string[]) {
-  const unique = [...new Set(skus.map((s) => s.trim()).filter(Boolean))];
-  if (unique.length > 0) {
-    const existing = await db
-      .select({ sku: products.sku })
-      .from(products)
-      .where(inArray(products.sku, unique));
-    const valid = new Set(existing.map((r) => r.sku));
-    const invalid = unique.filter((s) => !valid.has(s));
-    if (invalid.length > 0) {
-      throw new Error(`未知 SKU: ${invalid.join(", ")}`);
-    }
-  }
-
-  await db.delete(ziweiProductRecommendations);
-  if (unique.length > 0) {
-    await db.insert(ziweiProductRecommendations).values(
-      unique.map((sku, index) => ({
-        sku,
-        sortOrder: index,
-        active: true,
-      })),
-    );
-  }
-  return listZiweiRecommendRows();
 }
 
 export const ZIWEI_FREE_QUESTIONS_PER_READING = 5;
