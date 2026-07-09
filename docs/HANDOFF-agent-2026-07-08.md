@@ -41,10 +41,11 @@
 
 **Git：** `main` @ **`200c3e6`**（PR #234，2026-07-09）
 
-**2026-07-09 增量（PR #233 / #234，均已合并 + `remote-deploy-all.sh` 全量部署 + 生产实测）：**
+**2026-07-09 增量（PR #233 / #234 / #235，均已合并 + `remote-deploy-all.sh` 全量部署 + 生产实测）：**
 - **PR #233 全站统一多语言体系**：`packages/i18n` 升级为唯一 i18n 基座（新增消息运行时 + `@orasage/i18n/react` 的 `I18nProvider`/`useI18n`/`useT`，cookie 契约上收）；bazi/ziwei/tarot 三套自研 Provider 删除改为薄适配层（字典内容留在各应用）；main 12 语清单、auth 重复 locale 逻辑收敛到共享包。修复：tarot 启动不读共享 cookie（恒中文）、bazi 切语言整页刷新、auth 登录/注册页 `?lang`/cookie 被硬编码 zh-CN 兜底 redirect 压住。admin/cms 新增 `@orasage/i18n` 依赖（app-shell 副本需要），后台维持中文豁免。
 - **PR #234 切换器 + 商城按钮**：`.orasage-app-lang-menu` 加 `z-index: 80` + 不透明底色 `--shell-menu-bg`（原来无 z-index 被内容盖住、半透明透字）；切换按钮/菜单项用双类选择器锁定 36px 全站一致（原来 @orasage/ui Button 默认高度导致 44px「变形」）。shop 商品卡改单行「购买 + 购物车图标按钮」；PDP 窄屏定制按钮独占一行；PDP 按钮文案接入 next-intl 四语。
-- 生产验证：三命理 App cookie 启动语言跟随、切换无刷新；auth `?lang=en/pt/zh-TW` + cookie 正确；语言菜单 hit-test 全命中（main/ziwei/shop 移动端）；shop 卡片/PDP 360px 截图确认不换行。
+- **PR #235 订单提醒**：auth-service `order-notify.ts` — 新订单/支付成功 fire-and-forget 推 Telegram + Resend 邮件（env 开关，未配置通道静默跳过）；挂点 `POST/PATCH /internal/orders`。admin 侧栏「订单」红色角标（`GET /api/admin/orders/new-count` + 60s 轮询，进订单页已读清零）。上线需在 VPS `auth-service/.env` 配 `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`/`RESEND_API_KEY`/`ORDER_NOTIFY_EMAIL_TO` 后重启 auth。
+- 生产验证：三命理 App cookie 启动语言跟随、切换无刷新；auth `?lang=en/pt/zh-TW` + cookie 正确；语言菜单 hit-test 全命中；shop 卡片/PDP 360px 不换行；admin 订单角标本地全链路通过。
 
 **2026-07-08 历史：** `main` @ `0f5d51e`（PR #232「我的」菜单重构）
 
