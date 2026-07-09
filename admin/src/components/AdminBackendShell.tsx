@@ -59,7 +59,7 @@ function NavSection({
             className={`admin-backend-nav-link${active ? ' is-active' : ''}`}
           >
             {item.label}
-            {item.href === '/orders' ? <OrdersNavBadge /> : null}
+            {item.href === '/shop/orders' ? <OrdersNavBadge /> : null}
           </a>
         );
       })}
@@ -76,7 +76,7 @@ function MobileNav({ pathname }: { pathname: string }) {
         return (
           <a key={item.href} href={item.href} className={active ? 'is-active' : undefined}>
             {item.label}
-            {item.href === '/orders' ? <OrdersNavBadge /> : null}
+            {item.href === '/shop/orders' ? <OrdersNavBadge /> : null}
           </a>
         );
       })}

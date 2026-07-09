@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { count, desc, eq, gt } from "drizzle-orm";
+import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
@@ -33,9 +33,14 @@ import {
 } from "../lib/catalog.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 import { createShipment, formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
+import {
+  formatShippingZone,
+  listShippingZones,
+  replaceShippingZones,
+  type ShippingZoneInput,
+} from "../lib/shipping-zones.ts";
 import { diyBeads, diyConfig } from "../db/schema.ts";
 import { formatBead, formatDiyConfig, getDiyConfigRow } from "./diy.ts";
-import { asc } from "drizzle-orm";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireAdmin);
@@ -671,8 +676,39 @@ adminApiRouter.get("/orders/new-count", async (req, res) => {
 });
 
 adminApiRouter.get("/orders", async (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 100, 200);
-  const rows = await db.select().from(userOrders).orderBy(desc(userOrders.createdAt)).limit(limit);
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+  const statusFilter = String(req.query.status ?? "");
+  const appFilter = String(req.query.app ?? "");
+  const q = String(req.query.q ?? "").trim();
+
+  const conditions = [];
+  if (statusFilter && statusFilter in STATUS_LABELS) {
+    conditions.push(eq(userOrders.status, statusFilter as typeof userOrders.status.enumValues[number]));
+  }
+  if (appFilter && appFilter in APP_LABELS) {
+    conditions.push(eq(userOrders.appSource, appFilter as typeof userOrders.appSource.enumValues[number]));
+  }
+  if (q) {
+    conditions.push(
+      or(
+        ilike(userOrders.orderNo, `%${q}%`),
+        ilike(userOrders.sku, `%${q}%`),
+        ilike(userOrders.title, `%${q}%`),
+      ),
+    );
+  }
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [totalRow] = await db.select({ value: count() }).from(userOrders).where(where);
+  const rows = await db
+    .select()
+    .from(userOrders)
+    .where(where)
+    .orderBy(desc(userOrders.createdAt))
+    .limit(limit)
+    .offset(offset);
+
   const orders = await Promise.all(rows.map(async (o) => {
     const shipmentRows = await listShipmentsForOrder(o.orderNo);
     return {
@@ -694,7 +730,7 @@ adminApiRouter.get("/orders", async (req, res) => {
       shipments: shipmentRows.map(({ shipment, events }) => formatShipment(shipment, events)),
     };
   }));
-  res.json({ orders });
+  res.json({ orders, total: totalRow?.value ?? 0, limit, offset });
 });
 
 const CONTACT_STATUS_LABELS: Record<string, string> = {
@@ -826,6 +862,76 @@ adminApiRouter.post("/orders/:orderNo/shipments", async (req, res) => {
       return;
     }
     console.error("[admin] create shipment:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const batchShipmentSchema = z.object({
+  items: z.array(z.object({
+    orderNo: z.string().min(1),
+    carrier: z.string().min(1).max(100),
+    trackingNo: z.string().min(1).max(100),
+    note: z.string().max(500).optional(),
+  })).min(1).max(50),
+});
+
+adminApiRouter.post("/orders/shipments/batch", async (req, res) => {
+  try {
+    const { items } = batchShipmentSchema.parse(req.body);
+    const results: Array<{ orderNo: string; ok: boolean; error?: string }> = [];
+    for (const item of items) {
+      try {
+        await createShipment(item);
+        results.push({ orderNo: item.orderNo, ok: true });
+      } catch (err) {
+        results.push({
+          orderNo: item.orderNo,
+          ok: false,
+          error: err instanceof Error ? err.message : "发货失败",
+        });
+      }
+    }
+    res.json({ results, success: results.every((r) => r.ok) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] batch shipment:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const shippingZoneSchema = z.object({
+  code: z.string().min(1).max(50),
+  labelI18n: z.record(z.string()).default({}),
+  countryCodes: z.array(z.string()).default([]),
+  flatRateCents: z.number().int().min(0),
+  perRecipient: z.boolean().default(true),
+  weightFreeGrams: z.number().int().min(0).nullable().optional(),
+  weightBlockGrams: z.number().int().min(1).nullable().optional(),
+  weightBlockCents: z.number().int().min(0).nullable().optional(),
+  sortOrder: z.number().int().default(0),
+  isDefault: z.boolean().default(false),
+  active: z.boolean().default(true),
+});
+
+adminApiRouter.get("/shipping/zones", async (_req, res) => {
+  const zones = await listShippingZones();
+  res.json({ zones: zones.map(formatShippingZone) });
+});
+
+adminApiRouter.put("/shipping/zones", async (req, res) => {
+  try {
+    const body = z.object({ zones: z.array(shippingZoneSchema) }).parse(req.body);
+    const saved = await replaceShippingZones(body.zones as ShippingZoneInput[]);
+    res.json({ zones: saved.map(formatShippingZone) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] shipping zones:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

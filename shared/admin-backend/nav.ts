@@ -37,13 +37,18 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
   },
   {
     label: 'DIY 物料',
-    href: '/beads',
-    isActive: (p) => p.startsWith('/beads'),
+    href: '/shop/diy',
+    isActive: (p) => p.startsWith('/shop/diy') || p.startsWith('/beads'),
   },
   {
     label: '订单',
-    href: '/orders',
-    isActive: (p) => p.startsWith('/orders'),
+    href: '/shop/orders',
+    isActive: (p) => p.startsWith('/shop/orders') || p.startsWith('/orders'),
+  },
+  {
+    label: '运费模板',
+    href: '/shop/shipping',
+    isActive: (p) => p.startsWith('/shop/shipping'),
   },
 ];
 
