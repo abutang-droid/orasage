@@ -16,15 +16,16 @@ const ALLOWED_HOSTS = [
   "tarot.orasage.com",
 ];
 
-function safeRedirect(url?: string): string {
-  if (!url) return "https://orasage.com/zh-CN/profile";
+function safeRedirect(url: string | undefined, locale: string): string {
+  const fallback = `https://orasage.com/${locale}/profile`;
+  if (!url) return fallback;
   try {
     const u = new URL(url);
     if (ALLOWED_HOSTS.includes(u.hostname) || u.hostname.endsWith(".orasage.com")) return url;
   } catch {
     if (url.startsWith("/")) return url;
   }
-  return "https://orasage.com/zh-CN/profile";
+  return fallback;
 }
 
 function esc(s: string) {
@@ -106,16 +107,18 @@ pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 
 pagesRouter.get("/login", (req, res) => {
   const redirectParamValue = redirectParam(req);
-  const redirect = safeRedirect(redirectParamValue);
-  const locale = resolveAuthPageLocale(req, redirectParamValue ?? redirect);
+  // Detect from the user-provided redirect only — the hardcoded fallback used
+  // to force zh-CN and shadow ?lang / the shared NEXT_LOCALE cookie.
+  const locale = resolveAuthPageLocale(req, redirectParamValue);
+  const redirect = safeRedirect(redirectParamValue, locale);
   const c = authPageCopy(locale);
   res.send(authPageLayout(c.loginTitle, loginCardHtml(locale, redirect), locale));
 });
 
 pagesRouter.get("/register", (req, res) => {
   const redirectParamValue = redirectParam(req);
-  const redirect = safeRedirect(redirectParamValue);
-  const locale = resolveAuthPageLocale(req, redirectParamValue ?? redirect);
+  const locale = resolveAuthPageLocale(req, redirectParamValue);
+  const redirect = safeRedirect(redirectParamValue, locale);
   const c = authPageCopy(locale);
   res.send(authPageLayout(c.registerTitle, registerCardHtml(locale, redirect), locale));
 });

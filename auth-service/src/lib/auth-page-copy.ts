@@ -1,3 +1,5 @@
+import { toCoreLocale } from '../../../packages/i18n/src/index.ts';
+
 export type AuthPageCopy = {
   loginTitle: string;
   loginLead: string;
@@ -17,7 +19,7 @@ export type AuthPageCopy = {
   passwordPlaceholder: string;
 };
 
-type CoreLocale = 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
+type CoreLocale = ReturnType<typeof toCoreLocale>;
 
 const COPY: Record<CoreLocale, AuthPageCopy> = {
   'zh-CN': {
@@ -94,12 +96,7 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
   },
 };
 
-function normalizeLocale(locale: string): CoreLocale {
-  if (locale === 'zh-TW') return 'zh-TW';
-  if (locale === 'en') return 'en';
-  if (locale === 'pt-BR' || locale.startsWith('pt')) return 'pt-BR';
-  return 'zh-CN';
-}
+const normalizeLocale = toCoreLocale;
 
 export function authPageCopy(locale: string): AuthPageCopy {
   return COPY[normalizeLocale(locale)];

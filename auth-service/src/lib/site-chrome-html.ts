@@ -1,8 +1,9 @@
+import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
 import { bottomNavHtml } from './bottom-nav-html.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
-const LOCALES = ['zh-CN', 'zh-TW', 'en', 'pt-BR', 'es', 'fr', 'de', 'ja', 'ko', 'vi', 'th', 'ar'] as const;
+const LOCALES = EXTENDED_LOCALES;
 
 type FooterStrings = { login: string; copyright: string; privacy: string; terms: string };
 
@@ -13,12 +14,7 @@ const FOOTER_STRINGS: Record<string, FooterStrings> = {
   'pt-BR': { login: 'Entrar', copyright: '© 2026 OraSage. Todos os direitos reservados.', privacy: 'Privacidade', terms: 'Termos' },
 };
 
-function normalizeLocale(locale: string): string {
-  if (locale === 'zh-TW') return 'zh-TW';
-  if (locale === 'en') return 'en';
-  if (locale === 'pt-BR' || locale.startsWith('pt')) return 'pt-BR';
-  return 'zh-CN';
-}
+const normalizeLocale = toCoreLocale;
 
 export function localeFromRedirect(url?: string): string {
   if (!url) return 'zh-CN';

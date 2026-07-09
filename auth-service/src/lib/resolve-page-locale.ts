@@ -1,8 +1,8 @@
 import type { Request } from "express";
-import { detectLocale, LOCALE_COOKIE } from "../../../packages/i18n/src/index.ts";
+import { detectLocale, EXTENDED_LOCALES, LOCALE_COOKIE } from "../../../packages/i18n/src/index.ts";
 import { localeFromRedirect } from "./site-chrome-html.ts";
 
-const REDIRECT_LOCALES = ['zh-CN', 'zh-TW', 'en', 'pt-BR', 'es', 'fr', 'de', 'ja', 'ko', 'vi', 'th', 'ar'] as const;
+const REDIRECT_LOCALES = EXTENDED_LOCALES;
 
 function readCookie(cookieHeader: string, name: string): string | undefined {
   const match = cookieHeader
