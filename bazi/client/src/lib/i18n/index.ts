@@ -1,56 +1,42 @@
-import { createContext, useContext } from "react";
-import { detectLocaleFromBrowser, toCoreLocale } from "@orasage/i18n";
-import { termData } from "./terms";
+/**
+ * Bazi i18n — adapter over the unified @orasage/i18n runtime.
+ * Dictionaries stay app-local (lazy-loaded); detection / switching /
+ * cookie contract come from the shared package.
+ */
 
-export type Locale = "zh-CN" | "zh-TW" | "en" | "pt-BR";
+import type { CoreLocale } from "@orasage/i18n";
+import { LOCALE_LABELS as SHARED_LABELS } from "@orasage/i18n";
+import { useI18n, type Dictionaries } from "@orasage/i18n/react";
+import { termData } from "./terms";
+import zhCN from "./zh-CN";
+
+export type Locale = CoreLocale;
 
 export const LOCALE_LABELS: Record<Locale, string> = {
-  "zh-CN": "简体中文",
-  "zh-TW": "繁體中文",
-  en: "English",
-  "pt-BR": "Português (BR)",
+  "zh-CN": SHARED_LABELS["zh-CN"],
+  "zh-TW": SHARED_LABELS["zh-TW"],
+  en: SHARED_LABELS.en,
+  "pt-BR": SHARED_LABELS["pt-BR"],
 };
 
 export type TranslationDict = Record<string, string>;
 
-export interface I18nPack {
-  locale: Locale;
-  ui: TranslationDict;
-}
-
-export const LocaleContext = createContext<I18nPack>({
-  locale: "zh-CN",
-  ui: {},
-});
-
-export function useT() {
-  const pack = useContext(LocaleContext);
-  return {
-    t: (key: string, fallback?: string) => pack.ui[key] ?? fallback ?? key,
-    term: (key: string) => {
-      const m = termData[key];
-      if (!m) return key;
-      return m[pack.locale] ?? m["zh-CN"] ?? key;
-    },
-    locale: pack.locale,
-  };
-}
-
-export function detectLocale(): Locale {
-  if (typeof window === "undefined") return "zh-CN";
-  return toCoreLocale(detectLocaleFromBrowser()) as Locale;
-}
-
-const uiLoaders: Record<Locale, () => Promise<TranslationDict>> = {
-  "zh-CN": () => import("./zh-CN").then((m) => m.default),
+export const DICTIONARIES: Dictionaries = {
+  "zh-CN": zhCN,
   "zh-TW": () => import("./zh-TW").then((m) => m.default),
   en: () => import("./en").then((m) => m.default),
   "pt-BR": () => import("./pt-BR").then((m) => m.default),
 };
 
-import zhCN from "./zh-CN";
-
-export function loadUi(locale: Locale): Promise<TranslationDict> {
-  return uiLoaders[locale]().catch(() => zhCN);
+export function useT() {
+  const { locale, messages } = useI18n();
+  return {
+    t: (key: string, fallback?: string) => messages[key] ?? fallback ?? key,
+    term: (key: string) => {
+      const m = termData[key];
+      if (!m) return key;
+      return m[locale as Locale] ?? m["zh-CN"] ?? key;
+    },
+    locale: locale as Locale,
+  };
 }
-

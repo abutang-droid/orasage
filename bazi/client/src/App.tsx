@@ -5,15 +5,14 @@ import "@orasage/city/city.css";
 import { cityApi } from "@/lib/city-client";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { I18nProvider, useI18n } from "@orasage/i18n/react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { OraSageAppShell } from "./components/OraSageAppShell";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
-import { LocaleContext, detectLocale, loadUi } from "./lib/i18n";
-import type { Locale, TranslationDict } from "./lib/i18n";
-import zhCN from "./lib/i18n/zh-CN";
+import { DICTIONARIES } from "./lib/i18n";
 
 function Router() {
   return (
@@ -26,16 +25,9 @@ function Router() {
   );
 }
 
-function App() {
-  const [locale, setLocale] = useState<Locale>("zh-CN");
-  const [ui, setUi] = useState<TranslationDict>(zhCN);
+function AppBody() {
+  const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const loc = detectLocale();
-    setLocale(loc);
-    loadUi(loc).then(setUi);
-  }, []);
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {
@@ -66,19 +58,25 @@ function App() {
   }, []);
 
   return (
+    <CityProvider api={cityApi} locale={locale}>
+      <OraSageToaster />
+      <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
+        <OraSageAppShell>
+          <Router />
+        </OraSageAppShell>
+      </div>
+    </CityProvider>
+  );
+}
+
+function App() {
+  return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <LocaleContext.Provider value={{ locale, ui }}>
-            <CityProvider api={cityApi} locale={locale}>
-              <OraSageToaster />
-              <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
-                <OraSageAppShell>
-                  <Router />
-                </OraSageAppShell>
-              </div>
-            </CityProvider>
-          </LocaleContext.Provider>
+          <I18nProvider dictionaries={DICTIONARIES}>
+            <AppBody />
+          </I18nProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -1,22 +1,56 @@
 "use client"
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 
-export type Lang = "zh" | "pt" | "es" | "en"
+/**
+ * Tarot i18n — adapter over the unified @orasage/i18n runtime.
+ * Copy files keep the short-code `Lang` API (zh/en/pt/es); locale detection,
+ * switching and the cross-subdomain cookie contract come from the shared
+ * package (fixes the old "always starts in zh" cookie gap).
+ */
 
-interface LangCtx {
-  lang: Lang
-  setLang: (l: Lang) => void
+import { useCallback, type ReactNode } from "react"
+import {
+  localeFromTarotLang,
+  normalizeLocale,
+  tarotLangFromLocale,
+  toCoreLocale,
+  type TarotLang,
+} from "@orasage/i18n"
+import { I18nProvider, useI18n } from "@orasage/i18n/react"
+
+export type Lang = TarotLang
+
+/** Tarot supports T1 + Spanish; anything else falls back via core mapping. */
+function mapTarotLocale(input: string): string {
+  const norm = normalizeLocale(input)
+  if (norm === "es") return "es"
+  return toCoreLocale(norm)
 }
 
-const LangContext = createContext<LangCtx>({ lang: "zh", setLang: () => {} })
-
-export function LangProvider({ children, initial = "zh" }: { children: ReactNode; initial?: Lang }) {
-  const [lang, setLang] = useState<Lang>(initial)
-  return <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>
+export function LangProvider({ children, initial }: { children: ReactNode; initial?: Lang }) {
+  return (
+    <I18nProvider
+      initialLocale={initial ? localeFromTarotLang(initial) : undefined}
+      mapLocale={mapTarotLocale}
+    >
+      {children}
+    </I18nProvider>
+  )
 }
 
 export function useLang() {
-  return useContext(LangContext)
+  const { locale, setLocale } = useI18n()
+  const lang = tarotLangFromLocale(locale)
+  const setLang = useCallback(
+    (l: Lang) => setLocale(localeFromTarotLang(l)),
+    [setLocale],
+  )
+  return { lang, setLang }
+}
+
+/** Full BCP 47 locale for the app shell / cross-app links (keeps zh-TW). */
+export function useTarotLocale() {
+  const { locale, setLocale } = useI18n()
+  return { locale, setLocale }
 }
 
 /** Return the card name for the current language. */
