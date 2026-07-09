@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { saveCatalogImageAction } from '@/app/content-actions';
 import { AdminSubmitButton } from './AdminButton';
 import { ProductCmsLinks } from './ProductCmsLinks';
 import { ProductHeroGalleryEditor, type HeroImageRow } from './ProductHeroGalleryEditor';
+import { ProductVideoUploadField } from './ProductVideoUploadField';
 import type { ProductPageStatus } from '@/lib/cms-product-pages';
 
 type ProductMediaPanelProps = {
@@ -34,8 +35,27 @@ export function ProductMediaPanel({
   saveMediaAction,
 }: ProductMediaPanelProps) {
   const catalogInputRef = useRef<HTMLInputElement>(null);
+  const [catalogPreview, setCatalogPreview] = useState<string | null>(null);
+  const [catalogFileName, setCatalogFileName] = useState<string | null>(null);
   const heroCount = heroRows.length;
   const videoCount = countVideos(galleryVideoUrl, sceneVideoUrl);
+  const displayCatalogUrl = catalogPreview ?? catalogImageUrl ?? null;
+
+  useEffect(() => {
+    return () => {
+      if (catalogPreview) URL.revokeObjectURL(catalogPreview);
+    };
+  }, [catalogPreview]);
+
+  const onCatalogFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCatalogPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setCatalogFileName(file.name);
+  };
 
   return (
     <div className="product-media-panel">
@@ -66,20 +86,31 @@ export function ProductMediaPanel({
           </header>
           <form action={saveCatalogImageAction} encType="multipart/form-data" className="product-catalog-image-form">
             <input type="hidden" name="sku" value={sku} />
-            <div className="product-catalog-image-preview">
-              {catalogImageUrl ? (
+            <button
+              type="button"
+              className="product-catalog-image-preview product-catalog-image-preview--clickable"
+              onClick={() => catalogInputRef.current?.click()}
+            >
+              {displayCatalogUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={catalogImageUrl} alt="" className="product-catalog-image-img" />
+                <img src={displayCatalogUrl} alt="" className="product-catalog-image-img" />
               ) : (
-                <div className="product-catalog-image-empty">尚未上传</div>
+                <div className="product-catalog-image-empty">
+                  <span className="hero-image-upload-icon">+</span>
+                  <span>点击上传列表主图</span>
+                </div>
               )}
-            </div>
+            </button>
+            {catalogFileName ? (
+              <p className="product-media-pending">待保存：{catalogFileName}</p>
+            ) : null}
             <input
               ref={catalogInputRef}
               type="file"
               name="image"
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="product-media-file-input"
+              onChange={onCatalogFileChange}
             />
             <div className="product-media-card-actions">
               <button
@@ -87,7 +118,7 @@ export function ProductMediaPanel({
                 className="btn-secondary"
                 onClick={() => catalogInputRef.current?.click()}
               >
-                选择图片
+                {displayCatalogUrl ? '更换图片' : '选择图片'}
               </button>
               <AdminSubmitButton size="sm">上传列表主图</AdminSubmitButton>
             </div>
@@ -118,24 +149,18 @@ export function ProductMediaPanel({
         </header>
 
         <div className="product-media-video-fields">
-          <label>
-            主图视频 URL
-            <input
-              name="galleryVideoUrl"
-              type="url"
-              defaultValue={galleryVideoUrl ?? ''}
-              placeholder="https://...mp4"
-            />
-          </label>
-          <label>
-            场景视频 URL
-            <input
-              name="sceneVideoUrl"
-              type="url"
-              defaultValue={sceneVideoUrl ?? ''}
-              placeholder="https://...mp4"
-            />
-          </label>
+          <ProductVideoUploadField
+            name="galleryVideo"
+            label="主图视频"
+            description="详情页顶部主图区域的视频"
+            currentUrl={galleryVideoUrl}
+          />
+          <ProductVideoUploadField
+            name="sceneVideo"
+            label="场景视频"
+            description="商品使用场景展示视频"
+            currentUrl={sceneVideoUrl}
+          />
         </div>
 
         <h4 className="product-content-subhead">轮播图片</h4>

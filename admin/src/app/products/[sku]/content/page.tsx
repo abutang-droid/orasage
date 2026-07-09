@@ -15,6 +15,7 @@ import {
 } from '@/app/content-actions';
 import { PdpSectionsEditor, type EditorSection } from '@/components/PdpSectionsEditor';
 import { ProductHeroGalleryEditor } from '@/components/ProductHeroGalleryEditor';
+import { ProductVideoUploadField } from '@/components/ProductVideoUploadField';
 import { AdminSubmitButton } from '@/components/AdminButton';
 import { resolveCmsMediaUrl } from '@/lib/cms-media-utils';
 
@@ -149,14 +150,22 @@ export default async function ProductContentPage({ params, searchParams }: PageP
               SEO 描述
               <textarea name="seoDescription" rows={2} defaultValue={doc?.seoDescription ?? ''} />
             </label>
-            <label>
-              主图视频 URL
-              <input name="galleryVideoUrl" type="url" defaultValue={doc?.galleryVideoUrl ?? ''} placeholder="https://...mp4" />
-            </label>
-            <label>
-              场景视频 URL
-              <input name="sceneVideoUrl" type="url" defaultValue={doc?.sceneVideoUrl ?? ''} placeholder="https://...mp4" />
-            </label>
+          </div>
+
+          <h3 className="product-content-subhead">详情视频</h3>
+          <div className="product-media-video-fields" style={{ marginBottom: '1rem' }}>
+            <ProductVideoUploadField
+              name="galleryVideo"
+              label="主图视频"
+              description="详情页顶部主图区域的视频"
+              currentUrl={doc?.galleryVideoUrl}
+            />
+            <ProductVideoUploadField
+              name="sceneVideo"
+              label="场景视频"
+              description="商品使用场景展示视频"
+              currentUrl={doc?.sceneVideoUrl}
+            />
           </div>
 
           <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>

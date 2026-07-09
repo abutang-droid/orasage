@@ -9,6 +9,7 @@ import {
   upsertCmsProductPage,
   upsertCmsTestimonial,
   uploadCmsMedia,
+  uploadCmsMediaFile,
   type CmsSectionRow,
 } from '@/lib/cms-content-api';
 import { upsertProductImage } from '@/lib/cms-api';
@@ -53,6 +54,28 @@ async function parseHeroImagesFromForm(
     });
   }
   return heroImages;
+}
+
+/** 解析视频：优先新上传文件，其次保留已有 URL；勾选删除则清空 */
+async function parseVideoUrlFromForm(
+  formData: FormData,
+  prefix: string,
+  existingUrl: string | null | undefined,
+  alt: string,
+  token: string,
+): Promise<string | null> {
+  if (formData.get(`${prefix}Clear`) === 'on') return null;
+
+  const file = formData.get(`${prefix}File`);
+  if (file instanceof File && file.size > 0) {
+    const uploaded = await uploadCmsMediaFile(file, alt, token);
+    return uploaded.publicUrl;
+  }
+
+  const urlFromForm = String(formData.get(`${prefix}Url`) ?? '').trim();
+  if (urlFromForm) return urlFromForm;
+
+  return existingUrl?.trim() || null;
 }
 
 function parseSections(raw: string): CmsSectionRow[] {
@@ -100,15 +123,32 @@ export async function saveProductPageContentAction(formData: FormData) {
 
   let errorMsg: string | null = null;
   try {
+    const existing = await getCmsProductPageDoc(sku, locale, token);
     const heroImages = await parseHeroImagesFromForm(formData, sku, token);
+    const [galleryVideoUrl, sceneVideoUrl] = await Promise.all([
+      parseVideoUrlFromForm(
+        formData,
+        'galleryVideo',
+        existing?.galleryVideoUrl,
+        `${sku} 主图视频`,
+        token,
+      ),
+      parseVideoUrlFromForm(
+        formData,
+        'sceneVideo',
+        existing?.sceneVideoUrl,
+        `${sku} 场景视频`,
+        token,
+      ),
+    ]);
 
     await upsertCmsProductPage(sku, locale, {
       status: formData.get('status') === 'published' ? 'published' : 'draft',
       subtitle: String(formData.get('subtitle') ?? '').trim() || null,
       seoTitle: String(formData.get('seoTitle') ?? '').trim() || null,
       seoDescription: String(formData.get('seoDescription') ?? '').trim() || null,
-      galleryVideoUrl: String(formData.get('galleryVideoUrl') ?? '').trim() || null,
-      sceneVideoUrl: String(formData.get('sceneVideoUrl') ?? '').trim() || null,
+      galleryVideoUrl,
+      sceneVideoUrl,
       heroImages,
       sections: parseSections(String(formData.get('sections_json') ?? '[]')),
     }, token);
@@ -140,8 +180,22 @@ export async function saveProductMediaAction(formData: FormData) {
   try {
     const existing = await getCmsProductPageDoc(sku, locale, token);
     const heroImages = await parseHeroImagesFromForm(formData, sku, token);
-    const galleryVideoUrl = String(formData.get('galleryVideoUrl') ?? '').trim() || null;
-    const sceneVideoUrl = String(formData.get('sceneVideoUrl') ?? '').trim() || null;
+    const [galleryVideoUrl, sceneVideoUrl] = await Promise.all([
+      parseVideoUrlFromForm(
+        formData,
+        'galleryVideo',
+        existing?.galleryVideoUrl,
+        `${sku} 主图视频`,
+        token,
+      ),
+      parseVideoUrlFromForm(
+        formData,
+        'sceneVideo',
+        existing?.sceneVideoUrl,
+        `${sku} 场景视频`,
+        token,
+      ),
+    ]);
 
     await upsertCmsProductPage(sku, locale, {
       status: existing?.status ?? 'draft',
