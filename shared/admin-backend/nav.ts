@@ -1,11 +1,14 @@
-import type { StaffRole } from '../staff-roles/index';
+import { canAccessNav, type StaffRole } from '../staff-roles/index';
+import type { AnyStaffPermission } from '../staff-permissions/index';
+import { hasStaffPermission } from '../staff-permissions/index';
 
 export type AdminNavItem = {
   label: string;
   href: string;
-  /** 可见角色；缺省 = 全部运营员工 */
+  /** 权限点（7a 优先） */
+  permission?: AnyStaffPermission;
+  /** 可见角色（permission 缺省时回退） */
   roles?: readonly StaffRole[];
-  /** 用于高亮当前项；pathname 为 Next usePathname() 返回值（不含 basePath） */
   isActive?: (pathname: string) => boolean;
 };
 
@@ -13,6 +16,7 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '概览',
     href: '/',
+    permission: 'ops.overview',
     isActive: (p) => p === '/' || p === '',
   },
   {
@@ -29,6 +33,7 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '留言',
     href: '/messages',
+    permission: 'ops.messages',
     isActive: (p) => p.startsWith('/messages'),
   },
   {
@@ -37,6 +42,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     roles: ['admin', 'shop_ops'],
     isActive: (p) => p.startsWith('/im'),
   },
+  {
+    label: '子账号',
+    href: '/staff',
+    permission: 'staff.manage',
+    isActive: (p) => p.startsWith('/staff'),
+  },
 ];
 
 /** 商城组（R1：独立商城） */
@@ -44,49 +55,49 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '商品',
     href: '/products',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.products',
     isActive: (p) => p.startsWith('/products'),
   },
   {
     label: '标签',
     href: '/shop/tags',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.products',
     isActive: (p) => p.startsWith('/shop/tags'),
   },
   {
     label: '分类',
     href: '/shop/categories',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.products',
     isActive: (p) => p.startsWith('/shop/categories'),
   },
   {
     label: 'DIY 物料',
     href: '/shop/diy',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.diy',
     isActive: (p) => p.startsWith('/shop/diy') || p.startsWith('/beads'),
   },
   {
     label: '订单',
     href: '/shop/orders',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.orders',
     isActive: (p) => p.startsWith('/shop/orders') || p.startsWith('/orders'),
   },
   {
     label: '运费模板',
     href: '/shop/shipping',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.shipping',
     isActive: (p) => p.startsWith('/shop/shipping'),
   },
   {
     label: '评价管理',
     href: '/shop/reviews',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.reviews',
     isActive: (p) => p.startsWith('/shop/reviews'),
   },
   {
     label: '促销',
     href: '/shop/promotions',
-    roles: ['admin', 'shop_ops'],
+    permission: 'shop.promotions',
     isActive: (p) => p.startsWith('/shop/promotions'),
   },
 ];
@@ -96,7 +107,7 @@ export const BILLING_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '计费槽位',
     href: '/billing',
-    roles: ['admin'],
+    permission: 'billing.slots',
     isActive: (p) => p.startsWith('/billing'),
   },
 ];
@@ -106,73 +117,73 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: 'CMS 概览',
     href: '/cms/admin',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms',
     isActive: (p) => p === '/admin' || p === '/admin/',
   },
   {
     label: '页面',
     href: '/cms/admin/collections/pages',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.pages',
     isActive: (p) => p.includes('/collections/pages'),
   },
   {
     label: '媒体库',
     href: '/cms/admin/collections/media',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.media',
     isActive: (p) => p.includes('/collections/media'),
   },
   {
     label: '商品精选评价',
     href: '/cms/admin/collections/shop-product-testimonials',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.shop',
     isActive: (p) => p.includes('/collections/shop-product-testimonials'),
   },
   {
     label: '门户 Hero',
     href: '/cms/admin/globals/home-hero',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.heroes',
     isActive: (p) => p.includes('/globals/home-hero'),
   },
   {
     label: '商城 Hero',
     href: '/cms/admin/globals/shop-home-hero',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.heroes',
     isActive: (p) => p.includes('/globals/shop-home-hero'),
   },
   {
     label: '八字 Hero',
     href: '/cms/admin/globals/bazi-home-hero',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.heroes',
     isActive: (p) => p.includes('/globals/bazi-home-hero'),
   },
   {
     label: '紫微 Hero',
     href: '/cms/admin/globals/ziwei-home-hero',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.heroes',
     isActive: (p) => p.includes('/globals/ziwei-home-hero'),
   },
   {
     label: '塔罗 Hero',
     href: '/cms/admin/globals/tarot-home-hero',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.heroes',
     isActive: (p) => p.includes('/globals/tarot-home-hero'),
   },
   {
     label: '八字信息流',
     href: '/cms/admin/collections/bazi-feed',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.feed',
     isActive: (p) => p.includes('/collections/bazi-feed'),
   },
   {
     label: '紫微信息流',
     href: '/cms/admin/collections/ziwei-feed',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.feed',
     isActive: (p) => p.includes('/collections/ziwei-feed'),
   },
   {
     label: '宗教 / 圣地',
     href: '/cms/admin/collections/faiths',
-    roles: ['admin', 'content_ops'],
+    permission: 'content.cms.faith',
     isActive: (p) =>
       p.includes('/collections/faiths') ||
       p.includes('/collections/sanctuaries') ||
@@ -185,6 +196,17 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
 export function navItemActive(item: AdminNavItem, pathname: string): boolean {
   if (item.isActive) return item.isActive(pathname);
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+export function canAccessNavItem(
+  permissions: ReadonlySet<AnyStaffPermission>,
+  role: StaffRole,
+  item: AdminNavItem,
+): boolean {
+  if (item.permission) {
+    return hasStaffPermission(permissions, item.permission);
+  }
+  return canAccessNav(role, item.roles);
 }
 
 export { canAccessNav } from '../staff-roles/index';

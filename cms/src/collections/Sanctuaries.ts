@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { SANCTUARY_IMAGE_SPEC } from '../lib/media-specs';
 import { requiredText } from '../lib/validators';
@@ -10,9 +11,7 @@ export const Sanctuaries: CollectionConfig = {
     singular: '祈福圣地',
     plural: '祈福圣地',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('sanctuaries'),
   admin: {
     group: '祈福地理',
     useAsTitle: 'nameZh',

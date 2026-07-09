@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { ENV } from './env';
 
-async function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
+export async function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const jar = await cookies();
   const token = jar.get(ENV.jwtCookieName)?.value;
   const headers = new Headers(init?.headers);
@@ -780,5 +780,67 @@ export function closeChatConversation(conversationId: number) {
   return adminFetch<{ success: boolean }>(`/chat/conversations/${conversationId}/close`, {
     method: 'POST',
     body: JSON.stringify({}),
+  });
+}
+
+/* ── 子账号（7a）────────────────────────────────────────── */
+
+export interface AdminStaffAccount {
+  id: number;
+  email: string;
+  nickname: string;
+  role: 'admin' | 'shop_ops' | 'content_ops';
+  roleLabel: string;
+  staffLabel: string | null;
+  staffDisabled: boolean;
+  staffGrants: string[];
+  staffRevokes: string[];
+  permissions: string[];
+  lastSignedIn: string;
+  createdAt: string;
+}
+
+export function listStaffAccounts() {
+  return adminFetch<{ staff: AdminStaffAccount[] }>('/staff');
+}
+
+export function getStaffMeta() {
+  return adminFetch<{
+    roles: Array<{ value: string; label: string }>;
+    permissionLabels: Record<string, string>;
+    assignableExtras: Array<{ value: string; label: string }>;
+  }>('/staff/meta');
+}
+
+export function createStaffAccount(body: {
+  email: string;
+  password: string;
+  nickname?: string;
+  role: 'shop_ops' | 'content_ops';
+  staffLabel?: string;
+  staffGrants?: string[];
+  staffRevokes?: string[];
+}) {
+  return adminFetch<{ staff: AdminStaffAccount }>('/staff', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateStaffAccount(
+  id: number,
+  body: {
+    nickname?: string;
+    role?: 'shop_ops' | 'content_ops';
+    staffLabel?: string | null;
+    staffDisabled?: boolean;
+    staffGrants?: string[];
+    staffRevokes?: string[];
+    password?: string;
+  },
+) {
+  return adminFetch<{ staff: AdminStaffAccount }>(`/staff/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
   });
 }

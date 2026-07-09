@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 商城商品精选评价 — 运营录入，前台标注「精选评价」 */
@@ -14,12 +15,7 @@ export const ShopProductTestimonial: CollectionConfig = {
     defaultColumns: ['sku', 'author', 'rating', 'locale', 'enabled', 'sort'],
     description: '按 SKU 配置精选用户评价，显示在商品详情页。与用户真实评价（二期）分区展示。',
   },
-  access: {
-    read: () => true,
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
-  },
+  access: cmsAccessForSlug('shop-product-testimonials'),
   fields: [
     {
       name: 'sku',

@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload';
+import { cmsGlobalWriteAccess } from '../lib/cmsStaffAccess';
 import { homeHeroFields } from './homeHeroFields';
 
 export const ZiweiHomeHero: GlobalConfig = {
@@ -6,6 +7,7 @@ export const ZiweiHomeHero: GlobalConfig = {
   label: '紫微首页 Hero',
   access: {
     read: () => true,
+    update: cmsGlobalWriteAccess(),
   },
   admin: {
     group: false,

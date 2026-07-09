@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 国家 ↔ 主流信仰 — 运营可增删改 prevalence */
@@ -8,9 +9,7 @@ export const CountryFaiths: CollectionConfig = {
     singular: '国家主流信仰',
     plural: '国家主流信仰',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('country-faiths'),
   admin: {
     group: '祈福地理',
     useAsTitle: 'label',

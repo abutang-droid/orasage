@@ -8,6 +8,8 @@ import type { StaffRole } from "../../../shared/staff-roles/index.ts";
 export interface JwtPayload {
   sub: string;
   role: StaffRole | "user";
+  /** 逗号分隔的有效权限点（仅运营员工） */
+  perms?: string;
 }
 
 /** 签发 JWT */
@@ -22,9 +24,9 @@ export async function signToken(payload: JwtPayload): Promise<string> {
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret, { algorithms: ["HS256"] });
-    const { sub, role } = payload as unknown as JwtPayload;
+    const { sub, role, perms } = payload as unknown as JwtPayload;
     if (typeof sub !== "string" || !role) return null;
-    return { sub, role };
+    return { sub, role, perms: typeof perms === "string" ? perms : undefined };
   } catch {
     return null;
   }

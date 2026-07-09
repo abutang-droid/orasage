@@ -46,6 +46,14 @@ export const Users: CollectionConfig = {
         description: 'auth-service 用户 ID，SSO 自动写入',
       },
     },
+    {
+      name: 'staffPermissions',
+      type: 'json',
+      admin: {
+        hidden: true,
+        description: 'SSO 同步的运营权限点',
+      },
+    },
   ],
   hooks: {
     beforeValidate: [

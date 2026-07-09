@@ -4,6 +4,7 @@ export {
   BILLING_NAV_ITEMS,
   CMS_NAV_ITEMS,
   navItemActive,
+  canAccessNavItem,
   canAccessNav,
   type AdminNavItem,
 } from '../../../../shared/admin-backend/nav';

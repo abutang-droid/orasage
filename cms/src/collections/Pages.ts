@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { requiredText } from '../lib/validators';
 
@@ -47,9 +48,7 @@ export const Pages: CollectionConfig = {
     singular: '内容页面',
     plural: '内容页面',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('pages'),
   admin: {
     group: false,
     useAsTitle: 'title',

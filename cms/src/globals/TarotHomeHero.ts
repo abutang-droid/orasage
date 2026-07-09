@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload';
+import { cmsGlobalWriteAccess } from '../lib/cmsStaffAccess';
 import { homeHeroFields } from './homeHeroFields';
 
 export const TarotHomeHero: GlobalConfig = {
@@ -6,6 +7,7 @@ export const TarotHomeHero: GlobalConfig = {
   label: '塔罗首页 Hero',
   access: {
     read: () => true,
+    update: cmsGlobalWriteAccess(),
   },
   admin: {
     group: false,

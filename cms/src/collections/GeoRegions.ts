@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 大洲 — 祈福地图选路第一层 */
@@ -8,9 +9,7 @@ export const GeoRegions: CollectionConfig = {
     singular: '大洲',
     plural: '大洲',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('geo-regions'),
   admin: {
     group: '祈福地理',
     useAsTitle: 'nameZh',

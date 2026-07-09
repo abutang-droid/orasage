@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 const LOCALE_OPTIONS = [
@@ -35,12 +36,7 @@ export const ShopProductPage: CollectionConfig = {
     description:
       '商品 PDP 内容：详情轮播多图与区块化文案。列表缩略图仍用「商品主图」集合；此处 heroImages 仅用于详情页。',
   },
-  access: {
-    read: () => true,
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
-  },
+  access: cmsAccessForSlug('shop-product-pages'),
   fields: [
     {
       name: 'sku',

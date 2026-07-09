@@ -28,7 +28,7 @@ import { isStaffRole } from '../../../shared/staff-roles/index';
 
 export async function verifyOrasageAdminToken(
   token: string,
-): Promise<{ orasageUserId: number } | null> {
+): Promise<{ orasageUserId: number; staffPermissions: string[] } | null> {
   const secret = jwtSecretKey();
   if (!secret) return null;
 
@@ -36,13 +36,18 @@ export async function verifyOrasageAdminToken(
     const { payload: claims } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
     const sub = claims.sub;
     const role = claims.role;
+    const permsRaw = claims.perms;
     if (typeof sub !== 'string' || !isStaffRole(role as string)) return null;
     if (role !== 'admin' && role !== 'content_ops') return null;
 
     const orasageUserId = Number(sub);
     if (!Number.isFinite(orasageUserId)) return null;
 
-    return { orasageUserId };
+    const staffPermissions = typeof permsRaw === 'string'
+      ? permsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    return { orasageUserId, staffPermissions };
   } catch {
     return null;
   }
@@ -52,6 +57,7 @@ export async function verifyOrasageAdminToken(
 export async function resolveOrasagePayloadUser(
   payload: Payload,
   orasageUserId: number,
+  staffPermissions: string[] = [],
 ): Promise<Record<string, unknown> | null> {
   const email = orasageAdminEmail(orasageUserId);
 
@@ -63,7 +69,14 @@ export async function resolveOrasagePayloadUser(
   });
 
   if (byOrasageId.docs[0]) {
-    return byOrasageId.docs[0] as unknown as Record<string, unknown>;
+    const doc = byOrasageId.docs[0] as unknown as Record<string, unknown>;
+    const updated = await payload.update({
+      collection: 'users',
+      id: doc.id as string | number,
+      data: { staffPermissions } as never,
+      overrideAccess: true,
+    });
+    return updated as unknown as Record<string, unknown>;
   }
 
   const byEmail = await payload.find({
@@ -79,7 +92,7 @@ export async function resolveOrasagePayloadUser(
       const updated = await payload.update({
         collection: 'users',
         id: doc.id as string | number,
-        data: { orasageUserId },
+        data: { orasageUserId, staffPermissions } as never,
         overrideAccess: true,
       });
       return updated as unknown as Record<string, unknown>;
@@ -93,7 +106,8 @@ export async function resolveOrasagePayloadUser(
       data: {
         email,
         orasageUserId,
-      } satisfies Omit<User, 'id' | 'updatedAt' | 'createdAt' | 'collection'>,
+        staffPermissions,
+      } as never,
       overrideAccess: true,
     });
     return created as unknown as Record<string, unknown>;
@@ -109,5 +123,5 @@ export async function resolveUserFromOrasageToken(
   if (!token) return null;
   const verified = await verifyOrasageAdminToken(token);
   if (!verified) return null;
-  return resolveOrasagePayloadUser(payload, verified.orasageUserId);
+  return resolveOrasagePayloadUser(payload, verified.orasageUserId, verified.staffPermissions);
 }

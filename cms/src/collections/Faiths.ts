@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 import { SANCTUARY_IMAGE_SPEC } from '../lib/media-specs';
 
@@ -9,9 +10,7 @@ export const Faiths: CollectionConfig = {
     singular: '宗教分类',
     plural: '宗教分类',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('faiths'),
   admin: {
     group: '祈福地理',
     useAsTitle: 'nameZh',

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 国家/地区 — ISO 3166-1 alpha-2 */
@@ -8,9 +9,7 @@ export const GeoCountries: CollectionConfig = {
     singular: '国家/地区',
     plural: '国家/地区',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('geo-countries'),
   admin: {
     group: '祈福地理',
     useAsTitle: 'nameZh',

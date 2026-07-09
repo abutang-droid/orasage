@@ -5,13 +5,14 @@ import type { ReactNode } from 'react';
 import {
   BILLING_NAV_ITEMS,
   CMS_NAV_ITEMS,
-  canAccessNav,
+  canAccessNavItem,
   navItemActive,
   OPS_NAV_ITEMS,
   SHOP_NAV_ITEMS,
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
-import type { StaffRole } from '@/lib/auth';
+import type { StaffUser } from '@/lib/auth';
+import type { AnyStaffPermission } from '../../../shared/staff-permissions/index';
 import { OrdersNavBadge } from '@/components/OrdersNavBadge';
 import { MessagesNavBadge } from '@/components/MessagesNavBadge';
 import { ImNavBadge } from '@/components/ImNavBadge';
@@ -40,22 +41,23 @@ export type AdminBackendShellProps = {
   children: ReactNode;
   showSidebar?: boolean;
   wideContent?: boolean;
-  staffRole?: StaffRole;
+  staffUser?: StaffUser;
 };
 
 function NavSection({
   title,
   items,
   pathname,
-  staffRole,
+  staffUser,
 }: {
   title: string;
   items: AdminNavItem[];
   pathname: string;
-  staffRole?: StaffRole;
+  staffUser?: StaffUser;
 }) {
-  const visible = staffRole
-    ? items.filter((item) => canAccessNav(staffRole, item.roles))
+  const permSet = staffUser ? new Set(staffUser.permissions) as ReadonlySet<AnyStaffPermission> : null;
+  const visible = staffUser && permSet
+    ? items.filter((item) => canAccessNavItem(permSet, staffUser.role, item))
     : items;
   if (visible.length === 0) return null;
   return (
@@ -80,9 +82,12 @@ function NavSection({
   );
 }
 
-function MobileNav({ pathname, staffRole }: { pathname: string; staffRole?: StaffRole }) {
+function MobileNav({ pathname, staffUser }: { pathname: string; staffUser?: StaffUser }) {
+  const permSet = staffUser ? new Set(staffUser.permissions) as ReadonlySet<AnyStaffPermission> : null;
   const items = [...OPS_NAV_ITEMS, ...SHOP_NAV_ITEMS, ...BILLING_NAV_ITEMS, ...CMS_NAV_ITEMS]
-    .filter((item) => !staffRole || canAccessNav(staffRole, item.roles));
+    .filter((item) => staffUser && permSet
+      ? canAccessNavItem(permSet, staffUser.role, item)
+      : true);
   return (
     <nav className="admin-backend-mobile-nav" aria-label="后台快捷导航">
       {items.map((item) => {
@@ -104,7 +109,7 @@ export function AdminBackendShell({
   children,
   showSidebar = true,
   wideContent = false,
-  staffRole,
+  staffUser,
 }: AdminBackendShellProps) {
   const pathname = usePathname() ?? '';
 
@@ -113,12 +118,12 @@ export function AdminBackendShell({
       {showSidebar ? (
         <>
           <aside className="admin-backend-sidebar" aria-label="后台导航">
-            <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
-            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
-            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
-            <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
+            <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} staffUser={staffUser} />
+            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} staffUser={staffUser} />
+            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} staffUser={staffUser} />
+            <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} staffUser={staffUser} />
           </aside>
-          <MobileNav pathname={pathname} staffRole={staffRole} />
+          <MobileNav pathname={pathname} staffUser={staffUser} />
         </>
       ) : null}
       <div className="admin-backend-main">
