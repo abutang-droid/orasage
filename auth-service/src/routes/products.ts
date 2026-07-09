@@ -98,11 +98,32 @@ productsRouter.get("/:sku", async (req, res) => {
 
 const i18nMapSchema = z.record(z.string().min(1).max(2000)).optional().nullable();
 
+const attachmentSchema = z.object({
+  name: z.string().min(1).max(200),
+  url: z.string().url().max(2000),
+});
+
+const productAttributesSchema = {
+  material: z.string().max(200).optional().nullable(),
+  materialI18n: i18nMapSchema,
+  color: z.string().max(100).optional().nullable(),
+  colorI18n: i18nMapSchema,
+  weightGrams: z.number().int().nonnegative().optional().nullable(),
+  beadDiameterMm: z.number().positive().optional().nullable(),
+  wristCmMin: z.number().positive().optional().nullable(),
+  wristCmMax: z.number().positive().optional().nullable(),
+  lengthMm: z.number().positive().optional().nullable(),
+  packaging: z.string().max(2000).optional().nullable(),
+  packagingI18n: i18nMapSchema,
+  attachments: z.array(attachmentSchema).max(10).optional().nullable(),
+};
+
 const productBodySchema = z.object({
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(200),
   nameI18n: i18nMapSchema,
   element: z.string().max(10).optional().nullable(),
+  ...productAttributesSchema,
   description: z.string().min(1).max(2000),
   descriptionI18n: i18nMapSchema,
   priceCents: z.number().int().nonnegative(),

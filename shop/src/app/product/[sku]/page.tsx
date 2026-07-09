@@ -6,7 +6,7 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
-import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus } from '@/lib/pdp-content';
+import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus, injectProductSpecs } from '@/lib/pdp-content';
 import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
@@ -59,9 +59,11 @@ export default async function ProductPage({ params }: PageProps) {
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
-  const content = buildPdpContent(cmsPage?.sections ?? []);
+  const rawContent = buildPdpContent(cmsPage?.sections ?? []);
+  const specTitle = locale.startsWith('zh') ? '商品规格' : 'Specifications';
+  const content = injectProductSpecs(rawContent, product.specs ?? [], specTitle);
   const relatedSkus = resolveRelatedCrystalSkus(product.sku, content.relatedSkus);
-  const eyebrow = productEyebrow(product.sku, product.element) ?? categoryLabels[product.category];
+  const eyebrow = productEyebrow(product.sku, product.element, product.material) ?? categoryLabels[product.category];
   const hasAccordion = content.accordions.length > 0;
 
   return (

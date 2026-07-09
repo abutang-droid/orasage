@@ -44,9 +44,15 @@ const SERVICE_EYEBROWS: Record<string, string> = {
 };
 
 /** 标题上方小字：水晶/报告/服务类目标签 */
-export function productEyebrow(sku: string, element?: string | null): string | null {
-  const material = CRYSTAL_MATERIALS[sku];
-  if (material) return element ? `五行·${element} · ${material}` : material;
+export function productEyebrow(
+  sku: string,
+  element?: string | null,
+  material?: string | null,
+): string | null {
+  const resolvedMaterial = material?.trim() || CRYSTAL_MATERIALS[sku];
+  if (resolvedMaterial) {
+    return element ? `五行·${element} · ${resolvedMaterial}` : resolvedMaterial;
+  }
 
   const report = REPORT_EYEBROWS.find((r) => r.match(sku));
   if (report) return report.label;
@@ -144,6 +150,36 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
     .filter((item): item is PdpAccordionItem => Boolean(item));
 
   return { accordions, manifest, quote, relatedSkus, relatedTitle };
+}
+
+/** CMS 无 specList 时，注入 auth-service 结构化规格 */
+export function injectProductSpecs(
+  content: PdpContent,
+  specs: Array<{ label: string; value: string }>,
+  title = '商品规格',
+): PdpContent {
+  if (!specs.length) return content;
+  const hasSpec = content.accordions.some((a) =>
+    a.sections.some((s) => s.type === 'specList'),
+  );
+  if (hasSpec) return content;
+
+  const specAccordion: PdpAccordionItem = {
+    id: 'specs',
+    title,
+    sections: [
+      {
+        type: 'specList',
+        title,
+        specItems: specs.map((s) => ({ label: s.label, value: s.value })),
+      },
+    ],
+  };
+
+  return {
+    ...content,
+    accordions: [specAccordion, ...content.accordions],
+  };
 }
 
 /** 五行水晶 PDP：与之共振固定推荐其余 4 款水晶（CMS 可覆盖排序） */

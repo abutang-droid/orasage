@@ -431,3 +431,88 @@ details summary {
 .diy-sequence li {
   break-inside: avoid;
 }
+
+/* ── 商品编辑分区 Tab ── */
+.product-edit-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-edit-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--orasage-border, #e7e5e4);
+  padding-bottom: 0.75rem;
+}
+
+.product-edit-tab {
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  background: var(--orasage-card, #f5f5f4);
+  color: var(--orasage-secondary, #6b7280);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.product-edit-tab.is-active {
+  border-color: var(--orasage-gold, #b8943f);
+  background: rgba(184, 148, 63, 0.12);
+  color: var(--orasage-primary, #171717);
+  font-weight: 600;
+}
+
+.product-edit-tabpanel {
+  min-height: 12rem;
+}
+
+.product-edit-actions {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.product-attribute-fields,
+.product-attachments-fields {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.product-attribute-fields legend,
+.product-attachments-fields legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--orasage-primary, #171717);
+  margin-bottom: 0.75rem;
+}
+
+.product-i18n-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed var(--orasage-border, #e7e5e4);
+}
+
+.product-i18n-locale-label {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--orasage-gold, #b8943f);
+  margin: 0;
+}
+
+.product-attachments-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.product-attachment-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}

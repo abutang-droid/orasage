@@ -8,6 +8,7 @@ import {
 } from "../../../shared/shop-locale/index.ts";
 import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/shop-fulfillment/index.ts";
 import { pickLocalized } from "./product-i18n.ts";
+import { buildProductSpecRows, type ProductSpecRow } from "../../../shared/product-units/index.ts";
 
 export type ProductRow = typeof products.$inferSelect;
 
@@ -61,6 +62,21 @@ export function formatAdminProduct(p: ProductRow) {
     ...base,
     nameI18n: p.nameI18n ?? null,
     descriptionI18n: p.descriptionI18n ?? null,
+    materialI18n: p.materialI18n ?? null,
+    colorI18n: p.colorI18n ?? null,
+    packagingI18n: p.packagingI18n ?? null,
+    attachments: p.attachments ?? null,
+  };
+}
+
+function localizedAttributes(p: ProductRow, locale: string) {
+  const material = pickLocalized(p.materialI18n, locale, p.material ?? "");
+  const color = pickLocalized(p.colorI18n, locale, p.color ?? "");
+  const packaging = pickLocalized(p.packagingI18n, locale, p.packaging ?? "");
+  return {
+    material: material || null,
+    color: color || null,
+    packaging: packaging || null,
   };
 }
 
@@ -71,12 +87,35 @@ export function formatProduct(p: ProductRow, options?: { locale?: string }) {
     { priceCents: p.priceCents, priceCentsUsd: p.priceCentsUsd },
     currency,
   );
+  const attrs = localizedAttributes(p, locale);
+  const specs: ProductSpecRow[] = buildProductSpecRows(
+    {
+      ...attrs,
+      element: p.element,
+      weightGrams: p.weightGrams,
+      beadDiameterMm: p.beadDiameterMm,
+      wristCmMin: p.wristCmMin,
+      wristCmMax: p.wristCmMax,
+      lengthMm: p.lengthMm,
+    },
+    locale,
+  );
 
   return {
     id: p.id,
     sku: p.sku,
     name: pickLocalized(p.nameI18n, locale, p.name),
     element: p.element,
+    material: attrs.material,
+    color: attrs.color,
+    packaging: attrs.packaging,
+    weightGrams: p.weightGrams,
+    beadDiameterMm: p.beadDiameterMm,
+    wristCmMin: p.wristCmMin,
+    wristCmMax: p.wristCmMax,
+    lengthMm: p.lengthMm,
+    attachments: p.attachments ?? [],
+    specs,
     desc: pickLocalized(p.descriptionI18n, locale, p.description),
     description: pickLocalized(p.descriptionI18n, locale, p.description),
     priceCents: p.priceCents,

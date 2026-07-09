@@ -1,21 +1,14 @@
+import Link from 'next/link';
 import { getAdminUser, loginUrl } from '@/lib/auth';
 import { getHomepageProducts, getProducts, getBaziRecommendProducts, getZiweiRecommendProducts, getTarotBillingConfig } from '@/lib/api';
-import { saveHomepageProductsAction, saveProductAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
+import { saveHomepageProductsAction, saveBaziRecommendProductsAction, saveZiweiRecommendProductsAction, saveTarotBillingConfigAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { AdminSubmitButton } from '@/components/AdminButton';
 import { ProductImageCell } from '@/components/ProductImageCell';
-import { ProductImageField } from '@/components/ProductImageField';
-import { ProductInlineEditForm } from '@/components/ProductInlineEditForm';
-import { ProductI18nFields } from '@/components/ProductI18nFields';
+import { ProductEditForm } from '@/components/ProductEditForm';
 import { ProductCmsLinks } from '@/components/ProductCmsLinks';
 import { redirect } from 'next/navigation';
-
-const CATEGORIES = [
-  { value: 'crystal', label: '水晶手串' },
-  { value: 'report', label: '数字报告' },
-  { value: 'service', label: '能量咨询' },
-] as const;
 
 const HOMEPAGE_SLOTS = 6;
 
@@ -125,7 +118,7 @@ export default async function ProductsPage({
       <header className="page-header">
         <h1>商品管理</h1>
         <p className="muted">
-          全平台统一商品目录，shop / bazi / tarot / main 共用 SKU。商品信息与主图在同一页面编辑，保存后约 1 分钟内在商城前台生效。
+          全平台统一商品目录，shop / bazi / tarot / main 共用 SKU。结构化属性（材质/重量/尺寸）与主图在本站编辑；详情长内容与多图在 CMS。
         </p>
       </header>
 
@@ -184,10 +177,9 @@ export default async function ProductsPage({
                   <td>{p.priceDisplayUsd ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td>
-                    <details>
-                      <summary>编辑</summary>
-                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
-                    </details>
+                    <Link href={`/products/${encodeURIComponent(p.sku)}/edit`} className="btn-text">
+                      编辑
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -229,10 +221,9 @@ export default async function ProductsPage({
                   <td>{p.priceDisplayUsd ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td>
-                    <details>
-                      <summary>编辑</summary>
-                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
-                    </details>
+                    <Link href={`/products/${encodeURIComponent(p.sku)}/edit`} className="btn-text">
+                      编辑
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -441,28 +432,7 @@ export default async function ProductsPage({
 
       <section className="panel">
         <h2>新增商品</h2>
-        <form action={saveProductAction} className="form-grid" encType="multipart/form-data">
-          <input type="hidden" name="isEdit" value="0" />
-          <label className="full-width">
-            <ProductImageField />
-          </label>
-          <label>SKU<input name="sku" required placeholder="crystal-wood" /></label>
-          <label>名称<input name="name" required placeholder="绿幽灵手串" /></label>
-          <label>五行<input name="element" placeholder="木（水晶类填写）" /></label>
-          <label>分类
-            <select name="category" defaultValue="crystal">
-              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-          </label>
-          <label>价格 CNY（元）<input name="priceYuan" type="number" step="0.01" min="0" required placeholder="128" /></label>
-          <label>价格 USD（美元）<input name="priceUsd" type="number" step="0.01" min="0" required placeholder="17.99" /></label>
-          <label>排序<input name="sortOrder" type="number" defaultValue={0} /></label>
-          <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked /> 上架</label>
-          <label className="checkbox-label"><input name="requiresShipping" type="checkbox" defaultChecked /> 需要收货地址（实体发货）</label>
-          <label className="full-width">描述<textarea name="description" rows={2} required placeholder="招财旺运 · 五行补木" /></label>
-          <ProductI18nFields />
-          <AdminSubmitButton>添加商品</AdminSubmitButton>
-        </form>
+        <ProductEditForm mode="create" />
       </section>
 
       <section className="panel">
@@ -474,8 +444,10 @@ export default async function ProductsPage({
                 <th>主图</th>
                 <th>SKU</th>
                 <th>名称</th>
+                <th>材质</th>
                 <th>五行</th>
                 <th>分类</th>
+                <th>重量</th>
                 <th>实体</th>
                 <th>价格 CNY</th>
                 <th>价格 USD</th>
@@ -490,8 +462,10 @@ export default async function ProductsPage({
                   <td><ProductImageCell imageUrl={productImageMap.get(p.sku)} /></td>
                   <td><code>{p.sku}</code></td>
                   <td>{p.name}</td>
+                  <td>{p.material ?? '—'}</td>
                   <td>{p.element ?? '—'}</td>
                   <td>{p.categoryLabel}</td>
+                  <td>{p.weightGrams ? `${p.weightGrams} g` : '—'}</td>
                   <td>{p.requiresShipping ? <span className="badge ok">是</span> : <span className="badge off">否</span>}</td>
                   <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
                   <td>{p.priceDisplayUsd ?? '—'}</td>
@@ -503,10 +477,9 @@ export default async function ProductsPage({
                     />
                   </td>
                   <td>
-                    <details>
-                      <summary>编辑</summary>
-                      <ProductInlineEditForm product={p} imageUrl={productImageMap.get(p.sku)} />
-                    </details>
+                    <Link href={`/products/${encodeURIComponent(p.sku)}/edit`} className="btn-text">
+                      编辑
+                    </Link>
                   </td>
                 </tr>
               ))}

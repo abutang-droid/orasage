@@ -3,44 +3,20 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBaziRecommendProducts, saveZiweiRecommendProducts, saveTarotBillingSkus, saveTarotDailyRecommendProducts, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
-import { parseI18nMapFromForm } from '@/lib/product-i18n-form';
+import { parseProductFormPayload } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
 
 export async function saveProductAction(formData: FormData) {
-  const sku = String(formData.get('sku') ?? '').trim();
-  const name = String(formData.get('name') ?? '').trim();
-  const description = String(formData.get('description') ?? '').trim();
-  const element = String(formData.get('element') ?? '').trim();
-  const category = String(formData.get('category') ?? 'crystal') as 'crystal' | 'report' | 'service';
-  const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
-  const priceCentsUsd = Math.round(Number(formData.get('priceUsd') ?? 0) * 100);
-  const sortOrder = Number(formData.get('sortOrder') ?? 0);
-  const active = formData.get('active') === 'on';
-  const requiresShipping = formData.get('requiresShipping') === 'on';
+  const payload = parseProductFormPayload(formData);
   const isEdit = formData.get('isEdit') === '1';
 
-  if (!sku || !name || !description || priceCents < 0 || priceCentsUsd < 0) {
+  if (!payload.sku || !payload.name || !payload.description || payload.priceCents < 0) {
     throw new Error('请填写完整商品信息');
   }
 
-  const payload = {
-    sku,
-    name,
-    nameI18n: parseI18nMapFromForm(formData, 'name_i18n'),
-    description,
-    descriptionI18n: parseI18nMapFromForm(formData, 'description_i18n'),
-    element: element || null,
-    category,
-    priceCents,
-    priceCentsUsd: priceCentsUsd > 0 ? priceCentsUsd : null,
-    sortOrder,
-    active,
-    requiresShipping,
-  };
-
   if (isEdit) {
-    const { sku: _sku, ...patch } = payload;
+    const { sku, ...patch } = payload;
     await updateProduct(sku, patch);
   } else {
     await createProduct(payload);
@@ -54,7 +30,7 @@ export async function saveProductAction(formData: FormData) {
       imageError = '未登录，主图未上传';
     } else {
       try {
-        await upsertProductImage(sku, imageFile, token);
+        await upsertProductImage(payload.sku, imageFile, token);
       } catch (err) {
         imageError = err instanceof Error ? err.message : '主图上传失败';
       }
@@ -62,11 +38,14 @@ export async function saveProductAction(formData: FormData) {
   }
 
   revalidatePath('/products');
+  revalidatePath(`/products/${encodeURIComponent(payload.sku)}/edit`);
   revalidatePath('/');
 
+  const editPath = `/products/${encodeURIComponent(payload.sku)}/edit`;
   if (imageError) {
-    redirect(`/products?image_err=${encodeURIComponent(imageError)}&sku=${encodeURIComponent(sku)}`);
+    redirect(`${editPath}?image_err=${encodeURIComponent(imageError)}`);
   }
+  redirect(isEdit ? editPath : '/products');
 }
 
 export async function saveDiyBeadAction(formData: FormData) {

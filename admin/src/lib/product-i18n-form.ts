@@ -1,8 +1,15 @@
 const LOCALE_CODES = ['zh-CN', 'zh-TW', 'en', 'pt-BR'] as const;
 
+export type I18nFormPrefix =
+  | 'name_i18n'
+  | 'description_i18n'
+  | 'material_i18n'
+  | 'color_i18n'
+  | 'packaging_i18n';
+
 export function parseI18nMapFromForm(
   formData: FormData,
-  prefix: 'name_i18n' | 'description_i18n',
+  prefix: I18nFormPrefix,
 ): Record<string, string> | null {
   const map: Record<string, string> = {};
   for (const code of LOCALE_CODES) {
