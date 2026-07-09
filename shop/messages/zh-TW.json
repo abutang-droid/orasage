@@ -89,7 +89,17 @@
     "stepContact": "聯繫",
     "stepShipping": "配送",
     "stepPayment": "支付",
-    "stepsAria": "結帳步驟"
+    "stepsAria": "結帳步驟",
+    "couponLabel": "優惠碼",
+    "couponPlaceholder": "輸入優惠碼",
+    "couponApply": "套用",
+    "couponRemove": "移除優惠碼",
+    "couponApplied": "已套用 {code}",
+    "couponSaved": "已省 {amount}",
+    "couponSubtotal": "原價 {amount}",
+    "couponRequired": "請輸入優惠碼",
+    "couponApplyFailed": "優惠碼無效或不可用",
+    "couponRemoveFailed": "移除優惠碼失敗"
   },
   "shipping": {
     "title": "填寫收貨資訊",

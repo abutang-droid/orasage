@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import { ShippingForm } from '@/components/ShippingForm';
+import { CheckoutCouponForm, type CouponState } from '@/components/CheckoutCouponForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
@@ -18,6 +19,9 @@ type CheckoutOrder = {
   status: string;
   shippingAddress?: string | null;
   appSource?: string | null;
+  couponCode?: string | null;
+  subtotalCents?: number;
+  savingsCents?: number;
 };
 
 type Fulfillment = {
@@ -81,6 +85,7 @@ function CheckoutContent() {
   const [flowPhase, setFlowPhase] = useState<'idle' | 'shipping' | 'paying' | 'done' | 'error'>('idle');
   const [payError, setPayError] = useState<string | null>(null);
   const [orderAppSource, setOrderAppSource] = useState<string | null>(null);
+  const [couponPricing, setCouponPricing] = useState<CouponState | null>(null);
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
   const autoFlowOrderRef = useRef<string | null>(null);
@@ -150,7 +155,18 @@ function CheckoutContent() {
       setPayError(err instanceof Error ? err.message : t('payFailed'));
       throw err;
     }
-  }, [returnUrl, router, clearCart]);
+  }, [returnUrl, router, clearCart, t]);
+
+  const onCouponUpdated = useCallback((next: CouponState) => {
+    setCouponPricing(next);
+    setOrder((prev) => (prev ? {
+      ...prev,
+      amountCents: next.amountCents,
+      couponCode: next.couponCode,
+      subtotalCents: next.subtotalCents,
+      savingsCents: next.savingsCents,
+    } : prev));
+  }, []);
 
   const runReportAutoCheckout = useCallback(async (
     targetOrderNo: string,
@@ -185,6 +201,12 @@ function CheckoutContent() {
           const loadedOrder = data.order as CheckoutOrder;
           const loadedFulfillment = data.fulfillment as Fulfillment;
           setOrder(loadedOrder);
+          setCouponPricing({
+            couponCode: loadedOrder.couponCode ?? null,
+            subtotalCents: loadedOrder.subtotalCents ?? loadedOrder.amountCents,
+            amountCents: loadedOrder.amountCents,
+            savingsCents: loadedOrder.savingsCents ?? 0,
+          });
           setFulfillment(loadedFulfillment);
           setCartItems(Array.isArray(data.cartItems) ? data.cartItems : null);
           if (loadedOrder.appSource) setOrderAppSource(loadedOrder.appSource);
@@ -451,9 +473,12 @@ function CheckoutContent() {
     );
   }
 
+  const effectiveAmountCents = couponPricing?.amountCents ?? order.amountCents;
   const amountDisplay = order.currency?.toUpperCase() === 'USD'
-    ? `$${(order.amountCents / 100).toFixed(2)}`
-    : `¥${(order.amountCents / 100).toFixed(2)}`;
+    ? `$${(effectiveAmountCents / 100).toFixed(2)}`
+    : `¥${(effectiveAmountCents / 100).toFixed(2)}`;
+
+  const couponEnabled = effectiveAppSource === 'shop' && !isReportDigitalCheckout;
 
   if (isReportDigitalCheckout) {
     return (
@@ -517,11 +542,25 @@ function CheckoutContent() {
   }
 
   return (
-    <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center">
+    <main className="shop-page safe-bottom mx-auto flex min-h-[60vh] max-w-md flex-1 flex-col items-center justify-center py-16 text-center px-4">
       <CheckoutStepper current="payment" requiresShipping={fulfillment?.requiresShipping ?? false} />
       <h1 className="font-serif text-2xl text-sage-primary mt-6">{t('confirmPay')}</h1>
       <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
-      <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
+      <div className="mt-4 w-full max-w-sm text-left">
+        <CheckoutCouponForm
+          orderNo={orderNo}
+          currency={order.currency}
+          initial={couponPricing ?? {
+            couponCode: order.couponCode ?? null,
+            subtotalCents: order.subtotalCents ?? order.amountCents,
+            amountCents: order.amountCents,
+            savingsCents: order.savingsCents ?? 0,
+          }}
+          onUpdated={onCouponUpdated}
+          disabled={!couponEnabled}
+        />
+      </div>
+      <p className="mt-3 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
       <p className="mt-3 text-sm text-sage-muted">{t('orderNo', { orderNo })}</p>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
       <Button

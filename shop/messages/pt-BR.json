@@ -89,7 +89,17 @@
     "stepContact": "Contato",
     "stepShipping": "Entrega",
     "stepPayment": "Pagamento",
-    "stepsAria": "Etapas do checkout"
+    "stepsAria": "Etapas do checkout",
+    "couponLabel": "Cupom",
+    "couponPlaceholder": "Digite o código",
+    "couponApply": "Aplicar",
+    "couponRemove": "Remover cupom",
+    "couponApplied": "Aplicado {code}",
+    "couponSaved": "Economia de {amount}",
+    "couponSubtotal": "Subtotal {amount}",
+    "couponRequired": "Informe o cupom",
+    "couponApplyFailed": "Cupom inválido ou indisponível",
+    "couponRemoveFailed": "Não foi possível remover o cupom"
   },
   "shipping": {
     "title": "Dados de entrega",

@@ -6,6 +6,11 @@ import { contactMessages, savedProfiles, userAddresses, userOrders, userReadings
 import { getAuthUser } from "../lib/auth-user.ts";
 import { resolveReadingDetailUrl } from "../lib/reading-detail-url.ts";
 import { formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
+import {
+  applyCouponToOrder,
+  finalizeCouponOnPaid,
+  removeCouponFromOrder,
+} from "../lib/order-coupon.ts";
 import { notifyOrderEvent } from "../lib/order-notify.ts";
 
 export const accountRouter = Router();
@@ -812,6 +817,7 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
     }
     await db.update(userOrders).set(updates).where(eq(userOrders.orderNo, orderNo));
     if (body.status === "paid" && existing[0].status !== "paid") {
+      await finalizeCouponOnPaid(orderNo);
       notifyOrderEvent("paid", { ...existing[0], status: "paid" });
     }
     res.json({ success: true, orderNo, ...updates });
@@ -821,6 +827,59 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
       return;
     }
     console.error("[internal] order update error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const orderCouponSchema = z.object({
+  code: z.string().min(1).max(50),
+});
+
+internalRouter.post("/orders/:orderNo/coupon", async (req, res) => {
+  try {
+    const orderNo = String(req.params.orderNo);
+    const { code } = orderCouponSchema.parse(req.body);
+    const result = await applyCouponToOrder(orderNo, code);
+    if (!result.ok) {
+      res.status(400).json({ error: result.error });
+      return;
+    }
+    res.json({
+      success: true,
+      orderNo,
+      couponCode: result.couponCode,
+      subtotalCents: result.subtotalCents,
+      amountCents: result.amountCents,
+      savingsCents: result.savingsCents,
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[internal] apply coupon:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+internalRouter.delete("/orders/:orderNo/coupon", async (req, res) => {
+  try {
+    const orderNo = String(req.params.orderNo);
+    const result = await removeCouponFromOrder(orderNo);
+    if (!result.ok) {
+      res.status(400).json({ error: result.error });
+      return;
+    }
+    res.json({
+      success: true,
+      orderNo,
+      couponCode: result.couponCode,
+      subtotalCents: result.subtotalCents,
+      amountCents: result.amountCents,
+      savingsCents: result.savingsCents,
+    });
+  } catch (err) {
+    console.error("[internal] remove coupon:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
