@@ -58,6 +58,7 @@ import {
   type AnalyticsApp,
   isAnalyticsApp,
 } from "../lib/analytics.ts";
+import { getAdminDashboard } from "../lib/dashboard.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
@@ -111,6 +112,12 @@ adminApiRouter.get("/analytics/events", async (req, res) => {
     offset: Number.isFinite(offset) ? offset : 0,
   });
   res.json({ events });
+});
+
+adminApiRouter.get("/dashboard", async (req, res) => {
+  const days = Number(req.query.days ?? 7);
+  const dashboard = await getAdminDashboard(Number.isFinite(days) ? days : 7);
+  res.json(dashboard);
 });
 
 adminApiRouter.get("/products", async (_req, res) => {

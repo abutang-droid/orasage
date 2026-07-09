@@ -16,6 +16,11 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p === '/' || p === '',
   },
   {
+    label: '数据统计',
+    href: '/analytics',
+    isActive: (p) => p.startsWith('/analytics'),
+  },
+  {
     label: '留言',
     href: '/messages',
     isActive: (p) => p.startsWith('/messages'),
