@@ -1,10 +1,10 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getShippingZones } from '@/lib/api';
 import { redirect } from 'next/navigation';
 import { ShippingZonesEditor } from '@/components/ShippingZonesEditor';
 
 export default async function ShopShippingPage() {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
 
   let zones: Awaited<ReturnType<typeof getShippingZones>>['zones'] = [];

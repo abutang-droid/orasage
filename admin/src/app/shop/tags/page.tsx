@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getTags, type AdminTag, type AdminTagGroup } from '@/lib/api';
 import { saveTagAction, saveTagGroupAction } from '@/app/actions';
 import { AdminSubmitButton } from '@/components/AdminButton';
@@ -34,7 +34,7 @@ export default async function ShopTagsPage({
 }: {
   searchParams?: Promise<{ saved?: string }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
   const sp = (await searchParams) ?? {};
 

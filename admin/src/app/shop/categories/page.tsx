@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getCategories, type AdminCategory } from '@/lib/api';
 import { saveCategoryAction } from '@/app/actions';
 import { AdminSubmitButton } from '@/components/AdminButton';
@@ -44,7 +44,7 @@ export default async function ShopCategoriesPage({
 }: {
   searchParams?: Promise<{ saved?: string }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
   const sp = (await searchParams) ?? {};
 

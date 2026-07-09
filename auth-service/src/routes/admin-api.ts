@@ -3,7 +3,7 @@ import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
-import { requireAdmin } from "../lib/admin-auth.ts";
+import { requireStaff, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import {
@@ -41,9 +41,20 @@ import {
 } from "../lib/shipping-zones.ts";
 import { diyBeads, diyConfig } from "../db/schema.ts";
 import { formatBead, formatDiyConfig, getDiyConfigRow } from "./diy.ts";
+import {
+  listReviewsForAdmin,
+  updateReviewStatus,
+  type ReviewStatus,
+} from "../lib/product-reviews.ts";
+import {
+  formatCoupon,
+  listCoupons,
+  replaceCoupons,
+  type CouponInput,
+} from "../lib/coupons.ts";
 
 export const adminApiRouter = Router();
-adminApiRouter.use(requireAdmin);
+adminApiRouter.use(requireStaff);
 
 const APP_LABELS: Record<string, string> = {
   bazi: "八字排盘",
@@ -141,7 +152,7 @@ const billingSlotPutSchema = z.object({
   entries: z.array(billingEntrySchema).max(20),
 });
 
-adminApiRouter.get("/billing-slots", async (_req, res) => {
+adminApiRouter.get("/billing-slots", requireSuperAdmin, async (_req, res) => {
   try {
     const rows = await listAllBillingSlots();
     res.json({ slots: rows });
@@ -151,7 +162,7 @@ adminApiRouter.get("/billing-slots", async (_req, res) => {
   }
 });
 
-adminApiRouter.put("/billing-slots", async (req, res) => {
+adminApiRouter.put("/billing-slots", requireSuperAdmin, async (req, res) => {
   try {
     const body = billingSlotPutSchema.parse(req.body);
     const rows = await setBillingSlotEntries(body.app, body.key, body.entries);
@@ -170,7 +181,7 @@ adminApiRouter.put("/billing-slots", async (req, res) => {
   }
 });
 
-adminApiRouter.delete("/billing-slots", async (req, res) => {
+adminApiRouter.delete("/billing-slots", requireSuperAdmin, async (req, res) => {
   const app = typeof req.query.app === "string" ? req.query.app.trim() : "";
   const key = typeof req.query.key === "string" ? req.query.key.trim() : "";
   if (!app || !key) {
@@ -414,6 +425,10 @@ adminApiRouter.post("/products", async (req, res) => {
       seoTitleI18n: body.seoTitleI18n ?? null,
       seoDescI18n: body.seoDescI18n ?? null,
       requiresShipping: body.requiresShipping ?? false,
+      salePriceCents: body.salePriceCents ?? null,
+      salePriceCentsUsd: body.salePriceCentsUsd ?? null,
+      saleStartsAt: body.saleStartsAt ?? null,
+      saleEndsAt: body.saleEndsAt ?? null,
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
@@ -480,6 +495,10 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
     if (body.category !== undefined) updates.category = body.category;
     if (body.requiresShipping !== undefined) updates.requiresShipping = body.requiresShipping;
+    if (body.salePriceCents !== undefined) updates.salePriceCents = body.salePriceCents;
+    if (body.salePriceCentsUsd !== undefined) updates.salePriceCentsUsd = body.salePriceCentsUsd;
+    if (body.saleStartsAt !== undefined) updates.saleStartsAt = body.saleStartsAt;
+    if (body.saleEndsAt !== undefined) updates.saleEndsAt = body.saleEndsAt;
     if (body.active !== undefined) updates.active = body.active;
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
@@ -932,6 +951,100 @@ adminApiRouter.put("/shipping/zones", async (req, res) => {
       return;
     }
     console.error("[admin] shipping zones:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+/* ── UGC 评价（Phase D）────────────────────────────────── */
+
+adminApiRouter.get("/reviews", async (req, res) => {
+  try {
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const sku = typeof req.query.sku === "string" ? req.query.sku : undefined;
+    const limit = Number(req.query.limit) || 50;
+    const offset = Number(req.query.offset) || 0;
+    const reviews = await listReviewsForAdmin({ status, sku, limit, offset });
+    res.json({ reviews });
+  } catch (err) {
+    console.error("[admin] reviews:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const reviewStatusSchema = z.object({
+  status: z.enum(["pending", "approved", "rejected", "featured"]),
+});
+
+adminApiRouter.patch("/reviews/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "参数错误" });
+      return;
+    }
+    const body = reviewStatusSchema.parse(req.body);
+    const row = await updateReviewStatus(id, body.status as ReviewStatus);
+    if (!row) {
+      res.status(404).json({ error: "评价不存在" });
+      return;
+    }
+    res.json({ success: true, id, status: row.status });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] review patch:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+/* ── 促销券（Phase D）──────────────────────────────────── */
+
+const couponSchema = z.object({
+  code: z.string().min(1).max(50),
+  labelI18n: z.record(z.string()).default({}),
+  discountType: z.enum(["percent", "fixed_cents"]),
+  discountValue: z.number().int().min(0),
+  minOrderCents: z.number().int().min(0).optional(),
+  maxUses: z.number().int().min(1).nullable().optional(),
+  startsAt: z.string().datetime().nullable().optional(),
+  endsAt: z.string().datetime().nullable().optional(),
+  active: z.boolean().optional(),
+});
+
+adminApiRouter.get("/coupons", async (_req, res) => {
+  try {
+    const coupons = await listCoupons();
+    res.json({ coupons });
+  } catch (err) {
+    console.error("[admin] coupons:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/coupons", async (req, res) => {
+  try {
+    const body = z.object({ coupons: z.array(couponSchema) }).parse(req.body);
+    const inputs: CouponInput[] = body.coupons.map((c) => ({
+      code: c.code,
+      labelI18n: c.labelI18n,
+      discountType: c.discountType,
+      discountValue: c.discountValue,
+      minOrderCents: c.minOrderCents,
+      maxUses: c.maxUses,
+      startsAt: c.startsAt ? new Date(c.startsAt) : null,
+      endsAt: c.endsAt ? new Date(c.endsAt) : null,
+      active: c.active,
+    }));
+    const saved = await replaceCoupons(inputs);
+    res.json({ coupons: saved.map(formatCoupon) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] coupons put:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

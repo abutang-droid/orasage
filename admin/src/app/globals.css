@@ -613,6 +613,27 @@ details summary {
   margin: 0;
 }
 
+.review-body-cell {
+  max-width: 24rem;
+  white-space: pre-wrap;
+}
+
+.review-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.review-status-actions .is-active {
+  opacity: 0.6;
+}
+
+.coupons-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .product-tag-cell {
   display: inline-flex;
   flex-wrap: wrap;

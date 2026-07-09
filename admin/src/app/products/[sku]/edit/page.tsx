@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { getAdminUser, getAdminToken, loginUrl } from '@/lib/auth';
+import { getShopStaff, getAdminToken, loginUrl } from '@/lib/auth';
 import { getProducts, getTags, getCategories, getProductLinks, getBillingSlots } from '@/lib/api';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
@@ -19,7 +19,7 @@ type PageProps = {
 };
 
 export default async function ProductEditPage({ params, searchParams }: PageProps) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
   const token = await getAdminToken();
 

@@ -6,6 +6,7 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
+import { fetchUgcReviews } from '@/lib/ugc-reviews';
 import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus, injectProductSpecs } from '@/lib/pdp-content';
 import { fetchProductLinks } from '@/lib/product-links';
 import { ProductAttachments } from '@/components/ProductAttachments';
@@ -16,6 +17,7 @@ import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
 import { ProductManifest } from '@/components/ProductManifest';
 import { ProductSceneVideo } from '@/components/ProductSceneVideo';
 import { ProductTestimonials } from '@/components/ProductTestimonials';
+import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
@@ -44,12 +46,13 @@ export default async function ProductPage({ params }: PageProps) {
   const { sku } = await params;
   if (sku === 'diy-bracelet') redirect('/diy');
   const locale = await getServerShopLocale();
-  const [product, imageMap, cmsPage, testimonials, mediaLinks] = await Promise.all([
+  const [product, imageMap, cmsPage, testimonials, mediaLinks, ugcReviews] = await Promise.all([
     getProduct(sku, locale),
     fetchProductImageMap(),
     fetchCmsProductPage(sku, locale),
     fetchProductTestimonials(sku, locale),
     fetchProductLinks(sku, locale),
+    fetchUgcReviews(sku),
   ]);
 
   if (!product) notFound();
@@ -126,6 +129,8 @@ export default async function ProductPage({ params }: PageProps) {
         <ProductBrandClosure element={product.element} sku={product.sku} category={product.category} />
 
         <ProductTestimonials items={testimonials} />
+
+        <ProductUgcReviews sku={sku} reviews={ugcReviews} />
 
         <section className="shop-pdp-finale">
           <RelatedProducts skus={relatedSkus} title={content.relatedTitle} />

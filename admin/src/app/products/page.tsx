@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getHomepageProducts, getProducts, getTags, getCategories } from '@/lib/api';
 import { saveHomepageProductsAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
@@ -23,7 +23,7 @@ export default async function ProductsPage({
     count?: string;
   }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};

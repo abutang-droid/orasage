@@ -11,7 +11,7 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 
-export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const roleEnum = pgEnum("role", ["user", "admin", "shop_ops", "content_ops"]);
 export const appSourceEnum = pgEnum("app_source", ["bazi", "ziwei", "tarot", "shop"]);
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
@@ -33,6 +33,13 @@ export const contactMessageStatusEnum = pgEnum("contact_message_status", [
   "new",
   "processing",
   "resolved",
+]);
+
+export const productReviewStatusEnum = pgEnum("product_review_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "featured",
 ]);
 
 export const users = pgTable("users", {
@@ -181,6 +188,10 @@ export const products = pgTable("products", {
   seoTitleI18n: jsonb("seo_title_i18n").$type<Record<string, string>>(),
   seoDescI18n: jsonb("seo_desc_i18n").$type<Record<string, string>>(),
   requiresShipping: boolean("requires_shipping").notNull().default(false),
+  salePriceCents: integer("sale_price_cents"),
+  salePriceCentsUsd: integer("sale_price_cents_usd"),
+  saleStartsAt: timestamp("sale_starts_at"),
+  saleEndsAt: timestamp("sale_ends_at"),
   active: boolean("active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -358,6 +369,36 @@ export const contactMessages = pgTable("contact_messages", {
   adminNote: text("admin_note"),
   /** 处理人（admin 用户 id） */
   handledBy: integer("handled_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** UGC 商品评价（Phase D；CMS 精选评价为运营层，与此并存） */
+export const productReviews = pgTable("product_reviews", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  orderNo: varchar("order_no", { length: 64 }),
+  rating: integer("rating").notNull(),
+  body: text("body").notNull(),
+  status: productReviewStatusEnum("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 促销券 */
+export const coupons = pgTable("coupons", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull().default({}),
+  discountType: varchar("discount_type", { length: 20 }).notNull().default("percent"),
+  discountValue: integer("discount_value").notNull(),
+  minOrderCents: integer("min_order_cents").notNull().default(0),
+  maxUses: integer("max_uses"),
+  usedCount: integer("used_count").notNull().default(0),
+  startsAt: timestamp("starts_at"),
+  endsAt: timestamp("ends_at"),
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

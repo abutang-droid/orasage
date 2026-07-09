@@ -3,9 +3,11 @@ import { ENV } from "../env.ts";
 
 const secret = new TextEncoder().encode(ENV.jwtSecret);
 
+import type { StaffRole } from "../../../shared/staff-roles/index.ts";
+
 export interface JwtPayload {
-  sub: string;       // user id (stringified, per JWT spec)
-  role: "user" | "admin";
+  sub: string;
+  role: StaffRole | "user";
 }
 
 /** 签发 JWT */

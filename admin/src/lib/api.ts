@@ -83,6 +83,10 @@ export interface AdminProduct {
   active: boolean;
   sortOrder: number;
   shopUrl: string;
+  salePriceCents?: number | null;
+  salePriceCentsUsd?: number | null;
+  saleStartsAt?: string | null;
+  saleEndsAt?: string | null;
 }
 
 export interface AdminOrder {
@@ -454,5 +458,67 @@ export function saveDiyConfig(body: AdminDiyConfig) {
   return adminFetch<{ config: AdminDiyConfig }>('/diy/config', {
     method: 'PUT',
     body: JSON.stringify(body),
+  });
+}
+
+/* ── UGC 评价（Phase D）──────────────────────────────── */
+
+export interface AdminProductReview {
+  id: number;
+  userId: number;
+  userLabel: string;
+  sku: string;
+  orderNo?: string | null;
+  rating: number;
+  body: string;
+  status: string;
+  statusLabel: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function getProductReviews(params?: { status?: string; sku?: string; limit?: number; offset?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set('status', params.status);
+  if (params?.sku) sp.set('sku', params.sku);
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  if (params?.offset != null) sp.set('offset', String(params.offset));
+  const qs = sp.toString();
+  return adminFetch<{ reviews: AdminProductReview[] }>(`/reviews${qs ? `?${qs}` : ''}`);
+}
+
+export function updateProductReviewStatus(id: number, status: string) {
+  return adminFetch<{ success: boolean }>(`/reviews/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+/* ── 促销券（Phase D）────────────────────────────────── */
+
+export interface AdminCoupon {
+  id: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  discountType: 'percent' | 'fixed_cents';
+  discountValue: number;
+  minOrderCents: number;
+  maxUses: number | null;
+  usedCount: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function getCoupons() {
+  return adminFetch<{ coupons: AdminCoupon[] }>('/coupons');
+}
+
+export function saveCoupons(coupons: Array<Omit<AdminCoupon, 'id' | 'usedCount' | 'createdAt' | 'updatedAt'>>) {
+  return adminFetch<{ coupons: AdminCoupon[] }>('/coupons', {
+    method: 'PUT',
+    body: JSON.stringify({ coupons }),
   });
 }

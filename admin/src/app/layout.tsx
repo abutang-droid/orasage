@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         data-theme="light"
         style={{ background: 'var(--orasage-background, #fafaf8)', color: 'var(--orasage-primary, #171717)' }}
       >
-        <AdminPlatformShell showSidebar={!!admin}>{children}</AdminPlatformShell>
+        <AdminPlatformShell showSidebar={!!admin} staffRole={admin?.role}>{children}</AdminPlatformShell>
       </body>
     </html>
   );

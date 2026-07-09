@@ -70,6 +70,53 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
           placeholder="17.99"
         />
       </label>
+      <label>
+        促销价 CNY（元，可选）
+        <input
+          name="salePriceYuan"
+          type="number"
+          step="0.01"
+          min="0"
+          defaultValue={
+            product?.salePriceCents != null ? (product.salePriceCents / 100).toFixed(2) : ''
+          }
+          placeholder="限时价"
+        />
+      </label>
+      <label>
+        促销价 USD（可选）
+        <input
+          name="salePriceUsd"
+          type="number"
+          step="0.01"
+          min="0"
+          defaultValue={
+            product?.salePriceCentsUsd != null ? (product.salePriceCentsUsd / 100).toFixed(2) : ''
+          }
+        />
+      </label>
+      <label>
+        促销开始
+        <input
+          name="saleStartsAt"
+          type="datetime-local"
+          defaultValue={
+            product?.saleStartsAt
+              ? new Date(product.saleStartsAt).toISOString().slice(0, 16)
+              : ''
+          }
+        />
+      </label>
+      <label>
+        促销结束
+        <input
+          name="saleEndsAt"
+          type="datetime-local"
+          defaultValue={
+            product?.saleEndsAt ? new Date(product.saleEndsAt).toISOString().slice(0, 16) : ''
+          }
+        />
+      </label>
       {kind === 'combo' ? (
         <p className="full-width muted">
           默认按下方子商品价合计；取消勾选「使用子商品价合计」后，使用上方填写的组合优惠价。
