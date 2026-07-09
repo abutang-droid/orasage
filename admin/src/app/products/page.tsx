@@ -17,6 +17,7 @@ export default async function ProductsPage({
   searchParams?: Promise<{
     image_err?: string;
     sku?: string;
+    save_err?: string;
   }>;
 }) {
   const admin = await getAdminUser();
@@ -77,6 +78,12 @@ export default async function ProductsPage({
           命理 App 付费/推荐配置移至<Link href="/billing">「应用计费」</Link>。
         </p>
       </header>
+
+      {sp.save_err ? (
+        <p className="muted panel-notice panel-notice--error">
+          保存失败：{decodeURIComponent(sp.save_err)}
+        </p>
+      ) : null}
 
       {sp.image_err ? (
         <p className="muted panel-notice panel-notice--error">

@@ -10,19 +10,29 @@ import { getAdminToken } from '@/lib/auth';
 export async function saveProductAction(formData: FormData) {
   const payload = parseProductFormPayload(formData);
   const isEdit = formData.get('isEdit') === '1';
+  const listPath = '/products';
+  const editPath = payload.sku
+    ? `/products/${encodeURIComponent(payload.sku)}/edit`
+    : listPath;
+  const returnPath = isEdit ? editPath : listPath;
 
   if (!payload.sku || !payload.name || !payload.description || payload.priceCents < 0) {
-    throw new Error('请填写完整商品信息');
+    redirect(`${returnPath}?save_err=${encodeURIComponent('请填写完整商品信息')}`);
   }
   if (payload.kind === 'combo' && (!payload.comboItems || payload.comboItems.length === 0)) {
-    throw new Error('组合商品至少选择一个子商品');
+    redirect(`${returnPath}?save_err=${encodeURIComponent('组合商品至少选择一个子商品')}`);
   }
 
-  if (isEdit) {
-    const { sku, ...patch } = payload;
-    await updateProduct(sku, patch);
-  } else {
-    await createProduct(payload);
+  try {
+    if (isEdit) {
+      const { sku, ...patch } = payload;
+      await updateProduct(sku, patch);
+    } else {
+      await createProduct(payload);
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '保存失败';
+    redirect(`${returnPath}?save_err=${encodeURIComponent(message)}`);
   }
 
   const imageFile = formData.get('image');
@@ -41,14 +51,15 @@ export async function saveProductAction(formData: FormData) {
   }
 
   revalidatePath('/products');
-  revalidatePath(`/products/${encodeURIComponent(payload.sku)}/edit`);
+  if (payload.sku) {
+    revalidatePath(`/products/${encodeURIComponent(payload.sku)}/edit`);
+  }
   revalidatePath('/');
 
-  const editPath = `/products/${encodeURIComponent(payload.sku)}/edit`;
   if (imageError) {
     redirect(`${editPath}?image_err=${encodeURIComponent(imageError)}`);
   }
-  redirect(isEdit ? editPath : '/products');
+  redirect(editPath);
 }
 
 export async function saveDiyBeadAction(formData: FormData) {

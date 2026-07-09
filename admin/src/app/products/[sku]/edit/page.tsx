@@ -9,7 +9,7 @@ import { ProductLinksPanel } from '@/components/ProductLinksPanel';
 
 type PageProps = {
   params: Promise<{ sku: string }>;
-  searchParams?: Promise<{ image_err?: string; links?: string }>;
+  searchParams?: Promise<{ image_err?: string; links?: string; save_err?: string }>;
 };
 
 export default async function ProductEditPage({ params, searchParams }: PageProps) {
@@ -72,6 +72,12 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
           SKU <code>{product.sku}</code> · 结构化属性/标签存 auth-service，详情长内容与多图在 CMS。
         </p>
       </header>
+
+      {sp.save_err ? (
+        <p className="muted panel-notice panel-notice--error">
+          保存失败：{decodeURIComponent(sp.save_err)}
+        </p>
+      ) : null}
 
       {sp.image_err ? (
         <p className="muted panel-notice panel-notice--error">
