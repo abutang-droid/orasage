@@ -2,11 +2,10 @@
 
 import { useState, type ReactNode } from 'react';
 
-export type ProductEditTab = 'basic' | 'combo' | 'attributes' | 'tags' | 'i18n' | 'media' | 'attachments';
+export type ProductEditTab = 'basic' | 'attributes' | 'tags' | 'i18n' | 'media' | 'attachments';
 
 const TABS: Array<{ id: ProductEditTab; label: string }> = [
   { id: 'basic', label: '基础信息' },
-  { id: 'combo', label: '组合' },
   { id: 'attributes', label: '属性规格' },
   { id: 'tags', label: '标签' },
   { id: 'i18n', label: '多语言' },

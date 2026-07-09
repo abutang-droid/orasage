@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { AdminProduct } from '@/lib/api';
+import { ProductComboEditor } from './ProductComboEditor';
 
 const KIND_OPTIONS = [
   { value: 'standard', label: '实体商品' },
@@ -19,9 +20,10 @@ const VISIBILITY_OPTIONS = [
 
 type ProductBasicKindFieldsProps = {
   product?: AdminProduct | null;
+  catalog: AdminProduct[];
 };
 
-export function ProductBasicKindFields({ product }: ProductBasicKindFieldsProps) {
+export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFieldsProps) {
   const [kind, setKind] = useState<string>(product?.kind ?? 'standard');
 
   return (
@@ -70,7 +72,7 @@ export function ProductBasicKindFields({ product }: ProductBasicKindFieldsProps)
       </label>
       {kind === 'combo' ? (
         <p className="full-width muted">
-          勾选「组合」页中的「使用子商品价合计」时，保存后将自动按子商品价格更新；取消勾选则使用上方优惠价。
+          默认按下方子商品价合计；取消勾选「使用子商品价合计」后，使用上方填写的组合优惠价。
         </p>
       ) : null}
       <label>
@@ -120,6 +122,12 @@ export function ProductBasicKindFields({ product }: ProductBasicKindFieldsProps)
           组合商品的发货要求由子商品自动判定（含实体子项则需收货）。
         </p>
       )}
+      {kind === 'combo' ? (
+        <div className="full-width product-combo-inline">
+          <h3 className="product-combo-inline-title">组合子商品</h3>
+          <ProductComboEditor product={product} catalog={catalog} />
+        </div>
+      ) : null}
     </>
   );
 }

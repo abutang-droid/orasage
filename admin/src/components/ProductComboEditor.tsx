@@ -83,7 +83,7 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
       <input type="hidden" name="comboUseComponentSum" value={useComponentSum ? '1' : '0'} />
 
       <p className="muted">
-        组合商品由数字商品与实体商品等组成。价格默认按子商品合计；可勾选下方选项后，在「基础信息」中设定组合优惠价。
+        选择数字商品、实体商品等作为子项。保存后价格与发货要求将按子商品自动计算。
       </p>
 
       <div className="product-combo-rows">
@@ -137,7 +137,7 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
             checked={useComponentSum}
             onChange={(e) => setUseComponentSum(e.target.checked)}
           />
-          使用子商品价合计（不勾选则在基础信息中填写组合优惠价）
+          使用子商品价合计（不勾选则使用上方填写的组合优惠价）
         </label>
         {!useComponentSum && product ? (
           <p className="muted">

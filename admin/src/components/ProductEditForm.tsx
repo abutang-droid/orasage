@@ -7,7 +7,6 @@ import { ProductAttachmentsField } from './ProductAttachmentsField';
 import { ProductCmsLinks } from './ProductCmsLinks';
 import { ProductEditTabs } from './ProductEditTabs';
 import { ProductBasicKindFields } from './ProductBasicKindFields';
-import { ProductComboEditor } from './ProductComboEditor';
 import type { AdminCategory, AdminProduct, AdminTag, AdminTagGroup } from '@/lib/api';
 
 type TagData = { groups: AdminTagGroup[]; tags: AdminTag[] };
@@ -106,7 +105,7 @@ export function ProductEditForm({
                   ))}
                 </select>
               </label>
-              <ProductBasicKindFields product={product} />
+              <ProductBasicKindFields product={product} catalog={catalog} />
               <label className="full-width">
                 短描述（列表 / 卡片）
                 <textarea
@@ -118,13 +117,6 @@ export function ProductEditForm({
                 />
               </label>
             </div>
-          ),
-          combo: (
-            product?.kind === 'combo' || !isEdit ? (
-              <ProductComboEditor product={product} catalog={catalog} />
-            ) : (
-              <p className="muted">请先在「基础信息」将形态设为「组合商品」。</p>
-            )
           ),
           attributes: <ProductAttributeFields product={product} />,
           tags: <TagCheckboxes tagData={tagData} product={product} />,

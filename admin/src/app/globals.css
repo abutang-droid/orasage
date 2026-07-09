@@ -590,6 +590,19 @@ details summary {
   background: rgba(184, 148, 63, 0.12);
 }
 
+.product-combo-inline {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.product-combo-inline-title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--orasage-gold, #b8943f);
+}
+
 /* ── 组合商品编辑器 ── */
 .product-combo-editor {
   display: flex;
