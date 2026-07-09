@@ -13,7 +13,6 @@ import {
   useT as useSharedT,
 } from '@orasage/i18n/react';
 import zhCN from './zh-CN';
-import zhTW from './zh-TW';
 import en from './en';
 import ptBR from './pt-BR';
 
@@ -25,7 +24,6 @@ type TFunction = (key: string, params?: Record<string, string | number>) => stri
 
 const DICTIONARIES: Record<Locale, Record<string, string>> = {
   'zh-CN': zhCN,
-  'zh-TW': zhTW,
   en,
   'pt-BR': ptBR,
 };
