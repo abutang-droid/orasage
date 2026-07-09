@@ -60,7 +60,7 @@ export default function OrderDetailPage() {
     return (
       <main className="shop-page safe-bottom mx-auto max-w-md flex-1 py-16 text-center">
         <p className="text-sm text-red-600">{error ?? '订单不存在'}</p>
-        <Button asChild variant="secondary" className="mt-6 orasage-subpage-back-local">
+        <Button asChild variant="secondary" className="mt-6">
           <Link href="/">返回商城</Link>
         </Button>
       </main>
@@ -69,6 +69,9 @@ export default function OrderDetailPage() {
 
   return (
     <main className="shop-page safe-bottom mx-auto w-full max-w-md flex-1 py-8 px-4">
+      <Link href="/" className="shop-pdp-back shop-pdp-back--top mb-4 inline-block text-sm text-sage-muted">
+        ← 返回商城
+      </Link>
       <h1 className="font-serif text-2xl text-sage-primary">订单详情</h1>
       <p className="mt-1 text-sm text-sage-muted">{order.orderNo}</p>
 

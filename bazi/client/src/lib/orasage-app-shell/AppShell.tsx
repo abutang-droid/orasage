@@ -3,7 +3,7 @@
 import { ChevronLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { Button } from '@orasage/ui/button';
-import { appBrandLabel, appHomeUrl, isAppSubpage, type AppId } from './config';
+import { appBrandLabel, appHomeUrl, shouldShowAppShellPageBack, type AppId } from './config';
 import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
@@ -50,7 +50,7 @@ export function AppShell({
   onLocaleChange,
   children,
 }: AppShellProps) {
-  const showBack = showPageBack && isAppSubpage(appId, pathname) && !immersive;
+  const showBack = showPageBack && shouldShowAppShellPageBack(appId, pathname) && !immersive;
   const brandLabel = appBrandLabel(appId, locale);
 
   return (
