@@ -49,6 +49,41 @@ export interface AuthOrder {
   readingId?: string | null;
   recommendationContext?: string | null;
   shippingAddress?: string | null;
+  couponCode?: string | null;
+  subtotalCents?: number | null;
+}
+
+export type CouponApplyResult = {
+  success: boolean;
+  orderNo: string;
+  couponCode: string | null;
+  subtotalCents: number;
+  amountCents: number;
+  savingsCents: number;
+};
+
+export async function applyOrderCoupon(orderNo: string, code: string): Promise<CouponApplyResult> {
+  const res = await fetch(`${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}/coupon`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error || `应用优惠码失败 (${res.status})`);
+  }
+  return data as CouponApplyResult;
+}
+
+export async function removeOrderCoupon(orderNo: string): Promise<CouponApplyResult> {
+  const res = await fetch(`${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}/coupon`, {
+    method: 'DELETE',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error || `移除优惠码失败 (${res.status})`);
+  }
+  return data as CouponApplyResult;
 }
 
 export async function getOrderByNo(orderNo: string): Promise<AuthOrder | null> {

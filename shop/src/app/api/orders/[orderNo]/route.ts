@@ -40,6 +40,11 @@ export async function GET(_req: NextRequest, context: RouteContext) {
         status: order.status,
         shippingAddress: order.shippingAddress,
         appSource: order.appSource,
+        couponCode: order.couponCode ?? null,
+        subtotalCents: order.subtotalCents ?? order.amountCents,
+        savingsCents: order.subtotalCents != null && order.subtotalCents > order.amountCents
+          ? order.subtotalCents - order.amountCents
+          : 0,
         statusLabel: detailData.order?.statusLabel,
         amountDisplay: detailData.order?.amountDisplay,
         createdAt: detailData.order?.createdAt,

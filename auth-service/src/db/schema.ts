@@ -90,6 +90,8 @@ export const userOrders = pgTable("user_orders", {
   shippingAddress: text("shipping_address"),
   recommendationContext: text("recommendation_context"),
   readingId: varchar("reading_id", { length: 100 }),
+  couponCode: varchar("coupon_code", { length: 50 }),
+  subtotalCents: integer("subtotal_cents"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1293,6 +1293,114 @@
   color: #fff;
 }
 
+.shop-checkout-coupon {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+  background: rgb(var(--os-rgb-mono-white) / 0.6);
+}
+
+.shop-checkout-coupon-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  text-align: left;
+}
+
+.shop-checkout-coupon-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.shop-checkout-coupon-row input {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+  background: var(--os-color-mono-white, #fff);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--os-color-mono-black, #171717);
+  text-transform: uppercase;
+}
+
+.shop-checkout-coupon-row button {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--os-color-mono-black, #171717);
+  background: var(--os-color-mono-black, #171717);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+}
+
+.shop-checkout-coupon-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.shop-checkout-coupon-applied {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  text-align: left;
+}
+
+.shop-checkout-coupon-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--os-color-mono-black, #171717);
+}
+
+.shop-checkout-coupon-line strong {
+  font-weight: 600;
+  color: #059669;
+}
+
+.shop-checkout-coupon-subtotal {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.shop-checkout-coupon-subtotal.muted {
+  color: var(--os-color-mono-gray-mid, #9ca3af);
+  text-decoration: line-through;
+}
+
+.shop-checkout-coupon-remove {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.shop-checkout-coupon-remove:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.shop-checkout-coupon-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #dc2626;
+  text-align: left;
+}
+
 .shop-product-badge {
   display: inline-flex;
   height: 2.5rem;

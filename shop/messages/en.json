@@ -89,7 +89,17 @@
     "stepContact": "Contact",
     "stepShipping": "Shipping",
     "stepPayment": "Payment",
-    "stepsAria": "Checkout steps"
+    "stepsAria": "Checkout steps",
+    "couponLabel": "Promo code",
+    "couponPlaceholder": "Enter code",
+    "couponApply": "Apply",
+    "couponRemove": "Remove code",
+    "couponApplied": "Applied {code}",
+    "couponSaved": "You save {amount}",
+    "couponSubtotal": "Subtotal {amount}",
+    "couponRequired": "Enter a promo code",
+    "couponApplyFailed": "Invalid or unavailable promo code",
+    "couponRemoveFailed": "Could not remove promo code"
   },
   "shipping": {
     "title": "Shipping details",
