@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { formatShippingDisplay, SHIPMENT_STATUS_LABELS } from '../../../../shared/shop-fulfillment/index';
 import { parseDiyOrderContext, formatDiySequence } from '../../../../shared/shop-diy/order-context';
 import { AdminSubmitButton } from '@/components/AdminButton';
+import { MarkOrdersSeen } from '@/components/OrdersNavBadge';
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
 
@@ -21,6 +22,7 @@ export default async function OrdersPage() {
 
   return (
     <div className="admin-page">
+      <MarkOrdersSeen />
       <header className="page-header">
         <h1>订单管理</h1>
         <p className="muted">来自 shop 与各命理 App 的结账记录 · 录入运单后用户可在订单详情查看物流</p>

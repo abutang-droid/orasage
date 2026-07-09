@@ -95,6 +95,12 @@ export function getOrders() {
   return adminFetch<{ orders: AdminOrder[] }>('/orders');
 }
 
+/** since 之后创建的订单数（后台导航角标用） */
+export function getNewOrdersCount(since?: string) {
+  const query = since ? `?since=${encodeURIComponent(since)}` : '';
+  return adminFetch<{ count: number; since: string }>(`/orders/new-count${query}`);
+}
+
 export function createProduct(body: Record<string, unknown>) {
   return adminFetch<{ product: AdminProduct }>('/products', {
     method: 'POST',

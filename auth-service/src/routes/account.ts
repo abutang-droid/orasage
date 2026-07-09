@@ -6,6 +6,7 @@ import { contactMessages, savedProfiles, userAddresses, userOrders, userReadings
 import { getAuthUser } from "../lib/auth-user.ts";
 import { resolveReadingDetailUrl } from "../lib/reading-detail-url.ts";
 import { formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
+import { notifyOrderEvent } from "../lib/order-notify.ts";
 
 export const accountRouter = Router();
 
@@ -714,6 +715,9 @@ internalRouter.post("/orders", async (req, res) => {
     if (dup.length > 0) {
       if (body.status && body.status !== dup[0].status) {
         await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, body.orderNo));
+        if (body.status === "paid" && dup[0].status !== "paid") {
+          notifyOrderEvent("paid", { ...dup[0], status: "paid" });
+        }
       }
       res.json({ success: true, id: dup[0].id, duplicate: true, updated: Boolean(body.status) });
       return;
@@ -731,6 +735,8 @@ internalRouter.post("/orders", async (req, res) => {
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
     }).returning();
+    notifyOrderEvent("created", row);
+    if (row.status === "paid") notifyOrderEvent("paid", row);
     res.status(201).json({ success: true, id: row.id });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -805,6 +811,9 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
       return;
     }
     await db.update(userOrders).set(updates).where(eq(userOrders.orderNo, orderNo));
+    if (body.status === "paid" && existing[0].status !== "paid") {
+      notifyOrderEvent("paid", { ...existing[0], status: "paid" });
+    }
     res.json({ success: true, orderNo, ...updates });
   } catch (err) {
     if (err instanceof z.ZodError) {

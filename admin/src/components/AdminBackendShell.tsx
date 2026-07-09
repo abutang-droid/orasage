@@ -8,6 +8,7 @@ import {
   OPS_NAV_ITEMS,
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
+import { OrdersNavBadge } from '@/components/OrdersNavBadge';
 
 const MAIN_BASE = 'https://orasage.com/zh-CN';
 
@@ -56,6 +57,7 @@ function NavSection({
             className={`admin-backend-nav-link${active ? ' is-active' : ''}`}
           >
             {item.label}
+            {item.href === '/orders' ? <OrdersNavBadge /> : null}
           </a>
         );
       })}
@@ -72,6 +74,7 @@ function MobileNav({ pathname }: { pathname: string }) {
         return (
           <a key={item.href} href={item.href} className={active ? 'is-active' : undefined}>
             {item.label}
+            {item.href === '/orders' ? <OrdersNavBadge /> : null}
           </a>
         );
       })}

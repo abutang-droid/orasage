@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, gt } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, products, userOrders, userReadings, users } from "../db/schema.ts";
@@ -452,6 +452,21 @@ adminApiRouter.put("/diy/config", async (req, res) => {
     console.error("[admin] update diy config:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
+});
+
+/** 后台角标：since 之后创建的订单数（无 since 默认最近 24h） */
+adminApiRouter.get("/orders/new-count", async (req, res) => {
+  const sinceRaw = typeof req.query.since === "string" ? req.query.since : "";
+  let since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  if (sinceRaw) {
+    const parsed = new Date(sinceRaw);
+    if (!Number.isNaN(parsed.getTime())) since = parsed;
+  }
+  const [row] = await db
+    .select({ value: count() })
+    .from(userOrders)
+    .where(gt(userOrders.createdAt, since));
+  res.json({ count: row?.value ?? 0, since: since.toISOString() });
 });
 
 adminApiRouter.get("/orders", async (req, res) => {
