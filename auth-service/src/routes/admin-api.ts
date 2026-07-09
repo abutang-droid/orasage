@@ -82,6 +82,12 @@ import {
   markMessagesReadByOps,
   sendOpsChatMessage,
 } from "../lib/live-chat.ts";
+import {
+  getWalletUserSummary,
+  listLedgerForUser,
+  listWalletsAdmin,
+  postWalletLedgerEntry,
+} from "../lib/wallets.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
@@ -1319,4 +1325,80 @@ adminApiRouter.get("/stripe/payouts", requireSuperAdmin, async (req, res) => {
     Number.isFinite(offset) ? offset : 0,
   );
   res.json({ payouts: rows.map(formatStripeRow) });
+});
+
+/** 7c 用户钱包 — 仅超级管理员 */
+adminApiRouter.get("/wallets", requireSuperAdmin, async (req, res) => {
+  const q = String(req.query.q ?? "");
+  const limit = Number(req.query.limit) || 50;
+  const offset = Number(req.query.offset) || 0;
+  const data = await listWalletsAdmin({ q, limit, offset });
+  res.json(data);
+});
+
+adminApiRouter.get("/wallets/:userId", requireSuperAdmin, async (req, res) => {
+  const userId = Number(req.params.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    res.status(400).json({ error: "参数错误" });
+    return;
+  }
+  const summary = await getWalletUserSummary(userId);
+  if (!summary) {
+    res.status(404).json({ error: "用户不存在" });
+    return;
+  }
+  res.json(summary);
+});
+
+adminApiRouter.get("/wallets/:userId/ledger", requireSuperAdmin, async (req, res) => {
+  const userId = Number(req.params.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    res.status(400).json({ error: "参数错误" });
+    return;
+  }
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const entries = await listLedgerForUser(userId, limit);
+  res.json({ entries });
+});
+
+const walletAdjustSchema = z.object({
+  currency: z.string().min(3).max(8),
+  amountCents: z.number().int().refine((n) => n !== 0, "调整金额不能为 0"),
+  note: z.string().max(500).optional(),
+});
+
+adminApiRouter.post("/wallets/:userId/adjustment", requireSuperAdmin, async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      res.status(400).json({ error: "参数错误" });
+      return;
+    }
+    const body = walletAdjustSchema.parse(req.body);
+    const adminUser = (req as typeof req & { adminUser?: { id: number } }).adminUser;
+    const result = await postWalletLedgerEntry({
+      userId,
+      currency: body.currency,
+      amountCents: body.amountCents,
+      kind: "adjustment",
+      referenceType: "admin_adjustment",
+      referenceId: adminUser?.id ? String(adminUser.id) : undefined,
+      note: body.note,
+      createdBy: adminUser?.id,
+      idempotencyKey: `admin-adjust:${userId}:${body.currency}:${Date.now()}:${body.amountCents}`,
+    });
+    res.status(201).json(result);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    const message = err instanceof Error ? err.message : "服务器内部错误";
+    if (message === "用户不存在" || message.includes("不支持") || message === "余额不足") {
+      res.status(400).json({ error: message });
+      return;
+    }
+    console.error("[admin] wallet adjustment:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });

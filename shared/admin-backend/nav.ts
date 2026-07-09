@@ -48,6 +48,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     permission: 'staff.manage',
     isActive: (p) => p.startsWith('/staff'),
   },
+  {
+    label: '用户钱包',
+    href: '/wallets',
+    roles: ['admin'],
+    isActive: (p) => p.startsWith('/wallets'),
+  },
 ];
 
 /** 商城组（R1：独立商城） */

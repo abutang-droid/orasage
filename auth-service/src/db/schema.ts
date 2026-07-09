@@ -540,6 +540,44 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const walletLedgerKindEnum = pgEnum("wallet_ledger_kind", [
+  "credit",
+  "debit",
+  "adjustment",
+  "refund",
+  "hold",
+  "release",
+]);
+
+/** 用户钱包（7c）：每用户每币种一条余额记录 */
+export const userWallets = pgTable("user_wallets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("CNY"),
+  balanceCents: integer("balance_cents").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 钱包流水（不可变账本） */
+export const walletLedgerEntries = pgTable("wallet_ledger_entries", {
+  id: serial("id").primaryKey(),
+  walletId: integer("wallet_id").notNull(),
+  userId: integer("user_id").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull(),
+  kind: walletLedgerKindEnum("kind").notNull(),
+  /** 正数入账、负数出账 */
+  amountCents: integer("amount_cents").notNull(),
+  balanceAfterCents: integer("balance_after_cents").notNull(),
+  referenceType: varchar("reference_type", { length: 50 }),
+  referenceId: varchar("reference_id", { length: 100 }),
+  note: text("note"),
+  /** 运营手动调整时记录 admin 用户 id */
+  createdBy: integer("created_by"),
+  idempotencyKey: varchar("idempotency_key", { length: 120 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 
 export {
