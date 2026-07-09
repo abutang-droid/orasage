@@ -113,7 +113,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
 
   return (
     <div className="crystal-showcase">
-      <section className="crystal-guide panel-surface">
+      <section className="crystal-guide">
         <h2 className="crystal-section-title">
           <Sparkles size={16} strokeWidth={1.8} aria-hidden className="crystal-title-icon" />
           {t('guideTitle')}
@@ -245,32 +245,30 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           </p>
 
           <div className="crystal-feature-actions">
-            <div className="crystal-feature-actions-primary">
-              <Button
-                type="button"
-                onClick={() => void handleBuy()}
-                disabled={loading}
-                loading={loading}
-                className="min-w-0 flex-1"
-              >
-                {loading ? tp('buying') : tp('buyNow')}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleAddToCart}
-                aria-label={added ? tp('added') : tp('addToCart')}
-                className="h-control-md w-11 min-w-11 shrink-0 p-0"
-              >
-                {added ? (
-                  <Check size={18} strokeWidth={2} aria-hidden />
-                ) : (
-                  <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
-                )}
-              </Button>
-            </div>
-            <Button asChild variant="outline" size="lg" className="crystal-action-diy w-full">
+            <Button
+              type="button"
+              onClick={() => void handleBuy()}
+              disabled={loading}
+              loading={loading}
+              className="min-w-0 flex-1"
+            >
+              {loading ? tp('buying') : tp('buyNow')}
+            </Button>
+            <Button asChild variant="outline" className="min-w-0 flex-1">
               <Link href={diyBaseHref}>✦ {tp('customBracelet')}</Link>
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddToCart}
+              aria-label={added ? tp('added') : tp('addToCart')}
+              className="h-control-md w-11 min-w-11 shrink-0 p-0"
+            >
+              {added ? (
+                <Check size={18} strokeWidth={2} aria-hidden />
+              ) : (
+                <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
+              )}
             </Button>
           </div>
           {error ? <p className="crystal-error">{error}</p> : null}
@@ -320,7 +318,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
       </div>
 
       <section
-        className="crystal-diy-entry panel-surface"
+        className="crystal-diy-entry"
         style={{ '--crystal-accent': active.accent } as React.CSSProperties}
       >
         <div className="crystal-diy-entry-icon" aria-hidden>
@@ -330,7 +328,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           <h3 className="crystal-diy-entry-title">{t('diyTitle')}</h3>
           <p className="crystal-diy-entry-hint">{t('diyHint')}</p>
           <div className="crystal-diy-entry-actions">
-            <Button asChild size="lg" className="crystal-diy-entry-cta">
+            <Button asChild className="crystal-diy-entry-cta">
               <Link href={diyElementHref}>
                 ✦ {t('diyCtaElement', { element: active.element })}
               </Link>
@@ -342,14 +340,14 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
         </div>
       </section>
 
-      <section className="crystal-compare panel-surface">
+      <section className="crystal-compare">
         <h3 className="crystal-section-title">{t('compareTitle')}</h3>
         <div className="crystal-compare-grid">
           <div className="crystal-compare-cell">
             <h4>{t('packStandard')}</h4>
             <p>{t('compareStandard')}</p>
           </div>
-          <div className="crystal-compare-cell crystal-compare-cell--gift">
+          <div className="crystal-compare-cell">
             <h4>{t('packGift')}</h4>
             <p>{t('compareGift')}</p>
           </div>
