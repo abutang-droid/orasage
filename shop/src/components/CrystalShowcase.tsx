@@ -108,7 +108,6 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
     setError('');
   }
 
-  const displayPrice = resolveDisplayPrice(activeProduct, currency);
   const diyElementHref = `/diy?element=${encodeURIComponent(active.element)}`;
   const diyBaseHref = `/diy?base=${encodeURIComponent(active.baseSku)}`;
 
@@ -239,22 +238,15 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
             <p className="crystal-packaging">{activeProduct.packaging}</p>
           ) : null}
 
-          <div className="crystal-feature-price-row">
-            <span className="crystal-feature-price">{displayPrice}</span>
+          <p className="crystal-learn-more">
             <Link href={`/product/${encodeURIComponent(activeProduct.sku)}`} className="crystal-detail-link">
               {t('learnMore')}
             </Link>
-          </div>
+          </p>
 
           <div className="crystal-feature-actions">
-            <Button
-              type="button"
-              onClick={() => void handleBuy()}
-              disabled={loading}
-              loading={loading}
-              className="min-w-0 flex-1"
-            >
-              {loading ? tp('buying') : tp('buyNow')}
+            <Button asChild variant="outline" className="crystal-action-diy min-w-0 flex-1">
+              <Link href={diyBaseHref}>✦ {tp('customBracelet')}</Link>
             </Button>
             <Button
               type="button"
@@ -269,12 +261,16 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
                 <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
               )}
             </Button>
+            <Button
+              type="button"
+              onClick={() => void handleBuy()}
+              disabled={loading}
+              loading={loading}
+              className="min-w-0 flex-1"
+            >
+              {loading ? tp('buying') : tp('buyNow')}
+            </Button>
           </div>
-          <p className="crystal-feature-diy-link">
-            <Link href={diyBaseHref} className="crystal-inline-link">
-              ✦ {t('diyInline', { element: active.element })}
-            </Link>
-          </p>
           {error ? <p className="crystal-error">{error}</p> : null}
         </div>
       </section>
@@ -332,9 +328,9 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           <h3 className="crystal-diy-entry-title">{t('diyTitle')}</h3>
           <p className="crystal-diy-entry-hint">{t('diyHint')}</p>
           <div className="crystal-diy-entry-actions">
-            <Button asChild className="crystal-diy-entry-cta">
+            <Button asChild size="lg" className="crystal-diy-entry-cta">
               <Link href={diyElementHref}>
-                {t('diyCtaElement', { element: active.element })}
+                ✦ {t('diyCtaElement', { element: active.element })}
               </Link>
             </Button>
             <Link href="/diy" className="crystal-diy-entry-generic">
