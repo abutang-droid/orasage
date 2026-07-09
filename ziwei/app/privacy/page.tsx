@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <>
       <header className="ziwei-page-sticky-header">
-        <a href="/chart" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--tx-3)', textDecoration: 'none' }}>
+        <a href="/chart" className="orasage-subpage-back-local" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--tx-3)', textDecoration: 'none' }}>
           <span style={{ fontSize: '16px' }}>‹</span>
           <span>返回首页</span>
         </a>

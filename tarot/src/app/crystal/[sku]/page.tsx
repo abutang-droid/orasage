@@ -38,7 +38,7 @@ export default function CrystalDetailPage() {
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px' }}>
       <div style={{ paddingTop: 24 }}>
-        <Link href="/crystal" style={{
+        <Link href="/crystal" className="orasage-subpage-back-local" style={{
           fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none',
           display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 24,
           fontFamily: 'var(--font-sans)',

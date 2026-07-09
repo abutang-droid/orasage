@@ -1175,6 +1175,58 @@ details summary {
   font-size: 0.8rem;
 }
 
+.product-attachment-row button.btn-secondary--sm {
+  align-self: flex-end;
+  margin-top: 0.25rem;
+}
+
+.product-attachment-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.product-attachment-clear {
+  font-size: 0.82rem;
+  color: #b91c1c;
+}
+
+.product-billing-slots-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.product-billing-slots-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-billing-slots-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  background: var(--orasage-card, #f5f5f4);
+  font-size: 0.85rem;
+}
+
+.product-billing-slots-sep {
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.product-billing-slots-inactive {
+  font-size: 0.75rem;
+  color: #b45309;
+}
+
 .panel--danger {
   border-color: rgba(239, 68, 68, 0.25);
 }

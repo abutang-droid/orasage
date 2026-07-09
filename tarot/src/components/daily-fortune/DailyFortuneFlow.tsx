@@ -438,7 +438,7 @@ export function DailyFortuneFlow() {
         <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
       ) : null}
 
-      <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5">
+      <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5 orasage-subpage-back-local">
         <Link href="/">{copy.backHome}</Link>
       </Button>
     </div>

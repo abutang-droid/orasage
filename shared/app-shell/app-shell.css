@@ -434,6 +434,13 @@
   padding: 4px 0;
 }
 
+/* 页面自带返回链：移动端由 AppShell 统一提供，避免双层返回 */
+@media (max-width: 1023px) {
+  .orasage-subpage-back-local {
+    display: none !important;
+  }
+}
+
 .orasage-page-back:hover {
   color: var(--shell-gold);
 }

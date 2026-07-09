@@ -10,8 +10,35 @@ function parseOptionalNumber(raw: FormDataEntryValue | null): number | null {
 function parseAttachmentsFromForm(formData: FormData): Array<{ name: string; url: string }> | null {
   const attachments: Array<{ name: string; url: string }> = [];
   for (let i = 0; i < 10; i += 1) {
+    if (formData.get(`attachment_clear_${i}`) === 'on') continue;
     const name = String(formData.get(`attachment_name_${i}`) ?? '').trim();
     const url = String(formData.get(`attachment_url_${i}`) ?? '').trim();
+    if (name && url) attachments.push({ name, url });
+  }
+  return attachments.length > 0 ? attachments : null;
+}
+
+/** 解析附件：优先新上传文件，其次保留已有 URL */
+export async function parseAttachmentsFromFormAsync(
+  formData: FormData,
+  sku: string,
+  uploadFile: (file: File, alt: string) => Promise<string>,
+): Promise<Array<{ name: string; url: string }> | null> {
+  const attachments: Array<{ name: string; url: string }> = [];
+  for (let i = 0; i < 10; i += 1) {
+    if (formData.get(`attachment_clear_${i}`) === 'on') continue;
+
+    const name = String(formData.get(`attachment_name_${i}`) ?? '').trim();
+    const file = formData.get(`attachment_file_${i}`);
+    if (file instanceof File && file.size > 0) {
+      const url = await uploadFile(file, name || `${sku} 附件 ${i + 1}`);
+      attachments.push({ name: name || file.name, url });
+      continue;
+    }
+
+    const urlFromForm = String(formData.get(`attachment_url_${i}`) ?? '').trim();
+    const existingUrl = String(formData.get(`attachment_existing_url_${i}`) ?? '').trim();
+    const url = urlFromForm || existingUrl;
     if (name && url) attachments.push({ name, url });
   }
   return attachments.length > 0 ? attachments : null;
