@@ -112,6 +112,16 @@ export async function upsertCmsProductPage(
 
 /** 上传媒体，返回 media id */
 export async function uploadCmsMedia(file: File, alt: string, token: string): Promise<number> {
+  const uploaded = await uploadCmsMediaFile(file, alt, token);
+  return uploaded.id;
+}
+
+/** 上传媒体，返回 id + 公网可访问 URL */
+export async function uploadCmsMediaFile(
+  file: File,
+  alt: string,
+  token: string,
+): Promise<{ id: number; publicUrl: string }> {
   const form = new FormData();
   form.append('file', file);
   form.append('alt', alt || file.name);
@@ -120,10 +130,24 @@ export async function uploadCmsMedia(file: File, alt: string, token: string): Pr
     const err = await res.text().catch(() => '');
     throw new Error(`媒体上传失败 (${res.status}): ${err.slice(0, 200)}`);
   }
-  const data = (await res.json()) as { doc?: { id: number }; id?: number };
-  const id = data.doc?.id ?? data.id;
+  const data = (await res.json()) as {
+    doc?: { id: number; url?: string | null };
+    id?: number;
+    url?: string | null;
+  };
+  const doc = data.doc ?? data;
+  const id = doc.id ?? data.id;
   if (!id) throw new Error('媒体上传成功但未返回 ID');
-  return id;
+  const rawUrl = doc.url ?? data.url ?? null;
+  const CMS_PUBLIC_URL =
+    process.env.CMS_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_CMS_URL ||
+    'https://admin.orasage.com/cms';
+  const publicUrl = rawUrl
+    ? (rawUrl.startsWith('http') ? rawUrl : `${CMS_PUBLIC_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`)
+    : null;
+  if (!publicUrl) throw new Error('媒体上传成功但未返回 URL');
+  return { id, publicUrl };
 }
 
 /* ── 精选评价 ───────────────────────────────────────── */
