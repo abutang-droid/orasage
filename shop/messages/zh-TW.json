@@ -210,5 +210,15 @@
     "checkoutFailed": "下單失敗",
     "spacer": "隔珠",
     "disc": "隔片"
+  },
+  "pdp": {
+    "attachmentsTitle": "資料下載",
+    "mediaLinksTitle": "媒體與用戶報導",
+    "linkKind": {
+      "internal": "站內",
+      "media": "媒體",
+      "review": "測評",
+      "article": "文章"
+    }
   }
 }

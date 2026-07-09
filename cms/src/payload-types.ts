@@ -573,7 +573,7 @@ export interface ShopProductPage {
    * 与 auth-service products.sku 一致，例如 crystal-wood
    */
   sku: string;
-  locale: 'zh-CN';
+  locale: 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
   /**
    * 草稿不会在商城详情页展示（将降级为简版 PDP）
    */
@@ -658,7 +658,7 @@ export interface ShopProductTestimonial {
   rating: number;
   body: string;
   avatar?: (number | null) | Media;
-  locale?: 'zh-CN' | null;
+  locale?: ('zh-CN' | 'zh-TW' | 'en' | 'pt-BR') | null;
   sort?: number | null;
   /**
    * 取消勾选后不在前台展示

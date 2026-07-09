@@ -19,9 +19,9 @@ type CmsTestimonialDoc = {
   avatar?: { url?: string | null } | number | null;
 };
 
-export async function fetchProductTestimonials(
+async function fetchTestimonialsForLocale(
   sku: string,
-  locale = 'zh-CN',
+  locale: string,
 ): Promise<ProductTestimonial[]> {
   try {
     const params = new URLSearchParams({
@@ -49,6 +49,19 @@ export async function fetchProductTestimonials(
   } catch {
     return [];
   }
+}
+
+/** 精选评价；当前语言无内容时回退 zh-CN */
+export async function fetchProductTestimonials(
+  sku: string,
+  locale = 'zh-CN',
+): Promise<ProductTestimonial[]> {
+  const items = await fetchTestimonialsForLocale(sku, locale);
+  if (items.length > 0) return items;
+  if (locale !== 'zh-CN') {
+    return fetchTestimonialsForLocale(sku, 'zh-CN');
+  }
+  return [];
 }
 
 export function averageTestimonialRating(items: ProductTestimonial[]): number | null {

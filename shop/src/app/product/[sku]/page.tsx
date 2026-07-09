@@ -7,6 +7,9 @@ import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
 import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus, injectProductSpecs } from '@/lib/pdp-content';
+import { fetchProductLinks } from '@/lib/product-links';
+import { ProductAttachments } from '@/components/ProductAttachments';
+import { ProductMediaLinks } from '@/components/ProductMediaLinks';
 import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
@@ -24,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const locale = await getServerShopLocale();
   const [product, cmsPage] = await Promise.all([
     getProduct(sku, locale),
-    fetchCmsProductPage(sku, 'zh-CN'),
+    fetchCmsProductPage(sku, locale),
   ]);
   if (!product) return { title: '商品不存在' };
   const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`;
@@ -41,11 +44,12 @@ export default async function ProductPage({ params }: PageProps) {
   const { sku } = await params;
   if (sku === 'diy-bracelet') redirect('/diy');
   const locale = await getServerShopLocale();
-  const [product, imageMap, cmsPage, testimonials] = await Promise.all([
+  const [product, imageMap, cmsPage, testimonials, mediaLinks] = await Promise.all([
     getProduct(sku, locale),
     fetchProductImageMap(),
-    fetchCmsProductPage(sku, 'zh-CN'),
-    fetchProductTestimonials(sku, 'zh-CN'),
+    fetchCmsProductPage(sku, locale),
+    fetchProductTestimonials(sku, locale),
+    fetchProductLinks(sku, locale),
   ]);
 
   if (!product) notFound();
@@ -114,6 +118,10 @@ export default async function ProductPage({ params }: PageProps) {
             </blockquote>
           </section>
         ) : null}
+
+        <ProductAttachments items={product.attachments ?? []} />
+
+        <ProductMediaLinks items={mediaLinks} />
 
         <ProductBrandClosure element={product.element} sku={product.sku} category={product.category} />
 

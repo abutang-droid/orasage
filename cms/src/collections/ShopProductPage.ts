@@ -1,7 +1,12 @@
 import type { CollectionConfig } from 'payload';
 import { requiredText } from '../lib/validators';
 
-const LOCALE_OPTIONS = [{ label: '简体中文', value: 'zh-CN' }] as const;
+const LOCALE_OPTIONS = [
+  { label: '简体中文', value: 'zh-CN' },
+  { label: '繁體中文', value: 'zh-TW' },
+  { label: 'English', value: 'en' },
+  { label: 'Português', value: 'pt-BR' },
+] as const;
 
 const STATUS_OPTIONS = [
   { label: '草稿', value: 'draft' },
@@ -17,7 +22,7 @@ const SECTION_TYPE_OPTIONS = [
   { label: '相关商品', value: 'relatedSkus' },
 ] as const;
 
-/** 商城商品详情落地页 — 多图 + 区块化长内容（方案 C，首期 zh-CN） */
+/** 商城商品详情落地页 — 多图 + 区块化长内容；一 SKU 多语言文档（缺失回退 zh-CN） */
 export const ShopProductPage: CollectionConfig = {
   slug: 'shop-product-pages',
   labels: {

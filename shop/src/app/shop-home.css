@@ -672,6 +672,81 @@
   color: var(--os-color-mono-black, #171717);
 }
 
+/* ── 附件下载区（数字资料） ── */
+.shop-pdp-attachments,
+.shop-pdp-media-links {
+  margin-top: 2rem;
+}
+
+.shop-pdp-attachment-list,
+.shop-pdp-media-link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shop-pdp-attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--os-color-border, #e7e5e4);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--os-color-mono-black, #171717);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.shop-pdp-attachment-link:hover {
+  border-color: var(--os-color-gold, #b8943f);
+}
+
+/* ── 媒体与用户报道区块（R5） ── */
+.shop-pdp-media-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--os-color-border, #e7e5e4);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--os-color-mono-black, #171717);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+  min-width: 0;
+}
+
+.shop-pdp-media-link:hover {
+  border-color: var(--os-color-gold, #b8943f);
+}
+
+.shop-pdp-media-link-kind {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--os-color-mono-100, #f5f5f4);
+  color: var(--os-color-mono-600, #6b7280);
+}
+
+.shop-pdp-media-link-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shop-pdp-media-link-source {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--os-color-mono-500, #9ca3af);
+}
+
 .shop-pdp-section-body {
   font-size: 0.9375rem;
   line-height: 1.75;
