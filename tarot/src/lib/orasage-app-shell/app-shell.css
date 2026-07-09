@@ -6,6 +6,7 @@
 .orasage-app-shell {
   --shell-bg: #0f0e17;
   --shell-surface: rgba(21, 18, 42, 0.96);
+  --shell-menu-bg: #15122a;
   --shell-border: rgba(255, 255, 255, 0.08);
   --shell-border-subtle: rgba(255, 255, 255, 0.04);
   --shell-text: #e8e4dc;
@@ -24,6 +25,7 @@
 .orasage-app-shell[data-theme='light'] {
   --shell-bg: #fafaf8;
   --shell-surface: rgba(255, 255, 255, 0.96);
+  --shell-menu-bg: #ffffff;
   --shell-border: #e7e5e4;
   --shell-border-subtle: #fafaf8;
   --shell-text: #171717;
@@ -114,7 +116,8 @@
   overflow-y: auto;
   border: 1px solid var(--shell-border);
   border-radius: 8px;
-  background: var(--shell-surface);
+  /* 不透明底色：半透明 surface 会透出下层文字，影响可读性 */
+  background: var(--shell-menu-bg, #ffffff);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
