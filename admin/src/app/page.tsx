@@ -31,6 +31,11 @@ export default async function AdminHome() {
       </header>
 
       <section className="entry-grid">
+        <Link href="/analytics" className="entry-card">
+          <h2>数据统计</h2>
+          <p>用户、订单、测算与埋点趋势看板</p>
+          <span className="entry-cta">进入统计 →</span>
+        </Link>
         <Link href="/products" className="entry-card">
           <h2>运营管理</h2>
           <p>商品目录、订单履约、用户与测算统计</p>

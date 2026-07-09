@@ -522,3 +522,65 @@ export function saveCoupons(coupons: Array<Omit<AdminCoupon, 'id' | 'usedCount' 
     body: JSON.stringify({ coupons }),
   });
 }
+
+/* ── 数据统计（7b）──────────────────────────────────── */
+
+export interface AdminAnalyticsSummary {
+  days: number;
+  since: string;
+  total: number;
+  byApp: Array<{ app: string; count: number }>;
+  topEvents: Array<{ app: string; eventName: string; count: number }>;
+  daily: Array<{ day: string; count: number }>;
+}
+
+export interface AdminDashboard {
+  days: number;
+  since: string;
+  operations: {
+    days: number;
+    since: string;
+    totals: { users: number; orders: number; readings: number };
+    period: {
+      newUsers: number;
+      newOrders: number;
+      paidOrders: number;
+      revenueCents: number;
+      newReadings: number;
+    };
+    ordersByStatus: Array<{ status: string; count: number }>;
+    ordersByApp: Array<{ app: string; count: number }>;
+    dailyOrders: Array<{ day: string; count: number }>;
+  };
+  analytics: AdminAnalyticsSummary;
+}
+
+export interface AdminAnalyticsEvent {
+  id: number;
+  app: string;
+  eventName: string;
+  userId: number | null;
+  sessionKey: string;
+  locale: string | null;
+  path: string | null;
+  referrerHost: string | null;
+  properties: Record<string, string | number | boolean>;
+  createdAt: string;
+}
+
+export function getDashboard(days = 7) {
+  return adminFetch<AdminDashboard>(`/dashboard?days=${days}`);
+}
+
+export function getAnalyticsSummary(days = 7) {
+  return adminFetch<AdminAnalyticsSummary>(`/analytics/summary?days=${days}`);
+}
+
+export function getAnalyticsEvents(params?: { app?: string; limit?: number; offset?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.app) sp.set('app', params.app);
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  if (params?.offset != null) sp.set('offset', String(params.offset));
+  const qs = sp.toString();
+  return adminFetch<{ events: AdminAnalyticsEvent[] }>(`/analytics/events${qs ? `?${qs}` : ''}`);
+}

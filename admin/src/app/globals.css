@@ -1389,3 +1389,114 @@ details summary {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── 数据统计看板（7b）────────────────────────────── */
+
+.analytics-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dash-period-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dash-period-tab {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  font-size: 0.875rem;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.dash-period-tab.is-active {
+  background: rgba(184, 148, 63, 0.12);
+  border-color: rgba(184, 148, 63, 0.35);
+  color: var(--orasage-primary, #171717);
+  font-weight: 600;
+}
+
+.dash-kpi-grid .value.dash-value-sm {
+  font-size: 1.45rem;
+}
+
+.dash-charts-row,
+.dash-tables-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dash-chart-panel {
+  margin-bottom: 0;
+}
+
+.dash-chart-title {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--orasage-gold, #b8943f);
+}
+
+.dash-chart-empty {
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.dash-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  min-height: 160px;
+  padding-top: 0.5rem;
+}
+
+.dash-chart-bar-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  height: 180px;
+  justify-content: flex-end;
+}
+
+.dash-chart-bar {
+  width: 100%;
+  max-width: 28px;
+  background: linear-gradient(180deg, rgba(184, 148, 63, 0.85), rgba(184, 148, 63, 0.45));
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+}
+
+.dash-chart-bar-label {
+  font-size: 0.65rem;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.dash-chart-bar-value {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.dash-path-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  .dash-charts-row,
+  .dash-tables-row {
+    grid-template-columns: 1fr;
+  }
+}
