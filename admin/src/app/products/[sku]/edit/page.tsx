@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getAdminUser, getAdminToken, loginUrl } from '@/lib/auth';
-import { getProducts, getTags, getCategories, getProductLinks } from '@/lib/api';
+import { getProducts, getTags, getCategories, getProductLinks, getBillingSlots } from '@/lib/api';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { getCmsProductPageDoc } from '@/lib/cms-content-api';
@@ -11,6 +11,7 @@ import { ProductEditForm } from '@/components/ProductEditForm';
 import { ProductLinksPanel } from '@/components/ProductLinksPanel';
 import { ProductMediaPanel } from '@/components/ProductMediaPanel';
 import { ProductDeletePanel } from '@/components/ProductDeletePanel';
+import { ProductBillingSlotsPanel } from '@/components/ProductBillingSlotsPanel';
 
 type PageProps = {
   params: Promise<{ sku: string }>;
@@ -30,6 +31,7 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
   let tagData: Awaited<ReturnType<typeof getTags>> = { groups: [], tags: [] };
   let categories: Awaited<ReturnType<typeof getCategories>>['categories'] = [];
   let links: Awaited<ReturnType<typeof getProductLinks>>['links'] = [];
+  let billingSlots: Awaited<ReturnType<typeof getBillingSlots>>['slots'] = [];
   let productImageMap = new Map<string, string>();
   let productPageStatusMap = new Map<string, 'published' | 'draft' | 'none'>();
 
@@ -52,6 +54,11 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
     ({ links } = await getProductLinks(sku));
   } catch (err) {
     console.error('[admin/product-links]', err);
+  }
+  try {
+    ({ slots: billingSlots } = await getBillingSlots());
+  } catch (err) {
+    console.error('[admin/billing-slots]', err);
   }
   try {
     productImageMap = await fetchAdminProductImageMap();
@@ -148,6 +155,11 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
       <section className="panel">
         <h2>关联页面（媒体与用户报道）</h2>
         <ProductLinksPanel sku={product.sku} links={links} />
+      </section>
+
+      <section className="panel">
+        <h2>计费槽位引用</h2>
+        <ProductBillingSlotsPanel sku={product.sku} slots={billingSlots} />
       </section>
 
       <section className="panel panel--danger">

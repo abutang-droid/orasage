@@ -110,17 +110,7 @@ export default function HistoryPage() {
             borderBottom: `1px solid ${BORDER_CLR}`,
           }}
         >
-          <Link href="/">
-            <span
-              className="flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-70"
-              style={{ fontFamily: SERIF, fontSize: "0.75rem", letterSpacing: "0.08em", color: BODY_CLR }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
-              返回
-            </span>
-          </Link>
+          <span className="w-12" aria-hidden />
           <span style={{ fontFamily: SERIF, fontSize: "0.85rem", letterSpacing: "0.2em", color: HEADING_CLR, fontWeight: 600 }}>
             历史记录
           </span>

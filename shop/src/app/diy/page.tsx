@@ -34,7 +34,7 @@ export default async function DiyPage({ searchParams }: PageProps) {
   return (
     <main className="shop-page safe-bottom flex-1">
       <div className="shop-diy-page">
-        <Link href="/" className="shop-pdp-back shop-pdp-back--top">
+        <Link href="/" className="shop-pdp-back shop-pdp-back--top orasage-subpage-back-local">
           ← {t('backToShop')}
         </Link>
 

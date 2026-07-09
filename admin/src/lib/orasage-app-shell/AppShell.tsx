@@ -24,6 +24,8 @@ export type AppShellProps = {
   showMobileBar?: boolean;
   showSiteTopNav?: boolean;
   immersive?: boolean;
+  /** 子页顶栏返回；false 时由页面内流程自行处理（如 temple 多步向导） */
+  showPageBack?: boolean;
   showLocaleSwitcher?: boolean;
   footer?: ReactNode;
   /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
@@ -41,13 +43,14 @@ export function AppShell({
   showMobileBar = true,
   showSiteTopNav = true,
   immersive = false,
+  showPageBack = true,
   showLocaleSwitcher = true,
   footer = null,
   headerExtra = null,
   onLocaleChange,
   children,
 }: AppShellProps) {
-  const showBack = isAppSubpage(appId, pathname) && !immersive;
+  const showBack = showPageBack && isAppSubpage(appId, pathname) && !immersive;
   const brandLabel = appBrandLabel(appId, locale);
 
   return (

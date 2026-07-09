@@ -3,8 +3,9 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
-import { parseProductFormPayload } from '@/lib/product-form-parse';
+import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
+import { uploadCmsMediaFile } from '@/lib/cms-content-api';
 import { getAdminToken } from '@/lib/auth';
 
 export async function saveProductAction(formData: FormData) {
@@ -24,11 +25,25 @@ export async function saveProductAction(formData: FormData) {
   }
 
   try {
+    const token = await getAdminToken();
+    let attachments = payload.attachments;
+    if (token) {
+      attachments = await parseAttachmentsFromFormAsync(
+        formData,
+        payload.sku,
+        async (file, alt) => {
+          const uploaded = await uploadCmsMediaFile(file, alt, token);
+          return uploaded.publicUrl;
+        },
+      );
+    }
+    const productPayload = { ...payload, attachments };
+
     if (isEdit) {
-      const { sku, ...patch } = payload;
+      const { sku, ...patch } = productPayload;
       await updateProduct(sku, patch);
     } else {
-      await createProduct(payload);
+      await createProduct(productPayload);
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : '保存失败';

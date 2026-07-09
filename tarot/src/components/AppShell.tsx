@@ -10,6 +10,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { locale, setLocale } = useTarotLocale()
   const isOnboarding = pathname.startsWith("/onboarding")
+  const isTemple = pathname.startsWith("/temple")
 
   return (
     <OnboardingGate>
@@ -23,6 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         showMobileBar={!isOnboarding}
         showSiteTopNav={!isOnboarding}
         immersive={isOnboarding}
+        showPageBack={!isTemple}
         footer={isOnboarding ? null : <PortalFooter />}
       >
         {children}
