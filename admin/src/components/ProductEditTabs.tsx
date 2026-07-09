@@ -13,10 +13,10 @@ const TABS: Array<{ id: ProductEditTab; label: string }> = [
 ];
 
 type ProductEditTabsProps = {
-  children: (activeTab: ProductEditTab) => ReactNode;
+  panels: Record<ProductEditTab, ReactNode>;
 };
 
-export function ProductEditTabs({ children }: ProductEditTabsProps) {
+export function ProductEditTabs({ panels }: ProductEditTabsProps) {
   const [active, setActive] = useState<ProductEditTab>('basic');
 
   return (
@@ -35,9 +35,16 @@ export function ProductEditTabs({ children }: ProductEditTabsProps) {
           </button>
         ))}
       </div>
-      <div className="product-edit-tabpanel" role="tabpanel">
-        {children(active)}
-      </div>
+      {TABS.map((tab) => (
+        <div
+          key={tab.id}
+          role="tabpanel"
+          className="product-edit-tabpanel"
+          hidden={active !== tab.id}
+        >
+          {panels[tab.id]}
+        </div>
+      ))}
     </div>
   );
 }
