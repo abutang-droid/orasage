@@ -210,5 +210,15 @@
     "checkoutFailed": "Order failed",
     "spacer": "Spacer",
     "disc": "Disc"
+  },
+  "pdp": {
+    "attachmentsTitle": "Downloads",
+    "mediaLinksTitle": "Media & User Stories",
+    "linkKind": {
+      "internal": "On-site",
+      "media": "Media",
+      "review": "Review",
+      "article": "Article"
+    }
   }
 }

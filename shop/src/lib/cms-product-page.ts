@@ -121,11 +121,7 @@ function mapDoc(doc: CmsPageDoc): CmsProductPage | null {
   };
 }
 
-/** 拉取已发布的商品详情页（首期仅 zh-CN） */
-export async function fetchCmsProductPage(
-  sku: string,
-  locale = 'zh-CN',
-): Promise<CmsProductPage | null> {
+async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProductPage | null> {
   try {
     const params = new URLSearchParams({
       'where[sku][equals]': sku,
@@ -145,4 +141,17 @@ export async function fetchCmsProductPage(
   } catch {
     return null;
   }
+}
+
+/** 拉取已发布的商品详情页；当前语言无文档时回退 zh-CN */
+export async function fetchCmsProductPage(
+  sku: string,
+  locale = 'zh-CN',
+): Promise<CmsProductPage | null> {
+  const page = await fetchPageForLocale(sku, locale);
+  if (page) return page;
+  if (locale !== 'zh-CN') {
+    return fetchPageForLocale(sku, 'zh-CN');
+  }
+  return null;
 }

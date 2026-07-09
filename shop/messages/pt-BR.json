@@ -210,5 +210,15 @@
     "checkoutFailed": "Falha no pedido",
     "spacer": "Espaçador",
     "disc": "Disco"
+  },
+  "pdp": {
+    "attachmentsTitle": "Downloads",
+    "mediaLinksTitle": "Mídia e Avaliações",
+    "linkKind": {
+      "internal": "No site",
+      "media": "Mídia",
+      "review": "Análise",
+      "article": "Artigo"
+    }
   }
 }

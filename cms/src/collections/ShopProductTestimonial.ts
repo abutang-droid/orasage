@@ -65,7 +65,12 @@ export const ShopProductTestimonial: CollectionConfig = {
       type: 'select',
       label: '语言',
       defaultValue: 'zh-CN',
-      options: [{ label: '简体中文', value: 'zh-CN' }],
+      options: [
+        { label: '简体中文', value: 'zh-CN' },
+        { label: '繁體中文', value: 'zh-TW' },
+        { label: 'English', value: 'en' },
+        { label: 'Português', value: 'pt-BR' },
+      ],
       admin: { position: 'sidebar' },
     },
     {
