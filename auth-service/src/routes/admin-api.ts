@@ -271,6 +271,18 @@ adminApiRouter.post("/products", async (req, res) => {
       name: body.name,
       nameI18n: body.nameI18n ?? null,
       element: body.element ?? null,
+      material: body.material ?? null,
+      materialI18n: body.materialI18n ?? null,
+      color: body.color ?? null,
+      colorI18n: body.colorI18n ?? null,
+      weightGrams: body.weightGrams ?? null,
+      beadDiameterMm: body.beadDiameterMm ?? null,
+      wristCmMin: body.wristCmMin ?? null,
+      wristCmMax: body.wristCmMax ?? null,
+      lengthMm: body.lengthMm ?? null,
+      packaging: body.packaging ?? null,
+      packagingI18n: body.packagingI18n ?? null,
+      attachments: body.attachments ?? null,
       description: body.description,
       descriptionI18n: body.descriptionI18n ?? null,
       priceCents: body.priceCents,
@@ -280,7 +292,7 @@ adminApiRouter.post("/products", async (req, res) => {
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
-    res.status(201).json({ product: formatProduct(row) });
+    res.status(201).json({ product: formatAdminProduct(row) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -305,6 +317,18 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.name !== undefined) updates.name = body.name;
     if (body.nameI18n !== undefined) updates.nameI18n = body.nameI18n;
     if (body.element !== undefined) updates.element = body.element;
+    if (body.material !== undefined) updates.material = body.material;
+    if (body.materialI18n !== undefined) updates.materialI18n = body.materialI18n;
+    if (body.color !== undefined) updates.color = body.color;
+    if (body.colorI18n !== undefined) updates.colorI18n = body.colorI18n;
+    if (body.weightGrams !== undefined) updates.weightGrams = body.weightGrams;
+    if (body.beadDiameterMm !== undefined) updates.beadDiameterMm = body.beadDiameterMm;
+    if (body.wristCmMin !== undefined) updates.wristCmMin = body.wristCmMin;
+    if (body.wristCmMax !== undefined) updates.wristCmMax = body.wristCmMax;
+    if (body.lengthMm !== undefined) updates.lengthMm = body.lengthMm;
+    if (body.packaging !== undefined) updates.packaging = body.packaging;
+    if (body.packagingI18n !== undefined) updates.packagingI18n = body.packagingI18n;
+    if (body.attachments !== undefined) updates.attachments = body.attachments;
     if (body.description !== undefined) updates.description = body.description;
     if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
     if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
@@ -315,7 +339,7 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
     const [row] = await db.update(products).set(updates).where(eq(products.sku, sku)).returning();
-    res.json({ product: formatProduct(row) });
+    res.json({ product: formatAdminProduct(row) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });

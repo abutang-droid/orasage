@@ -57,12 +57,21 @@ export type ShippingPayload = {
   recipients: ShippingRecipient[];
 };
 
-/** 全球配送运费估算（分）；国内免邮，境外按收件人数 flat rate */
-export function estimateShippingFeeCents(countryCode: string, recipientCount = 1): number {
+/** 全球配送运费估算（分）；国内免邮，境外按收件人数 flat rate + 可选重量附加费 */
+export function estimateShippingFeeCents(
+  countryCode: string,
+  recipientCount = 1,
+  weightGrams?: number | null,
+): number {
   const code = (countryCode || 'CN').toUpperCase();
   const domestic = code === 'CN' || code === 'HK' || code === 'MO' || code === 'TW';
   const base = domestic ? 0 : 1500;
-  return base * Math.max(1, recipientCount);
+  let fee = base * Math.max(1, recipientCount);
+  if (!domestic && weightGrams && weightGrams > 500) {
+    const blocks = Math.ceil((weightGrams - 500) / 500);
+    fee += blocks * 500;
+  }
+  return fee;
 }
 
 export function formatRecipientLine(r: ShippingRecipient): string {

@@ -6,6 +6,12 @@ export interface Product {
   sku: string;
   name: string;
   element?: string;
+  material?: string;
+  color?: string;
+  packaging?: string;
+  weightGrams?: number | null;
+  specs?: Array<{ key: string; label: string; value: string }>;
+  attachments?: Array<{ name: string; url: string }>;
   desc: string;
   priceCents: number;
   priceCentsUsd?: number | null;
@@ -61,6 +67,12 @@ interface ApiProduct {
   sku: string;
   name: string;
   element?: string | null;
+  material?: string | null;
+  color?: string | null;
+  packaging?: string | null;
+  weightGrams?: number | null;
+  specs?: Array<{ key: string; label: string; value: string }>;
+  attachments?: Array<{ name: string; url: string }>;
   desc?: string;
   description?: string;
   priceCents: number;
@@ -79,6 +91,12 @@ function mapApiProduct(p: ApiProduct): Product {
     sku: p.sku,
     name: p.name,
     element: p.element ?? undefined,
+    material: p.material ?? undefined,
+    color: p.color ?? undefined,
+    packaging: p.packaging ?? undefined,
+    weightGrams: p.weightGrams,
+    specs: p.specs,
+    attachments: p.attachments,
     desc: p.desc ?? p.description ?? '',
     priceCents: p.priceCents,
     priceCentsUsd: p.priceCentsUsd,
