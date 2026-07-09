@@ -30,7 +30,7 @@ importers:
         version: file:../packages/city(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@orasage/i18n':
         specifier: file:../packages/i18n
-        version: file:../packages/i18n
+        version: file:../packages/i18n(react@19.2.1)
       '@orasage/tokens':
         specifier: file:../packages/tokens
         version: file:../packages/tokens
@@ -1212,6 +1212,11 @@ packages:
 
   '@orasage/i18n@file:../packages/i18n':
     resolution: {directory: ../packages/i18n, type: directory}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@orasage/tokens@file:../packages/tokens':
     resolution: {directory: ../packages/tokens, type: directory}
@@ -5685,7 +5690,9 @@ snapshots:
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
 
-  '@orasage/i18n@file:../packages/i18n': {}
+  '@orasage/i18n@file:../packages/i18n(react@19.2.1)':
+    optionalDependencies:
+      react: 19.2.1
 
   '@orasage/tokens@file:../packages/tokens': {}
 

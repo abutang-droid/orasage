@@ -15,7 +15,7 @@
 | React 组件 | `packages/ui` → `@orasage/ui` | `transpilePackages` + `@source` | ✅ 见 §2 |
 | 静态 oui-* CSS | `packages/ui/src/styles/components.css` | `sync:auth-ui-css` / `sync:fortune-ui-css` | ✅ rgb 通道兼容 |
 | App Shell | `shared/app-shell/` | `npm run app-shell:sync` / `app-shell:check` | ✅ 8 应用 + auth |
-| 多语言基座 | `packages/i18n` + tarot `ui-strings.ts` | main/shop next-intl；tarot LangProvider | 🟡 tarot 主要用户流程已外化 |
+| 多语言基座 | `packages/i18n`（locale 清单/检测/cookie/**统一字典运行时** `@orasage/i18n/react`） | main/shop next-intl（locale 源自包）；bazi/ziwei/tarot `I18nProvider` 适配层 | ✅ 全站一套机制（2026-07-09） |
 | 图标 | `lucide-react` | App Shell + 业务组件 | 🟡 内容数据 emoji 保留 |
 
 **CI**：`npm run ui:check` 已在 `.github/workflows/ui-check.yml` 门禁运行。
@@ -28,9 +28,9 @@
 |-----|:---:|:------:|:-------------:|:----:|------|
 | **main** | ✅ | 共享 | 全量 (~31 文件) | next-intl 12 语 | 参考实现 |
 | **shop** | ✅ | 共享 | Button + Card | next-intl T1 四语 | 已移除 deprecated `.shop-btn-*` |
-| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | LangProvider + `ui-strings` / `reading-copy` / `feature-copy` | 核心流程+三牌阵/运势/历史/onboarding/dream/angel 四语 |
-| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card + Badge + Input + Checkbox**（业务组件已全量接入） | 自研 4 语 | `card-glass` / `card-inner` 已定义 |
-| **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | 自研 4 语 | 命盘业务 CSS 保留 |
+| **tarot** | ✅ | 共享 + `tarot-tailwind-v4-theme.css` | Button | `@orasage/i18n/react` 适配（短码 API 保留）+ `ui-strings` / `reading-copy` / `feature-copy` | 启动读共享 cookie 已修复；核心流程四语 |
+| **ziwei** | ✅ | 共享 + `ziwei-tailwind-v4-theme.css` | **Button + Card + Badge + Input + Checkbox**（业务组件已全量接入） | `@orasage/i18n/react` 适配 4 语 | `card-glass` / `card-inner` 已定义 |
+| **bazi** | ✅ | 共享 + `bazi-tailwind-v4-theme.css` | TooltipProvider + 少量 | `@orasage/i18n/react` 适配 4 语（切换免整页刷新） | 命盘业务 CSS 保留 |
 | **admin** | ✅ | 共享 | **Button**（登录/表单提交） | 中文后台 | 运营页逐步迁移 |
 | **cms** | — | Payload UI | ❌ | 中文 | 内容 locale 字段 |
 | **auth** | — | tokens + oui CSS | ❌ | T1 四语静态页 | |
