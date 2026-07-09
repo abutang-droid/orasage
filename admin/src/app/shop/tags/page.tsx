@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation';
 
 const LOCALES = [
   { code: 'zh-CN', label: '简体' },
-  { code: 'zh-TW', label: '繁體' },
   { code: 'en', label: 'English' },
   { code: 'pt-BR', label: 'Português' },
 ] as const;
@@ -70,7 +69,6 @@ export default async function ShopTagsPage({
                   <tr>
                     <th>编码</th>
                     <th>简体</th>
-                    <th>繁體</th>
                     <th>English</th>
                     <th>Português</th>
                     <th>排序</th>
@@ -83,7 +81,6 @@ export default async function ShopTagsPage({
                     <tr key={tag.id}>
                       <td><code>{tag.code}</code></td>
                       <td>{tag.labelI18n['zh-CN'] ?? '—'}</td>
-                      <td>{tag.labelI18n['zh-TW'] ?? '—'}</td>
                       <td>{tag.labelI18n.en ?? '—'}</td>
                       <td>{tag.labelI18n['pt-BR'] ?? '—'}</td>
                       <td>{tag.sortOrder}</td>

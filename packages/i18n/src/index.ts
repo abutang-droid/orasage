@@ -1,6 +1,8 @@
 export {
+  PHASE_1_LOCALES,
   CORE_LOCALES,
   EXTENDED_LOCALES,
+  FUTURE_LOCALES,
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
   LOCALE_OVERRIDE_COOKIE,
@@ -10,9 +12,10 @@ export {
   type CoreLocale,
   type ExtendedLocale,
   type Locale,
+  type Phase1Locale,
 } from './locales';
 
-export { normalizeLocale } from './normalize';
+export { normalizeLocale, clampToActiveLocale } from './normalize';
 export { detectLocale, detectLocaleFromBrowser, type DetectLocaleOptions } from './detect';
 export { LOCALE_LABELS, localeLabel } from './labels';
 export { cookieDomain, setLocaleCookie } from './cookie';

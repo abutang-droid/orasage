@@ -323,7 +323,7 @@ export async function deleteBillingSlotAction(formData: FormData) {
 
 /* ── 标签与分类（R2 / Q3）──────────────────────────── */
 
-const I18N_LOCALES = ['zh-CN', 'zh-TW', 'en', 'pt-BR'] as const;
+const I18N_LOCALES = ['zh-CN', 'en', 'pt-BR'] as const;
 
 function labelI18nFromForm(formData: FormData, prefix: string): Record<string, string> {
   const map: Record<string, string> = {};

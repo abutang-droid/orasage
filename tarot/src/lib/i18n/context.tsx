@@ -19,11 +19,9 @@ import { I18nProvider, useI18n } from "@orasage/i18n/react"
 
 export type Lang = TarotLang
 
-/** Tarot supports T1 + Spanish; anything else falls back via core mapping. */
+/** Tarot — phase 1 uses unified core locale mapping (es → en). */
 function mapTarotLocale(input: string): string {
-  const norm = normalizeLocale(input)
-  if (norm === "es") return "es"
-  return toCoreLocale(norm)
+  return toCoreLocale(normalizeLocale(input));
 }
 
 export function LangProvider({ children, initial }: { children: ReactNode; initial?: Lang }) {
@@ -47,7 +45,7 @@ export function useLang() {
   return { lang, setLang }
 }
 
-/** Full BCP 47 locale for the app shell / cross-app links (keeps zh-TW). */
+/** Full BCP 47 locale for the app shell / cross-app links. */
 export function useTarotLocale() {
   const { locale, setLocale } = useI18n()
   return { locale, setLocale }

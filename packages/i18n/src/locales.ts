@@ -1,13 +1,14 @@
-/** T1 — fortune apps + shell (zh-CN / zh-TW / en / pt-BR) */
-export const CORE_LOCALES = ['zh-CN', 'zh-TW', 'en', 'pt-BR'] as const;
-export type CoreLocale = (typeof CORE_LOCALES)[number];
+/** Phase 1 — live locales: 简体中文 / English / Português */
+export const PHASE_1_LOCALES = ['zh-CN', 'en', 'pt-BR'] as const;
+export type Phase1Locale = (typeof PHASE_1_LOCALES)[number];
 
-/** T2 — main portal extended set */
-export const EXTENDED_LOCALES = [
-  'zh-CN',
+/** Active set for switchers, routing, and fortune apps */
+export const CORE_LOCALES = PHASE_1_LOCALES;
+export type CoreLocale = Phase1Locale;
+
+/** Reserved for later phases (zh-TW + T2 portal languages) */
+export const FUTURE_LOCALES = [
   'zh-TW',
-  'en',
-  'pt-BR',
   'es',
   'fr',
   'de',
@@ -17,7 +18,10 @@ export const EXTENDED_LOCALES = [
   'th',
   'ar',
 ] as const;
-export type ExtendedLocale = (typeof EXTENDED_LOCALES)[number];
+
+/** Portal routing — phase 1 only */
+export const EXTENDED_LOCALES = PHASE_1_LOCALES;
+export type ExtendedLocale = Phase1Locale;
 
 export type Locale = ExtendedLocale;
 
@@ -34,12 +38,11 @@ export function isExtendedLocale(value: string): value is ExtendedLocale {
   return (EXTENDED_LOCALES as readonly string[]).includes(value);
 }
 
-/** Map extended locale to nearest core locale for fortune apps */
+/** Map any locale tag to the nearest phase-1 locale */
 export function toCoreLocale(locale: string): CoreLocale {
-  const norm = locale;
-  if (isCoreLocale(norm)) return norm;
-  if (norm === 'es') return 'en';
-  if (norm.startsWith('zh')) return norm.includes('TW') || norm.includes('Hant') ? 'zh-TW' : 'zh-CN';
-  if (norm.startsWith('pt')) return 'pt-BR';
+  if (isCoreLocale(locale)) return locale;
+  const lower = locale.toLowerCase();
+  if (lower.startsWith('zh')) return 'zh-CN';
+  if (lower.startsWith('pt')) return 'pt-BR';
   return 'en';
 }

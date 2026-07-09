@@ -15,7 +15,7 @@ import {
 import { upsertProductImage } from '@/lib/cms-api';
 import type { EditorSection } from '@/components/PdpSectionsEditor';
 
-const LOCALES = new Set(['zh-CN', 'zh-TW', 'en', 'pt-BR']);
+const LOCALES = new Set(['zh-CN', 'en', 'pt-BR']);
 const HERO_ROWS = 6;
 
 async function staffCmsToken(): Promise<string> {

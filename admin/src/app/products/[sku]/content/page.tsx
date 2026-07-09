@@ -21,7 +21,6 @@ import { resolveCmsMediaUrl } from '@/lib/cms-media-utils';
 
 const LOCALES = [
   { code: 'zh-CN', label: '简体' },
-  { code: 'zh-TW', label: '繁體' },
   { code: 'en', label: 'English' },
   { code: 'pt-BR', label: 'Português' },
 ] as const;

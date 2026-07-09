@@ -4,8 +4,7 @@ const MAIN_PROFILE = "https://orasage.com/zh-CN/profile"
 const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
 const MAIN_MERIT = "https://orasage.com/zh-CN/profile/merit"
 
-const PORTAL_LOCALES =
-  "zh-CN|zh-TW|en|pt-BR|es|fr|de|ja|ko|vi|th|ar"
+const PORTAL_LOCALES = 'zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar';
 
 function redirectLocaleTemple(request: NextRequest): NextResponse | null {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"

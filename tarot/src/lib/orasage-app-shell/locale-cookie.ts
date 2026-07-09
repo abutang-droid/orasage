@@ -12,12 +12,9 @@ import type { NavContext } from './config';
 export { CORE_LOCALES, LOCALE_COOKIE, cookieDomain, isCoreLocale, setLocaleCookie };
 export type { CoreLocale };
 
-export const LOCALE_LABELS: Record<CoreLocale, string> = {
-  'zh-CN': SHARED_LOCALE_LABELS['zh-CN'],
-  'zh-TW': SHARED_LOCALE_LABELS['zh-TW'],
-  en: SHARED_LOCALE_LABELS.en,
-  'pt-BR': SHARED_LOCALE_LABELS['pt-BR'],
-};
+export const LOCALE_LABELS = Object.fromEntries(
+  CORE_LOCALES.map((code) => [code, SHARED_LOCALE_LABELS[code]]),
+) as Record<CoreLocale, string>;
 
 export function localeLabel(locale: string): string {
   if (isCoreLocale(locale)) return LOCALE_LABELS[locale];
