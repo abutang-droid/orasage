@@ -11,6 +11,8 @@ export type CrystalContentEntry = {
   benefits: string[];
   /** 佩戴仪式 / 场景一句话 */
   ritual: string;
+  /** SKU 切换下方补充说明（选填，后台不配则前台不展示） */
+  packNote: string;
 };
 
 export type CrystalContentMap = Record<string, CrystalContentEntry>;
@@ -27,6 +29,7 @@ export const DEFAULT_CRYSTAL_CONTENT: CrystalContentMap = {
       '象征生长，适合长期佩戴养护',
     ],
     ritual: '晨间通勤佩戴于左手，工作时置于案头左上角，助生长之气流通。',
+    packNote: '',
   },
   'crystal-fire': {
     tagline: '焰心觉醒',
@@ -39,6 +42,7 @@ export const DEFAULT_CRYSTAL_CONTENT: CrystalContentMap = {
       '暖色系能量，冬季与低潮期尤宜',
     ],
     ritual: '重要会议或表达场合前佩戴于右手，深呼吸三次，点燃心火。',
+    packNote: '',
   },
   'crystal-earth': {
     tagline: '厚土之根',
@@ -51,6 +55,7 @@ export const DEFAULT_CRYSTAL_CONTENT: CrystalContentMap = {
       '适合变动期、搬迁、职位调整时佩戴',
     ],
     ritual: '睡前置于枕边或床头柜，晨起佩戴，让一天从安定开始。',
+    packNote: '',
   },
   'crystal-metal': {
     tagline: '澄明之境',
@@ -63,6 +68,7 @@ export const DEFAULT_CRYSTAL_CONTENT: CrystalContentMap = {
       '百搭基础款，可与任意元素叠戴',
     ],
     ritual: '每周日用清水轻拭，置于月光下静置一夜，恢复通透。',
+    packNote: '',
   },
   'crystal-water': {
     tagline: '深海静盾',
@@ -75,6 +81,7 @@ export const DEFAULT_CRYSTAL_CONTENT: CrystalContentMap = {
       '助眠安神，缓解思虑过度',
     ],
     ritual: '外出应酬或高压场合佩戴于左手，归家后取下置于玄关，隔断外界能量。',
+    packNote: '',
   },
 };
 
@@ -90,6 +97,7 @@ export function mergeCrystalContent(
       keywords: entry?.keywords?.length ? entry.keywords : defaults.keywords,
       benefits: entry?.benefits?.length ? entry.benefits : defaults.benefits,
       ritual: entry?.ritual?.trim() || defaults.ritual,
+      packNote: entry?.packNote?.trim() ?? '',
     };
   }
   return merged;

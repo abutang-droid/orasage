@@ -295,6 +295,7 @@ export async function saveCrystalContentAction(formData: FormData) {
     keywords: string[];
     benefits: string[];
     ritual: string;
+    packNote: string;
   }> = {};
 
   for (const sku of CRYSTAL_CONTENT_SKUS) {
@@ -314,6 +315,7 @@ export async function saveCrystalContentAction(formData: FormData) {
       keywords,
       benefits,
       ritual: String(formData.get(`${sku}_ritual`) ?? '').trim(),
+      packNote: String(formData.get(`${sku}_packNote`) ?? '').trim(),
     };
   }
 

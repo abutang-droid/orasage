@@ -266,6 +266,7 @@ const crystalEntrySchema = z.object({
   keywords: z.array(z.string().max(20)).max(8).default([]),
   benefits: z.array(z.string().max(200)).max(6).default([]),
   ritual: z.string().max(500).default(""),
+  packNote: z.string().max(200).default(""),
 });
 
 const crystalContentSchema = z.object({
