@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: PageProps) {
   return (
     <main className="shop-page safe-bottom flex-1">
       <div className="shop-pdp shop-pdp--content">
-        <Link href="/" className="shop-pdp-back shop-pdp-back--top orasage-subpage-back-local">
+        <Link href="/" className="shop-pdp-back shop-pdp-back--top">
           ← 返回商城
         </Link>
 

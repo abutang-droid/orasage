@@ -14,6 +14,7 @@ export {
   exploreItems,
   isCurrentAppHome,
   isAppSubpage,
+  shouldShowAppShellPageBack,
   isMainPortalHome,
   resolveSecondNavSlot,
 } from './config';

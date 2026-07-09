@@ -63,8 +63,16 @@ export const APP_SUBPAGE_PREFIXES: Record<AppId, string[]> = {
   bazi: ['/history'],
   ziwei: ['/knowledge', '/library', '/heming'],
   tarot: ['/reading', '/crystal', '/temple', '/history'],
-  shop: ['/checkout', '/success', '/cart', '/product'],
+  shop: ['/checkout', '/success', '/cart'],
 };
+
+/** 是否显示 AppShell 子页顶栏返回（按 APP_SUBPAGE_PREFIXES，与页面内返回链互斥） */
+export function shouldShowAppShellPageBack(appId: AppId, pathname: string): boolean {
+  if (!pathname || isCurrentAppHome(appId, pathname)) return false;
+  return APP_SUBPAGE_PREFIXES[appId].some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 export function isAppSubpage(appId: AppId, pathname: string): boolean {
   if (!pathname) return false;
