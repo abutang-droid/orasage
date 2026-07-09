@@ -182,20 +182,49 @@ export interface AdminContactMessage {
   subject: string | null;
   body: string;
   locale: string | null;
+  category: 'general' | 'complaint' | 'refund' | 'bug';
+  categoryLabel: string;
+  orderNo: string | null;
   status: 'new' | 'processing' | 'resolved';
   statusLabel: string;
   adminNote: string | null;
+  adminReply: string | null;
   handledBy: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export function getContactMessages(status?: string) {
-  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+export function getContactMessages(status?: string, category?: string) {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (category) params.set('category', category);
+  const query = params.toString() ? `?${params.toString()}` : '';
   return adminFetch<{ messages: AdminContactMessage[] }>(`/contact-messages${query}`);
 }
 
-export function updateContactMessage(id: number, body: { status?: string; adminNote?: string }) {
+export function getNewContactMessagesCount(since?: string) {
+  const query = since ? `?since=${encodeURIComponent(since)}` : '';
+  return adminFetch<{ count: number; since: string }>(`/contact-messages/new-count${query}`);
+}
+
+export function getNotificationStatus() {
+  return adminFetch<{
+    channels: {
+      telegram: { configured: boolean; chatCount: number };
+      email: { configured: boolean; recipientCount: number };
+    };
+    orderNotifyEvents: string[];
+  }>('/notifications/status');
+}
+
+export function sendNotificationTest() {
+  return adminFetch<{ success: boolean; message: string }>('/notifications/test', { method: 'POST' });
+}
+
+export function updateContactMessage(
+  id: number,
+  body: { status?: string; adminNote?: string; adminReply?: string },
+) {
   return adminFetch<{ success: boolean }>(`/contact-messages/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(body),

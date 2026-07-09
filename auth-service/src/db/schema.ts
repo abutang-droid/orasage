@@ -35,6 +35,13 @@ export const contactMessageStatusEnum = pgEnum("contact_message_status", [
   "resolved",
 ]);
 
+export const contactMessageCategoryEnum = pgEnum("contact_message_category", [
+  "general",
+  "complaint",
+  "refund",
+  "bug",
+]);
+
 export const productReviewStatusEnum = pgEnum("product_review_status", [
   "pending",
   "approved",
@@ -366,9 +373,13 @@ export const contactMessages = pgTable("contact_messages", {
   subject: varchar("subject", { length: 200 }),
   body: text("body").notNull(),
   locale: varchar("locale", { length: 10 }),
+  category: contactMessageCategoryEnum("category").notNull().default("general"),
+  orderNo: varchar("order_no", { length: 64 }),
   status: contactMessageStatusEnum("status").notNull().default("new"),
-  /** 运营处理备注 */
+  /** 运营内部备注（用户不可见） */
   adminNote: text("admin_note"),
+  /** 运营回复（用户可在「我的工单」查看，并邮件通知） */
+  adminReply: text("admin_reply"),
   /** 处理人（admin 用户 id） */
   handledBy: integer("handled_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

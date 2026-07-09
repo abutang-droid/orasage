@@ -33,6 +33,8 @@ import {
 } from "../lib/catalog.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 import { createShipment, formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
+import { getHubChannelStatus, pushHubOpsNotification } from "../lib/message-hub.ts";
+import { notifyTicketReply } from "../lib/ticket-notify.ts";
 import {
   formatShippingZone,
   listShippingZones,
@@ -758,15 +760,64 @@ const CONTACT_STATUS_LABELS: Record<string, string> = {
   resolved: "已解决",
 };
 
+const CONTACT_CATEGORY_LABELS: Record<string, string> = {
+  general: "一般咨询",
+  complaint: "投诉",
+  refund: "退款",
+  bug: "问题反馈",
+};
+
+/** 消息中枢通道状态（不暴露密钥） */
+adminApiRouter.get("/notifications/status", async (_req, res) => {
+  const channels = getHubChannelStatus();
+  const events = (process.env.ORDER_NOTIFY_EVENTS ?? "created,paid").split(",").map((s) => s.trim()).filter(Boolean);
+  res.json({ channels, orderNotifyEvents: events });
+});
+
+/** 发送测试通知到已配置的 Telegram / 运营邮箱 */
+adminApiRouter.post("/notifications/test", async (_req, res) => {
+  const text = [
+    "🔔 OraSage 消息中枢测试",
+    `时间：${new Date().toISOString()}`,
+    "若收到此消息，订单提醒与工单通知通道已就绪。",
+  ].join("\n");
+  pushHubOpsNotification("OraSage 消息中枢测试", text);
+  res.json({ success: true, message: "测试通知已发送（未配置的通道将静默跳过）" });
+});
+
+/** 留言工单角标：since 之后新建且状态为 new 的条数 */
+adminApiRouter.get("/contact-messages/new-count", async (req, res) => {
+  const sinceRaw = typeof req.query.since === "string" ? req.query.since : "";
+  let since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  if (sinceRaw) {
+    const parsed = new Date(sinceRaw);
+    if (!Number.isNaN(parsed.getTime())) since = parsed;
+  }
+  const [row] = await db
+    .select({ value: count() })
+    .from(contactMessages)
+    .where(and(eq(contactMessages.status, "new"), gt(contactMessages.createdAt, since)));
+  res.json({ count: row?.value ?? 0, since: since.toISOString() });
+});
+
 adminApiRouter.get("/contact-messages", async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 100, 200);
   const statusFilter = String(req.query.status ?? "");
-  const base = db.select().from(contactMessages);
-  const rows = await (
-    statusFilter && statusFilter in CONTACT_STATUS_LABELS
-      ? base.where(eq(contactMessages.status, statusFilter as "new" | "processing" | "resolved"))
-      : base
-  ).orderBy(desc(contactMessages.createdAt)).limit(limit);
+  const categoryFilter = String(req.query.category ?? "");
+  const conditions = [];
+  if (statusFilter && statusFilter in CONTACT_STATUS_LABELS) {
+    conditions.push(eq(contactMessages.status, statusFilter as "new" | "processing" | "resolved"));
+  }
+  if (categoryFilter && categoryFilter in CONTACT_CATEGORY_LABELS) {
+    conditions.push(eq(contactMessages.category, categoryFilter as "general" | "complaint" | "refund" | "bug"));
+  }
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  const rows = await db
+    .select()
+    .from(contactMessages)
+    .where(where)
+    .orderBy(desc(contactMessages.createdAt))
+    .limit(limit);
 
   res.json({
     messages: rows.map((m) => ({
@@ -777,9 +828,13 @@ adminApiRouter.get("/contact-messages", async (req, res) => {
       subject: m.subject,
       body: m.body,
       locale: m.locale,
+      category: m.category,
+      categoryLabel: CONTACT_CATEGORY_LABELS[m.category] ?? m.category,
+      orderNo: m.orderNo,
       status: m.status,
       statusLabel: CONTACT_STATUS_LABELS[m.status] ?? m.status,
       adminNote: m.adminNote,
+      adminReply: m.adminReply,
       handledBy: m.handledBy,
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
@@ -790,7 +845,8 @@ adminApiRouter.get("/contact-messages", async (req, res) => {
 const contactMessagePatchSchema = z.object({
   status: z.enum(["new", "processing", "resolved"]).optional(),
   adminNote: z.string().max(2000).optional(),
-}).refine((b) => b.status !== undefined || b.adminNote !== undefined, {
+  adminReply: z.string().max(5000).optional(),
+}).refine((b) => b.status !== undefined || b.adminNote !== undefined || b.adminReply !== undefined, {
   message: "至少提供一个更新字段",
 });
 
@@ -807,12 +863,31 @@ adminApiRouter.patch("/contact-messages/:id", async (req, res) => {
       res.status(404).json({ error: "留言不存在" });
       return;
     }
+    const prev = existing[0];
     const adminUser = (req as typeof req & { adminUser?: { id: number } }).adminUser;
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (body.status !== undefined) updates.status = body.status;
     if (body.adminNote !== undefined) updates.adminNote = body.adminNote || null;
+    if (body.adminReply !== undefined) updates.adminReply = body.adminReply || null;
     if (adminUser?.id) updates.handledBy = adminUser.id;
     await db.update(contactMessages).set(updates).where(eq(contactMessages.id, id));
+
+    const replyChanged = body.adminReply !== undefined
+      && body.adminReply.trim()
+      && body.adminReply.trim() !== (prev.adminReply ?? "").trim();
+    if (replyChanged) {
+      notifyTicketReply({
+        id: prev.id,
+        name: prev.name,
+        email: prev.email,
+        subject: prev.subject,
+        body: prev.body,
+        category: prev.category,
+        orderNo: prev.orderNo,
+        adminReply: body.adminReply!.trim(),
+      });
+    }
+
     res.json({ success: true, id });
   } catch (err) {
     if (err instanceof z.ZodError) {

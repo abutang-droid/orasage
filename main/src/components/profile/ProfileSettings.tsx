@@ -14,6 +14,8 @@ const LEGAL_LINKS = [
   { href: '/profile/terms', labelKey: 'terms' },
 ] as const;
 
+const SIGNED_IN_LINKS = [{ href: '/profile/tickets', labelKey: 'tickets' }] as const;
+
 /**
  * 账户与设置 — 账户管理唯一入口（Hub 只保留摘要 + 链入）。
  * 语言切换已上收到全站顶栏 PortalLocaleSwitcher（2026-07-08）；
@@ -22,6 +24,7 @@ const LEGAL_LINKS = [
 export function ProfileSettings({ locale }: { locale: string }) {
   const t = useTranslations('profile.settings');
   const tLegal = useTranslations('profile.legal');
+  const tTickets = useTranslations('profile.tickets');
   const { user } = useProfileAuth();
 
   return (
@@ -42,6 +45,20 @@ export function ProfileSettings({ locale }: { locale: string }) {
           <p className="text-sm text-muted-foreground">{t('helpDesc')}</p>
         </CardHeader>
         <nav aria-label={t('helpTitle')}>
+          {user
+            ? SIGNED_IN_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex min-h-[52px] items-center justify-between border-b border-border px-4 py-3 text-sm transition-colors hover:bg-muted/40"
+                >
+                  <span className="text-foreground">{tTickets('nav')}</span>
+                  <span className="text-muted-foreground" aria-hidden>
+                    ›
+                  </span>
+                </Link>
+              ))
+            : null}
           {LEGAL_LINKS.map((item) => (
             <Link
               key={item.href}
