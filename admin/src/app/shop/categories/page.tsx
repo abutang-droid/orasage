@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation';
 
 const LOCALES = [
   { code: 'zh-CN', label: '简体' },
-  { code: 'zh-TW', label: '繁體' },
   { code: 'en', label: 'English' },
   { code: 'pt-BR', label: 'Português' },
 ] as const;
@@ -72,7 +71,6 @@ export default async function ShopCategoriesPage({
               <tr>
                 <th>编码</th>
                 <th>简体</th>
-                <th>繁體</th>
                 <th>English</th>
                 <th>Português</th>
                 <th>排序</th>
@@ -85,7 +83,6 @@ export default async function ShopCategoriesPage({
                 <tr key={cat.id}>
                   <td><code>{cat.code}</code></td>
                   <td>{cat.labelI18n['zh-CN'] ?? '—'}</td>
-                  <td>{cat.labelI18n['zh-TW'] ?? '—'}</td>
                   <td>{cat.labelI18n.en ?? '—'}</td>
                   <td>{cat.labelI18n['pt-BR'] ?? '—'}</td>
                   <td>{cat.sortOrder}</td>

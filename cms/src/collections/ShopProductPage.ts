@@ -3,7 +3,6 @@ import { requiredText } from '../lib/validators';
 
 const LOCALE_OPTIONS = [
   { label: '简体中文', value: 'zh-CN' },
-  { label: '繁體中文', value: 'zh-TW' },
   { label: 'English', value: 'en' },
   { label: 'Português', value: 'pt-BR' },
 ] as const;

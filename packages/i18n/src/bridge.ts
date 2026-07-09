@@ -1,13 +1,13 @@
 import { normalizeLocale } from './normalize';
 
-/** Tarot short lang codes ↔ BCP 47 */
+/** Tarot short lang codes ↔ BCP 47 (phase 1: es maps to English) */
 export type TarotLang = 'zh' | 'en' | 'pt' | 'es';
 
 export const TAROT_LANG_TO_LOCALE: Record<TarotLang, string> = {
   zh: 'zh-CN',
   en: 'en',
   pt: 'pt-BR',
-  es: 'es',
+  es: 'en',
 };
 
 export const LOCALE_TO_TAROT_LANG: Record<string, TarotLang> = {
@@ -15,7 +15,7 @@ export const LOCALE_TO_TAROT_LANG: Record<string, TarotLang> = {
   'zh-TW': 'zh',
   en: 'en',
   'pt-BR': 'pt',
-  es: 'es',
+  es: 'en',
 };
 
 export function localeFromTarotLang(lang: TarotLang): string {

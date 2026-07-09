@@ -1,4 +1,4 @@
-const LOCALE_CODES = ['zh-CN', 'zh-TW', 'en', 'pt-BR'] as const;
+const LOCALE_CODES = ['zh-CN', 'en', 'pt-BR'] as const;
 
 export type I18nFormPrefix =
   | 'name_i18n'

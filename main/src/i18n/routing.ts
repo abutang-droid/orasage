@@ -1,12 +1,12 @@
 import {
   DEFAULT_LOCALE,
-  EXTENDED_LOCALES,
+  PHASE_1_LOCALES,
   LOCALE_LABELS,
   type ExtendedLocale,
 } from '@orasage/i18n';
 
-/** T2 portal locales — single source in @orasage/i18n */
-export const locales = EXTENDED_LOCALES;
+/** Phase 1 portal locales — zh-CN / en / pt-BR */
+export const locales = PHASE_1_LOCALES;
 
 export type Locale = ExtendedLocale;
 export const defaultLocale: Locale = DEFAULT_LOCALE;

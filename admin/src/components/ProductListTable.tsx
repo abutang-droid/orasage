@@ -22,7 +22,7 @@ const VISIBILITY_LABELS: Record<string, string> = {
   app_only: '仅计费',
 };
 
-const I18N_LOCALES = ['zh-TW', 'en', 'pt-BR'] as const;
+const I18N_LOCALES = ['en', 'pt-BR'] as const;
 
 type ProductRowData = AdminProduct & {
   imageUrl?: string | null;
@@ -167,7 +167,6 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
         <select value={i18nGap} onChange={(e) => setI18nGap(e.target.value)}>
           <option value="">全部语言</option>
           <option value="missing">缺任意语言名称</option>
-          <option value="zh-TW">缺繁体名称</option>
           <option value="en">缺英文名称</option>
           <option value="pt-BR">缺葡语名称</option>
         </select>

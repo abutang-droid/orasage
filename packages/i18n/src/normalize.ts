@@ -1,4 +1,10 @@
-import { DEFAULT_LOCALE, isExtendedLocale, type ExtendedLocale } from './locales';
+import { DEFAULT_LOCALE, isCoreLocale, toCoreLocale, type CoreLocale } from './locales';
+
+/** Clamp any normalized tag to phase-1 active locales */
+export function clampToActiveLocale(locale: string): CoreLocale {
+  if (isCoreLocale(locale)) return locale;
+  return toCoreLocale(locale);
+}
 
 /** BCP 47 locale normalization — single source for all apps */
 export function normalizeLocale(input?: string | null): string {
@@ -7,18 +13,17 @@ export function normalizeLocale(input?: string | null): string {
   const lower = tag.toLowerCase();
   if (lower === '*' || lower === 'und') return DEFAULT_LOCALE;
   if (lower === 'zh' || lower === 'zh-hans') return 'zh-CN';
-  if (lower.startsWith('zh-tw') || lower === 'zh-hant' || lower.startsWith('zh-hk')) return 'zh-TW';
+  if (lower.startsWith('zh-tw') || lower === 'zh-hant' || lower.startsWith('zh-hk')) return 'zh-CN';
   if (lower.startsWith('zh')) return 'zh-CN';
   if (lower.startsWith('pt')) return 'pt-BR';
-  if (lower.startsWith('es')) return 'es';
   if (lower.startsWith('en')) return 'en';
-  if (lower.startsWith('fr')) return 'fr';
-  if (lower.startsWith('de')) return 'de';
-  if (lower.startsWith('ja')) return 'ja';
-  if (lower.startsWith('ko')) return 'ko';
-  if (lower.startsWith('vi')) return 'vi';
-  if (lower.startsWith('th')) return 'th';
-  if (lower.startsWith('ar')) return 'ar';
-  if (isExtendedLocale(tag as ExtendedLocale)) return tag;
-  return DEFAULT_LOCALE;
+  if (lower.startsWith('es')) return 'en';
+  if (lower.startsWith('fr')) return 'en';
+  if (lower.startsWith('de')) return 'en';
+  if (lower.startsWith('ja')) return 'en';
+  if (lower.startsWith('ko')) return 'en';
+  if (lower.startsWith('vi')) return 'en';
+  if (lower.startsWith('th')) return 'en';
+  if (lower.startsWith('ar')) return 'en';
+  return clampToActiveLocale(tag);
 }
