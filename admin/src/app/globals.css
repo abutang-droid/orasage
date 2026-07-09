@@ -1500,3 +1500,37 @@ details summary {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── 资金对账（7d）────────────────────────────────── */
+
+.finance-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.finance-status-panel {
+  margin-bottom: 0;
+}
+
+.finance-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.finance-sync-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.finance-sync-msg {
+  font-size: 0.85rem;
+  color: var(--orasage-secondary, #6b7280);
+  max-width: 320px;
+  text-align: right;
+}
