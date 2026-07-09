@@ -437,6 +437,68 @@ export const analyticsEvents = pgTable("analytics_events", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+/** Stripe 同步任务（7d-v1） */
+export const stripeSyncRuns = pgTable("stripe_sync_runs", {
+  id: serial("id").primaryKey(),
+  status: varchar("status", { length: 20 }).notNull().default("running"),
+  chargesUpserted: integer("charges_upserted").notNull().default(0),
+  refundsUpserted: integer("refunds_upserted").notNull().default(0),
+  payoutsUpserted: integer("payouts_upserted").notNull().default(0),
+  errorMessage: text("error_message"),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  finishedAt: timestamp("finished_at"),
+});
+
+export const stripeBalanceSnapshots = pgTable("stripe_balance_snapshots", {
+  id: serial("id").primaryKey(),
+  syncRunId: integer("sync_run_id"),
+  currency: varchar("currency", { length: 8 }).notNull(),
+  availableCents: integer("available_cents").notNull().default(0),
+  pendingCents: integer("pending_cents").notNull().default(0),
+  capturedAt: timestamp("captured_at").defaultNow().notNull(),
+});
+
+export const stripeCharges = pgTable("stripe_charges", {
+  id: serial("id").primaryKey(),
+  stripeId: varchar("stripe_id", { length: 120 }).notNull().unique(),
+  paymentIntentId: varchar("payment_intent_id", { length: 120 }),
+  orderNo: varchar("order_no", { length: 64 }),
+  amountCents: integer("amount_cents").notNull(),
+  amountRefundedCents: integer("amount_refunded_cents").notNull().default(0),
+  currency: varchar("currency", { length: 8 }).notNull().default("cny"),
+  status: varchar("status", { length: 30 }).notNull(),
+  paid: boolean("paid").notNull().default(false),
+  customerEmail: varchar("customer_email", { length: 320 }),
+  description: text("description"),
+  metadata: jsonb("metadata").$type<Record<string, string>>().notNull().default({}),
+  stripeCreatedAt: timestamp("stripe_created_at").notNull(),
+  syncedAt: timestamp("synced_at").defaultNow().notNull(),
+});
+
+export const stripeRefunds = pgTable("stripe_refunds", {
+  id: serial("id").primaryKey(),
+  stripeId: varchar("stripe_id", { length: 120 }).notNull().unique(),
+  chargeStripeId: varchar("charge_stripe_id", { length: 120 }).notNull(),
+  orderNo: varchar("order_no", { length: 64 }),
+  amountCents: integer("amount_cents").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("cny"),
+  status: varchar("status", { length: 30 }).notNull(),
+  reason: varchar("reason", { length: 50 }),
+  stripeCreatedAt: timestamp("stripe_created_at").notNull(),
+  syncedAt: timestamp("synced_at").defaultNow().notNull(),
+});
+
+export const stripePayouts = pgTable("stripe_payouts", {
+  id: serial("id").primaryKey(),
+  stripeId: varchar("stripe_id", { length: 120 }).notNull().unique(),
+  amountCents: integer("amount_cents").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("cny"),
+  status: varchar("status", { length: 30 }).notNull(),
+  arrivalDate: varchar("arrival_date", { length: 10 }),
+  stripeCreatedAt: timestamp("stripe_created_at").notNull(),
+  syncedAt: timestamp("synced_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 
 export {

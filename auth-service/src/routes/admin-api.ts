@@ -59,6 +59,19 @@ import {
   isAnalyticsApp,
 } from "../lib/analytics.ts";
 import { getAdminDashboard } from "../lib/dashboard.ts";
+import {
+  formatBalanceSnapshot,
+  formatStripeRow,
+  formatSyncRun,
+  getLatestBalanceSnapshots,
+  getLatestSyncRun,
+  getStripeReconciliation,
+  isStripeConfigured,
+  listStripeCharges,
+  listStripePayouts,
+  listStripeRefunds,
+  runStripeMirrorSync,
+} from "../lib/stripe-mirror.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
@@ -1080,4 +1093,67 @@ adminApiRouter.put("/coupons", async (req, res) => {
     console.error("[admin] coupons put:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
+});
+
+/* ── Stripe 对账镜像（7d-v1，仅超级管理员）──────────────── */
+
+adminApiRouter.get("/stripe/status", requireSuperAdmin, async (_req, res) => {
+  const [lastSync, balances] = await Promise.all([getLatestSyncRun(), getLatestBalanceSnapshots()]);
+  res.json({
+    configured: isStripeConfigured(),
+    lastSync: formatSyncRun(lastSync),
+    balances: balances.map(formatBalanceSnapshot),
+  });
+});
+
+adminApiRouter.post("/stripe/sync", requireSuperAdmin, async (req, res) => {
+  if (!isStripeConfigured()) {
+    res.status(503).json({ error: "STRIPE_SECRET_KEY 未配置" });
+    return;
+  }
+  try {
+    const days = Number(req.body?.days ?? 90);
+    const run = await runStripeMirrorSync(Number.isFinite(days) ? days : 90);
+    res.json({ syncRun: formatSyncRun(run) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "同步失败";
+    const syncRun = (err as { syncRun?: unknown }).syncRun ?? null;
+    res.status(500).json({ error: message, syncRun: formatSyncRun(syncRun as ReturnType<typeof formatSyncRun>) });
+  }
+});
+
+adminApiRouter.get("/stripe/reconciliation", requireSuperAdmin, async (req, res) => {
+  const days = Number(req.query.days ?? 30);
+  const data = await getStripeReconciliation(Number.isFinite(days) ? days : 30);
+  res.json(data);
+});
+
+adminApiRouter.get("/stripe/charges", requireSuperAdmin, async (req, res) => {
+  const limit = Number(req.query.limit ?? 50);
+  const offset = Number(req.query.offset ?? 0);
+  const rows = await listStripeCharges(
+    Number.isFinite(limit) ? limit : 50,
+    Number.isFinite(offset) ? offset : 0,
+  );
+  res.json({ charges: rows.map(formatStripeRow) });
+});
+
+adminApiRouter.get("/stripe/refunds", requireSuperAdmin, async (req, res) => {
+  const limit = Number(req.query.limit ?? 50);
+  const offset = Number(req.query.offset ?? 0);
+  const rows = await listStripeRefunds(
+    Number.isFinite(limit) ? limit : 50,
+    Number.isFinite(offset) ? offset : 0,
+  );
+  res.json({ refunds: rows.map(formatStripeRow) });
+});
+
+adminApiRouter.get("/stripe/payouts", requireSuperAdmin, async (req, res) => {
+  const limit = Number(req.query.limit ?? 50);
+  const offset = Number(req.query.offset ?? 0);
+  const rows = await listStripePayouts(
+    Number.isFinite(limit) ? limit : 50,
+    Number.isFinite(offset) ? offset : 0,
+  );
+  res.json({ payouts: rows.map(formatStripeRow) });
 });

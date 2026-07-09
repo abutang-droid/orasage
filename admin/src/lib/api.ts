@@ -584,3 +584,121 @@ export function getAnalyticsEvents(params?: { app?: string; limit?: number; offs
   const qs = sp.toString();
   return adminFetch<{ events: AdminAnalyticsEvent[] }>(`/analytics/events${qs ? `?${qs}` : ''}`);
 }
+
+/* ── Stripe 对账（7d-v1，仅 admin）────────────────────── */
+
+export interface StripeSyncRun {
+  id: number;
+  status: string;
+  chargesUpserted: number;
+  refundsUpserted: number;
+  payoutsUpserted: number;
+  errorMessage: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+}
+
+export interface StripeBalanceSnapshot {
+  id: number;
+  syncRunId: number | null;
+  currency: string;
+  availableCents: number;
+  pendingCents: number;
+  capturedAt: string;
+}
+
+export interface StripeChargeRow {
+  id: number;
+  stripeId: string;
+  paymentIntentId: string | null;
+  orderNo: string | null;
+  amountCents: number;
+  amountRefundedCents: number;
+  currency: string;
+  status: string;
+  paid: boolean;
+  customerEmail: string | null;
+  description: string | null;
+  metadata: Record<string, string>;
+  stripeCreatedAt: string;
+  syncedAt: string;
+}
+
+export interface StripeRefundRow {
+  id: number;
+  stripeId: string;
+  chargeStripeId: string;
+  orderNo: string | null;
+  amountCents: number;
+  currency: string;
+  status: string;
+  reason: string | null;
+  stripeCreatedAt: string;
+  syncedAt: string;
+}
+
+export interface StripePayoutRow {
+  id: number;
+  stripeId: string;
+  amountCents: number;
+  currency: string;
+  status: string;
+  arrivalDate: string | null;
+  stripeCreatedAt: string;
+  syncedAt: string;
+}
+
+export interface StripeReconciliation {
+  days: number;
+  since: string;
+  orders: { count: number; totalCents: number };
+  charges: { count: number; grossCents: number; netCents: number };
+  refunds: { count: number; totalCents: number };
+  payouts: { count: number; totalCents: number };
+  deltaCents: number;
+  paymentMode: 'stripe' | 'mock';
+  ordersMissingStripe: Array<{
+    orderNo: string;
+    amountCents: number;
+    status: string;
+    createdAt: string;
+  }>;
+  chargesMissingOrder: Array<{
+    stripeId: string;
+    orderNo: string | null;
+    amountCents: number;
+    amountRefundedCents: number;
+    stripeCreatedAt: string;
+  }>;
+}
+
+export function getStripeStatus() {
+  return adminFetch<{
+    configured: boolean;
+    lastSync: StripeSyncRun | null;
+    balances: StripeBalanceSnapshot[];
+  }>('/stripe/status');
+}
+
+export function syncStripeMirror(days = 90) {
+  return adminFetch<{ syncRun: StripeSyncRun }>('/stripe/sync', {
+    method: 'POST',
+    body: JSON.stringify({ days }),
+  });
+}
+
+export function getStripeReconciliation(days = 30) {
+  return adminFetch<StripeReconciliation>(`/stripe/reconciliation?days=${days}`);
+}
+
+export function getStripeCharges(limit = 50, offset = 0) {
+  return adminFetch<{ charges: StripeChargeRow[] }>(`/stripe/charges?limit=${limit}&offset=${offset}`);
+}
+
+export function getStripeRefunds(limit = 50, offset = 0) {
+  return adminFetch<{ refunds: StripeRefundRow[] }>(`/stripe/refunds?limit=${limit}&offset=${offset}`);
+}
+
+export function getStripePayouts(limit = 50, offset = 0) {
+  return adminFetch<{ payouts: StripePayoutRow[] }>(`/stripe/payouts?limit=${limit}&offset=${offset}`);
+}

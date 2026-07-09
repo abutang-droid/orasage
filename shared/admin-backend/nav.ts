@@ -21,6 +21,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/analytics'),
   },
   {
+    label: '资金对账',
+    href: '/finance',
+    roles: ['admin'],
+    isActive: (p) => p.startsWith('/finance'),
+  },
+  {
     label: '留言',
     href: '/messages',
     isActive: (p) => p.startsWith('/messages'),
