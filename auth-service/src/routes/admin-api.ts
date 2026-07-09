@@ -52,6 +52,12 @@ import {
   replaceCoupons,
   type CouponInput,
 } from "../lib/coupons.ts";
+import {
+  getAnalyticsSummary,
+  listRecentAnalyticsEvents,
+  type AnalyticsApp,
+  isAnalyticsApp,
+} from "../lib/analytics.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
@@ -85,6 +91,26 @@ adminApiRouter.get("/stats", async (_req, res) => {
     readings: readingCount.value,
     products: productCount.value,
   });
+});
+
+adminApiRouter.get("/analytics/summary", async (req, res) => {
+  const days = Number(req.query.days ?? 7);
+  const summary = await getAnalyticsSummary(Number.isFinite(days) ? days : 7);
+  res.json(summary);
+});
+
+adminApiRouter.get("/analytics/events", async (req, res) => {
+  const app = typeof req.query.app === "string" && isAnalyticsApp(req.query.app)
+    ? (req.query.app as AnalyticsApp)
+    : undefined;
+  const limit = Number(req.query.limit ?? 50);
+  const offset = Number(req.query.offset ?? 0);
+  const events = await listRecentAnalyticsEvents({
+    app,
+    limit: Number.isFinite(limit) ? limit : 50,
+    offset: Number.isFinite(offset) ? offset : 0,
+  });
+  res.json({ events });
 });
 
 adminApiRouter.get("/products", async (_req, res) => {

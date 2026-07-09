@@ -423,6 +423,20 @@ export const shippingZones = pgTable("shipping_zones", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+/** 行为统计事件（#10） */
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  app: varchar("app", { length: 20 }).notNull(),
+  eventName: varchar("event_name", { length: 100 }).notNull(),
+  userId: integer("user_id"),
+  sessionKey: varchar("session_key", { length: 64 }).notNull(),
+  locale: varchar("locale", { length: 12 }),
+  path: varchar("path", { length: 500 }),
+  referrerHost: varchar("referrer_host", { length: 200 }),
+  properties: jsonb("properties").$type<Record<string, string | number | boolean>>().notNull().default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 
 export {

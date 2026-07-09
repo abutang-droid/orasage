@@ -8,6 +8,7 @@
     "start": "next start -p 3100"
   },
   "dependencies": {
+    "@orasage/analytics": "file:../packages/analytics",
     "@orasage/i18n": "file:../packages/i18n",
     "@orasage/tokens": "file:../packages/tokens",
     "@orasage/ui": "file:../packages/ui",
