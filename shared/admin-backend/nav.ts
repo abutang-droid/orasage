@@ -106,6 +106,12 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
     permission: 'shop.promotions',
     isActive: (p) => p.startsWith('/shop/promotions'),
   },
+  {
+    label: '水晶专题',
+    href: '/shop/crystal-home',
+    permission: 'shop.products',
+    isActive: (p) => p.startsWith('/shop/crystal-home'),
+  },
 ];
 
 /** 应用计费组（R6：app 调用参数 → 商城 SKU） */

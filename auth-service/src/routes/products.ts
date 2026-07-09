@@ -5,7 +5,7 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
-import { getShopPublicConfig } from "../lib/shop-settings.ts";
+import { getCrystalContent, getShopPublicConfig } from "../lib/shop-settings.ts";
 import {
   formatProductLink,
   getCategoryLabelMap,
@@ -128,6 +128,16 @@ productsRouter.get("/shop-config", async (_req, res) => {
     res.json(config);
   } catch (err) {
     console.error("[products] shop-config:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+productsRouter.get("/crystal-content", async (_req, res) => {
+  try {
+    const content = await getCrystalContent();
+    res.json({ content });
+  } catch (err) {
+    console.error("[products] crystal-content:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

@@ -58,8 +58,20 @@ export async function getProductImageUrl(sku: string): Promise<string | null> {
   return map.get(sku) ?? null;
 }
 
-/** 分类占位图（无 CMS 主图时） */
+const CRYSTAL_ELEMENT_PLACEHOLDERS = new Set([
+  'crystal-wood',
+  'crystal-fire',
+  'crystal-earth',
+  'crystal-metal',
+  'crystal-water',
+]);
+
+/** 分类占位图（无 CMS 主图时）；五行水晶有专属能量占位图 */
 export function fallbackProductImageUrl(sku: string, category?: string): string {
+  const baseSku = sku.endsWith('-gift') ? sku.slice(0, -'-gift'.length) : sku;
+  if (CRYSTAL_ELEMENT_PLACEHOLDERS.has(baseSku)) {
+    return `/product-placeholders/${baseSku}.svg`;
+  }
   const cat = category ?? (sku.startsWith('crystal') ? 'crystal' : sku.startsWith('report') ? 'report' : 'service');
   return `/product-placeholders/${cat}.svg`;
 }

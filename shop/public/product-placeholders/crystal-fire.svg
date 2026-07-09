@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#fef2f2"/>
+      <stop offset="55%" stop-color="#fee2e2"/>
+      <stop offset="100%" stop-color="#fecaca"/>
+    </radialGradient>
+    <radialGradient id="bead" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#fecaca"/>
+      <stop offset="45%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f87171" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f87171" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="200" cy="190" r="150" fill="url(#glow)"/>
+  <g stroke="#991b1b" stroke-opacity="0.18" stroke-width="1">
+    <circle cx="200" cy="190" r="118" fill="none"/>
+    <circle cx="200" cy="190" r="132" fill="none" stroke-dasharray="2 8"/>
+  </g>
+  <g>
+    <circle cx="200" cy="86" r="26" fill="url(#bead)"/>
+    <circle cx="290" cy="124" r="26" fill="url(#bead)"/>
+    <circle cx="326" cy="212" r="26" fill="url(#bead)"/>
+    <circle cx="284" cy="298" r="26" fill="url(#bead)"/>
+    <circle cx="200" cy="330" r="26" fill="url(#bead)"/>
+    <circle cx="116" cy="298" r="26" fill="url(#bead)"/>
+    <circle cx="74" cy="212" r="26" fill="url(#bead)"/>
+    <circle cx="110" cy="124" r="26" fill="url(#bead)"/>
+  </g>
+  <g fill="#ffffff" fill-opacity="0.5">
+    <ellipse cx="192" cy="78" rx="8" ry="5" transform="rotate(-24 192 78)"/>
+    <ellipse cx="282" cy="116" rx="8" ry="5" transform="rotate(-24 282 116)"/>
+    <ellipse cx="318" cy="204" rx="8" ry="5" transform="rotate(-24 318 204)"/>
+    <ellipse cx="276" cy="290" rx="8" ry="5" transform="rotate(-24 276 290)"/>
+    <ellipse cx="192" cy="322" rx="8" ry="5" transform="rotate(-24 192 322)"/>
+    <ellipse cx="108" cy="290" rx="8" ry="5" transform="rotate(-24 108 290)"/>
+    <ellipse cx="66" cy="204" rx="8" ry="5" transform="rotate(-24 66 204)"/>
+    <ellipse cx="102" cy="116" rx="8" ry="5" transform="rotate(-24 102 116)"/>
+  </g>
+  <text x="200" y="200" text-anchor="middle" font-family="'Noto Serif SC', serif" font-size="64" fill="#991b1b" fill-opacity="0.85">k</text>
+  <path d="M340 60 l3.5 8 8 3.5 -8 3.5 -3.5 8 -3.5 -8 -8 -3.5 8 -3.5 z" fill="#ef4444" fill-opacity="0.7"/>
+  <path d="M62 330 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#ef4444" fill-opacity="0.5"/>
+</svg>

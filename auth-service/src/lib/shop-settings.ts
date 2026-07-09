@@ -43,3 +43,39 @@ export async function getShopPublicConfig() {
   const homeLayout = await getShopHomeLayout();
   return { homeLayout };
 }
+
+/* ── 水晶专题素材内容（占位默认 + 运营覆盖）──────────────── */
+
+import {
+  DEFAULT_CRYSTAL_CONTENT,
+  mergeCrystalContent,
+  type CrystalContentMap,
+} from "../../../shared/shop-crystal/content.ts";
+
+const CRYSTAL_CONTENT_KEY = "crystal_content";
+
+export async function getCrystalContent(): Promise<CrystalContentMap> {
+  const [row] = await db
+    .select()
+    .from(shopSettings)
+    .where(eq(shopSettings.key, CRYSTAL_CONTENT_KEY))
+    .limit(1);
+  const saved = row?.value as Partial<CrystalContentMap> | undefined;
+  return mergeCrystalContent(saved);
+}
+
+export async function setCrystalContent(content: Partial<CrystalContentMap>): Promise<CrystalContentMap> {
+  const merged = mergeCrystalContent(content);
+  const overrides: Partial<CrystalContentMap> = {};
+  for (const [sku, entry] of Object.entries(merged)) {
+    if (sku in DEFAULT_CRYSTAL_CONTENT) overrides[sku] = entry;
+  }
+  await db
+    .insert(shopSettings)
+    .values({ key: CRYSTAL_CONTENT_KEY, value: overrides, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: shopSettings.key,
+      set: { value: overrides, updatedAt: new Date() },
+    });
+  return merged;
+}
