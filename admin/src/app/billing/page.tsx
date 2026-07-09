@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getStaffUser, loginUrl } from '@/lib/auth';
 import { getBillingSlots, getProducts, type AdminBillingSlot, type AdminProduct } from '@/lib/api';
 import { saveBillingSlotAction, deleteBillingSlotAction } from '@/app/actions';
 import { AdminSubmitButton } from '@/components/AdminButton';
@@ -114,7 +114,7 @@ export default async function BillingPage({
 }: {
   searchParams?: Promise<{ saved?: string; err?: string }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getStaffUser(['admin']);
   if (!admin) redirect(loginUrl());
   const sp = (await searchParams) ?? {};
 

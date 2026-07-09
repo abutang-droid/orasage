@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getAdminToken } from '@/lib/auth';
+import { getAdminToken, getStaffUser } from '@/lib/auth';
 import {
   deleteCmsTestimonial,
   getCmsProductPageDoc,
@@ -17,6 +17,14 @@ import type { EditorSection } from '@/components/PdpSectionsEditor';
 
 const LOCALES = new Set(['zh-CN', 'zh-TW', 'en', 'pt-BR']);
 const HERO_ROWS = 6;
+
+async function staffCmsToken(): Promise<string> {
+  if (!(await getStaffUser(['admin', 'shop_ops', 'content_ops']))) {
+    throw new Error('未登录或无权限');
+  }
+  const token = await staffCmsToken();
+  return token;
+}
 
 function contentPath(sku: string, locale: string): string {
   return `/products/${encodeURIComponent(sku)}/content?locale=${encodeURIComponent(locale)}`;
@@ -118,8 +126,7 @@ export async function saveProductPageContentAction(formData: FormData) {
   const locale = String(formData.get('locale') ?? '').trim();
   if (!sku || !LOCALES.has(locale)) throw new Error('缺少 SKU 或语言无效');
 
-  const token = await getAdminToken();
-  if (!token) throw new Error('未登录');
+  const token = await staffCmsToken();
 
   let errorMsg: string | null = null;
   try {
@@ -256,8 +263,7 @@ export async function saveTestimonialAction(formData: FormData) {
   const locale = String(formData.get('locale') ?? '').trim();
   if (!sku || !LOCALES.has(locale)) throw new Error('缺少 SKU 或语言无效');
 
-  const token = await getAdminToken();
-  if (!token) throw new Error('未登录');
+  const token = await staffCmsToken();
 
   const idRaw = Number(formData.get('id') ?? 0);
   const author = String(formData.get('author') ?? '').trim();
@@ -293,8 +299,7 @@ export async function deleteTestimonialAction(formData: FormData) {
   const id = Number(formData.get('id') ?? 0);
   if (!sku || !id) throw new Error('参数不完整');
 
-  const token = await getAdminToken();
-  if (!token) throw new Error('未登录');
+  const token = await staffCmsToken();
 
   await deleteCmsTestimonial(id, token);
   revalidatePath(`/products/${encodeURIComponent(sku)}/content`);

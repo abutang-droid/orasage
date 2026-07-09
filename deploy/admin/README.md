@@ -28,10 +28,17 @@ curl -sI https://admin.orasage.com/products
 
 ## 管理员账号
 
-在 PostgreSQL 中将用户设为 admin：
+在 PostgreSQL 中将用户设为运营角色：
 
 ```bash
+# 超级管理员（全部菜单）
 psql "$DATABASE_URL" -c "UPDATE users SET role='admin' WHERE email='你的邮箱';"
+
+# 商城运营（商品/订单/促销，无计费槽位）
+psql "$DATABASE_URL" -c "UPDATE users SET role='shop_ops' WHERE email='商城运营邮箱';"
+
+# 内容运营（CMS 子菜单，无商城 CRUD）
+psql "$DATABASE_URL" -c "UPDATE users SET role='content_ops' WHERE email='内容运营邮箱';"
 ```
 
 然后登录 https://auth.orasage.com/login?redirect=https://admin.orasage.com

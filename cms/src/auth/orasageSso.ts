@@ -24,6 +24,8 @@ export function readCookie(cookieHeader: string, name: string): string | null {
   return null;
 }
 
+import { isStaffRole } from '../../../shared/staff-roles/index';
+
 export async function verifyOrasageAdminToken(
   token: string,
 ): Promise<{ orasageUserId: number } | null> {
@@ -34,7 +36,8 @@ export async function verifyOrasageAdminToken(
     const { payload: claims } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
     const sub = claims.sub;
     const role = claims.role;
-    if (typeof sub !== 'string' || role !== 'admin') return null;
+    if (typeof sub !== 'string' || !isStaffRole(role as string)) return null;
+    if (role !== 'admin' && role !== 'content_ops') return null;
 
     const orasageUserId = Number(sub);
     if (!Number.isFinite(orasageUserId)) return null;

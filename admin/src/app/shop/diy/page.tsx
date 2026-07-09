@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getDiyBeads, getDiyConfig, type AdminDiyBead } from '@/lib/api';
 import { saveDiyBeadAction, saveDiyConfigAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
@@ -71,7 +71,7 @@ export default async function BeadsPage({
 }: {
   searchParams?: Promise<{ bead?: string; bead_err?: string; config?: string; config_err?: string }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};

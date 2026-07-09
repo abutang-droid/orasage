@@ -5,11 +5,13 @@ import type { ReactNode } from 'react';
 import {
   BILLING_NAV_ITEMS,
   CMS_NAV_ITEMS,
+  canAccessNav,
   navItemActive,
   OPS_NAV_ITEMS,
   SHOP_NAV_ITEMS,
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
+import type { StaffRole } from '@/lib/auth';
 import { OrdersNavBadge } from '@/components/OrdersNavBadge';
 
 const MAIN_BASE = 'https://orasage.com/zh-CN';
@@ -36,21 +38,28 @@ export type AdminBackendShellProps = {
   children: ReactNode;
   showSidebar?: boolean;
   wideContent?: boolean;
+  staffRole?: StaffRole;
 };
 
 function NavSection({
   title,
   items,
   pathname,
+  staffRole,
 }: {
   title: string;
   items: AdminNavItem[];
   pathname: string;
+  staffRole?: StaffRole;
 }) {
+  const visible = staffRole
+    ? items.filter((item) => canAccessNav(staffRole, item.roles))
+    : items;
+  if (visible.length === 0) return null;
   return (
     <div>
       <div className="admin-backend-sidebar-title">{title}</div>
-      {items.map((item) => {
+      {visible.map((item) => {
         const active = navItemActive(item, pathname);
         return (
           <a
@@ -67,8 +76,9 @@ function NavSection({
   );
 }
 
-function MobileNav({ pathname }: { pathname: string }) {
-  const items = [...OPS_NAV_ITEMS, ...SHOP_NAV_ITEMS, ...BILLING_NAV_ITEMS, ...CMS_NAV_ITEMS];
+function MobileNav({ pathname, staffRole }: { pathname: string; staffRole?: StaffRole }) {
+  const items = [...OPS_NAV_ITEMS, ...SHOP_NAV_ITEMS, ...BILLING_NAV_ITEMS, ...CMS_NAV_ITEMS]
+    .filter((item) => !staffRole || canAccessNav(staffRole, item.roles));
   return (
     <nav className="admin-backend-mobile-nav" aria-label="后台快捷导航">
       {items.map((item) => {
@@ -88,6 +98,7 @@ export function AdminBackendShell({
   children,
   showSidebar = true,
   wideContent = false,
+  staffRole,
 }: AdminBackendShellProps) {
   const pathname = usePathname() ?? '';
 
@@ -96,12 +107,12 @@ export function AdminBackendShell({
       {showSidebar ? (
         <>
           <aside className="admin-backend-sidebar" aria-label="后台导航">
-            <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} />
+            <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
+            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
+            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
+            <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
           </aside>
-          <MobileNav pathname={pathname} />
+          <MobileNav pathname={pathname} staffRole={staffRole} />
         </>
       ) : null}
       <div className="admin-backend-main">

@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, type AdminShippingZone } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
@@ -249,6 +249,18 @@ export async function saveShippingZonesAction(
 ) {
   await saveShippingZones(zones);
   revalidatePath('/shop/shipping');
+}
+
+export async function updateReviewStatusAction(id: number, status: string) {
+  await updateProductReviewStatus(id, status);
+  revalidatePath('/shop/reviews');
+}
+
+export async function saveCouponsAction(
+  coupons: Array<Omit<AdminCoupon, 'id' | 'usedCount' | 'createdAt' | 'updatedAt'>>,
+) {
+  await saveCoupons(coupons);
+  revalidatePath('/shop/promotions');
 }
 
 export async function saveHomepageProductsAction(formData: FormData) {

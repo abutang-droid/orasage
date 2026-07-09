@@ -14,6 +14,8 @@ import { citiesRouter } from "./routes/cities.ts";
 import { ziweiChatRouter, ziweiChatInternalRouter } from "./routes/ziwei-chat.ts";
 import { billingRouter } from "./routes/billing.ts";
 import { shippingRouter } from "./routes/shipping.ts";
+import { reviewsRouter } from "./routes/reviews.ts";
+import { couponsPublicRouter } from "./routes/coupons-public.ts";
 import { diyRouter, diyInternalRouter } from "./routes/diy.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +34,8 @@ app.use("/api/cities", citiesRouter);
 app.use("/api/ziwei/chat", ziweiChatRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/shipping", shippingRouter);
+app.use("/api/reviews", reviewsRouter);
+app.use("/api/coupons", couponsPublicRouter);
 app.use("/api/diy", diyRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/internal", internalOnly, internalRouter);

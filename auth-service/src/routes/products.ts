@@ -200,6 +200,10 @@ const productBodySchema = z.object({
   seoDescI18n: i18nMapSchema,
   tagIds: z.array(z.number().int().positive()).max(50).optional(),
   requiresShipping: z.boolean().optional(),
+  salePriceCents: z.number().int().nonnegative().optional().nullable(),
+  salePriceCentsUsd: z.number().int().nonnegative().optional().nullable(),
+  saleStartsAt: z.coerce.date().optional().nullable(),
+  saleEndsAt: z.coerce.date().optional().nullable(),
   active: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 });

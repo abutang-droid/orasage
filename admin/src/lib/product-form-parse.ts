@@ -75,6 +75,12 @@ export function parseProductFormPayload(formData: FormData) {
   const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
   const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
   const priceCentsUsd = priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null;
+  const saleYuanRaw = String(formData.get('salePriceYuan') ?? '').trim();
+  const saleUsdRaw = String(formData.get('salePriceUsd') ?? '').trim();
+  const saleStartsRaw = String(formData.get('saleStartsAt') ?? '').trim();
+  const saleEndsRaw = String(formData.get('saleEndsAt') ?? '').trim();
+  const salePriceCents = saleYuanRaw ? Math.round(Number(saleYuanRaw) * 100) : null;
+  const salePriceCentsUsd = saleUsdRaw ? Math.round(Number(saleUsdRaw) * 100) : null;
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
   const requiresShipping = kind === 'combo' ? false : formData.get('requiresShipping') === 'on';
@@ -118,6 +124,10 @@ export function parseProductFormPayload(formData: FormData) {
     tagIds,
     priceCents,
     priceCentsUsd: priceCentsUsd != null && priceCentsUsd >= 0 ? priceCentsUsd : null,
+    salePriceCents: salePriceCents != null && salePriceCents >= 0 ? salePriceCents : null,
+    salePriceCentsUsd: salePriceCentsUsd != null && salePriceCentsUsd >= 0 ? salePriceCentsUsd : null,
+    saleStartsAt: saleStartsRaw ? new Date(saleStartsRaw) : null,
+    saleEndsAt: saleEndsRaw ? new Date(saleEndsRaw) : null,
     sortOrder,
     active,
     requiresShipping,

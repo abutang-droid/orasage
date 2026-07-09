@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { getAdminUser, getAdminToken, loginUrl } from '@/lib/auth';
+import { getShopStaff, getAdminToken, loginUrl } from '@/lib/auth';
 import { getProducts } from '@/lib/api';
 import {
   getCmsProductPageDoc,
@@ -47,7 +47,7 @@ type PageProps = {
 };
 
 export default async function ProductContentPage({ params, searchParams }: PageProps) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
   const token = await getAdminToken();
   if (!token) redirect(loginUrl());

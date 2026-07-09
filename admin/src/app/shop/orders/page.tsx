@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getShopStaff, loginUrl } from '@/lib/auth';
 import { getOrders } from '@/lib/api';
 import { redirect } from 'next/navigation';
 import { MarkOrdersSeen } from '@/components/OrdersNavBadge';
@@ -11,7 +11,7 @@ export default async function ShopOrdersPage({
 }: {
   searchParams?: Promise<{ status?: string; app?: string; q?: string; offset?: string; limit?: string }>;
 }) {
-  const admin = await getAdminUser();
+  const admin = await getShopStaff();
   if (!admin) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};

@@ -10,6 +10,7 @@ import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/s
 import { pickLocalized } from "./product-i18n.ts";
 import { buildProductSpecRows, type ProductSpecRow } from "../../../shared/product-units/index.ts";
 import type { ComboMeta } from "./product-combos.ts";
+import { effectiveListPrice, isSaleActive } from "./sale-price.ts";
 
 export type ProductRow = typeof products.$inferSelect;
 
@@ -82,6 +83,10 @@ export function formatAdminProduct(p: ProductRow, options?: ProductFormatOptions
     packagingI18n: p.packagingI18n ?? null,
     seoTitleI18n: p.seoTitleI18n ?? null,
     seoDescI18n: p.seoDescI18n ?? null,
+    salePriceCents: p.salePriceCents ?? null,
+    salePriceCentsUsd: p.salePriceCentsUsd ?? null,
+    saleStartsAt: p.saleStartsAt ?? null,
+    saleEndsAt: p.saleEndsAt ?? null,
     comboUseComponentSum: p.comboUseComponentSum,
     attachments: p.attachments ?? null,
   };
@@ -102,12 +107,13 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
   const locale = options?.locale ?? "zh-CN";
   const currency: ShopCurrency = currencyForLocale(locale);
   const comboMeta = options?.comboMeta ?? null;
-  const effectivePriceCents = comboMeta?.useComponentSum
-    ? comboMeta.componentSumCents
-    : p.priceCents;
-  const effectivePriceUsd = comboMeta?.useComponentSum
-    ? comboMeta.componentSumUsdCents
-    : p.priceCentsUsd;
+  const listPrice = comboMeta?.useComponentSum
+    ? { priceCents: comboMeta.componentSumCents, priceCentsUsd: comboMeta.componentSumUsdCents ?? null }
+    : effectiveListPrice(p);
+  const effectivePriceCents = listPrice.priceCents;
+  const effectivePriceUsd = listPrice.priceCentsUsd;
+  const onSale = !comboMeta?.useComponentSum && isSaleActive(p);
+  const originalPriceCents = onSale ? p.priceCents : undefined;
   const resolvedCents = resolvePriceCents(
     { priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd },
     currency,
@@ -153,6 +159,9 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
       resolvePriceCents({ priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd }, "usd"),
       "usd",
     ),
+    onSale,
+    originalPriceCents: originalPriceCents ?? null,
+    saleEndsAt: onSale ? p.saleEndsAt : null,
     comboUseComponentSum: p.kind === "combo" ? p.comboUseComponentSum : undefined,
     comboComponentSumCents: comboMeta?.componentSumCents,
     comboComponentSumUsdCents: comboMeta?.componentSumUsdCents ?? undefined,
