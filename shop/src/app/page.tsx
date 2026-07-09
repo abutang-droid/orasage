@@ -1,12 +1,16 @@
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { ProductCatalog } from '@/components/ProductCatalog';
+import { CrystalShowcase } from '@/components/CrystalShowcase';
 import { ShopHomeHero } from '@/components/ShopHomeHero';
 import { fetchProducts } from '@/lib/products';
 import { DIY_ORDER_SKU } from '@/lib/diy';
 import { getAuthUser } from '@/lib/auth';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
+import { fetchShopHomeLayout } from '@/lib/shop-config';
+import { buildCrystalLineup } from '@/lib/crystal-lineup';
+import { isCrystalGiftSku } from '../../../shared/shop-crystal/index';
 
 async function loadFeaturedSkus(locale: string): Promise<string[]> {
   try {
@@ -26,27 +30,37 @@ export default async function ShopPage() {
   const locale = await getServerShopLocale();
   const th = await getTranslations('home');
   const tc = await getTranslations('catalog');
-  const [user, products, imageMap, featuredSkus] = await Promise.all([
+  const [user, products, imageMap, featuredSkus, homeLayout] = await Promise.all([
     getAuthUser(),
     fetchProducts(locale),
     fetchProductImageMap(),
     loadFeaturedSkus(locale),
+    fetchShopHomeLayout(),
   ]);
 
   const productsWithImages = products
     .filter((p) => p.sku !== DIY_ORDER_SKU)
+    .filter((p) => homeLayout === 'crystal_v1' || !isCrystalGiftSku(p.sku))
     .map((p) => ({
       ...p,
       imageUrl: imageMap.get(p.sku) ?? p.imageUrl ?? null,
     }));
 
+  const crystalLineup = buildCrystalLineup(productsWithImages);
+
   return (
     <main className="shop-page safe-bottom flex-1">
       <ShopHomeHero loggedIn={Boolean(user)} />
 
-      <Suspense fallback={<p className="text-center text-sage-muted">{tc('loading')}</p>}>
-        <ProductCatalog products={productsWithImages} featuredSkus={featuredSkus} />
-      </Suspense>
+      {homeLayout === 'crystal_v1' ? (
+        <Suspense fallback={<p className="text-center text-sage-muted">{tc('loading')}</p>}>
+          <CrystalShowcase lineup={crystalLineup} />
+        </Suspense>
+      ) : (
+        <Suspense fallback={<p className="text-center text-sage-muted">{tc('loading')}</p>}>
+          <ProductCatalog products={productsWithImages} featuredSkus={featuredSkus} />
+        </Suspense>
+      )}
 
       <p className="shop-footer-note">
         {th('footerNote')}{' '}

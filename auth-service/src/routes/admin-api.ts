@@ -6,6 +6,7 @@ import { contactMessages, homepageFeaturedProducts, products, userOrders, userRe
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
+import { getShopPublicConfig, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
 import {
   listComboItems,
   resolveComboMeta,
@@ -221,6 +222,40 @@ adminApiRouter.put("/homepage-products", P.products, async (req, res) => {
       return;
     }
     console.error("[admin] homepage-products:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const shopLayoutSchema = z.object({
+  homeLayout: z.enum(SHOP_HOME_LAYOUTS),
+});
+
+adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
+  const config = await getShopPublicConfig();
+  res.json({
+    ...config,
+    layouts: SHOP_HOME_LAYOUTS.map((id) => ({
+      id,
+      label: id === "legacy" ? "经典目录（全品类）" : "水晶专题（五行主编排）",
+    })),
+  });
+});
+
+adminApiRouter.put("/shop-config", P.products, async (req, res) => {
+  try {
+    const body = shopLayoutSchema.parse(req.body);
+    const homeLayout = await setShopHomeLayout(body.homeLayout);
+    res.json({ homeLayout });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && err.message.includes("无效")) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] shop-config:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

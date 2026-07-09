@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getShopStaff, loginUrl } from '@/lib/auth';
-import { getHomepageProducts, getProducts, getTags, getCategories } from '@/lib/api';
-import { saveHomepageProductsAction } from '@/app/actions';
+import { getHomepageProducts, getProducts, getShopConfig, getTags, getCategories } from '@/lib/api';
+import { saveHomepageProductsAction, saveShopLayoutAction } from '@/app/actions';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { AdminSubmitButton } from '@/components/AdminButton';
@@ -30,6 +30,7 @@ export default async function ProductsPage({
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
+  let shopHomeLayout: 'legacy' | 'crystal_v1' = 'legacy';
   let tagData: Awaited<ReturnType<typeof getTags>> = { groups: [], tags: [] };
   let categories: Awaited<ReturnType<typeof getCategories>>['categories'] = [];
   let productImageMap = new Map<string, string>();
@@ -53,6 +54,11 @@ export default async function ProductsPage({
     ({ skus: homepageSkus } = await getHomepageProducts());
   } catch (err) {
     console.error('[admin/homepage-products]', err);
+  }
+  try {
+    ({ homeLayout: shopHomeLayout } = await getShopConfig());
+  } catch (err) {
+    console.error('[admin/shop-config]', err);
   }
   try {
     tagData = await getTags();
@@ -116,9 +122,26 @@ export default async function ProductsPage({
       </section>
 
       <section className="panel">
+        <h2>商城首页布局</h2>
+        <p className="muted" style={{ marginBottom: '1rem' }}>
+          切换 shop.orasage.com 首页展示形态。经典目录保留全品类网格；水晶专题为五行主编排 + 标准装/礼盒装双规格。
+        </p>
+        <form action={saveShopLayoutAction} className="form-grid">
+          <label className="full-width">
+            当前布局
+            <select name="homeLayout" defaultValue={shopHomeLayout}>
+              <option value="legacy">经典目录（全品类）</option>
+              <option value="crystal_v1">水晶专题（五行主编排）</option>
+            </select>
+          </label>
+          <AdminSubmitButton className="full-width">保存首页布局</AdminSubmitButton>
+        </form>
+      </section>
+
+      <section className="panel">
         <h2>商城首页精选（最多 {HOMEPAGE_SLOTS} 个）</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
-          配置 orasage.com 首页与 shop 首页精选区展示的商品（仅公开商品可选）。
+          仅<strong>经典目录</strong>布局生效：配置 shop 首页精选区展示的商品（仅公开商品可选）。
         </p>
         <form action={saveHomepageProductsAction} className="form-grid">
           {Array.from({ length: HOMEPAGE_SLOTS }, (_, i) => (

@@ -41,6 +41,25 @@
     "featuredSubtitle": "Combinações populares após uma leitura",
     "diy": "Ressonância personalizada"
   },
+  "crystalShowcase": {
+    "empty": "Pulseiras de cristal indisponíveis no momento.",
+    "guideTitle": "Como escolher",
+    "guideStep1": "Descubra seu elemento com BaZi ou recomendação de leitura",
+    "guideStep2": "Escolha a pulseira que ressoa com sua energia",
+    "guideStep3": "Opte pelo uso diário ou embalagem para presente",
+    "guideCta": "Ver minhas recomendações de elemento →",
+    "elementTabs": "Cinco elementos",
+    "elementLabel": "Elemento · {element}",
+    "packToggle": "Embalagem",
+    "packStandard": "Padrão",
+    "packStandardHint": "Uso diário",
+    "packGift": "Caixa presente",
+    "packGiftHint": "Caixa · cartão · bolsa",
+    "learnMore": "História completa",
+    "compareTitle": "Padrão vs caixa presente",
+    "compareStandard": "Pulseira com bolsa protetora — leve para o dia a dia.",
+    "compareGift": "Caixa premium com cartão e bolsa de veludo — feita para presentear."
+  },
   "home": {
     "footerNote": "Após sua leitura, compre cristais recomendados com um toque · Veja pedidos na",
     "userCenter": "Central do usuário",
