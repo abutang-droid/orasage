@@ -53,7 +53,7 @@ async function parseHeroImagesFromForm(
       sort: Number(formData.get(`hero_new_sort_${i}`) ?? 100 + i),
     });
   }
-  return heroImages;
+  return heroImages.sort((a, b) => a.sort - b.sort);
 }
 
 /** 解析视频：优先新上传文件，其次保留已有 URL；勾选删除则清空 */

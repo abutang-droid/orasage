@@ -97,6 +97,29 @@ export async function deleteProductAction(formData: FormData) {
   redirect('/products?deleted=' + encodeURIComponent(sku));
 }
 
+/** 批量上/下架（仅 active 字段） */
+export async function batchSetProductsActiveAction(formData: FormData) {
+  const skusRaw = String(formData.get('skus') ?? '').trim();
+  const active = formData.get('active') === '1';
+  const skus = skusRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  if (skus.length === 0) {
+    redirect('/products?save_err=' + encodeURIComponent('请先勾选商品'));
+  }
+
+  let errorMsg: string | null = null;
+  try {
+    await Promise.all(skus.map((sku) => updateProduct(sku, { active })));
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '批量更新失败';
+  }
+
+  revalidatePath('/products');
+  if (errorMsg) {
+    redirect('/products?save_err=' + encodeURIComponent(errorMsg));
+  }
+  redirect(`/products?batch_ok=${active ? 'active' : 'inactive'}&count=${skus.length}`);
+}
+
 export async function saveDiyBeadAction(formData: FormData) {
   const code = String(formData.get('code') ?? '').trim();
   const name = String(formData.get('name') ?? '').trim();

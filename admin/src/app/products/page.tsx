@@ -19,6 +19,8 @@ export default async function ProductsPage({
     sku?: string;
     save_err?: string;
     deleted?: string;
+    batch_ok?: string;
+    count?: string;
   }>;
 }) {
   const admin = await getAdminUser();
@@ -89,6 +91,12 @@ export default async function ProductsPage({
       {sp.deleted ? (
         <p className="muted panel-notice">
           商品 <code>{decodeURIComponent(sp.deleted)}</code> 已下架。
+        </p>
+      ) : null}
+
+      {sp.batch_ok ? (
+        <p className="muted panel-notice">
+          已批量{sp.batch_ok === 'active' ? '上架' : '下架'} {sp.count ?? ''} 个商品。
         </p>
       ) : null}
 
