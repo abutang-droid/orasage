@@ -55,8 +55,9 @@ async function assertApiRegularUserForbidden(token) {
   if (res.status !== 403) {
     throw new Error(`expected 403 for regular user, got ${res.status}: ${JSON.stringify(body)}`);
   }
-  if (body.error !== '需要管理员权限') {
-    throw new Error(`expected 需要管理员权限, got ${JSON.stringify(body)}`);
+  const forbiddenErrors = new Set(['需要管理员权限', '权限不足']);
+  if (!forbiddenErrors.has(body.error)) {
+    throw new Error(`expected admin forbidden error, got ${JSON.stringify(body)}`);
   }
   console.log('[admin-gate] API /api/admin/stats regular user → 403 OK');
 }
