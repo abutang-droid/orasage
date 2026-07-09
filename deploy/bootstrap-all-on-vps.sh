@@ -34,6 +34,11 @@ sync_repo() {
     git clone --branch "$ORASAGE_REF" "$REPO_URL" "$DEPLOY_DIR" \
       || git clone "$REPO_URL" "$DEPLOY_DIR"
   fi
+  RUN_USER="$(whoami)"
+  if [ "$RUN_USER" != "root" ] && [ -d "$DEPLOY_DIR" ]; then
+    log "修正部署目录归属 ($RUN_USER)..."
+    sudo chown -R "$RUN_USER:$RUN_USER" "$DEPLOY_DIR"
+  fi
 }
 
 ensure_nginx() {

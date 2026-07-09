@@ -32,6 +32,13 @@ else
   git clone --branch "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
 fi
 
+# 避免历史 sudo/npm 将文件写成 root 导致 ubuntu 部署 EACCES
+RUN_USER="$(whoami)"
+if [ "$RUN_USER" != "root" ] && [ -d "$DEPLOY_DIR" ]; then
+  log "修正部署目录归属 ($RUN_USER)..."
+  sudo chown -R "$RUN_USER:$RUN_USER" "$DEPLOY_DIR"
+fi
+
 # ── 2. 环境变量 ──────────────────────────────────────────────
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
   log "警告: $DEPLOY_DIR/.env 不存在，从模板创建（请检查 JWT_SECRET）"

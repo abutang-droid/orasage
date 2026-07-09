@@ -45,8 +45,9 @@ async function main() {
 
   console.log('[tarot-daily] open daily-card page');
   await page.goto(`${BASE.tarot}/daily-card`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  // Page shows spinner while /api/daily-card loads; heading renders after loading=false
+  await page.locator('.spinner').waitFor({ state: 'hidden', timeout: 60000 });
   await page.getByRole('heading', { name: '每日抽卡' }).waitFor({ state: 'visible', timeout: 30000 });
-  await page.locator('.spinner').waitFor({ state: 'hidden', timeout: 60000 }).catch(() => null);
 
   const firstDraw = await readDailyCard(page);
   if (firstDraw.status !== 200 || !firstDraw.data?.cardName) {
