@@ -14,8 +14,26 @@ import {
   tagsForProducts,
 } from "../lib/catalog.ts";
 import { pickLocalized } from "../lib/product-i18n.ts";
+import { resolveComboMetaMap } from "../lib/product-combos.ts";
+import type { ProductRow } from "../lib/product-format.ts";
 
 export const productsRouter = Router();
+
+async function formatProductsWithCombos(
+  rows: ProductRow[],
+  options: { locale: string; categoryLabels?: Awaited<ReturnType<typeof getCategoryLabelMap>>; tagMap?: Map<number, Array<{ id: number; code: string; label: string; groupCode: string }>> },
+) {
+  const comboRows = rows.filter((r) => r.kind === "combo");
+  const comboMetaMap = await resolveComboMetaMap(comboRows, options.locale);
+  return rows.map((row) =>
+    formatProduct(row, {
+      locale: options.locale,
+      categoryLabels: options.categoryLabels,
+      tags: options.tagMap?.get(row.id) ?? [],
+      comboMeta: comboMetaMap.get(row.sku) ?? null,
+    }),
+  );
+}
 
 function localeFromRequest(req: { query: Record<string, unknown>; headers: Record<string, string | string[] | undefined> }): string {
   const cookieHeader = typeof req.headers.cookie === "string" ? req.headers.cookie : "";
@@ -67,9 +85,7 @@ productsRouter.get("/", async (req, res) => {
   ]);
 
   res.json({
-    products: rows.map((row) =>
-      formatProduct(row, { locale, categoryLabels, tags: tagMap.get(row.id) ?? [] }),
-    ),
+    products: await formatProductsWithCombos(rows, { locale, categoryLabels, tagMap }),
     locale,
   });
 });
@@ -117,13 +133,19 @@ productsRouter.get("/:sku", async (req, res) => {
     res.status(404).json({ error: "商品不存在" });
     return;
   }
-  const [categoryLabels, tagMap, links] = await Promise.all([
+  const [categoryLabels, tagMap, links, comboMetaMap] = await Promise.all([
     getCategoryLabelMap(),
     tagsForProducts([row.id], locale),
     listProductLinks(sku),
+    resolveComboMetaMap(row.kind === "combo" ? [row] : [], locale),
   ]);
   res.json({
-    product: formatProduct(row, { locale, categoryLabels, tags: tagMap.get(row.id) ?? [] }),
+    product: formatProduct(row, {
+      locale,
+      categoryLabels,
+      tags: tagMap.get(row.id) ?? [],
+      comboMeta: comboMetaMap.get(row.sku) ?? null,
+    }),
     links: links
       .filter((l) => l.active && (!l.locale || l.locale === locale))
       .map((l) => formatProductLink(l, locale)),
@@ -164,7 +186,12 @@ const productBodySchema = z.object({
   priceCents: z.number().int().nonnegative(),
   priceCentsUsd: z.number().int().nonnegative().optional().nullable(),
   category: z.string().min(1).max(50),
-  kind: z.enum(["standard", "digital", "service", "diy"]).optional(),
+  kind: z.enum(["standard", "digital", "service", "diy", "combo"]).optional(),
+  comboUseComponentSum: z.boolean().optional(),
+  comboItems: z.array(z.object({
+    componentSku: z.string().min(1).max(100),
+    quantity: z.number().int().min(1).max(99).optional(),
+  })).max(20).optional(),
   visibility: z.enum(["public", "unlisted", "app_only"]).optional(),
   stock: z.number().int().nonnegative().optional().nullable(),
   lowStockAt: z.number().int().nonnegative().optional().nullable(),

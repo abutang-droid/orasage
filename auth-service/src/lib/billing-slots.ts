@@ -8,6 +8,7 @@ import {
   type ShopCurrency,
 } from "../../../shared/shop-locale/index.ts";
 import { formatProduct } from "./product-format.ts";
+import { resolveComboMeta, resolveComboMetaMap } from "./product-combos.ts";
 
 export const BILLING_APPS = ["bazi", "ziwei", "tarot", "main", "shop"] as const;
 export type BillingApp = (typeof BILLING_APPS)[number];
@@ -94,7 +95,8 @@ export async function resolveBillingSlot(
     .limit(1);
   if (!catalog[0]) return null;
 
-  const product = applyOverride(formatProduct(catalog[0], { locale }), pick, locale);
+  const comboMeta = catalog[0].kind === "combo" ? await resolveComboMeta(catalog[0], locale) : null;
+  const product = applyOverride(formatProduct(catalog[0], { locale, comboMeta }), pick, locale);
   return {
     app,
     key,
@@ -116,6 +118,7 @@ export async function resolveBillingSlotsForApp(app: string, locale = "zh-CN") {
     ? await db.select().from(products).where(inArray(products.sku, skus))
     : [];
   const bySku = new Map(catalog.map((p) => [p.sku, p]));
+  const comboMetaMap = await resolveComboMetaMap(catalog.filter((p) => p.kind === "combo"), locale);
 
   const slots: Record<string, Array<{
     sku: string;
@@ -126,8 +129,9 @@ export async function resolveBillingSlotsForApp(app: string, locale = "zh-CN") {
 
   for (const row of rows) {
     const raw = bySku.get(row.sku);
+    const comboMeta = raw?.kind === "combo" ? comboMetaMap.get(raw.sku) ?? null : null;
     const product = raw && raw.active
-      ? applyOverride(formatProduct(raw, { locale }), row, locale)
+      ? applyOverride(formatProduct(raw, { locale, comboMeta }), row, locale)
       : null;
     (slots[row.slotKey] ??= []).push({
       sku: row.sku,

@@ -9,6 +9,7 @@ import {
 import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/shop-fulfillment/index.ts";
 import { pickLocalized } from "./product-i18n.ts";
 import { buildProductSpecRows, type ProductSpecRow } from "../../../shared/product-units/index.ts";
+import type { ComboMeta } from "./product-combos.ts";
 
 export type ProductRow = typeof products.$inferSelect;
 
@@ -58,6 +59,8 @@ export type ProductFormatOptions = {
   categoryLabels?: Map<string, Record<string, string>>;
   /** 标签（tagsForProducts() 预取后传入） */
   tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
+  /** 组合商品元数据（resolveComboMetaMap 预取后传入） */
+  comboMeta?: ComboMeta | null;
 };
 
 export function resolveProductLocale(req?: {
@@ -79,6 +82,7 @@ export function formatAdminProduct(p: ProductRow, options?: ProductFormatOptions
     packagingI18n: p.packagingI18n ?? null,
     seoTitleI18n: p.seoTitleI18n ?? null,
     seoDescI18n: p.seoDescI18n ?? null,
+    comboUseComponentSum: p.comboUseComponentSum,
     attachments: p.attachments ?? null,
   };
 }
@@ -97,8 +101,15 @@ function localizedAttributes(p: ProductRow, locale: string) {
 export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
   const locale = options?.locale ?? "zh-CN";
   const currency: ShopCurrency = currencyForLocale(locale);
+  const comboMeta = options?.comboMeta ?? null;
+  const effectivePriceCents = comboMeta?.useComponentSum
+    ? comboMeta.componentSumCents
+    : p.priceCents;
+  const effectivePriceUsd = comboMeta?.useComponentSum
+    ? comboMeta.componentSumUsdCents
+    : p.priceCentsUsd;
   const resolvedCents = resolvePriceCents(
-    { priceCents: p.priceCents, priceCentsUsd: p.priceCentsUsd },
+    { priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd },
     currency,
   );
   const attrs = localizedAttributes(p, locale);
@@ -132,16 +143,20 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     specs,
     desc: pickLocalized(p.descriptionI18n, locale, p.description),
     description: pickLocalized(p.descriptionI18n, locale, p.description),
-    priceCents: p.priceCents,
-    priceCentsUsd: p.priceCentsUsd,
+    priceCents: effectivePriceCents,
+    priceCentsUsd: effectivePriceUsd,
     currency,
     priceCentsResolved: resolvedCents,
     priceDisplay: formatShopPrice(resolvedCents, currency),
-    priceDisplayCny: formatShopPrice(p.priceCents, "cny"),
+    priceDisplayCny: formatShopPrice(effectivePriceCents, "cny"),
     priceDisplayUsd: formatShopPrice(
-      resolvePriceCents({ priceCents: p.priceCents, priceCentsUsd: p.priceCentsUsd }, "usd"),
+      resolvePriceCents({ priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd }, "usd"),
       "usd",
     ),
+    comboUseComponentSum: p.kind === "combo" ? p.comboUseComponentSum : undefined,
+    comboComponentSumCents: comboMeta?.componentSumCents,
+    comboComponentSumUsdCents: comboMeta?.componentSumUsdCents ?? undefined,
+    comboItems: comboMeta?.items,
     category: p.category,
     categoryLabel: categoryLabel(p.category, locale, options?.categoryLabels),
     kind: p.kind,
@@ -152,12 +167,12 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     tags: options?.tags ?? [],
     seoTitle: pickLocalized(p.seoTitleI18n, locale, "") || null,
     seoDescription: pickLocalized(p.seoDescI18n, locale, "") || null,
-    requiresShipping: inferRequiresShipping({
+    requiresShipping: comboMeta?.requiresShipping ?? inferRequiresShipping({
       category: p.category,
       sku: p.sku,
       requiresShipping: p.requiresShipping,
     }),
-    requiresWristSize: inferRequiresWristSize({
+    requiresWristSize: comboMeta?.requiresWristSize ?? inferRequiresWristSize({
       category: p.category,
       sku: p.sku,
       requiresShipping: p.requiresShipping,

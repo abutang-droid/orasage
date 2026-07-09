@@ -26,15 +26,31 @@ export function parseProductFormPayload(formData: FormData) {
   const color = String(formData.get('color') ?? '').trim();
   const packaging = String(formData.get('packaging') ?? '').trim();
   const category = String(formData.get('category') ?? 'crystal').trim();
-  const kind = String(formData.get('kind') ?? 'standard') as 'standard' | 'digital' | 'service' | 'diy';
+  const kind = String(formData.get('kind') ?? 'standard') as 'standard' | 'digital' | 'service' | 'diy' | 'combo';
   const visibility = String(formData.get('visibility') ?? 'public') as 'public' | 'unlisted' | 'app_only';
   const slug = String(formData.get('slug') ?? '').trim();
+  const comboUseComponentSum = formData.get('comboUseComponentSum') === '1';
+  const comboItemsRaw = String(formData.get('comboItemsJson') ?? '').trim();
+  let comboItems: Array<{ componentSku: string; quantity: number }> | undefined;
+  if (kind === 'combo' && comboItemsRaw) {
+    try {
+      const parsed = JSON.parse(comboItemsRaw) as Array<{ componentSku?: string; quantity?: number }>;
+      comboItems = parsed
+        .filter((item) => item.componentSku?.trim())
+        .map((item) => ({
+          componentSku: String(item.componentSku).trim(),
+          quantity: Math.max(1, Number(item.quantity) || 1),
+        }));
+    } catch {
+      comboItems = undefined;
+    }
+  }
   const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
   const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
   const priceCentsUsd = priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null;
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
-  const requiresShipping = formData.get('requiresShipping') === 'on';
+  const requiresShipping = kind === 'combo' ? false : formData.get('requiresShipping') === 'on';
 
   const tagIds = formData
     .getAll('tagIds')
@@ -65,6 +81,8 @@ export function parseProductFormPayload(formData: FormData) {
     category,
     kind,
     visibility,
+    comboUseComponentSum: kind === 'combo' ? comboUseComponentSum : undefined,
+    comboItems: kind === 'combo' ? comboItems : undefined,
     stock: stockRaw != null && stockRaw >= 0 ? Math.round(stockRaw) : null,
     lowStockAt: parseOptionalNumber(formData.get('lowStockAt')),
     slug: slug || null,

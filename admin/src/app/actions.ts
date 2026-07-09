@@ -14,6 +14,9 @@ export async function saveProductAction(formData: FormData) {
   if (!payload.sku || !payload.name || !payload.description || payload.priceCents < 0) {
     throw new Error('请填写完整商品信息');
   }
+  if (payload.kind === 'combo' && (!payload.comboItems || payload.comboItems.length === 0)) {
+    throw new Error('组合商品至少选择一个子商品');
+  }
 
   if (isEdit) {
     const { sku, ...patch } = payload;

@@ -59,8 +59,22 @@ export interface AdminProduct {
   priceDisplayUsd?: string;
   category: string;
   categoryLabel: string;
-  kind: 'standard' | 'digital' | 'service' | 'diy';
+  kind: 'standard' | 'digital' | 'service' | 'diy' | 'combo';
   visibility: 'public' | 'unlisted' | 'app_only';
+  comboUseComponentSum?: boolean;
+  comboComponentSumCents?: number;
+  comboComponentSumUsdCents?: number | null;
+  comboItems?: Array<{
+    componentSku: string;
+    quantity: number;
+    name: string;
+    kind: string;
+    category: string;
+    priceCents: number;
+    priceCentsUsd?: number | null;
+    requiresShipping: boolean;
+    requiresWristSize: boolean;
+  }>;
   stock?: number | null;
   lowStockAt?: number | null;
   slug?: string | null;

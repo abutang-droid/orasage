@@ -11,6 +11,7 @@ const KIND_LABELS: Record<string, string> = {
   digital: '数字',
   service: '服务',
   diy: '定制',
+  combo: '组合',
 };
 
 const VISIBILITY_LABELS: Record<string, string> = {

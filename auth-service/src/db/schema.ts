@@ -168,8 +168,10 @@ export const products = pgTable("products", {
   priceCentsUsd: integer("price_cents_usd"),
   /** 前台展示分组；关联 product_categories.code（历史枚举值 crystal/report/service 起步） */
   category: varchar("category", { length: 50 }).notNull(),
-  /** 业务形态：standard 实体 / digital 数字 / service 服务 / diy 定制 */
+  /** 业务形态：standard 实体 / digital 数字 / service 服务 / diy 定制 / combo 组合 */
   kind: varchar("kind", { length: 20 }).notNull().default("standard"),
+  /** combo：true=按子商品价合计；false=使用 price_cents 作为组合优惠价 */
+  comboUseComponentSum: boolean("combo_use_component_sum").notNull().default(true),
   /** public 前台可见 / unlisted 仅直链 / app_only 仅供应用计费调用 */
   visibility: varchar("visibility", { length: 20 }).notNull().default("public"),
   /** NULL=不限库存 */
@@ -183,6 +185,15 @@ export const products = pgTable("products", {
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 组合商品子项（数字 + 实体等 SKU 组合） */
+export const productComboItems = pgTable("product_combo_items", {
+  id: serial("id").primaryKey(),
+  comboSku: varchar("combo_sku", { length: 100 }).notNull(),
+  componentSku: varchar("component_sku", { length: 100 }).notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  sortOrder: integer("sort_order").notNull().default(0),
 });
 
 /** 前台展示分类（Q3：可配置 + 多语言，替代原 product_category 枚举） */

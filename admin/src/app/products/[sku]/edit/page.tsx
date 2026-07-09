@@ -90,6 +90,7 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
           pageStatus={productPageStatusMap.get(product.sku) ?? 'none'}
           tagData={tagData}
           categories={categories}
+          catalog={products}
         />
       </section>
 

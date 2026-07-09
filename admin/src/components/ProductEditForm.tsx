@@ -6,14 +6,9 @@ import { ProductAttributeFields } from './ProductAttributeFields';
 import { ProductAttachmentsField } from './ProductAttachmentsField';
 import { ProductCmsLinks } from './ProductCmsLinks';
 import { ProductEditTabs } from './ProductEditTabs';
+import { ProductKindSelect } from './ProductKindSelect';
+import { ProductComboEditor } from './ProductComboEditor';
 import type { AdminCategory, AdminProduct, AdminTag, AdminTagGroup } from '@/lib/api';
-
-const KIND_OPTIONS = [
-  { value: 'standard', label: '实体商品' },
-  { value: 'digital', label: '数字商品（报告等）' },
-  { value: 'service', label: '服务' },
-  { value: 'diy', label: 'DIY 定制' },
-] as const;
 
 const VISIBILITY_OPTIONS = [
   { value: 'public', label: '公开（商城目录可见）' },
@@ -30,6 +25,7 @@ type ProductEditFormProps = {
   mode: 'create' | 'edit';
   tagData: TagData;
   categories: AdminCategory[];
+  catalog: AdminProduct[];
 };
 
 function TagCheckboxes({ tagData, product }: { tagData: TagData; product?: AdminProduct | null }) {
@@ -72,6 +68,7 @@ export function ProductEditForm({
   mode,
   tagData,
   categories,
+  catalog,
 }: ProductEditFormProps) {
   const isEdit = mode === 'edit';
   const categoryOptions = categories.length > 0
@@ -115,89 +112,98 @@ export function ProductEditForm({
                   ))}
                 </select>
               </label>
-              <label>
-                形态
-                <select name="kind" defaultValue={product?.kind ?? 'standard'}>
-                  {KIND_OPTIONS.map((k) => (
-                    <option key={k.value} value={k.value}>{k.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                可见性
-                <select name="visibility" defaultValue={product?.visibility ?? 'public'}>
-                  {VISIBILITY_OPTIONS.map((v) => (
-                    <option key={v.value} value={v.value}>{v.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                价格 CNY（元）
-                <input
-                  name="priceYuan"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  defaultValue={product ? (product.priceCents / 100).toFixed(2) : ''}
-                  placeholder="128"
-                />
-              </label>
-              <label>
-                价格 USD
-                <input
-                  name="priceUsd"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  defaultValue={
-                    product?.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''
-                  }
-                  placeholder="17.99"
-                />
-              </label>
-              <label>
-                库存（留空=不限）
-                <input
-                  name="stock"
-                  type="number"
-                  min="0"
-                  step="1"
-                  defaultValue={product?.stock ?? ''}
-                  placeholder="∞"
-                />
-              </label>
-              <label>
-                低库存预警
-                <input
-                  name="lowStockAt"
-                  type="number"
-                  min="0"
-                  step="1"
-                  defaultValue={product?.lowStockAt ?? ''}
-                  placeholder="5"
-                />
-              </label>
-              <label>
-                Slug（SEO URL，可选）
-                <input name="slug" defaultValue={product?.slug ?? ''} placeholder="green-phantom-bracelet" />
-              </label>
-              <label>
-                排序
-                <input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? 0} />
-              </label>
-              <label className="checkbox-label">
-                <input name="active" type="checkbox" defaultChecked={product?.active ?? true} /> 上架
-              </label>
-              <label className="checkbox-label">
-                <input
-                  name="requiresShipping"
-                  type="checkbox"
-                  defaultChecked={product?.requiresShipping ?? true}
-                />{' '}
-                需要收货地址（实体发货）
-              </label>
+              <ProductKindSelect defaultKind={product?.kind ?? 'standard'}>
+                {(kind) => (
+                  <>
+                    <label>
+                      可见性
+                      <select name="visibility" defaultValue={product?.visibility ?? 'public'}>
+                        {VISIBILITY_OPTIONS.map((v) => (
+                          <option key={v.value} value={v.value}>{v.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      价格 CNY（元）{kind === 'combo' ? '（组合优惠价）' : ''}
+                      <input
+                        name="priceYuan"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        defaultValue={product ? (product.priceCents / 100).toFixed(2) : ''}
+                        placeholder="128"
+                      />
+                    </label>
+                    <label>
+                      价格 USD{kind === 'combo' ? '（组合优惠价）' : ''}
+                      <input
+                        name="priceUsd"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        defaultValue={
+                          product?.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''
+                        }
+                        placeholder="17.99"
+                      />
+                    </label>
+                    {kind === 'combo' ? (
+                      <p className="full-width muted">
+                        勾选「组合」页中的「使用子商品价合计」时，保存后将自动按子商品价格更新；取消勾选则使用上方优惠价。
+                      </p>
+                    ) : null}
+                    <label>
+                      库存（留空=不限）
+                      <input
+                        name="stock"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={product?.stock ?? ''}
+                        placeholder="∞"
+                      />
+                    </label>
+                    <label>
+                      低库存预警
+                      <input
+                        name="lowStockAt"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={product?.lowStockAt ?? ''}
+                        placeholder="5"
+                      />
+                    </label>
+                    <label>
+                      Slug（SEO URL，可选）
+                      <input name="slug" defaultValue={product?.slug ?? ''} placeholder="green-phantom-bracelet" />
+                    </label>
+                    <label>
+                      排序
+                      <input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? 0} />
+                    </label>
+                    <label className="checkbox-label">
+                      <input name="active" type="checkbox" defaultChecked={product?.active ?? true} /> 上架
+                    </label>
+                    {kind !== 'combo' ? (
+                      <label className="checkbox-label">
+                        <input
+                          name="requiresShipping"
+                          type="checkbox"
+                          defaultChecked={product?.requiresShipping ?? true}
+                        />{' '}
+                        需要收货地址（实体发货）
+                      </label>
+                    ) : (
+                      <p className="full-width muted">
+                        组合商品的发货要求由子商品自动判定（含实体子项则需收货）。
+                      </p>
+                    )}
+                  </>
+                )}
+              </ProductKindSelect>
               <label className="full-width">
                 短描述（列表 / 卡片）
                 <textarea
@@ -209,6 +215,13 @@ export function ProductEditForm({
                 />
               </label>
             </div>
+          ),
+          combo: (
+            product?.kind === 'combo' || !isEdit ? (
+              <ProductComboEditor product={product} catalog={catalog} />
+            ) : (
+              <p className="muted">请先在「基础信息」将形态设为「组合商品」。</p>
+            )
           ),
           attributes: <ProductAttributeFields product={product} />,
           tags: <TagCheckboxes tagData={tagData} product={product} />,

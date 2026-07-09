@@ -118,7 +118,7 @@ export default async function ProductsPage({
 
       <section className="panel">
         <h2>新增商品</h2>
-        <ProductEditForm mode="create" tagData={tagData} categories={categories} />
+        <ProductEditForm mode="create" tagData={tagData} categories={categories} catalog={products} />
       </section>
 
       <section className="panel">

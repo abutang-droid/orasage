@@ -7,6 +7,13 @@ import { requireAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import {
+  listComboItems,
+  resolveComboMeta,
+  resolveComboMetaMap,
+  setComboItems,
+  syncComboDerivedFields,
+} from "../lib/product-combos.ts";
+import {
   deleteBillingSlotKey,
   listAllBillingSlots,
   setBillingSlotEntries,
@@ -66,13 +73,18 @@ adminApiRouter.get("/stats", async (_req, res) => {
 
 adminApiRouter.get("/products", async (_req, res) => {
   const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
-  const [categoryLabels, tagMap] = await Promise.all([
+  const [categoryLabels, tagMap, comboMetaMap] = await Promise.all([
     getCategoryLabelMap(),
     tagsForProducts(rows.map((r) => r.id)),
+    resolveComboMetaMap(rows.filter((r) => r.kind === "combo")),
   ]);
   res.json({
     products: rows.map((row) =>
-      formatAdminProduct(row, { categoryLabels, tags: tagMap.get(row.id) ?? [] }),
+      formatAdminProduct(row, {
+        categoryLabels,
+        tags: tagMap.get(row.id) ?? [],
+        comboMeta: comboMetaMap.get(row.sku) ?? null,
+      }),
     ),
   });
 });
@@ -298,6 +310,66 @@ adminApiRouter.put("/products/:sku/links", async (req, res) => {
   }
 });
 
+/* ── 组合商品子项 ───────────────────────────────────────── */
+
+const comboItemsSchema = z.object({
+  items: z.array(z.object({
+    componentSku: z.string().min(1).max(100),
+    quantity: z.number().int().min(1).max(99).optional(),
+  })).max(20),
+});
+
+adminApiRouter.get("/products/:sku/combo-items", async (req, res) => {
+  try {
+    const sku = String(req.params.sku);
+    const [combo] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    if (!combo) {
+      res.status(404).json({ error: "商品不存在" });
+      return;
+    }
+    const rows = await listComboItems(sku);
+    const meta = await resolveComboMeta(combo);
+    res.json({ items: rows, combo: meta });
+  } catch (err) {
+    console.error("[admin] combo-items get:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/products/:sku/combo-items", async (req, res) => {
+  try {
+    const sku = String(req.params.sku);
+    const [combo] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    if (!combo) {
+      res.status(404).json({ error: "商品不存在" });
+      return;
+    }
+    if (combo.kind !== "combo") {
+      res.status(400).json({ error: "仅组合商品可配置子项" });
+      return;
+    }
+    const body = comboItemsSchema.parse(req.body);
+    const rows = await setComboItems(sku, body.items);
+    await syncComboDerivedFields(sku);
+    const [updated] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    const meta = updated ? await resolveComboMeta(updated) : null;
+    res.json({ items: rows, combo: meta });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (err instanceof Error && (
+      err.message.includes("子商品") || err.message.includes("组合") || err.message.includes("未知")
+    )) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    console.error("[admin] combo-items put:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
 adminApiRouter.post("/products", async (req, res) => {
   try {
     const body = productBodySchema.parse(req.body);
@@ -329,6 +401,7 @@ adminApiRouter.post("/products", async (req, res) => {
       priceCentsUsd: body.priceCentsUsd ?? null,
       category: body.category,
       kind: body.kind ?? "standard",
+      comboUseComponentSum: body.kind === "combo" ? (body.comboUseComponentSum ?? true) : true,
       visibility: body.visibility ?? "public",
       stock: body.stock ?? null,
       lowStockAt: body.lowStockAt ?? null,
@@ -342,7 +415,16 @@ adminApiRouter.post("/products", async (req, res) => {
     if (body.tagIds) {
       await setProductTags(row.id, body.tagIds);
     }
-    res.status(201).json({ product: formatAdminProduct(row) });
+    if (body.kind === "combo" && body.comboItems) {
+      await setComboItems(row.sku, body.comboItems);
+      await syncComboDerivedFields(row.sku);
+    } else if (body.kind === "combo") {
+      res.status(400).json({ error: "组合商品至少包含一个子商品" });
+      return;
+    }
+    const [saved] = await db.select().from(products).where(eq(products.sku, row.sku)).limit(1);
+    const comboMeta = saved?.kind === "combo" ? await resolveComboMeta(saved) : null;
+    res.status(201).json({ product: formatAdminProduct(saved ?? row, { comboMeta }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -380,6 +462,7 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.packagingI18n !== undefined) updates.packagingI18n = body.packagingI18n;
     if (body.attachments !== undefined) updates.attachments = body.attachments;
     if (body.kind !== undefined) updates.kind = body.kind;
+    if (body.comboUseComponentSum !== undefined) updates.comboUseComponentSum = body.comboUseComponentSum;
     if (body.visibility !== undefined) updates.visibility = body.visibility;
     if (body.stock !== undefined) updates.stock = body.stock;
     if (body.lowStockAt !== undefined) updates.lowStockAt = body.lowStockAt;
@@ -399,7 +482,19 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.tagIds !== undefined) {
       await setProductTags(row.id, body.tagIds ?? []);
     }
-    res.json({ product: formatAdminProduct(row) });
+    if (body.comboItems !== undefined) {
+      if (row.kind !== "combo") {
+        res.status(400).json({ error: "仅组合商品可配置子项" });
+        return;
+      }
+      await setComboItems(sku, body.comboItems);
+    }
+    if (row.kind === "combo") {
+      await syncComboDerivedFields(sku);
+    }
+    const [saved] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    const comboMeta = saved?.kind === "combo" ? await resolveComboMeta(saved) : null;
+    res.json({ product: formatAdminProduct(saved ?? row, { comboMeta }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });

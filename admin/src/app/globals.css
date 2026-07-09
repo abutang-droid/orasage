@@ -590,6 +590,46 @@ details summary {
   background: rgba(184, 148, 63, 0.12);
 }
 
+/* ── 组合商品编辑器 ── */
+.product-combo-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-combo-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.product-combo-row {
+  display: grid;
+  grid-template-columns: 1fr 120px auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.product-combo-summary {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-combo-ship-yes {
+  color: var(--orasage-gold, #b8943f);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .product-combo-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── 关联页面编辑 ── */
 .product-links-grid {
   display: flex;

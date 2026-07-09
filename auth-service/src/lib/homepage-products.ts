@@ -2,6 +2,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { homepageFeaturedProducts, products } from "../db/schema.ts";
 import { CATEGORY_LABELS, formatProduct } from "./product-format.ts";
+import { resolveComboMetaMap } from "./product-combos.ts";
 import { detectShopLocale } from "../../../shared/shop-locale/index.ts";
 
 const MAX_HOMEPAGE_PRODUCTS = 6;
@@ -43,7 +44,10 @@ export async function resolveHomepageProducts(locale = "zh-CN") {
       .limit(MAX_HOMEPAGE_PRODUCTS);
   }
 
-  const formatted = rows.map((row) => formatProduct(row, { locale }));
+  const comboMetaMap = await resolveComboMetaMap(rows.filter((r) => r.kind === "combo"), locale);
+  const formatted = rows.map((row) =>
+    formatProduct(row, { locale, comboMeta: comboMetaMap.get(row.sku) ?? null }),
+  );
   const categorySet = new Set(formatted.map((p) => p.category));
   const categories = (["crystal", "report", "service"] as const)
     .filter((id) => categorySet.has(id))
