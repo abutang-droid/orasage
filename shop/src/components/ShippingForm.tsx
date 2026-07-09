@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import {
@@ -66,10 +66,34 @@ export function ShippingForm({
     return () => { cancelled = true; };
   }, []);
 
-  const shippingFeeCents = useMemo(() => {
+  const [shippingFeeCents, setShippingFeeCents] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
     const primary = recipients[0]?.countryCode ?? 'CN';
-    return estimateShippingFeeCents(primary, couple ? 2 : 1);
+    const recipientCount = couple ? 2 : 1;
+    const qs = new URLSearchParams({
+      country: primary,
+      recipients: String(recipientCount),
+    });
+    void fetch(`/api/shipping/estimate?${qs}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || typeof data.feeCents !== 'number') return;
+        setShippingFeeCents(data.feeCents);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setShippingFeeCents(estimateShippingFeeCents(primary, recipientCount));
+        }
+      });
+    return () => { cancelled = true; };
   }, [recipients, couple]);
+
+  const displayFeeCents = shippingFeeCents ?? estimateShippingFeeCents(
+    recipients[0]?.countryCode ?? 'CN',
+    couple ? 2 : 1,
+  );
 
   function countryLabel(code: string) {
     return t(`countries.${code}` as 'countries.CN');
@@ -138,9 +162,9 @@ export function ShippingForm({
         </fieldset>
       ) : null}
 
-      {shippingFeeCents > 0 ? (
+      {displayFeeCents > 0 ? (
         <p className="shop-shipping-fee">
-          {t('estimatedFee', { amount: (shippingFeeCents / 100).toFixed(2) })}
+          {t('estimatedFee', { amount: (displayFeeCents / 100).toFixed(2) })}
         </p>
       ) : (
         <p className="shop-shipping-fee shop-shipping-fee--free">{t('freeShipping')}</p>

@@ -125,8 +125,23 @@ export function getProducts() {
   return adminFetch<{ products: AdminProduct[] }>('/products');
 }
 
-export function getOrders() {
-  return adminFetch<{ orders: AdminOrder[] }>('/orders');
+export function getOrders(params?: {
+  status?: string;
+  app?: string;
+  q?: string;
+  offset?: number;
+  limit?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set('status', params.status);
+  if (params?.app) sp.set('app', params.app);
+  if (params?.q) sp.set('q', params.q);
+  if (params?.offset != null) sp.set('offset', String(params.offset));
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  return adminFetch<{ orders: AdminOrder[]; total: number; limit: number; offset: number }>(
+    `/orders${qs ? `?${qs}` : ''}`,
+  );
 }
 
 /** since 之后创建的订单数（后台导航角标用） */
@@ -195,6 +210,41 @@ export function createOrderShipment(orderNo: string, body: { carrier: string; tr
     `/orders/${encodeURIComponent(orderNo)}/shipments`,
     { method: 'POST', body: JSON.stringify(body) },
   );
+}
+
+export function batchCreateOrderShipments(
+  items: Array<{ orderNo: string; carrier: string; trackingNo: string; note?: string }>,
+) {
+  return adminFetch<{ results: Array<{ orderNo: string; ok: boolean; error?: string }>; success: boolean }>(
+    '/orders/shipments/batch',
+    { method: 'POST', body: JSON.stringify({ items }) },
+  );
+}
+
+export interface AdminShippingZone {
+  id: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  countryCodes: string[];
+  flatRateCents: number;
+  perRecipient: boolean;
+  weightFreeGrams?: number | null;
+  weightBlockGrams?: number | null;
+  weightBlockCents?: number | null;
+  sortOrder: number;
+  isDefault: boolean;
+  active: boolean;
+}
+
+export function getShippingZones() {
+  return adminFetch<{ zones: AdminShippingZone[] }>('/shipping/zones');
+}
+
+export function saveShippingZones(zones: Array<Omit<AdminShippingZone, 'id'>>) {
+  return adminFetch<{ zones: AdminShippingZone[] }>('/shipping/zones', {
+    method: 'PUT',
+    body: JSON.stringify({ zones }),
+  });
 }
 
 export interface HomepageProductsConfig {

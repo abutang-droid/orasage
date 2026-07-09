@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, type AdminShippingZone } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
@@ -166,14 +166,14 @@ export async function saveDiyBeadAction(formData: FormData) {
     } else {
       await createDiyBead(payload);
     }
-    revalidatePath('/beads');
+    revalidatePath('/shop/diy');
   } catch (err) {
     errorMsg = err instanceof Error ? err.message : '保存失败';
   }
   if (errorMsg) {
-    redirect(`/beads?bead_err=${encodeURIComponent(errorMsg)}`);
+    redirect(`/shop/diy?bead_err=${encodeURIComponent(errorMsg)}`);
   }
-  redirect('/beads?bead=ok');
+  redirect('/shop/diy?bead=ok');
 }
 
 export async function saveDiyConfigAction(formData: FormData) {
@@ -190,14 +190,14 @@ export async function saveDiyConfigAction(formData: FormData) {
       fitToleranceMm,
       wristEaseMm,
     });
-    revalidatePath('/beads');
+    revalidatePath('/shop/diy');
   } catch (err) {
     errorMsg = err instanceof Error ? err.message : '保存失败';
   }
   if (errorMsg) {
-    redirect(`/beads?config_err=${encodeURIComponent(errorMsg)}`);
+    redirect(`/shop/diy?config_err=${encodeURIComponent(errorMsg)}`);
   }
-  redirect('/beads?config=ok');
+  redirect('/shop/diy?config=ok');
 }
 
 export async function updateOrderStatusAction(formData: FormData) {
@@ -205,6 +205,7 @@ export async function updateOrderStatusAction(formData: FormData) {
   const status = String(formData.get('status') ?? '');
   if (!orderNo || !status) throw new Error('参数不完整');
   await updateOrderStatus(orderNo, status);
+  revalidatePath('/shop/orders');
   revalidatePath('/orders');
   revalidatePath('/');
 }
@@ -225,8 +226,29 @@ export async function createShipmentAction(formData: FormData) {
   const note = String(formData.get('note') ?? '').trim();
   if (!orderNo || !carrier || !trackingNo) throw new Error('请填写承运商与运单号');
   await createOrderShipment(orderNo, { carrier, trackingNo, note: note || undefined });
+  revalidatePath('/shop/orders');
   revalidatePath('/orders');
   revalidatePath('/');
+}
+
+export async function batchCreateOrderShipmentsAction(
+  items: Array<{ orderNo: string; carrier: string; trackingNo: string; note?: string }>,
+) {
+  const result = await batchCreateOrderShipments(items);
+  const failed = result.results.filter((r) => !r.ok);
+  if (failed.length > 0) {
+    throw new Error(failed.map((f) => `${f.orderNo}: ${f.error ?? '发货失败'}`).join('；'));
+  }
+  revalidatePath('/shop/orders');
+  revalidatePath('/orders');
+  revalidatePath('/');
+}
+
+export async function saveShippingZonesAction(
+  zones: Array<Omit<AdminShippingZone, 'id'>>,
+) {
+  await saveShippingZones(zones);
+  revalidatePath('/shop/shipping');
 }
 
 export async function saveHomepageProductsAction(formData: FormData) {

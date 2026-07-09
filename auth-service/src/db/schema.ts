@@ -362,6 +362,24 @@ export const contactMessages = pgTable("contact_messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+/** 运费区域模板（Phase C） */
+export const shippingZones = pgTable("shipping_zones", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull().default({}),
+  countryCodes: jsonb("country_codes").$type<string[]>().notNull().default([]),
+  flatRateCents: integer("flat_rate_cents").notNull().default(0),
+  perRecipient: boolean("per_recipient").notNull().default(true),
+  weightFreeGrams: integer("weight_free_grams"),
+  weightBlockGrams: integer("weight_block_grams"),
+  weightBlockCents: integer("weight_block_cents"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isDefault: boolean("is_default").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 
 export {
