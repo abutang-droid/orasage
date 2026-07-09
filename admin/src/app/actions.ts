@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, updateStaffUserRole, lookupStaffUser, type AdminShippingZone, type AdminCoupon, type AdminStaffRole } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
@@ -408,4 +408,17 @@ export async function saveProductLinksAction(formData: FormData) {
   await saveProductLinks(sku, links);
   revalidatePath(`/products/${encodeURIComponent(sku)}/edit`);
   redirect(`/products/${encodeURIComponent(sku)}/edit?links=ok`);
+}
+
+export async function updateStaffRoleAction(userId: number, role: AdminStaffRole) {
+  await updateStaffUserRole(userId, role);
+  revalidatePath('/staff');
+}
+
+export async function promoteStaffUserAction(email: string, role: AdminStaffRole) {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized.includes('@')) throw new Error('请填写有效邮箱');
+  const { user } = await lookupStaffUser(normalized);
+  await updateStaffUserRole(user.id, role);
+  revalidatePath('/staff');
 }

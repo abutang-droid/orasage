@@ -522,3 +522,32 @@ export function saveCoupons(coupons: Array<Omit<AdminCoupon, 'id' | 'usedCount' 
     body: JSON.stringify({ coupons }),
   });
 }
+
+/* ── 员工权限 ─────────────────────────────────────────── */
+
+export type AdminStaffRole = 'admin' | 'shop_ops' | 'content_ops' | 'user';
+
+export interface AdminStaffUser {
+  id: number;
+  email: string;
+  nickname: string;
+  role: AdminStaffRole;
+  lastSignedIn: string | null;
+  createdAt: string;
+}
+
+export function getStaffUsers() {
+  return adminFetch<{ staff: AdminStaffUser[] }>('/staff');
+}
+
+export function lookupStaffUser(email: string) {
+  const qs = new URLSearchParams({ email });
+  return adminFetch<{ user: AdminStaffUser }>(`/staff/lookup?${qs}`);
+}
+
+export function updateStaffUserRole(id: number, role: AdminStaffRole) {
+  return adminFetch<{ user: AdminStaffUser }>(`/staff/${id}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+}

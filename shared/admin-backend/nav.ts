@@ -20,6 +20,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     href: '/messages',
     isActive: (p) => p.startsWith('/messages'),
   },
+  {
+    label: '权限',
+    href: '/staff',
+    roles: ['admin'],
+    isActive: (p) => p.startsWith('/staff'),
+  },
 ];
 
 /** 商城组（R1：独立商城） */

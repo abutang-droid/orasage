@@ -5,6 +5,7 @@ import {
   ALL_STAFF_ROLES,
   isStaffRole,
   SHOP_OPS_ROLES,
+  SUPER_ADMIN_ROLES,
   type StaffRole,
 } from '../../../shared/staff-roles/index';
 
@@ -54,6 +55,11 @@ export async function getAdminUser(): Promise<StaffUser | null> {
 /** 商城运营页面（商品/订单/促销等） */
 export async function getShopStaff(): Promise<StaffUser | null> {
   return getStaffUser(SHOP_OPS_ROLES);
+}
+
+/** 超级管理员专属页面（计费槽位、员工权限等） */
+export async function getSuperAdmin(): Promise<StaffUser | null> {
+  return getStaffUser(SUPER_ADMIN_ROLES);
 }
 
 export function loginUrl() {

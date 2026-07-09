@@ -33,6 +33,17 @@
   margin-top: 1.25rem;
 }
 
+.admin-backend-role-badge {
+  margin: 0 0.75rem 1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--orasage-primary, #171717);
+  background: rgba(184, 148, 63, 0.14);
+  border: 1px solid rgba(184, 148, 63, 0.35);
+}
+
 .admin-backend-nav-link {
   display: block;
   padding: 0.5rem 0.75rem;
