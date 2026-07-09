@@ -4,7 +4,11 @@
     "buying": "Processando…",
     "addToCart": "Adicionar",
     "added": "Adicionado",
-    "buyFailed": "Falha na compra"
+    "buyFailed": "Falha na compra",
+    "buyNow": "Comprar agora",
+    "addToCartFull": "Adicionar ao carrinho",
+    "addedToCart": "Adicionado ao carrinho",
+    "customBracelet": "Pulseira personalizada"
   },
   "categories": {
     "crystal": "Pulseiras de Cristal",
