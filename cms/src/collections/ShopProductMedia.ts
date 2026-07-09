@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 
 /** 商城 SKU 主图 — 在 CMS 媒体库上传后关联商品 SKU */
 export const ShopProductMedia: CollectionConfig = {
@@ -16,12 +17,7 @@ export const ShopProductMedia: CollectionConfig = {
     defaultColumns: ['sku', 'image', 'updatedAt'],
     listSearchableFields: ['sku'],
   },
-  access: {
-    read: () => true,
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
-  },
+  access: cmsAccessForSlug('shop-product-media'),
   fields: [
     {
       name: 'sku',

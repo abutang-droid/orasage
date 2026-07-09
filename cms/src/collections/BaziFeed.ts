@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 八字首页滚动信息流 — 订单动态与用户评价，供 bazi.orasage.com 首页展示 */
@@ -8,9 +9,7 @@ export const BaziFeed: CollectionConfig = {
     singular: '八字信息流',
     plural: '八字首页信息流',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('bazi-feed'),
   admin: {
     group: false,
     useAsTitle: 'message',

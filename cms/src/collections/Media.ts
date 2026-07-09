@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { MEDIA_LIBRARY_SPEC } from '../lib/media-specs';
 
 const filename = fileURLToPath(import.meta.url);
@@ -16,12 +17,7 @@ export const Media: CollectionConfig = {
     singular: '媒体文件',
     plural: '媒体库',
   },
-  access: {
-    read: () => true,
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
-  },
+  access: cmsAccessForSlug('media'),
   admin: {
     group: false,
     useAsTitle: 'filename',

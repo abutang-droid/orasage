@@ -5,7 +5,10 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema.ts";
 import { eq } from "drizzle-orm";
-import { extractToken, signToken, verifyToken, getCookieOptions } from "../lib/jwt.ts";
+import { extractToken, verifyToken, getCookieOptions } from "../lib/jwt.ts";
+import { signTokenForUser } from "../lib/sign-token.ts";
+import { isStaffRole } from "../../../shared/staff-roles/index.ts";
+import { userIsActiveStaff } from "../lib/staff-permissions.ts";
 import { getAuthUser, publicUser } from "../lib/auth-user.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
@@ -61,7 +64,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
       nickname: body.nickname || body.email.split("@")[0],
     }).returning();
 
-    const token = await signToken({ sub: String(user.id), role: user.role });
+    const token = await signTokenForUser(user);
 
     const cookieOpts = getCookieOptions();
     res.cookie(cookieOpts.name, token, cookieOpts);
@@ -97,10 +100,15 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       return;
     }
 
+    if (isStaffRole(user.role) && !userIsActiveStaff(user)) {
+      res.status(403).json({ error: "运营账号已停用" });
+      return;
+    }
+
     // 更新最后登录时间
     await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
 
-    const token = await signToken({ sub: String(user.id), role: user.role });
+    const token = await signTokenForUser(user);
 
     const cookieOpts = getCookieOptions();
     res.cookie(cookieOpts.name, token, cookieOpts);
@@ -154,7 +162,7 @@ authRouter.post("/checkout-register", async (req: Request, res: Response) => {
       nickname: body.email.split("@")[0],
     }).returning();
 
-    const token = await signToken({ sub: String(user.id), role: user.role });
+    const token = await signTokenForUser(user);
     const cookieOpts = getCookieOptions();
     res.cookie(cookieOpts.name, token, cookieOpts);
 
@@ -186,7 +194,7 @@ authRouter.post("/checkout-bind", async (req: Request, res: Response) => {
 
     await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
 
-    const token = await signToken({ sub: String(user.id), role: user.role });
+    const token = await signTokenForUser(user);
     const cookieOpts = getCookieOptions();
     res.cookie(cookieOpts.name, token, cookieOpts);
 

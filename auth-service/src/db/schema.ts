@@ -66,6 +66,14 @@ export const users = pgTable("users", {
   preferredDeity: varchar("preferred_deity", { length: 50 }),
   languagePreference: varchar("language_preference", { length: 10 }).default("zh-CN"),
   role: roleEnum("role").default("user").notNull(),
+  /** 7a：在角色默认权限之外的额外授予 */
+  staffGrants: jsonb("staff_grants").$type<string[]>().notNull().default([]),
+  /** 7a：从角色默认权限中收回 */
+  staffRevokes: jsonb("staff_revokes").$type<string[]>().notNull().default([]),
+  /** 7a：停用运营子账号（仍可登录前台，无法进 admin API） */
+  staffDisabled: boolean("staff_disabled").notNull().default(false),
+  /** 7a：运营备注名，如「巴西站运营」 */
+  staffLabel: varchar("staff_label", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { cmsAccessForSlug } from '../lib/cmsStaffAccess';
 import { requiredText } from '../lib/validators';
 
 /** 紫微首页滚动信息流 — 订单动态与用户评价，供 ziwei.orasage.com 计算器展示 */
@@ -8,9 +9,7 @@ export const ZiweiFeed: CollectionConfig = {
     singular: '紫微信息流',
     plural: '紫微首页信息流',
   },
-  access: {
-    read: () => true,
-  },
+  access: cmsAccessForSlug('ziwei-feed'),
   admin: {
     group: false,
     useAsTitle: 'message',

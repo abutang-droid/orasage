@@ -3,7 +3,7 @@ import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
-import { requireStaff, requireSuperAdmin } from "../lib/admin-auth.ts";
+import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import {
@@ -86,6 +86,18 @@ import {
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
 
+const P = {
+  overview: assertPermission("ops.overview"),
+  messages: assertPermission("ops.messages"),
+  products: assertPermission("shop.products"),
+  orders: assertPermission("shop.orders"),
+  diy: assertPermission("shop.diy"),
+  shipping: assertPermission("shop.shipping"),
+  promotions: assertPermission("shop.promotions"),
+  reviews: assertPermission("shop.reviews"),
+  billing: assertPermission("billing.slots"),
+};
+
 const APP_LABELS: Record<string, string> = {
   bazi: "八字排盘",
   ziwei: "紫微斗数",
@@ -101,7 +113,21 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "已取消",
 };
 
-adminApiRouter.get("/stats", async (_req, res) => {
+adminApiRouter.get("/me", async (req, res) => {
+  const ctx = req as import("../lib/admin-auth.ts").AdminRequest;
+  res.json({
+    user: {
+      id: ctx.adminUser.id,
+      email: ctx.adminUser.email,
+      nickname: ctx.adminUser.nickname,
+      role: ctx.adminUser.role,
+      staffLabel: ctx.adminUser.staffLabel,
+      permissions: [...ctx.staffPermissions],
+    },
+  });
+});
+
+adminApiRouter.get("/stats", P.overview, async (_req, res) => {
   const [[userCount], [orderCount], [readingCount], [productCount]] = await Promise.all([
     db.select({ value: count() }).from(users),
     db.select({ value: count() }).from(userOrders),
@@ -143,7 +169,7 @@ adminApiRouter.get("/dashboard", async (req, res) => {
   res.json(dashboard);
 });
 
-adminApiRouter.get("/products", async (_req, res) => {
+adminApiRouter.get("/products", P.products, async (_req, res) => {
   const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
   const [categoryLabels, tagMap, comboMetaMap] = await Promise.all([
     getCategoryLabelMap(),
@@ -165,7 +191,7 @@ const homepageSkusSchema = z.object({
   skus: z.array(z.string().min(1).max(100)).max(6),
 });
 
-adminApiRouter.get("/homepage-products", async (_req, res) => {
+adminApiRouter.get("/homepage-products", P.products, async (_req, res) => {
   const [skus, catalog] = await Promise.all([
     listHomepageFeaturedSkus(),
     resolveHomepageProducts(),
@@ -173,7 +199,7 @@ adminApiRouter.get("/homepage-products", async (_req, res) => {
   res.json({ skus, ...catalog });
 });
 
-adminApiRouter.put("/homepage-products", async (req, res) => {
+adminApiRouter.put("/homepage-products", P.products, async (req, res) => {
   try {
     const body = homepageSkusSchema.parse(req.body);
     await setHomepageFeaturedSkus(body.skus);
@@ -208,7 +234,7 @@ const billingSlotPutSchema = z.object({
   entries: z.array(billingEntrySchema).max(20),
 });
 
-adminApiRouter.get("/billing-slots", requireSuperAdmin, async (_req, res) => {
+adminApiRouter.get("/billing-slots", P.billing, async (_req, res) => {
   try {
     const rows = await listAllBillingSlots();
     res.json({ slots: rows });
@@ -218,7 +244,7 @@ adminApiRouter.get("/billing-slots", requireSuperAdmin, async (_req, res) => {
   }
 });
 
-adminApiRouter.put("/billing-slots", requireSuperAdmin, async (req, res) => {
+adminApiRouter.put("/billing-slots", P.billing, async (req, res) => {
   try {
     const body = billingSlotPutSchema.parse(req.body);
     const rows = await setBillingSlotEntries(body.app, body.key, body.entries);
@@ -237,7 +263,7 @@ adminApiRouter.put("/billing-slots", requireSuperAdmin, async (req, res) => {
   }
 });
 
-adminApiRouter.delete("/billing-slots", requireSuperAdmin, async (req, res) => {
+adminApiRouter.delete("/billing-slots", P.billing, async (req, res) => {
   const app = typeof req.query.app === "string" ? req.query.app.trim() : "";
   const key = typeof req.query.key === "string" ? req.query.key.trim() : "";
   if (!app || !key) {
@@ -262,7 +288,7 @@ const categorySchema = z.object({
   active: z.boolean().optional(),
 });
 
-adminApiRouter.get("/categories", async (_req, res) => {
+adminApiRouter.get("/categories", P.products, async (_req, res) => {
   try {
     const rows = await listCategories();
     res.json({ categories: rows });
@@ -272,7 +298,7 @@ adminApiRouter.get("/categories", async (_req, res) => {
   }
 });
 
-adminApiRouter.put("/categories", async (req, res) => {
+adminApiRouter.put("/categories", P.products, async (req, res) => {
   try {
     const body = categorySchema.parse(req.body);
     const row = await upsertCategory(body);
@@ -303,7 +329,7 @@ const tagSchema = z.object({
   active: z.boolean().optional(),
 });
 
-adminApiRouter.get("/tags", async (_req, res) => {
+adminApiRouter.get("/tags", P.products, async (_req, res) => {
   try {
     const [groups, tags] = await Promise.all([listTagGroups(), listTags()]);
     res.json({ groups, tags });
@@ -313,7 +339,7 @@ adminApiRouter.get("/tags", async (_req, res) => {
   }
 });
 
-adminApiRouter.put("/tag-groups", async (req, res) => {
+adminApiRouter.put("/tag-groups", P.products, async (req, res) => {
   try {
     const body = tagGroupSchema.parse(req.body);
     const row = await upsertTagGroup(body);
@@ -328,7 +354,7 @@ adminApiRouter.put("/tag-groups", async (req, res) => {
   }
 });
 
-adminApiRouter.put("/tags", async (req, res) => {
+adminApiRouter.put("/tags", P.products, async (req, res) => {
   try {
     const body = tagSchema.parse(req.body);
     const row = await upsertTag(body);
@@ -357,7 +383,7 @@ const productLinksSchema = z.object({
   })).max(20),
 });
 
-adminApiRouter.get("/products/:sku/links", async (req, res) => {
+adminApiRouter.get("/products/:sku/links", P.products, async (req, res) => {
   try {
     const rows = await listProductLinks(String(req.params.sku));
     res.json({ links: rows });
@@ -367,7 +393,7 @@ adminApiRouter.get("/products/:sku/links", async (req, res) => {
   }
 });
 
-adminApiRouter.put("/products/:sku/links", async (req, res) => {
+adminApiRouter.put("/products/:sku/links", P.products, async (req, res) => {
   try {
     const body = productLinksSchema.parse(req.body);
     const rows = await setProductLinks(String(req.params.sku), body.links);
@@ -391,7 +417,7 @@ const comboItemsSchema = z.object({
   })).max(20),
 });
 
-adminApiRouter.get("/products/:sku/combo-items", async (req, res) => {
+adminApiRouter.get("/products/:sku/combo-items", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
     const [combo] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
@@ -408,7 +434,7 @@ adminApiRouter.get("/products/:sku/combo-items", async (req, res) => {
   }
 });
 
-adminApiRouter.put("/products/:sku/combo-items", async (req, res) => {
+adminApiRouter.put("/products/:sku/combo-items", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
     const [combo] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
@@ -442,7 +468,7 @@ adminApiRouter.put("/products/:sku/combo-items", async (req, res) => {
   }
 });
 
-adminApiRouter.post("/products", async (req, res) => {
+adminApiRouter.post("/products", P.products, async (req, res) => {
   try {
     const body = productBodySchema.parse(req.body);
     const dup = await db.select().from(products).where(eq(products.sku, body.sku)).limit(1);
@@ -511,7 +537,7 @@ adminApiRouter.post("/products", async (req, res) => {
   }
 });
 
-adminApiRouter.patch("/products/:sku", async (req, res) => {
+adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
     const body = productPatchSchema.parse(req.body);
@@ -585,7 +611,7 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
   }
 });
 
-adminApiRouter.delete("/products/:sku", async (req, res) => {
+adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
     const [existing] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
@@ -628,12 +654,12 @@ const beadBodySchema = z.object({
 
 const beadPatchSchema = beadBodySchema.partial().omit({ code: true });
 
-adminApiRouter.get("/diy/beads", async (_req, res) => {
+adminApiRouter.get("/diy/beads", P.diy, async (_req, res) => {
   const rows = await db.select().from(diyBeads).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
   res.json({ beads: rows.map(formatBead) });
 });
 
-adminApiRouter.post("/diy/beads", async (req, res) => {
+adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
   try {
     const body = beadBodySchema.parse(req.body);
     const dup = await db.select().from(diyBeads).where(eq(diyBeads.code, body.code)).limit(1);
@@ -668,7 +694,7 @@ adminApiRouter.post("/diy/beads", async (req, res) => {
   }
 });
 
-adminApiRouter.patch("/diy/beads/:code", async (req, res) => {
+adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
   try {
     const code = String(req.params.code);
     const body = beadPatchSchema.parse(req.body);
@@ -711,12 +737,12 @@ const diyConfigSchema = z.object({
   wristEaseMm: z.number().min(0).max(30),
 });
 
-adminApiRouter.get("/diy/config", async (_req, res) => {
+adminApiRouter.get("/diy/config", P.diy, async (_req, res) => {
   const row = await getDiyConfigRow();
   res.json({ config: formatDiyConfig(row) });
 });
 
-adminApiRouter.put("/diy/config", async (req, res) => {
+adminApiRouter.put("/diy/config", P.diy, async (req, res) => {
   try {
     const body = diyConfigSchema.parse(req.body);
     await db.insert(diyConfig).values({ id: 1, ...body }).onConflictDoUpdate({
@@ -736,7 +762,7 @@ adminApiRouter.put("/diy/config", async (req, res) => {
 });
 
 /** 后台角标：since 之后创建的订单数（无 since 默认最近 24h） */
-adminApiRouter.get("/orders/new-count", async (req, res) => {
+adminApiRouter.get("/orders/new-count", P.orders, async (req, res) => {
   const sinceRaw = typeof req.query.since === "string" ? req.query.since : "";
   let since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   if (sinceRaw) {
@@ -750,7 +776,7 @@ adminApiRouter.get("/orders/new-count", async (req, res) => {
   res.json({ count: row?.value ?? 0, since: since.toISOString() });
 });
 
-adminApiRouter.get("/orders", async (req, res) => {
+adminApiRouter.get("/orders", P.orders, async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 50, 200);
   const offset = Math.max(0, Number(req.query.offset) || 0);
   const statusFilter = String(req.query.status ?? "");
@@ -854,7 +880,7 @@ adminApiRouter.get("/contact-messages/new-count", async (req, res) => {
   res.json({ count: row?.value ?? 0, since: since.toISOString() });
 });
 
-adminApiRouter.get("/contact-messages", async (req, res) => {
+adminApiRouter.get("/contact-messages", P.messages, async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 100, 200);
   const statusFilter = String(req.query.status ?? "");
   const categoryFilter = String(req.query.category ?? "");
@@ -904,7 +930,7 @@ const contactMessagePatchSchema = z.object({
   message: "至少提供一个更新字段",
 });
 
-adminApiRouter.patch("/contact-messages/:id", async (req, res) => {
+adminApiRouter.patch("/contact-messages/:id", P.messages, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) {
@@ -957,7 +983,7 @@ const orderStatusSchema = z.object({
   status: z.enum(["pending", "paid", "shipped", "completed", "cancelled"]),
 });
 
-adminApiRouter.patch("/orders/:orderNo", async (req, res) => {
+adminApiRouter.patch("/orders/:orderNo", P.orders, async (req, res) => {
   try {
     const orderNo = String(req.params.orderNo);
     const body = orderStatusSchema.parse(req.body);
@@ -984,7 +1010,7 @@ const shipmentCreateSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
-adminApiRouter.post("/orders/:orderNo/shipments", async (req, res) => {
+adminApiRouter.post("/orders/:orderNo/shipments", P.orders, async (req, res) => {
   try {
     const orderNo = String(req.params.orderNo);
     const body = shipmentCreateSchema.parse(req.body);
@@ -1023,7 +1049,7 @@ const batchShipmentSchema = z.object({
   })).min(1).max(50),
 });
 
-adminApiRouter.post("/orders/shipments/batch", async (req, res) => {
+adminApiRouter.post("/orders/shipments/batch", P.orders, async (req, res) => {
   try {
     const { items } = batchShipmentSchema.parse(req.body);
     const results: Array<{ orderNo: string; ok: boolean; error?: string }> = [];
@@ -1064,12 +1090,12 @@ const shippingZoneSchema = z.object({
   active: z.boolean().default(true),
 });
 
-adminApiRouter.get("/shipping/zones", async (_req, res) => {
+adminApiRouter.get("/shipping/zones", P.shipping, async (_req, res) => {
   const zones = await listShippingZones();
   res.json({ zones: zones.map(formatShippingZone) });
 });
 
-adminApiRouter.put("/shipping/zones", async (req, res) => {
+adminApiRouter.put("/shipping/zones", P.shipping, async (req, res) => {
   try {
     const body = z.object({ zones: z.array(shippingZoneSchema) }).parse(req.body);
     const saved = await replaceShippingZones(body.zones as ShippingZoneInput[]);
@@ -1086,7 +1112,7 @@ adminApiRouter.put("/shipping/zones", async (req, res) => {
 
 /* ── UGC 评价（Phase D）────────────────────────────────── */
 
-adminApiRouter.get("/reviews", async (req, res) => {
+adminApiRouter.get("/reviews", P.reviews, async (req, res) => {
   try {
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
     const sku = typeof req.query.sku === "string" ? req.query.sku : undefined;
@@ -1104,7 +1130,7 @@ const reviewStatusSchema = z.object({
   status: z.enum(["pending", "approved", "rejected", "featured"]),
 });
 
-adminApiRouter.patch("/reviews/:id", async (req, res) => {
+adminApiRouter.patch("/reviews/:id", P.reviews, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) {
@@ -1142,7 +1168,7 @@ const couponSchema = z.object({
   active: z.boolean().optional(),
 });
 
-adminApiRouter.get("/coupons", async (_req, res) => {
+adminApiRouter.get("/coupons", P.promotions, async (_req, res) => {
   try {
     const coupons = await listCoupons();
     res.json({ coupons });
@@ -1152,7 +1178,7 @@ adminApiRouter.get("/coupons", async (_req, res) => {
   }
 });
 
-adminApiRouter.put("/coupons", async (req, res) => {
+adminApiRouter.put("/coupons", P.promotions, async (req, res) => {
   try {
     const body = z.object({ coupons: z.array(couponSchema) }).parse(req.body);
     const inputs: CouponInput[] = body.coupons.map((c) => ({

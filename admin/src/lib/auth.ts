@@ -7,12 +7,16 @@ import {
   SHOP_OPS_ROLES,
   type StaffRole,
 } from '../../../shared/staff-roles/index';
+import type { AnyStaffPermission } from '../../../shared/staff-permissions/index';
+import { hasStaffPermission } from '../../../shared/staff-permissions/index';
+import { adminFetch } from './api';
 
 export type { StaffRole };
 
 export interface StaffUser {
   id: number;
   role: StaffRole;
+  permissions: AnyStaffPermission[];
 }
 
 /** @deprecated 使用 StaffUser */
@@ -20,7 +24,7 @@ export type AdminUser = StaffUser;
 
 const secret = new TextEncoder().encode(ENV.jwtSecret);
 
-async function readStaffFromCookie(): Promise<StaffUser | null> {
+async function readStaffFromCookie(): Promise<{ id: number; role: StaffRole } | null> {
   const jar = await cookies();
   const token = jar.get(ENV.jwtCookieName)?.value;
   if (!token) return null;
@@ -37,13 +41,31 @@ async function readStaffFromCookie(): Promise<StaffUser | null> {
   }
 }
 
-/** 校验运营员工角色；admin 始终放行 */
+async function hydrateStaffSession(base: { id: number; role: StaffRole }): Promise<StaffUser | null> {
+  try {
+    const data = await adminFetch<{
+      user: { id: number; role: StaffRole; permissions: AnyStaffPermission[] };
+    }>('/me');
+    return {
+      id: data.user.id,
+      role: data.user.role,
+      permissions: data.user.permissions ?? [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** 校验运营员工；从 auth-service 拉取有效权限集 */
 export async function getStaffUser(allowed: readonly StaffRole[] = ALL_STAFF_ROLES): Promise<StaffUser | null> {
-  const user = await readStaffFromCookie();
-  if (!user) return null;
-  if (user.role === 'admin') return user;
-  if (!allowed.includes(user.role)) return null;
-  return user;
+  const base = await readStaffFromCookie();
+  if (!base) return null;
+  if (base.role !== 'admin' && !allowed.includes(base.role)) return null;
+  return hydrateStaffSession(base);
+}
+
+export function staffCan(user: StaffUser, permission: AnyStaffPermission): boolean {
+  return hasStaffPermission(new Set(user.permissions), permission);
 }
 
 /** 任意运营员工可访问后台 shell */
@@ -53,7 +75,17 @@ export async function getAdminUser(): Promise<StaffUser | null> {
 
 /** 商城运营页面（商品/订单/促销等） */
 export async function getShopStaff(): Promise<StaffUser | null> {
-  return getStaffUser(SHOP_OPS_ROLES);
+  const user = await getStaffUser(SHOP_OPS_ROLES);
+  if (!user) return null;
+  if (user.role === 'admin' || user.role === 'shop_ops') return user;
+  return null;
+}
+
+/** 子账号管理 */
+export async function getStaffManager(): Promise<StaffUser | null> {
+  const user = await getAdminUser();
+  if (!user || !staffCan(user, 'staff.manage')) return null;
+  return user;
 }
 
 export function loginUrl() {

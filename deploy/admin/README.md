@@ -1,6 +1,6 @@
 # Admin 商品/订单后台
 
-管理地址：**https://admin.orasage.com**（需 `role=admin` 账号）
+管理地址：**https://admin.orasage.com**（需运营员工角色：`admin` / `shop_ops` / `content_ops`）
 
 ## 架构
 
@@ -42,6 +42,8 @@ psql "$DATABASE_URL" -c "UPDATE users SET role='content_ops' WHERE email='内容
 ```
 
 然后登录 https://auth.orasage.com/login?redirect=https://admin.orasage.com
+
+**7a 子账号（推荐）**：超级管理员登录后进入 **运营 → 子账号**（`/staff`），可创建 `shop_ops` / `content_ops` 并额外授予 `billing.slots` 等权限点。权限变更后子账号需重新登录。
 
 ## Admin 功能
 
