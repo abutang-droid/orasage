@@ -1,6 +1,5 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useLocale } from 'next-intl';
 import { locales, localeNames, type Locale } from '@/i18n/routing';
@@ -53,7 +52,6 @@ export function PortalLocaleSwitcher({ className = '' }: { className?: string })
         onClick={() => setOpen((v) => !v)}
       >
         <span>{localeNames[active] ?? active}</span>
-        <ChevronDown size={14} strokeWidth={2} aria-hidden />
       </button>
       {open && (
         <div className="orasage-app-lang-menu" role="listbox" aria-label="Languages">

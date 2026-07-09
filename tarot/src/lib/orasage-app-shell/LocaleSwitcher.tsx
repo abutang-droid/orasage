@@ -1,6 +1,5 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import type { NavContext } from './config';
@@ -57,7 +56,6 @@ export function LocaleSwitcher({
         onClick={() => setOpen((v) => !v)}
       >
         <span>{localeLabel(active)}</span>
-        <ChevronDown size={14} strokeWidth={2} aria-hidden />
       </Button>
       {open && (
         <div className="orasage-app-lang-menu" role="listbox" aria-label="Languages">
