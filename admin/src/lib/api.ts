@@ -297,6 +297,24 @@ export function saveHomepageProducts(skus: string[]) {
   });
 }
 
+export type ShopHomeLayout = 'legacy' | 'crystal_v1';
+
+export interface ShopConfigResponse {
+  homeLayout: ShopHomeLayout;
+  layouts?: Array<{ id: ShopHomeLayout; label: string }>;
+}
+
+export function getShopConfig() {
+  return adminFetch<ShopConfigResponse>('/shop-config');
+}
+
+export function saveShopConfig(homeLayout: ShopHomeLayout) {
+  return adminFetch<{ homeLayout: ShopHomeLayout }>('/shop-config', {
+    method: 'PUT',
+    body: JSON.stringify({ homeLayout }),
+  });
+}
+
 /* ── 应用计费槽位（R6）────────────────────────────── */
 
 export interface AdminBillingSlot {

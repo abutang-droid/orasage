@@ -296,6 +296,13 @@ export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+/** 商城站点配置（首页布局等，key-value） */
+export const shopSettings = pgTable("shop_settings", {
+  key: varchar("key", { length: 64 }).primaryKey(),
+  value: jsonb("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 /** 账户级紫微问答额度（加量包余额 + 年卡到期） */
 export const ziweiChatAccounts = pgTable("ziwei_chat_accounts", {
   userId: integer("user_id").primaryKey(),

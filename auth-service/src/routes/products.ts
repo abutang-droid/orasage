@@ -5,6 +5,7 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
+import { getShopPublicConfig } from "../lib/shop-settings.ts";
 import {
   formatProductLink,
   getCategoryLabelMap,
@@ -117,6 +118,16 @@ productsRouter.get("/homepage", async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error("[products] homepage:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+productsRouter.get("/shop-config", async (_req, res) => {
+  try {
+    const config = await getShopPublicConfig();
+    res.json(config);
+  } catch (err) {
+    console.error("[products] shop-config:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

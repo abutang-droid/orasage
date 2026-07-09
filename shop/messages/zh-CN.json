@@ -41,6 +41,25 @@
     "featuredSubtitle": "命理解读后最常搭配的能量好物",
     "diy": "共振定制"
   },
+  "crystalShowcase": {
+    "empty": "水晶手链暂不可用，请稍后再试。",
+    "guideTitle": "如何选购",
+    "guideStep1": "通过八字测算或解读推荐，了解你的喜用五行",
+    "guideStep2": "选择与你能量共鸣的一款手链",
+    "guideStep3": "选定标准装日常佩戴，或礼盒装赠礼送人",
+    "guideCta": "查看我的元素推荐 →",
+    "elementTabs": "五行元素",
+    "elementLabel": "五行 · {element}",
+    "packToggle": "包装规格",
+    "packStandard": "标准装",
+    "packStandardHint": "日常腕间佩戴",
+    "packGift": "礼盒装",
+    "packGiftHint": "礼盒 · 祝福卡 · 绒布袋",
+    "learnMore": "了解详情",
+    "compareTitle": "标准装 vs 礼盒装",
+    "compareStandard": "手链 + 保护袋，轻便随身，适合日常自戴。",
+    "compareGift": "精美礼盒 + 祝福卡 + 绒布袋，专为赠礼场景设计。"
+  },
   "home": {
     "footerNote": "完成命理解读后，可一键购买推荐水晶 · 订单可在",
     "userCenter": "用户中心",

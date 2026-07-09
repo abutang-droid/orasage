@@ -41,6 +41,25 @@
     "featuredSubtitle": "Popular pairings after a reading",
     "diy": "Custom resonance"
   },
+  "crystalShowcase": {
+    "empty": "Crystal bracelets are not available yet.",
+    "guideTitle": "How to choose",
+    "guideStep1": "Discover your element from a BaZi or reading recommendation",
+    "guideStep2": "Pick the bracelet that resonates with your energy",
+    "guideStep3": "Choose standard wear or gift box packaging",
+    "guideCta": "View my element recommendations →",
+    "elementTabs": "Five elements",
+    "elementLabel": "Element · {element}",
+    "packToggle": "Packaging",
+    "packStandard": "Standard",
+    "packStandardHint": "Everyday wear",
+    "packGift": "Gift box",
+    "packGiftHint": "Box · card · pouch",
+    "learnMore": "Full story",
+    "compareTitle": "Standard vs gift box",
+    "compareStandard": "Bracelet in a protective pouch — light and ready for daily wear.",
+    "compareGift": "Premium box with blessing card and velvet pouch — made for gifting."
+  },
   "home": {
     "footerNote": "After your reading, buy recommended crystals in one tap · View orders in",
     "userCenter": "Account Center",
