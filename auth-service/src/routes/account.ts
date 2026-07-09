@@ -13,6 +13,12 @@ import {
 } from "../lib/order-coupon.ts";
 import { notifyOrderEvent } from "../lib/order-notify.ts";
 import { notifyNewTicket } from "../lib/ticket-notify.ts";
+import {
+  listLedgerForUser,
+  listWalletsForUser,
+  postWalletLedgerEntry,
+  SUPPORTED_WALLET_CURRENCIES,
+} from "../lib/wallets.ts";
 
 export const accountRouter = Router();
 
@@ -962,4 +968,58 @@ internalRouter.delete("/orders/:orderNo/coupon", async (req, res) => {
     console.error("[internal] remove coupon:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
+});
+
+const walletLedgerSchema = z.object({
+  userId: z.number().int().positive(),
+  currency: z.string().min(3).max(8),
+  amountCents: z.number().int().refine((n) => n !== 0, "amountCents 不能为 0"),
+  kind: z.enum(["credit", "debit", "adjustment", "refund", "hold", "release"]),
+  referenceType: z.string().max(50).optional(),
+  referenceId: z.string().max(100).optional(),
+  note: z.string().max(500).optional(),
+  createdBy: z.number().int().positive().optional(),
+  idempotencyKey: z.string().max(120).optional(),
+});
+
+/** 内部记账（shop / 退款等调用；幂等键可选） */
+internalRouter.post("/wallets/ledger", async (req, res) => {
+  try {
+    const body = walletLedgerSchema.parse(req.body);
+    const result = await postWalletLedgerEntry(body);
+    res.status(result.duplicate ? 200 : 201).json(result);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    const message = err instanceof Error ? err.message : "服务器内部错误";
+    if (message === "用户不存在" || message.includes("不支持") || message === "余额不足") {
+      res.status(400).json({ error: message });
+      return;
+    }
+    console.error("[internal] wallet ledger:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+internalRouter.get("/users/:userId/wallets", async (req, res) => {
+  const userId = Number(req.params.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    res.status(400).json({ error: "参数错误" });
+    return;
+  }
+  const wallets = await listWalletsForUser(userId);
+  res.json({ wallets, currencies: SUPPORTED_WALLET_CURRENCIES });
+});
+
+internalRouter.get("/users/:userId/wallet-ledger", async (req, res) => {
+  const userId = Number(req.params.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    res.status(400).json({ error: "参数错误" });
+    return;
+  }
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const entries = await listLedgerForUser(userId, limit);
+  res.json({ entries });
 });

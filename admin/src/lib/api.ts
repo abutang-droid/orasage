@@ -844,3 +844,69 @@ export function updateStaffAccount(
     body: JSON.stringify(body),
   });
 }
+
+/* ── 用户钱包（7c，仅 admin）────────────────────────────── */
+
+export interface AdminWalletRow {
+  id: number;
+  userId: number;
+  currency: string;
+  balanceCents: number;
+  balanceDisplay: string;
+  updatedAt: string;
+  user: {
+    id: number;
+    email: string;
+    nickname: string;
+    displayId: string | null;
+  };
+}
+
+export interface AdminWalletLedgerEntry {
+  id: number;
+  walletId: number;
+  userId: number;
+  currency: string;
+  kind: string;
+  kindLabel: string;
+  amountCents: number;
+  amountDisplay: string;
+  balanceAfterCents: number;
+  balanceAfterDisplay: string;
+  referenceType: string | null;
+  referenceId: string | null;
+  note: string | null;
+  createdBy: number | null;
+  createdAt: string;
+}
+
+export function listAdminWallets(q?: string, limit = 50, offset = 0) {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  params.set('limit', String(limit));
+  params.set('offset', String(offset));
+  return adminFetch<{ wallets: AdminWalletRow[]; total: number; limit: number; offset: number }>(
+    `/wallets?${params.toString()}`,
+  );
+}
+
+export function getAdminWalletUser(userId: number) {
+  return adminFetch<{
+    user: { id: number; email: string; nickname: string; displayId: string | null };
+    wallets: Array<Omit<AdminWalletRow, 'user'>>;
+  }>(`/wallets/${userId}`);
+}
+
+export function getAdminWalletLedger(userId: number, limit = 50) {
+  return adminFetch<{ entries: AdminWalletLedgerEntry[] }>(`/wallets/${userId}/ledger?limit=${limit}`);
+}
+
+export function adjustAdminWallet(
+  userId: number,
+  body: { currency: string; amountCents: number; note?: string },
+) {
+  return adminFetch<{ ledger: AdminWalletLedgerEntry; wallet: Omit<AdminWalletRow, 'user'> }>(
+    `/wallets/${userId}/adjustment`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
+}
