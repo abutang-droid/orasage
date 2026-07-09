@@ -3,9 +3,11 @@
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
+  BILLING_NAV_ITEMS,
   CMS_NAV_ITEMS,
   navItemActive,
   OPS_NAV_ITEMS,
+  SHOP_NAV_ITEMS,
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
 
@@ -64,7 +66,7 @@ function NavSection({
 }
 
 function MobileNav({ pathname }: { pathname: string }) {
-  const items = [...OPS_NAV_ITEMS, ...CMS_NAV_ITEMS];
+  const items = [...OPS_NAV_ITEMS, ...SHOP_NAV_ITEMS, ...BILLING_NAV_ITEMS, ...CMS_NAV_ITEMS];
   return (
     <nav className="admin-backend-mobile-nav" aria-label="后台快捷导航">
       {items.map((item) => {
@@ -92,6 +94,8 @@ export function AdminBackendShell({
         <>
           <aside className="admin-backend-sidebar" aria-label="后台导航">
             <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} />
+            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} />
+            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} />
             <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} />
           </aside>
           <MobileNav pathname={pathname} />

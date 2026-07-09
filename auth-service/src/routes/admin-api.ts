@@ -4,24 +4,26 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
-import { formatAdminProduct, formatProduct } from "../lib/product-format.ts";
+import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import {
-  BAZI_ELEMENTS,
-  resolveBaziElementRecommendations,
-  setBaziElementRecommendations,
-  type BaziElement,
-} from "../lib/bazi-recommend-products.ts";
+  deleteBillingSlotKey,
+  listAllBillingSlots,
+  setBillingSlotEntries,
+} from "../lib/billing-slots.ts";
 import {
-  listZiweiRecommendRows,
-  setZiweiRecommendSkus,
-} from "../lib/ziwei-chat.ts";
-import {
-  getTarotBillingSkus,
-  listTarotDailyRecommendRows,
-  setTarotBillingSkus,
-  setTarotDailyRecommendSkus,
-} from "../lib/tarot-billing.ts";
+  getCategoryLabelMap,
+  listCategories,
+  listProductLinks,
+  listTagGroups,
+  listTags,
+  setProductLinks,
+  setProductTags,
+  tagsForProducts,
+  upsertCategory,
+  upsertTag,
+  upsertTagGroup,
+} from "../lib/catalog.ts";
 import { productBodySchema, productPatchSchema } from "./products.ts";
 import { createShipment, formatShipment, listShipmentsForOrder } from "../lib/shop-shipments.ts";
 import { diyBeads, diyConfig } from "../db/schema.ts";
@@ -64,7 +66,15 @@ adminApiRouter.get("/stats", async (_req, res) => {
 
 adminApiRouter.get("/products", async (_req, res) => {
   const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
-  res.json({ products: rows.map(formatAdminProduct) });
+  const [categoryLabels, tagMap] = await Promise.all([
+    getCategoryLabelMap(),
+    tagsForProducts(rows.map((r) => r.id)),
+  ]);
+  res.json({
+    products: rows.map((row) =>
+      formatAdminProduct(row, { categoryLabels, tags: tagMap.get(row.id) ?? [] }),
+    ),
+  });
 });
 
 const homepageSkusSchema = z.object({
@@ -99,55 +109,36 @@ adminApiRouter.put("/homepage-products", async (req, res) => {
   }
 });
 
-const baziElementRecSchema = z.object({
+/* ── 应用计费槽位（R6：统一 app+key → SKU）──────────────── */
+
+const billingEntrySchema = z.object({
   sku: z.string().min(1).max(100),
-  priceCents: z.number().int().nonnegative().nullable().optional(),
-  priceCentsUsd: z.number().int().nonnegative().nullable().optional(),
+  priceOverrideCents: z.number().int().nonnegative().nullable().optional(),
+  priceOverrideUsdCents: z.number().int().nonnegative().nullable().optional(),
+  active: z.boolean().optional(),
 });
 
-const baziRecommendSchema = z.object({
-  items: z.object({
-    木: baziElementRecSchema,
-    火: baziElementRecSchema,
-    土: baziElementRecSchema,
-    金: baziElementRecSchema,
-    水: baziElementRecSchema,
-  }),
-}).or(z.object({
-  skuMap: z.object({
-    木: z.string().min(1).max(100),
-    火: z.string().min(1).max(100),
-    土: z.string().min(1).max(100),
-    金: z.string().min(1).max(100),
-    水: z.string().min(1).max(100),
-  }),
-}));
+const billingSlotPutSchema = z.object({
+  app: z.string().min(1).max(20),
+  key: z.string().min(1).max(100),
+  entries: z.array(billingEntrySchema).max(20),
+});
 
-adminApiRouter.get("/bazi-recommend-products", async (_req, res) => {
+adminApiRouter.get("/billing-slots", async (_req, res) => {
   try {
-    const data = await resolveBaziElementRecommendations();
-    res.json(data);
+    const rows = await listAllBillingSlots();
+    res.json({ slots: rows });
   } catch (err) {
-    console.error("[admin] bazi-recommend-products:", err);
+    console.error("[admin] billing-slots:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
 
-adminApiRouter.put("/bazi-recommend-products", async (req, res) => {
+adminApiRouter.put("/billing-slots", async (req, res) => {
   try {
-    const body = baziRecommendSchema.parse(req.body);
-    let input: Partial<Record<BaziElement, { sku: string; priceCents?: number | null; priceCentsUsd?: number | null }>>;
-    if ("items" in body) {
-      input = body.items as Partial<Record<BaziElement, { sku: string; priceCents?: number | null; priceCentsUsd?: number | null }>>;
-    } else {
-      input = {};
-      for (const element of BAZI_ELEMENTS) {
-        const sku = body.skuMap[element];
-        if (sku) input[element] = { sku };
-      }
-    }
-    const data = await setBaziElementRecommendations(input);
-    res.json(data);
+    const body = billingSlotPutSchema.parse(req.body);
+    const rows = await setBillingSlotEntries(body.app, body.key, body.entries);
+    res.json({ app: body.app, key: body.key, rows });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -157,103 +148,152 @@ adminApiRouter.put("/bazi-recommend-products", async (req, res) => {
       res.status(400).json({ error: err.message });
       return;
     }
-    console.error("[admin] bazi-recommend-products:", err);
+    console.error("[admin] billing-slots put:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
 
-const ziweiRecommendSchema = z.object({
-  skus: z.array(z.string().min(1).max(100)),
-});
-
-adminApiRouter.get("/ziwei-recommend-products", async (_req, res) => {
+adminApiRouter.delete("/billing-slots", async (req, res) => {
+  const app = typeof req.query.app === "string" ? req.query.app.trim() : "";
+  const key = typeof req.query.key === "string" ? req.query.key.trim() : "";
+  if (!app || !key) {
+    res.status(400).json({ error: "缺少 app 或 key" });
+    return;
+  }
   try {
-    const rows = await listZiweiRecommendRows();
-    res.json({ skus: rows.map((r) => r.sku), rows });
+    await deleteBillingSlotKey(app, key);
+    res.json({ success: true });
   } catch (err) {
-    console.error("[admin] ziwei-recommend-products:", err);
+    console.error("[admin] billing-slots delete:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
 
-adminApiRouter.put("/ziwei-recommend-products", async (req, res) => {
+/* ── 分类（Q3）───────────────────────────────────────────── */
+
+const categorySchema = z.object({
+  code: z.string().min(1).max(50),
+  labelI18n: z.record(z.string().min(1).max(200)),
+  sortOrder: z.number().int().optional(),
+  active: z.boolean().optional(),
+});
+
+adminApiRouter.get("/categories", async (_req, res) => {
   try {
-    const body = ziweiRecommendSchema.parse(req.body);
-    const rows = await setZiweiRecommendSkus(body.skus);
-    res.json({ skus: rows.map((r) => r.sku), rows });
+    const rows = await listCategories();
+    res.json({ categories: rows });
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
-      return;
-    }
-    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    console.error("[admin] ziwei-recommend-products:", err);
+    console.error("[admin] categories:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
 
-const tarotBillingSchema = z.object({
-  dailyOverageSku: z.string().min(1).max(100),
-  threeCardReportSku: z.string().min(1).max(100),
-  threeCardBundleSku: z.string().min(1).max(100),
-});
-
-adminApiRouter.get("/tarot-billing-config", async (_req, res) => {
+adminApiRouter.put("/categories", async (req, res) => {
   try {
-    const skus = await getTarotBillingSkus();
-    const recommendRows = await listTarotDailyRecommendRows();
-    res.json({
-      ...skus,
-      recommendSkus: recommendRows.map((r) => r.sku),
-      recommendRows,
-    });
-  } catch (err) {
-    console.error("[admin] tarot-billing-config:", err);
-    res.status(500).json({ error: "服务器内部错误" });
-  }
-});
-
-adminApiRouter.put("/tarot-billing-config", async (req, res) => {
-  try {
-    const body = tarotBillingSchema.parse(req.body);
-    const skus = await setTarotBillingSkus(body);
-    res.json({ skus });
+    const body = categorySchema.parse(req.body);
+    const row = await upsertCategory(body);
+    res.json({ category: row });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
       return;
     }
-    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    console.error("[admin] tarot-billing-config:", err);
+    console.error("[admin] categories put:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
 
-const tarotRecommendSchema = z.object({
-  skus: z.array(z.string().min(1).max(100)),
+/* ── 标签（R2）───────────────────────────────────────────── */
+
+const tagGroupSchema = z.object({
+  code: z.string().min(1).max(50),
+  labelI18n: z.record(z.string().min(1).max(200)),
+  sortOrder: z.number().int().optional(),
 });
 
-adminApiRouter.put("/tarot-daily-recommend-products", async (req, res) => {
+const tagSchema = z.object({
+  groupId: z.number().int().positive(),
+  code: z.string().min(1).max(50),
+  labelI18n: z.record(z.string().min(1).max(200)),
+  sortOrder: z.number().int().optional(),
+  active: z.boolean().optional(),
+});
+
+adminApiRouter.get("/tags", async (_req, res) => {
   try {
-    const body = tarotRecommendSchema.parse(req.body);
-    const rows = await setTarotDailyRecommendSkus(body.skus);
-    res.json({ skus: rows.map((r) => r.sku), rows });
+    const [groups, tags] = await Promise.all([listTagGroups(), listTags()]);
+    res.json({ groups, tags });
+  } catch (err) {
+    console.error("[admin] tags:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/tag-groups", async (req, res) => {
+  try {
+    const body = tagGroupSchema.parse(req.body);
+    const row = await upsertTagGroup(body);
+    res.json({ group: row });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
       return;
     }
-    if (err instanceof Error && err.message.startsWith("未知 SKU")) {
-      res.status(400).json({ error: err.message });
+    console.error("[admin] tag-groups put:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/tags", async (req, res) => {
+  try {
+    const body = tagSchema.parse(req.body);
+    const row = await upsertTag(body);
+    res.json({ tag: row });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
       return;
     }
-    console.error("[admin] tarot-daily-recommend:", err);
+    console.error("[admin] tags put:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+/* ── 商品关联页面（R5）──────────────────────────────────── */
+
+const productLinksSchema = z.object({
+  links: z.array(z.object({
+    kind: z.enum(["internal", "media", "review", "article"]),
+    title: z.string().min(1).max(300),
+    titleI18n: z.record(z.string().min(1).max(300)).optional().nullable(),
+    url: z.string().url().max(2000),
+    sourceName: z.string().max(200).optional().nullable(),
+    locale: z.string().max(10).optional().nullable(),
+    active: z.boolean().optional(),
+  })).max(20),
+});
+
+adminApiRouter.get("/products/:sku/links", async (req, res) => {
+  try {
+    const rows = await listProductLinks(String(req.params.sku));
+    res.json({ links: rows });
+  } catch (err) {
+    console.error("[admin] product links:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.put("/products/:sku/links", async (req, res) => {
+  try {
+    const body = productLinksSchema.parse(req.body);
+    const rows = await setProductLinks(String(req.params.sku), body.links);
+    res.json({ links: rows });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] product links put:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
@@ -288,10 +328,20 @@ adminApiRouter.post("/products", async (req, res) => {
       priceCents: body.priceCents,
       priceCentsUsd: body.priceCentsUsd ?? null,
       category: body.category,
+      kind: body.kind ?? "standard",
+      visibility: body.visibility ?? "public",
+      stock: body.stock ?? null,
+      lowStockAt: body.lowStockAt ?? null,
+      slug: body.slug ?? null,
+      seoTitleI18n: body.seoTitleI18n ?? null,
+      seoDescI18n: body.seoDescI18n ?? null,
       requiresShipping: body.requiresShipping ?? false,
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
+    if (body.tagIds) {
+      await setProductTags(row.id, body.tagIds);
+    }
     res.status(201).json({ product: formatAdminProduct(row) });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -329,6 +379,13 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.packaging !== undefined) updates.packaging = body.packaging;
     if (body.packagingI18n !== undefined) updates.packagingI18n = body.packagingI18n;
     if (body.attachments !== undefined) updates.attachments = body.attachments;
+    if (body.kind !== undefined) updates.kind = body.kind;
+    if (body.visibility !== undefined) updates.visibility = body.visibility;
+    if (body.stock !== undefined) updates.stock = body.stock;
+    if (body.lowStockAt !== undefined) updates.lowStockAt = body.lowStockAt;
+    if (body.slug !== undefined) updates.slug = body.slug;
+    if (body.seoTitleI18n !== undefined) updates.seoTitleI18n = body.seoTitleI18n;
+    if (body.seoDescI18n !== undefined) updates.seoDescI18n = body.seoDescI18n;
     if (body.description !== undefined) updates.description = body.description;
     if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
     if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
@@ -339,6 +396,9 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
     const [row] = await db.update(products).set(updates).where(eq(products.sku, sku)).returning();
+    if (body.tagIds !== undefined) {
+      await setProductTags(row.id, body.tagIds ?? []);
+    }
     res.json({ product: formatAdminProduct(row) });
   } catch (err) {
     if (err instanceof z.ZodError) {

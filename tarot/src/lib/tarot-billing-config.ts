@@ -12,25 +12,6 @@ const FALLBACK: TarotBillingSkus = {
   threeCardBundleSku: 'report-tarot-bundle',
 };
 
-let cachedSkus: { at: number; value: TarotBillingSkus } | null = null;
-const CACHE_MS = 60_000;
-
-export async function fetchTarotBillingSkus(): Promise<TarotBillingSkus> {
-  if (cachedSkus && Date.now() - cachedSkus.at < CACHE_MS) {
-    return cachedSkus.value;
-  }
-  try {
-    const res = await fetch(`${AUTH_INTERNAL}/api/tarot/billing/skus`, { cache: 'no-store' });
-    if (!res.ok) return FALLBACK;
-    const data = (await res.json()) as { skus?: TarotBillingSkus };
-    const skus = data.skus ?? FALLBACK;
-    cachedSkus = { at: Date.now(), value: skus };
-    return skus;
-  } catch {
-    return FALLBACK;
-  }
-}
-
 export type TarotBillingProduct = {
   sku: string;
   name: string;
@@ -57,34 +38,70 @@ function mapProduct(p: Record<string, unknown> | null | undefined): TarotBilling
   };
 }
 
-export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBillingConfig> {
+type SlotsResponse = {
+  slots?: Record<string, Array<{ sku: string; product?: Record<string, unknown> | null }>>;
+};
+
+let cachedSlots: { at: number; locale: string; value: SlotsResponse } | null = null;
+const CACHE_MS = 60_000;
+
+/** 计费槽位统一入口：GET /api/billing/slots?app=tarot */
+async function fetchTarotSlots(locale = 'zh-CN'): Promise<SlotsResponse> {
+  if (cachedSlots && cachedSlots.locale === locale && Date.now() - cachedSlots.at < CACHE_MS) {
+    return cachedSlots.value;
+  }
+  const res = await fetch(
+    `${AUTH_INTERNAL}/api/billing/slots?app=tarot&locale=${encodeURIComponent(locale)}`,
+    { cache: 'no-store' },
+  );
+  if (!res.ok) throw new Error(`billing slots ${res.status}`);
+  const data = (await res.json()) as SlotsResponse;
+  cachedSlots = { at: Date.now(), locale, value: data };
+  return data;
+}
+
+function firstEntry(data: SlotsResponse, key: string) {
+  return data.slots?.[key]?.[0] ?? null;
+}
+
+export async function fetchTarotBillingSkus(): Promise<TarotBillingSkus> {
   try {
-    const res = await fetch(
-      `${AUTH_INTERNAL}/api/tarot/billing/config?locale=${encodeURIComponent(locale)}`,
-      { cache: 'no-store' },
-    );
-    if (!res.ok) {
-      const skus = await fetchTarotBillingSkus();
-      return { skus, dailyOverage: null, threeCardReport: null, threeCardBundle: null };
-    }
-    const data = await res.json() as Record<string, unknown>;
-    const skus = (data.skus as TarotBillingSkus) ?? await fetchTarotBillingSkus();
+    const data = await fetchTarotSlots();
     return {
-      skus,
-      dailyOverage: mapProduct(data.dailyOverage as Record<string, unknown>),
-      threeCardReport: mapProduct(data.threeCardReport as Record<string, unknown>),
-      threeCardBundle: mapProduct(data.threeCardBundle as Record<string, unknown>),
+      dailyOverageSku: firstEntry(data, 'daily.overage')?.sku ?? FALLBACK.dailyOverageSku,
+      threeCardReportSku: firstEntry(data, 'threecard.report')?.sku ?? FALLBACK.threeCardReportSku,
+      threeCardBundleSku: firstEntry(data, 'threecard.bundle')?.sku ?? FALLBACK.threeCardBundleSku,
     };
   } catch {
-    const skus = await fetchTarotBillingSkus();
-    return { skus, dailyOverage: null, threeCardReport: null, threeCardBundle: null };
+    return FALLBACK;
+  }
+}
+
+export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBillingConfig> {
+  try {
+    const data = await fetchTarotSlots(locale);
+    const overage = firstEntry(data, 'daily.overage');
+    const report = firstEntry(data, 'threecard.report');
+    const bundle = firstEntry(data, 'threecard.bundle');
+    return {
+      skus: {
+        dailyOverageSku: overage?.sku ?? FALLBACK.dailyOverageSku,
+        threeCardReportSku: report?.sku ?? FALLBACK.threeCardReportSku,
+        threeCardBundleSku: bundle?.sku ?? FALLBACK.threeCardBundleSku,
+      },
+      dailyOverage: mapProduct(overage?.product),
+      threeCardReport: mapProduct(report?.product),
+      threeCardBundle: mapProduct(bundle?.product),
+    };
+  } catch {
+    return { skus: FALLBACK, dailyOverage: null, threeCardReport: null, threeCardBundle: null };
   }
 }
 
 export async function fetchTarotDailyRecommendProduct(seed: string, locale = 'zh-CN') {
   try {
     const res = await fetch(
-      `${AUTH_INTERNAL}/api/tarot/billing/daily-recommend?seed=${encodeURIComponent(seed)}&locale=${encodeURIComponent(locale)}`,
+      `${AUTH_INTERNAL}/api/billing/slot?app=tarot&key=recommend.daily&seed=${encodeURIComponent(seed)}&locale=${encodeURIComponent(locale)}`,
       { cache: 'no-store' },
     );
     if (!res.ok) return null;

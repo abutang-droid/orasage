@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getAdminUser, loginUrl } from '@/lib/auth';
-import { getProducts } from '@/lib/api';
+import { getProducts, getTags, getCategories, getProductLinks } from '@/lib/api';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
 import { ProductEditForm } from '@/components/ProductEditForm';
+import { ProductLinksPanel } from '@/components/ProductLinksPanel';
 
 type PageProps = {
   params: Promise<{ sku: string }>;
-  searchParams?: Promise<{ image_err?: string }>;
+  searchParams?: Promise<{ image_err?: string; links?: string }>;
 };
 
 export default async function ProductEditPage({ params, searchParams }: PageProps) {
@@ -20,6 +21,9 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
   const sp = (await searchParams) ?? {};
 
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
+  let tagData: Awaited<ReturnType<typeof getTags>> = { groups: [], tags: [] };
+  let categories: Awaited<ReturnType<typeof getCategories>>['categories'] = [];
+  let links: Awaited<ReturnType<typeof getProductLinks>>['links'] = [];
   let productImageMap = new Map<string, string>();
   let productPageStatusMap = new Map<string, 'published' | 'draft' | 'none'>();
 
@@ -27,6 +31,21 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
     ({ products } = await getProducts());
   } catch (err) {
     console.error('[admin/products/edit]', err);
+  }
+  try {
+    tagData = await getTags();
+  } catch (err) {
+    console.error('[admin/tags]', err);
+  }
+  try {
+    ({ categories } = await getCategories());
+  } catch (err) {
+    console.error('[admin/categories]', err);
+  }
+  try {
+    ({ links } = await getProductLinks(sku));
+  } catch (err) {
+    console.error('[admin/product-links]', err);
   }
   try {
     productImageMap = await fetchAdminProductImageMap();
@@ -50,7 +69,7 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
         </p>
         <h1>编辑商品 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{product.sku}</code> · 结构化属性存 auth-service，详情长内容与多图在 CMS。
+          SKU <code>{product.sku}</code> · 结构化属性/标签存 auth-service，详情长内容与多图在 CMS。
         </p>
       </header>
 
@@ -59,6 +78,9 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
           商品信息已保存，但主图上传失败：{decodeURIComponent(sp.image_err)}
         </p>
       ) : null}
+      {sp.links === 'ok' ? (
+        <p className="muted panel-notice">关联页面已保存。</p>
+      ) : null}
 
       <section className="panel">
         <ProductEditForm
@@ -66,7 +88,14 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
           product={product}
           imageUrl={productImageMap.get(product.sku)}
           pageStatus={productPageStatusMap.get(product.sku) ?? 'none'}
+          tagData={tagData}
+          categories={categories}
         />
+      </section>
+
+      <section className="panel">
+        <h2>关联页面（媒体与用户报道）</h2>
+        <ProductLinksPanel sku={product.sku} links={links} />
       </section>
     </div>
   );

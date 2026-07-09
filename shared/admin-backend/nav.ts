@@ -12,12 +12,31 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p === '/' || p === '',
   },
   {
+    label: '留言',
+    href: '/messages',
+    isActive: (p) => p.startsWith('/messages'),
+  },
+];
+
+/** 商城组（R1：独立商城） */
+export const SHOP_NAV_ITEMS: AdminNavItem[] = [
+  {
     label: '商品',
     href: '/products',
     isActive: (p) => p.startsWith('/products'),
   },
   {
-    label: '珠子',
+    label: '标签',
+    href: '/shop/tags',
+    isActive: (p) => p.startsWith('/shop/tags'),
+  },
+  {
+    label: '分类',
+    href: '/shop/categories',
+    isActive: (p) => p.startsWith('/shop/categories'),
+  },
+  {
+    label: 'DIY 物料',
     href: '/beads',
     isActive: (p) => p.startsWith('/beads'),
   },
@@ -26,10 +45,14 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     href: '/orders',
     isActive: (p) => p.startsWith('/orders'),
   },
+];
+
+/** 应用计费组（R6：app 调用参数 → 商城 SKU） */
+export const BILLING_NAV_ITEMS: AdminNavItem[] = [
   {
-    label: '留言',
-    href: '/messages',
-    isActive: (p) => p.startsWith('/messages'),
+    label: '计费槽位',
+    href: '/billing',
+    isActive: (p) => p.startsWith('/billing'),
   },
 ];
 

@@ -42,6 +42,14 @@ export function shopCheckoutUrlForRecommend(product: RecommendProduct): string {
   return `${SHOP_URL}/checkout?${params.toString()}`;
 }
 
+const ELEMENT_SLOT_CODE: Record<string, string> = {
+  木: 'wood',
+  火: 'fire',
+  土: 'earth',
+  金: 'metal',
+  水: 'water',
+};
+
 export async function fetchReportProductRecommend(
   wuXing: Record<string, number> | undefined,
   locale = 'zh-CN',
@@ -49,9 +57,11 @@ export async function fetchReportProductRecommend(
   if (!wuXing) return null;
   const element = deficientWuXingElement(wuXing);
   if (!element) return null;
+  const slotCode = ELEMENT_SLOT_CODE[element];
+  if (!slotCode) return null;
   try {
     const res = await fetch(
-      `${AUTH_PUBLIC}/api/products/recommend/crystal?element=${encodeURIComponent(element)}&locale=${encodeURIComponent(locale)}`,
+      `${AUTH_PUBLIC}/api/billing/slot?app=bazi&key=recommend.element.${slotCode}&locale=${encodeURIComponent(locale)}`,
     );
     if (!res.ok) return null;
     const data = await res.json() as { product?: RecommendProduct };

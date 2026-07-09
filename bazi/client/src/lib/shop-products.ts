@@ -30,21 +30,43 @@ type RecommendCache = {
 } | null;
 let cache: RecommendCache = null;
 
+const SLOT_CODE_TO_ELEMENT: Record<string, string> = {
+  wood: '木',
+  fire: '火',
+  earth: '土',
+  metal: '金',
+  water: '水',
+};
+
+const ELEMENT_TO_SLOT_CODE: Record<string, string> = {
+  木: 'wood',
+  火: 'fire',
+  土: 'earth',
+  金: 'metal',
+  水: 'water',
+};
+
+type BillingSlotsResponse = {
+  slots?: Record<string, Array<{ sku: string; product?: BaziRecommendProduct | null }>>;
+};
+
 async function loadRecommendData(): Promise<RecommendCache> {
   if (cache && Date.now() < cache.expiry) return cache;
   try {
-    const res = await fetch(`${AUTH_URL}/api/products/recommend/bazi`);
+    const res = await fetch(`${AUTH_URL}/api/billing/slots?app=bazi`);
     if (res.ok) {
-      const data = await res.json() as {
-        skuMap?: Record<string, string>;
-        recommendations?: Record<string, BaziRecommendProduct | null>;
-      };
-      if (data.skuMap && Object.keys(data.skuMap).length > 0) {
-        cache = {
-          map: data.skuMap,
-          products: data.recommendations ?? {},
-          expiry: Date.now() + 60_000,
-        };
+      const data = await res.json() as BillingSlotsResponse;
+      const map: Record<string, string> = {};
+      const products: Record<string, BaziRecommendProduct | null> = {};
+      for (const [key, entries] of Object.entries(data.slots ?? {})) {
+        const code = key.startsWith('recommend.element.') ? key.slice('recommend.element.'.length) : null;
+        const element = code ? SLOT_CODE_TO_ELEMENT[code] : undefined;
+        if (!element || !entries[0]) continue;
+        map[element] = entries[0].sku;
+        products[element] = entries[0].product ?? null;
+      }
+      if (Object.keys(map).length > 0) {
+        cache = { map, products, expiry: Date.now() + 60_000 };
         return cache;
       }
     }
@@ -86,8 +108,10 @@ export async function resolveRecommendProductForElement(element: string): Promis
   const data = await loadRecommendData();
   const cached = data?.products[element];
   if (cached) return cached;
+  const slotCode = ELEMENT_TO_SLOT_CODE[element];
+  if (!slotCode) return null;
   try {
-    const res = await fetch(`${AUTH_URL}/api/products/recommend/crystal?element=${encodeURIComponent(element)}`);
+    const res = await fetch(`${AUTH_URL}/api/billing/slot?app=bazi&key=recommend.element.${slotCode}`);
     if (!res.ok) return null;
     const body = await res.json() as { product?: BaziRecommendProduct };
     return body.product ?? null;

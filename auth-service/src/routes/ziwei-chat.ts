@@ -5,8 +5,8 @@ import {
   consumeZiweiChatQuestion,
   getZiweiChatQuota,
   grantZiweiChatPurchase,
-  resolveZiweiRecommendProduct,
 } from "../lib/ziwei-chat.ts";
+import { resolveBillingSlot } from "../lib/billing-slots.ts";
 
 export const ziweiChatRouter = Router();
 
@@ -58,6 +58,7 @@ ziweiChatRouter.post("/consume", async (req, res) => {
   }
 });
 
+/** 对话页推荐 — 计费槽位 ziwei/recommend.chat（readingId 作轮换 seed） */
 ziweiChatRouter.get("/recommend", async (req, res) => {
   const readingId = typeof req.query.readingId === "string" ? req.query.readingId.trim() : "";
   if (!readingId) {
@@ -66,12 +67,12 @@ ziweiChatRouter.get("/recommend", async (req, res) => {
   }
   const locale = typeof req.query.locale === "string" ? req.query.locale : "zh-CN";
   try {
-    const product = await resolveZiweiRecommendProduct(readingId, locale);
-    if (!product) {
+    const result = await resolveBillingSlot("ziwei", "recommend.chat", { locale, seed: readingId });
+    if (!result) {
       res.status(404).json({ error: "暂无推荐商品" });
       return;
     }
-    res.json({ product });
+    res.json({ product: result.product });
   } catch (err) {
     console.error("[ziwei/chat] recommend:", err);
     res.status(500).json({ error: "服务器内部错误" });

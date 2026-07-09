@@ -5,7 +5,15 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
-import { resolveBaziElementRecommendations, resolveBaziRecommendForElement } from "../lib/bazi-recommend-products.ts";
+import {
+  formatProductLink,
+  getCategoryLabelMap,
+  listCategories,
+  listProductLinks,
+  productIdsForTag,
+  tagsForProducts,
+} from "../lib/catalog.ts";
+import { pickLocalized } from "../lib/product-i18n.ts";
 
 export const productsRouter = Router();
 
@@ -23,24 +31,67 @@ function localeFromRequest(req: { query: Record<string, unknown>; headers: Recor
   });
 }
 
+/**
+ * 商品目录。默认仅返回 active + visibility=public（R6：计费商品不入目录）。
+ * ?all=1 返回全部（admin 页面数据经 /api/admin/products，此参数仅内部调试）。
+ */
 productsRouter.get("/", async (req, res) => {
   const locale = localeFromRequest(req);
   const category = typeof req.query.category === "string" ? req.query.category : undefined;
-  const activeOnly = req.query.all !== "1";
+  const tag = typeof req.query.tag === "string" ? req.query.tag.trim() : undefined;
+  const includeAll = req.query.all === "1";
 
   const conditions = [];
-  if (activeOnly) conditions.push(eq(products.active, true));
-  if (category && ["crystal", "report", "service"].includes(category)) {
-    conditions.push(eq(products.category, category as "crystal" | "report" | "service"));
+  if (!includeAll) {
+    conditions.push(eq(products.active, true));
+    conditions.push(eq(products.visibility, "public"));
+  }
+  if (category) {
+    conditions.push(eq(products.category, category));
   }
 
-  const rows = await db
+  let rows = await db
     .select()
     .from(products)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(asc(products.sortOrder), asc(products.id));
 
-  res.json({ products: rows.map((row) => formatProduct(row, { locale })), locale });
+  if (tag) {
+    const ids = await productIdsForTag(tag);
+    rows = rows.filter((row) => ids.has(row.id));
+  }
+
+  const [categoryLabels, tagMap] = await Promise.all([
+    getCategoryLabelMap(),
+    tagsForProducts(rows.map((r) => r.id), locale),
+  ]);
+
+  res.json({
+    products: rows.map((row) =>
+      formatProduct(row, { locale, categoryLabels, tags: tagMap.get(row.id) ?? [] }),
+    ),
+    locale,
+  });
+});
+
+/** 前台分类清单（Q3：可配置 + 多语言） */
+productsRouter.get("/categories", async (req, res) => {
+  const locale = localeFromRequest(req);
+  try {
+    const rows = await listCategories();
+    res.json({
+      categories: rows
+        .filter((r) => r.active)
+        .map((r) => ({
+          code: r.code,
+          label: pickLocalized(r.labelI18n, locale, r.code),
+        })),
+      locale,
+    });
+  } catch (err) {
+    console.error("[products] categories:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
 });
 
 productsRouter.get("/homepage", async (req, res) => {
@@ -54,37 +105,10 @@ productsRouter.get("/homepage", async (req, res) => {
   }
 });
 
-productsRouter.get("/recommend/bazi", async (req, res) => {
-  try {
-    const locale = localeFromRequest(req);
-    const data = await resolveBaziElementRecommendations(locale);
-    res.json(data);
-  } catch (err) {
-    console.error("[products] recommend/bazi:", err);
-    res.status(500).json({ error: "服务器内部错误" });
-  }
-});
-
-productsRouter.get("/recommend/crystal", async (req, res) => {
-  const element = typeof req.query.element === "string" ? req.query.element.trim() : "";
-  if (!element) {
-    res.status(400).json({ error: "缺少 element 参数" });
-    return;
-  }
-  const locale = localeFromRequest(req);
-  const data = await resolveBaziRecommendForElement(element, locale);
-  if (!data.product) {
-    res.status(404).json({ error: "推荐商品不存在或已下架" });
-    return;
-  }
-
-  res.json({
-    element,
-    sku: data.product.sku,
-    product: data.product,
-  });
-});
-
+/**
+ * 单商品详情。app_only/unlisted 商品仍可按 SKU 取（结账深链、App 计费需要），
+ * 仅目录列表隐藏（R6）。
+ */
 productsRouter.get("/:sku", async (req, res) => {
   const locale = localeFromRequest(req);
   const sku = String(req.params.sku);
@@ -93,7 +117,18 @@ productsRouter.get("/:sku", async (req, res) => {
     res.status(404).json({ error: "商品不存在" });
     return;
   }
-  res.json({ product: formatProduct(row, { locale }), locale });
+  const [categoryLabels, tagMap, links] = await Promise.all([
+    getCategoryLabelMap(),
+    tagsForProducts([row.id], locale),
+    listProductLinks(sku),
+  ]);
+  res.json({
+    product: formatProduct(row, { locale, categoryLabels, tags: tagMap.get(row.id) ?? [] }),
+    links: links
+      .filter((l) => l.active && (!l.locale || l.locale === locale))
+      .map((l) => formatProductLink(l, locale)),
+    locale,
+  });
 });
 
 const i18nMapSchema = z.record(z.string().min(1).max(2000)).optional().nullable();
@@ -128,7 +163,15 @@ const productBodySchema = z.object({
   descriptionI18n: i18nMapSchema,
   priceCents: z.number().int().nonnegative(),
   priceCentsUsd: z.number().int().nonnegative().optional().nullable(),
-  category: z.enum(["crystal", "report", "service"]),
+  category: z.string().min(1).max(50),
+  kind: z.enum(["standard", "digital", "service", "diy"]).optional(),
+  visibility: z.enum(["public", "unlisted", "app_only"]).optional(),
+  stock: z.number().int().nonnegative().optional().nullable(),
+  lowStockAt: z.number().int().nonnegative().optional().nullable(),
+  slug: z.string().max(200).optional().nullable(),
+  seoTitleI18n: i18nMapSchema,
+  seoDescI18n: i18nMapSchema,
+  tagIds: z.array(z.number().int().positive()).max(50).optional(),
   requiresShipping: z.boolean().optional(),
   active: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
