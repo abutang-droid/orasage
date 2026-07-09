@@ -329,6 +329,41 @@ a {
   color: #b91c1c;
 }
 
+.staff-promote-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-top: 1rem;
+}
+
+.staff-promote-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  min-width: 12rem;
+}
+
+.staff-promote-row input,
+.staff-promote-row select {
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  font-size: 0.9rem;
+}
+
+.staff-role-hint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.staff-role-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.7;
+}
+
 .product-thumb {
   width: 48px;
   height: 48px;

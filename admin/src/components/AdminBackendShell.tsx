@@ -12,6 +12,7 @@ import {
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
 import type { StaffRole } from '@/lib/auth';
+import { STAFF_ROLE_LABELS } from '../../../shared/staff-roles/index';
 import { OrdersNavBadge } from '@/components/OrdersNavBadge';
 
 const MAIN_BASE = 'https://orasage.com/zh-CN';
@@ -107,6 +108,11 @@ export function AdminBackendShell({
       {showSidebar ? (
         <>
           <aside className="admin-backend-sidebar" aria-label="后台导航">
+            {staffRole ? (
+              <div className="admin-backend-role-badge" title="当前登录角色">
+                {STAFF_ROLE_LABELS[staffRole]}
+              </div>
+            ) : null}
             <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
             <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />
             <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} staffRole={staffRole} />

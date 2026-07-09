@@ -48,8 +48,13 @@ psql "$DATABASE_URL" -c "UPDATE users SET role='content_ops' WHERE email='内容
 | 页面 | 功能 |
 |------|------|
 | `/` | 用户/订单/测算/商品统计 |
+| `/staff` | **权限管理**（超级管理员）：授权 `shop_ops` / `content_ops`、撤销运营角色 |
 | `/products` | 商品 CRUD（SKU、价格、上下架） |
+| `/shop/reviews` | UGC 评价审核 |
+| `/shop/promotions` | 优惠码与促销 |
 | `/orders` | 订单列表与状态更新 |
+
+侧栏顶部会显示当前登录角色（超级管理员 / 商城运营 / 内容运营）。
 
 ## 统一推荐 SKU
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
+import { count, desc, eq, gt, and, or, ilike, asc, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
@@ -52,6 +52,7 @@ import {
   replaceCoupons,
   type CouponInput,
 } from "../lib/coupons.ts";
+import { STAFF_ROLES, type StaffRole } from "../../../shared/staff-roles/index.ts";
 
 export const adminApiRouter = Router();
 adminApiRouter.use(requireStaff);
@@ -1045,6 +1046,104 @@ adminApiRouter.put("/coupons", async (req, res) => {
       return;
     }
     console.error("[admin] coupons put:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+/* ── 员工权限（Phase D / 7a 基础）──────────────────────── */
+
+function formatStaffUser(row: typeof users.$inferSelect) {
+  return {
+    id: row.id,
+    email: row.email,
+    nickname: row.nickname,
+    role: row.role as StaffRole | "user",
+    lastSignedIn: row.lastSignedIn?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+adminApiRouter.get("/staff", requireSuperAdmin, async (_req, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(users)
+      .where(inArray(users.role, [...STAFF_ROLES]))
+      .orderBy(desc(users.updatedAt));
+    res.json({ staff: rows.map(formatStaffUser) });
+  } catch (err) {
+    console.error("[admin] staff list:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.get("/staff/lookup", requireSuperAdmin, async (req, res) => {
+  try {
+    const email = typeof req.query.email === "string" ? req.query.email.trim().toLowerCase() : "";
+    if (!email || !email.includes("@")) {
+      res.status(400).json({ error: "请提供有效邮箱" });
+      return;
+    }
+    const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!row) {
+      res.status(404).json({ error: "未找到该用户" });
+      return;
+    }
+    res.json({ user: formatStaffUser(row) });
+  } catch (err) {
+    console.error("[admin] staff lookup:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const staffRolePatchSchema = z.object({
+  role: z.enum(["admin", "shop_ops", "content_ops", "user"]),
+});
+
+adminApiRouter.patch("/staff/:id/role", requireSuperAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "参数错误" });
+      return;
+    }
+    const body = staffRolePatchSchema.parse(req.body);
+    const actor = (req as Request & { adminUser?: { id: number; role: string } }).adminUser;
+    if (actor?.id === id) {
+      res.status(400).json({ error: "不能修改自己的角色，请由其他超级管理员操作" });
+      return;
+    }
+
+    const [target] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    if (!target) {
+      res.status(404).json({ error: "用户不存在" });
+      return;
+    }
+
+    if (target.role === "admin" && body.role !== "admin") {
+      const [{ value: adminCount }] = await db
+        .select({ value: count() })
+        .from(users)
+        .where(eq(users.role, "admin"));
+      if (adminCount <= 1) {
+        res.status(400).json({ error: "至少保留一名超级管理员" });
+        return;
+      }
+    }
+
+    const [updated] = await db
+      .update(users)
+      .set({ role: body.role, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+
+    res.json({ user: formatStaffUser(updated) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] staff role patch:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });
