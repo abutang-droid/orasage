@@ -12,6 +12,8 @@ type ContactPayload = {
   subject?: unknown;
   message?: unknown;
   locale?: unknown;
+  category?: unknown;
+  orderNo?: unknown;
 };
 
 function fieldString(value: unknown, max: number): string {
@@ -32,6 +34,9 @@ export async function POST(req: Request) {
   const subject = fieldString(payload.subject, 200);
   const message = fieldString(payload.message, 5000);
   const locale = fieldString(payload.locale, 10);
+  const category = fieldString(payload.category, 20);
+  const orderNo = fieldString(payload.orderNo, 64);
+  const allowedCategories = new Set(['general', 'complaint', 'refund', 'bug']);
 
   if (!name || !message) {
     return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
@@ -70,6 +75,8 @@ export async function POST(req: Request) {
       subject: subject || undefined,
       body: message,
       locale: locale || undefined,
+      category: allowedCategories.has(category) ? category : 'general',
+      orderNo: orderNo || undefined,
     }),
   });
 

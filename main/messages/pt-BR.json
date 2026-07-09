@@ -375,8 +375,29 @@
       "submitting": "Enviando…",
       "submitError": "Falha ao enviar. Tente novamente mais tarde.",
       "successTitle": "Mensagem recebida",
-      "successDesc": "Responderemos ao seu e-mail o mais breve possível.",
-      "sendAnother": "Escrever outra"
+      "successDesc": "Responderemos por e-mail em breve. Usuários logados podem acompanhar em Meus chamados.",
+      "viewTickets": "Ver meus chamados",
+      "sendAnother": "Escrever outra",
+      "categoryLabel": "Tipo",
+      "category": {
+        "general": "Consulta geral",
+        "complaint": "Reclamação",
+        "refund": "Pedido de reembolso",
+        "bug": "Relatar problema"
+      },
+      "orderNoLabel": "Nº do pedido (opcional)",
+      "orderNoPlaceholder": "Se for sobre um pedido, informe o número"
+    },
+    "tickets": {
+      "nav": "Meus chamados",
+      "title": "Meus chamados",
+      "desc": "Mensagens enviadas e respostas da equipe.",
+      "loadError": "Falha ao carregar. Tente novamente.",
+      "empty": "Nenhum chamado ainda.",
+      "contactLink": "Fale conosco",
+      "noSubject": "Chamado #{id}",
+      "replyTitle": "Resposta da equipe",
+      "pendingReply": "Recebemos sua mensagem e responderemos em breve."
     }
   }
 }

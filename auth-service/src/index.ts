@@ -18,6 +18,7 @@ import { reviewsRouter } from "./routes/reviews.ts";
 import { couponsPublicRouter } from "./routes/coupons-public.ts";
 import { diyRouter, diyInternalRouter } from "./routes/diy.ts";
 import { eventsRouter } from "./routes/events.ts";
+import { telegramWebhookRouter } from "./routes/telegram-webhook.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,6 +40,7 @@ app.use("/api/reviews", reviewsRouter);
 app.use("/api/coupons", couponsPublicRouter);
 app.use("/api/diy", diyRouter);
 app.use("/api/events", eventsRouter);
+app.use("/api/telegram/webhook", telegramWebhookRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/internal", internalOnly, internalRouter);
 app.use("/internal/ziwei/chat", internalOnly, ziweiChatInternalRouter);

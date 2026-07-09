@@ -1534,3 +1534,118 @@ details summary {
   max-width: 320px;
   text-align: right;
 }
+
+/* ── 在线客服 IM（#8）────────────────────────────────── */
+
+.im-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1rem;
+  min-height: 420px;
+}
+
+.im-sidebar-title {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.im-conv-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.im-conv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.im-conv-item.is-active {
+  background: rgba(184, 148, 63, 0.1);
+  border-color: rgba(184, 148, 63, 0.35);
+}
+
+.im-conv-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.im-conv-preview {
+  font-size: 0.8rem;
+  color: var(--orasage-secondary, #6b7280);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.im-thread {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 380px;
+}
+
+.im-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.5rem 0;
+}
+
+.im-bubble {
+  max-width: 80%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+}
+
+.im-bubble--user {
+  align-self: flex-start;
+  background: var(--orasage-card, #f5f5f4);
+}
+
+.im-bubble--ops {
+  align-self: flex-end;
+  background: rgba(184, 148, 63, 0.12);
+}
+
+.im-bubble-meta {
+  font-size: 0.7rem;
+  color: var(--orasage-secondary, #6b7280);
+  margin-top: 0.25rem;
+}
+
+.im-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+  padding-top: 0.75rem;
+}
+
+.im-compose-input {
+  width: 100%;
+  border: 1px solid var(--orasage-border, #e7e5e4);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.im-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .im-layout {
+    grid-template-columns: 1fr;
+  }
+}

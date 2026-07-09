@@ -389,8 +389,29 @@
       "submitting": "提交中…",
       "submitError": "提交失败，请稍后再试。",
       "successTitle": "已收到你的留言",
-      "successDesc": "我们会通过邮箱尽快回复你。",
-      "sendAnother": "再写一条"
+      "successDesc": "我们会通过邮箱尽快回复你。登录用户可在「我的工单」查看回复。",
+      "viewTickets": "查看我的工单",
+      "sendAnother": "再写一条",
+      "categoryLabel": "类型",
+      "category": {
+        "general": "一般咨询",
+        "complaint": "投诉",
+        "refund": "退款申请",
+        "bug": "问题反馈"
+      },
+      "orderNoLabel": "关联订单号（可选）",
+      "orderNoPlaceholder": "如有订单问题请填写订单号"
+    },
+    "tickets": {
+      "nav": "我的工单",
+      "title": "我的工单",
+      "desc": "查看你提交的留言与运营回复。",
+      "loadError": "加载失败，请稍后重试。",
+      "empty": "暂无工单。",
+      "contactLink": "去联系我们",
+      "noSubject": "工单 #{id}",
+      "replyTitle": "运营回复",
+      "pendingReply": "我们已收到，将尽快回复。"
     }
   }
 }

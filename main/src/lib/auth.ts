@@ -80,6 +80,20 @@ export type UserRecommendation = {
   createdAt: string;
 };
 
+export type UserTicket = {
+  id: number;
+  subject: string | null;
+  body: string;
+  category: string;
+  categoryLabel: string;
+  orderNo: string | null;
+  status: string;
+  statusLabel: string;
+  adminReply: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ProfileSyncPayload = {
   name: string;
   gender?: 'male' | 'female' | null;
@@ -199,6 +213,13 @@ export async function fetchReadings(): Promise<UserReading[]> {
   if (!res.ok) throw new Error(`readings fetch failed: ${res.status}`);
   const data = await res.json();
   return data.readings as UserReading[];
+}
+
+export async function fetchTickets(): Promise<UserTicket[]> {
+  const res = await authFetch('/auth/me/tickets');
+  if (!res.ok) throw new Error(`tickets fetch failed: ${res.status}`);
+  const data = await res.json();
+  return data.tickets as UserTicket[];
 }
 
 export async function fetchRecommendations(): Promise<UserRecommendation[]> {
