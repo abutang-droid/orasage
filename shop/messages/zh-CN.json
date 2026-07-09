@@ -4,7 +4,11 @@
     "buying": "处理中…",
     "addToCart": "加购",
     "added": "已加入",
-    "buyFailed": "购买失败"
+    "buyFailed": "购买失败",
+    "buyNow": "立即购买",
+    "addToCartFull": "加入购物车",
+    "addedToCart": "已加入购物车",
+    "customBracelet": "定制手链"
   },
   "categories": {
     "crystal": "水晶手串",

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Sparkles } from 'lucide-react';
+import { Check, ShoppingCart, Sparkles } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
 import {
   Card,
@@ -98,18 +98,29 @@ export function ProductCard({ product }: { product: Product }) {
       <CardContent className="mt-3 flex items-center justify-between gap-2 p-0">
         <span className="shop-product-price">{displayPrice}</span>
       </CardContent>
-      <CardFooter className="mt-3 flex flex-col gap-2 p-0 sm:flex-row">
+      <CardFooter className="mt-3 flex flex-row items-stretch gap-2 p-0">
         <Button
           type="button"
           onClick={() => void handleBuy()}
           disabled={loading}
           loading={loading}
-          className="flex-1"
+          className="min-w-0 flex-1 px-2"
         >
           {loading ? t('buying') : t('buy')}
         </Button>
-        <Button type="button" variant="secondary" onClick={handleAddToCart} className="flex-1">
-          {added ? t('added') : t('addToCart')}
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleAddToCart}
+          aria-label={added ? t('added') : t('addToCart')}
+          title={added ? t('added') : t('addToCart')}
+          className="h-control-md w-11 min-w-11 shrink-0 p-0"
+        >
+          {added ? (
+            <Check size={18} strokeWidth={2} aria-hidden />
+          ) : (
+            <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
+          )}
         </Button>
       </CardFooter>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}

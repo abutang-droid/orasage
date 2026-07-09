@@ -1008,6 +1008,13 @@
   min-width: 8rem;
 }
 
+/* 窄屏三按钮场景：定制按钮独占一行，加购/购买保持同排不换行 */
+@media (max-width: 639px) {
+  .shop-pdp-actions--row .shop-pdp-action-btn--diy {
+    flex-basis: 100%;
+  }
+}
+
 .shop-pdp-actions--row .shop-pdp-error {
   flex-basis: 100%;
 }

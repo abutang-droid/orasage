@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
 import { PRODUCT_SKU_TO_BEAD_MATERIAL } from '@/lib/diy';
 
 export function ProductDetailActions({ product }: { product: Product }) {
+  const t = useTranslations('product');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
@@ -30,7 +32,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
         return;
       }
 
-      if (!res.ok) throw new Error(data.error || '购买失败');
+      if (!res.ok) throw new Error(data.error || t('buyFailed'));
 
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
@@ -41,7 +43,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
         window.location.href = `/checkout?order=${encodeURIComponent(data.orderNo)}`;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '购买失败');
+      setError(err instanceof Error ? err.message : t('buyFailed'));
     } finally {
       setLoading(false);
     }
@@ -58,8 +60,8 @@ export function ProductDetailActions({ product }: { product: Product }) {
   return (
     <div className="shop-pdp-actions shop-pdp-actions--row">
       {diyBase ? (
-        <Button asChild className="shop-pdp-action-btn flex-1 px-2 sm:px-4">
-          <Link href={`/diy?base=${encodeURIComponent(diyBase)}`}>✦ 定制手链</Link>
+        <Button asChild className="shop-pdp-action-btn shop-pdp-action-btn--diy flex-1 px-2 sm:px-4">
+          <Link href={`/diy?base=${encodeURIComponent(diyBase)}`}>✦ {t('customBracelet')}</Link>
         </Button>
       ) : null}
       <Button
@@ -68,7 +70,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
         onClick={handleAddToCart}
         className="shop-pdp-action-btn flex-1 px-2 sm:px-4"
       >
-        {added ? '已加入购物车' : '加入购物车'}
+        {added ? t('addedToCart') : t('addToCartFull')}
       </Button>
       <Button
         type="button"
@@ -78,7 +80,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
         loading={loading}
         className="shop-pdp-action-btn flex-1 px-2 sm:px-4"
       >
-        {loading ? '处理中…' : '立即购买'}
+        {loading ? t('buying') : t('buyNow')}
       </Button>
       {error && <p className="shop-pdp-error">{error}</p>}
     </div>

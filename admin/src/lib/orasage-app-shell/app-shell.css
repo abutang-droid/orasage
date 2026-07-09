@@ -84,7 +84,10 @@
   position: relative;
 }
 
-.orasage-app-lang-btn {
+/* 双类选择器：稳定压过 @orasage/ui Button 的单类工具类（与样式表加载顺序无关） */
+.orasage-app-lang .orasage-app-lang-btn {
+  /* 固定 36px 胶囊：压掉 Button 默认控件高度，主站/子应用一致 */
+  height: 36px;
   min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--shell-border);
@@ -92,18 +95,22 @@
   background: transparent;
   color: var(--shell-muted);
   font-size: 12px;
+  font-weight: 400;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
 .orasage-app-lang-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 4px);
+  /* 置于全站层级最顶（底栏 50 / 探索遮罩 60 / sheet 70 之上） */
+  z-index: 80;
   min-width: 120px;
-  max-height: 240px;
+  max-height: 288px;
   overflow-y: auto;
   border: 1px solid var(--shell-border);
   border-radius: 8px;
@@ -111,20 +118,27 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.orasage-app-lang-item {
-  display: block;
+.orasage-app-lang .orasage-app-lang-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
+  height: auto;
+  min-height: 0;
   padding: 10px 12px;
   border: none;
+  border-radius: 0;
   background: transparent;
   color: var(--shell-text);
   font-size: 12px;
+  font-weight: 400;
   text-align: left;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.orasage-app-lang-item:hover,
-.orasage-app-lang-item[aria-current='true'] {
+.orasage-app-lang .orasage-app-lang-item:hover,
+.orasage-app-lang .orasage-app-lang-item[aria-current='true'] {
   background: rgba(201, 160, 90, 0.12);
   color: var(--shell-gold);
 }

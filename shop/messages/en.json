@@ -4,7 +4,11 @@
     "buying": "Processing…",
     "addToCart": "Add to cart",
     "added": "Added",
-    "buyFailed": "Purchase failed"
+    "buyFailed": "Purchase failed",
+    "buyNow": "Buy now",
+    "addToCartFull": "Add to cart",
+    "addedToCart": "Added to cart",
+    "customBracelet": "Custom bracelet"
   },
   "categories": {
     "crystal": "Crystal Bracelets",
