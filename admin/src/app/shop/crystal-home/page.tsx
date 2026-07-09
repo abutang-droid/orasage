@@ -41,7 +41,7 @@ export default async function CrystalHomePage({
         <h1>水晶专题首页</h1>
         <p className="muted">
           维护 shop.orasage.com 水晶专题布局（crystal_v1）的素材内容：情感短语、能量故事、
-          关键词、佩戴收益与仪式。留空字段将回退至内置占位文案。商品价格与规格在
+          关键词、佩戴收益与仪式；规格切换下方补充说明可选填。留空字段将回退至内置占位文案（补充说明除外）。商品价格与规格在
           「商品管理」维护；主图在 CMS「商品图」维护。
         </p>
       </header>
@@ -128,6 +128,15 @@ export default async function CrystalHomePage({
                     defaultValue={entry?.ritual ?? ''}
                     rows={2}
                     maxLength={500}
+                  />
+                </label>
+                <label className="full-width">
+                  规格切换下方补充说明（选填，留空不展示）
+                  <input
+                    name={`${sku}_packNote`}
+                    defaultValue={entry?.packNote ?? ''}
+                    maxLength={200}
+                    placeholder="如：礼盒含专属祝福卡，可代写赠言"
                   />
                 </label>
               </div>

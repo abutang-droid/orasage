@@ -321,6 +321,7 @@ export interface CrystalContentEntry {
   keywords: string[];
   benefits: string[];
   ritual: string;
+  packNote: string;
 }
 
 export type CrystalContentMap = Record<string, CrystalContentEntry>;

@@ -234,8 +234,8 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
             </button>
           </div>
 
-          {activeProduct.packaging ? (
-            <p className="crystal-packaging">{activeProduct.packaging}</p>
+          {entry?.packNote ? (
+            <p className="crystal-packaging">{entry.packNote}</p>
           ) : null}
 
           <p className="crystal-learn-more">
