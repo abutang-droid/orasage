@@ -8,7 +8,7 @@ import { DIY_ORDER_SKU } from '@/lib/diy';
 import { getAuthUser } from '@/lib/auth';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
-import { fetchShopHomeLayout } from '@/lib/shop-config';
+import { fetchCrystalContent, fetchShopHomeLayout } from '@/lib/shop-config';
 import { buildCrystalLineup } from '@/lib/crystal-lineup';
 import { isCrystalGiftSku } from '../../../shared/shop-crystal/index';
 
@@ -47,6 +47,7 @@ export default async function ShopPage() {
     }));
 
   const crystalLineup = buildCrystalLineup(productsWithImages);
+  const crystalContent = homeLayout === 'crystal_v1' ? await fetchCrystalContent() : null;
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -54,7 +55,7 @@ export default async function ShopPage() {
 
       {homeLayout === 'crystal_v1' ? (
         <Suspense fallback={<p className="text-center text-sage-muted">{tc('loading')}</p>}>
-          <CrystalShowcase lineup={crystalLineup} />
+          <CrystalShowcase lineup={crystalLineup} content={crystalContent ?? undefined} />
         </Suspense>
       ) : (
         <Suspense fallback={<p className="text-center text-sage-muted">{tc('loading')}</p>}>

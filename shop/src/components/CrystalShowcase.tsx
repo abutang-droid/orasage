@@ -4,11 +4,15 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Check, ShoppingCart } from 'lucide-react';
+import { Check, ShoppingCart, Sparkles } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
 import type { CrystalLineupItem } from '@/lib/crystal-lineup';
 import { resolveInitialBaseSku } from '@/lib/crystal-lineup';
 import type { CrystalBaseSku } from '../../../shared/shop-crystal/index';
+import {
+  DEFAULT_CRYSTAL_CONTENT,
+  type CrystalContentMap,
+} from '../../../shared/shop-crystal/content';
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
@@ -19,6 +23,7 @@ type PackVariant = 'standard' | 'gift';
 
 type CrystalShowcaseProps = {
   lineup: CrystalLineupItem[];
+  content?: CrystalContentMap;
 };
 
 function resolveDisplayPrice(product: Product, currency: 'cny' | 'usd') {
@@ -30,7 +35,7 @@ function resolveDisplayPrice(product: Product, currency: 'cny' | 'usd') {
   return product.priceDisplay ?? formatShopPrice(cents, currency);
 }
 
-export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
+export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const t = useTranslations('crystalShowcase');
   const tp = useTranslations('product');
   const searchParams = useSearchParams();
@@ -51,6 +56,9 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
 
   const activeProduct = pack === 'gift' && active?.gift ? active.gift : active?.standard;
   const canGift = Boolean(active?.gift);
+  const entry = active
+    ? (content?.[active.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[active.baseSku])
+    : null;
 
   if (!active || !activeProduct) {
     return <p className="text-center text-sage-muted">{t('empty')}</p>;
@@ -105,7 +113,10 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
   return (
     <div className="crystal-showcase">
       <section className="crystal-guide panel-surface">
-        <h2 className="crystal-section-title">{t('guideTitle')}</h2>
+        <h2 className="crystal-section-title">
+          <Sparkles size={16} strokeWidth={1.8} aria-hidden className="crystal-title-icon" />
+          {t('guideTitle')}
+        </h2>
         <ol className="crystal-guide-steps">
           <li>{t('guideStep1')}</li>
           <li>{t('guideStep2')}</li>
@@ -121,6 +132,7 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
       <div className="crystal-element-tabs" role="tablist" aria-label={t('elementTabs')}>
         {lineup.map((row) => {
           const selected = row.baseSku === active.baseSku;
+          const rowEntry = content?.[row.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[row.baseSku];
           return (
             <button
               key={row.baseSku}
@@ -132,7 +144,8 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
               style={{ '--crystal-accent': row.accent } as React.CSSProperties}
               onClick={() => selectBase(row.baseSku)}
             >
-              <span className="crystal-element-tab-label">{row.element}</span>
+              <span className="crystal-element-tab-char">{row.element}</span>
+              <span className="crystal-element-tab-tagline">{rowEntry?.tagline}</span>
             </button>
           );
         })}
@@ -142,6 +155,7 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
         className="crystal-feature"
         style={{ '--crystal-accent': active.accent } as React.CSSProperties}
       >
+        <div className="crystal-feature-halo" aria-hidden />
         <div className="crystal-feature-media">
           <ProductImage
             sku={activeProduct.sku}
@@ -149,15 +163,46 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
             category="crystal"
             imageUrl={activeProduct.imageUrl}
             className="crystal-feature-image"
+            priority
           />
+          {entry?.keywords?.length ? (
+            <div className="crystal-keyword-chips" aria-label={t('keywordsLabel')}>
+              {entry.keywords.map((kw) => (
+                <span key={kw} className="crystal-keyword-chip">{kw}</span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="crystal-feature-body">
           <p className="crystal-feature-eyebrow">
             {t('elementLabel', { element: active.element })}
           </p>
-          <h2 className="crystal-feature-title">{active.standard.name.replace(/ · 礼盒装$/, '')}</h2>
+          <h2 className="crystal-feature-title">
+            {entry?.tagline ? (
+              <>
+                <span className="crystal-feature-tagline">{entry.tagline}</span>
+                <span className="crystal-feature-name">
+                  {active.standard.name.replace(/^[^·]*·\s*/, '').replace(/ · 礼盒装$/, '')}
+                </span>
+              </>
+            ) : (
+              active.standard.name.replace(/ · 礼盒装$/, '')
+            )}
+          </h2>
           <p className="crystal-feature-desc">{active.standard.desc}</p>
+
+          {entry?.story ? (
+            <blockquote className="crystal-story">{entry.story}</blockquote>
+          ) : null}
+
+          {entry?.benefits?.length ? (
+            <ul className="crystal-benefits">
+              {entry.benefits.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
+          ) : null}
 
           <div className="crystal-pack-toggle" role="group" aria-label={t('packToggle')}>
             <button
@@ -227,16 +272,31 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
         </div>
       </section>
 
+      {entry?.ritual ? (
+        <section
+          className="crystal-ritual"
+          style={{ '--crystal-accent': active.accent } as React.CSSProperties}
+        >
+          <span className="crystal-ritual-mark" aria-hidden>✦</span>
+          <div>
+            <h3 className="crystal-ritual-title">{t('ritualTitle')}</h3>
+            <p className="crystal-ritual-text">{entry.ritual}</p>
+          </div>
+        </section>
+      ) : null}
+
       <div className="crystal-thumb-strip">
         {lineup.map((row) => {
           const selected = row.baseSku === active.baseSku;
           const thumbProduct = row.standard;
+          const rowEntry = content?.[row.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[row.baseSku];
           return (
             <button
               key={row.baseSku}
               type="button"
               className="crystal-thumb"
               data-selected={selected}
+              style={{ '--crystal-accent': row.accent } as React.CSSProperties}
               onClick={() => selectBase(row.baseSku)}
               aria-label={thumbProduct.name}
             >
@@ -248,6 +308,7 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
                 className="crystal-thumb-image"
               />
               <span className="crystal-thumb-element">{row.element}</span>
+              <span className="crystal-thumb-tagline">{rowEntry?.tagline}</span>
             </button>
           );
         })}
@@ -256,11 +317,11 @@ export function CrystalShowcase({ lineup }: CrystalShowcaseProps) {
       <section className="crystal-compare panel-surface">
         <h3 className="crystal-section-title">{t('compareTitle')}</h3>
         <div className="crystal-compare-grid">
-          <div>
+          <div className="crystal-compare-cell">
             <h4>{t('packStandard')}</h4>
             <p>{t('compareStandard')}</p>
           </div>
-          <div>
+          <div className="crystal-compare-cell crystal-compare-cell--gift">
             <h4>{t('packGift')}</h4>
             <p>{t('compareGift')}</p>
           </div>

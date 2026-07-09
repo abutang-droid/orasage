@@ -315,6 +315,27 @@ export function saveShopConfig(homeLayout: ShopHomeLayout) {
   });
 }
 
+export interface CrystalContentEntry {
+  tagline: string;
+  story: string;
+  keywords: string[];
+  benefits: string[];
+  ritual: string;
+}
+
+export type CrystalContentMap = Record<string, CrystalContentEntry>;
+
+export function getCrystalContent() {
+  return adminFetch<{ content: CrystalContentMap }>('/crystal-content');
+}
+
+export function saveCrystalContent(content: CrystalContentMap) {
+  return adminFetch<{ content: CrystalContentMap }>('/crystal-content', {
+    method: 'PUT',
+    body: JSON.stringify({ content }),
+  });
+}
+
 /* ── 应用计费槽位（R6）────────────────────────────── */
 
 export interface AdminBillingSlot {

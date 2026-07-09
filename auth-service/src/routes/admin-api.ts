@@ -6,7 +6,7 @@ import { contactMessages, homepageFeaturedProducts, products, userOrders, userRe
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
-import { getShopPublicConfig, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
+import { getCrystalContent, getShopPublicConfig, setCrystalContent, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
 import {
   listComboItems,
   resolveComboMeta,
@@ -256,6 +256,38 @@ adminApiRouter.put("/shop-config", P.products, async (req, res) => {
       return;
     }
     console.error("[admin] shop-config:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const crystalEntrySchema = z.object({
+  tagline: z.string().max(50).default(""),
+  story: z.string().max(2000).default(""),
+  keywords: z.array(z.string().max(20)).max(8).default([]),
+  benefits: z.array(z.string().max(200)).max(6).default([]),
+  ritual: z.string().max(500).default(""),
+});
+
+const crystalContentSchema = z.object({
+  content: z.record(z.string(), crystalEntrySchema),
+});
+
+adminApiRouter.get("/crystal-content", P.products, async (_req, res) => {
+  const content = await getCrystalContent();
+  res.json({ content });
+});
+
+adminApiRouter.put("/crystal-content", P.products, async (req, res) => {
+  try {
+    const body = crystalContentSchema.parse(req.body);
+    const content = await setCrystalContent(body.content);
+    res.json({ content });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] crystal-content:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

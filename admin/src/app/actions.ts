@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveShopConfig, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveShopConfig, saveCrystalContent, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
@@ -278,6 +278,53 @@ export async function saveShopLayoutAction(formData: FormData) {
   const homeLayout = String(formData.get('homeLayout') ?? 'legacy') as 'legacy' | 'crystal_v1';
   await saveShopConfig(homeLayout);
   revalidatePath('/products');
+}
+
+const CRYSTAL_CONTENT_SKUS = [
+  'crystal-wood',
+  'crystal-fire',
+  'crystal-earth',
+  'crystal-metal',
+  'crystal-water',
+] as const;
+
+export async function saveCrystalContentAction(formData: FormData) {
+  const content: Record<string, {
+    tagline: string;
+    story: string;
+    keywords: string[];
+    benefits: string[];
+    ritual: string;
+  }> = {};
+
+  for (const sku of CRYSTAL_CONTENT_SKUS) {
+    const keywords = String(formData.get(`${sku}_keywords`) ?? '')
+      .split(/[,，、]/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 8);
+    const benefits = String(formData.get(`${sku}_benefits`) ?? '')
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 6);
+    content[sku] = {
+      tagline: String(formData.get(`${sku}_tagline`) ?? '').trim(),
+      story: String(formData.get(`${sku}_story`) ?? '').trim(),
+      keywords,
+      benefits,
+      ritual: String(formData.get(`${sku}_ritual`) ?? '').trim(),
+    };
+  }
+
+  try {
+    await saveCrystalContent(content);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '保存失败';
+    redirect(`/shop/crystal-home?save_err=${encodeURIComponent(message)}`);
+  }
+  revalidatePath('/shop/crystal-home');
+  redirect('/shop/crystal-home?saved=1');
 }
 
 /* ── 应用计费槽位（R6）────────────────────────────── */
