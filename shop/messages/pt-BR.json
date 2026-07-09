@@ -60,7 +60,12 @@
     "ritualTitle": "Ritual de uso",
     "compareTitle": "Padrão vs caixa presente",
     "compareStandard": "Pulseira com bolsa protetora — leve para o dia a dia.",
-    "compareGift": "Caixa premium com cartão e bolsa de veludo — feita para presentear."
+    "compareGift": "Caixa premium com cartão e bolsa de veludo — feita para presentear.",
+    "diyTitle": "Ressonância personalizada",
+    "diyHint": "Escolha cristais, espaçadores e discos uma a uma — visualize no seu punho e veja o preço em tempo real.",
+    "diyCtaElement": "Criar com elemento {element}",
+    "diyCtaGeneric": "Combinar todas as contas →",
+    "diyInline": "Ou monte sua pulseira com este cristal"
   },
   "home": {
     "footerNote": "Após sua leitura, compre cristais recomendados com um toque · Veja pedidos na",

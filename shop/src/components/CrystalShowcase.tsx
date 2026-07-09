@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Check, ShoppingCart, Sparkles } from 'lucide-react';
+import { Check, ShoppingCart, Sparkles, Wand2 } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
 import type { CrystalLineupItem } from '@/lib/crystal-lineup';
 import { resolveInitialBaseSku } from '@/lib/crystal-lineup';
@@ -109,6 +109,8 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   }
 
   const displayPrice = resolveDisplayPrice(activeProduct, currency);
+  const diyElementHref = `/diy?element=${encodeURIComponent(active.element)}`;
+  const diyBaseHref = `/diy?base=${encodeURIComponent(active.baseSku)}`;
 
   return (
     <div className="crystal-showcase">
@@ -268,6 +270,11 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               )}
             </Button>
           </div>
+          <p className="crystal-feature-diy-link">
+            <Link href={diyBaseHref} className="crystal-inline-link">
+              ✦ {t('diyInline', { element: active.element })}
+            </Link>
+          </p>
           {error ? <p className="crystal-error">{error}</p> : null}
         </div>
       </section>
@@ -313,6 +320,29 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           );
         })}
       </div>
+
+      <section
+        className="crystal-diy-entry panel-surface"
+        style={{ '--crystal-accent': active.accent } as React.CSSProperties}
+      >
+        <div className="crystal-diy-entry-icon" aria-hidden>
+          <Wand2 size={22} strokeWidth={1.6} />
+        </div>
+        <div className="crystal-diy-entry-body">
+          <h3 className="crystal-diy-entry-title">{t('diyTitle')}</h3>
+          <p className="crystal-diy-entry-hint">{t('diyHint')}</p>
+          <div className="crystal-diy-entry-actions">
+            <Button asChild className="crystal-diy-entry-cta">
+              <Link href={diyElementHref}>
+                {t('diyCtaElement', { element: active.element })}
+              </Link>
+            </Button>
+            <Link href="/diy" className="crystal-diy-entry-generic">
+              {t('diyCtaGeneric')}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <section className="crystal-compare panel-surface">
         <h3 className="crystal-section-title">{t('compareTitle')}</h3>

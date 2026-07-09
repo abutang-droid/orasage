@@ -60,7 +60,12 @@
     "ritualTitle": "Wearing ritual",
     "compareTitle": "Standard vs gift box",
     "compareStandard": "Bracelet in a protective pouch — light and ready for daily wear.",
-    "compareGift": "Premium box with blessing card and velvet pouch — made for gifting."
+    "compareGift": "Premium box with blessing card and velvet pouch — made for gifting.",
+    "diyTitle": "Custom resonance",
+    "diyHint": "Pick crystals, spacers, and discs bead by bead — preview on your wrist size and price in real time.",
+    "diyCtaElement": "Design with {element}",
+    "diyCtaGeneric": "Mix all beads freely →",
+    "diyInline": "Or design your own bracelet with this crystal"
   },
   "home": {
     "footerNote": "After your reading, buy recommended crystals in one tap · View orders in",

@@ -2758,6 +2758,105 @@
   text-overflow: ellipsis;
 }
 
+.crystal-feature-diy-link {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.crystal-diy-entry {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--crystal-accent, #171717) 28%, #e5e7eb);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--crystal-accent, #e5e7eb) 6%, #fff) 0%,
+    #fafafa 55%,
+    color-mix(in srgb, var(--crystal-accent, #171717) 4%, #fff) 100%
+  );
+  box-shadow: 0 10px 28px -22px color-mix(in srgb, var(--crystal-accent, #171717) 50%, transparent);
+}
+
+.crystal-diy-entry-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--crystal-accent, #171717) 75%, #374151);
+  background: color-mix(in srgb, var(--crystal-accent, #e5e7eb) 14%, #fff);
+  border: 1px solid color-mix(in srgb, var(--crystal-accent, #171717) 22%, #e5e7eb);
+}
+
+.crystal-diy-entry-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.crystal-diy-entry-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
+  letter-spacing: 0.02em;
+}
+
+.crystal-diy-entry-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+}
+
+.crystal-diy-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+}
+
+.crystal-diy-entry-cta {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.crystal-diy-entry-generic {
+  font-size: 0.8125rem;
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.crystal-diy-entry-generic:hover {
+  color: var(--os-color-mono-black, #171717);
+  border-bottom-color: currentColor;
+}
+
+@media (max-width: 480px) {
+  .crystal-diy-entry {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crystal-diy-entry-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .crystal-diy-entry-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crystal-diy-entry-cta {
+    width: 100%;
+  }
+}
+
 .crystal-compare-grid {
   display: grid;
   gap: 0.75rem;

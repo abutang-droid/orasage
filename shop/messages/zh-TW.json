@@ -60,7 +60,12 @@
     "ritualTitle": "佩戴儀式",
     "compareTitle": "標準裝 vs 禮盒裝",
     "compareStandard": "手鏈 + 保護袋，輕便隨身，適合日常自戴。",
-    "compareGift": "精美禮盒 + 祝福卡 + 絨布袋，專為贈禮場景設計。"
+    "compareGift": "精美禮盒 + 祝福卡 + 絨布袋，專為贈禮場景設計。",
+    "diyTitle": "共振定制",
+    "diyHint": "逐顆挑選水晶、隔珠與隔片，按手圍即時預覽與計價，打造專屬於你的五行能量手串。",
+    "diyCtaElement": "以{element}元素定制",
+    "diyCtaGeneric": "自由搭配全部珠子 →",
+    "diyInline": "或以此款水晶自己搭配手串"
   },
   "home": {
     "footerNote": "完成命理解讀後，可一鍵購買推薦水晶 · 訂單可在",
