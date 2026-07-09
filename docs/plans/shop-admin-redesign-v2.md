@@ -230,7 +230,7 @@ UNIQUE(appSource, slotKey, sort)
 
 | # | 问题 | 我的默认建议 |
 |---|------|--------------|
-| Q1 | 媒体最终形态 Step B 需 Cloudflare R2（涉及 DNS/账号）。是否批准？无账号时先做 Step A？ | 批准 B；过渡期先上 A |
+| Q1 | 媒体最终形态 Step B 需 Cloudflare R2（涉及 DNS/账号）。是否批准？无账号时先做 Step A？ | 批准 B；**2026-07-09 决策：推迟到服务器迁移时一并做**（届时再接入 Cloudflare DNS + R2；当前继续 VPS 本地媒体） |
 | Q2 | 详情长内容编辑：a) admin 内嵌 CMS iframe；b) admin 原生表单直写 CMS API（体验最好，开发量大）；c) 维持外链跳 CMS | **b**，分两步先做 a |
 | Q3 | 分类是否也改为可配置表（现枚举 crystal/report/service）？ | 是，顺带多语言 |
 | Q4 | 旧三张计费表迁 `app_billing_slots` 的兼容窗口 | 保留旧 API 一个发布周期 |
@@ -239,11 +239,12 @@ UNIQUE(appSource, slotKey, sort)
 
 ## 七、实施分期（待批准后执行）
 
-| Phase | 内容 | 涉及 |
-|-------|------|------|
-| **A 基座** | visibility/kind/库存/slug + 标签体系 + 关联链接 + `app_billing_slots` + 新侧栏 IA（商城/应用计费分组，旧路由 301） | auth-service 迁移 ×4、admin 大改版、shop 目录过滤 |
-| **B 媒体与多语言** | CDN Step A → R2 Step B；CMS 详情页/评价 4 语；分类/标签/链接/附件 i18n；PDP 附件下载区、关联页面区块 | cms、shop、deploy |
-| **C 履约运营** | 订单筛选/批量/导出、运费模板落库、DIY 并入商城组 | auth-service、admin、shared/shop-fulfillment |
-| **D 增长** | UGC 评价、促销、权限角色化 | 全栈 |
+| Phase | 内容 | 涉及 | 状态 |
+|-------|------|------|------|
+| **A 基座** | visibility/kind/库存/slug + 标签体系 + 关联链接 + `app_billing_slots` + 新侧栏 IA（商城/应用计费分组） | auth-service 迁移、admin 大改版、shop 目录过滤 | ✅ PR #239 已上线（2026-07-09） |
+| **B 内容与多语言** | CMS 详情页/评价 4 语；admin 原生详情内容编辑（Q2-b）；PDP 附件下载区、关联页面区块前台展示 | cms、shop、admin | 待做 |
+| **B′ 媒体基建** | Cloudflare CDN + R2 迁移 | deploy、cms | **推迟：与服务器迁移同期执行** |
+| **C 履约运营** | 订单筛选/批量/导出、运费模板落库、DIY 并入商城组 | auth-service、admin、shared/shop-fulfillment | 待做 |
+| **D 增长** | UGC 评价、促销、权限角色化 | 全栈 | 待做（权限先行） |
 
 每 Phase 合入前按 AGENT-RULES 做关联分支穿透 + 全量回归。
