@@ -18,6 +18,7 @@ export default async function ProductsPage({
     image_err?: string;
     sku?: string;
     save_err?: string;
+    deleted?: string;
   }>;
 }) {
   const admin = await getAdminUser();
@@ -82,6 +83,12 @@ export default async function ProductsPage({
       {sp.save_err ? (
         <p className="muted panel-notice panel-notice--error">
           保存失败：{decodeURIComponent(sp.save_err)}
+        </p>
+      ) : null}
+
+      {sp.deleted ? (
+        <p className="muted panel-notice">
+          商品 <code>{decodeURIComponent(sp.deleted)}</code> 已下架。
         </p>
       ) : null}
 

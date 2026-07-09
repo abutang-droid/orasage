@@ -149,6 +149,12 @@ export function updateProduct(sku: string, body: Record<string, unknown>) {
   });
 }
 
+export function deleteProduct(sku: string) {
+  return adminFetch<{ success: boolean; sku: string }>(`/products/${encodeURIComponent(sku)}`, {
+    method: 'DELETE',
+  });
+}
+
 export interface AdminContactMessage {
   id: number;
   userId: number | null;

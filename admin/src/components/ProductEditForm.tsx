@@ -19,6 +19,8 @@ type ProductEditFormProps = {
   tagData: TagData;
   categories: AdminCategory[];
   catalog: AdminProduct[];
+  /** 编辑页使用独立媒体面板时隐藏表单内媒体页签 */
+  hideMediaTab?: boolean;
 };
 
 function TagCheckboxes({ tagData, product }: { tagData: TagData; product?: AdminProduct | null }) {
@@ -62,6 +64,7 @@ export function ProductEditForm({
   tagData,
   categories,
   catalog,
+  hideMediaTab = false,
 }: ProductEditFormProps) {
   const isEdit = mode === 'edit';
   const categoryOptions = categories.length > 0
@@ -78,6 +81,7 @@ export function ProductEditForm({
       {isEdit && product ? <input type="hidden" name="sku" value={product.sku} /> : null}
 
       <ProductEditTabs
+        hideMediaTab={hideMediaTab}
         panels={{
           basic: (
             <div className="form-grid">
@@ -133,20 +137,18 @@ export function ProductEditForm({
               showSeo
             />
           ),
-          media: (
+          media: hideMediaTab ? undefined : (
             <div className="form-grid">
               <label className="full-width">
                 <ProductImageField imageUrl={imageUrl} />
               </label>
               {isEdit && product ? (
                 <div className="full-width">
-                  <p className="muted" style={{ marginBottom: '0.5rem' }}>
-                    详情轮播、场景视频、长文案与精选评价请在 CMS 维护：
-                  </p>
+                  <p className="muted">编辑页请在上方「媒体资源」面板管理图片与视频。</p>
                   <ProductCmsLinks sku={product.sku} pageStatus={pageStatus} />
                 </div>
               ) : (
-                <p className="full-width muted">保存商品后可配置 CMS 详情页与精选评价。</p>
+                <p className="full-width muted">保存商品后可在编辑页上传轮播图、视频与详情内容。</p>
               )}
             </div>
           ),

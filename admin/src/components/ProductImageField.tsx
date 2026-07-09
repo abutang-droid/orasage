@@ -2,19 +2,21 @@ type ProductImageFieldProps = {
   imageUrl?: string | null;
 };
 
-/** 商品编辑表单内嵌主图上传 */
+/** 商品编辑表单内嵌主图上传（新增商品用） */
 export function ProductImageField({ imageUrl }: ProductImageFieldProps) {
   return (
-    <label className="product-image-field">
-      <span className="product-image-field-label">主图</span>
-      {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="product-thumb product-thumb--form" width={72} height={72} />
-      ) : (
-        <span className="muted product-image-missing">尚未上传</span>
-      )}
+    <div className="product-image-field product-image-field--card">
+      <span className="product-image-field-label">列表主图（可选）</span>
+      <div className="product-catalog-image-preview product-catalog-image-preview--compact">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt="" className="product-catalog-image-img" />
+        ) : (
+          <div className="product-catalog-image-empty">保存后可上传更多图片</div>
+        )}
+      </div>
       <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif" />
-      <span className="muted product-image-hint">JPG/PNG/WebP，建议 1:1 或 4:5。留空则保持现有主图。</span>
-    </label>
+      <span className="muted product-image-hint">JPG/PNG/WebP，建议 1:1 或 4:5。也可保存后在编辑页「媒体资源」上传。</span>
+    </div>
   );
 }

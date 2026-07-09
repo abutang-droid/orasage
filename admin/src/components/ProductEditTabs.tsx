@@ -4,26 +4,28 @@ import { useState, type ReactNode } from 'react';
 
 export type ProductEditTab = 'basic' | 'attributes' | 'tags' | 'i18n' | 'media' | 'attachments';
 
-const TABS: Array<{ id: ProductEditTab; label: string }> = [
+const ALL_TABS: Array<{ id: ProductEditTab; label: string }> = [
   { id: 'basic', label: '基础信息' },
   { id: 'attributes', label: '属性规格' },
   { id: 'tags', label: '标签' },
   { id: 'i18n', label: '多语言' },
-  { id: 'media', label: '媒体与 CMS' },
+  { id: 'media', label: '主图' },
   { id: 'attachments', label: '附件' },
 ];
 
 type ProductEditTabsProps = {
-  panels: Record<ProductEditTab, ReactNode>;
+  panels: Partial<Record<ProductEditTab, ReactNode>>;
+  hideMediaTab?: boolean;
 };
 
-export function ProductEditTabs({ panels }: ProductEditTabsProps) {
-  const [active, setActive] = useState<ProductEditTab>('basic');
+export function ProductEditTabs({ panels, hideMediaTab = false }: ProductEditTabsProps) {
+  const tabs = hideMediaTab ? ALL_TABS.filter((t) => t.id !== 'media') : ALL_TABS;
+  const [active, setActive] = useState<ProductEditTab>(tabs[0]?.id ?? 'basic');
 
   return (
     <div className="product-edit-tabs">
       <div className="product-edit-tablist" role="tablist" aria-label="商品编辑分区">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -36,7 +38,7 @@ export function ProductEditTabs({ panels }: ProductEditTabsProps) {
           </button>
         ))}
       </div>
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <div
           key={tab.id}
           role="tabpanel"

@@ -14,7 +14,9 @@ import {
   deleteTestimonialAction,
 } from '@/app/content-actions';
 import { PdpSectionsEditor, type EditorSection } from '@/components/PdpSectionsEditor';
+import { ProductHeroGalleryEditor } from '@/components/ProductHeroGalleryEditor';
 import { AdminSubmitButton } from '@/components/AdminButton';
+import { resolveCmsMediaUrl } from '@/lib/cms-media-utils';
 
 const LOCALES = [
   { code: 'zh-CN', label: '简体' },
@@ -23,20 +25,7 @@ const LOCALES = [
   { code: 'pt-BR', label: 'Português' },
 ] as const;
 
-const CMS_PUBLIC_URL =
-  process.env.CMS_PUBLIC_URL ||
-  process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
-
 const HERO_ROWS = 6;
-
-function mediaUrl(image: number | { id: number; url?: string | null } | null | undefined): string | null {
-  if (!image || typeof image === 'number') return null;
-  const url = image.url;
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-  return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-}
 
 function docSections(doc: CmsProductPageDoc | null): EditorSection[] {
   return (doc?.sections ?? []).map((s) => ({
@@ -87,7 +76,12 @@ export default async function ProductContentPage({ params, searchParams }: PageP
     console.error('[admin/products/content cms]', err);
   }
 
-  const heroRows = (doc?.heroImages ?? []).slice(0, HERO_ROWS);
+  const heroRows = (doc?.heroImages ?? []).slice(0, HERO_ROWS).map((row) => ({
+    mediaId: typeof row.image === 'number' ? row.image : row.image?.id,
+    url: resolveCmsMediaUrl(row.image),
+    alt: row.alt ?? '',
+    sort: row.sort ?? 0,
+  }));
 
   return (
     <div className="admin-page">
@@ -166,50 +160,7 @@ export default async function ProductContentPage({ params, searchParams }: PageP
           </div>
 
           <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>
-          <div className="hero-image-grid">
-            {heroRows.map((row, i) => {
-              const url = mediaUrl(row.image);
-              const mediaId = typeof row.image === 'number' ? row.image : row.image?.id;
-              return (
-                <div key={i} className="hero-image-card">
-                  <input type="hidden" name={`hero_existing_id_${i}`} value={mediaId ?? ''} />
-                  {url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={url} alt={row.alt ?? ''} className="hero-image-thumb" />
-                  ) : (
-                    <div className="hero-image-thumb hero-image-thumb--empty">无预览</div>
-                  )}
-                  <label>
-                    替代文字
-                    <input name={`hero_alt_${i}`} defaultValue={row.alt ?? ''} />
-                  </label>
-                  <label>
-                    排序
-                    <input name={`hero_sort_${i}`} type="number" defaultValue={row.sort ?? i} />
-                  </label>
-                  <label className="checkbox-label">
-                    <input type="checkbox" name={`hero_remove_${i}`} /> 删除
-                  </label>
-                </div>
-              );
-            })}
-            {Array.from({ length: Math.min(3, HERO_ROWS - heroRows.length) }, (_, j) => (
-              <div key={`new-${j}`} className="hero-image-card hero-image-card--new">
-                <label>
-                  新增图片 {j + 1}
-                  <input type="file" name={`hero_new_${j}`} accept="image/jpeg,image/png,image/webp" />
-                </label>
-                <label>
-                  替代文字
-                  <input name={`hero_new_alt_${j}`} />
-                </label>
-                <label>
-                  排序
-                  <input name={`hero_new_sort_${j}`} type="number" defaultValue={heroRows.length + j} />
-                </label>
-              </div>
-            ))}
-          </div>
+          <ProductHeroGalleryEditor rows={heroRows} />
 
           <h3 className="product-content-subhead">详情区块（按顺序渲染在购买区下方）</h3>
           <PdpSectionsEditor initial={docSections(doc)} />

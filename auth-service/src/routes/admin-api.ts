@@ -2,7 +2,7 @@ import { Router } from "express";
 import { count, desc, eq, gt } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { contactMessages, products, userOrders, userReadings, users } from "../db/schema.ts";
+import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
 import { requireAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
@@ -501,6 +501,28 @@ adminApiRouter.patch("/products/:sku", async (req, res) => {
       return;
     }
     console.error("[admin] update product:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.delete("/products/:sku", async (req, res) => {
+  try {
+    const sku = String(req.params.sku);
+    const [existing] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "商品不存在" });
+      return;
+    }
+
+    await db
+      .update(products)
+      .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
+      .where(eq(products.sku, sku));
+    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+
+    res.json({ success: true, sku, active: false });
+  } catch (err) {
+    console.error("[admin] delete product:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

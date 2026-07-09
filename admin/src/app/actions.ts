@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, saveHomepageProducts, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage } from '@/lib/api';
 import { parseProductFormPayload } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { getAdminToken } from '@/lib/auth';
@@ -60,6 +60,26 @@ export async function saveProductAction(formData: FormData) {
     redirect(`${editPath}?image_err=${encodeURIComponent(imageError)}`);
   }
   redirect(editPath);
+}
+
+export async function deleteProductAction(formData: FormData) {
+  const sku = String(formData.get('sku') ?? '').trim();
+  if (!sku) {
+    redirect('/products?save_err=' + encodeURIComponent('缺少 SKU'));
+  }
+  if (formData.get('confirm') !== 'on') {
+    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent('请勾选确认后再下架')}`);
+  }
+
+  try {
+    await deleteProduct(sku);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '下架失败';
+    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent(message)}`);
+  }
+
+  revalidatePath('/products');
+  redirect('/products?deleted=' + encodeURIComponent(sku));
 }
 
 export async function saveDiyBeadAction(formData: FormData) {
