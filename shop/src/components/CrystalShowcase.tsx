@@ -245,30 +245,32 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           </p>
 
           <div className="crystal-feature-actions">
-            <Button asChild variant="outline" className="crystal-action-diy min-w-0 flex-1">
+            <div className="crystal-feature-actions-primary">
+              <Button
+                type="button"
+                onClick={() => void handleBuy()}
+                disabled={loading}
+                loading={loading}
+                className="min-w-0 flex-1"
+              >
+                {loading ? tp('buying') : tp('buyNow')}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleAddToCart}
+                aria-label={added ? tp('added') : tp('addToCart')}
+                className="h-control-md w-11 min-w-11 shrink-0 p-0"
+              >
+                {added ? (
+                  <Check size={18} strokeWidth={2} aria-hidden />
+                ) : (
+                  <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
+                )}
+              </Button>
+            </div>
+            <Button asChild variant="outline" size="lg" className="crystal-action-diy w-full">
               <Link href={diyBaseHref}>✦ {tp('customBracelet')}</Link>
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleAddToCart}
-              aria-label={added ? tp('added') : tp('addToCart')}
-              className="h-control-md w-11 min-w-11 shrink-0 p-0"
-            >
-              {added ? (
-                <Check size={18} strokeWidth={2} aria-hidden />
-              ) : (
-                <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
-              )}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => void handleBuy()}
-              disabled={loading}
-              loading={loading}
-              className="min-w-0 flex-1"
-            >
-              {loading ? tp('buying') : tp('buyNow')}
             </Button>
           </div>
           {error ? <p className="crystal-error">{error}</p> : null}
