@@ -84,14 +84,16 @@
 
 .orasage-app-lang {
   position: relative;
+  flex-shrink: 0;
 }
 
 /* 双类选择器：稳定压过 @orasage/ui Button 的单类工具类（与样式表加载顺序无关） */
 .orasage-app-lang .orasage-app-lang-btn {
-  /* 固定 36px 胶囊：压掉 Button 默认控件高度，主站/子应用一致 */
+  /* 固定高度胶囊；宽度随最长文案（Português）自适应，避免与下拉符号挤占换行 */
   height: 36px;
   min-height: 36px;
-  padding: 0 10px;
+  min-width: max-content;
+  padding: 0 12px;
   border: 1px solid var(--shell-border);
   border-radius: 8px;
   background: transparent;
@@ -101,7 +103,11 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.orasage-app-lang .orasage-app-lang-btn span {
   white-space: nowrap;
 }
 
@@ -283,7 +289,8 @@
 .orasage-site-mobile-bar-actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {
