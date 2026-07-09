@@ -39,9 +39,16 @@
 
 ## 2. 当前 `main` 与生产状态
 
-**Git：** `main` @ **`200c3e6`**（PR #234，2026-07-09）
+**Git：** `main` @ **`c741bef`**（PR #239 商城后台 Phase A，2026-07-09）
 
-**2026-07-09 增量（PR #233 / #234 / #235，均已合并 + `remote-deploy-all.sh` 全量部署 + 生产实测）：**
+**2026-07-09 下午增量（PR #236 / #237 / #238 / #239，均已合并 + 全量部署 + 生产实测）：**
+- **PR #236 商品结构化属性**：`products` 增 material/color/weight/尺寸/packaging/attachments（迁移 0024）；admin Tab 编辑器 + `/products/[sku]/edit`；`shared/product-units` 公制存储按 locale 换算；PDP 无 CMS specList 时自动注入规格面板。部署时发现部署脚本迁移清单缺 0023/0024 致 auth 502，已手动补迁移 + hotfix `1d49dfe` 更新清单。
+- **PR #237**：修复 ProductEditTabs render-prop 跨 Server/Client 边界报错（digest 3039512283），改传 `panels` ReactNode。
+- **PR #238**：商城后台重构方案 v2 文档（8 条运营要求 + 6 评审点，全部获用户确认：R2 批准 Cloudflare R2、详情编辑直接做 admin 原生表单、分类可配置、计费旧表不留兼容直接切、DIY 多语言、权限先行）。
+- **PR #239 商城 Phase A（基座）**：`app_billing_slots` 统一取代三张旧计费表（数据搬迁后 DROP，旧 API `/api/products/recommend/*`、`/api/tarot/billing/*` 删除）；新 API `GET /api/billing/slot|slots`；bazi/tarot/ziwei 调用点全部反向改造。`products` 增 kind/visibility/stock/lowStockAt/slug/SEO i18n（迁移 0025）；计费 SKU 置 `app_only`，商城目录不再展示（单 SKU fetch 保留供结账深链）。新表 product_categories（可配置分类+i18n）/product_tag_groups/product_tags/product_tag_links/product_links。admin 侧栏拆「商城」「应用计费」分组；`/billing` 槽位管理、`/shop/tags`、`/shop/categories` 新页面；商品列表筛选器。注意：生产 tarot_billing_config/tarot_daily_recommend_products 两表 owner 为 postgres 致迁移内 DROP 未生效，部署后已手动 DROP。
+- 生产验证（Phase A）：billing slot/slots 解析、目录隐藏 app_only（8 公开 SKU 无泄漏）、app_only 单品可取、ziwei 轮换推荐、tag 筛选、shop PDP/checkout 深链 200、admin /billing 307 登录跳转，全部通过。
+
+**2026-07-09 上午增量（PR #233 / #234 / #235）：**
 - **PR #233 全站统一多语言体系**：`packages/i18n` 升级为唯一 i18n 基座（新增消息运行时 + `@orasage/i18n/react` 的 `I18nProvider`/`useI18n`/`useT`，cookie 契约上收）；bazi/ziwei/tarot 三套自研 Provider 删除改为薄适配层（字典内容留在各应用）；main 12 语清单、auth 重复 locale 逻辑收敛到共享包。修复：tarot 启动不读共享 cookie（恒中文）、bazi 切语言整页刷新、auth 登录/注册页 `?lang`/cookie 被硬编码 zh-CN 兜底 redirect 压住。admin/cms 新增 `@orasage/i18n` 依赖（app-shell 副本需要），后台维持中文豁免。
 - **PR #234 切换器 + 商城按钮**：`.orasage-app-lang-menu` 加 `z-index: 80` + 不透明底色 `--shell-menu-bg`（原来无 z-index 被内容盖住、半透明透字）；切换按钮/菜单项用双类选择器锁定 36px 全站一致（原来 @orasage/ui Button 默认高度导致 44px「变形」）。shop 商品卡改单行「购买 + 购物车图标按钮」；PDP 窄屏定制按钮独占一行；PDP 按钮文案接入 next-intl 四语。
 - **PR #235 订单提醒**：auth-service `order-notify.ts` — 新订单/支付成功 fire-and-forget 推 Telegram + Resend 邮件（env 开关，未配置通道静默跳过）；挂点 `POST/PATCH /internal/orders`。admin 侧栏「订单」红色角标（`GET /api/admin/orders/new-count` + 60s 轮询，进订单页已读清零）。上线需在 VPS `auth-service/.env` 配 `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`/`RESEND_API_KEY`/`ORDER_NOTIFY_EMAIL_TO` 后重启 auth。

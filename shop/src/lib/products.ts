@@ -140,6 +140,21 @@ export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product
   const list = await fetchProducts(locale);
   const found = list.find((p) => p.sku === sku);
   if (found) return found;
+
+  // 目录只含 visibility=public；app_only/unlisted 商品（App 计费深链）单独取
+  const { ENV } = await import('./env');
+  try {
+    const res = await fetch(
+      `${ENV.authInternalUrl}/api/products/${encodeURIComponent(sku)}?locale=${encodeURIComponent(locale)}`,
+      { next: { revalidate: 60 } } as RequestInit,
+    );
+    if (res.ok) {
+      const data = await res.json() as { product?: ApiProduct };
+      if (data.product) return mapApiProduct(data.product);
+    }
+  } catch (err) {
+    console.warn('[shop] getProduct single fetch fallback:', err);
+  }
   return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
 }
 

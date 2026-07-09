@@ -13,7 +13,6 @@ import {
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const appSourceEnum = pgEnum("app_source", ["bazi", "ziwei", "tarot", "shop"]);
-export const productCategoryEnum = pgEnum("product_category", ["crystal", "report", "service"]);
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
   "paid",
@@ -167,11 +166,86 @@ export const products = pgTable("products", {
   descriptionI18n: jsonb("description_i18n").$type<Record<string, string>>(),
   priceCents: integer("price_cents").notNull(),
   priceCentsUsd: integer("price_cents_usd"),
-  category: productCategoryEnum("category").notNull(),
+  /** 前台展示分组；关联 product_categories.code（历史枚举值 crystal/report/service 起步） */
+  category: varchar("category", { length: 50 }).notNull(),
+  /** 业务形态：standard 实体 / digital 数字 / service 服务 / diy 定制 */
+  kind: varchar("kind", { length: 20 }).notNull().default("standard"),
+  /** public 前台可见 / unlisted 仅直链 / app_only 仅供应用计费调用 */
+  visibility: varchar("visibility", { length: 20 }).notNull().default("public"),
+  /** NULL=不限库存 */
+  stock: integer("stock"),
+  lowStockAt: integer("low_stock_at"),
+  slug: varchar("slug", { length: 200 }),
+  seoTitleI18n: jsonb("seo_title_i18n").$type<Record<string, string>>(),
+  seoDescI18n: jsonb("seo_desc_i18n").$type<Record<string, string>>(),
   requiresShipping: boolean("requires_shipping").notNull().default(false),
   active: boolean("active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 前台展示分类（Q3：可配置 + 多语言，替代原 product_category 枚举） */
+export const productCategories = pgTable("product_categories", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 标签分组（五行/功效/材质/场景…） */
+export const productTagGroups = pgTable("product_tag_groups", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const productTags = pgTable("product_tags", {
+  id: serial("id").primaryKey(),
+  groupId: integer("group_id").notNull(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const productTagLinks = pgTable("product_tag_links", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  tagId: integer("tag_id").notNull(),
+});
+
+/** 商品关联页面（R5：站内文章 / 站外媒体报道 / 用户测评） */
+export const productLinks = pgTable("product_links", {
+  id: serial("id").primaryKey(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  kind: varchar("kind", { length: 20 }).notNull().default("media"),
+  title: varchar("title", { length: 300 }).notNull(),
+  titleI18n: jsonb("title_i18n").$type<Record<string, string>>(),
+  url: varchar("url", { length: 2000 }).notNull(),
+  sourceName: varchar("source_name", { length: 200 }),
+  locale: varchar("locale", { length: 10 }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 应用计费槽位（R6：app + slotKey → SKU；统一取代三张旧配置表） */
+export const appBillingSlots = pgTable("app_billing_slots", {
+  id: serial("id").primaryKey(),
+  appSource: varchar("app_source", { length: 20 }).notNull(),
+  slotKey: varchar("slot_key", { length: 100 }).notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  priceOverrideCents: integer("price_override_cents"),
+  priceOverrideUsdCents: integer("price_override_usd_cents"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -180,43 +254,6 @@ export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
   sku: varchar("sku", { length: 100 }).notNull().unique(),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-/** 八字基础版报告内五行 → 推荐商品 SKU */
-export const baziElementRecommendations = pgTable("bazi_element_recommendations", {
-  element: varchar("element", { length: 10 }).primaryKey(),
-  sku: varchar("sku", { length: 100 }).notNull(),
-  /** 报告推荐价（分）；为空则使用商城目录价 */
-  priceCents: integer("price_cents"),
-  priceCentsUsd: integer("price_cents_usd"),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-/** 紫微对话页底部商品推荐（多 SKU 轮换，前台单卡片展示） */
-export const ziweiProductRecommendations = pgTable("ziwei_product_recommendations", {
-  id: serial("id").primaryKey(),
-  sku: varchar("sku", { length: 100 }).notNull(),
-  sortOrder: integer("sort_order").notNull().default(0),
-  active: boolean("active").notNull().default(true),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-/** 塔罗计费 SKU 配置（单行） */
-export const tarotBillingConfig = pgTable("tarot_billing_config", {
-  id: integer("id").primaryKey().default(1),
-  dailyOverageSku: varchar("daily_overage_sku", { length: 100 }).notNull().default("tarot-daily-draw"),
-  threeCardReportSku: varchar("three_card_report_sku", { length: 100 }).notNull().default("report-tarot"),
-  threeCardBundleSku: varchar("three_card_bundle_sku", { length: 100 }).notNull().default("report-tarot-bundle"),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-/** 塔罗每日运势报告后推荐商品（多 SKU 轮换） */
-export const tarotDailyRecommendProducts = pgTable("tarot_daily_recommend_products", {
-  id: serial("id").primaryKey(),
-  sku: varchar("sku", { length: 100 }).notNull(),
-  sortOrder: integer("sort_order").notNull().default(0),
-  active: boolean("active").notNull().default(true),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 /** 账户级紫微问答额度（加量包余额 + 年卡到期） */

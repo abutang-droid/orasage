@@ -6,23 +6,81 @@ import { ProductAttributeFields } from './ProductAttributeFields';
 import { ProductAttachmentsField } from './ProductAttachmentsField';
 import { ProductCmsLinks } from './ProductCmsLinks';
 import { ProductEditTabs } from './ProductEditTabs';
-import type { AdminProduct } from '@/lib/api';
+import type { AdminCategory, AdminProduct, AdminTag, AdminTagGroup } from '@/lib/api';
 
-const CATEGORIES = [
-  { value: 'crystal', label: '水晶手串' },
-  { value: 'report', label: '数字报告' },
-  { value: 'service', label: '能量咨询' },
+const KIND_OPTIONS = [
+  { value: 'standard', label: '实体商品' },
+  { value: 'digital', label: '数字商品（报告等）' },
+  { value: 'service', label: '服务' },
+  { value: 'diy', label: 'DIY 定制' },
 ] as const;
+
+const VISIBILITY_OPTIONS = [
+  { value: 'public', label: '公开（商城目录可见）' },
+  { value: 'unlisted', label: '仅直链（目录隐藏）' },
+  { value: 'app_only', label: '仅计费（App 调用，前台不展示）' },
+] as const;
+
+type TagData = { groups: AdminTagGroup[]; tags: AdminTag[] };
 
 type ProductEditFormProps = {
   product?: AdminProduct | null;
   imageUrl?: string | null;
   pageStatus?: 'published' | 'draft' | 'none';
   mode: 'create' | 'edit';
+  tagData: TagData;
+  categories: AdminCategory[];
 };
 
-export function ProductEditForm({ product, imageUrl, pageStatus = 'none', mode }: ProductEditFormProps) {
+function TagCheckboxes({ tagData, product }: { tagData: TagData; product?: AdminProduct | null }) {
+  const selected = new Set((product?.tags ?? []).map((t) => t.id));
+  if (tagData.tags.length === 0) {
+    return <p className="muted">尚无标签，请先在「商城 → 标签」中创建。</p>;
+  }
+  return (
+    <div className="product-tag-picker">
+      {tagData.groups.map((group) => {
+        const groupTags = tagData.tags.filter((t) => t.groupId === group.id && t.active);
+        if (groupTags.length === 0) return null;
+        return (
+          <fieldset key={group.id} className="product-tag-group">
+            <legend>{group.labelI18n['zh-CN'] ?? group.code}</legend>
+            <div className="product-tag-options">
+              {groupTags.map((tag) => (
+                <label key={tag.id} className="product-tag-option">
+                  <input
+                    type="checkbox"
+                    name="tagIds"
+                    value={tag.id}
+                    defaultChecked={selected.has(tag.id)}
+                  />
+                  {tag.labelI18n['zh-CN'] ?? tag.code}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ProductEditForm({
+  product,
+  imageUrl,
+  pageStatus = 'none',
+  mode,
+  tagData,
+  categories,
+}: ProductEditFormProps) {
   const isEdit = mode === 'edit';
+  const categoryOptions = categories.length > 0
+    ? categories
+    : [
+      { id: 0, code: 'crystal', labelI18n: { 'zh-CN': '水晶手串' }, sortOrder: 0, active: true },
+      { id: 1, code: 'report', labelI18n: { 'zh-CN': '数字报告' }, sortOrder: 1, active: true },
+      { id: 2, code: 'service', labelI18n: { 'zh-CN': '能量咨询' }, sortOrder: 2, active: true },
+    ];
 
   return (
     <form action={saveProductAction} className="product-edit-form" encType="multipart/form-data">
@@ -49,11 +107,27 @@ export function ProductEditForm({ product, imageUrl, pageStatus = 'none', mode }
               </label>
               <label>
                 分类
-                <select name="category" defaultValue={product?.category ?? 'crystal'}>
-                  {CATEGORIES.map((c) => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
+                <select name="category" defaultValue={product?.category ?? categoryOptions[0]?.code}>
+                  {categoryOptions.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.labelI18n['zh-CN'] ?? c.code}
                     </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                形态
+                <select name="kind" defaultValue={product?.kind ?? 'standard'}>
+                  {KIND_OPTIONS.map((k) => (
+                    <option key={k.value} value={k.value}>{k.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                可见性
+                <select name="visibility" defaultValue={product?.visibility ?? 'public'}>
+                  {VISIBILITY_OPTIONS.map((v) => (
+                    <option key={v.value} value={v.value}>{v.label}</option>
                   ))}
                 </select>
               </label>
@@ -84,6 +158,32 @@ export function ProductEditForm({ product, imageUrl, pageStatus = 'none', mode }
                 />
               </label>
               <label>
+                库存（留空=不限）
+                <input
+                  name="stock"
+                  type="number"
+                  min="0"
+                  step="1"
+                  defaultValue={product?.stock ?? ''}
+                  placeholder="∞"
+                />
+              </label>
+              <label>
+                低库存预警
+                <input
+                  name="lowStockAt"
+                  type="number"
+                  min="0"
+                  step="1"
+                  defaultValue={product?.lowStockAt ?? ''}
+                  placeholder="5"
+                />
+              </label>
+              <label>
+                Slug（SEO URL，可选）
+                <input name="slug" defaultValue={product?.slug ?? ''} placeholder="green-phantom-bracelet" />
+              </label>
+              <label>
                 排序
                 <input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? 0} />
               </label>
@@ -111,6 +211,7 @@ export function ProductEditForm({ product, imageUrl, pageStatus = 'none', mode }
             </div>
           ),
           attributes: <ProductAttributeFields product={product} />,
+          tags: <TagCheckboxes tagData={tagData} product={product} />,
           i18n: (
             <ProductI18nFields
               nameI18n={product?.nameI18n}
@@ -118,7 +219,10 @@ export function ProductEditForm({ product, imageUrl, pageStatus = 'none', mode }
               materialI18n={product?.materialI18n}
               colorI18n={product?.colorI18n}
               packagingI18n={product?.packagingI18n}
+              seoTitleI18n={product?.seoTitleI18n}
+              seoDescI18n={product?.seoDescI18n}
               showAttributes
+              showSeo
             />
           ),
           media: (

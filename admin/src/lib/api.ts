@@ -50,13 +50,21 @@ export interface AdminProduct {
   materialI18n?: Record<string, string> | null;
   colorI18n?: Record<string, string> | null;
   packagingI18n?: Record<string, string> | null;
+  seoTitleI18n?: Record<string, string> | null;
+  seoDescI18n?: Record<string, string> | null;
   priceCents: number;
   priceCentsUsd?: number | null;
   priceDisplay: string;
   priceDisplayCny?: string;
   priceDisplayUsd?: string;
-  category: 'crystal' | 'report' | 'service';
+  category: string;
   categoryLabel: string;
+  kind: 'standard' | 'digital' | 'service' | 'diy';
+  visibility: 'public' | 'unlisted' | 'app_only';
+  stock?: number | null;
+  lowStockAt?: number | null;
+  slug?: string | null;
+  tags: Array<{ id: number; code: string; label: string; groupCode: string }>;
   requiresShipping: boolean;
   active: boolean;
   sortOrder: number;
@@ -186,72 +194,141 @@ export function saveHomepageProducts(skus: string[]) {
   });
 }
 
-export interface BaziRecommendProductsConfig {
-  elements: string[];
-  skuMap: Record<string, string>;
-  priceOverrides: Record<string, { priceCents: number | null; priceCentsUsd: number | null }>;
-  recommendations: Record<string, AdminProduct | null>;
-}
+/* ── 应用计费槽位（R6）────────────────────────────── */
 
-export function getBaziRecommendProducts() {
-  return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products');
-}
-
-export function saveBaziRecommendProducts(items: Record<string, {
+export interface AdminBillingSlot {
+  id: number;
+  appSource: string;
+  slotKey: string;
   sku: string;
-  priceCents?: number | null;
-  priceCentsUsd?: number | null;
+  priceOverrideCents: number | null;
+  priceOverrideUsdCents: number | null;
+  sortOrder: number;
+  active: boolean;
+  updatedAt: string;
+}
+
+export function getBillingSlots() {
+  return adminFetch<{ slots: AdminBillingSlot[] }>('/billing-slots');
+}
+
+export function saveBillingSlotEntries(app: string, key: string, entries: Array<{
+  sku: string;
+  priceOverrideCents?: number | null;
+  priceOverrideUsdCents?: number | null;
+  active?: boolean;
 }>) {
-  return adminFetch<BaziRecommendProductsConfig>('/bazi-recommend-products', {
+  return adminFetch<{ app: string; key: string; rows: AdminBillingSlot[] }>('/billing-slots', {
     method: 'PUT',
-    body: JSON.stringify({ items }),
+    body: JSON.stringify({ app, key, entries }),
   });
 }
 
-export interface ZiweiRecommendProductsConfig {
-  skus: string[];
-  rows: Array<{ id: number; sku: string; sortOrder: number; active: boolean }>;
+export function deleteBillingSlot(app: string, key: string) {
+  return adminFetch<{ success: boolean }>(
+    `/billing-slots?app=${encodeURIComponent(app)}&key=${encodeURIComponent(key)}`,
+    { method: 'DELETE' },
+  );
 }
 
-export function getZiweiRecommendProducts() {
-  return adminFetch<ZiweiRecommendProductsConfig>('/ziwei-recommend-products');
+/* ── 分类与标签（Q3 / R2）───────────────────────────── */
+
+export interface AdminCategory {
+  id: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  sortOrder: number;
+  active: boolean;
 }
 
-export function saveZiweiRecommendProducts(skus: string[]) {
-  return adminFetch<ZiweiRecommendProductsConfig>('/ziwei-recommend-products', {
-    method: 'PUT',
-    body: JSON.stringify({ skus }),
-  });
+export function getCategories() {
+  return adminFetch<{ categories: AdminCategory[] }>('/categories');
 }
 
-export interface TarotBillingConfig {
-  dailyOverageSku: string;
-  threeCardReportSku: string;
-  threeCardBundleSku: string;
-  recommendSkus: string[];
-  recommendRows: Array<{ id: number; sku: string; sortOrder: number; active: boolean }>;
-}
-
-export function getTarotBillingConfig() {
-  return adminFetch<TarotBillingConfig>('/tarot-billing-config');
-}
-
-export function saveTarotBillingSkus(input: {
-  dailyOverageSku: string;
-  threeCardReportSku: string;
-  threeCardBundleSku: string;
+export function saveCategory(body: {
+  code: string;
+  labelI18n: Record<string, string>;
+  sortOrder?: number;
+  active?: boolean;
 }) {
-  return adminFetch<{ skus: Pick<TarotBillingConfig, 'dailyOverageSku' | 'threeCardReportSku' | 'threeCardBundleSku'> }>(
-    '/tarot-billing-config',
-    { method: 'PUT', body: JSON.stringify(input) },
-  );
+  return adminFetch<{ category: AdminCategory }>('/categories', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
 }
 
-export function saveTarotDailyRecommendProducts(skus: string[]) {
-  return adminFetch<{ skus: string[]; rows: TarotBillingConfig['recommendRows'] }>(
-    '/tarot-daily-recommend-products',
-    { method: 'PUT', body: JSON.stringify({ skus }) },
-  );
+export interface AdminTagGroup {
+  id: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  sortOrder: number;
+}
+
+export interface AdminTag {
+  id: number;
+  groupId: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  sortOrder: number;
+  active: boolean;
+}
+
+export function getTags() {
+  return adminFetch<{ groups: AdminTagGroup[]; tags: AdminTag[] }>('/tags');
+}
+
+export function saveTagGroup(body: { code: string; labelI18n: Record<string, string>; sortOrder?: number }) {
+  return adminFetch<{ group: AdminTagGroup }>('/tag-groups', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+export function saveTag(body: {
+  groupId: number;
+  code: string;
+  labelI18n: Record<string, string>;
+  sortOrder?: number;
+  active?: boolean;
+}) {
+  return adminFetch<{ tag: AdminTag }>('/tags', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+/* ── 商品关联页面（R5）──────────────────────────────── */
+
+export interface AdminProductLink {
+  id: number;
+  sku: string;
+  kind: 'internal' | 'media' | 'review' | 'article';
+  title: string;
+  titleI18n?: Record<string, string> | null;
+  url: string;
+  sourceName?: string | null;
+  locale?: string | null;
+  sortOrder: number;
+  active: boolean;
+}
+
+export function getProductLinks(sku: string) {
+  return adminFetch<{ links: AdminProductLink[] }>(`/products/${encodeURIComponent(sku)}/links`);
+}
+
+export function saveProductLinks(sku: string, links: Array<{
+  kind: string;
+  title: string;
+  titleI18n?: Record<string, string> | null;
+  url: string;
+  sourceName?: string | null;
+  locale?: string | null;
+  active?: boolean;
+}>) {
+  return adminFetch<{ links: AdminProductLink[] }>(`/products/${encodeURIComponent(sku)}/links`, {
+    method: 'PUT',
+    body: JSON.stringify({ links }),
+  });
 }
 
 /* ── 共振定制（DIY）珠子与配置 ─────────────────────── */
