@@ -12,6 +12,7 @@ import {
   removeCouponFromOrder,
 } from "../lib/order-coupon.ts";
 import { notifyOrderEvent } from "../lib/order-notify.ts";
+import { notifyNewTicket } from "../lib/ticket-notify.ts";
 
 export const accountRouter = Router();
 
@@ -753,6 +754,80 @@ internalRouter.post("/orders", async (req, res) => {
   }
 });
 
+const CONTACT_STATUS_LABELS: Record<string, string> = {
+  new: "待处理",
+  processing: "处理中",
+  resolved: "已解决",
+};
+
+const CONTACT_CATEGORY_LABELS: Record<string, string> = {
+  general: "一般咨询",
+  complaint: "投诉",
+  refund: "退款",
+  bug: "问题反馈",
+};
+
+/** 登录用户查看自己的工单与运营回复 */
+accountRouter.get("/tickets", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const rows = await db
+    .select()
+    .from(contactMessages)
+    .where(eq(contactMessages.userId, user.id))
+    .orderBy(desc(contactMessages.createdAt))
+    .limit(100);
+  res.json({
+    tickets: rows.map((m) => ({
+      id: m.id,
+      subject: m.subject,
+      body: m.body,
+      category: m.category,
+      categoryLabel: CONTACT_CATEGORY_LABELS[m.category] ?? m.category,
+      orderNo: m.orderNo,
+      status: m.status,
+      statusLabel: CONTACT_STATUS_LABELS[m.status] ?? m.status,
+      adminReply: m.adminReply,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+    })),
+  });
+});
+
+accountRouter.get("/tickets/:id", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: "参数错误" });
+    return;
+  }
+  const [row] = await db
+    .select()
+    .from(contactMessages)
+    .where(and(eq(contactMessages.id, id), eq(contactMessages.userId, user.id)))
+    .limit(1);
+  if (!row) {
+    res.status(404).json({ error: "工单不存在" });
+    return;
+  }
+  res.json({
+    ticket: {
+      id: row.id,
+      subject: row.subject,
+      body: row.body,
+      category: row.category,
+      categoryLabel: CONTACT_CATEGORY_LABELS[row.category] ?? row.category,
+      orderNo: row.orderNo,
+      status: row.status,
+      statusLabel: CONTACT_STATUS_LABELS[row.status] ?? row.status,
+      adminReply: row.adminReply,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    },
+  });
+});
+
 const contactMessageSchema = z.object({
   userId: z.number().int().positive().nullable().optional(),
   name: z.string().trim().min(1).max(100),
@@ -760,6 +835,8 @@ const contactMessageSchema = z.object({
   subject: z.string().trim().max(200).optional(),
   body: z.string().trim().min(1).max(5000),
   locale: z.string().trim().max(10).optional(),
+  category: z.enum(["general", "complaint", "refund", "bug"]).optional(),
+  orderNo: z.string().trim().max(64).optional(),
 });
 
 /** main 门户「联系我们」表单 → 留言工单（admin 后台处理） */
@@ -773,7 +850,10 @@ internalRouter.post("/contact-messages", async (req, res) => {
       subject: body.subject || null,
       body: body.body,
       locale: body.locale || null,
+      category: body.category ?? "general",
+      orderNo: body.orderNo || null,
     }).returning();
+    notifyNewTicket(row);
     res.status(201).json({ success: true, id: row.id });
   } catch (err) {
     if (err instanceof z.ZodError) {

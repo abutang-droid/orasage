@@ -9,6 +9,7 @@ import { extractToken, signToken, verifyToken, getCookieOptions } from "../lib/j
 import { getAuthUser, publicUser } from "../lib/auth-user.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
+import { liveChatRouter } from "./live-chat.ts";
 
 export const authRouter = Router();
 
@@ -252,4 +253,5 @@ authRouter.put("/profile", async (req: Request, res: Response) => {
   }
 });
 
+authRouter.use("/me/chat", liveChatRouter);
 authRouter.use("/me", accountRouter);

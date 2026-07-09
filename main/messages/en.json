@@ -389,8 +389,29 @@
       "submitting": "Sending…",
       "submitError": "Failed to send. Please try again later.",
       "successTitle": "Message received",
-      "successDesc": "We will reply to your email as soon as possible.",
-      "sendAnother": "Write another"
+      "successDesc": "We will reply by email soon. Signed-in users can track replies under My tickets.",
+      "viewTickets": "View my tickets",
+      "sendAnother": "Write another",
+      "categoryLabel": "Type",
+      "category": {
+        "general": "General inquiry",
+        "complaint": "Complaint",
+        "refund": "Refund request",
+        "bug": "Issue report"
+      },
+      "orderNoLabel": "Order number (optional)",
+      "orderNoPlaceholder": "If this is about an order, enter the order number"
+    },
+    "tickets": {
+      "nav": "My tickets",
+      "title": "My tickets",
+      "desc": "Messages you sent and replies from our team.",
+      "loadError": "Failed to load. Please try again later.",
+      "empty": "No tickets yet.",
+      "contactLink": "Contact us",
+      "noSubject": "Ticket #{id}",
+      "replyTitle": "Team reply",
+      "pendingReply": "We received your message and will reply soon."
     }
   }
 }

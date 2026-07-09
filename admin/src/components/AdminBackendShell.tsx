@@ -13,6 +13,8 @@ import {
 } from '@/lib/admin-backend/nav';
 import type { StaffRole } from '@/lib/auth';
 import { OrdersNavBadge } from '@/components/OrdersNavBadge';
+import { MessagesNavBadge } from '@/components/MessagesNavBadge';
+import { ImNavBadge } from '@/components/ImNavBadge';
 
 const MAIN_BASE = 'https://orasage.com/zh-CN';
 
@@ -69,6 +71,8 @@ function NavSection({
           >
             {item.label}
             {item.href === '/shop/orders' ? <OrdersNavBadge /> : null}
+            {item.href === '/messages' ? <MessagesNavBadge /> : null}
+            {item.href === '/im' ? <ImNavBadge /> : null}
           </a>
         );
       })}
@@ -87,6 +91,8 @@ function MobileNav({ pathname, staffRole }: { pathname: string; staffRole?: Staf
           <a key={item.href} href={item.href} className={active ? 'is-active' : undefined}>
             {item.label}
             {item.href === '/shop/orders' ? <OrdersNavBadge /> : null}
+            {item.href === '/messages' ? <MessagesNavBadge /> : null}
+            {item.href === '/im' ? <ImNavBadge /> : null}
           </a>
         );
       })}

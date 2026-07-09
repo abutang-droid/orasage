@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { PortalChrome } from '@/components/PortalChrome';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ORASAGE_URLS, orasageOpenGraph, orasageTwitter } from '@/lib/orasage-seo';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
@@ -70,6 +71,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
         <NextIntlClientProvider messages={messages}>
           <AnalyticsPageView locale={locale} />
+          <LiveChatWidget />
           <Header />
           <PortalChrome locale={locale}>{children}</PortalChrome>
           <ConditionalFooter />

@@ -214,8 +214,9 @@ export async function updateContactMessageAction(formData: FormData) {
   const id = Number(formData.get('id') ?? 0);
   const status = String(formData.get('status') ?? '').trim();
   const adminNote = String(formData.get('adminNote') ?? '').trim();
+  const adminReply = String(formData.get('adminReply') ?? '').trim();
   if (!Number.isInteger(id) || id <= 0 || !status) throw new Error('参数不完整');
-  await updateContactMessage(id, { status, adminNote });
+  await updateContactMessage(id, { status, adminNote, adminReply });
   revalidatePath('/messages');
 }
 

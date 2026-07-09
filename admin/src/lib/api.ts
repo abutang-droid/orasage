@@ -182,20 +182,49 @@ export interface AdminContactMessage {
   subject: string | null;
   body: string;
   locale: string | null;
+  category: 'general' | 'complaint' | 'refund' | 'bug';
+  categoryLabel: string;
+  orderNo: string | null;
   status: 'new' | 'processing' | 'resolved';
   statusLabel: string;
   adminNote: string | null;
+  adminReply: string | null;
   handledBy: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export function getContactMessages(status?: string) {
-  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+export function getContactMessages(status?: string, category?: string) {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (category) params.set('category', category);
+  const query = params.toString() ? `?${params.toString()}` : '';
   return adminFetch<{ messages: AdminContactMessage[] }>(`/contact-messages${query}`);
 }
 
-export function updateContactMessage(id: number, body: { status?: string; adminNote?: string }) {
+export function getNewContactMessagesCount(since?: string) {
+  const query = since ? `?since=${encodeURIComponent(since)}` : '';
+  return adminFetch<{ count: number; since: string }>(`/contact-messages/new-count${query}`);
+}
+
+export function getNotificationStatus() {
+  return adminFetch<{
+    channels: {
+      telegram: { configured: boolean; chatCount: number };
+      email: { configured: boolean; recipientCount: number };
+    };
+    orderNotifyEvents: string[];
+  }>('/notifications/status');
+}
+
+export function sendNotificationTest() {
+  return adminFetch<{ success: boolean; message: string }>('/notifications/test', { method: 'POST' });
+}
+
+export function updateContactMessage(
+  id: number,
+  body: { status?: string; adminNote?: string; adminReply?: string },
+) {
   return adminFetch<{ success: boolean }>(`/contact-messages/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(body),
@@ -701,4 +730,55 @@ export function getStripeRefunds(limit = 50, offset = 0) {
 
 export function getStripePayouts(limit = 50, offset = 0) {
   return adminFetch<{ payouts: StripePayoutRow[] }>(`/stripe/payouts?limit=${limit}&offset=${offset}`);
+}
+
+/* ── 在线 IM（#8）──────────────────────────────────────── */
+
+export interface AdminChatConversation {
+  id: number;
+  userId: number;
+  status: string;
+  userEmail: string;
+  userLabel: string;
+  unreadOps: number;
+  lastBody: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface AdminChatMessage {
+  id: number;
+  conversationId: number;
+  direction: 'user' | 'ops';
+  body: string;
+  readByUser: boolean;
+  readByOps: boolean;
+  createdAt: string;
+}
+
+export function getChatUnreadCount() {
+  return adminFetch<{ count: number }>('/chat/unread-count');
+}
+
+export function getChatConversations(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  return adminFetch<{ conversations: AdminChatConversation[] }>(`/chat/conversations${query}`);
+}
+
+export function getChatMessages(conversationId: number) {
+  return adminFetch<{ messages: AdminChatMessage[] }>(`/chat/conversations/${conversationId}/messages`);
+}
+
+export function sendChatOpsMessage(conversationId: number, body: string) {
+  return adminFetch<{ message: AdminChatMessage }>(`/chat/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+export function closeChatConversation(conversationId: number) {
+  return adminFetch<{ success: boolean }>(`/chat/conversations/${conversationId}/close`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
 }

@@ -31,6 +31,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     href: '/messages',
     isActive: (p) => p.startsWith('/messages'),
   },
+  {
+    label: '在线客服',
+    href: '/im',
+    roles: ['admin', 'shop_ops'],
+    isActive: (p) => p.startsWith('/im'),
+  },
 ];
 
 /** 商城组（R1：独立商城） */
