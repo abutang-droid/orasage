@@ -1,13 +1,12 @@
-import type { Locale, TranslationDict } from "./index";
+import type { Locale } from "./index";
 
-const termFiles: Record<Locale, () => Promise<TranslationDict>> = {
+const termFiles: Partial<Record<Locale, () => Promise<import("./index").TranslationDict>>> = {
   "zh-CN": () => import("./zh-CN").then((m) => m.default),
-  "zh-TW": () => import("./zh-TW").then((m) => m.default),
   en: () => import("./en").then((m) => m.default),
   "pt-BR": () => import("./pt-BR").then((m) => m.default),
 };
 
-const termData: Record<string, Record<Locale, string>> = {
+const termData: Record<string, Record<string, string>> = {
   /* 五行 */
   金: { "zh-CN": "金", "zh-TW": "金", en: "Metal", "pt-BR": "Metal" },
   木: { "zh-CN": "木", "zh-TW": "木", en: "Wood", "pt-BR": "Madeira" },

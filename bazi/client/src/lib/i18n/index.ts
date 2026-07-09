@@ -14,7 +14,6 @@ export type Locale = CoreLocale;
 
 export const LOCALE_LABELS: Record<Locale, string> = {
   "zh-CN": SHARED_LABELS["zh-CN"],
-  "zh-TW": SHARED_LABELS["zh-TW"],
   en: SHARED_LABELS.en,
   "pt-BR": SHARED_LABELS["pt-BR"],
 };
@@ -23,7 +22,6 @@ export type TranslationDict = Record<string, string>;
 
 export const DICTIONARIES: Dictionaries = {
   "zh-CN": zhCN,
-  "zh-TW": () => import("./zh-TW").then((m) => m.default),
   en: () => import("./en").then((m) => m.default),
   "pt-BR": () => import("./pt-BR").then((m) => m.default),
 };
