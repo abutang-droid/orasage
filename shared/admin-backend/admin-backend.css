@@ -47,6 +47,24 @@
   background: var(--orasage-card, #f5f5f4);
 }
 
+/* 新订单角标（侧栏 / 移动快捷导航共用） */
+.admin-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 .admin-backend-nav-link.is-active {
   color: var(--orasage-primary, #171717);
   background: rgba(184, 148, 63, 0.12);
