@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { interpretReadingWithLlm } from '@/lib/llm/reading-interpret';
+import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   question: z.string().max(500).optional(),
@@ -26,11 +27,12 @@ const bodySchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = bodySchema.parse(await req.json());
+    const language = resolveAiLocaleFromRequest(req, body);
     const result = await interpretReadingWithLlm({
       question: body.question ?? '',
       spreadType: body.spreadType,
       cards: body.cards,
-      language: body.language ?? req.headers.get('accept-language')?.split(',')[0] ?? 'zh-CN',
+      language,
     });
     return NextResponse.json(result);
   } catch (err) {

@@ -93,6 +93,7 @@ export async function runReportJob(input: ReportJobInput) {
 
   const payload = JSON.parse(reading.payloadJson) as {
     type?: 'single' | 'couple';
+    lang?: string;
     chart?: unknown;
     chartA?: unknown;
     chartB?: unknown;
@@ -100,7 +101,8 @@ export async function runReportJob(input: ReportJobInput) {
   if (!payload.type) throw new Error('invalid reading payload');
 
   const planType = input.planType || 'advanced';
-  const report = await generateZiweiReportContent(payload.type, payload as never, planType);
+  const locale = (payload.lang ?? 'zh-CN') as import('../../shared/ai-locale/index').AiLocale;
+  const report = await generateZiweiReportContent(payload.type, payload as never, planType, locale);
   const reportUrl = writeReportHtml(planType, report);
 
   await patchReading(input.readingId, { reportUrl, title: `${reading.title} · 报告` });

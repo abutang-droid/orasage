@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@orasage/ui/button';
-import { useT } from '@/lib/i18n';
+import { useT, useLocale } from '@/lib/i18n';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
@@ -95,6 +95,7 @@ function persistChartUrl(form: BirthFormState, opts: { readingId: string; mode?:
 
 export default function ChartPage() {
   const t = useT();
+  const { locale } = useLocale();
   const [mode, setMode] = useState<'single' | 'heming'>('single');
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [chartB, setChartB] = useState<ZiweiChart | null>(null);
@@ -141,7 +142,7 @@ export default function ChartPage() {
       const syncForm = form ?? savedForm;
       if (syncForm) void syncBirthFormProfile(syncForm);
       const rid = existingReadingId ?? getLastReadingId() ?? undefined;
-      const id = syncZiweiReading(data, { existingReadingId: rid });
+      const id = syncZiweiReading(data, { existingReadingId: rid, lang: locale });
       bindReading(id, { resetChat: !existingReadingId });
       if (syncForm) {
         saveChartSession({ readingId: id, mode: 'single', form: syncForm });
@@ -173,7 +174,7 @@ export default function ChartPage() {
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
       const rid = existingReadingId ?? getLastReadingId() ?? undefined;
-      const id = syncZiweiReading(dataA, { couplePartner: dataB, existingReadingId: rid });
+      const id = syncZiweiReading(dataA, { couplePartner: dataB, existingReadingId: rid, lang: locale });
       bindReading(id, { resetChat: !existingReadingId });
       saveChartSession({ readingId: id, mode: 'heming', form: formA, formB });
       persistChartUrl(formA, { readingId: id, mode: 'heming' });

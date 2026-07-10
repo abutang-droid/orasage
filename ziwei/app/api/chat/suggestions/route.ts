@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
-import { SUGGESTIONS_SYSTEM, MINOR_SUGGESTIONS_SYSTEM } from '@/lib/ai-prompts';
+import { minorSuggestionsSystem, suggestionsSystem } from '@/lib/ai-prompts';
+import { resolveAiLocaleFromRequest } from '../../../../../shared/ai-locale/index';
 
 export const runtime = 'nodejs';
 
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { messages, minorMode } = body;
+    const locale = resolveAiLocaleFromRequest(req, body);
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: '缺少对话上下文' }, { status: 400 });
     }
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: minorMode ? MINOR_SUGGESTIONS_SYSTEM : SUGGESTIONS_SYSTEM,
+            content: minorMode ? minorSuggestionsSystem(locale) : suggestionsSystem(locale),
           },
           {
             role: 'user',

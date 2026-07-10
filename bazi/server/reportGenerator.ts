@@ -1,6 +1,7 @@
 import { invokeLLM } from './_core/llm.ts';
 import { buildSingleBaziPrompt, buildDoubleBaziPrompt, parseSections } from './prompts.ts';
 import { sanitizeReportBrandText } from '../shared/report-brand.ts';
+import { aiSystemLanguagePrefix } from '../../shared/ai-locale/index.ts';
 
 export async function generateBaziReportContent(
   type: 'single' | 'couple',
@@ -9,15 +10,9 @@ export async function generateBaziReportContent(
 ) {
   const prompt = type === 'single'
     ? buildSingleBaziPrompt(resultData, lang)
-    : buildDoubleBaziPrompt(resultData);
+    : buildDoubleBaziPrompt(resultData, lang);
 
-  const langMap: Record<string, string> = {
-    'zh-CN': '用中文（简体）撰写，',
-    'zh-TW': '用中文（繁体）撰写，',
-    en: 'Write in English, ',
-    'pt-BR': 'Escreva em Português (Brasil), ',
-  };
-  const langGuide = langMap[lang] ?? '用中文（简体）撰写，';
+  const langGuide = aiSystemLanguagePrefix(lang);
 
   const response = await invokeLLM({
     messages: [

@@ -2,9 +2,19 @@ import { Router } from "express";
 import { z } from "zod";
 import { listConfirmedCities, upsertConfirmedCity } from "../lib/city-db.ts";
 import { invokeLLM, isLlmConfigured } from "../lib/llm.ts";
+import {
+  aiLanguageReplyRule,
+  aiPromptLanguageLine,
+  readLocaleFromCookieHeader,
+  resolveAiLocale,
+  type AiLocale,
+} from "../../../shared/ai-locale/index.ts";
 
 const lookupSchema = z.object({
   query: z.string().min(1).max(200),
+  language: z.string().max(12).optional(),
+  locale: z.string().max(12).optional(),
+  lang: z.string().max(12).optional(),
 });
 
 const confirmSchema = z.object({
@@ -61,17 +71,30 @@ citiesRouter.post("/lookup", async (req, res) => {
     return;
   }
 
-  const { query } = parsed.data;
-  const prompt = `用户输入了一个全球地名"${query}"，请识别该地点并返回 JSON：
+  const { query, language, locale, lang } = parsed.data;
+  const aiLocale: AiLocale = resolveAiLocale({
+    language,
+    locale,
+    lang,
+    acceptLanguage: typeof req.headers["accept-language"] === "string"
+      ? req.headers["accept-language"]
+      : null,
+    cookieLocale: readLocaleFromCookieHeader(
+      typeof req.headers.cookie === "string" ? req.headers.cookie : null,
+    ),
+  });
+
+  const prompt = `${aiPromptLanguageLine(aiLocale)}
+用户输入了一个全球地名"${query}"，请识别该地点并返回 JSON：
 {
-  "city": "城市/地点中文名（优先）或常用英文名",
-  "country": "国家（如\\"中国\\"、\\"美国\\"、\\"日本\\"）",
+  "city": "城市/地点名称（使用与回复语言一致的地名写法；中文界面优先中文名，英文界面可用常用英文名）",
+  "country": "国家",
   "province": "省/州/都道府县等上级行政区",
   "lng": 经度数字（WGS84，西经为负）,
   "lat": 纬度数字（WGS84，南纬为负）,
   "timezone": "UTC偏移（如\\"+8\\"、\\"-5\\"）",
   "confidence": 0到1之间的置信度数字,
-  "suggestion": "若不确定，给用户的提示（如可输入上级行政单位）"
+  "suggestion": "若不确定，给用户的提示（使用与回复语言一致的文案）"
 }
 支持全球城市；中国县级市请尽量给出准确坐标。
 若完全无法识别，返回 {"found": false, "suggestion": "..."}。
@@ -79,7 +102,7 @@ citiesRouter.post("/lookup", async (req, res) => {
 
   try {
     const response = await invokeLLM([
-      { role: "system", content: "你是地理信息助手。只返回 JSON，不要解释。" },
+      { role: "system", content: `你是地理信息助手。只返回 JSON，不要解释。${aiLanguageReplyRule(aiLocale)}` },
       { role: "user", content: prompt },
     ]);
 

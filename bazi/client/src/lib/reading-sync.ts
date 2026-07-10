@@ -8,16 +8,19 @@ export function braceletToCrystalSku(rec: BraceletRecommendation | null): string
   return WUXING_CRYSTAL_SKU[rec.deficiencyWx];
 }
 
+import type { CoreLocale } from '@orasage/i18n';
+
 export function syncBaziSingleReading(
   name: string,
   data: SingleBaziResult,
   braceletRec?: BraceletRecommendation | null,
   existingReadingId?: string,
+  lang: CoreLocale = 'zh-CN',
 ) {
   const displayName = name.trim() || '访客';
   const crystalSku = braceletToCrystalSku(braceletRec ?? null);
   const readingId = existingReadingId ?? newReadingId('bazi');
-  const payloadJson = JSON.stringify({ type: 'single', lang: 'zh-CN', resultData: data });
+  const payloadJson = JSON.stringify({ type: 'single', lang, resultData: data });
   void syncReading({
     appSource: 'bazi',
     readingId,
@@ -52,9 +55,10 @@ export function syncBaziDoubleReading(
   nameB: string,
   data: DoubleBaziResult,
   existingReadingId?: string,
+  lang: CoreLocale = 'zh-CN',
 ) {
   const readingId = existingReadingId ?? newReadingId('bazi');
-  const payloadJson = JSON.stringify({ type: 'couple', lang: 'zh-CN', resultData: data });
+  const payloadJson = JSON.stringify({ type: 'couple', lang, resultData: data });
   void syncReading({
     appSource: 'bazi',
     readingId,

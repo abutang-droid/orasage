@@ -1,8 +1,16 @@
 import type { ZiweiChart } from '@/lib/ziwei/types';
+import {
+  aiLanguageReplyRule,
+  aiSystemLanguagePrefix,
+  type AiLocale,
+} from '../../shared/ai-locale/index';
 
-const SYSTEM = `你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识。
+function reportSystem(locale: AiLocale): string {
+  return `${aiSystemLanguagePrefix(locale)}你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识。
 你的报告风格：温暖、专业、有洞察力；用现代语言诠释传统命理；结合心理学视角；客观中立，不做绝对化预言。
-请用中文撰写，输出 Markdown 格式，包含 ## 章节标题与 **重点** 标注。`;
+请输出 Markdown 格式，包含 ## 章节标题与 **重点** 标注。
+${aiLanguageReplyRule(locale)}`;
+}
 
 function chartBrief(chart: ZiweiChart): string {
   const ming = chart.palaces.find((p) => p.name === '命宫');
@@ -11,7 +19,7 @@ function chartBrief(chart: ZiweiChart): string {
   return `${name} · ${chart.wuxingJuName} · 命宫 ${stars}`;
 }
 
-function buildSinglePrompt(chart: ZiweiChart, planType: string): string {
+function buildSinglePrompt(chart: ZiweiChart, planType: string, locale: AiLocale): string {
   const depth = planType === 'basic'
     ? '撰写一份精炼的深度解读（约 800 字）'
     : planType === 'premium'
@@ -28,10 +36,12 @@ ${JSON.stringify(chart, null, 2)}
 ## 事业财运
 ## 感情人际
 ## 健康能量
-## OraSage 建议`;
+## OraSage 建议
+
+${aiLanguageReplyRule(locale)}`;
 }
 
-function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: string): string {
+function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: string, locale: AiLocale): string {
   const depth = planType === 'basic'
     ? '撰写一份精炼合盘解读（约 900 字）'
     : planType === 'premium'
@@ -55,10 +65,12 @@ function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: str
 ## 事业合作
 ## 相处建议
 ## 关键流年
-## OraSage 建议`;
+## OraSage 建议
+
+${aiLanguageReplyRule(locale)}`;
 }
 
-async function callLlm(userPrompt: string): Promise<string> {
+async function callLlm(userPrompt: string, locale: AiLocale): Promise<string> {
   const apiKey =
     process.env.MANUS_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
@@ -81,7 +93,7 @@ async function callLlm(userPrompt: string): Promise<string> {
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: SYSTEM },
+        { role: 'system', content: reportSystem(locale) },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
@@ -104,9 +116,10 @@ export async function generateZiweiReportContent(
   type: 'single' | 'couple',
   payload: { chart?: ZiweiChart; chartA?: ZiweiChart; chartB?: ZiweiChart },
   planType = 'advanced',
+  locale: AiLocale = 'zh-CN',
 ): Promise<string> {
   const prompt = type === 'couple'
-    ? buildCouplePrompt(payload.chartA!, payload.chartB!, planType)
-    : buildSinglePrompt(payload.chart!, planType);
-  return callLlm(prompt);
+    ? buildCouplePrompt(payload.chartA!, payload.chartB!, planType, locale)
+    : buildSinglePrompt(payload.chart!, planType, locale);
+  return callLlm(prompt, locale);
 }

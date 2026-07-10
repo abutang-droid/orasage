@@ -7,6 +7,7 @@ import { maybeSyncThreeCardReading } from '@/lib/three-card/sync';
 import type { ThreeCardAnswer } from '@/lib/three-card/types';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { prisma } from '@/lib/prisma';
+import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   readingId: z.string().uuid(),
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
     const body = bodySchema.parse(await req.json());
+    const language = resolveAiLocaleFromRequest(req, body);
     const user = await prisma.user.findUnique({
       where: { id: ensured.userId },
       select: { email: true },
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
       question: record.question,
       cards: record.cards,
       answers: (record.qaAnswers ?? []) as ThreeCardAnswer[],
+      language,
     });
 
     await saveThreeCardBrief(record.id, ensured.userId, brief);

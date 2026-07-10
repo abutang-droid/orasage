@@ -8,6 +8,7 @@ import type { DailyFortuneAnswer } from '@/lib/daily-fortune/types';
 import { consumeDailyFortuneDraw, getDailyFortuneQuota } from '@/lib/daily-fortune-quota';
 import { maybeSyncDailyFortuneReading } from '@/lib/daily-fortune/sync';
 import { prisma } from '@/lib/prisma';
+import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   answers: z
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
     const body = bodySchema.parse(await req.json());
+    const language = resolveAiLocaleFromRequest(req, body);
     const user = await prisma.user.findUnique({
       where: { id: ensured.userId },
       select: { email: true, nickname: true },
@@ -56,6 +58,7 @@ export async function POST(req: NextRequest) {
       orientation,
       answers,
       nickname: user?.nickname,
+      language,
     });
 
     const record = await createDailyFortuneRecord({

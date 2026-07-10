@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
 import { authCookieHeader, resolveAuthUserIdFromCookies } from '@/lib/auth-user-server';
-import { ADULT_INTERPRET_SYSTEM, MINOR_INTERPRET_SYSTEM } from '@/lib/ai-prompts';
+import {
+  adultInterpretSystem,
+  minorInterpretSystem,
+} from '@/lib/ai-prompts';
+import { resolveAiLocaleFromRequest } from '../../../../shared/ai-locale/index';
 
 export const runtime = 'nodejs';
 
@@ -25,6 +29,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { messages, chartData, mode, readingId, minorMode } = body;
+    const locale = resolveAiLocaleFromRequest(req, body);
 
     if (!readingId || typeof readingId !== 'string') {
       return NextResponse.json({ error: '缺少 readingId' }, { status: 400 });
@@ -75,7 +80,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let systemContent = minorMode ? MINOR_INTERPRET_SYSTEM : ADULT_INTERPRET_SYSTEM;
+    let systemContent = minorMode ? minorInterpretSystem(locale) : adultInterpretSystem(locale);
     if (chartData) {
       const modeLabel = minorMode
         ? (mode === 'heming' ? '合盘（含未成年人，整体按青少年保护解读）' : '单人命盘（未成年人）')

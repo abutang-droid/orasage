@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { getMeritSummary, recordWorship } from '@/lib/merit-service';
+import { resolveAiLocaleFromRequest } from '../../../../../shared/ai-locale/index';
 
 const worshipSchema = z.object({
   deityCode: z.string().min(1).max(50),
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = worshipSchema.parse(await req.json());
+    const language = resolveAiLocaleFromRequest(req, body);
     const result = await recordWorship({
       userId: auth.userId,
       deityCode: body.deityCode,
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
       worshipStage: body.worshipStage,
       durationSec: body.durationSec,
       markOnboardingComplete: body.markOnboardingComplete,
+      language,
     });
 
     if (!result.ok) {

@@ -2,12 +2,14 @@ import {
   interpretReadingWithLlm,
   type ReadingCardInput,
 } from '@/lib/llm/reading-interpret';
+import type { AiLocale } from '../../../shared/ai-locale/index';
 import type { ThreeCardAnswer, ThreeCardFullReport, ThreeCardStoredCard } from './types';
 
 export async function generateThreeCardFullReport(input: {
   question: string;
   cards: ThreeCardStoredCard[];
   answers: ThreeCardAnswer[];
+  language?: AiLocale;
 }): Promise<ThreeCardFullReport> {
   const cardInputs: ReadingCardInput[] = input.cards.map((c) => ({
     position: c.position,
@@ -23,6 +25,7 @@ export async function generateThreeCardFullReport(input: {
     question: input.question || '当下指引',
     spreadType: '三牌阵（过去·现在·未来）',
     cards: cardInputs,
+    language: input.language ?? 'zh-CN',
   });
 
   return {

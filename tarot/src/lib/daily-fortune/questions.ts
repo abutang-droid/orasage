@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 import type { DailyFortuneQuestion } from './types';
 
 const questionSchema = z.object({
@@ -47,23 +48,26 @@ export async function generateDailyFortuneQuestions(input: {
   gender?: string | null;
   occupation?: string | null;
   faith?: string | null;
+  language?: AiLocale;
 }): Promise<{ questions: DailyFortuneQuestion[]; llm: boolean }> {
-  const fallback = templateQuestions(input.nickname);
+  const { nickname, gender, occupation, faith, language = 'zh-CN' } = input;
+  const fallback = templateQuestions(nickname);
 
   if (!isLlmConfigured()) {
     return { questions: fallback, llm: false };
   }
 
   const profile = [
-    input.nickname ? `昵称：${input.nickname}` : null,
-    input.gender ? `性别：${input.gender}` : null,
-    input.occupation ? `工作状态：${input.occupation}` : null,
-    input.faith ? `信仰：${input.faith}` : null,
+    nickname ? `昵称：${nickname}` : null,
+    gender ? `性别：${gender}` : null,
+    occupation ? `工作状态：${occupation}` : null,
+    faith ? `信仰：${faith}` : null,
   ]
     .filter(Boolean)
     .join('\n');
 
-  const userPrompt = `为「每日运势」抽牌前的引导问答生成 3-5 个问题。
+  const userPrompt = `${aiPromptLanguageLine(language)}
+为「每日运势」抽牌前的引导问答生成 3-5 个问题。
 用户档案：
 ${profile || '（暂无）'}
 
