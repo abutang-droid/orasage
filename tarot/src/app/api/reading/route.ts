@@ -3,6 +3,7 @@ import { drawCards } from "@/lib/tarot/draw"
 import { getAuthUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getFreeReadingsRemaining, resolveReadingAccess } from "@/lib/free-readings"
+import { buildInputHash, hashToNumericSeed, normalizeQuestion } from "@/lib/reading-stable"
 
 export async function GET() {
   const auth = await getAuthUser()
@@ -32,7 +33,30 @@ export async function POST(req: NextRequest) {
     }
 
     const spreadKey = spreadType === "single" ? "single" : "three"
-    const result = drawCards(spreadKey, question || "今日整体运势")
+    const questionNorm = normalizeQuestion(question) || "今日整体运势"
+
+    if (auth) {
+      const existing = await prisma.readingRecord.findFirst({
+        where: { userId: auth.userId, spreadType: spreadKey, question: questionNorm },
+        orderBy: { createdAt: "desc" },
+      })
+      if (existing) {
+        return NextResponse.json({
+          readingId: existing.id,
+          cards: existing.cards,
+          question: existing.question,
+          free: access.source !== "paid_order",
+          accessSource: access.source,
+          freeReadingsRemaining: access.remaining,
+          cached: true,
+        })
+      }
+    }
+
+    const seedKey = auth
+      ? buildInputHash({ userId: auth.userId, spread: spreadKey, question: questionNorm })
+      : buildInputHash({ guest: "anonymous", spread: spreadKey, question: questionNorm })
+    const result = drawCards(spreadKey, questionNorm, hashToNumericSeed(seedKey), "afternoon")
 
     const cards = result.cards.map((c) => {
       const pos = c.position
@@ -50,26 +74,37 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const readingId = `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const readingId = auth ? undefined : `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
     if (auth) {
-      await prisma.readingRecord.create({
+      const row = await prisma.readingRecord.create({
         data: {
           userId: auth.userId,
           spreadType: spreadKey,
-          question: question || "今日整体运势",
+          question: questionNorm,
           cards,
         },
+      })
+
+      return NextResponse.json({
+        readingId: row.id,
+        cards,
+        question: questionNorm,
+        free: access.source !== "paid_order",
+        accessSource: access.source,
+        freeReadingsRemaining: access.remaining,
+        cached: false,
       })
     }
 
     return NextResponse.json({
       readingId,
       cards,
-      question: question || "今日整体运势",
+      question: questionNorm,
       free: access.source !== "paid_order",
       accessSource: access.source,
-      freeReadingsRemaining: auth ? access.remaining : null,
+      freeReadingsRemaining: null,
+      cached: false,
     })
   } catch (error) {
     console.error("Reading API error:", error)

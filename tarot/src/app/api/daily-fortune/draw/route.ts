@@ -1,13 +1,20 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { generateDailyFortuneReport } from '@/lib/daily-fortune/report';
-import { createDailyFortuneRecord, drawDailyFortuneCard } from '@/lib/daily-fortune/record';
+import {
+  createDailyFortuneRecord,
+  drawDailyFortuneCard,
+  findDailyFortuneRecordByInputHash,
+} from '@/lib/daily-fortune/record';
 import type { DailyFortuneAnswer } from '@/lib/daily-fortune/types';
 import { consumeDailyFortuneDraw, getDailyFortuneQuota } from '@/lib/daily-fortune-quota';
 import { maybeSyncDailyFortuneReading } from '@/lib/daily-fortune/sync';
 import { prisma } from '@/lib/prisma';
+import { ALL_CARDS } from '@/lib/tarot/cards';
+import { buildDailyFortuneInputHash } from '@/lib/reading-stable';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
@@ -24,6 +31,20 @@ const bodySchema = z.object({
   orderNo: z.string().optional(),
 });
 
+function cardPayload(
+  card: { id: number; name: string; nameEn: string; symbol: string; element: string },
+  orientation: '正位' | '逆位',
+) {
+  return {
+    id: card.id,
+    name: card.name,
+    nameEn: card.nameEn,
+    symbol: card.symbol,
+    orientation,
+    element: card.element,
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
@@ -36,6 +57,42 @@ export async function POST(req: NextRequest) {
     const loggedIn = await isOrasageLoggedIn(user?.email);
 
     const quota = await getDailyFortuneQuota(ensured.userId);
+    const answers = body.answers as DailyFortuneAnswer[];
+    const inputHash = buildDailyFortuneInputHash(ensured.userId, quota.dateKey, answers);
+
+    const cached = await findDailyFortuneRecordByInputHash(
+      ensured.userId,
+      quota.dateKey,
+      inputHash,
+    );
+    if (cached) {
+      const syncedRecord = await maybeSyncDailyFortuneReading(
+        req.headers.get('cookie'),
+        ensured.userId,
+        cached,
+        loggedIn,
+      );
+      const updatedQuota = await getDailyFortuneQuota(ensured.userId);
+      const cardMeta =
+        cached.cardId != null ? ALL_CARDS.find((c) => c.id === cached.cardId) : null;
+
+      const res = NextResponse.json({
+        ok: true,
+        record: syncedRecord,
+        brief: cached.briefText,
+        fullReport: loggedIn ? cached.fullReport : null,
+        isLoggedIn: loggedIn,
+        card: cardMeta
+          ? cardPayload(cardMeta, (cached.orientation as '正位' | '逆位') ?? '正位')
+          : null,
+        quota: updatedQuota,
+        remaining: updatedQuota.remaining,
+        cached: true,
+      });
+      if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
+      return res;
+    }
+
     const access = await consumeDailyFortuneDraw(ensured.userId, {
       orderNo: body.orderNo?.trim() || null,
     });
@@ -49,9 +106,8 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    const seed = `${ensured.userId}:${quota.dateKey}:${Date.now()}`;
+    const seed = `${ensured.userId}:${quota.dateKey}:${inputHash}`;
     const { card, orientation } = drawDailyFortuneCard(seed);
-    const answers = body.answers as DailyFortuneAnswer[];
 
     const report = await generateDailyFortuneReport({
       card,
@@ -64,6 +120,7 @@ export async function POST(req: NextRequest) {
     const record = await createDailyFortuneRecord({
       userId: ensured.userId,
       dateKey: quota.dateKey,
+      inputHash,
       cardId: card.id,
       cardName: card.name,
       orientation,
@@ -72,6 +129,19 @@ export async function POST(req: NextRequest) {
       fullReport: report.full,
       accessSource: access.source ?? 'free_base',
       orderNo: body.orderNo?.trim() || null,
+    }).catch(async (err) => {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        const raced = await findDailyFortuneRecordByInputHash(
+          ensured.userId,
+          quota.dateKey,
+          inputHash,
+        );
+        if (raced) return raced;
+      }
+      throw err;
     });
 
     const syncedRecord = await maybeSyncDailyFortuneReading(
@@ -90,16 +160,10 @@ export async function POST(req: NextRequest) {
       fullReport: loggedIn ? report.full : null,
       isLoggedIn: loggedIn,
       llm: report.llm,
-      card: {
-        id: card.id,
-        name: card.name,
-        nameEn: card.nameEn,
-        symbol: card.symbol,
-        orientation,
-        element: card.element,
-      },
+      card: cardPayload(card, orientation),
       quota: updatedQuota,
       remaining: access.remaining,
+      cached: false,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;

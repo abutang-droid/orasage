@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { generateThreeCardQuestions } from '@/lib/three-card/questions';
 import { prisma } from '@/lib/prisma';
+import { getCachedQuestions, saveCachedQuestions } from '@/lib/reading-question-cache';
+import { buildThreeCardQuestionContextHash } from '@/lib/reading-stable';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
@@ -13,6 +15,14 @@ export async function POST(req: NextRequest) {
   const ensured = await ensureAuthUser();
   const body = bodySchema.parse(await req.json().catch(() => ({})));
   const language = resolveAiLocaleFromRequest(req, body);
+  const contextHash = buildThreeCardQuestionContextHash(ensured.userId, body.question);
+
+  const cached = await getCachedQuestions(ensured.userId, 'three-card', contextHash);
+  if (cached) {
+    const res = NextResponse.json({ questions: cached.questions, llm: cached.llm, cached: true });
+    if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
+    return res;
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: ensured.userId },
@@ -28,7 +38,15 @@ export async function POST(req: NextRequest) {
     language,
   });
 
-  const res = NextResponse.json(result);
+  await saveCachedQuestions(
+    ensured.userId,
+    'three-card',
+    contextHash,
+    result.questions,
+    result.llm,
+  );
+
+  const res = NextResponse.json({ ...result, cached: false });
   if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
   return res;
 }
