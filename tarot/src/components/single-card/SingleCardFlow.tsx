@@ -14,8 +14,10 @@ import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
+  SingleCardAnswer,
   SingleCardBriefPayload,
   SingleCardFullReport,
+  SingleCardQuestion,
   SingleCardRecordDto,
   SingleCardStoredCard,
 } from '@/lib/single-card/types';
@@ -26,6 +28,7 @@ type Quota = {
   remaining: number;
   drawsUsed: number;
   templeBonusGranted: boolean;
+  templeFreeReportAvailable: boolean;
 };
 
 type BillingPayload = {
@@ -45,11 +48,19 @@ type SessionPayload = {
 type Step =
   | 'loading'
   | 'intro'
+  | 'questions'
   | 'drawing'
   | 'brief'
   | 'paywall'
   | 'full_report'
   | 'quota_exhausted';
+
+function langBody(lang: string) {
+  if (lang === 'en') return { language: 'en' };
+  if (lang === 'pt') return { language: 'pt-BR' };
+  if (lang === 'es') return { language: 'en' };
+  return { language: 'zh-CN' };
+}
 
 export function SingleCardFlow() {
   const copy = useSingleCardCopy();
@@ -57,6 +68,9 @@ export function SingleCardFlow() {
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [question, setQuestion] = useState('');
+  const [questions, setQuestions] = useState<SingleCardQuestion[]>([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [answers, setAnswers] = useState<SingleCardAnswer[]>([]);
   const [readingId, setReadingId] = useState<string | null>(null);
   const [card, setCard] = useState<SingleCardStoredCard | null>(null);
   const [flipped, setFlipped] = useState(false);
@@ -69,6 +83,8 @@ export function SingleCardFlow() {
   const [error, setError] = useState('');
   const [briefLoading, setBriefLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [fullLoading, setFullLoading] = useState(false);
 
   const loadBrief = useCallback(async (id: string) => {
     setBriefLoading(true);
@@ -78,7 +94,7 @@ export function SingleCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ readingId: id }),
+        body: JSON.stringify({ readingId: id, ...langBody(copy.lang) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || copy.briefFailed);
@@ -89,11 +105,12 @@ export function SingleCardFlow() {
     } finally {
       setBriefLoading(false);
     }
-  }, [copy.briefFailed]);
+  }, [copy.briefFailed, copy.lang]);
 
   const hydrateRecord = useCallback((rec: SingleCardRecordDto, loggedIn: boolean) => {
     setReadingId(rec.id);
     setQuestion(rec.question);
+    setAnswers(rec.qaAnswers ?? []);
     setCard(rec.card);
     setBrief(rec.briefText);
     setFullReport(rec.fullReport);
@@ -109,24 +126,52 @@ export function SingleCardFlow() {
     }
   }, [loadBrief]);
 
-  const fetchFullReport = useCallback(async (id: string, orderNo?: string | null) => {
-    const res = await fetch('/api/single-card/full-report', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ readingId: id, orderNo: orderNo ?? undefined }),
-    });
-    const data = await res.json();
-    if (res.status === 401 || res.status === 402) {
-      setStep('paywall');
-      return;
+  const fetchFullReport = useCallback(async (
+    id: string,
+    opts?: { orderNo?: string | null; useTempleFree?: boolean },
+  ) => {
+    setFullLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/single-card/full-report', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          readingId: id,
+          orderNo: opts?.orderNo ?? undefined,
+          useTempleFree: opts?.useTempleFree === true,
+          ...langBody(copy.lang),
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 401 || res.status === 402) {
+        if (data.templeFreeAvailable === false && session) {
+          setSession({
+            ...session,
+            quota: { ...session.quota, templeFreeReportAvailable: data.templeFreeAvailable ?? false },
+          });
+        }
+        setStep('paywall');
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || copy.fullFailed);
+      setFullReport(data.fullReport);
+      setPaidTier(data.tier);
+      setStep('full_report');
+      setPendingOrderNo(null);
+      if (session && data.tier === 'temple_free') {
+        setSession({
+          ...session,
+          quota: { ...session.quota, templeFreeReportAvailable: false },
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : copy.fullFailed);
+    } finally {
+      setFullLoading(false);
     }
-    if (!res.ok) throw new Error(data.error || copy.fullFailed);
-    setFullReport(data.fullReport);
-    setPaidTier(data.tier);
-    setStep('full_report');
-    setPendingOrderNo(null);
-  }, [copy.fullFailed]);
+  }, [copy.fullFailed, copy.lang, session]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -143,14 +188,14 @@ export function SingleCardFlow() {
     if (data.record) {
       hydrateRecord(data.record, data.isLoggedIn);
       if (orderParam && data.record.id && !data.record.fullReport) {
-        await fetchFullReport(data.record.id, orderParam);
+        await fetchFullReport(data.record.id, { orderNo: orderParam });
       }
       return;
     }
 
     if (orderParam && readingParam) {
       setReadingId(readingParam);
-      await fetchFullReport(readingParam, orderParam);
+      await fetchFullReport(readingParam, { orderNo: orderParam });
       return;
     }
 
@@ -166,7 +211,43 @@ export function SingleCardFlow() {
     void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession, copy.loadFailed]);
 
-  const submitDraw = async () => {
+  const beginQuestions = async () => {
+    setError('');
+    setStep('questions');
+    setQIndex(0);
+    setAnswers([]);
+    setQuestionsLoading(true);
+    try {
+      const res = await fetch('/api/single-card/questions', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question.trim() || undefined, ...langBody(copy.lang) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || copy.questionsFailed);
+      setQuestions(data.questions ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : copy.questionsFailed);
+      setStep('intro');
+    } finally {
+      setQuestionsLoading(false);
+    }
+  };
+
+  const pickAnswer = (answer: string) => {
+    const q = questions[qIndex];
+    if (!q) return;
+    const nextAnswers = [...answers, { questionId: q.id, question: q.text, answer }];
+    setAnswers(nextAnswers);
+    if (qIndex + 1 < questions.length) {
+      setQIndex(qIndex + 1);
+      return;
+    }
+    void submitDraw(nextAnswers);
+  };
+
+  const submitDraw = async (finalAnswers: SingleCardAnswer[]) => {
     setStep('drawing');
     setFlipped(false);
     setCard(null);
@@ -177,7 +258,10 @@ export function SingleCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim() || undefined }),
+        body: JSON.stringify({
+          question: question.trim() || undefined,
+          answers: finalAnswers,
+        }),
       });
       const data = await res.json();
       if (res.status === 402) {
@@ -195,7 +279,7 @@ export function SingleCardFlow() {
     } catch (err) {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
-      setStep('intro');
+      setStep('questions');
     }
   };
 
@@ -232,6 +316,7 @@ export function SingleCardFlow() {
     ? `/single-card?readingId=${encodeURIComponent(readingId)}`
     : '/single-card';
   const loginHref = buildLoginUrl(readingReturnPath);
+  const templeFreeAvailable = session?.quota.templeFreeReportAvailable ?? false;
 
   if (step === 'loading') {
     return (
@@ -291,9 +376,36 @@ export function SingleCardFlow() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <Button type="button" className="daily-fortune-panel-btn w-full" onClick={() => void submitDraw()}>
+          <Button type="button" className="daily-fortune-panel-btn w-full" onClick={() => void beginQuestions()}>
             {copy.start}
           </Button>
+        </div>
+      )}
+
+      {step === 'questions' && (
+        <div className="daily-fortune-panel card animate-fade-in-up">
+          {questionsLoading ? (
+            <MantoThinking message={copy.sensing} hint={copy.sensingHint} />
+          ) : questions[qIndex] ? (
+            <>
+              <p className="daily-fortune-panel-lead">{questions[qIndex].text}</p>
+              <div className="three-card-options">
+                {questions[qIndex].options.map((opt) => (
+                  <Button
+                    key={opt}
+                    type="button"
+                    variant="outline"
+                    className="three-card-option-btn"
+                    onClick={() => pickAnswer(opt)}
+                  >
+                    {opt}
+                  </Button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p>{copy.questionsFailed}</p>
+          )}
         </div>
       )}
 
@@ -368,6 +480,8 @@ export function SingleCardFlow() {
                 setReadingId(null);
                 setCard(null);
                 setBrief(null);
+                setAnswers([]);
+                setQuestions([]);
                 setFlipped(false);
                 setStep('intro');
               }}
@@ -390,6 +504,21 @@ export function SingleCardFlow() {
             />
           ) : (
             <>
+              {templeFreeAvailable && readingId && (
+                <div className="card three-card-tier mb-3">
+                  <h2 className="daily-fortune-section-title">{copy.useTempleFree}</h2>
+                  <p className="three-card-tier-desc">{copy.templeFreeHint}</p>
+                  <Button
+                    type="button"
+                    className="w-full mt-3"
+                    disabled={fullLoading}
+                    onClick={() => void fetchFullReport(readingId, { useTempleFree: true })}
+                  >
+                    {fullLoading ? copy.redirecting : copy.useTempleFree}
+                  </Button>
+                </div>
+              )}
+
               <div className="card three-card-tier">
                 <h2 className="daily-fortune-section-title">{copy.tier1Title}</h2>
                 {reportProduct ? (

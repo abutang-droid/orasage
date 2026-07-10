@@ -12,6 +12,10 @@ import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/i
 const bodySchema = z.object({
   readingId: z.string().uuid(),
   orderNo: z.string().optional(),
+  useTempleFree: z.boolean().optional(),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -55,10 +59,17 @@ export async function POST(req: NextRequest) {
     }
 
     const orderNo = body.orderNo?.trim() || record.orderNo || null;
-    const access = await resolveSingleCardReportAccess(ensured.userId, orderNo);
+    const access = await resolveSingleCardReportAccess(ensured.userId, orderNo, {
+      useTempleFree: body.useTempleFree === true,
+    });
     if (!access.ok) {
       const res = NextResponse.json(
-        { ok: false, error: 'paywall', skus: access.skus },
+        {
+          ok: false,
+          error: 'paywall',
+          skus: access.skus,
+          templeFreeAvailable: access.templeFreeAvailable,
+        },
         { status: 402 },
       );
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
@@ -67,7 +78,9 @@ export async function POST(req: NextRequest) {
 
     const fullReport = await generateSingleCardFullReport({
       question: record.question,
+      qaAnswers: record.qaAnswers ?? [],
       card: record.card,
+      literalMeaning: record.briefText?.text,
       language,
     });
 
