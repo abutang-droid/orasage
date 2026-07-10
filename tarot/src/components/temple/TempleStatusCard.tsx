@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTempleCopy } from '@/lib/i18n/ui-strings';
 
 type TempleStatus = {
   prayedToday: boolean;
@@ -10,6 +11,7 @@ type TempleStatus = {
 };
 
 export function TempleStatusCard() {
+  const temple = useTempleCopy();
   const [status, setStatus] = useState<TempleStatus | null>(null);
 
   useEffect(() => {
@@ -22,11 +24,11 @@ export function TempleStatusCard() {
         r.ok ? r.json() : null,
       ),
     ])
-      .then(([temple, quota]) => {
+      .then(([templeData, quota]) => {
         if (cancelled) return;
         setStatus({
-          prayedToday: temple?.prayedToday ?? false,
-          streak: temple?.summary?.streak ?? 0,
+          prayedToday: templeData?.prayedToday ?? false,
+          streak: templeData?.summary?.streak ?? 0,
           templeBonusGranted: quota?.templeBonusGranted ?? false,
           fortuneRemaining: quota?.remaining ?? null,
         });
@@ -44,24 +46,26 @@ export function TempleStatusCard() {
   return (
     <div className="temple-status animate-fade-in-up">
       <div className="temple-status-row">
-        <span>今日祈福</span>
+        <span>{temple.statusPrayedLabel}</span>
         <span
           className={`temple-status-badge${status.prayedToday ? ' temple-status-badge--done' : ''}`}
         >
-          {status.prayedToday ? '已完成' : '未完成'}
+          {status.prayedToday ? temple.statusPrayedDone : temple.statusPrayedPending}
         </span>
       </div>
       {status.streak > 0 ? (
         <div className="temple-status-row">
-          <span>连续参拜</span>
-          <strong>{status.streak} 天</strong>
+          <span>{temple.statusStreakLabel}</span>
+          <strong>{temple.statusStreakDays(status.streak)}</strong>
         </div>
       ) : null}
       <div className="temple-status-row">
-        <span>每日运势</span>
+        <span>{temple.statusFortuneLabel}</span>
         <strong>
-          {status.fortuneRemaining != null ? `剩余 ${status.fortuneRemaining} 次` : '每日 1 次'}
-          {!status.templeBonusGranted ? ' · 祈福可 +1' : ' · 已获祈福加成'}
+          {status.fortuneRemaining != null
+            ? temple.statusFortuneRemaining(status.fortuneRemaining)
+            : temple.statusFortuneDaily}
+          {status.templeBonusGranted ? temple.statusTempleBonusDone : temple.statusTempleBonusHint}
         </strong>
       </div>
     </div>

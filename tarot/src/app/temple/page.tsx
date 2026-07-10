@@ -7,7 +7,7 @@ import { loadStoredFaith } from "@/components/FaithPicker"
 import { WorshipScreen } from "@/components/temple/WorshipScreen"
 import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
-import { useTempleCopy, temple, pick } from "@/lib/i18n/ui-strings"
+import { useTempleCopy } from "@/lib/i18n/ui-strings"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
@@ -239,9 +239,6 @@ function TemplePageContent() {
           faith: selectedFaith ?? undefined,
         }}
         onComplete={(result) => void handleJourneyComplete(result)}
-        title="第一步 · 你的心灵故乡"
-        subtitle="从世界地图出发，找到与你最贴近的国家与信仰"
-        faithConfirmLabel="确认信仰"
         pickDeity
         fullscreen
       />
@@ -268,7 +265,7 @@ function TemplePageContent() {
             <h1>{temple.pickTitle}</h1>
             <p>
               {selectedFaith
-                ? temple.pickWithFaith(formatFaithLabel(selectedFaith), selectedCountry)
+                ? temple.pickWithFaith(formatFaithLabel(selectedFaith, undefined, temple.lang), selectedCountry)
                 : temple.pickSimple}
             </p>
           </div>
@@ -373,13 +370,18 @@ function TemplePageContent() {
   )
 }
 
+function TempleSuspenseFallback() {
+  const temple = useTempleCopy()
+  return (
+    <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+      {temple.loading}
+    </div>
+  )
+}
+
 export default function TemplePage() {
   return (
-    <Suspense fallback={
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-        {pick(temple.loading, 'zh')}
-      </div>
-    }>
+    <Suspense fallback={<TempleSuspenseFallback />}>
       <TemplePageContent />
     </Suspense>
   )

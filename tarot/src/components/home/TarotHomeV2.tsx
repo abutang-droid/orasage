@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TarotHomeHero } from '@/components/home/TarotHomeHero';
+import { useHomeCopy } from '@/lib/i18n/reading-copy';
 
 type DailyQuota = {
   allowance?: number;
@@ -14,6 +15,7 @@ type DailyQuota = {
 
 export function TarotHomeV2() {
   const router = useRouter();
+  const home = useHomeCopy();
   const [quota, setQuota] = useState<DailyQuota | null>(null);
 
   useEffect(() => {
@@ -37,19 +39,17 @@ export function TarotHomeV2() {
               ✦
             </span>
             <div>
-              <h2 className="tarot-home-v2-card-title">每日运势</h2>
-              <p className="tarot-home-v2-card-desc">工作 · 爱情 · 事业 · 财运 四维解读</p>
+              <h2 className="tarot-home-v2-card-title">{home.dailyTitle}</h2>
+              <p className="tarot-home-v2-card-desc">{home.dailyDesc}</p>
             </div>
           </div>
           <div className="tarot-home-v2-card-meta">
-            <span className="tarot-home-v2-badge">今日剩余 {remaining ?? 1} 次</span>
-            {!templeBonus ? (
-              <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">祈福可 +1</span>
-            ) : (
-              <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">已获祈福加成</span>
-            )}
+            <span className="tarot-home-v2-badge">{home.quotaTodayRemaining(remaining ?? 1)}</span>
+            <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">
+              {templeBonus ? home.templeBonusGranted : home.templeBonusAvailable}
+            </span>
           </div>
-          <span className="tarot-home-v2-card-cta">抽取今日运势 →</span>
+          <span className="tarot-home-v2-card-cta">{home.dailyCta}</span>
         </Link>
 
         <button
@@ -62,12 +62,12 @@ export function TarotHomeV2() {
               🃏
             </span>
             <div>
-              <h2 className="tarot-home-v2-card-title">三牌阵</h2>
-              <p className="tarot-home-v2-card-desc">过去 · 现在 · 未来，简读免费</p>
+              <h2 className="tarot-home-v2-card-title">{home.threeCardTitle}</h2>
+              <p className="tarot-home-v2-card-desc">{home.threeCardDesc}</p>
             </div>
           </div>
-          <p className="tarot-home-v2-card-note">深度报告与专属解读需登录后解锁</p>
-          <span className="tarot-home-v2-card-cta">开始三牌占卜 →</span>
+          <p className="tarot-home-v2-card-note">{home.threeCardNote}</p>
+          <span className="tarot-home-v2-card-cta">{home.threeCardCta}</span>
         </button>
       </section>
 
@@ -78,10 +78,8 @@ export function TarotHomeV2() {
               🛐
             </span>
             <div className="tarot-home-v2-temple-copy">
-              <h2 className="tarot-home-v2-temple-title">每日祈福</h2>
-              <p className="tarot-home-v2-temple-desc">
-                翻完牌护个体。轻触神像完成今日参拜，还可获得额外运势抽取机会。
-              </p>
+              <h2 className="tarot-home-v2-temple-title">{home.templeTitle}</h2>
+              <p className="tarot-home-v2-temple-desc">{home.templeDesc}</p>
             </div>
             <span className="tarot-home-v2-temple-arrow">→</span>
           </div>
