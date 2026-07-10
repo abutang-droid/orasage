@@ -49,13 +49,18 @@ export function ProductMediaPanel({
 
   const onCatalogFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setCatalogFileName(null);
+      return;
+    }
     setCatalogPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
     setCatalogFileName(file.name);
   };
+
+  const catalogSaveReady = Boolean(catalogFileName);
 
   return (
     <div className="product-media-panel">
@@ -113,6 +118,11 @@ export function ProductMediaPanel({
               onChange={onCatalogFileChange}
             />
             <div className="product-media-card-actions">
+              <p className="product-media-card-actions-hint muted">
+                {catalogSaveReady
+                  ? '已选择新图片，请点击保存。'
+                  : '选择图片后需点击「保存列表主图」。'}
+              </p>
               <button
                 type="button"
                 className="btn-secondary"
@@ -120,7 +130,9 @@ export function ProductMediaPanel({
               >
                 {displayCatalogUrl ? '更换图片' : '选择图片'}
               </button>
-              <AdminSubmitButton size="sm">上传列表主图</AdminSubmitButton>
+              <AdminSubmitButton size="sm" disabled={!catalogSaveReady}>
+                保存列表主图
+              </AdminSubmitButton>
             </div>
           </form>
         </section>
@@ -166,7 +178,10 @@ export function ProductMediaPanel({
         <h4 className="product-content-subhead">轮播图片</h4>
         <ProductHeroGalleryEditor rows={heroRows} />
 
-        <div className="product-media-card-actions">
+        <div className="product-media-save-bar">
+          <p className="product-media-card-actions-hint muted">
+            轮播图、主图视频与场景视频修改后，需单独保存（与上方商品信息保存互不影响）。
+          </p>
           <AdminSubmitButton>保存轮播与视频</AdminSubmitButton>
         </div>
       </form>

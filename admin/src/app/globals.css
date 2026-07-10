@@ -477,9 +477,87 @@ details summary {
 }
 
 .product-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.product-edit-actions-hint {
+  margin: 0;
+  flex: 1 1 12rem;
+}
+
+/* 运营后台主操作按钮：金色实心，与 Tab / 次要按钮明显区分 */
+.admin-submit-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: auto !important;
+  min-width: 7.5rem;
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 0.7rem 1.35rem !important;
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(23, 23, 23, 0.06);
+  transform: none !important;
+}
+
+.admin-submit-btn--primary {
+  background: var(--orasage-gold, #b8943f) !important;
+  color: #fff !important;
+}
+
+.admin-submit-btn--primary:hover:not(:disabled) {
+  background: #a68335 !important;
+}
+
+.admin-submit-btn--secondary {
+  background: var(--orasage-surface, #fff) !important;
+  color: var(--orasage-primary, #171717) !important;
+  border-color: var(--orasage-border, #e7e5e4) !important;
+  min-width: 0;
+}
+
+.admin-submit-btn--ghost {
+  background: transparent !important;
+  color: var(--orasage-secondary, #6b7280) !important;
+  border-color: transparent !important;
+  box-shadow: none;
+  min-width: 0;
+}
+
+.admin-submit-btn--danger {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+.admin-submit-btn--sm {
+  min-height: 36px !important;
+  min-width: 5.5rem;
+  padding: 0.45rem 0.9rem !important;
+  font-size: 0.82rem !important;
+}
+
+.admin-submit-btn--lg {
+  min-height: 48px !important;
+  padding: 0.8rem 1.5rem !important;
+}
+
+.admin-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .product-attribute-fields,
@@ -1109,8 +1187,34 @@ details summary {
 .product-media-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
   margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.product-media-card-actions-hint {
+  margin: 0;
+  margin-right: auto;
+  flex: 1 1 10rem;
+  font-size: 0.8rem;
+}
+
+.product-media-save-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.product-media-save-bar .admin-submit-btn {
+  min-width: 9.5rem;
 }
 
 .product-media-video-fields {
