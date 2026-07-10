@@ -598,18 +598,18 @@
 /* ── Daily insight ── */
 .tarot-home-daily-insight {
   display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
+  grid-template-columns: 4.5rem minmax(0, 1fr);
   gap: 0.875rem;
   align-items: stretch;
   padding: 1rem;
   margin-bottom: 0.75rem;
-  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.2);
+  border: 1px solid rgb(110 231 183 / 0.28);
   border-radius: 1.125rem;
   text-decoration: none;
   color: inherit;
   background:
-    radial-gradient(ellipse 70% 60% at 15% 20%, rgb(251 191 36 / 0.14), transparent 55%),
-    linear-gradient(165deg, var(--tarot-ivory-warm) 0%, var(--bg-card) 52%);
+    radial-gradient(ellipse 70% 60% at 15% 20%, rgb(167 243 208 / 0.18), transparent 55%),
+    linear-gradient(165deg, #f8fffb 0%, var(--bg-card) 52%);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -622,22 +622,84 @@
 }
 
 .tarot-home-daily-insight-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4.5rem;
+}
+
+.tarot-daily-insight-icon {
   position: relative;
-  min-height: 6.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
 }
 
-.tarot-home-daily-insight-glow {
+.tarot-daily-insight-icon-core {
   position: absolute;
-  inset: 8% 0;
+  inset: 22%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(251 191 36 / 0.28) 0%, transparent 70%);
-  filter: blur(8px);
+  background: linear-gradient(145deg, #a7f3d0 0%, #6ee7b7 45%, #34d399 100%);
+  box-shadow: 0 4px 16px rgb(52 211 153 / 0.35);
 }
 
-.tarot-home-daily-insight-card {
+.tarot-daily-insight-icon-orbit {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgb(110 231 183 / 0.45);
+}
+
+.tarot-daily-insight-icon-ray {
+  position: absolute;
+  width: 2px;
+  height: 0.625rem;
+  background: rgb(52 211 153 / 0.55);
+  border-radius: 999px;
+  left: 50%;
+  top: 0;
+  transform-origin: center 1.75rem;
+}
+
+.tarot-daily-insight-icon-ray--1 { transform: translateX(-50%) rotate(0deg); }
+.tarot-daily-insight-icon-ray--2 { transform: translateX(-50%) rotate(120deg); }
+.tarot-daily-insight-icon-ray--3 { transform: translateX(-50%) rotate(240deg); }
+
+.tarot-home-daily-insight--done {
+  border-color: rgb(52 211 153 / 0.35);
+}
+
+.tarot-home-daily-insight-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tarot-home-daily-insight-tone {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.tarot-home-daily-insight-count {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.tarot-home-daily-insight-guide-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.tarot-home-daily-insight-guide-text {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 .tarot-home-daily-insight-body {
@@ -669,8 +731,8 @@
   letter-spacing: 0.04em;
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
-  background: rgb(251 191 36 / 0.18);
-  color: var(--tarot-accent-muted);
+  background: rgb(167 243 208 / 0.35);
+  color: #047857;
 }
 
 .tarot-home-daily-insight-copy p {
@@ -1036,13 +1098,7 @@
   }
 
   .tarot-home-daily-insight-art {
-    min-height: 5.5rem;
-  }
-
-  .tarot-home-daily-insight-card {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
+    min-height: 4rem;
   }
 }
 
@@ -1061,6 +1117,120 @@
     justify-content: center;
     padding: 1.125rem 1.125rem 1.125rem 0.5rem;
   }
+}
+
+.daily-insight-intro {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.daily-insight-intro-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+
+.daily-insight-intro-subtitle {
+  margin: 0 0 1.25rem;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.daily-insight-intro-divider {
+  height: 1px;
+  max-width: 12rem;
+  margin: 0 auto 1.25rem;
+  background: linear-gradient(90deg, transparent, rgb(var(--tarot-accent-rgb) / 0.25), transparent);
+}
+
+.daily-insight-intro-draw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.daily-insight-intro-draw:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.daily-insight-intro-card {
+  padding: 4px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #5c3d1a 0%, #c9954a 35%, #a67a38 55%, #c9954a 75%, #5c3d1a 100%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.daily-insight-intro-draw:hover .daily-insight-intro-card,
+.daily-insight-intro-draw:focus-visible .daily-insight-intro-card {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgb(var(--tarot-accent-rgb) / 0.22);
+}
+
+.daily-insight-intro-card-img {
+  display: block;
+  width: 7.5rem;
+  height: auto;
+  border-radius: 8px;
+}
+
+.daily-insight-intro-draw-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+.daily-insight-intro-calm p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.daily-insight-summary {
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.daily-insight-summary-tone {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.daily-insight-summary-count {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.daily-insight-summary-guide-label {
+  margin: 0 0 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.daily-insight-summary-guide p:last-child {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
 }
 
 .daily-fortune-page {

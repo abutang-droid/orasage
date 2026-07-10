@@ -16,6 +16,7 @@ import { prisma } from '@/lib/prisma';
 import { ALL_CARDS } from '@/lib/tarot/cards';
 import { buildDailyFortuneDrawSeed, buildTarotAccountRecommendSeed } from '@/lib/reading-stable';
 import { fetchTarotDailyRecommendProduct } from '@/lib/tarot-billing-config';
+import { incrementDailyInsightParticipation } from '@/lib/daily-fortune/participant-counter';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
@@ -27,8 +28,9 @@ const bodySchema = z.object({
         answer: z.string().min(1).max(200),
       }),
     )
-    .min(1)
-    .max(8),
+    .max(8)
+    .optional()
+    .default([]),
 });
 
 function cardPayload(
@@ -125,6 +127,8 @@ export async function POST(req: NextRequest) {
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
       return res;
     }
+
+    await incrementDailyInsightParticipation(quota.dateKey);
 
     const seed = buildDailyFortuneDrawSeed(ensured.userId, quota.dateKey);
     const { card, orientation } = drawDailyFortuneCard(seed);

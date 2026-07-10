@@ -188,6 +188,13 @@ model MeritLog {
   @@index([userId, path])
 }
 
+/** 今日启示全站参与计数（按 UTC 自然日） */
+model DailyInsightStats {
+  dateKey    String   @id @db.VarChar(10)
+  extraCount Int      @default(0)
+  updatedAt  DateTime @updatedAt
+}
+
 /** 每日运势额度（自然日 1 次免费） */
 model DailyFortuneDay {
   id                  String   @id @default(uuid())
