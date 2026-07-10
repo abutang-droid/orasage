@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 import type { ThreeCardAnswer, ThreeCardBriefPayload, ThreeCardStoredCard } from './types';
 
 const briefSchema = z.object({
@@ -43,8 +44,9 @@ export async function generateThreeCardBrief(input: {
   question: string;
   cards: ThreeCardStoredCard[];
   answers: ThreeCardAnswer[];
+  language?: AiLocale;
 }): Promise<ThreeCardBriefPayload> {
-  const { question, cards, answers } = input;
+  const { question, cards, answers, language = 'zh-CN' } = input;
   const fallback = templateBrief(cards, question);
 
   if (!isLlmConfigured() || cards.length === 0) {
@@ -56,7 +58,8 @@ export async function generateThreeCardBrief(input: {
     .join('\n');
   const answerLines = answers.map((a) => `- ${a.question} → ${a.answer}`).join('\n');
 
-  const userPrompt = `用户问题：${question || '一般性指引'}
+  const userPrompt = `${aiPromptLanguageLine(language)}
+用户问题：${question || '一般性指引'}
 抽牌前问答：
 ${answerLines || '（无）'}
 

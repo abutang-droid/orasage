@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 import type { ThreeCardQuestion } from './types';
 
 const questionSchema = z.object({
@@ -49,23 +50,26 @@ export async function generateThreeCardQuestions(input: {
   gender?: string | null;
   occupation?: string | null;
   faith?: string | null;
+  language?: AiLocale;
 }): Promise<{ questions: ThreeCardQuestion[]; llm: boolean }> {
-  const fallback = templateQuestions(input.question, input.nickname);
+  const { question, nickname, gender, occupation, faith, language = 'zh-CN' } = input;
+  const fallback = templateQuestions(question, nickname);
 
   if (!isLlmConfigured()) {
     return { questions: fallback, llm: false };
   }
 
   const profile = [
-    input.nickname ? `昵称：${input.nickname}` : null,
-    input.gender ? `性别：${input.gender}` : null,
-    input.occupation ? `工作状态：${input.occupation}` : null,
-    input.faith ? `信仰：${input.faith}` : null,
+    nickname ? `昵称：${nickname}` : null,
+    gender ? `性别：${gender}` : null,
+    occupation ? `工作状态：${occupation}` : null,
+    faith ? `信仰：${faith}` : null,
   ]
     .filter(Boolean)
     .join('\n');
 
-  const userPrompt = `用户想占卜的问题：${input.question || '（未填写，做一般性指引）'}
+  const userPrompt = `${aiPromptLanguageLine(language)}
+用户想占卜的问题：${question || '（未填写，做一般性指引）'}
 用户档案：
 ${profile || '（暂无）'}
 

@@ -1250,11 +1250,10 @@ function AIAnalysisPanel({
   /** 报告生成完毕后的回调，传入 reportContent 和 sections */
   onReportReady?: (reportContent: string, sections: Array<{ title: string; content: string }>) => void;
 }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [open, setOpen] = useState(autoTrigger);
   const [hasTriggered, setHasTriggered] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
-  const locale = (new URLSearchParams(window.location.search).get("lang") || "zh-CN") as "zh-CN" | "zh-TW" | "en" | "pt-BR";
   const analyzeMutation = trpc.bazi.analyze.useMutation({
     onSuccess: (data) => {
       setLoadingStep(0);
@@ -1285,7 +1284,7 @@ function AIAnalysisPanel({
     if (autoTrigger && !hasTriggered && !analyzeMutation.data && !analyzeMutation.isPending) {
       setHasTriggered(true);
       setOpen(true);
-      analyzeMutation.mutate({ type, lang: locale, resultData });
+      analyzeMutation.mutate({ type, lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData });
     }
   }, [autoTrigger, hasTriggered, analyzeMutation.data, analyzeMutation.isPending]);
 
@@ -1594,7 +1593,7 @@ const RIZHU_PROFILE: Record<string, {
 };
 
 function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
-  const { t, term } = useT();
+  const { t, term, locale } = useT();
   const wx = getWxFromRiZhu(result.riZhu);
   const strengthLabel = result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : term('身中和');
 
@@ -1604,7 +1603,6 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
   }>(null);
   const [aiLoaded, setAiLoaded] = useState(false);
   const [aiError, setAiError] = useState(false);
-  const insightLocale = (new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("lang") || "zh-CN") as "zh-CN" | "zh-TW" | "en" | "pt-BR";
   const insightMutation = trpc.bazi.freeInsight.useMutation({
     onSuccess: (data: any) => {
       if (data && data.title) {
@@ -1622,7 +1620,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
   useEffect(() => {
     if (!aiLoaded && !insightMutation.isPending) {
       const timer = setTimeout(() => {
-        insightMutation.mutate({ lang: insightLocale, resultData: result as unknown as Record<string, unknown> });
+        insightMutation.mutate({ lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData: result as unknown as Record<string, unknown> });
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -1690,7 +1688,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
             <button type="button" onClick={() => {
               setAiError(false);
               setAiLoaded(false);
-              insightMutation.mutate({ lang: insightLocale, resultData: result as unknown as Record<string, unknown> });
+              insightMutation.mutate({ lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData: result as unknown as Record<string, unknown> });
             }}
               className="text-sm px-5 py-2 rounded-lg transition-colors"
               style={{ background: "rgba(196,160,78,0.1)", color: "#C4A04E", border: "none", cursor: "pointer" }}>

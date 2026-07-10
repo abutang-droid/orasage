@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 import type { TarotCardData } from '@/lib/tarot/cards';
 import type { DailyFortuneAnswer, DailyFortuneReportPayload } from './types';
 
@@ -48,14 +49,16 @@ export async function generateDailyFortuneReport(input: {
   orientation: '正位' | '逆位';
   answers: DailyFortuneAnswer[];
   nickname?: string | null;
+  language?: AiLocale;
 }): Promise<DailyFortuneReportPayload> {
-  const { card, orientation, answers, nickname } = input;
+  const { card, orientation, answers, nickname, language = 'zh-CN' } = input;
   const fallback = templateReport(card, orientation, answers);
 
   if (!isLlmConfigured()) return fallback;
 
   const answerLines = answers.map((a) => `- ${a.question} → ${a.answer}`).join('\n');
-  const userPrompt = `用户：${nickname || '旅人'}
+  const userPrompt = `${aiPromptLanguageLine(language)}
+用户：${nickname || '旅人'}
 今日主牌：${card.name}（${orientation}）· 元素${card.element}
 牌意参考：${orientation === '正位' ? card.meaningUp : card.meaningDown}
 

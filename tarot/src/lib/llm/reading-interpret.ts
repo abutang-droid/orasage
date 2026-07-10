@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 
 export type ReadingCardInput = {
   position: string;
@@ -78,7 +79,7 @@ export async function interpretReadingWithLlm(input: {
   question: string;
   spreadType: string;
   cards: ReadingCardInput[];
-  language?: string;
+  language?: AiLocale;
 }): Promise<ReadingInterpretResult> {
   const { question, spreadType, cards, language = 'zh-CN' } = input;
 
@@ -95,7 +96,7 @@ export async function interpretReadingWithLlm(input: {
 
   const userPrompt = `用户问题：${question || '今日整体运势'}
 牌阵：${spreadType}
-语言：${language}
+${aiPromptLanguageLine(language)}
 
 牌面：
 ${cardLines}

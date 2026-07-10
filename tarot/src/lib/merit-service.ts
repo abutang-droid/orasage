@@ -385,6 +385,7 @@ export type RecordWorshipInput = {
   worshipStage: number;
   durationSec: number;
   markOnboardingComplete?: boolean;
+  language?: import('../../../shared/ai-locale/index').AiLocale;
 };
 
 export type RecordWorshipResult =
@@ -446,6 +447,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
       stage: input.worshipStage,
       streakDays: user.streakDays,
       nickname: user.nickname,
+      language: input.language,
     });
     return { ok: true, alreadyCheckedIn: true, meritEarned: 0, blessingText, summary };
   }
@@ -549,6 +551,7 @@ export async function recordWorship(input: RecordWorshipInput): Promise<RecordWo
     stage: input.worshipStage,
     streakDays,
     nickname: user.nickname,
+    language: input.language,
   });
 
   return {

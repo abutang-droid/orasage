@@ -38,17 +38,21 @@ export function ziweiCrystalRecommendation(chart: ZiweiChart) {
   };
 }
 
+import type { CoreLocale } from '@orasage/i18n';
+
 export function syncZiweiReading(
   chart: ZiweiChart,
-  options?: { label?: string; existingReadingId?: string; couplePartner?: ZiweiChart },
+  options?: { label?: string; existingReadingId?: string; couplePartner?: ZiweiChart; lang?: CoreLocale },
 ) {
   const name = chart.birthInfo.name?.trim() || '命主';
   const readingId = options?.existingReadingId ?? newReadingId('ziwei');
 
+  const lang = options?.lang ?? 'zh-CN';
+
   if (options?.couplePartner) {
     const partner = options.couplePartner;
     const nameB = partner.birthInfo.name?.trim() || '对方';
-    const payloadJson = JSON.stringify({ type: 'couple', chartA: chart, chartB: partner });
+    const payloadJson = JSON.stringify({ type: 'couple', lang, chartA: chart, chartB: partner });
     void syncReading({
       appSource: 'ziwei',
       readingId,
@@ -62,7 +66,7 @@ export function syncZiweiReading(
   const title = options?.label
     ? `紫微合盘 · ${options.label} · ${name}`
     : `紫微排盘 · ${name}`;
-  const payloadJson = JSON.stringify({ type: 'single', chart });
+  const payloadJson = JSON.stringify({ type: 'single', lang, chart });
   void syncReading({
     appSource: 'ziwei',
     readingId,

@@ -305,7 +305,7 @@ function savedProfileToPersonForm(p: SavedProfile): Partial<PersonForm> {
 
 // ─── 主组件 ─────────────────
 export default function Home() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [mode, setMode] = useState<"single" | "couple">("single");
   const [activePerson, setActivePerson] = useState<0 | 1>(0);
   const [forms, setForms] = useState<[PersonForm, PersonForm]>([emptyForm(), emptyForm()]);
@@ -384,7 +384,7 @@ export default function Home() {
     const existingId = getLastReadingId() ?? undefined;
     if (result.type === "single") {
       const braceletRec = recommendBracelet(result.data.wuXing as unknown as Record<string, number>);
-      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId);
+      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId, locale);
       saveLastReadingId(readingId);
     } else {
       const readingId = syncBaziDoubleReading(
@@ -392,10 +392,11 @@ export default function Home() {
         result.data.person2.name,
         result.data,
         existingId,
+        locale,
       );
       saveLastReadingId(readingId);
     }
-  }, [isAuthenticated, result]);
+  }, [isAuthenticated, result, locale]);
 
   const updateForm = (idx: 0 | 1, patch: Partial<PersonForm>) => {
     setForms((prev) => {
@@ -494,7 +495,7 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0);
           const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
-          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec);
+          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec, undefined, locale);
           saveLastReadingId(readingId);
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
@@ -509,7 +510,7 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0, "A");
           void syncPersonProfile(resolvedF1!, "B");
-          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data);
+          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
           saveLastReadingId(readingId);
         }
         setView("result");

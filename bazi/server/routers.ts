@@ -14,6 +14,7 @@ import fs from "fs";
 import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
+import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
 import { buildReportPageHtml } from "./reportHtml";
 import { fetchReportProductRecommend } from "./reportRecommend";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
@@ -174,15 +175,9 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const prompt = input.type === "single"
           ? buildSingleBaziPrompt(input.resultData, input.lang)
-          : buildDoubleBaziPrompt(input.resultData);
+          : buildDoubleBaziPrompt(input.resultData, input.lang);
 
-        const langMap: Record<string, string> = {
-          "zh-CN": "用中文（简体）撰写，",
-          "zh-TW": "用中文（繁体）撰写，",
-          en: "Write in English, ",
-          "pt-BR": "Escreva em Português (Brasil), ",
-        };
-        const langGuide = langMap[input.lang] ?? "用中文（简体）撰写，";
+        const langGuide = aiSystemLanguagePrefix(input.lang);
 
         const response = await invokeLLM({
           messages: [
@@ -217,13 +212,7 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const prompt = buildFreeInsightPrompt(input.resultData, input.lang);
 
-        const langMap: Record<string, string> = {
-          "zh-CN": "用中文（简体）撰写，",
-          "zh-TW": "用中文（繁体）撰写，",
-          en: "Write in English, ",
-          "pt-BR": "Escreva em Português (Brasil), ",
-        };
-        const langGuide = langMap[input.lang] ?? "用中文（简体）撰写，";
+        const langGuide = aiSystemLanguagePrefix(input.lang);
 
         const response = await invokeLLM({
           messages: [

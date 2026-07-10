@@ -114,7 +114,7 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 
 // ─── 双人合盘解读 Prompt ─────────────────────────────────────────────────────
 
-export function buildDoubleBaziPrompt(data: Record<string, unknown>): string {
+export function buildDoubleBaziPrompt(data: Record<string, unknown>, lang = "zh-CN"): string {
   const { person1, person2, score, rating, scoreDetails } = data as {
     person1: Record<string, unknown>;
     person2: Record<string, unknown>;
@@ -129,7 +129,16 @@ export function buildDoubleBaziPrompt(data: Record<string, unknown>): string {
     .map(d => `${d.label}（${d.score}分）：${d.detail}`)
     .join("\n- ");
 
-  return `你是一位融合传统命理与现代心理学的东方神秘学顾问，擅长将合盘分析转化为温暖、有洞察力的关系指引。
+  const langLine: Record<string, string> = {
+    "zh-CN": "请用简体中文撰写全文。",
+    "zh-TW": "請用繁體中文撰寫全文。",
+    en: "Write the entire report in English.",
+    "pt-BR": "Escreva todo o relatório em Português (Brasil).",
+  };
+
+  return `${langLine[lang] ?? langLine["zh-CN"]}
+
+你是一位融合传统命理与现代心理学的东方神秘学顾问，擅长将合盘分析转化为温暖、有洞察力的关系指引。
 
 请根据以下双人合盘数据，撰写一份**个性化合盘解读报告**。
 

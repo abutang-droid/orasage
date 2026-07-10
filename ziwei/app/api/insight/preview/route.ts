@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import {
-  ADULT_PREVIEW_SYSTEM,
-  MINOR_PREVIEW_SYSTEM,
+  adultPreviewSystem,
+  minorPreviewSystem,
 } from '@/lib/ai-prompts';
+import { resolveAiLocaleFromRequest, type AiLocale } from '../../../../../shared/ai-locale/index';
 
 export const runtime = 'nodejs';
 
@@ -33,7 +34,7 @@ function ruleBasedPreview(chart: ZiweiChart, minorMode: boolean): string {
 登录后可向 Orasage 提问，获取针对你命盘的具体解读（每份排盘赠送 5 次免费对话）。`;
 }
 
-async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string | null> {
+async function llmPreview(chart: ZiweiChart, minorMode: boolean, locale: AiLocale): Promise<string | null> {
   const apiKey =
     process.env.MANUS_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
@@ -60,7 +61,7 @@ async function llmPreview(chart: ZiweiChart, minorMode: boolean): Promise<string
       messages: [
         {
           role: 'system',
-          content: minorMode ? MINOR_PREVIEW_SYSTEM : ADULT_PREVIEW_SYSTEM,
+          content: minorMode ? minorPreviewSystem(locale) : adultPreviewSystem(locale),
         },
         {
           role: 'user',
@@ -86,10 +87,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const chart = body.chart as ZiweiChart | undefined;
     const minorMode = Boolean(body.minorMode);
+    const locale = resolveAiLocaleFromRequest(req, body);
     if (!chart?.palaces?.length) {
       return NextResponse.json({ error: '缺少命盘数据' }, { status: 400 });
     }
-    const text = (await llmPreview(chart, minorMode)) ?? ruleBasedPreview(chart, minorMode);
+    const text = (await llmPreview(chart, minorMode, locale)) ?? ruleBasedPreview(chart, minorMode);
     return NextResponse.json({ text });
   } catch (err) {
     console.error('[insight/preview]', err);

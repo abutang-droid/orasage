@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { generateThreeCardQuestions } from '@/lib/three-card/questions';
 import { prisma } from '@/lib/prisma';
+import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   question: z.string().max(500).optional(),
@@ -11,6 +12,7 @@ const bodySchema = z.object({
 export async function POST(req: NextRequest) {
   const ensured = await ensureAuthUser();
   const body = bodySchema.parse(await req.json().catch(() => ({})));
+  const language = resolveAiLocaleFromRequest(req, body);
 
   const user = await prisma.user.findUnique({
     where: { id: ensured.userId },
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
     gender: user?.gender,
     occupation: user?.occupation,
     faith: user?.faith,
+    language,
   });
 
   const res = NextResponse.json(result);

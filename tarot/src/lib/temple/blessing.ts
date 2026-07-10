@@ -1,6 +1,7 @@
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { chatCompletion, isLlmConfigured } from '@/lib/llm/client';
 import { TAROT_BLESSING_SYSTEM } from '@/lib/llm/prompts';
+import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
 
 const BLESSINGS: Record<string, string[]> = {
   guanyin: [
@@ -37,12 +38,15 @@ export async function generateBlessingTextAsync(opts: {
   stage: number;
   streakDays?: number;
   nickname?: string | null;
+  language?: AiLocale;
 }): Promise<string> {
   const fallback = generateBlessingText(opts);
   if (!isLlmConfigured()) return fallback;
 
   const name = opts.nickname && opts.nickname !== '旅人' ? opts.nickname : '有缘人';
+  const language = opts.language ?? 'zh-CN';
   const userPrompt = [
+    aiPromptLanguageLine(language),
     `昵称：${name}`,
     `神祇：${opts.deityName}（${opts.deityCode}）`,
     opts.faithCode ? `信仰：${opts.faithCode}` : null,
