@@ -39,6 +39,33 @@ export async function mergeGuestUserIntoTarget(guestUserId: string, targetUserId
       }
     }
 
+    await tx.singleCardReading.updateMany({
+      where: { userId: guestUserId },
+      data: { userId: targetUserId },
+    });
+
+    const guestSingleDays = await tx.singleCardDay.findMany({ where: { userId: guestUserId } });
+    for (const guestDay of guestSingleDays) {
+      const targetDay = await tx.singleCardDay.findUnique({
+        where: { userId_dateKey: { userId: targetUserId, dateKey: guestDay.dateKey } },
+      });
+      if (targetDay) {
+        await tx.singleCardDay.update({
+          where: { id: targetDay.id },
+          data: {
+            drawsUsed: Math.max(targetDay.drawsUsed, guestDay.drawsUsed),
+            templeBonusGranted: targetDay.templeBonusGranted || guestDay.templeBonusGranted,
+          },
+        });
+        await tx.singleCardDay.delete({ where: { id: guestDay.id } });
+      } else {
+        await tx.singleCardDay.update({
+          where: { id: guestDay.id },
+          data: { userId: targetUserId },
+        });
+      }
+    }
+
     await tx.threeCardReading.updateMany({
       where: { userId: guestUserId },
       data: { userId: targetUserId },

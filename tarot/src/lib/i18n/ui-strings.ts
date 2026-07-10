@@ -610,10 +610,10 @@ export const temple = {
     es: ' · racha de {days} días',
   },
   blessingFortuneCta: {
-    zh: '去抽今日运势',
-    en: "Draw today's fortune",
-    pt: 'Tirar sorte de hoje',
-    es: 'Sacar fortuna de hoy',
+    zh: '去抽单牌阵',
+    en: 'Draw single-card spread',
+    pt: 'Tirar carta única',
+    es: 'Sacar carta única',
   },
   blessingBack: {
     zh: '返回',
@@ -652,10 +652,10 @@ export const temple = {
     es: '{days} días',
   },
   statusFortuneLabel: {
-    zh: '每日运势',
-    en: 'Daily fortune',
-    pt: 'Sorte diária',
-    es: 'Fortuna diaria',
+    zh: '单牌阵',
+    en: 'Single-card spread',
+    pt: 'Carta única',
+    es: 'Carta única',
   },
   statusFortuneRemaining: {
     zh: '剩余 {n} 次',

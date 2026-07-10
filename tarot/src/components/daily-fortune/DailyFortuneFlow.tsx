@@ -9,7 +9,6 @@ import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
-import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import { shopUrlForSku } from '@/lib/shop-products';
 import type {
   DailyFortuneAnswer,
@@ -24,7 +23,6 @@ type Quota = {
   allowance: number;
   remaining: number;
   drawsUsed: number;
-  templeBonusGranted: boolean;
 };
 
 type SessionPayload = {
@@ -44,7 +42,7 @@ type DrawCard = {
   element: string;
 };
 
-type Step = 'loading' | 'start' | 'questions' | 'drawing' | 'report' | 'paywall';
+type Step = 'loading' | 'start' | 'questions' | 'drawing' | 'report' | 'exhausted';
 
 export function DailyFortuneFlow() {
   const copy = useDailyFortuneCopy();
@@ -61,8 +59,6 @@ export function DailyFortuneFlow() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const [recommend, setRecommend] = useState<TarotBillingProduct | null>(null);
-  const [paywallSku, setPaywallSku] = useState<string | null>(null);
-  const [pendingOrderNo, setPendingOrderNo] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
@@ -71,9 +67,7 @@ export function DailyFortuneFlow() {
   const loadSession = useCallback(async () => {
     const params =
       typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const orderParam = params?.get('order') ?? null;
     const recordIdParam = params?.get('recordId') ?? null;
-    if (orderParam) setPendingOrderNo(orderParam);
 
     const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
     const data = (await res.json()) as SessionPayload;
@@ -90,9 +84,8 @@ export function DailyFortuneFlow() {
       return;
     }
 
-    if (data.quota.remaining <= 0 && !orderParam) {
-      setPaywallSku('tarot-daily-draw');
-      setStep('paywall');
+    if (data.quota.remaining <= 0) {
+      setStep('exhausted');
       return;
     }
     setStep('start');
@@ -134,7 +127,7 @@ export function DailyFortuneFlow() {
 
   useEffect(() => {
     void loadSession().catch(() => setError(copy.loadFailed));
-  }, [loadSession]);
+  }, [loadSession, copy.loadFailed]);
 
   const beginQuestions = async () => {
     setError('');
@@ -183,15 +176,17 @@ export function DailyFortuneFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          answers: finalAnswers,
-          orderNo: pendingOrderNo ?? undefined,
-        }),
+        body: JSON.stringify({ answers: finalAnswers }),
       });
       const data = await res.json();
-      if (res.status === 402) {
-        setPaywallSku(data.sku ?? 'tarot-daily-draw');
-        setStep('paywall');
+      if (res.status === 409 || data.alreadyDrewToday) {
+        if (data.record) {
+          hydrateReport(data.record, data.isLoggedIn);
+          setAlreadyDrewToday(true);
+          setStep('report');
+        } else {
+          setStep('exhausted');
+        }
         return;
       }
       if (!res.ok) throw new Error(data.error || copy.drawFailed);
@@ -204,7 +199,6 @@ export function DailyFortuneFlow() {
       setSession((s) =>
         s ? { ...s, quota: data.quota, isLoggedIn: data.isLoggedIn } : s,
       );
-      setPendingOrderNo(null);
       setAlreadyDrewToday(Boolean(data.alreadyDrewToday));
       setDrawLoading(false);
       setTimeout(() => setFlipped(true), 500);
@@ -216,20 +210,6 @@ export function DailyFortuneFlow() {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
       setStep('questions');
-    }
-  };
-
-  const handlePayCheckout = async () => {
-    if (!paywallSku) return;
-    try {
-      const result = await startAppCheckout({
-        sku: paywallSku,
-        successUrl: `${window.location.origin}/daily-fortune?paid=1`,
-        cancelUrl: `${window.location.origin}/daily-fortune`,
-      });
-      redirectAfterCheckout(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : copy.checkoutFailed);
     }
   };
 
@@ -257,7 +237,7 @@ export function DailyFortuneFlow() {
         </p>
       </div>
 
-      {session && step !== 'paywall' && (
+      {session && step !== 'exhausted' && (
         <div className="daily-fortune-quota card animate-fade-in-up delay-100">
           <div className="daily-fortune-quota-row">
             <span>{copy.quotaAllowance}</span>
@@ -411,38 +391,13 @@ export function DailyFortuneFlow() {
               </Button>
             </div>
           )}
-
-          {session && session.quota.remaining > 0 && !alreadyDrewToday && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full mt-3"
-              onClick={() => {
-                setRecord(null);
-                setCard(null);
-                setFlipped(false);
-                setAlreadyDrewToday(false);
-                void beginQuestions();
-              }}
-            >
-              {copy.drawAgain(session.quota.remaining)}
-            </Button>
-          )}
         </div>
       )}
 
-      {step === 'paywall' && (
+      {step === 'exhausted' && (
         <div className="card daily-fortune-paywall animate-fade-in-up">
-          <h2 className="daily-fortune-section-title">{copy.paywallTitle}</h2>
-          <p className="daily-fortune-paywall-desc">{copy.paywallDesc}</p>
-          <Button asChild variant="outline" className="w-full mb-2.5">
-            <Link href="/temple" className="block text-center no-underline">
-              {copy.templeBonus}
-            </Link>
-          </Button>
-          <Button type="button" className="w-full" onClick={() => void handlePayCheckout()}>
-            {copy.buyExtra}
-          </Button>
+          <h2 className="daily-fortune-section-title">{copy.exhaustedToday}</h2>
+          <p className="daily-fortune-paywall-desc">{copy.alreadyDrewToday}</p>
         </div>
       )}
 

@@ -29,7 +29,6 @@ const bodySchema = z.object({
     )
     .min(1)
     .max(8),
-  orderNo: z.string().optional(),
 });
 
 function cardPayload(
@@ -57,7 +56,6 @@ async function respondWithRecord(
   ensured: { userId: string; newToken?: string },
   record: Awaited<ReturnType<typeof getTodayDailyFortuneRecord>>,
   loggedIn: boolean,
-  options: { alreadyDrewToday: boolean },
 ) {
   if (!record) {
     return NextResponse.json({ error: '记录不存在' }, { status: 404 });
@@ -91,7 +89,7 @@ async function respondWithRecord(
     quota: updatedQuota,
     remaining: updatedQuota.remaining,
     recommendSku,
-    alreadyDrewToday: options.alreadyDrewToday,
+    alreadyDrewToday: true,
   });
   if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
   return res;
@@ -108,22 +106,21 @@ export async function POST(req: NextRequest) {
     });
     const loggedIn = await isOrasageLoggedIn(user?.email);
     const quota = await getDailyFortuneQuota(ensured.userId);
-    const orderNo = body.orderNo?.trim() || null;
     const todayRecord = await getTodayDailyFortuneRecord(ensured.userId, quota.dateKey);
 
-    if (todayRecord && !orderNo) {
-      return respondWithRecord(req, ensured, todayRecord, loggedIn, { alreadyDrewToday: true });
+    if (todayRecord) {
+      return respondWithRecord(req, ensured, todayRecord, loggedIn);
     }
 
-    const access = await consumeDailyFortuneDraw(ensured.userId, { orderNo });
+    const access = await consumeDailyFortuneDraw(ensured.userId);
 
     if (!access.ok) {
       if (todayRecord) {
-        return respondWithRecord(req, ensured, todayRecord, loggedIn, { alreadyDrewToday: true });
+        return respondWithRecord(req, ensured, todayRecord, loggedIn);
       }
       const res = NextResponse.json(
-        { ok: false, error: 'paywall', sku: access.sku, remaining: 0 },
-        { status: 402 },
+        { ok: false, error: 'already_drew_today', remaining: 0 },
+        { status: 409 },
       );
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
       return res;
@@ -152,8 +149,8 @@ export async function POST(req: NextRequest) {
       qaAnswers: answers,
       briefText: report.brief,
       fullReport: report.full,
-      accessSource: access.source ?? 'free_base',
-      orderNo,
+      accessSource: access.source,
+      orderNo: null,
       recommendSku,
     });
 

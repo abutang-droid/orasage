@@ -20,7 +20,7 @@ export function TempleStatusCard() {
       fetch('/api/temple', { credentials: 'include', cache: 'no-store' }).then((r) =>
         r.ok ? r.json() : null,
       ),
-      fetch('/api/daily-fortune/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
+      fetch('/api/single-card/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
         r.ok ? r.json() : null,
       ),
     ])

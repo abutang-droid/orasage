@@ -69,7 +69,7 @@ export function BlessingScreen({
 
       <div className="temple-blessing-actions">
         <Button asChild className="w-full">
-          <Link href="/daily-fortune" className="flex justify-center no-underline">
+          <Link href="/single-card" className="flex justify-center no-underline">
             <Sparkles size={18} strokeWidth={1.75} aria-hidden />
             {temple.blessingFortuneCta}
           </Link>
