@@ -6,6 +6,7 @@ import {
   fetchTarotHomeHero,
   type TarotHomeHeroContent,
 } from '@/lib/cms-tarot-hero';
+import { TarotMiniCard } from '@/components/home/TarotMiniCard';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
 import { useUser } from '@/lib/user';
 
@@ -13,16 +14,25 @@ const MANTO_PORTRAIT = '/images/manto-mentor.png';
 
 function HeroCards() {
   return (
-    <div className="tarot-home-hero-cards animate-float">
-      <div className="tarot-home-hero-card left">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">✦</div>
-      </div>
-      <div className="tarot-home-hero-card right">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☽</div>
-      </div>
-      <div className="tarot-home-hero-card center">
-        <div className="tarot-home-hero-card-inner tarot-home-hero-card-inner--gold">☀</div>
-      </div>
+    <div className="tarot-home-hero-scene animate-float" aria-hidden>
+      <div className="tarot-home-hero-scene-glow" />
+      <TarotMiniCard
+        src="/cards/back.webp"
+        className="tarot-home-hero-scene-card tarot-home-hero-scene-card--left"
+        rotate={-14}
+      />
+      <TarotMiniCard
+        src="/cards/back.webp"
+        className="tarot-home-hero-scene-card tarot-home-hero-scene-card--right"
+        rotate={14}
+      />
+      <TarotMiniCard
+        src="/cards/1.webp"
+        className="tarot-home-hero-scene-card tarot-home-hero-scene-card--center"
+        rotate={-2}
+        glow
+        priority
+      />
     </div>
   );
 }
@@ -79,48 +89,48 @@ export function TarotHomeHero() {
   const mentorLine = hero.bodyText?.trim() || home.mentorFallback;
 
   return (
-    <section className="tarot-home-hero tarot-home-hero--v2 animate-fade-in-up">
-      <div className="tarot-home-hero-manto">
-        <Image
-          src={MANTO_PORTRAIT}
-          alt=""
-          width={56}
-          height={56}
-          className="tarot-home-hero-manto-img"
-          aria-hidden
-        />
-        <div>
-          <p className="tarot-home-hero-greeting">
-            {home.greeting()}
-            {displayName ? `, ${displayName}` : ''}
-          </p>
-          <p className="tarot-home-hero-manto-line">{mentorLine}</p>
+    <section className="tarot-home-hero tarot-home-hero--visual animate-fade-in-up">
+      <div className="tarot-home-hero-top">
+        <div className="tarot-home-hero-manto">
+          <Image
+            src={MANTO_PORTRAIT}
+            alt=""
+            width={48}
+            height={48}
+            className="tarot-home-hero-manto-img"
+            aria-hidden
+          />
+          <div className="tarot-home-hero-manto-copy">
+            <p className="tarot-home-hero-greeting">
+              {home.greeting()}
+              {displayName ? `, ${displayName}` : ''}
+            </p>
+            <p className="tarot-home-hero-manto-line">{mentorLine}</p>
+          </div>
         </div>
+
+        {showVideo ? (
+          <HeroVideo
+            src={hero.videoUrl!}
+            poster={hero.videoPosterUrl}
+            autoplay={hero.videoAutoplay}
+          />
+        ) : showImage ? (
+          <img
+            src={hero.imageUrl!}
+            alt={hero.imageAlt ?? ''}
+            className="tarot-home-hero-cms-image"
+          />
+        ) : (
+          <HeroCards />
+        )}
       </div>
 
-      {showVideo ? (
-        <HeroVideo
-          src={hero.videoUrl!}
-          poster={hero.videoPosterUrl}
-          autoplay={hero.videoAutoplay}
-        />
-      ) : showImage ? (
-        <img
-          src={hero.imageUrl!}
-          alt={hero.imageAlt ?? ''}
-          className="tarot-home-hero-cms-image"
-        />
-      ) : (
-        <HeroCards />
-      )}
-
-      {hero.eyebrow ? <p className="tarot-home-hero-eyebrow">{hero.eyebrow}</p> : null}
-
-      {hero.headline ? (
-        <h1 className="tarot-home-title">{hero.headline}</h1>
-      ) : null}
-
-      {hero.subtitle ? <p className="tarot-home-subtitle">{hero.subtitle}</p> : null}
+      <div className="tarot-home-hero-copy">
+        {hero.eyebrow ? <p className="tarot-home-hero-eyebrow">{hero.eyebrow}</p> : null}
+        {hero.headline ? <h1 className="tarot-home-title">{hero.headline}</h1> : null}
+        {hero.subtitle ? <p className="tarot-home-subtitle">{hero.subtitle}</p> : null}
+      </div>
     </section>
   );
 }
