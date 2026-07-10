@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
 import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
-import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
+import { aiPromptLanguageLine, type AiLocale } from '../../../../shared/ai-locale/index';
 import type { DailyFortuneQuestion } from './types';
 
 const questionSchema = z.object({

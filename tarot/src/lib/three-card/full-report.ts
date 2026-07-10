@@ -2,7 +2,7 @@ import {
   interpretReadingWithLlm,
   type ReadingCardInput,
 } from '@/lib/llm/reading-interpret';
-import type { AiLocale } from '../../../shared/ai-locale/index';
+import type { AiLocale } from '../../../../shared/ai-locale/index';
 import type { ThreeCardAnswer, ThreeCardFullReport, ThreeCardStoredCard } from './types';
 
 export async function generateThreeCardFullReport(input: {
