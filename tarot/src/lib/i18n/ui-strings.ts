@@ -135,6 +135,18 @@ export const geo = {
     pt: 'Pular, escolher manualmente',
     es: 'Omitir, elegir manualmente',
   },
+  useGps: {
+    zh: '使用定位服务',
+    en: 'Use location services',
+    pt: 'Usar localização',
+    es: 'Usar ubicación',
+  },
+  gpsFailed: {
+    zh: '无法获取位置，请手动选择国家',
+    en: 'Could not detect location — please choose your country manually',
+    pt: 'Não foi possível detectar a localização — escolha o país manualmente',
+    es: 'No se pudo detectar la ubicación — elige tu país manualmente',
+  },
   detectLead: {
     zh: '根据{source}，我们判断你在',
     en: 'Based on {source}, we think you are in',

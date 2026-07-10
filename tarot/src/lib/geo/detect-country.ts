@@ -43,17 +43,27 @@ async function reverseGeocodeCountryCode(latitude: number, longitude: number): P
   }
 }
 
-/** 浏览器定位 + 反向地理编码 → ISO 3166-1 alpha-2 */
+/** 浏览器定位 + 反向地理编码 → ISO 3166-1 alpha-2（须在用户手势后调用） */
 export async function detectCountryFromGeolocation(): Promise<string | null> {
   if (typeof window === 'undefined' || !navigator.geolocation) return null;
 
-  const coords = await new Promise<GeolocationCoordinates | null>((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve(pos.coords),
-      () => resolve(null),
-      { timeout: GEOLOCATION_TIMEOUT_MS, maximumAge: 300_000, enableHighAccuracy: false },
-    );
-  });
+  let coords: GeolocationCoordinates | null = null;
+
+  try {
+    coords = await new Promise<GeolocationCoordinates | null>((resolve) => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos.coords),
+          () => resolve(null),
+          { timeout: GEOLOCATION_TIMEOUT_MS, maximumAge: 300_000, enableHighAccuracy: false },
+        );
+      } catch {
+        resolve(null);
+      }
+    });
+  } catch {
+    return null;
+  }
 
   if (!coords) return null;
 

@@ -389,6 +389,16 @@
   color: var(--text-primary);
 }
 
+.geo-journey-gps-prompt {
+  margin-top: 12px;
+}
+
+.geo-journey-gps-failed {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .geo-journey-detect-confirm {
   margin-top: 12px;
   max-width: min(420px, 92vw);
