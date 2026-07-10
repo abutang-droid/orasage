@@ -38,6 +38,7 @@ declare module 'jsvectormap' {
 
   export type JsVectorMapInstance = {
     destroy: () => void;
+    regions?: Record<string, { element?: { shape?: { getBBox?: () => unknown } } }>;
     setFocus: (config: {
       region?: string;
       regions?: string[];
