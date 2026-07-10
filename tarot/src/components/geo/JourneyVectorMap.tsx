@@ -39,6 +39,17 @@ function countryRegionLookup(countries: GeoCountry[]) {
   return new Map(countries.map((c) => [c.code, c.regionCode]));
 }
 
+function safeSetFocus(
+  instance: JsVectorMapInstance,
+  focus: { regions?: string[]; region?: string; animate?: boolean },
+) {
+  try {
+    instance.setFocus(focus);
+  } catch {
+    /* ignore invalid map focus */
+  }
+}
+
 export function JourneyVectorMap({
   step,
   allCountries,
@@ -72,89 +83,95 @@ export function JourneyVectorMap({
     let cancelled = false;
 
     async function initMap() {
-      const [{ default: jsVectorMap }] = await Promise.all([
-        import('jsvectormap'),
-        import('jsvectormap/dist/maps/world-merc.js'),
-      ]);
+      try {
+        const [{ default: jsVectorMap }] = await Promise.all([
+          import('jsvectormap'),
+          import('jsvectormap/dist/maps/world-merc.js'),
+        ]);
 
-      if (cancelled || !container) return;
+        if (cancelled || !container) return;
 
-      mapRef.current?.destroy();
-      container.innerHTML = '';
+        mapRef.current?.destroy();
+        container.innerHTML = '';
 
-      const lookup = countryRegionLookup(allCountries);
+        const lookup = countryRegionLookup(allCountries);
 
-      const series =
-        step === 'region'
-          ? { regions: [buildRegionStepSeries(allCountries)] }
-          : step === 'country' && continentCode
-            ? { regions: [buildCountryStepSeries(allCountries, continentCode)] }
-            : step === 'faith' && countryCode
-              ? { regions: [buildFaithStepSeries(countryCode)] }
-              : undefined;
+        const series =
+          step === 'region'
+            ? { regions: [buildRegionStepSeries(allCountries)] }
+            : step === 'country' && continentCode
+              ? { regions: [buildCountryStepSeries(allCountries, continentCode)] }
+              : step === 'faith' && countryCode
+                ? { regions: [buildFaithStepSeries(countryCode)] }
+                : undefined;
 
-      const markers =
-        step === 'faith'
-          ? Object.fromEntries(
-              faithMarkers.map((marker) => [
-                marker.id,
-                {
-                  name: marker.sublabel ? `${marker.label} · ${marker.sublabel}` : marker.label,
-                  coords: mapPercentToCoords(marker.mapX, marker.mapY),
-                },
-              ]),
-            )
-          : undefined;
-
-      const focusOn =
-        step === 'country' && continentCode && countryCodesInContinent.length > 0
-          ? { regions: countryCodesInContinent, animate: true }
-          : step === 'faith' && countryCode
-            ? { region: countryCode, animate: true }
+        const markers =
+          step === 'faith'
+            ? Object.fromEntries(
+                faithMarkers.map((marker) => [
+                  marker.id,
+                  {
+                    name: marker.sublabel ? `${marker.label} · ${marker.sublabel}` : marker.label,
+                    coords: mapPercentToCoords(marker.mapX, marker.mapY),
+                  },
+                ]),
+              )
             : undefined;
 
-      const lockInteraction = ambient && step !== 'faith';
+        const focusOn =
+          step === 'country' && continentCode && countryCodesInContinent.length > 0
+            ? { regions: countryCodesInContinent, animate: true }
+            : step === 'faith' && countryCode
+              ? { region: countryCode, animate: true }
+              : undefined;
 
-      const map = new jsVectorMap({
-        selector: container,
-        map: 'world_merc',
-        backgroundColor: 'transparent',
-        draggable: !lockInteraction,
-        zoomButtons: !lockInteraction,
-        zoomOnScroll: !lockInteraction,
-        showTooltip: true,
-        regionStyle: JVM_REGION_STYLE,
-        markerStyle: JVM_MARKER_STYLE,
-        markersSelectable: step === 'faith',
-        regionsSelectable: !lockInteraction && step !== 'faith',
-        series,
-        markers,
-        focusOn,
-        onRegionClick(_event, code) {
-          if (lockInteraction) return;
-          if (step === 'region') {
-            const regionCode = lookup.get(code);
-            if (regionCode) onSelectRef.current(regionCode);
-            return;
-          }
-          if (step === 'country') {
-            const allowed = countries.some((c) => c.code === code);
-            if (allowed) onSelectRef.current(code);
-          }
-        },
-        onMarkerClick(_event, code) {
-          if (step === 'faith') onSelectRef.current(code);
-        },
-        onLoaded(instance) {
-          if (step === 'country' && continentCode && countryCodesInContinent.length > 0) {
-            instance.setFocus({ regions: countryCodesInContinent, animate: true });
-          } else if (step === 'faith' && countryCode) {
-            instance.setFocus({ region: countryCode, animate: true });
-          }
-        },
-      });
+        const lockInteraction = ambient && step !== 'faith';
 
-      mapRef.current = map;
+        const map = new jsVectorMap({
+          selector: container,
+          map: 'world_merc',
+          backgroundColor: 'transparent',
+          draggable: !lockInteraction,
+          zoomButtons: !lockInteraction,
+          zoomOnScroll: !lockInteraction,
+          showTooltip: true,
+          regionStyle: JVM_REGION_STYLE,
+          markerStyle: JVM_MARKER_STYLE,
+          markersSelectable: step === 'faith',
+          regionsSelectable: !lockInteraction && step !== 'faith',
+          series,
+          markers,
+          focusOn,
+          onRegionClick(_event, code) {
+            if (lockInteraction) return;
+            if (step === 'region') {
+              const regionCode = lookup.get(code);
+              if (regionCode) onSelectRef.current(regionCode);
+              return;
+            }
+            if (step === 'country') {
+              const allowed = countries.some((c) => c.code === code);
+              if (allowed) onSelectRef.current(code);
+            }
+          },
+          onMarkerClick(_event, code) {
+            if (step === 'faith') onSelectRef.current(code);
+          },
+          onLoaded(instance) {
+            if (step === 'country' && continentCode && countryCodesInContinent.length > 0) {
+              safeSetFocus(instance, { regions: countryCodesInContinent, animate: true });
+            } else if (step === 'faith' && countryCode) {
+              safeSetFocus(instance, { region: countryCode, animate: true });
+            }
+          },
+        });
+
+        mapRef.current = map;
+      } catch {
+        if (!cancelled && container) {
+          container.innerHTML = '';
+        }
+      }
     }
 
     void initMap();
@@ -180,24 +197,28 @@ export function JourneyVectorMap({
     const map = mapRef.current;
     if (!map) return;
 
-    if (step === 'region' && selectedId) {
-      const codes = allCountries.filter((c) => c.regionCode === selectedId).map((c) => c.code);
-      map.setSelectedRegions(codes);
-      return;
-    }
+    try {
+      if (step === 'region' && selectedId) {
+        const codes = allCountries.filter((c) => c.regionCode === selectedId).map((c) => c.code);
+        map.setSelectedRegions(codes);
+        return;
+      }
 
-    if (step === 'country' && selectedId) {
-      map.setSelectedRegions([selectedId]);
-      return;
-    }
+      if (step === 'country' && selectedId) {
+        map.setSelectedRegions([selectedId]);
+        return;
+      }
 
-    if (step === 'faith' && selectedId) {
-      map.clearSelectedRegions();
-      map.setSelectedMarkers(selectedId);
-      return;
-    }
+      if (step === 'faith' && selectedId) {
+        map.clearSelectedRegions();
+        map.setSelectedMarkers(selectedId);
+        return;
+      }
 
-    map.clearSelectedMarkers();
+      map.clearSelectedMarkers();
+    } catch {
+      /* map may be mid-destroy */
+    }
   }, [step, selectedId, allCountries]);
 
   useEffect(() => {

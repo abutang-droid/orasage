@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { detectCountryFromGeolocation, type GeoDetectSource } from '@/lib/geo/detect-country';
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 import type { GeoCountry } from '@/lib/geo/types';
@@ -16,7 +16,6 @@ type IpSuggestResponse = {
   source: string;
 };
 
-const RESOLVE_TIMEOUT_MS = 18_000;
 const IP_SUGGEST_TIMEOUT_MS = 8_000;
 
 function matchCountry(code: string, countries: GeoCountry[]): GeoCountry | null {
@@ -25,47 +24,36 @@ function matchCountry(code: string, countries: GeoCountry[]): GeoCountry | null 
 }
 
 /**
- * 定位优先级：浏览器 GPS → IP/CDN 头 → 无（用户手选）
+ * 定位优先级：IP/CDN 头（自动）→ 用户点击后再请求 GPS → 无（用户手选）
  */
 export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolean) {
   const [suggestion, setSuggestion] = useState<CountrySuggestion | null>(null);
   const [resolving, setResolving] = useState(false);
   const [resolved, setResolved] = useState(false);
-  const ran = useRef(false);
+  const [gpsResolving, setGpsResolving] = useState(false);
+  const ipRan = useRef(false);
+
+  const gpsAvailable =
+    typeof window !== 'undefined' && typeof navigator !== 'undefined' && Boolean(navigator.geolocation);
 
   useEffect(() => {
-    if (!enabled || allCountries.length === 0 || ran.current) return;
-    ran.current = true;
+    if (!enabled || allCountries.length === 0 || ipRan.current) return;
+    ipRan.current = true;
 
     let cancelled = false;
 
-    async function resolveLocation(): Promise<CountrySuggestion | null> {
-      const gpsCode = await detectCountryFromGeolocation();
-      if (gpsCode) {
-        const country = matchCountry(gpsCode, allCountries);
-        if (country) return { country, source: 'gps' };
-      }
-
-      const res = await fetchWithTimeout('/api/geo/suggest-country', {
-        timeoutMs: IP_SUGGEST_TIMEOUT_MS,
-      });
-      if (!res.ok) return null;
-      const data = (await res.json()) as IpSuggestResponse;
-      if (data.country) return { country: data.country, source: 'ip' };
-      return null;
-    }
-
-    async function resolve() {
+    async function resolveIp() {
       setResolving(true);
       let result: CountrySuggestion | null = null;
 
       try {
-        result = await Promise.race([
-          resolveLocation(),
-          new Promise<null>((resolve) => {
-            setTimeout(() => resolve(null), RESOLVE_TIMEOUT_MS);
-          }),
-        ]);
+        const res = await fetchWithTimeout('/api/geo/suggest-country', {
+          timeoutMs: IP_SUGGEST_TIMEOUT_MS,
+        });
+        if (res.ok) {
+          const data = (await res.json()) as IpSuggestResponse;
+          if (data.country) result = { country: data.country, source: 'ip' };
+        }
       } catch {
         /* manual fallback */
       } finally {
@@ -77,11 +65,33 @@ export function useCountrySuggestion(allCountries: GeoCountry[], enabled: boolea
       }
     }
 
-    void resolve();
+    void resolveIp();
     return () => {
       cancelled = true;
     };
   }, [allCountries, enabled]);
 
-  return { suggestion, resolving, resolved };
+  const requestGps = useCallback(async (): Promise<CountrySuggestion | null> => {
+    if (!gpsAvailable || allCountries.length === 0) return null;
+
+    setGpsResolving(true);
+    try {
+      const gpsCode = await detectCountryFromGeolocation();
+      if (!gpsCode) return null;
+
+      const country = matchCountry(gpsCode, allCountries);
+      if (!country) return null;
+
+      const result: CountrySuggestion = { country, source: 'gps' };
+      setSuggestion(result);
+      setResolved(true);
+      return result;
+    } catch {
+      return null;
+    } finally {
+      setGpsResolving(false);
+    }
+  }, [allCountries, gpsAvailable]);
+
+  return { suggestion, resolving, resolved, requestGps, gpsResolving, gpsAvailable };
 }

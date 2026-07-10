@@ -89,9 +89,10 @@ export function GeoJourneyPicker({
   const [faithRegional, setFaithRegional] = useState(true);
   const [manualListMode, setManualListMode] = useState(false);
   const [detectedSuggestion, setDetectedSuggestion] = useState<CountrySuggestion | null>(null);
+  const [gpsFailed, setGpsFailed] = useState(false);
   const initDone = useRef(false);
 
-  const { suggestion, resolving: locationResolving, resolved: locationResolved } = useCountrySuggestion(
+  const { suggestion, resolving: locationResolving, resolved: locationResolved, requestGps, gpsResolving, gpsAvailable } = useCountrySuggestion(
     allCountries,
     !loading && allCountries.length > 0 && !value?.countryCode,
   );
@@ -208,7 +209,7 @@ export function GeoJourneyPicker({
   useEffect(() => {
     if (!locationResolved) return;
     if (value?.continentCode && value?.countryCode) return;
-    if (countryCode || manualListMode || detectedSuggestion) return;
+    if (countryCode || detectedSuggestion) return;
 
     if (suggestion) {
       setDetectedSuggestion(suggestion);
@@ -221,12 +222,31 @@ export function GeoJourneyPicker({
     locationResolved,
     suggestion,
     countryCode,
-    manualListMode,
     detectedSuggestion,
     value?.continentCode,
     value?.countryCode,
     loadCountries,
   ]);
+
+  const applySuggestion = useCallback(
+    (next: CountrySuggestion) => {
+      setGpsFailed(false);
+      setDetectedSuggestion(next);
+      setManualListMode(false);
+      void loadCountries(next.country.regionCode);
+    },
+    [loadCountries],
+  );
+
+  const handleUseGps = useCallback(async () => {
+    setGpsFailed(false);
+    const result = await requestGps();
+    if (result) {
+      applySuggestion(result);
+      return;
+    }
+    setGpsFailed(true);
+  }, [requestGps, applySuggestion]);
 
   const pickRegion = useCallback((code: string) => {
     setPendingRegion(code);
@@ -380,6 +400,17 @@ export function GeoJourneyPicker({
   );
 
   const showDetectConfirm = Boolean(detectedSuggestion) && !countryCode;
+
+  const showGpsPrompt =
+    locationResolved &&
+    !showDetectConfirm &&
+    !countryCode &&
+    gpsAvailable &&
+    (manualListMode || !suggestion) &&
+    step === 'region' &&
+    !gpsResolving;
+
+  const showGpsLocating = gpsResolving;
 
   const mapAmbient =
     showDetectConfirm ||
@@ -613,7 +644,7 @@ export function GeoJourneyPicker({
             ) : null}
             <h1 className="geo-journey-title">{stepTitle}</h1>
             <p className="geo-journey-hint">{stepHint}</p>
-            {locationResolving && !showDetectConfirm && !manualListMode ? (
+            {showGpsLocating ? (
               <div className="geo-journey-locating-wrap">
                 <p className="geo-journey-locating">{p(geo.locating)}</p>
                 <button
@@ -624,6 +655,16 @@ export function GeoJourneyPicker({
                   {p(geo.skipManual)}
                 </button>
               </div>
+            ) : null}
+            {showGpsPrompt ? (
+              <div className="geo-journey-gps-prompt">
+                <Button type="button" variant="outline" onClick={() => void handleUseGps()}>
+                  {p(geo.useGps)}
+                </Button>
+              </div>
+            ) : null}
+            {gpsFailed && !showGpsLocating ? (
+              <p className="geo-journey-gps-failed">{p(geo.gpsFailed)}</p>
             ) : null}
           </div>
 
