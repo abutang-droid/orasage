@@ -1747,7 +1747,15 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
     <div ref={captureRef as any} className="flex flex-col gap-3">
       <AIAnalysisPanel resultData={result as unknown as Record<string, unknown>} type="single" autoTrigger onReportReady={onReportReady} />
       {purchasedPlan === "basic" && braceletRec?.deficiencyWx && (
-        <BaziConfiguredProductRecommend element={braceletRec.deficiencyWx} />
+        <BaziConfiguredProductRecommend
+          element={braceletRec.deficiencyWx}
+          chart={{
+            birthStr: result.birthStr,
+            gender: result.gender,
+            name: result.name,
+            wuXing: result.wuXing as unknown as Record<string, number>,
+          }}
+        />
       )}
     </div>
   );

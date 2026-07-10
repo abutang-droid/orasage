@@ -67,7 +67,15 @@ async function writeReportHtml(
 
   const wuXing = resultData?.wuXing as Record<string, number> | undefined;
   const productRecommend = planType === 'basic'
-    ? await fetchReportProductRecommend(wuXing)
+    ? await fetchReportProductRecommend(wuXing, {
+        chart: resultData
+          ? {
+              birthStr: String(resultData.birthStr ?? ''),
+              gender: String(resultData.gender ?? 'male'),
+              name: typeof resultData.name === 'string' ? resultData.name : undefined,
+            }
+          : undefined,
+      })
     : null;
 
   const staticHtml = buildReportPageHtml({

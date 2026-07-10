@@ -40,5 +40,6 @@ export type DailyFortuneRecordDto = {
   fullReport: DailyFortuneFullReport | null;
   accessSource: string;
   readingSyncId: string | null;
+  recommendSku: string | null;
   createdAt: string;
 };

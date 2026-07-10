@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
@@ -7,14 +6,16 @@ import { generateDailyFortuneReport } from '@/lib/daily-fortune/report';
 import {
   createDailyFortuneRecord,
   drawDailyFortuneCard,
-  findDailyFortuneRecordByInputHash,
+  getTodayDailyFortuneRecord,
+  saveDailyFortuneRecommendSku,
 } from '@/lib/daily-fortune/record';
 import type { DailyFortuneAnswer } from '@/lib/daily-fortune/types';
 import { consumeDailyFortuneDraw, getDailyFortuneQuota } from '@/lib/daily-fortune-quota';
 import { maybeSyncDailyFortuneReading } from '@/lib/daily-fortune/sync';
 import { prisma } from '@/lib/prisma';
 import { ALL_CARDS } from '@/lib/tarot/cards';
-import { buildDailyFortuneInputHash } from '@/lib/reading-stable';
+import { buildDailyFortuneDrawSeed, buildTarotAccountRecommendSeed } from '@/lib/reading-stable';
+import { fetchTarotDailyRecommendProduct } from '@/lib/tarot-billing-config';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
@@ -45,6 +46,57 @@ function cardPayload(
   };
 }
 
+async function resolveRecommendSku(userId: string, locale: string, existingSku?: string | null) {
+  if (existingSku) return existingSku;
+  const product = await fetchTarotDailyRecommendProduct(buildTarotAccountRecommendSeed(userId), locale);
+  return product?.sku ?? null;
+}
+
+async function respondWithRecord(
+  req: NextRequest,
+  ensured: { userId: string; newToken?: string },
+  record: Awaited<ReturnType<typeof getTodayDailyFortuneRecord>>,
+  loggedIn: boolean,
+  options: { alreadyDrewToday: boolean },
+) {
+  if (!record) {
+    return NextResponse.json({ error: '记录不存在' }, { status: 404 });
+  }
+
+  const language = resolveAiLocaleFromRequest(req);
+  const recommendSku = await resolveRecommendSku(ensured.userId, language, record.recommendSku);
+  if (recommendSku && recommendSku !== record.recommendSku) {
+    await saveDailyFortuneRecommendSku(record.id, ensured.userId, recommendSku);
+    record = { ...record, recommendSku };
+  }
+
+  const syncedRecord = await maybeSyncDailyFortuneReading(
+    req.headers.get('cookie'),
+    ensured.userId,
+    record,
+    loggedIn,
+  );
+  const updatedQuota = await getDailyFortuneQuota(ensured.userId);
+  const cardMeta = record.cardId != null ? ALL_CARDS.find((c) => c.id === record.cardId) : null;
+
+  const res = NextResponse.json({
+    ok: true,
+    record: syncedRecord,
+    brief: record.briefText,
+    fullReport: loggedIn ? record.fullReport : null,
+    isLoggedIn: loggedIn,
+    card: cardMeta
+      ? cardPayload(cardMeta, (record.orientation as '正位' | '逆位') ?? '正位')
+      : null,
+    quota: updatedQuota,
+    remaining: updatedQuota.remaining,
+    recommendSku,
+    alreadyDrewToday: options.alreadyDrewToday,
+  });
+  if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
+  return res;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
@@ -55,49 +107,20 @@ export async function POST(req: NextRequest) {
       select: { email: true, nickname: true },
     });
     const loggedIn = await isOrasageLoggedIn(user?.email);
-
     const quota = await getDailyFortuneQuota(ensured.userId);
-    const answers = body.answers as DailyFortuneAnswer[];
-    const inputHash = buildDailyFortuneInputHash(ensured.userId, quota.dateKey, answers);
+    const orderNo = body.orderNo?.trim() || null;
+    const todayRecord = await getTodayDailyFortuneRecord(ensured.userId, quota.dateKey);
 
-    const cached = await findDailyFortuneRecordByInputHash(
-      ensured.userId,
-      quota.dateKey,
-      inputHash,
-    );
-    if (cached) {
-      const syncedRecord = await maybeSyncDailyFortuneReading(
-        req.headers.get('cookie'),
-        ensured.userId,
-        cached,
-        loggedIn,
-      );
-      const updatedQuota = await getDailyFortuneQuota(ensured.userId);
-      const cardMeta =
-        cached.cardId != null ? ALL_CARDS.find((c) => c.id === cached.cardId) : null;
-
-      const res = NextResponse.json({
-        ok: true,
-        record: syncedRecord,
-        brief: cached.briefText,
-        fullReport: loggedIn ? cached.fullReport : null,
-        isLoggedIn: loggedIn,
-        card: cardMeta
-          ? cardPayload(cardMeta, (cached.orientation as '正位' | '逆位') ?? '正位')
-          : null,
-        quota: updatedQuota,
-        remaining: updatedQuota.remaining,
-        cached: true,
-      });
-      if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
-      return res;
+    if (todayRecord && !orderNo) {
+      return respondWithRecord(req, ensured, todayRecord, loggedIn, { alreadyDrewToday: true });
     }
 
-    const access = await consumeDailyFortuneDraw(ensured.userId, {
-      orderNo: body.orderNo?.trim() || null,
-    });
+    const access = await consumeDailyFortuneDraw(ensured.userId, { orderNo });
 
     if (!access.ok) {
+      if (todayRecord) {
+        return respondWithRecord(req, ensured, todayRecord, loggedIn, { alreadyDrewToday: true });
+      }
       const res = NextResponse.json(
         { ok: false, error: 'paywall', sku: access.sku, remaining: 0 },
         { status: 402 },
@@ -106,8 +129,9 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    const seed = `${ensured.userId}:${quota.dateKey}:${inputHash}`;
+    const seed = buildDailyFortuneDrawSeed(ensured.userId, quota.dateKey);
     const { card, orientation } = drawDailyFortuneCard(seed);
+    const answers = body.answers as DailyFortuneAnswer[];
 
     const report = await generateDailyFortuneReport({
       card,
@@ -117,10 +141,11 @@ export async function POST(req: NextRequest) {
       language,
     });
 
+    const recommendSku = await resolveRecommendSku(ensured.userId, language);
+
     const record = await createDailyFortuneRecord({
       userId: ensured.userId,
       dateKey: quota.dateKey,
-      inputHash,
       cardId: card.id,
       cardName: card.name,
       orientation,
@@ -128,20 +153,8 @@ export async function POST(req: NextRequest) {
       briefText: report.brief,
       fullReport: report.full,
       accessSource: access.source ?? 'free_base',
-      orderNo: body.orderNo?.trim() || null,
-    }).catch(async (err) => {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2002'
-      ) {
-        const raced = await findDailyFortuneRecordByInputHash(
-          ensured.userId,
-          quota.dateKey,
-          inputHash,
-        );
-        if (raced) return raced;
-      }
-      throw err;
+      orderNo,
+      recommendSku,
     });
 
     const syncedRecord = await maybeSyncDailyFortuneReading(
@@ -163,7 +176,8 @@ export async function POST(req: NextRequest) {
       card: cardPayload(card, orientation),
       quota: updatedQuota,
       remaining: access.remaining,
-      cached: false,
+      recommendSku,
+      alreadyDrewToday: false,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;

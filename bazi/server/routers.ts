@@ -361,7 +361,15 @@ export const appRouter = router({
             const wuXing = summary?.wuXing as Record<string, number> | undefined;
             const brandedReport = sanitizeReportBrandText(input.reportContent);
             const productRecommend = input.planType === 'basic'
-              ? await fetchReportProductRecommend(wuXing)
+              ? await fetchReportProductRecommend(wuXing, {
+                  chart: summary
+                    ? {
+                        birthStr: String(summary.birthStr ?? summary.birth ?? ''),
+                        gender: String(summary.gender ?? 'male'),
+                        name: input.name || buyerName || undefined,
+                      }
+                    : undefined,
+                })
               : null;
 
             const staticHtml = buildReportPageHtml({

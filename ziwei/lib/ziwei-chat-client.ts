@@ -72,6 +72,8 @@ export async function fetchZiweiChatProducts(locale = 'zh-CN'): Promise<ZiweiCha
   return plans;
 }
 
+import type { ZiweiChart } from '@/lib/ziwei/types';
+
 export type RecommendProduct = {
   sku: string;
   name: string;
@@ -79,12 +81,24 @@ export type RecommendProduct = {
   priceDisplay: string;
 };
 
-export async function fetchZiweiRecommendProduct(readingId: string): Promise<RecommendProduct | null> {
+export async function fetchZiweiRecommendProduct(chart: ZiweiChart): Promise<RecommendProduct | null> {
   try {
-    const res = await fetch(
-      `/api/recommend/product?readingId=${encodeURIComponent(readingId)}`,
-      { cache: 'no-store' },
-    );
+    const { birthInfo, wuxingJuName } = chart;
+    const res = await fetch('/api/recommend/product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({
+        year: birthInfo.year,
+        month: birthInfo.month,
+        day: birthInfo.day,
+        hour: birthInfo.hour,
+        gender: birthInfo.gender,
+        name: birthInfo.name,
+        city: birthInfo.city,
+        wuxingJuName,
+      }),
+    });
     if (!res.ok) return null;
     const data = (await res.json()) as { product: RecommendProduct };
     return data.product;

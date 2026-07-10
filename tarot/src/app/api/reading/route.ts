@@ -3,7 +3,7 @@ import { drawCards } from "@/lib/tarot/draw"
 import { getAuthUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getFreeReadingsRemaining, resolveReadingAccess } from "@/lib/free-readings"
-import { buildInputHash, hashToNumericSeed, normalizeQuestion } from "@/lib/reading-stable"
+import { normalizeQuestion } from "@/lib/reading-stable"
 
 export async function GET() {
   const auth = await getAuthUser()
@@ -35,28 +35,7 @@ export async function POST(req: NextRequest) {
     const spreadKey = spreadType === "single" ? "single" : "three"
     const questionNorm = normalizeQuestion(question) || "今日整体运势"
 
-    if (auth) {
-      const existing = await prisma.readingRecord.findFirst({
-        where: { userId: auth.userId, spreadType: spreadKey, question: questionNorm },
-        orderBy: { createdAt: "desc" },
-      })
-      if (existing) {
-        return NextResponse.json({
-          readingId: existing.id,
-          cards: existing.cards,
-          question: existing.question,
-          free: access.source !== "paid_order",
-          accessSource: access.source,
-          freeReadingsRemaining: access.remaining,
-          cached: true,
-        })
-      }
-    }
-
-    const seedKey = auth
-      ? buildInputHash({ userId: auth.userId, spread: spreadKey, question: questionNorm })
-      : buildInputHash({ guest: "anonymous", spread: spreadKey, question: questionNorm })
-    const result = drawCards(spreadKey, questionNorm, hashToNumericSeed(seedKey), "afternoon")
+    const result = drawCards(spreadKey, questionNorm, undefined, "afternoon")
 
     const cards = result.cards.map((c) => {
       const pos = c.position

@@ -3,6 +3,7 @@ import {
   prefetchBaziRecommendSkus,
   resolveRecommendProductForElement,
   shopCheckoutUrlForProduct,
+  type BaziChartRecommendContext,
   type BaziRecommendProduct,
 } from '@/lib/shop-products';
 
@@ -14,17 +15,23 @@ const CARD_GRADIENT = 'linear-gradient(135deg, rgba(196,160,78,0.06) 0%, rgba(19
 const SERIF_F = "'Noto Serif SC', serif";
 
 /** 后台配置的五行推荐商品（基础版数字报告唯一购买入口） */
-export function BaziConfiguredProductRecommend({ element }: { element: string }) {
+export function BaziConfiguredProductRecommend({
+  element,
+  chart,
+}: {
+  element: string;
+  chart?: BaziChartRecommendContext;
+}) {
   const [product, setProduct] = useState<BaziRecommendProduct | null>(null);
   const [shopUrl, setShopUrl] = useState<string | null>(null);
 
   useEffect(() => {
     prefetchBaziRecommendSkus();
-    void resolveRecommendProductForElement(element).then((p) => {
+    void resolveRecommendProductForElement(element, chart).then((p) => {
       setProduct(p);
       if (p) setShopUrl(shopCheckoutUrlForProduct(p));
     });
-  }, [element]);
+  }, [element, chart?.birthStr, chart?.gender, chart?.name, chart?.wuXing]);
 
   if (!product || !shopUrl) return null;
 
