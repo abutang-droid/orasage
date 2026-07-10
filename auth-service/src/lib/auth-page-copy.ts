@@ -40,24 +40,6 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: '至少 6 位',
   },
-  'zh-TW': {
-    loginTitle: '登入以繼續',
-    loginLead: '登入後可同步測試對象、占卜記錄與訂單',
-    loginBtn: '登入',
-    loginSwitch: '沒有帳號？',
-    loginSwitchLink: '立即註冊',
-    registerTitle: '建立帳號',
-    registerLead: '註冊後可同步命理測試與商城訂單',
-    registerBtn: '註冊',
-    registerSwitch: '已有帳號？',
-    registerSwitchLink: '去登入',
-    email: '電子郵件',
-    password: '密碼',
-    nickname: '暱稱',
-    nicknamePlaceholder: '選填，用於顯示名稱',
-    emailPlaceholder: 'name@example.com',
-    passwordPlaceholder: '至少 6 個字元',
-  },
   en: {
     loginTitle: 'Sign in to continue',
     loginLead: 'Sign in to sync profiles, readings, and orders',
@@ -109,7 +91,6 @@ export function authLoginLabel(locale: string): string {
 export function authRequestFailed(locale: string): string {
   const map: Record<CoreLocale, string> = {
     'zh-CN': '请求失败',
-    'zh-TW': '請求失敗',
     en: 'Request failed',
     'pt-BR': 'Falha na solicitação',
   };

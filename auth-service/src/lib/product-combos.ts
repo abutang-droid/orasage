@@ -206,8 +206,9 @@ export async function setComboItems(comboSku: string, items: ComboItemInput[]) {
   const [combo] = await db.select().from(products).where(eq(products.sku, comboSku)).limit(1);
   if (!combo) return [];
 
-  const componentBySku = await loadComponentProducts(values.map((v) => v.componentSku));
-  const meta = buildComboMeta(combo, values, componentBySku);
+  const itemRows = await listComboItems(comboSku);
+  const componentBySku = await loadComponentProducts(itemRows.map((v) => v.componentSku));
+  const meta = buildComboMeta(combo, itemRows, componentBySku);
   if (meta) {
     await db
       .update(products)
