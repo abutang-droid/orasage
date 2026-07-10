@@ -94,16 +94,16 @@ export async function resolveOrasagePayloadUser(
 
   if (byEmail.docs[0]) {
     const doc = byEmail.docs[0] as unknown as Record<string, unknown>;
-    if (doc.orasageUserId == null) {
-      const updated = await payload.update({
-        collection: 'users',
-        id: doc.id as string | number,
-        data: { orasageUserId, staffPermissions } as never,
-        overrideAccess: true,
-      });
-      return updated as unknown as Record<string, unknown>;
-    }
-    return doc;
+    const updated = await payload.update({
+      collection: 'users',
+      id: doc.id as string | number,
+      data: {
+        ...(doc.orasageUserId == null ? { orasageUserId } : {}),
+        staffPermissions,
+      } as never,
+      overrideAccess: true,
+    });
+    return updated as unknown as Record<string, unknown>;
   }
 
   try {
@@ -129,5 +129,7 @@ export async function resolveUserFromOrasageToken(
   if (!token) return null;
   const verified = await verifyOrasageAdminToken(token);
   if (!verified) return null;
-  return resolveOrasagePayloadUser(payload, verified.orasageUserId, verified.staffPermissions);
+  const doc = await resolveOrasagePayloadUser(payload, verified.orasageUserId, verified.staffPermissions);
+  if (!doc) return null;
+  return { ...doc, staffPermissions: verified.staffPermissions };
 }

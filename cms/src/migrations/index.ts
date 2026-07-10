@@ -26,6 +26,7 @@ import * as migration_20260708_090000_daozang_taxonomy from './20260708_090000_d
 import * as migration_20260708_120000_daozang_book_categories from './20260708_120000_daozang_book_categories';
 import * as migration_20260708_150000_daozang_volume from './20260708_150000_daozang_volume';
 import * as migration_20260709_120000_shop_pdp_locales from './20260709_120000_shop_pdp_locales';
+import * as migration_20260710_100000_users_staff_permissions from './20260710_100000_users_staff_permissions';
 
 export const migrations = [
   {
@@ -167,5 +168,10 @@ export const migrations = [
     up: migration_20260709_120000_shop_pdp_locales.up,
     down: migration_20260709_120000_shop_pdp_locales.down,
     name: '20260709_120000_shop_pdp_locales',
+  },
+  {
+    up: migration_20260710_100000_users_staff_permissions.up,
+    down: migration_20260710_100000_users_staff_permissions.down,
+    name: '20260710_100000_users_staff_permissions',
   },
 ];
