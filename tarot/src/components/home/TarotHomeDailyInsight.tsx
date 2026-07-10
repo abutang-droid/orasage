@@ -93,9 +93,6 @@ export function TarotHomeDailyInsight() {
       <div className="tarot-home-daily-insight-body">
         <div className="tarot-home-daily-insight-head">
           <h2 className="tarot-home-daily-insight-title">{home.dailyInsightTitle}</h2>
-          {!completed && home.quotaFreeToday ? (
-            <span className="tarot-home-daily-insight-badge">{home.quotaFreeToday}</span>
-          ) : null}
         </div>
 
         {completed ? (

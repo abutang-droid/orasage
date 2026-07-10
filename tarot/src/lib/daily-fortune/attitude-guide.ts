@@ -16,12 +16,12 @@ export function getDailyTone(orientation: '正位' | '逆位', lang: 'zh' | 'en'
   if (orientation === '正位') {
     return {
       question: '运势基调：今天会是顺利（正位）还是充满挑战（逆位）？',
-      result: '运势基调：今天会是顺利（正位）',
+      result: '今天整体基调偏顺利，适合顺势而为。',
     };
   }
   return {
     question: '运势基调：今天会是顺利（正位）还是充满挑战（逆位）？',
-    result: '运势基调：今天会充满挑战（逆位）',
+    result: '今天可能多一些挑战，宜放慢节奏、灵活应对。',
   };
 }
 
@@ -72,5 +72,5 @@ export function getDailyAttitudeGuide(
         ? '今天顺势而为，把注意力放在当下最重要的一件事'
         : '今天放慢脚步，换个角度看待眼前的局面';
 
-  return `例如抽到《${cardName}》，代表${line}。`;
+  return `《${cardName}》为你点亮这一日：${line}。`;
 }

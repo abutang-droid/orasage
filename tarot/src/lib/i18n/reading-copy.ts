@@ -595,10 +595,10 @@ const dailyFortune = {
     es: 'Sacaron hoy: {n}',
   },
   attitudeGuideLabel: {
-    zh: '行动指南：今天我应该采取什么态度？',
-    en: 'Action guide: what attitude should I take today?',
-    pt: 'Guia de ação: que atitude devo ter hoje?',
-    es: 'Guía de acción: ¿qué actitud debo tomar hoy?',
+    zh: '行动指南',
+    en: 'Action guide',
+    pt: 'Guia de ação',
+    es: 'Guía de acción',
   },
   start: {
     zh: '开始今日启示',
@@ -794,10 +794,10 @@ const home = {
     es: 'Sacaron hoy: {n}',
   },
   attitudeGuideLabel: {
-    zh: '行动指南：今天我应该采取什么态度？',
-    en: 'Action guide: what attitude should I take today?',
-    pt: 'Guia de ação: que atitude devo ter hoje?',
-    es: 'Guía de acción: ¿qué actitud debo tomar hoy?',
+    zh: '行动指南',
+    en: 'Action guide',
+    pt: 'Guia de ação',
+    es: 'Guía de acción',
   },
   dailyInsightViewAgain: {
     zh: '查看今日启示 →',
