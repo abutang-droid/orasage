@@ -2,31 +2,40 @@ import type { Metadata } from "next"
 import "./globals.css"
 import AppShell from "@/components/AppShell"
 import { ReadingSyncBackfill } from "@/components/auth/ReadingSyncBackfill"
+import { HtmlLangSync } from "@/components/i18n/HtmlLangSync"
 import { LangProvider } from "@/lib/i18n/context"
+import { resolveServerLang } from "@/lib/i18n/request-lang"
+import { siteMetadataForLang } from "@/lib/i18n/site-metadata"
 import { UserProvider } from "@/lib/user"
 import { buildOrasageMetadata, ORASAGE_URLS } from "@/lib/orasage-seo"
+import { localeFromTarotLang } from "@orasage/i18n"
 
-const PAGE_TITLE = "塔罗占卜 · 每日拜神"
-const PAGE_DESCRIPTION = "翻开你的牌，神灵在背面 · AI塔罗占卜 × 每日拜神 × 五行水晶"
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await resolveServerLang()
+  const meta = siteMetadataForLang(lang)
 
-export const metadata: Metadata = buildOrasageMetadata({
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  keywords: ["OraSage", "tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "命理"],
-  metadataBase: new URL(ORASAGE_URLS.tarot),
-  canonical: "/",
-  openGraph: {
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    url: ORASAGE_URLS.tarot,
-    locale: "zh_CN",
-  },
-  ogImage: `${ORASAGE_URLS.tarot}/og.png`,
-})
+  return buildOrasageMetadata({
+    title: meta.title,
+    description: meta.description,
+    keywords: ["OraSage", "tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "命理"],
+    metadataBase: new URL(ORASAGE_URLS.tarot),
+    canonical: "/",
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      url: ORASAGE_URLS.tarot,
+      locale: meta.locale,
+    },
+    ogImage: `${ORASAGE_URLS.tarot}/og.png`,
+  })
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = await resolveServerLang()
+  const htmlLang = localeFromTarotLang(lang)
+
   return (
-    <html lang="zh-CN">
+    <html lang={htmlLang}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#FAFAF8" />
@@ -36,7 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="antialiased">
         <UserProvider>
-          <LangProvider>
+          <LangProvider initial={lang}>
+            <HtmlLangSync />
             <ReadingSyncBackfill />
             <AppShell>
               {children}

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { detectLocale, LOCALE_COOKIE, LOCALE_OVERRIDE_COOKIE } from '@orasage/i18n';
 import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { tarotLangFromLocale } from '@/lib/orasage-locale';
 import { sourceAppLabel } from '@/lib/i18n/feature-copy';
+import { resolveRequestLang } from '@/lib/i18n/request-lang';
 import {
   birthFromParts,
   genderFromAuth,
@@ -22,28 +21,8 @@ type AuthProfile = {
   sourceApp?: string | null;
 };
 
-function readCookie(cookieHeader: string | null, name: string): string | null {
-  if (!cookieHeader) return null;
-  const match = cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`));
-  return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
-}
-
-function resolveLang(req: NextRequest) {
-  const cookie = req.headers.get('cookie');
-  const locale = detectLocale({
-    queryLocale: req.nextUrl.searchParams.get('lang'),
-    cookieLocale:
-      readCookie(cookie, LOCALE_OVERRIDE_COOKIE) ?? readCookie(cookie, LOCALE_COOKIE),
-    acceptLanguage: req.headers.get('accept-language'),
-  });
-  return tarotLangFromLocale(locale);
-}
-
 export async function GET(req: NextRequest) {
-  const lang = resolveLang(req);
+  const lang = resolveRequestLang(req);
   const auth = await getAuthUser();
   const empty: OnboardingPrefill = {
     nickname: '',

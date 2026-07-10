@@ -2,9 +2,21 @@
 import { useState, useEffect } from "react"
 import TarotCard from "@/components/TarotCard"
 import { ALL_CARDS } from "@/lib/tarot/cards"
+import { useCardName } from "@/lib/i18n/context"
+import { useDailyCardCopy } from "@/lib/i18n/feature-copy"
 
 export default function DailyCardPage() {
-  const [data, setData] = useState<any>(null)
+  const copy = useDailyCardCopy()
+  const cardName = useCardName()
+  const [data, setData] = useState<{
+    cardName: string
+    cardType?: string
+    message?: string
+    luckyTip?: string
+    orientation?: "upright" | "reversed"
+    orientationText?: string
+    alreadyDrew?: boolean
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [flipped, setFlipped] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -30,12 +42,14 @@ export default function DailyCardPage() {
   }
 
   const cardMeta = data?.cardName ? ALL_CARDS.find(c => c.name === data.cardName) : null
+  const isUpright = data?.orientation !== "reversed"
+  const displayName = cardMeta ? cardName(cardMeta) : data?.cardName || ""
 
   if (loading) return (
     <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <div className="spinner" style={{ margin: '0 auto 16px' }} />
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>抽取今日灵卡…</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>{copy.loading}</div>
       </div>
     </div>
   )
@@ -43,14 +57,12 @@ export default function DailyCardPage() {
   return (
     <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 20px', textAlign: 'center' }}>
 
-      {/* ── Header ── */}
       <div className="page-header animate-fade-in-up">
-        <span className="label">DAILY CARD</span>
-        <h1>每日抽卡</h1>
-        <p>{data?.alreadyDrew ? "这是你今天抽到的牌" : "点击卡牌翻转，接收今日讯息"}</p>
+        <span className="label">{copy.label}</span>
+        <h1>{copy.title}</h1>
+        <p>{data?.alreadyDrew ? copy.subtitleDrew : copy.subtitleNew}</p>
       </div>
 
-      {/* ── Card ── */}
       <div
         className="animate-scale-in"
         style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}
@@ -62,9 +74,9 @@ export default function DailyCardPage() {
           filter: flipped ? 'none' : 'drop-shadow(0 8px 24px rgba(201,149,74,0.2))',
         }}>
           <TarotCard
-            name={data?.cardName || ""}
+            name={displayName}
             nameEn={cardMeta?.nameEn}
-            orientation={data?.orientation || "正位"}
+            orientation={data?.orientation === "reversed" ? "逆位" : "正位"}
             keywords={cardMeta?.keywords?.join("·")}
             flipped={flipped}
             arcana={cardMeta?.arcana}
@@ -76,11 +88,9 @@ export default function DailyCardPage() {
         </div>
       </div>
 
-      {/* ── Result ── */}
       {revealed && data && (
         <div className="animate-fade-in-up" style={{ textAlign: 'left' }}>
 
-          {/* Card info */}
           <div style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border)',
@@ -95,11 +105,11 @@ export default function DailyCardPage() {
               )}
               <span style={{
                 fontSize: 11, fontWeight: 500,
-                color: data.orientation === '正位' ? 'var(--green)' : 'var(--rose)',
-                background: data.orientation === '正位' ? 'var(--green-pale)' : 'var(--rose-pale)',
+                color: isUpright ? 'var(--green)' : 'var(--rose)',
+                background: isUpright ? 'var(--green-pale)' : 'var(--rose-pale)',
                 padding: '2px 10px', borderRadius: 20,
               }}>
-                {data.orientation === '正位' ? '↑ 正位' : '↓ 逆位'}
+                {isUpright ? copy.uprightShort : copy.reversedShort}
               </span>
             </div>
 
@@ -107,14 +117,14 @@ export default function DailyCardPage() {
               fontSize: 22, fontFamily: 'var(--font-serif)',
               fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4,
             }}>
-              {data.cardName}
+              {displayName}
             </div>
-            {cardMeta?.nameEn && (
+            {cardMeta?.nameEn && copy.lang !== 'zh' && cardMeta.name !== displayName && (
               <div style={{
                 fontSize: 11, color: 'var(--text-muted)',
                 letterSpacing: '0.08em', fontFamily: 'var(--font-display)', marginBottom: 14,
               }}>
-                {cardMeta.nameEn}
+                {cardMeta.name}
               </div>
             )}
 
@@ -133,7 +143,6 @@ export default function DailyCardPage() {
             </div>
           </div>
 
-          {/* Lucky tip */}
           {data.luckyTip && (
             <div style={{
               background: 'linear-gradient(135deg, var(--gold-subtle), var(--bg-card))',
@@ -152,7 +161,7 @@ export default function DailyCardPage() {
                 <span style={{ fontSize: 11, color: 'var(--gold)' }}>✦</span>
               </div>
               <div>
-                <div className="section-label" style={{ marginBottom: 5 }}>今日幸运提示</div>
+                <div className="section-label" style={{ marginBottom: 5 }}>{copy.luckyTipLabel}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.75 }}>
                   {data.luckyTip}
                 </div>
@@ -161,14 +170,14 @@ export default function DailyCardPage() {
           )}
 
           <p style={{ fontSize: 11, color: 'var(--text-faint)', textAlign: 'center', letterSpacing: '0.06em', padding: '8px 0' }}>
-            每日仅限抽取一次
+            {copy.oncePerDay}
           </p>
         </div>
       )}
 
       {!flipped && (
         <p style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 20 }}>
-          轻触卡牌，开启今日指引
+          {copy.tapHint}
         </p>
       )}
     </div>
