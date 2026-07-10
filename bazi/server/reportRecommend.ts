@@ -82,9 +82,13 @@ export async function fetchReportProductRecommend(
     if (!product?.sku) return null;
     return {
       element,
+      sku: product.sku,
       name: product.name,
       desc: product.desc ?? product.description ?? '',
       priceDisplay: product.priceDisplay,
+      priceCents: product.priceCents,
+      priceCentsUsd: product.priceCentsUsd,
+      recommendPriceOverride: product.recommendPriceOverride,
       shopUrl: shopCheckoutUrlForRecommend(product),
     };
   } catch {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   prefetchBaziRecommendSkus,
-  resolveRecommendProductForElement,
+  resolveRecommendProductForChart,
   shopCheckoutUrlForProduct,
   type BaziChartRecommendContext,
   type BaziRecommendProduct,
@@ -15,23 +15,17 @@ const CARD_GRADIENT = 'linear-gradient(135deg, rgba(196,160,78,0.06) 0%, rgba(19
 const SERIF_F = "'Noto Serif SC', serif";
 
 /** 后台配置的五行推荐商品（基础版数字报告唯一购买入口） */
-export function BaziConfiguredProductRecommend({
-  element,
-  chart,
-}: {
-  element: string;
-  chart?: BaziChartRecommendContext;
-}) {
+export function BaziConfiguredProductRecommend({ chart }: { chart: BaziChartRecommendContext }) {
   const [product, setProduct] = useState<BaziRecommendProduct | null>(null);
   const [shopUrl, setShopUrl] = useState<string | null>(null);
 
   useEffect(() => {
     prefetchBaziRecommendSkus();
-    void resolveRecommendProductForElement(element, chart).then((p) => {
+    void resolveRecommendProductForChart(chart).then((p) => {
       setProduct(p);
       if (p) setShopUrl(shopCheckoutUrlForProduct(p));
     });
-  }, [element, chart?.birthStr, chart?.gender, chart?.name, chart?.wuXing]);
+  }, [chart.birthStr, chart.gender, chart.name, chart.wuXing]);
 
   if (!product || !shopUrl) return null;
 
@@ -67,7 +61,7 @@ export function BaziConfiguredProductRecommend({
           前往购买
         </a>
         <p className="text-[10px] mt-2 text-center" style={{ color: MUTED_CLR }}>
-          根据命盘五行「{element}」为您精选
+          {product.element ? `根据命盘五行「${product.element}」为您精选` : '根据命盘五行为您精选'}
         </p>
       </div>
     </div>

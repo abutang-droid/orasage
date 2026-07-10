@@ -1,6 +1,3 @@
-import { buildBaziChartRecommendSeed } from '../../../../shared/recommend-seed/index.ts';
-
-const AUTH_URL = (import.meta.env.VITE_AUTH_URL as string | undefined) || 'https://auth.orasage.com';
 const SHOP_URL = (import.meta.env.VITE_SHOP_URL as string | undefined) || 'https://shop.orasage.com';
 
 /** 五行 → 商城 SKU 默认映射（后台未配置时的回退） */
@@ -30,6 +27,7 @@ export type BaziRecommendProduct = {
   priceCentsUsd?: number | null;
   recommendPriceOverride?: boolean;
   element?: string;
+  shopUrl?: string;
 };
 
 type RecommendCache = {
@@ -60,6 +58,7 @@ type BillingSlotsResponse = {
 };
 
 async function loadRecommendData(): Promise<RecommendCache> {
+  const AUTH_URL = (import.meta.env.VITE_AUTH_URL as string | undefined) || 'https://auth.orasage.com';
   if (cache && Date.now() < cache.expiry) return cache;
   try {
     const res = await fetch(`${AUTH_URL}/api/billing/slots?app=bazi`);
@@ -89,6 +88,7 @@ async function loadRecommendData(): Promise<RecommendCache> {
 }
 
 export function shopCheckoutUrlForProduct(product: Pick<BaziRecommendProduct, 'sku' | 'priceCents' | 'priceCentsUsd' | 'recommendPriceOverride'>): string {
+  if (product.shopUrl) return product.shopUrl;
   const params = new URLSearchParams({
     sku: product.sku,
     appSource: 'bazi',
@@ -113,34 +113,35 @@ export function shopSkuForElement(element: string, skuMap?: Record<string, strin
   return map[element];
 }
 
-export async function resolveRecommendProductForElement(
-  element: string,
-  chart?: BaziChartRecommendContext,
+/** 命盘绑定推荐：由服务端按五行结论 + 命盘指纹计算 seed */
+export async function resolveRecommendProductForChart(
+  chart: BaziChartRecommendContext,
 ): Promise<BaziRecommendProduct | null> {
+  try {
+    const params = new URLSearchParams({
+      birthStr: chart.birthStr,
+      gender: chart.gender,
+      wuXing: JSON.stringify(chart.wuXing),
+    });
+    if (chart.name) params.set('name', chart.name);
+    const res = await fetch(`/api/recommend/product?${params.toString()}`);
+    if (!res.ok) return null;
+    const body = await res.json() as { product?: BaziRecommendProduct };
+    return body.product ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function resolveRecommendProductForElement(element: string): Promise<BaziRecommendProduct | null> {
   const data = await loadRecommendData();
+  const cached = data?.products[element];
+  if (cached) return cached;
+  const AUTH_URL = (import.meta.env.VITE_AUTH_URL as string | undefined) || 'https://auth.orasage.com';
   const slotCode = ELEMENT_TO_SLOT_CODE[element];
   if (!slotCode) return null;
-
-  const chartSeed = chart?.birthStr
-    ? buildBaziChartRecommendSeed({
-        birthStr: chart.birthStr,
-        gender: chart.gender,
-        name: chart.name,
-        wuXing: chart.wuXing,
-      })
-    : undefined;
-
-  if (!chartSeed) {
-    const cached = data?.products[element];
-    if (cached) return cached;
-  }
-
   try {
-    const url = new URL(`${AUTH_URL}/api/billing/slot`);
-    url.searchParams.set('app', 'bazi');
-    url.searchParams.set('key', `recommend.element.${slotCode}`);
-    if (chartSeed) url.searchParams.set('seed', chartSeed);
-    const res = await fetch(url.toString());
+    const res = await fetch(`${AUTH_URL}/api/billing/slot?app=bazi&key=recommend.element.${slotCode}`);
     if (!res.ok) return null;
     const body = await res.json() as { product?: BaziRecommendProduct };
     return body.product ?? null;

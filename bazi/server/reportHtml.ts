@@ -13,6 +13,10 @@ export type ReportProductRecommend = {
   priceDisplay: string;
   shopUrl: string;
   element?: string;
+  sku?: string;
+  priceCents?: number;
+  priceCentsUsd?: number | null;
+  recommendPriceOverride?: boolean;
 };
 
 export type ReportSection = { title: string; content: string };
