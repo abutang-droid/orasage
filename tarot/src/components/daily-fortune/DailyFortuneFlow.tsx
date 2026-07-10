@@ -1,19 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
+import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
 import { shopUrlForSku } from '@/lib/shop-products';
 import type {
-  DailyFortuneAnswer,
   DailyFortuneFullReport,
-  DailyFortuneQuestion,
   DailyFortuneRecordDto,
 } from '@/lib/daily-fortune/types';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
@@ -42,16 +42,17 @@ type DrawCard = {
   element: string;
 };
 
-type Step = 'loading' | 'start' | 'questions' | 'drawing' | 'report' | 'exhausted';
+type Step = 'loading' | 'start' | 'drawing' | 'report' | 'exhausted';
+
+function formatCount(n: number): string {
+  return n.toLocaleString('en-US');
+}
 
 export function DailyFortuneFlow() {
   const copy = useDailyFortuneCopy();
   const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
-  const [questions, setQuestions] = useState<DailyFortuneQuestion[]>([]);
-  const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState<DailyFortuneAnswer[]>([]);
   const [record, setRecord] = useState<DailyFortuneRecordDto | null>(null);
   const [card, setCard] = useState<DrawCard | null>(null);
   const [brief, setBrief] = useState('');
@@ -60,36 +61,21 @@ export function DailyFortuneFlow() {
   const [flipped, setFlipped] = useState(false);
   const [recommend, setRecommend] = useState<TarotBillingProduct | null>(null);
   const [error, setError] = useState('');
-  const [questionsLoading, setQuestionsLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
   const [alreadyDrewToday, setAlreadyDrewToday] = useState(false);
+  const [participantCount, setParticipantCount] = useState<number | null>(null);
 
-  const loadSession = useCallback(async () => {
-    const params =
-      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const recordIdParam = params?.get('recordId') ?? null;
-
-    const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
-    const data = (await res.json()) as SessionPayload;
-    setSession(data);
-    setIsLoggedIn(data.isLoggedIn);
-
-    const resumeRecord =
-      (recordIdParam ? data.records.find((r) => r.id === recordIdParam) : null) ?? data.latest;
-
-    if (resumeRecord) {
-      hydrateReport(resumeRecord, data.isLoggedIn);
-      setAlreadyDrewToday(true);
-      setStep('report');
-      return;
+  const loadStats = async () => {
+    try {
+      const res = await fetch('/api/daily-fortune/stats', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setParticipantCount(data.displayCount ?? null);
+      }
+    } catch {
+      /* optional */
     }
-
-    if (data.quota.remaining <= 0) {
-      setStep('exhausted');
-      return;
-    }
-    setStep('start');
-  }, []);
+  };
 
   const hydrateReport = (rec: DailyFortuneRecordDto, loggedIn: boolean) => {
     setRecord(rec);
@@ -125,47 +111,39 @@ export function DailyFortuneFlow() {
     }
   };
 
+  const loadSession = useCallback(async () => {
+    const params =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const recordIdParam = params?.get('recordId') ?? null;
+
+    const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
+    const data = (await res.json()) as SessionPayload;
+    setSession(data);
+    setIsLoggedIn(data.isLoggedIn);
+    void loadStats();
+
+    const resumeRecord =
+      (recordIdParam ? data.records.find((r) => r.id === recordIdParam) : null) ?? data.latest;
+
+    if (resumeRecord) {
+      hydrateReport(resumeRecord, data.isLoggedIn);
+      setAlreadyDrewToday(true);
+      setStep('report');
+      return;
+    }
+
+    if (data.quota.remaining <= 0) {
+      setStep('exhausted');
+      return;
+    }
+    setStep('start');
+  }, []);
+
   useEffect(() => {
     void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession, copy.loadFailed]);
 
-  const beginQuestions = async () => {
-    setError('');
-    setStep('questions');
-    setQIndex(0);
-    setAnswers([]);
-    setQuestionsLoading(true);
-    try {
-      const res = await fetch('/api/daily-fortune/questions', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const data = await res.json();
-      setQuestions(data.questions ?? []);
-    } catch {
-      setError(copy.questionsFailed);
-      setStep('start');
-    } finally {
-      setQuestionsLoading(false);
-    }
-  };
-
-  const pickAnswer = (answer: string) => {
-    const q = questions[qIndex];
-    if (!q) return;
-    const nextAnswers = [
-      ...answers,
-      { questionId: q.id, question: q.text, answer },
-    ];
-    setAnswers(nextAnswers);
-    if (qIndex + 1 < questions.length) {
-      setQIndex(qIndex + 1);
-      return;
-    }
-    void submitDraw(nextAnswers);
-  };
-
-  const submitDraw = async (finalAnswers: DailyFortuneAnswer[]) => {
+  const submitDraw = async () => {
     setStep('drawing');
     setFlipped(false);
     setCard(null);
@@ -176,7 +154,7 @@ export function DailyFortuneFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: finalAnswers }),
+        body: JSON.stringify({ answers: [] }),
       });
       const data = await res.json();
       if (res.status === 409 || data.alreadyDrewToday) {
@@ -201,6 +179,7 @@ export function DailyFortuneFlow() {
       );
       setAlreadyDrewToday(Boolean(data.alreadyDrewToday));
       setDrawLoading(false);
+      void loadStats();
       setTimeout(() => setFlipped(true), 500);
       setTimeout(() => {
         setStep('report');
@@ -209,12 +188,16 @@ export function DailyFortuneFlow() {
     } catch (err) {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
-      setStep('questions');
+      setStep('start');
     }
   };
 
   const cardMeta = card ? getCardById(card.id) : null;
-  const currentQ = questions[qIndex];
+  const orientation = card?.orientation ?? '正位';
+  const tone = getDailyTone(orientation, copy.lang);
+  const attitude = cardMeta && card
+    ? getDailyAttitudeGuide(cardMeta.id, card.name, orientation, cardMeta.suit)
+    : '';
 
   if (step === 'loading') {
     return (
@@ -228,57 +211,33 @@ export function DailyFortuneFlow() {
 
   return (
     <div className="daily-fortune-page">
-      <div className="page-header animate-fade-in-up">
-        <span className="label">{copy.label}</span>
-        <h1>{copy.title}</h1>
-        <p>
-          {copy.nicknameGreeting(session?.nickname)}
-          {copy.dimsSubtitle}
-        </p>
-      </div>
-
-      {session && step !== 'exhausted' && (
-        <div className="daily-fortune-quota card animate-fade-in-up delay-100">
-          <div className="daily-fortune-quota-row">
-            <span>{copy.quotaAllowance}</span>
-            <strong>{copy.times(session.quota.allowance)}</strong>
-          </div>
-          <div className="daily-fortune-quota-row">
-            <span>{copy.quotaRemaining}</span>
-            <strong>{copy.times(session.quota.remaining)}</strong>
-          </div>
-        </div>
-      )}
-
       {step === 'start' && (
-        <div className="daily-fortune-panel card animate-fade-in-up delay-200">
-          <p className="daily-fortune-panel-lead">{copy.introLead}</p>
-          <Button type="button" className="daily-fortune-panel-btn w-full" onClick={() => void beginQuestions()}>
-            {copy.start}
-          </Button>
-        </div>
-      )}
-
-      {step === 'questions' && questionsLoading && (
-        <MantoThinking message={copy.preparing} hint={copy.preparingHint} />
-      )}
-
-      {step === 'questions' && !questionsLoading && currentQ && (
-        <div className="daily-fortune-panel card animate-fade-in-up">
-          <div className="daily-fortune-q-progress">
-            {copy.questionProgress(qIndex + 1, questions.length)}
-          </div>
-          <p className="daily-fortune-q-text">{currentQ.text}</p>
-          <div className="daily-fortune-q-options">
-            {currentQ.options.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                className="daily-fortune-q-option"
-                onClick={() => pickAnswer(opt)}
-              >
-                {opt}
-              </button>
+        <div className="daily-insight-intro animate-fade-in-up">
+          <h1 className="daily-insight-intro-title">{copy.introTitle}</h1>
+          <p className="daily-insight-intro-subtitle">{copy.introSubtitle}</p>
+          <div className="daily-insight-intro-divider" aria-hidden />
+          <button
+            type="button"
+            className="daily-insight-intro-draw"
+            onClick={() => void submitDraw()}
+            disabled={drawLoading}
+          >
+            <div className="daily-insight-intro-card">
+              <Image
+                src="/cards/back.webp"
+                alt=""
+                width={120}
+                height={186}
+                className="daily-insight-intro-card-img"
+                priority
+              />
+            </div>
+            <span className="daily-insight-intro-draw-label">{copy.tapToDraw}</span>
+          </button>
+          <div className="daily-insight-intro-divider" aria-hidden />
+          <div className="daily-insight-intro-calm">
+            {copy.introCalmLines.map((line) => (
+              <p key={line}>{line}</p>
             ))}
           </div>
         </div>
@@ -309,11 +268,30 @@ export function DailyFortuneFlow() {
 
       {step === 'report' && card && cardMeta && (
         <div className="daily-fortune-report animate-fade-in-up">
+          <div className="page-header">
+            <span className="label">{copy.label}</span>
+            <h1>{copy.introTitle}</h1>
+          </div>
+
           {alreadyDrewToday ? (
             <div className="card daily-fortune-already-drew animate-fade-in-up" role="status">
               <p>{copy.alreadyDrewToday}</p>
             </div>
           ) : null}
+
+          <div className="card daily-insight-summary">
+            <p className="daily-insight-summary-tone">{tone.result}</p>
+            {participantCount != null ? (
+              <p className="daily-insight-summary-count">
+                {copy.participantCount(formatCount(participantCount))}
+              </p>
+            ) : null}
+            <div className="daily-insight-summary-guide">
+              <p className="daily-insight-summary-guide-label">{copy.attitudeGuideLabel}</p>
+              <p>{attitude}</p>
+            </div>
+          </div>
+
           <div className="card daily-fortune-draw" style={{ marginBottom: 16 }}>
             <div className="daily-fortune-draw-card">
               <TarotFlipCard
@@ -321,7 +299,7 @@ export function DailyFortuneFlow() {
                 flipped
                 size="md"
                 orientation={card.orientation}
-                caption={`${cardMeta ? cardNameFor(cardMeta) : card.name} · ${copy.orientation(card.orientation)}`}
+                caption={`${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`}
               />
             </div>
           </div>
