@@ -4,9 +4,17 @@ import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { consumeSingleCardDraw, getSingleCardQuota } from '@/lib/single-card-quota';
 import { createSingleCardReading, drawSingleCard } from '@/lib/single-card/record';
 import { normalizeQuestion } from '@/lib/reading-stable';
+import type { SingleCardAnswer } from '@/lib/single-card/types';
+
+const answerSchema = z.object({
+  questionId: z.string().min(1),
+  question: z.string().min(1),
+  answer: z.string().min(1),
+});
 
 const bodySchema = z.object({
   question: z.string().max(500).optional(),
+  answers: z.array(answerSchema).min(2).max(2),
 });
 
 export async function POST(req: NextRequest) {
@@ -14,6 +22,7 @@ export async function POST(req: NextRequest) {
     const ensured = await ensureAuthUser();
     const body = bodySchema.parse(await req.json());
     const question = normalizeQuestion(body.question) || '当下指引';
+    const answers = body.answers as SingleCardAnswer[];
 
     const access = await consumeSingleCardDraw(ensured.userId);
     if (!access.ok) {
@@ -31,6 +40,7 @@ export async function POST(req: NextRequest) {
       userId: ensured.userId,
       question,
       card,
+      qaAnswers: answers,
     });
 
     const quota = await getSingleCardQuota(ensured.userId);
@@ -40,6 +50,7 @@ export async function POST(req: NextRequest) {
       readingId: record.id,
       card: record.card,
       question: record.question,
+      qaAnswers: record.qaAnswers,
       quota,
       remaining: access.remaining,
       source: access.source,

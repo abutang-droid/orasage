@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
-import { generateSingleCardBrief } from '@/lib/single-card/brief';
+import { generateSingleCardLiteralMeaning } from '@/lib/single-card/literal-meaning';
 import { getSingleCardReading, saveSingleCardBrief } from '@/lib/single-card/record';
 import { maybeSyncSingleCardReading } from '@/lib/single-card/sync';
 import { prisma } from '@/lib/prisma';
@@ -10,6 +10,9 @@ import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/i
 
 const bodySchema = z.object({
   readingId: z.string().uuid(),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -40,8 +43,7 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    const brief = await generateSingleCardBrief({
-      question: record.question,
+    const brief = await generateSingleCardLiteralMeaning({
       card: record.card,
       language,
     });
@@ -66,6 +68,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '参数错误' }, { status: 400 });
     }
     console.error('[single-card/brief]', err);
-    return NextResponse.json({ error: '简读生成失败' }, { status: 500 });
+    return NextResponse.json({ error: '牌面释义生成失败' }, { status: 500 });
   }
 }

@@ -1,3 +1,15 @@
+export type SingleCardQuestion = {
+  id: string;
+  text: string;
+  options: string[];
+};
+
+export type SingleCardAnswer = {
+  questionId: string;
+  question: string;
+  answer: string;
+};
+
 export type SingleCardStoredCard = {
   cardId: number;
   cardName: string;
@@ -6,8 +18,10 @@ export type SingleCardStoredCard = {
   element: string;
 };
 
+/** 免费层：韦特牌面字面释义（非个性化简读） */
 export type SingleCardBriefPayload = {
   text: string;
+  literal: true;
   llm: boolean;
 };
 
@@ -22,6 +36,7 @@ export type SingleCardFullReport = {
 export type SingleCardRecordDto = {
   id: string;
   question: string;
+  qaAnswers: SingleCardAnswer[] | null;
   card: SingleCardStoredCard;
   briefText: SingleCardBriefPayload | null;
   fullReport: SingleCardFullReport | null;

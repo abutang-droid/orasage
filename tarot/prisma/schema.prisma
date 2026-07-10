@@ -210,6 +210,7 @@ model SingleCardDay {
   dateKey             String   @db.VarChar(10)
   drawsUsed           Int      @default(0)
   templeBonusGranted  Boolean  @default(false)
+  templeFreeReportUsed Boolean @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -218,11 +219,12 @@ model SingleCardDay {
   @@index([userId, dateKey])
 }
 
-/** 单牌阵占卜（简读免费，详读付费） */
+/** 单牌阵占卜（字面释义免费，结合问题的详读按次付费或祈福赠送） */
 model SingleCardReading {
   id            String   @id @default(uuid())
   userId        String
   question      String   @db.VarChar(500)
+  qaAnswers     Json?
   cardId        Int
   cardName      String   @db.VarChar(80)
   cardNameEn    String?  @db.VarChar(80)

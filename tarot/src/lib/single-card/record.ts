@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { drawCards } from '@/lib/tarot/draw';
 import type {
+  SingleCardAnswer,
   SingleCardBriefPayload,
   SingleCardFullReport,
   SingleCardRecordDto,
@@ -10,10 +11,16 @@ import type {
 function parseBrief(raw: string | null): SingleCardBriefPayload | null {
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as SingleCardBriefPayload;
+    const parsed = JSON.parse(raw) as SingleCardBriefPayload;
+    return { ...parsed, literal: true };
   } catch {
-    return { text: raw, llm: false };
+    return { text: raw, literal: true, llm: false };
   }
+}
+
+function parseQaAnswers(raw: unknown): SingleCardAnswer[] | null {
+  if (!raw || !Array.isArray(raw)) return null;
+  return raw as SingleCardAnswer[];
 }
 
 function parseFullReport(raw: string | null): SingleCardFullReport | null {
@@ -28,6 +35,7 @@ function parseFullReport(raw: string | null): SingleCardFullReport | null {
 function mapRecord(row: {
   id: string;
   question: string;
+  qaAnswers?: unknown;
   cardId: number;
   cardName: string;
   cardNameEn: string | null;
@@ -43,6 +51,7 @@ function mapRecord(row: {
   return {
     id: row.id,
     question: row.question,
+    qaAnswers: parseQaAnswers(row.qaAnswers),
     card: {
       cardId: row.cardId,
       cardName: row.cardName,
@@ -76,11 +85,13 @@ export async function createSingleCardReading(input: {
   userId: string;
   question: string;
   card: SingleCardStoredCard;
+  qaAnswers?: SingleCardAnswer[];
 }) {
   const row = await prisma.singleCardReading.create({
     data: {
       userId: input.userId,
       question: input.question.slice(0, 500),
+      qaAnswers: input.qaAnswers?.length ? input.qaAnswers : undefined,
       cardId: input.card.cardId,
       cardName: input.card.cardName,
       cardNameEn: input.card.cardNameEn,
