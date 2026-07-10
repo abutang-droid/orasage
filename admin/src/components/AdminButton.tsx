@@ -5,9 +5,29 @@ import { Button } from '@orasage/ui/button';
 
 type AdminButtonProps = ComponentProps<typeof Button>;
 
-export function AdminSubmitButton({ className, children, ...props }: AdminButtonProps) {
+function adminSubmitClasses(
+  variant: AdminButtonProps['variant'],
+  size: AdminButtonProps['size'],
+  className?: string,
+) {
+  const variantClass =
+    variant === 'destructive' ? 'admin-submit-btn--danger'
+      : variant === 'secondary' ? 'admin-submit-btn--secondary'
+        : variant === 'ghost' ? 'admin-submit-btn--ghost'
+          : 'admin-submit-btn--primary';
+  const sizeClass = size === 'sm' ? 'admin-submit-btn--sm' : size === 'lg' ? 'admin-submit-btn--lg' : '';
+  return ['admin-submit-btn', variantClass, sizeClass, className].filter(Boolean).join(' ');
+}
+
+export function AdminSubmitButton({ className, children, variant, size, ...props }: AdminButtonProps) {
   return (
-    <Button type="submit" className={className} {...props}>
+    <Button
+      type="submit"
+      variant={variant}
+      size={size}
+      className={adminSubmitClasses(variant, size, className)}
+      {...props}
+    >
       {children}
     </Button>
   );

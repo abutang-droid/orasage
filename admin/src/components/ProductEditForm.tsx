@@ -157,6 +157,9 @@ export function ProductEditForm({
       />
 
       <div className="product-edit-actions">
+        <p className="product-edit-actions-hint muted">
+          {isEdit ? '修改下方各分区后，点击右侧按钮保存商品基础信息。' : '填写完成后点击右侧按钮创建商品。'}
+        </p>
         <AdminSubmitButton>{isEdit ? '保存商品' : '添加商品'}</AdminSubmitButton>
       </div>
     </form>
