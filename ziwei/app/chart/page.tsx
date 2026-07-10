@@ -371,10 +371,10 @@ export default function ChartPage() {
 
         <ZiweiBriefInsight chart={activeChart ?? chart} minorMode={minorMode} />
 
-        {activeReadingId && !minorMode ? (
+        {activeChart && !minorMode ? (
           <ZiweiRecommendCard
-            readingId={activeReadingId}
-            sessionKey={`${activeReadingId}-${chatSessionKey}`}
+            chart={activeChart}
+            sessionKey={`${activeReadingId ?? 'chart'}-${chatSessionKey}`}
             dismissed={recommendDismissed}
             onDismiss={() => setRecommendDismissed(true)}
           />

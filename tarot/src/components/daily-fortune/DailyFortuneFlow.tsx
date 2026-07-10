@@ -66,6 +66,7 @@ export function DailyFortuneFlow() {
   const [error, setError] = useState('');
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
+  const [alreadyDrewToday, setAlreadyDrewToday] = useState(false);
 
   const loadSession = useCallback(async () => {
     const params =
@@ -84,6 +85,7 @@ export function DailyFortuneFlow() {
 
     if (resumeRecord) {
       hydrateReport(resumeRecord, data.isLoggedIn);
+      setAlreadyDrewToday(true);
       setStep('report');
       return;
     }
@@ -112,12 +114,15 @@ export function DailyFortuneFlow() {
       });
       setFlipped(true);
     }
-    void loadRecommend(rec.id);
+    void loadRecommend();
   };
 
-  const loadRecommend = async (seed: string) => {
+  const loadRecommend = async () => {
     try {
-      const res = await fetch(`/api/tarot/daily-recommend?seed=${encodeURIComponent(seed)}`);
+      const res = await fetch('/api/tarot/daily-recommend', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       if (res.ok) {
         const data = await res.json();
         setRecommend(data.product ?? null);
@@ -200,11 +205,12 @@ export function DailyFortuneFlow() {
         s ? { ...s, quota: data.quota, isLoggedIn: data.isLoggedIn } : s,
       );
       setPendingOrderNo(null);
+      setAlreadyDrewToday(Boolean(data.alreadyDrewToday));
       setDrawLoading(false);
       setTimeout(() => setFlipped(true), 500);
       setTimeout(() => {
         setStep('report');
-        void loadRecommend(data.record.id);
+        void loadRecommend();
       }, 1400);
     } catch (err) {
       setDrawLoading(false);
@@ -323,6 +329,11 @@ export function DailyFortuneFlow() {
 
       {step === 'report' && card && cardMeta && (
         <div className="daily-fortune-report animate-fade-in-up">
+          {alreadyDrewToday ? (
+            <div className="card daily-fortune-already-drew animate-fade-in-up" role="status">
+              <p>{copy.alreadyDrewToday}</p>
+            </div>
+          ) : null}
           <div className="card daily-fortune-draw" style={{ marginBottom: 16 }}>
             <div className="daily-fortune-draw-card">
               <TarotFlipCard
@@ -401,7 +412,7 @@ export function DailyFortuneFlow() {
             </div>
           )}
 
-          {session && session.quota.remaining > 0 && (
+          {session && session.quota.remaining > 0 && !alreadyDrewToday && (
             <Button
               type="button"
               variant="ghost"
@@ -410,6 +421,7 @@ export function DailyFortuneFlow() {
                 setRecord(null);
                 setCard(null);
                 setFlipped(false);
+                setAlreadyDrewToday(false);
                 void beginQuestions();
               }}
             >

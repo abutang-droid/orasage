@@ -4,21 +4,22 @@ import { useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { Card } from '@orasage/ui/card';
 import { fetchZiweiRecommendProduct, type RecommendProduct } from '@/lib/ziwei-chat-client';
+import type { ZiweiChart } from '@/lib/ziwei/types';
 
 type Props = {
-  readingId: string;
+  chart: ZiweiChart;
   sessionKey: string;
   dismissed: boolean;
   onDismiss: () => void;
 };
 
-export function ZiweiRecommendCard({ readingId, sessionKey, dismissed, onDismiss }: Props) {
+export function ZiweiRecommendCard({ chart, sessionKey, dismissed, onDismiss }: Props) {
   const [product, setProduct] = useState<RecommendProduct | null>(null);
 
   useEffect(() => {
     if (dismissed) return;
-    void fetchZiweiRecommendProduct(readingId).then(setProduct);
-  }, [readingId, sessionKey, dismissed]);
+    void fetchZiweiRecommendProduct(chart).then(setProduct);
+  }, [chart, sessionKey, dismissed]);
 
   if (dismissed || !product) return null;
 

@@ -27,6 +27,7 @@ function mapRecord(row: {
   fullReport: unknown;
   accessSource: string;
   readingSyncId: string | null;
+  recommendSku: string | null;
   createdAt: Date;
 }): DailyFortuneRecordDto {
   return {
@@ -40,6 +41,7 @@ function mapRecord(row: {
     fullReport: (row.fullReport as DailyFortuneFullReport | null) ?? null,
     accessSource: row.accessSource,
     readingSyncId: row.readingSyncId,
+    recommendSku: row.recommendSku,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -59,6 +61,14 @@ export async function getDailyFortuneRecordById(userId: string, id: string) {
   return row ? mapRecord(row) : null;
 }
 
+export async function getTodayDailyFortuneRecord(userId: string, dateKey = dateKeyUTC()) {
+  const row = await prisma.dailyFortuneRecord.findFirst({
+    where: { userId, dateKey },
+    orderBy: { createdAt: 'asc' },
+  });
+  return row ? mapRecord(row) : null;
+}
+
 export async function findDailyFortuneRecordByInputHash(
   userId: string,
   dateKey: string,
@@ -73,7 +83,6 @@ export async function findDailyFortuneRecordByInputHash(
 export async function createDailyFortuneRecord(input: {
   userId: string;
   dateKey?: string;
-  inputHash: string;
   cardId: number;
   cardName: string;
   orientation: '正位' | '逆位';
@@ -82,12 +91,12 @@ export async function createDailyFortuneRecord(input: {
   fullReport: DailyFortuneFullReport;
   accessSource: string;
   orderNo?: string | null;
+  recommendSku?: string | null;
 }) {
   const row = await prisma.dailyFortuneRecord.create({
     data: {
       userId: input.userId,
       dateKey: input.dateKey ?? dateKeyUTC(),
-      inputHash: input.inputHash,
       cardId: input.cardId,
       cardName: input.cardName,
       orientation: input.orientation,
@@ -96,9 +105,18 @@ export async function createDailyFortuneRecord(input: {
       fullReport: input.fullReport,
       accessSource: input.accessSource,
       orderNo: input.orderNo ?? null,
+      recommendSku: input.recommendSku ?? null,
     },
   });
   return mapRecord(row);
+}
+
+export async function saveDailyFortuneRecommendSku(id: string, userId: string, recommendSku: string) {
+  const row = await prisma.dailyFortuneRecord.updateMany({
+    where: { id, userId },
+    data: { recommendSku },
+  });
+  return row.count > 0;
 }
 
 export async function saveDailyFortuneReadingSyncId(id: string, userId: string, readingSyncId: string) {

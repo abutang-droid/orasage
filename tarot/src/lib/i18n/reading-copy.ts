@@ -409,6 +409,12 @@ const dailyFortune = {
   },
   recommendTitle: { zh: '今日推荐', en: "Today's pick", pt: 'Recomendação de hoje', es: 'Recomendación de hoy' },
   recommendCta: { zh: '去看看 →', en: 'View →', pt: 'Ver →', es: 'Ver →' },
+  alreadyDrewToday: {
+    zh: '你今天已经抽过每日运势了，以下是今日结果',
+    en: 'You already drew your daily fortune today — here is your result',
+    pt: 'Você já tirou a sorte diária hoje — este é o seu resultado',
+    es: 'Ya sacaste tu fortuna diaria hoy — este es tu resultado',
+  },
   drawAgain: {
     zh: '再抽一次（剩余 {n} 次）',
     en: 'Draw again ({n} left)',
@@ -795,6 +801,7 @@ export function useDailyFortuneCopy() {
       loginDimsCta: p(dailyFortune.loginDimsCta),
       recommendTitle: p(dailyFortune.recommendTitle),
       recommendCta: p(dailyFortune.recommendCta),
+      alreadyDrewToday: p(dailyFortune.alreadyDrewToday),
       drawAgain: (n: number) => formatTemplate(p(dailyFortune.drawAgain), { n: String(n) }),
       paywallTitle: p(dailyFortune.paywallTitle),
       paywallDesc: p(dailyFortune.paywallDesc),

@@ -1,3 +1,5 @@
+import { buildBaziChartRecommendSeed } from '../../../../shared/recommend-seed/index.ts';
+
 const AUTH_URL = (import.meta.env.VITE_AUTH_URL as string | undefined) || 'https://auth.orasage.com';
 const SHOP_URL = (import.meta.env.VITE_SHOP_URL as string | undefined) || 'https://shop.orasage.com';
 
@@ -11,6 +13,13 @@ export const ELEMENT_TO_SHOP_SKU: Record<string, string> = {
 };
 
 export const SHOP_BASE_URL = SHOP_URL;
+
+export type BaziChartRecommendContext = {
+  birthStr: string;
+  gender: string;
+  name?: string;
+  wuXing: Record<string, number>;
+};
 
 export type BaziRecommendProduct = {
   sku: string;
@@ -104,14 +113,34 @@ export function shopSkuForElement(element: string, skuMap?: Record<string, strin
   return map[element];
 }
 
-export async function resolveRecommendProductForElement(element: string): Promise<BaziRecommendProduct | null> {
+export async function resolveRecommendProductForElement(
+  element: string,
+  chart?: BaziChartRecommendContext,
+): Promise<BaziRecommendProduct | null> {
   const data = await loadRecommendData();
-  const cached = data?.products[element];
-  if (cached) return cached;
   const slotCode = ELEMENT_TO_SLOT_CODE[element];
   if (!slotCode) return null;
+
+  const chartSeed = chart?.birthStr
+    ? buildBaziChartRecommendSeed({
+        birthStr: chart.birthStr,
+        gender: chart.gender,
+        name: chart.name,
+        wuXing: chart.wuXing,
+      })
+    : undefined;
+
+  if (!chartSeed) {
+    const cached = data?.products[element];
+    if (cached) return cached;
+  }
+
   try {
-    const res = await fetch(`${AUTH_URL}/api/billing/slot?app=bazi&key=recommend.element.${slotCode}`);
+    const url = new URL(`${AUTH_URL}/api/billing/slot`);
+    url.searchParams.set('app', 'bazi');
+    url.searchParams.set('key', `recommend.element.${slotCode}`);
+    if (chartSeed) url.searchParams.set('seed', chartSeed);
+    const res = await fetch(url.toString());
     if (!res.ok) return null;
     const body = await res.json() as { product?: BaziRecommendProduct };
     return body.product ?? null;

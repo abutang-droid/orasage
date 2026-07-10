@@ -207,6 +207,7 @@ model DailyFortuneRecord {
   userId       String
   dateKey      String   @db.VarChar(10)
   inputHash    String?  @db.VarChar(32)
+  recommendSku String?  @db.VarChar(64)
   cardId       Int?
   cardName     String?  @db.VarChar(80)
   orientation  String?  @db.VarChar(10)
@@ -219,7 +220,6 @@ model DailyFortuneRecord {
   createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
-  @@unique([userId, dateKey, inputHash])
   @@index([userId, dateKey])
   @@index([userId, createdAt])
 }
@@ -241,7 +241,6 @@ model ThreeCardReading {
   updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id])
-  @@unique([userId, inputHash])
   @@index([userId, createdAt])
 }
 
