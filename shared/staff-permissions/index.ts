@@ -65,6 +65,9 @@ const ROLE_DEFAULTS: Record<StaffRole, readonly AnyStaffPermission[]> = {
     'shop.shipping',
     'shop.promotions',
     'shop.reviews',
+    // 商品编辑页通过 admin 代理写入 CMS 详情页与媒体
+    'content.cms.shop',
+    'content.cms.media',
   ],
   content_ops: [
     'ops.overview',

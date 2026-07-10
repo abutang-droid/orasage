@@ -5,7 +5,7 @@ import { readCookie, resolveUserFromOrasageToken } from './orasageSso';
 
 const JWT_COOKIE = process.env.JWT_COOKIE_NAME || 'orasage_token';
 
-/** 使用 orasage_token（auth-service 签发，role=admin）单点登录 CMS */
+/** 使用 orasage_token（auth-service 签发，运营员工角色）单点登录 CMS */
 export const orasageAuthStrategy: AuthStrategy = {
   name: 'orasage-jwt',
   authenticate: async ({ canSetHeaders, headers, payload }) => {

@@ -22,7 +22,18 @@ async function staffCmsToken(): Promise<string> {
   if (!(await getStaffUser(['admin', 'shop_ops', 'content_ops']))) {
     throw new Error('未登录或无权限');
   }
-  const token = await staffCmsToken();
+  const token = await getAdminToken();
+  if (!token) throw new Error('未登录或无权限');
+  return token;
+}
+
+/** 商城运营编辑商品媒体/主图（需 CMS 商城+媒体写权限） */
+async function shopProductCmsToken(): Promise<string> {
+  if (!(await getStaffUser(['admin', 'shop_ops']))) {
+    throw new Error('未登录或无权限');
+  }
+  const token = await getAdminToken();
+  if (!token) throw new Error('未登录或无权限');
   return token;
 }
 
@@ -178,9 +189,12 @@ export async function saveProductMediaAction(formData: FormData) {
     redirect(`${editPath(sku || 'unknown')}?media_err=${encodeURIComponent('缺少 SKU 或语言无效')}`);
   }
 
-  const token = await getAdminToken();
-  if (!token) {
-    redirect(`${editPath(sku)}?media_err=${encodeURIComponent('未登录')}`);
+  let token: string;
+  try {
+    token = await shopProductCmsToken();
+  } catch {
+    redirect(`${editPath(sku)}?media_err=${encodeURIComponent('未登录或无权限')}`);
+    return;
   }
 
   let errorMsg: string | null = null;
@@ -238,9 +252,12 @@ export async function saveCatalogImageAction(formData: FormData) {
     redirect(`${editPath(sku)}?media_err=${encodeURIComponent('请选择图片文件')}`);
   }
 
-  const token = await getAdminToken();
-  if (!token) {
-    redirect(`${editPath(sku)}?media_err=${encodeURIComponent('未登录')}`);
+  let token: string;
+  try {
+    token = await shopProductCmsToken();
+  } catch {
+    redirect(`${editPath(sku)}?media_err=${encodeURIComponent('未登录或无权限')}`);
+    return;
   }
 
   let errorMsg: string | null = null;
