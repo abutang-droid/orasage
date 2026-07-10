@@ -1,7 +1,7 @@
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { chatCompletion, isLlmConfigured } from '@/lib/llm/client';
 import { TAROT_BLESSING_SYSTEM } from '@/lib/llm/prompts';
-import { aiPromptLanguageLine, type AiLocale } from '../../../shared/ai-locale/index';
+import { aiPromptLanguageLine, type AiLocale } from '../../../../shared/ai-locale/index';
 
 const BLESSINGS: Record<string, string[]> = {
   guanyin: [
