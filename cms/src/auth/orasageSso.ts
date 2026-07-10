@@ -24,7 +24,11 @@ export function readCookie(cookieHeader: string, name: string): string | null {
   return null;
 }
 
-import { isStaffRole } from '../../../shared/staff-roles/index';
+import { isStaffRole, type StaffRole } from '../../../shared/staff-roles/index';
+import {
+  permissionsToArray,
+  resolveStaffPermissions,
+} from '../../../shared/staff-permissions/index';
 
 export async function verifyOrasageAdminToken(
   token: string,
@@ -38,14 +42,16 @@ export async function verifyOrasageAdminToken(
     const role = claims.role;
     const permsRaw = claims.perms;
     if (typeof sub !== 'string' || !isStaffRole(role as string)) return null;
-    if (role !== 'admin' && role !== 'content_ops') return null;
 
     const orasageUserId = Number(sub);
     if (!Number.isFinite(orasageUserId)) return null;
 
-    const staffPermissions = typeof permsRaw === 'string'
+    const fromJwt = typeof permsRaw === 'string'
       ? permsRaw.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
+    const staffPermissions = fromJwt.length > 0
+      ? fromJwt
+      : permissionsToArray(resolveStaffPermissions({ role: role as StaffRole }));
 
     return { orasageUserId, staffPermissions };
   } catch {
