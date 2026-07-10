@@ -91,6 +91,7 @@ export function GeoJourneyPicker({
   const [detectedSuggestion, setDetectedSuggestion] = useState<CountrySuggestion | null>(null);
   const [gpsFailed, setGpsFailed] = useState(false);
   const initDone = useRef(false);
+  const countriesRequest = useRef(0);
 
   const { suggestion, resolving: locationResolving, resolved: locationResolved, requestGps, gpsResolving, gpsAvailable } = useCountrySuggestion(
     allCountries,
@@ -136,15 +137,19 @@ export function GeoJourneyPicker({
   }, [value?.continentCode, value?.countryCode, value?.faith]);
 
   const loadCountries = useCallback(async (region: string) => {
+    const requestId = ++countriesRequest.current;
+    setCountries([]);
     setCountriesLoading(true);
     try {
       const res = await fetch(`/api/geo/countries?region=${encodeURIComponent(region)}`);
       const data = res.ok ? await res.json() : null;
+      if (requestId !== countriesRequest.current) return;
       setCountries(data?.countries ?? []);
     } catch {
+      if (requestId !== countriesRequest.current) return;
       setCountries([]);
     } finally {
-      setCountriesLoading(false);
+      if (requestId === countriesRequest.current) setCountriesLoading(false);
     }
   }, []);
 
@@ -209,7 +214,7 @@ export function GeoJourneyPicker({
   useEffect(() => {
     if (!locationResolved) return;
     if (value?.continentCode && value?.countryCode) return;
-    if (countryCode || detectedSuggestion) return;
+    if (countryCode || detectedSuggestion || continentCode) return;
 
     if (suggestion) {
       setDetectedSuggestion(suggestion);
@@ -223,6 +228,7 @@ export function GeoJourneyPicker({
     suggestion,
     countryCode,
     detectedSuggestion,
+    continentCode,
     value?.continentCode,
     value?.countryCode,
     loadCountries,
@@ -252,6 +258,7 @@ export function GeoJourneyPicker({
     setPendingRegion(code);
     setListOpen(false);
     if (manualListMode) {
+      setCountries([]);
       setContinentCode(code);
       setCountryCode('');
       setPendingCountry(null);
@@ -286,6 +293,7 @@ export function GeoJourneyPicker({
   const rejectDetectedCountry = useCallback(() => {
     setDetectedSuggestion(null);
     setManualListMode(true);
+    setCountries([]);
     setContinentCode('');
     setCountryCode('');
     setPendingCountry(null);
@@ -296,6 +304,7 @@ export function GeoJourneyPicker({
   const skipToManualSelection = useCallback(() => {
     setDetectedSuggestion(null);
     setManualListMode(true);
+    setCountries([]);
     setContinentCode('');
     setCountryCode('');
     setPendingCountry(null);
@@ -342,6 +351,7 @@ export function GeoJourneyPicker({
 
   const confirmRegion = useCallback(() => {
     if (!pendingRegion) return;
+    setCountries([]);
     setContinentCode(pendingRegion);
     setCountryCode('');
     setPendingCountry(null);
@@ -424,10 +434,22 @@ export function GeoJourneyPicker({
     ? detectedSuggestion?.country.regionCode
     : continentCode;
   const mapCountryCode = showDetectConfirm ? detectedSuggestion?.country.code : countryCode;
-  const mapCountries =
-    showDetectConfirm && detectedSuggestion
-      ? allCountries.filter((c) => c.regionCode === detectedSuggestion.country.regionCode)
-      : countries;
+  const mapCountries = useMemo(() => {
+    if (showDetectConfirm && detectedSuggestion) {
+      return allCountries.filter((c) => c.regionCode === detectedSuggestion.country.regionCode);
+    }
+    if (continentCode && (step === 'country' || step === 'faith' || step === 'deity')) {
+      return allCountries.filter((c) => c.regionCode === continentCode);
+    }
+    return countries;
+  }, [
+    showDetectConfirm,
+    detectedSuggestion,
+    continentCode,
+    step,
+    allCountries,
+    countries,
+  ]);
 
   const filteredCountries = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -509,6 +531,7 @@ export function GeoJourneyPicker({
     }
     if (step === 'country') {
       setPendingCountry(null);
+      setCountries([]);
       setContinentCode('');
       setStep('region');
       setCountryCode('');

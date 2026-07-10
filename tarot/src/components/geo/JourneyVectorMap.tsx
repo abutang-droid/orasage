@@ -39,14 +39,41 @@ function countryRegionLookup(countries: GeoCountry[]) {
   return new Map(countries.map((c) => [c.code, c.regionCode]));
 }
 
+function regionExistsOnMap(instance: JsVectorMapInstance, code: string) {
+  const region = instance.regions?.[code];
+  return Boolean(region?.element?.shape);
+}
+
+function filterMapRegionCodes(instance: JsVectorMapInstance, codes: string[]) {
+  return codes.filter((code) => regionExistsOnMap(instance, code));
+}
+
 function safeSetFocus(
   instance: JsVectorMapInstance,
   focus: { regions?: string[]; region?: string; animate?: boolean },
 ) {
   try {
-    instance.setFocus(focus);
+    if (focus.regions?.length) {
+      const regions = filterMapRegionCodes(instance, focus.regions);
+      if (!regions.length) return;
+      instance.setFocus({ ...focus, regions });
+      return;
+    }
+    if (focus.region) {
+      if (!regionExistsOnMap(instance, focus.region)) return;
+      instance.setFocus(focus);
+    }
   } catch {
-    /* ignore invalid map focus */
+    /* jsVectorMap setFocus can throw when bbox is undefined */
+  }
+}
+
+function safeDestroy(map: JsVectorMapInstance | null) {
+  if (!map) return;
+  try {
+    map.destroy();
+  } catch {
+    /* map may be partially initialized */
   }
 }
 
@@ -64,6 +91,8 @@ export function JourneyVectorMap({
 }: JourneyVectorMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<JsVectorMapInstance | null>(null);
+  const mapReadyRef = useRef(false);
+  const initGenRef = useRef(0);
   const onSelectRef = useRef(onSelect);
   const mapId = useId().replace(/:/g, '');
 
@@ -74,13 +103,15 @@ export function JourneyVectorMap({
     [countries],
   );
 
-  const mapKey = `${step}-${continentCode ?? ''}-${countryCode ?? ''}-${faithMarkers.map((m) => m.id).join(',')}-${ambient ? 'ambient' : 'interactive'}`;
+  const mapKey = `${step}-${continentCode ?? ''}-${countryCode ?? ''}-${countryCodesInContinent.join(',')}-${faithMarkers.map((m) => m.id).join(',')}-${ambient ? 'ambient' : 'interactive'}`;
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    const initGen = ++initGenRef.current;
     let cancelled = false;
+    mapReadyRef.current = false;
 
     async function initMap() {
       try {
@@ -89,9 +120,10 @@ export function JourneyVectorMap({
           import('jsvectormap/dist/maps/world-merc.js'),
         ]);
 
-        if (cancelled || !container) return;
+        if (cancelled || initGen !== initGenRef.current || !container) return;
 
-        mapRef.current?.destroy();
+        safeDestroy(mapRef.current);
+        mapRef.current = null;
         container.innerHTML = '';
 
         const lookup = countryRegionLookup(allCountries);
@@ -118,13 +150,6 @@ export function JourneyVectorMap({
               )
             : undefined;
 
-        const focusOn =
-          step === 'country' && continentCode && countryCodesInContinent.length > 0
-            ? { regions: countryCodesInContinent, animate: true }
-            : step === 'faith' && countryCode
-              ? { region: countryCode, animate: true }
-              : undefined;
-
         const lockInteraction = ambient && step !== 'faith';
 
         const map = new jsVectorMap({
@@ -141,7 +166,6 @@ export function JourneyVectorMap({
           regionsSelectable: !lockInteraction && step !== 'faith',
           series,
           markers,
-          focusOn,
           onRegionClick(_event, code) {
             if (lockInteraction) return;
             if (step === 'region') {
@@ -158,6 +182,8 @@ export function JourneyVectorMap({
             if (step === 'faith') onSelectRef.current(code);
           },
           onLoaded(instance) {
+            if (cancelled || initGen !== initGenRef.current) return;
+            mapReadyRef.current = true;
             if (step === 'country' && continentCode && countryCodesInContinent.length > 0) {
               safeSetFocus(instance, { regions: countryCodesInContinent, animate: true });
             } else if (step === 'faith' && countryCode) {
@@ -166,9 +192,14 @@ export function JourneyVectorMap({
           },
         });
 
+        if (cancelled || initGen !== initGenRef.current) {
+          safeDestroy(map);
+          return;
+        }
+
         mapRef.current = map;
       } catch {
-        if (!cancelled && container) {
+        if (!cancelled && initGen === initGenRef.current && container) {
           container.innerHTML = '';
         }
       }
@@ -178,7 +209,8 @@ export function JourneyVectorMap({
 
     return () => {
       cancelled = true;
-      mapRef.current?.destroy();
+      mapReadyRef.current = false;
+      safeDestroy(mapRef.current);
       mapRef.current = null;
     };
   }, [
@@ -195,16 +227,19 @@ export function JourneyVectorMap({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !mapReadyRef.current) return;
 
     try {
       if (step === 'region' && selectedId) {
-        const codes = allCountries.filter((c) => c.regionCode === selectedId).map((c) => c.code);
-        map.setSelectedRegions(codes);
+        const codes = filterMapRegionCodes(
+          map,
+          allCountries.filter((c) => c.regionCode === selectedId).map((c) => c.code),
+        );
+        if (codes.length) map.setSelectedRegions(codes);
         return;
       }
 
-      if (step === 'country' && selectedId) {
+      if (step === 'country' && selectedId && regionExistsOnMap(map, selectedId)) {
         map.setSelectedRegions([selectedId]);
         return;
       }
@@ -219,10 +254,16 @@ export function JourneyVectorMap({
     } catch {
       /* map may be mid-destroy */
     }
-  }, [step, selectedId, allCountries]);
+  }, [mapKey, step, selectedId, allCountries]);
 
   useEffect(() => {
-    const onResize = () => mapRef.current?.updateSize();
+    const onResize = () => {
+      try {
+        mapRef.current?.updateSize();
+      } catch {
+        /* ignore */
+      }
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
