@@ -531,6 +531,8 @@ export const chatConversations = pgTable("chat_conversations", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("open"),
+  /** Telegram 超级群 Forum 话题 id（message_thread_id） */
+  telegramTopicId: integer("telegram_topic_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
