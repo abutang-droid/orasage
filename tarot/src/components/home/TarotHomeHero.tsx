@@ -1,16 +1,12 @@
 'use client';
 
-import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   fetchTarotHomeHero,
   type TarotHomeHeroContent,
 } from '@/lib/cms-tarot-hero';
 import { TarotMiniCard } from '@/components/home/TarotMiniCard';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
-import { useUser } from '@/lib/user';
-
-const MANTO_PORTRAIT = '/images/manto-mentor.png';
 
 function HeroCards() {
   return (
@@ -62,15 +58,8 @@ function HeroVideo({
 }
 
 export function TarotHomeHero() {
-  const { user } = useUser();
   const home = useHomeCopy();
   const [hero, setHero] = useState<TarotHomeHeroContent | null>(null);
-
-  const displayName = useMemo(() => {
-    const name = user?.nickname?.trim();
-    if (name && name !== home.traveler) return name;
-    return null;
-  }, [user?.nickname, home.traveler]);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,29 +75,10 @@ export function TarotHomeHero() {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
-  const mentorLine = hero.bodyText?.trim() || home.mentorFallback;
 
   return (
-    <section className="tarot-home-hero tarot-home-hero--visual animate-fade-in-up">
-      <div className="tarot-home-hero-top">
-        <div className="tarot-home-hero-manto">
-          <Image
-            src={MANTO_PORTRAIT}
-            alt=""
-            width={48}
-            height={48}
-            className="tarot-home-hero-manto-img"
-            aria-hidden
-          />
-          <div className="tarot-home-hero-manto-copy">
-            <p className="tarot-home-hero-greeting">
-              {home.greeting()}
-              {displayName ? `, ${displayName}` : ''}
-            </p>
-            <p className="tarot-home-hero-manto-line">{mentorLine}</p>
-          </div>
-        </div>
-
+    <section className="tarot-home-hero tarot-home-hero--visual animate-fade-in-up delay-100">
+      <div className="tarot-home-hero-media">
         {showVideo ? (
           <HeroVideo
             src={hero.videoUrl!}
