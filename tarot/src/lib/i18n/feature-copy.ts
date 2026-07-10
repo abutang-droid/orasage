@@ -576,6 +576,147 @@ const angel = {
   elementLight: { zh: '光元素', en: 'Light', pt: 'Luz', es: 'Luz' },
 } as const;
 
+const knowledge = {
+  label: {
+    zh: 'TAROT TIPS',
+    en: 'TAROT TIPS',
+    pt: 'TAROT TIPS',
+    es: 'TAROT TIPS',
+  },
+  title: {
+    zh: '塔罗小知识',
+    en: 'Tarot tips',
+    pt: 'Dicas de tarô',
+    es: 'Consejos de tarot',
+  },
+  subtitle: {
+    zh: '每日一条 · 轻松入门',
+    en: 'One tip a day · easy to start',
+    pt: 'Uma dica por dia · fácil de começar',
+    es: 'Un consejo al día · fácil de empezar',
+  },
+  todayLabel: {
+    zh: '今日知识',
+    en: "Today's tip",
+    pt: 'Dica de hoje',
+    es: 'Consejo de hoy',
+  },
+  loading: {
+    zh: '加载中…',
+    en: 'Loading…',
+    pt: 'Carregando…',
+    es: 'Cargando…',
+  },
+  emptyTitle: {
+    zh: '今日知识暂未更新',
+    en: 'No tip available today',
+    pt: 'Nenhuma dica disponível hoje',
+    es: 'No hay consejo disponible hoy',
+  },
+  emptyHint: {
+    zh: '明天再来看看吧',
+    en: 'Check back tomorrow',
+    pt: 'Volte amanhã',
+    es: 'Vuelve mañana',
+  },
+  footer: {
+    zh: '明天再来学习新知识',
+    en: 'Come back tomorrow for a new tip',
+    pt: 'Volte amanhã para uma nova dica',
+    es: 'Vuelve mañana para un nuevo consejo',
+  },
+  footerHint: {
+    zh: '塔罗牌解读仅供参考，请理性对待',
+    en: 'Tarot readings are for reflection only — use your own judgment.',
+    pt: 'As leituras de tarô são apenas para reflexão — use seu próprio critério.',
+    es: 'Las lecturas de tarot son solo para reflexión — usa tu propio criterio.',
+  },
+} as const;
+
+const dailyCard = {
+  label: {
+    zh: 'DAILY CARD',
+    en: 'DAILY CARD',
+    pt: 'DAILY CARD',
+    es: 'DAILY CARD',
+  },
+  title: {
+    zh: '每日抽卡',
+    en: 'Daily draw',
+    pt: 'Sorteio diário',
+    es: 'Sorteo diario',
+  },
+  subtitleNew: {
+    zh: '点击卡牌翻转，接收今日讯息',
+    en: 'Tap the card to flip and receive today’s message',
+    pt: 'Toque na carta para virar e receber a mensagem de hoje',
+    es: 'Toca la carta para voltear y recibir el mensaje de hoy',
+  },
+  subtitleDrew: {
+    zh: '这是你今天抽到的牌',
+    en: 'This is the card you drew today',
+    pt: 'Esta é a carta que você tirou hoje',
+    es: 'Esta es la carta que sacaste hoy',
+  },
+  loading: {
+    zh: '抽取今日灵卡…',
+    en: 'Drawing today’s card…',
+    pt: 'Sorteando a carta de hoje…',
+    es: 'Sacando la carta de hoy…',
+  },
+  uprightShort: {
+    zh: '↑ 正位',
+    en: '↑ Upright',
+    pt: '↑ Normal',
+    es: '↑ Derecha',
+  },
+  reversedShort: {
+    zh: '↓ 逆位',
+    en: '↓ Reversed',
+    pt: '↓ Invertida',
+    es: '↓ Invertida',
+  },
+  luckyTipLabel: {
+    zh: '今日幸运提示',
+    en: 'Lucky tip for today',
+    pt: 'Dica da sorte de hoje',
+    es: 'Consejo de suerte de hoy',
+  },
+  oncePerDay: {
+    zh: '每日仅限抽取一次',
+    en: 'One draw per day',
+    pt: 'Apenas um sorteio por dia',
+    es: 'Un solo sorteo al día',
+  },
+  tapHint: {
+    zh: '轻触卡牌，开启今日指引',
+    en: 'Tap the card to open today’s guidance',
+    pt: 'Toque na carta para abrir a orientação de hoje',
+    es: 'Toca la carta para abrir la guía de hoy',
+  },
+  footerHint: {
+    zh: '塔罗牌解读仅供参考，请理性对待',
+    en: 'Tarot readings are for reflection only — use your own judgment.',
+    pt: 'As leituras de tarô são apenas para reflexão — use seu próprio critério.',
+    es: 'Las lecturas de tarot son solo para reflexión — usa tu propio criterio.',
+  },
+} as const;
+
+const redirect = {
+  settings: {
+    zh: '正在跳转到用户中心设置…',
+    en: 'Redirecting to profile settings…',
+    pt: 'Redirecionando para configurações do perfil…',
+    es: 'Redirigiendo a ajustes del perfil…',
+  },
+  profile: {
+    zh: '正在跳转到用户中心…',
+    en: 'Redirecting to profile…',
+    pt: 'Redirecionando para o perfil…',
+    es: 'Redirigiendo al perfil…',
+  },
+} as const;
+
 const angelQuickIntentions: Record<string, LangMap> = {
   感情指引: { zh: '感情指引', en: 'Love guidance', pt: 'Amor', es: 'Amor' },
   事业方向: { zh: '事业方向', en: 'Career direction', pt: 'Carreira', es: 'Carrera' },
@@ -767,6 +908,58 @@ export function useAngelCopy() {
       elementLabel: (element: string) => angelElementLabel(lang, element),
       cardDisplayName: (name: string, nameEn: string) =>
         lang === 'zh' ? name : nameEn || name,
+    };
+  }, [lang]);
+}
+
+export function useKnowledgeCopy() {
+  const { lang } = useLang();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    return {
+      lang,
+      label: p(knowledge.label),
+      title: p(knowledge.title),
+      subtitle: p(knowledge.subtitle),
+      todayLabel: p(knowledge.todayLabel),
+      loading: p(knowledge.loading),
+      emptyTitle: p(knowledge.emptyTitle),
+      emptyHint: p(knowledge.emptyHint),
+      footer: p(knowledge.footer),
+      footerHint: p(knowledge.footerHint),
+    };
+  }, [lang]);
+}
+
+export function useDailyCardCopy() {
+  const { lang } = useLang();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    return {
+      lang,
+      label: p(dailyCard.label),
+      title: p(dailyCard.title),
+      subtitleNew: p(dailyCard.subtitleNew),
+      subtitleDrew: p(dailyCard.subtitleDrew),
+      loading: p(dailyCard.loading),
+      uprightShort: p(dailyCard.uprightShort),
+      reversedShort: p(dailyCard.reversedShort),
+      luckyTipLabel: p(dailyCard.luckyTipLabel),
+      oncePerDay: p(dailyCard.oncePerDay),
+      tapHint: p(dailyCard.tapHint),
+      footerHint: p(dailyCard.footerHint),
+    };
+  }, [lang]);
+}
+
+export function useRedirectCopy() {
+  const { lang } = useLang();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    return {
+      lang,
+      settings: p(redirect.settings),
+      profile: p(redirect.profile),
     };
   }, [lang]);
 }

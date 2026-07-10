@@ -1,6 +1,10 @@
 export interface FortuneDimension { text: string; tag: string }
 export interface FortuneResult { love: FortuneDimension; work: FortuneDimension; wealth: FortuneDimension; mood: FortuneDimension }
 
+import { KNOWLEDGE_TIPS } from './knowledge-tips';
+
+export { KNOWLEDGE_TIPS, getKnowledgeTipForDay } from './knowledge-tips';
+
 const FORTUNES = {
   love: [
     { text: "今天适合主动表达心意，对方会感受到你的真诚。", tag: "缘分萌动" },
@@ -58,20 +62,7 @@ export function generateFortune(seed?: number): FortuneResult {
   }
 }
 
-export const TAROT_TIPS = [
-  { title: "愚者的真正含义", content: "愚者不是愚蠢，而是代表无限可能的开始。这张牌提醒你：有时候，勇气比经验更重要。" },
-  { title: "为什么牌要分正逆位", content: "正位代表能量的自然流动，逆位则表示能量受阻或需要转换视角。同一张牌的正逆解读可能截然不同。" },
-  { title: "大阿卡纳 vs 小阿卡纳", content: "大阿卡纳22张讲述灵魂的成长旅程，小阿卡纳56张描绘日常生活的具体场景。两者缺一不可。" },
-  { title: "塔罗四元素", content: "权杖火、圣杯水、宝剑风、星币土，四元素平衡才是最佳状态。缺少任何一种都需要留意。" },
-  { title: "什么是牌阵", content: "牌阵是塔罗解读的框架，不同的阵型适合不同的问题。三牌阵最通用，凯尔特十字最全面。" },
-  { title: "如何提升直觉力", content: "每天抽一张牌，不看书先自己感受画面传达的信息。直觉像肌肉，越用越强。" },
-  { title: "塔罗不是算命", content: "塔罗是自我觉察的工具，它展示当下的能量状态，而不是注定的命运。你的选择永远可以改变走向。" },
-  { title: "抽牌的最佳时间", content: "清晨刚醒或睡前冥想时最适合抽牌，此时潜意识最活跃，连接更清晰。" },
-  { title: "逆位一定是坏的吗", content: "不一定。逆位有时代表能量内收、需要暂停，或是提醒你换一个角度看问题。" },
-  { title: "如何保管塔罗牌", content: "用丝绸或棉布包裹，放在安静干净的地方。塔罗牌是你的工具，尊重它但不需过度迷信。" },
-  { title: "同一个问题能反复问吗", content: "不建议。反复问同一问题会让人陷入焦虑循环。一周后再问一次更合适。" },
-  { title: "死神牌不可怕", content: "死神代表结束和转变，不是真正的死亡。抽到死神恭喜你，旧的不去新的不来。" },
-  { title: "塔罗中的数字含义", content: "Ace是种子，2是选择，3是成果，4是稳定，5是冲突，6是恢复，7是考验，8是速度，9是完成前，10是圆满或过载。" },
-  { title: "宫廷牌代表什么", content: "侍从代表学习和消息，骑士代表行动和追求，皇后代表滋养和包容，国王代表掌控和权威。" },
-  { title: "星座与塔罗", content: "每张大阿卡纳都有对应的星座能量，比如狮子座对应力量牌，天秤座对应正义牌，双鱼座对应月亮牌。" },
-]
+export const TAROT_TIPS = KNOWLEDGE_TIPS.map((tip) => ({
+  title: tip.title.zh,
+  content: tip.content.zh,
+}));
