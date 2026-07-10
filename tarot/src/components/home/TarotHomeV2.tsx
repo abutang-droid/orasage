@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { TarotHomeDailyInsight } from '@/components/home/TarotHomeDailyInsight';
+import { TarotHomeGreeting } from '@/components/home/TarotHomeGreeting';
 import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 import { TarotProductVisual } from '@/components/home/TarotProductVisual';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
@@ -19,20 +21,10 @@ export function TarotHomeV2() {
   const [singleQuota, setSingleQuota] = useState<SingleQuota | null>(null);
 
   useEffect(() => {
-    void Promise.all([
-      fetch('/api/daily-fortune/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
-        r.ok ? r.json() : null,
-      ),
-      fetch('/api/single-card/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
-        r.ok ? r.json() : null,
-      ),
-    ])
-      .then(([, single]) => {
-        setSingleQuota(single);
-      })
-      .catch(() => {
-        setSingleQuota(null);
-      });
+    void fetch('/api/single-card/quota', { credentials: 'include', cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((single) => setSingleQuota(single))
+      .catch(() => setSingleQuota(null));
   }, []);
 
   const singleRemaining = singleQuota?.remaining ?? 1;
@@ -45,34 +37,26 @@ export function TarotHomeV2() {
         <div className="tarot-home-visual-glow tarot-home-visual-glow--b" />
       </div>
 
+      <TarotHomeGreeting />
       <TarotHomeHero />
+      <TarotHomeDailyInsight />
 
-      <section className="tarot-home-visual-products animate-fade-in-up delay-100">
-        <TarotProductVisual
-          href="/single-card"
-          variant="single"
-          featured
-          title={home.singleCardTitle}
-          desc={home.singleCardDesc}
-          cta={home.singleCardCta}
-          badges={[
-            { key: 'remaining', label: home.quotaTodayRemaining(singleRemaining ?? 1) },
-            {
-              key: 'temple',
-              label: templeBonus ? home.templeBonusGranted : home.templeBonusAvailable,
-              muted: !templeBonus,
-            },
-          ]}
-        />
-
+      <section className="tarot-home-spreads animate-fade-in-up delay-150">
         <div className="tarot-home-visual-grid">
           <TarotProductVisual
-            href="/daily-fortune"
-            variant="daily"
-            title={home.dailyTitle}
-            desc={home.dailyDesc}
-            cta={home.dailyCta}
-            badges={[{ key: 'free', label: home.quotaFreeToday }]}
+            href="/single-card"
+            variant="single"
+            title={home.singleCardTitle}
+            desc={home.singleCardDesc}
+            cta={home.singleCardCta}
+            badges={[
+              { key: 'remaining', label: home.quotaTodayRemaining(singleRemaining ?? 1) },
+              {
+                key: 'temple',
+                label: templeBonus ? home.templeBonusGranted : home.templeBonusAvailable,
+                muted: !templeBonus,
+              },
+            ]}
           />
 
           <TarotProductVisual
@@ -84,13 +68,15 @@ export function TarotHomeV2() {
             onClick={() => router.push('/reading')}
           />
         </div>
+      </section>
 
+      <section className="tarot-home-temple animate-fade-in-up delay-200">
         <TarotProductVisual
           href="/temple"
           variant="temple"
           title={home.templeTitle}
           desc={home.templeDesc}
-          cta=""
+          cta={home.templeCta}
           className="tarot-home-visual-temple"
         />
       </section>

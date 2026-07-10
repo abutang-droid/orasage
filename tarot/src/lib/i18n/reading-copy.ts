@@ -536,7 +536,7 @@ const singleCard = {
 } as const satisfies Record<string, LangMap>;
 
 const dailyFortune = {
-  label: { zh: '每日运势', en: 'Daily fortune', pt: 'Sorte diária', es: 'Fortuna diaria' },
+  label: { zh: '今日启示', en: "Today's insight", pt: 'Revelação de hoje', es: 'Revelación de hoy' },
   title: {
     zh: '今日四维运势',
     en: "Today's four-dimension fortune",
@@ -559,10 +559,10 @@ const dailyFortune = {
     es: 'Manto hará unas preguntas, revelará tu carta del día y generará la lectura en cuatro dimensiones.',
   },
   start: {
-    zh: '开始今日运势',
-    en: "Start today's reading",
-    pt: 'Iniciar leitura de hoje',
-    es: 'Iniciar lectura de hoy',
+    zh: '开始今日启示',
+    en: "Start today's insight",
+    pt: 'Iniciar revelação de hoje',
+    es: 'Iniciar revelación de hoy',
   },
   preparing: {
     zh: 'Manto 正在为你准备今日问题…',
@@ -712,7 +712,7 @@ const home = {
     pt: 'Bônus do templo',
     es: 'Bono del templo',
   },
-  singleCardTitle: { zh: '单牌阵', en: 'Single-card spread', pt: 'Carta única', es: 'Carta única' },
+  singleCardTitle: { zh: '单牌占卜', en: 'Single-card reading', pt: 'Leitura de uma carta', es: 'Lectura de una carta' },
   singleCardDesc: {
     zh: '一问两答再抽牌 · 牌面释义免费',
     en: 'Question, two follow-ups, one card · meaning free',
@@ -725,11 +725,31 @@ const home = {
     pt: 'Iniciar carta única →',
     es: 'Iniciar carta única →',
   },
+  threeCardTitle: { zh: '三牌占卜', en: 'Three-card reading', pt: 'Leitura de três cartas', es: 'Lectura de tres cartas' },
+  dailyInsightTitle: { zh: '今日启示', en: "Today's insight", pt: 'Revelação de hoje', es: 'Revelación de hoy' },
+  dailyInsightLine1: {
+    zh: '每一天，都蕴含着不同的能量流动。',
+    en: 'Every day carries its own flow of energy.',
+    pt: 'Cada dia traz um fluxo diferente de energia.',
+    es: 'Cada día trae un flujo distinto de energía.',
+  },
+  dailyInsightLine2: {
+    zh: '将注意力放在今天，',
+    en: 'Focus on today,',
+    pt: 'Coloque a atenção no hoje,',
+    es: 'Pon la atención en el hoy,',
+  },
+  dailyInsightLine3: {
+    zh: '跟随直觉，抽取属于你的今日塔罗。',
+    en: 'follow your intuition, and draw the tarot meant for you today.',
+    pt: 'siga a intuição e tire o tarô que é seu hoje.',
+    es: 'sigue la intuición y saca el tarot que te corresponde hoy.',
+  },
   dailyCta: {
-    zh: '抽取今日运势 →',
-    en: "Draw today's fortune →",
-    pt: 'Tirar sorte de hoje →',
-    es: 'Sacar fortuna de hoy →',
+    zh: '抽取今日启示 →',
+    en: "Draw today's insight →",
+    pt: 'Tirar revelação de hoje →',
+    es: 'Sacar revelación de hoy →',
   },
   threeCardNote: {
     zh: '深度报告与专属解读需登录后解锁',
@@ -744,16 +764,22 @@ const home = {
     es: 'Iniciar lectura de tres cartas →',
   },
   templeTitle: {
-    zh: '每日祈福',
-    en: 'Daily blessing',
-    pt: 'Bênção diária',
-    es: 'Bendición diaria',
+    zh: '祈福',
+    en: 'Blessing',
+    pt: 'Bênção',
+    es: 'Bendición',
   },
   templeDesc: {
     zh: '轻触神像完成今日参拜，可获得单牌阵额外抽取机会。',
     en: 'Tap the deity to worship today and earn an extra single-card draw.',
     pt: 'Toque a divindade para adorar hoje e ganhar um sorteio extra de carta única.',
     es: 'Toca la deidad para adorar hoy y gana una tirada extra de carta única.',
+  },
+  templeCta: {
+    zh: '前往祈福 →',
+    en: 'Go to blessing →',
+    pt: 'Ir à bênção →',
+    es: 'Ir a la bendición →',
   },
   heroEyebrow: {
     zh: '塔罗占卜',
@@ -768,10 +794,10 @@ const home = {
     es: 'Saca una carta — mira cómo se desarrolla el día',
   },
   heroSubtitle: {
-    zh: '单牌阵、每日运势与三牌占卜，都在这里开始',
-    en: 'Single-card, daily fortune, and three-card readings start here',
-    pt: 'Carta única, sorte diária e três cartas começam aqui',
-    es: 'Carta única, fortuna diaria y tres cartas empiezan aquí',
+    zh: '今日启示、单牌占卜与三牌占卜，从这里开始',
+    en: "Today's insight, single-card and three-card readings start here",
+    pt: 'Revelação de hoje, carta única e três cartas começam aqui',
+    es: 'Revelación de hoy, carta única y tres cartas empiezan aquí',
   },
 } as const satisfies Record<string, LangMap>;
 
@@ -820,6 +846,12 @@ export function useHomeCopy() {
       dailyTitle: daily.label,
       dailyDesc: daily.dimsSubtitle,
       dailyCta: p(home.dailyCta),
+      dailyInsightTitle: p(home.dailyInsightTitle),
+      dailyInsightLines: [
+        p(home.dailyInsightLine1),
+        p(home.dailyInsightLine2),
+        p(home.dailyInsightLine3),
+      ],
       quotaFreeToday: p(home.quotaFreeToday),
       quotaTodayRemaining: (n: number) => formatTemplate(p(home.quotaTodayRemaining), { n: String(n) }),
       templeBonusAvailable: p(home.templeBonusAvailable),
@@ -827,12 +859,13 @@ export function useHomeCopy() {
       singleCardTitle: p(home.singleCardTitle),
       singleCardDesc: p(home.singleCardDesc),
       singleCardCta: p(home.singleCardCta),
-      threeCardTitle: three.label,
+      threeCardTitle: p(home.threeCardTitle),
       threeCardDesc: three.subtitle,
       threeCardNote: p(home.threeCardNote),
       threeCardCta: p(home.threeCardCta),
       templeTitle: p(home.templeTitle),
       templeDesc: p(home.templeDesc),
+      templeCta: p(home.templeCta),
       heroEyebrow: p(home.heroEyebrow),
       heroHeadline: p(home.heroHeadline),
       heroSubtitle: p(home.heroSubtitle),
