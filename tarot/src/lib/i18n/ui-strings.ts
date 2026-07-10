@@ -5,7 +5,7 @@ import { useLang } from './context';
 export type LangMap = Partial<Record<Lang, string>>;
 
 export function pick(map: LangMap, lang: Lang): string {
-  return map[lang] ?? map.zh ?? '';
+  return map[lang] ?? map.en ?? map.pt ?? map.es ?? map.zh ?? '';
 }
 
 export const geo = {
@@ -339,6 +339,12 @@ export const geo = {
     pt: 'Confirmar país',
     es: 'Confirmar país',
   },
+  mapGestureHint: {
+    zh: '双指缩放 · 拖动平移 · 点选地图',
+    en: 'Pinch to zoom · drag to pan · tap to select',
+    pt: 'Pinça para zoom · arraste · toque para selecionar',
+    es: 'Pellizca para zoom · arrastra · toca para seleccionar',
+  },
 } as const satisfies Record<string, LangMap>;
 
 export const faith = {
@@ -353,6 +359,60 @@ export const faith = {
     en: 'Choose the tradition closest to your heart — we will recommend patrons and rituals',
     pt: 'Escolha a tradição mais próxima do seu coração — recomendaremos patronos e rituais',
     es: 'Elige la tradición más cercana a tu corazón — recomendaremos patronos y rituales',
+  },
+  label: {
+    zh: '信仰',
+    en: 'Faith',
+    pt: 'Fé',
+    es: 'Fe',
+  },
+  current: {
+    zh: '当前：{name}',
+    en: 'Current: {name}',
+    pt: 'Atual: {name}',
+    es: 'Actual: {name}',
+  },
+  loading: {
+    zh: '正在加载信仰列表…',
+    en: 'Loading faiths…',
+    pt: 'Carregando tradições…',
+    es: 'Cargando tradiciones…',
+  },
+  selectedLead: {
+    zh: '已选择 {name}，确认后将进入下一步',
+    en: 'Selected {name} — confirm to continue',
+    pt: 'Selecionado {name} — confirme para continuar',
+    es: 'Seleccionado {name} — confirma para continuar',
+  },
+  reselect: {
+    zh: '重新选择',
+    en: 'Choose again',
+    pt: 'Escolher de novo',
+    es: 'Elegir de nuevo',
+  },
+  moreFaiths: {
+    zh: '更多信仰 →',
+    en: 'More faiths →',
+    pt: 'Mais tradições →',
+    es: 'Más tradiciones →',
+  },
+  moreFaithsTitle: {
+    zh: '更多信仰',
+    en: 'More faiths',
+    pt: 'Mais tradições',
+    es: 'Más tradiciones',
+  },
+  customLead: {
+    zh: '写下你的信仰或精神归属名称',
+    en: 'Write your faith or spiritual path',
+    pt: 'Escreva sua fé ou caminho espiritual',
+    es: 'Escribe tu fe o camino espiritual',
+  },
+  customPlaceholder: {
+    zh: '例如：妈祖、象头神、个人灵性修行…',
+    en: 'e.g. Mazu, Ganesha, personal spirituality…',
+    pt: 'ex.: Mazu, Ganesha, espiritualidade pessoal…',
+    es: 'p. ej. Mazu, Ganesha, espiritualidad personal…',
   },
   confirm: {
     zh: '确认',
@@ -434,6 +494,192 @@ export const temple = {
     en: 'Worship today',
     pt: 'Adorar hoje',
     es: 'Adorar hoy',
+  },
+  worshipHold: {
+    zh: '按住以持续参拜',
+    en: 'Hold to continue worship',
+    pt: 'Segure para continuar',
+    es: 'Mantén para continuar',
+  },
+  worshipInProgress: {
+    zh: '静心参拜中…',
+    en: 'Worship in progress…',
+    pt: 'Adoração em andamento…',
+    es: 'Adoración en curso…',
+  },
+  worshipDeepening: {
+    zh: '心诚渐深…',
+    en: 'Devotion deepens…',
+    pt: 'A devoção se aprofunda…',
+    es: 'La devoción se profundiza…',
+  },
+  worshipReverence: {
+    zh: '敬意渐浓…',
+    en: 'Reverence grows…',
+    pt: 'A reverência cresce…',
+    es: 'La reverencia crece…',
+  },
+  worshipCompleteSoon: {
+    zh: '圆满在即，可松手礼成',
+    en: 'Almost complete — release to finish',
+    pt: 'Quase completo — solte para terminar',
+    es: 'Casi listo — suelta para terminar',
+  },
+  worshipAlmostDone: {
+    zh: '礼成在即',
+    en: 'Rite almost complete',
+    pt: 'Rito quase completo',
+    es: 'Rito casi completo',
+  },
+  worshipTapHint: {
+    zh: '轻按守护神像，静心参拜',
+    en: 'Press and hold the patron image to worship',
+    pt: 'Pressione a imagem do patrono para adorar',
+    es: 'Mantén la imagen del patrón para adorar',
+  },
+  worshipToast: {
+    zh: '再按一会，{name}正在聆听',
+    en: 'Hold a little longer — {name} is listening',
+    pt: 'Segure um pouco mais — {name} está ouvindo',
+    es: 'Mantén un poco más — {name} está escuchando',
+  },
+  worshipAria: {
+    zh: '参拜 {name}',
+    en: 'Worship {name}',
+    pt: 'Adorar {name}',
+    es: 'Adorar a {name}',
+  },
+  blessingPeak3: {
+    zh: '诚心礼成',
+    en: 'Heartfelt rite complete',
+    pt: 'Rito sincero completo',
+    es: 'Rito sincero completo',
+  },
+  blessingPeak2: {
+    zh: '深度参拜',
+    en: 'Deep worship',
+    pt: 'Adoração profunda',
+    es: 'Adoración profunda',
+  },
+  blessingPeak1: {
+    zh: '参拜礼成',
+    en: 'Worship complete',
+    pt: 'Adoração concluída',
+    es: 'Adoración completada',
+  },
+  blessingLead: {
+    zh: '{name}已聆听你的心愿，愿护佑与你同行。',
+    en: '{name} has heard your prayer — may their blessing walk with you.',
+    pt: '{name} ouviu sua prece — que a bênção caminhe com você.',
+    es: '{name} escuchó tu plegaria — que su bendición te acompañe.',
+  },
+  blessingGuideLabel: {
+    zh: '── 今日指引 ──',
+    en: '── Guidance for today ──',
+    pt: '── Orientação de hoje ──',
+    es: '── Guía de hoy ──',
+  },
+  blessingFallback: {
+    zh: '你的心意已被看见——\n那些尚未说出口的话，\n今日宜向前走一步。',
+    en: 'Your intention has been seen—\nwhat you have not yet spoken,\ntoday is a day to take one step forward.',
+    pt: 'Sua intenção foi vista—\no que ainda não disse,\nhoje é dia de dar um passo à frente.',
+    es: 'Tu intención ha sido vista—\nlo que aún no dijiste,\nhoy es un día para dar un paso adelante.',
+  },
+  blessingMeritRecorded: {
+    zh: '今日功德已记录',
+    en: 'Today’s merit recorded',
+    pt: 'Mérito de hoje registrado',
+    es: 'Mérito de hoy registrado',
+  },
+  blessingMeritGain: {
+    zh: '+{n} 功德',
+    en: '+{n} merit',
+    pt: '+{n} mérito',
+    es: '+{n} mérito',
+  },
+  blessingLevelUp: {
+    zh: ' · 修行精进',
+    en: ' · Practice advanced',
+    pt: ' · Prática avançada',
+    es: ' · Práctica avanzada',
+  },
+  blessingStreak: {
+    zh: ' · 连续 {days} 天',
+    en: ' · {days}-day streak',
+    pt: ' · sequência de {days} dias',
+    es: ' · racha de {days} días',
+  },
+  blessingFortuneCta: {
+    zh: '去抽今日运势',
+    en: "Draw today's fortune",
+    pt: 'Tirar sorte de hoje',
+    es: 'Sacar fortuna de hoy',
+  },
+  blessingBack: {
+    zh: '返回',
+    en: 'Back',
+    pt: 'Voltar',
+    es: 'Volver',
+  },
+  statusPrayedLabel: {
+    zh: '今日祈福',
+    en: "Today's blessing",
+    pt: 'Bênção de hoje',
+    es: 'Bendición de hoy',
+  },
+  statusPrayedDone: {
+    zh: '已完成',
+    en: 'Done',
+    pt: 'Concluído',
+    es: 'Hecho',
+  },
+  statusPrayedPending: {
+    zh: '未完成',
+    en: 'Not yet',
+    pt: 'Pendente',
+    es: 'Pendiente',
+  },
+  statusStreakLabel: {
+    zh: '连续参拜',
+    en: 'Worship streak',
+    pt: 'Sequência de adoração',
+    es: 'Racha de adoración',
+  },
+  statusStreakDays: {
+    zh: '{days} 天',
+    en: '{days} days',
+    pt: '{days} dias',
+    es: '{days} días',
+  },
+  statusFortuneLabel: {
+    zh: '每日运势',
+    en: 'Daily fortune',
+    pt: 'Sorte diária',
+    es: 'Fortuna diaria',
+  },
+  statusFortuneRemaining: {
+    zh: '剩余 {n} 次',
+    en: '{n} draws left',
+    pt: '{n} restantes',
+    es: '{n} restantes',
+  },
+  statusFortuneDaily: {
+    zh: '每日 1 次',
+    en: '1 per day',
+    pt: '1 por dia',
+    es: '1 por día',
+  },
+  statusTempleBonusHint: {
+    zh: ' · 祈福可 +1',
+    en: ' · Worship for +1',
+    pt: ' · Adorar +1',
+    es: ' · Adorar +1',
+  },
+  statusTempleBonusDone: {
+    zh: ' · 已获祈福加成',
+    en: ' · Temple bonus earned',
+    pt: ' · Bônus do templo',
+    es: ' · Bono del templo',
   },
   verseLabel: {
     zh: '── 今日偈语 ──',
@@ -763,7 +1009,22 @@ export function useFaithCopy() {
   const { lang } = useLang();
   return useMemo(() => {
     const p = (map: LangMap) => pick(map, lang);
-    return { title: p(faith.title), subtitle: p(faith.subtitle), confirm: p(faith.confirm) };
+    return {
+      lang,
+      p,
+      title: p(faith.title),
+      subtitle: p(faith.subtitle),
+      confirm: p(faith.confirm),
+      label: p(faith.label),
+      loading: p(faith.loading),
+      reselect: p(faith.reselect),
+      moreFaiths: p(faith.moreFaiths),
+      moreFaithsTitle: p(faith.moreFaithsTitle),
+      customLead: p(faith.customLead),
+      customPlaceholder: p(faith.customPlaceholder),
+      current: (name: string) => formatTemplate(p(faith.current), { name }),
+      selectedLead: (name: string) => formatTemplate(p(faith.selectedLead), { name }),
+    };
   }, [lang]);
 }
 
@@ -772,6 +1033,7 @@ export function useTempleCopy() {
   return useMemo(() => {
     const p = (map: LangMap) => pick(map, lang);
     return {
+      lang,
       p,
       patronLabel: p(temple.patronLabel),
       pickTitle: p(temple.pickTitle),
@@ -784,6 +1046,36 @@ export function useTempleCopy() {
       myPatron: p(temple.myPatron),
       worshipAgain: p(temple.worshipAgain),
       worshipToday: p(temple.worshipToday),
+      worshipHold: p(temple.worshipHold),
+      worshipInProgress: p(temple.worshipInProgress),
+      worshipDeepening: p(temple.worshipDeepening),
+      worshipReverence: p(temple.worshipReverence),
+      worshipCompleteSoon: p(temple.worshipCompleteSoon),
+      worshipAlmostDone: p(temple.worshipAlmostDone),
+      worshipTapHint: p(temple.worshipTapHint),
+      worshipToast: (name: string) => formatTemplate(p(temple.worshipToast), { name }),
+      worshipAria: (name: string) => formatTemplate(p(temple.worshipAria), { name }),
+      blessingPeak: (stage: number) =>
+        p(stage === 3 ? temple.blessingPeak3 : stage === 2 ? temple.blessingPeak2 : temple.blessingPeak1),
+      blessingLead: (name: string) => formatTemplate(p(temple.blessingLead), { name }),
+      blessingGuideLabel: p(temple.blessingGuideLabel),
+      blessingFallback: p(temple.blessingFallback),
+      blessingMeritRecorded: p(temple.blessingMeritRecorded),
+      blessingMeritGain: (n: number) => formatTemplate(p(temple.blessingMeritGain), { n: String(n) }),
+      blessingLevelUp: p(temple.blessingLevelUp),
+      blessingStreak: (days: number) => formatTemplate(p(temple.blessingStreak), { days: String(days) }),
+      blessingFortuneCta: p(temple.blessingFortuneCta),
+      blessingBack: p(temple.blessingBack),
+      statusPrayedLabel: p(temple.statusPrayedLabel),
+      statusPrayedDone: p(temple.statusPrayedDone),
+      statusPrayedPending: p(temple.statusPrayedPending),
+      statusStreakLabel: p(temple.statusStreakLabel),
+      statusStreakDays: (days: number) => formatTemplate(p(temple.statusStreakDays), { days: String(days) }),
+      statusFortuneLabel: p(temple.statusFortuneLabel),
+      statusFortuneRemaining: (n: number) => formatTemplate(p(temple.statusFortuneRemaining), { n: String(n) }),
+      statusFortuneDaily: p(temple.statusFortuneDaily),
+      statusTempleBonusHint: p(temple.statusTempleBonusHint),
+      statusTempleBonusDone: p(temple.statusTempleBonusDone),
       verseLabel: p(temple.verseLabel),
       verseAria: p(temple.verseAria),
       donationSuccess: p(temple.donationSuccess),

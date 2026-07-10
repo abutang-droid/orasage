@@ -16,6 +16,7 @@ import {
 } from '@/lib/faiths/religions';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { useGeoCopy, geo, formatTemplate } from '@/lib/i18n/ui-strings';
+import { useLang } from '@/lib/i18n/context';
 import './geo-journey.css';
 
 const JourneyVectorMap = dynamic(
@@ -56,6 +57,7 @@ export function GeoJourneyPicker({
   fullscreen = true,
 }: GeoJourneyPickerProps) {
   const { p, sourceLabel } = useGeoCopy();
+  const { lang } = useLang();
   const resolvedTitle = title ?? p(geo.defaultTitle);
   const resolvedSubtitle = subtitle ?? p(geo.defaultSubtitle);
   const resolvedFaithConfirm = faithConfirmLabel ?? p(geo.faithConfirm);
@@ -548,7 +550,7 @@ export function GeoJourneyPicker({
           ? formatTemplate(p(geo.titleCountry), { name: regionName })
           : step === 'faith'
             ? formatTemplate(p(geo.titleFaith), { name: countryName })
-            : formatTemplate(p(geo.titleDeity), { name: formatFaithLabel(pendingFaith, faiths) });
+            : formatTemplate(p(geo.titleDeity), { name: formatFaithLabel(pendingFaith, faiths, lang) });
 
   const stepHint =
     showDetectConfirm
@@ -625,6 +627,7 @@ export function GeoJourneyPicker({
           }
           onSelect={handleMapSelect}
           ambient={mapAmbient}
+          gestureHint={p(geo.mapGestureHint)}
           ariaLabel={
             mapAmbient
               ? p(geo.mapBg)

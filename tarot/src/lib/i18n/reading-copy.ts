@@ -447,6 +447,166 @@ const dailyFortune = {
   },
 } as const satisfies Record<string, LangMap>;
 
+const home = {
+  greetingNight: {
+    zh: '夜深了',
+    en: 'Good evening',
+    pt: 'Boa noite',
+    es: 'Buenas noches',
+  },
+  greetingMorning: {
+    zh: '早安',
+    en: 'Good morning',
+    pt: 'Bom dia',
+    es: 'Buenos días',
+  },
+  greetingAfternoon: {
+    zh: '午安',
+    en: 'Good afternoon',
+    pt: 'Boa tarde',
+    es: 'Buenas tardes',
+  },
+  greetingEvening: {
+    zh: '晚安',
+    en: 'Good evening',
+    pt: 'Boa noite',
+    es: 'Buenas noches',
+  },
+  mentorFallback: {
+    zh: 'Manto 为你守望着今日的星途',
+    en: 'Manto is watching over your path today',
+    pt: 'Manto vigia seu caminho hoje',
+    es: 'Manto vigila tu camino hoy',
+  },
+  quotaTodayRemaining: {
+    zh: '今日剩余 {n} 次',
+    en: '{n} draws left today',
+    pt: '{n} restantes hoje',
+    es: '{n} restantes hoy',
+  },
+  templeBonusAvailable: {
+    zh: '祈福可 +1',
+    en: 'Worship for +1',
+    pt: 'Adorar +1',
+    es: 'Adorar +1',
+  },
+  templeBonusGranted: {
+    zh: '已获祈福加成',
+    en: 'Temple bonus earned',
+    pt: 'Bônus do templo',
+    es: 'Bono del templo',
+  },
+  dailyCta: {
+    zh: '抽取今日运势 →',
+    en: "Draw today's fortune →",
+    pt: 'Tirar sorte de hoje →',
+    es: 'Sacar fortuna de hoy →',
+  },
+  threeCardNote: {
+    zh: '深度报告与专属解读需登录后解锁',
+    en: 'Full report and personal reading require sign-in',
+    pt: 'Relatório completo exige login',
+    es: 'Informe completo requiere inicio de sesión',
+  },
+  threeCardCta: {
+    zh: '开始三牌占卜 →',
+    en: 'Start three-card reading →',
+    pt: 'Iniciar leitura de três cartas →',
+    es: 'Iniciar lectura de tres cartas →',
+  },
+  templeTitle: {
+    zh: '每日祈福',
+    en: 'Daily blessing',
+    pt: 'Bênção diária',
+    es: 'Bendición diaria',
+  },
+  templeDesc: {
+    zh: '翻完牌护个体。轻触神像完成今日参拜，还可获得额外运势抽取机会。',
+    en: 'After your cards, tend your spirit. Tap the deity to worship today and earn an extra fortune draw.',
+    pt: 'Depois das cartas, cuide do espírito. Toque a divindade para adorar hoje e ganhar um sorteio extra.',
+    es: 'Tras las cartas, cuida tu espíritu. Toca la deidad para adorar hoy y gana un sorteo extra.',
+  },
+  heroEyebrow: {
+    zh: '塔罗占卜',
+    en: 'Tarot reading',
+    pt: 'Leitura de tarô',
+    es: 'Lectura de tarot',
+  },
+  heroHeadline: {
+    zh: '翻一张牌，看看今天怎么走',
+    en: 'Draw a card — see how today unfolds',
+    pt: 'Tire uma carta — veja como o dia se desenrola',
+    es: 'Saca una carta — mira cómo se desarrolla el día',
+  },
+  heroSubtitle: {
+    zh: '每日运势与三牌占卜，都在这里开始',
+    en: 'Daily fortune and three-card readings start here',
+    pt: 'Sorte diária e três cartas começam aqui',
+    es: 'Fortuna diaria y tres cartas empiezan aquí',
+  },
+} as const satisfies Record<string, LangMap>;
+
+export type TarotHomeHeroFallback = {
+  enabled: boolean;
+  eyebrow: string;
+  headline: string;
+  subtitle: string;
+  displayMode: 'text';
+  videoAutoplay: boolean;
+};
+
+export function fallbackTarotHomeHeroContent(lang: Lang): TarotHomeHeroFallback {
+  const p = (map: LangMap) => pick(map, lang);
+  return {
+    enabled: true,
+    eyebrow: p(home.heroEyebrow),
+    headline: p(home.heroHeadline),
+    subtitle: p(home.heroSubtitle),
+    displayMode: 'text',
+    videoAutoplay: true,
+  };
+}
+
+function homeGreeting(lang: Lang): string {
+  const p = (map: LangMap) => pick(map, lang);
+  const h = new Date().getHours();
+  if (h < 6) return p(home.greetingNight);
+  if (h < 12) return p(home.greetingMorning);
+  if (h < 18) return p(home.greetingAfternoon);
+  return p(home.greetingEvening);
+}
+
+export function useHomeCopy() {
+  const { lang } = useLang();
+  const daily = useDailyFortuneCopy();
+  const three = useThreeCardCopy();
+  const commonCopy = useReadingCommon();
+  return useMemo(() => {
+    const p = (map: LangMap) => pick(map, lang);
+    return {
+      lang,
+      greeting: () => homeGreeting(lang),
+      mentorFallback: p(home.mentorFallback),
+      traveler: commonCopy.traveler,
+      dailyTitle: daily.label,
+      dailyDesc: daily.dimsSubtitle,
+      dailyCta: p(home.dailyCta),
+      quotaTodayRemaining: (n: number) => formatTemplate(p(home.quotaTodayRemaining), { n: String(n) }),
+      templeBonusAvailable: p(home.templeBonusAvailable),
+      templeBonusGranted: p(home.templeBonusGranted),
+      threeCardTitle: three.label,
+      threeCardDesc: three.subtitle,
+      threeCardNote: p(home.threeCardNote),
+      threeCardCta: p(home.threeCardCta),
+      templeTitle: p(home.templeTitle),
+      templeDesc: p(home.templeDesc),
+      heroEyebrow: p(home.heroEyebrow),
+      heroHeadline: p(home.heroHeadline),
+      heroSubtitle: p(home.heroSubtitle),
+    };
+  }, [lang, daily, three, commonCopy]);
+}
+
 const history = {
   label: { zh: 'ARCHIVE', en: 'ARCHIVE', pt: 'ARCHIVE', es: 'ARCHIVE' },
   title: { zh: '历史记录', en: 'History', pt: 'Histórico', es: 'Historial' },

@@ -57,6 +57,18 @@ const dreamEmotions: Record<
   },
 };
 
+const sourceApps: Record<string, LangMap> = {
+  bazi: { zh: '八字', en: 'BaZi', pt: 'BaZi', es: 'BaZi' },
+  ziwei: { zh: '紫微', en: 'Zi Wei', pt: 'Zi Wei', es: 'Zi Wei' },
+  tarot: { zh: '塔罗', en: 'Tarot', pt: 'Tarô', es: 'Tarot' },
+};
+
+export function sourceAppLabel(lang: Lang, app: string | null | undefined): string | null {
+  if (!app) return null;
+  const map = sourceApps[app];
+  return map ? pick(map, lang) : app;
+}
+
 const onboarding = {
   mentorAlt: {
     zh: 'Manto，你的塔罗引导者',
@@ -613,9 +625,10 @@ export function formatPrefillSummaryLocalized(lang: Lang, prefill: OnboardingPre
   if (prefill.gender) rows.push(p(onboarding.prefillGender, genderLabel(lang, prefill.gender)));
   if (prefill.occupation)
     rows.push(p(onboarding.prefillOccupation, occupationLabel(lang, prefill.occupation)));
-  if (prefill.faith) rows.push(p(onboarding.prefillFaith, formatFaithLabel(prefill.faith)));
+  if (prefill.faith) rows.push(p(onboarding.prefillFaith, formatFaithLabel(prefill.faith, undefined, lang)));
   if (prefill.countryCode) rows.push(p(onboarding.prefillCountry, prefill.countryCode));
-  if (prefill.sourceLabel) rows.push(p(onboarding.prefillSource, prefill.sourceLabel));
+  if (prefill.sourceApp) rows.push(p(onboarding.prefillSource, sourceAppLabel(lang, prefill.sourceApp) ?? prefill.sourceApp));
+  else if (prefill.sourceLabel) rows.push(p(onboarding.prefillSource, prefill.sourceLabel));
   return rows.join('\n');
 }
 
@@ -665,6 +678,7 @@ export function useOnboardingCopy() {
       })),
       formatPrefillSummary: (prefill: OnboardingPrefill) =>
         formatPrefillSummaryLocalized(lang, prefill),
+      sourceAppLabel: (app: string | null | undefined) => sourceAppLabel(lang, app),
       genderLabel: (key: GenderOption | string) => genderLabel(lang, key),
       occupationLabel: (key: OccupationOption | string) => occupationLabel(lang, key),
     };

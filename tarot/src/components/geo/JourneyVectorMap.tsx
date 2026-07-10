@@ -33,6 +33,7 @@ export type JourneyVectorMapProps = {
   ariaLabel?: string;
   /** 定位已确定国家时，地图仅作背景装饰 */
   ambient?: boolean;
+  gestureHint?: string;
 };
 
 function countryRegionLookup(countries: GeoCountry[]) {
@@ -88,6 +89,7 @@ export function JourneyVectorMap({
   onSelect,
   ariaLabel = '世界地图',
   ambient = false,
+  gestureHint,
 }: JourneyVectorMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<JsVectorMapInstance | null>(null);
@@ -280,8 +282,8 @@ export function JourneyVectorMap({
         role="img"
         aria-label={ariaLabel}
       />
-      {!ambient ? (
-        <p className="world-map-gesture-hint">双指缩放 · 拖动平移 · 点选地图</p>
+      {!ambient && gestureHint ? (
+        <p className="world-map-gesture-hint">{gestureHint}</p>
       ) : null}
     </div>
   );

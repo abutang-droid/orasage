@@ -88,10 +88,15 @@ export function getFaithById(id: string, list?: FaithOption[]): FaithOption | un
   return faithById.get(id);
 }
 
-export function formatFaithLabel(id: string | null | undefined, list?: FaithOption[]): string {
+export function formatFaithLabel(
+  id: string | null | undefined,
+  list?: FaithOption[],
+  lang: 'zh' | 'en' | 'pt' | 'es' = 'zh',
+): string {
   if (!id) return '';
   const faith = getFaithById(id, list);
-  return faith?.nameZh ?? id;
+  if (!faith) return id;
+  return lang === 'zh' ? faith.nameZh : faith.nameEn || faith.nameZh;
 }
 
 export const FAITH_STORAGE_KEY = 'manto:faith';

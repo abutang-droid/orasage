@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
+import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import type { WorshipFacing } from '@/lib/temple/facing';
 import { FacingIndicator } from './FacingIndicator';
 import './temple.css';
@@ -80,6 +81,7 @@ type WorshipScreenProps = {
 };
 
 export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps) {
+  const temple = useTempleCopy();
   const [isPressed, setIsPressed] = useState(false);
   const [stage, setStage] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -139,23 +141,23 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
     !isPressed
       ? null
       : elapsed < 1
-        ? '按住以持续参拜'
+        ? temple.worshipHold
         : elapsed < 3
-          ? '静心参拜中…'
+          ? temple.worshipInProgress
           : elapsed < 7
-            ? '心诚渐深…'
+            ? temple.worshipDeepening
             : elapsed < 10
-              ? '敬意渐浓…'
-              : '圆满在即，可松手礼成';
+              ? temple.worshipReverence
+              : temple.worshipCompleteSoon;
 
   const hintText =
     isPressed && elapsed >= 3
       ? stage >= 3
-        ? '礼成在即'
+        ? temple.worshipAlmostDone
         : stage >= 2
-          ? '心诚渐深…'
-          : '静心参拜中…'
-      : '轻按守护神像，静心参拜';
+          ? temple.worshipDeepening
+          : temple.worshipInProgress
+      : temple.worshipTapHint;
 
   return (
     <div className="temple-worship">
@@ -184,7 +186,7 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
           }}
           role="button"
           tabIndex={0}
-          aria-label={`参拜 ${deity.name}`}
+          aria-label={temple.worshipAria(deity.name)}
         >
           <div className="temple-deity-wrap">
             <HaloRings stage={isPressed ? stage : 0} deityColor={deity.color} />
@@ -214,7 +216,7 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
         </div>
 
         {showShortToast && (
-          <p className="temple-worship-toast">再按一会，{deity.name}正在聆听</p>
+          <p className="temple-worship-toast">{temple.worshipToast(deity.name)}</p>
         )}
       </div>
     </div>

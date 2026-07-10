@@ -172,8 +172,8 @@ export function OnboardingFlow() {
   }, [userLoading, user?.onboardingCompleted, user?.nickname, router]);
 
   const introText = useMemo(
-    () => copy.introText(prefill?.sourceLabel),
-    [copy, prefill?.sourceLabel],
+    () => copy.introText(copy.sourceAppLabel(prefill?.sourceApp) ?? prefill?.sourceLabel),
+    [copy, prefill?.sourceApp, prefill?.sourceLabel],
   );
 
   const commitIntroToChat = useCallback(() => {
@@ -301,7 +301,7 @@ export function OnboardingFlow() {
     setDraft(next);
     const label = isCustomFaithId(result.faith)
       ? customFaithDisplayName(result.faith)
-      : formatFaithLabel(result.faith);
+      : formatFaithLabel(result.faith, undefined, copy.lang);
     pushUser(`${label} · ${result.countryCode}`);
     void finishOnboarding(next);
   };

@@ -3,21 +3,13 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  fallbackTarotHomeHero,
   fetchTarotHomeHero,
   type TarotHomeHeroContent,
 } from '@/lib/cms-tarot-hero';
+import { useHomeCopy } from '@/lib/i18n/reading-copy';
 import { useUser } from '@/lib/user';
 
 const MANTO_PORTRAIT = '/images/manto-mentor.png';
-
-function timeGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 6) return '夜深了';
-  if (h < 12) return '早安';
-  if (h < 18) return '午安';
-  return '晚安';
-}
 
 function HeroCards() {
   return (
@@ -61,29 +53,30 @@ function HeroVideo({
 
 export function TarotHomeHero() {
   const { user } = useUser();
+  const home = useHomeCopy();
   const [hero, setHero] = useState<TarotHomeHeroContent | null>(null);
 
   const displayName = useMemo(() => {
     const name = user?.nickname?.trim();
-    if (name && name !== '旅人') return name;
+    if (name && name !== home.traveler) return name;
     return null;
-  }, [user?.nickname]);
+  }, [user?.nickname, home.traveler]);
 
   useEffect(() => {
     let cancelled = false;
-    void fetchTarotHomeHero().then((content) => {
+    void fetchTarotHomeHero(home.lang).then((content) => {
       if (!cancelled) setHero(content);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [home.lang]);
 
   if (!hero?.enabled) return null;
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
-  const mentorLine = hero.bodyText?.trim() || 'Manto 为你守望着今日的星途';
+  const mentorLine = hero.bodyText?.trim() || home.mentorFallback;
 
   return (
     <section className="tarot-home-hero tarot-home-hero--v2 animate-fade-in-up">
@@ -98,8 +91,8 @@ export function TarotHomeHero() {
         />
         <div>
           <p className="tarot-home-hero-greeting">
-            {timeGreeting()}
-            {displayName ? `，${displayName}` : ''}
+            {home.greeting()}
+            {displayName ? `, ${displayName}` : ''}
           </p>
           <p className="tarot-home-hero-manto-line">{mentorLine}</p>
         </div>

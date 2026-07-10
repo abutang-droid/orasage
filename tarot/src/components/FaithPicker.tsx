@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { useFaithCopy } from '@/lib/i18n/ui-strings';
+import type { Lang } from '@/lib/i18n/context';
 import {
   CUSTOM_FAITH_ID,
   FAITH_STORAGE_KEY,
@@ -36,14 +37,24 @@ type FaithApiResponse = {
   regional?: boolean;
 };
 
+function faithPrimaryName(faith: FaithOption, lang: Lang) {
+  return lang === 'zh' ? faith.nameZh : faith.nameEn;
+}
+
+function faithSecondaryName(faith: FaithOption, lang: Lang) {
+  return lang === 'zh' ? faith.nameEn : faith.nameZh;
+}
+
 function FaithCard({
   faith,
   selected,
   onSelect,
+  lang,
 }: {
   faith: FaithOption;
   selected: boolean;
   onSelect: () => void;
+  lang: Lang;
 }) {
   return (
     <button
@@ -53,8 +64,8 @@ function FaithCard({
     >
       <span className="faith-picker-card-emoji">{faith.emoji}</span>
       <span className="faith-picker-card-text">
-        <span className="faith-picker-card-name">{faith.nameZh}</span>
-        <span className="faith-picker-card-en">{faith.nameEn}</span>
+        <span className="faith-picker-card-name">{faithPrimaryName(faith, lang)}</span>
+        <span className="faith-picker-card-en">{faithSecondaryName(faith, lang)}</span>
       </span>
       {selected ? <span className="faith-picker-card-check">✓</span> : null}
     </button>
@@ -177,7 +188,7 @@ export function FaithPicker({
     <div className={`faith-picker${isCollapsed ? ' faith-picker--collapsed' : ''}`}>
       {(resolvedTitle || resolvedSubtitle) && (
         <div className="page-header" style={{ padding: '16px 0' }}>
-          <span className="label">信仰</span>
+          <span className="label">{faithCopy.label}</span>
           {resolvedTitle ? <h1>{resolvedTitle}</h1> : null}
           {resolvedSubtitle ? <p>{resolvedSubtitle}</p> : null}
         </div>
@@ -185,23 +196,23 @@ export function FaithPicker({
 
       {value && !pending && (
         <div className="faith-picker-current">
-          当前：{formatFaithLabel(value, faiths)}
+          {faithCopy.current(formatFaithLabel(value, faiths, faithCopy.lang))}
         </div>
       )}
 
       {loading ? (
-        <div className="faith-picker-loading">正在加载信仰列表…</div>
+        <div className="faith-picker-loading">{faithCopy.loading}</div>
       ) : isCollapsed && selectedFaith ? (
         <div className="faith-picker-confirm-panel">
-          <FaithCard faith={selectedFaith} selected onSelect={clearSelection} />
+          <FaithCard faith={selectedFaith} selected onSelect={clearSelection} lang={faithCopy.lang} />
           <p className="faith-picker-confirm-hint">
-            已选择 <strong>{selectedFaith.nameZh}</strong>，确认后将进入下一步
+            {faithCopy.selectedLead(faithPrimaryName(selectedFaith, faithCopy.lang))}
           </p>
           <Button type="button" className="faith-picker-confirm-btn w-full" onClick={confirmSelection}>
             {resolvedConfirm}
           </Button>
           <Button type="button" variant="ghost" className="faith-picker-repick-btn w-full" onClick={clearSelection}>
-            重新选择
+            {faithCopy.reselect}
           </Button>
         </div>
       ) : (
@@ -211,6 +222,7 @@ export function FaithPicker({
               <FaithCard
                 faith={customFaith}
                 selected={isOther}
+                lang={faithCopy.lang}
                 onSelect={() => {
                   selectFaith(CUSTOM_FAITH_ID);
                   setOtherText('');
@@ -222,6 +234,7 @@ export function FaithPicker({
                 key={faith.id}
                 faith={faith}
                 selected={pending === faith.id}
+                lang={faithCopy.lang}
                 onSelect={() => selectFaith(faith.id)}
               />
             ))}
@@ -232,6 +245,7 @@ export function FaithPicker({
               <FaithCard
                 faith={customFaith}
                 selected={isOther}
+                lang={faithCopy.lang}
                 onSelect={() => {
                   selectFaith(CUSTOM_FAITH_ID);
                   setOtherText('');
@@ -242,17 +256,18 @@ export function FaithPicker({
 
           {!showMore ? (
             <Button type="button" variant="outline" className="faith-picker-more-btn w-full" onClick={() => setShowMore(true)}>
-              更多信仰 →
+              {faithCopy.moreFaiths}
             </Button>
           ) : (
             <div className="faith-picker-more-list">
-              <div className="section-label">更多信仰</div>
+              <div className="section-label">{faithCopy.moreFaithsTitle}</div>
               <div className="faith-picker-more-items">
                 {moreFaiths.map((faith) => (
                   <FaithCard
                     key={faith.id}
                     faith={faith}
                     selected={pending === faith.id}
+                    lang={faithCopy.lang}
                     onSelect={() => selectFaith(faith.id)}
                   />
                 ))}
@@ -264,10 +279,10 @@ export function FaithPicker({
 
       {isOther && (
         <div className="faith-picker-other">
-          <p className="faith-picker-other-lead">写下你的信仰或精神归属名称</p>
+          <p className="faith-picker-other-lead">{faithCopy.customLead}</p>
           <input
             className="input-field"
-            placeholder="例如：妈祖、象头神、个人灵性修行…"
+            placeholder={faithCopy.customPlaceholder}
             value={otherText}
             onChange={(e) => setOtherText(e.target.value)}
             maxLength={40}
