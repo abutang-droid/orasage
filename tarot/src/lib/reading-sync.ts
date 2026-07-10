@@ -5,6 +5,7 @@ import {
   type ReadingSyncPayload,
 } from '../../../shared/reading-sync/sync';
 import type { DailyFortuneFullReport, DailyFortuneRecordDto } from './daily-fortune/types';
+import type { SingleCardRecordDto } from './single-card/types';
 import type { ThreeCardFullReport, ThreeCardRecordDto } from './three-card/types';
 
 export { newReadingId, syncReading, WUXING_CRYSTAL_SKU };
@@ -62,6 +63,46 @@ export function buildDailyFortuneSyncPayload(
     readingId,
     title: `每日运势 · ${cardLabel}`,
     summary: record.briefText?.slice(0, 500) ?? cardLabel,
+    payloadJson: JSON.stringify(payload),
+  };
+}
+
+export function buildSingleCardSyncPayload(
+  record: Pick<
+    SingleCardRecordDto,
+    'id' | 'question' | 'card' | 'briefText' | 'fullReport' | 'paidTier'
+  >,
+  existingSyncId?: string | null,
+): ReadingSyncPayload {
+  const readingId = existingSyncId ?? newReadingId('tarot');
+  const cardLine = `${record.card.cardName}(${record.card.orientation})`;
+  const questionLabel = record.question?.slice(0, 40) || '当下指引';
+  const summary =
+    record.fullReport?.synthesis?.slice(0, 500) ??
+    record.briefText?.text?.slice(0, 500) ??
+    cardLine;
+
+  const payload: Record<string, unknown> = {
+    type: 'single_card',
+    recordId: record.id,
+    question: record.question,
+    card: record.card,
+    brief: record.briefText,
+    paidTier: record.paidTier,
+  };
+  if (record.fullReport) {
+    payload.fullReport = record.fullReport;
+  }
+
+  const title = record.paidTier
+    ? `单牌阵详读 · ${questionLabel}`
+    : `单牌阵 · ${questionLabel}`;
+
+  return {
+    appSource: 'tarot',
+    readingId,
+    title,
+    summary,
     payloadJson: JSON.stringify(payload),
   };
 }

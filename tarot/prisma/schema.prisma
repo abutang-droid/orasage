@@ -51,6 +51,8 @@ model User {
   dailyFortuneDays DailyFortuneDay[]
   dailyFortuneRecords DailyFortuneRecord[]
   threeCardReadings ThreeCardReading[]
+  singleCardDays SingleCardDay[]
+  singleCardReadings SingleCardReading[]
   readingQuestionCaches ReadingQuestionCache[]
 }
 
@@ -186,7 +188,7 @@ model MeritLog {
   @@index([userId, path])
 }
 
-/** 每日运势额度（自然日 1 次 + 祈福最多 +1） */
+/** 每日运势额度（自然日 1 次免费） */
 model DailyFortuneDay {
   id                  String   @id @default(uuid())
   userId              String
@@ -199,6 +201,43 @@ model DailyFortuneDay {
   user User @relation(fields: [userId], references: [id])
   @@unique([userId, dateKey])
   @@index([userId, dateKey])
+}
+
+/** 单牌阵额度（自然日 1 次 + 祈福最多 +1） */
+model SingleCardDay {
+  id                  String   @id @default(uuid())
+  userId              String
+  dateKey             String   @db.VarChar(10)
+  drawsUsed           Int      @default(0)
+  templeBonusGranted  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+/** 单牌阵占卜（简读免费，详读付费） */
+model SingleCardReading {
+  id            String   @id @default(uuid())
+  userId        String
+  question      String   @db.VarChar(500)
+  cardId        Int
+  cardName      String   @db.VarChar(80)
+  cardNameEn    String?  @db.VarChar(80)
+  orientation   String   @db.VarChar(10)
+  element       String?  @db.VarChar(20)
+  briefText     String?  @db.Text
+  fullReport    String?  @db.Text
+  paidTier      String?  @db.VarChar(20)
+  orderNo       String?  @db.VarChar(64)
+  readingSyncId String?  @db.VarChar(100)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
 }
 
 /** 每日运势抽牌记录 */

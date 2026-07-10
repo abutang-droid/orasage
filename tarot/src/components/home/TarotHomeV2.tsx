@@ -10,30 +10,68 @@ type DailyQuota = {
   allowance?: number;
   remaining?: number | null;
   drawsUsed?: number;
+};
+
+type SingleQuota = {
+  allowance?: number;
+  remaining?: number | null;
+  drawsUsed?: number;
   templeBonusGranted?: boolean;
 };
 
 export function TarotHomeV2() {
   const router = useRouter();
   const home = useHomeCopy();
-  const [quota, setQuota] = useState<DailyQuota | null>(null);
+  const [dailyQuota, setDailyQuota] = useState<DailyQuota | null>(null);
+  const [singleQuota, setSingleQuota] = useState<SingleQuota | null>(null);
 
   useEffect(() => {
-    void fetch('/api/daily-fortune/quota', { credentials: 'include', cache: 'no-store' })
-      .then((r) => r.json())
-      .then((data: DailyQuota) => setQuota(data))
-      .catch(() => setQuota(null));
+    void Promise.all([
+      fetch('/api/daily-fortune/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
+        r.ok ? r.json() : null,
+      ),
+      fetch('/api/single-card/quota', { credentials: 'include', cache: 'no-store' }).then((r) =>
+        r.ok ? r.json() : null,
+      ),
+    ])
+      .then(([daily, single]) => {
+        setDailyQuota(daily);
+        setSingleQuota(single);
+      })
+      .catch(() => {
+        setDailyQuota(null);
+        setSingleQuota(null);
+      });
   }, []);
 
-  const remaining = quota?.remaining ?? 1;
-  const templeBonus = quota?.templeBonusGranted ?? false;
+  const singleRemaining = singleQuota?.remaining ?? 1;
+  const templeBonus = singleQuota?.templeBonusGranted ?? false;
 
   return (
     <div className="tarot-home tarot-home-v2">
       <TarotHomeHero />
 
       <section className="tarot-home-v2-actions animate-fade-in-up delay-100">
-        <Link href="/daily-fortune" className="tarot-home-v2-card tarot-home-v2-card--primary">
+        <Link href="/single-card" className="tarot-home-v2-card tarot-home-v2-card--primary">
+          <div className="tarot-home-v2-card-head">
+            <span className="tarot-home-v2-card-icon" aria-hidden>
+              🂡
+            </span>
+            <div>
+              <h2 className="tarot-home-v2-card-title">{home.singleCardTitle}</h2>
+              <p className="tarot-home-v2-card-desc">{home.singleCardDesc}</p>
+            </div>
+          </div>
+          <div className="tarot-home-v2-card-meta">
+            <span className="tarot-home-v2-badge">{home.quotaTodayRemaining(singleRemaining ?? 1)}</span>
+            <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">
+              {templeBonus ? home.templeBonusGranted : home.templeBonusAvailable}
+            </span>
+          </div>
+          <span className="tarot-home-v2-card-cta">{home.singleCardCta}</span>
+        </Link>
+
+        <Link href="/daily-fortune" className="tarot-home-v2-card">
           <div className="tarot-home-v2-card-head">
             <span className="tarot-home-v2-card-icon" aria-hidden>
               ✦
@@ -44,10 +82,7 @@ export function TarotHomeV2() {
             </div>
           </div>
           <div className="tarot-home-v2-card-meta">
-            <span className="tarot-home-v2-badge">{home.quotaTodayRemaining(remaining ?? 1)}</span>
-            <span className="tarot-home-v2-badge tarot-home-v2-badge--muted">
-              {templeBonus ? home.templeBonusGranted : home.templeBonusAvailable}
-            </span>
+            <span className="tarot-home-v2-badge">{home.quotaFreeToday}</span>
           </div>
           <span className="tarot-home-v2-card-cta">{home.dailyCta}</span>
         </Link>
