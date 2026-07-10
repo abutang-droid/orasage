@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { drawCards } from '@/lib/tarot/draw';
+import { hashToNumericSeed } from '@/lib/reading-stable';
 import type {
   ThreeCardAnswer,
   ThreeCardBriefPayload,
@@ -58,8 +59,9 @@ function mapRecord(row: {
   };
 }
 
-export function drawThreeCards(question: string): ThreeCardStoredCard[] {
-  const result = drawCards('three', question);
+export function drawThreeCards(question: string, seedKey: string): ThreeCardStoredCard[] {
+  const numericSeed = hashToNumericSeed(seedKey);
+  const result = drawCards('three', question, numericSeed, 'afternoon');
   return result.cards.map((c) => ({
     position: POSITION_KEYS[c.position] ?? c.position,
     positionLabel: c.position,
@@ -71,9 +73,17 @@ export function drawThreeCards(question: string): ThreeCardStoredCard[] {
   }));
 }
 
+export async function findThreeCardReadingByInputHash(userId: string, inputHash: string) {
+  const row = await prisma.threeCardReading.findFirst({
+    where: { userId, inputHash },
+  });
+  return row ? mapRecord(row) : null;
+}
+
 export async function createThreeCardReading(input: {
   userId: string;
   question: string;
+  inputHash: string;
   qaAnswers: ThreeCardAnswer[];
   cards: ThreeCardStoredCard[];
 }) {
@@ -81,6 +91,7 @@ export async function createThreeCardReading(input: {
     data: {
       userId: input.userId,
       question: input.question.slice(0, 500),
+      inputHash: input.inputHash,
       qaAnswers: input.qaAnswers,
       cards: input.cards,
     },

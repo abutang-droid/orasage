@@ -59,9 +59,21 @@ export async function getDailyFortuneRecordById(userId: string, id: string) {
   return row ? mapRecord(row) : null;
 }
 
+export async function findDailyFortuneRecordByInputHash(
+  userId: string,
+  dateKey: string,
+  inputHash: string,
+) {
+  const row = await prisma.dailyFortuneRecord.findFirst({
+    where: { userId, dateKey, inputHash },
+  });
+  return row ? mapRecord(row) : null;
+}
+
 export async function createDailyFortuneRecord(input: {
   userId: string;
   dateKey?: string;
+  inputHash: string;
   cardId: number;
   cardName: string;
   orientation: '正位' | '逆位';
@@ -75,6 +87,7 @@ export async function createDailyFortuneRecord(input: {
     data: {
       userId: input.userId,
       dateKey: input.dateKey ?? dateKeyUTC(),
+      inputHash: input.inputHash,
       cardId: input.cardId,
       cardName: input.cardName,
       orientation: input.orientation,

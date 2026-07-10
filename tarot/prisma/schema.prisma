@@ -51,6 +51,7 @@ model User {
   dailyFortuneDays DailyFortuneDay[]
   dailyFortuneRecords DailyFortuneRecord[]
   threeCardReadings ThreeCardReading[]
+  readingQuestionCaches ReadingQuestionCache[]
 }
 
 model DailyCardRecord {
@@ -205,6 +206,7 @@ model DailyFortuneRecord {
   id           String   @id @default(uuid())
   userId       String
   dateKey      String   @db.VarChar(10)
+  inputHash    String?  @db.VarChar(32)
   cardId       Int?
   cardName     String?  @db.VarChar(80)
   orientation  String?  @db.VarChar(10)
@@ -217,6 +219,7 @@ model DailyFortuneRecord {
   createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+  @@unique([userId, dateKey, inputHash])
   @@index([userId, dateKey])
   @@index([userId, createdAt])
 }
@@ -226,6 +229,7 @@ model ThreeCardReading {
   id            String   @id @default(uuid())
   userId        String
   question      String   @db.VarChar(500)
+  inputHash     String?  @db.VarChar(32)
   qaAnswers     Json?
   cards         Json
   briefText     String?  @db.Text
@@ -237,5 +241,21 @@ model ThreeCardReading {
   updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id])
+  @@unique([userId, inputHash])
   @@index([userId, createdAt])
+}
+
+/** 引导问答缓存：同一用户 + 同一上下文只生成一次问题 */
+model ReadingQuestionCache {
+  id          String   @id @default(uuid())
+  userId      String
+  flowType    String   @db.VarChar(30)
+  contextHash String   @db.VarChar(32)
+  questions   Json
+  llm         Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, flowType, contextHash])
+  @@index([userId, flowType])
 }
