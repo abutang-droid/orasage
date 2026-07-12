@@ -98,11 +98,6 @@ export function TarotHomeDailyInsight() {
         {completed ? (
           <div className="tarot-home-daily-insight-result">
             <p className="tarot-home-daily-insight-tone">{tone.result}</p>
-            {stats ? (
-              <p className="tarot-home-daily-insight-count">
-                {home.participantCount(formatCount(stats.displayCount))}
-              </p>
-            ) : null}
             <div className="tarot-home-daily-insight-guide">
               <p className="tarot-home-daily-insight-guide-label">{home.attitudeGuideLabel}</p>
               <p className="tarot-home-daily-insight-guide-text">{attitude}</p>
@@ -110,6 +105,11 @@ export function TarotHomeDailyInsight() {
           </div>
         ) : (
           <div className="tarot-home-daily-insight-copy">
+            {stats ? (
+              <p className="tarot-home-daily-insight-count">
+                {home.participantCount(formatCount(stats.displayCount))}
+              </p>
+            ) : null}
             {home.dailyInsightLines.map((line) => (
               <p key={line}>{line}</p>
             ))}

@@ -215,6 +215,11 @@ export function DailyFortuneFlow() {
         <div className="daily-insight-intro animate-fade-in-up">
           <h1 className="daily-insight-intro-title">{copy.introTitle}</h1>
           <p className="daily-insight-intro-subtitle">{copy.introSubtitle}</p>
+          {participantCount != null ? (
+            <p className="daily-insight-intro-count">
+              {copy.participantCount(formatCount(participantCount))}
+            </p>
+          ) : null}
           <div className="daily-insight-intro-divider" aria-hidden />
           <button
             type="button"
@@ -281,11 +286,6 @@ export function DailyFortuneFlow() {
 
           <div className="card daily-insight-summary">
             <p className="daily-insight-summary-tone">{tone.result}</p>
-            {participantCount != null ? (
-              <p className="daily-insight-summary-count">
-                {copy.participantCount(formatCount(participantCount))}
-              </p>
-            ) : null}
             <div className="daily-insight-summary-guide">
               <p className="daily-insight-summary-guide-label">{copy.attitudeGuideLabel}</p>
               <p>{attitude}</p>
