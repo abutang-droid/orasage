@@ -6,17 +6,19 @@ import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { DestinySliceDeck } from '@/components/single-card/DestinySliceDeck';
+import { DestinySliceFocusResult } from '@/components/single-card/DestinySliceFocusResult';
 import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
-  DestinySliceGuidancePayload,
+  DestinySliceFocusPayload,
   SingleCardBriefPayload,
   SingleCardRecordDto,
   SingleCardStoredCard,
 } from '@/lib/single-card/types';
 import {
+  isDestinySliceFocus,
   isDestinySliceGuidance,
   isSingleCardVerdict,
 } from '@/lib/single-card/types';
@@ -41,24 +43,46 @@ function langBody(lang: string) {
   return { language: 'zh-CN' };
 }
 
-function normalizeGuidance(
+function normalizeFocus(
   brief: SingleCardBriefPayload | null,
-  copy: ReturnType<typeof useSingleCardCopy>,
-): DestinySliceGuidancePayload | null {
+): DestinySliceFocusPayload | null {
   if (!brief) return null;
-  if (isDestinySliceGuidance(brief)) return brief;
-  if (isSingleCardVerdict(brief)) {
+  if (isDestinySliceFocus(brief)) return brief;
+  if (isDestinySliceGuidance(brief)) {
     return {
-      action: brief.headline,
-      insight: brief.explanation || brief.guidance,
+      tendency: '警惕',
+      probability: '—',
+      deconstruction: brief.insight,
+      threshold: brief.action,
       llm: brief.llm,
     };
   }
-  return {
-    action: copy.legacyAction,
-    insight: brief.text,
-    llm: brief.llm,
-  };
+  if (isSingleCardVerdict(brief)) {
+    const tendencyMap = {
+      yes: 'Yes',
+      no: 'No',
+      lean_yes: 'Yes',
+      lean_no: 'No',
+      unclear: '警惕',
+    } as const;
+    return {
+      tendency: tendencyMap[brief.verdict],
+      probability: '—',
+      deconstruction: brief.explanation,
+      threshold: brief.guidance,
+      llm: brief.llm,
+    };
+  }
+  if ('text' in brief) {
+    return {
+      tendency: '警惕',
+      probability: '—',
+      deconstruction: brief.text,
+      threshold: '—',
+      llm: brief.llm,
+    };
+  }
+  return null;
 }
 
 function PaywallPanel({
@@ -118,10 +142,11 @@ export function SingleCardFlow() {
   const copy = useSingleCardCopy();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
+  const [question, setQuestion] = useState('');
   const [readingId, setReadingId] = useState<string | null>(null);
   const [card, setCard] = useState<SingleCardStoredCard | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [guidance, setGuidance] = useState<DestinySliceGuidancePayload | null>(null);
+  const [focus, setFocus] = useState<DestinySliceFocusPayload | null>(null);
   const [error, setError] = useState('');
   const [guidanceLoading, setGuidanceLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
@@ -139,12 +164,12 @@ export function SingleCardFlow() {
       });
       const data = await res.json();
       if (res.status === 402) {
-        setGuidance(null);
+        setFocus(null);
         setStep('result');
         return;
       }
       if (!res.ok) throw new Error(data.error || copy.guidanceFailed);
-      setGuidance(normalizeGuidance(data.brief as SingleCardBriefPayload, copy));
+      setFocus(normalizeFocus(data.brief as SingleCardBriefPayload));
       setStep('result');
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.guidanceFailed);
@@ -159,20 +184,20 @@ export function SingleCardFlow() {
     setRevealed(true);
 
     if (!unlocked) {
-      setGuidance(null);
+      setFocus(null);
       setStep('result');
       return;
     }
 
-    const g = normalizeGuidance(rec.briefText, copy);
-    if (g) {
-      setGuidance(g);
+    const f = normalizeFocus(rec.briefText);
+    if (f) {
+      setFocus(f);
       setStep('result');
     } else {
       setStep('drawing');
       void loadGuidance(rec.id);
     }
-  }, [copy, loadGuidance]);
+  }, [loadGuidance]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -204,15 +229,19 @@ export function SingleCardFlow() {
     setStep('drawing');
     setRevealed(false);
     setCard(null);
-    setGuidance(null);
+    setFocus(null);
     setDrawLoading(true);
     setError('');
     try {
+      const trimmed = question.trim();
       const res = await fetch('/api/single-card/start', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pickIndex }),
+        body: JSON.stringify({
+          pickIndex,
+          ...(trimmed ? { question: trimmed } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || copy.drawFailed);
@@ -269,7 +298,7 @@ export function SingleCardFlow() {
   const returnPath = readingId
     ? `/single-card?readingId=${encodeURIComponent(readingId)}`
     : '/single-card';
-  const showGuidance = Boolean(guidance && session?.unlocked);
+  const showFocus = Boolean(focus && session?.unlocked);
 
   if (step === 'loading') {
     return (
@@ -284,18 +313,36 @@ export function SingleCardFlow() {
   return (
     <div className="three-card-page destiny-slice-page">
       <div className="page-header animate-fade-in-up">
-        <span className="label">{copy.label}</span>
         <h1>{copy.title}</h1>
-        <p>
-          {copy.nicknameGreeting(session?.nickname)}
-          {copy.subtitle}
-        </p>
+        <p className="destiny-slice-status">{copy.statusBadge}</p>
+        {session?.nickname ? (
+          <p className="destiny-slice-greeting">{copy.nicknameGreeting(session.nickname)}</p>
+        ) : null}
       </div>
 
       {step === 'intro' && (
         <div className="destiny-slice-intro animate-fade-in-up delay-200">
           <div className="card daily-fortune-panel">
-            <p className="daily-fortune-panel-lead">{copy.introLead}</p>
+            <p className="daily-fortune-panel-lead destiny-slice-intro-lead">
+              {copy.introLead.split('\n').map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < copy.introLead.split('\n').length - 1 ? <br /> : null}
+                </span>
+              ))}
+            </p>
+            <label className="three-card-question-label" htmlFor="destiny-slice-question">
+              {copy.questionLabel}
+            </label>
+            <textarea
+              id="destiny-slice-question"
+              className="three-card-question-input destiny-slice-question-input"
+              rows={2}
+              maxLength={500}
+              placeholder={copy.questionPlaceholder}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
           </div>
 
           <DestinySliceDeck
@@ -333,17 +380,16 @@ export function SingleCardFlow() {
             orientationLabel={copy.orientation}
           />
 
-          {showGuidance ? (
+          {showFocus && focus ? (
             <>
-              <div className="card destiny-slice-action">
-                <p className="destiny-slice-action-label">{copy.actionLabel}</p>
-                <p className="destiny-slice-action-text">{guidance!.action}</p>
-              </div>
-
-              <div className="card daily-fortune-brief">
-                <h2 className="daily-fortune-section-title">{copy.insightTitle}</h2>
-                <p>{guidance!.insight}</p>
-              </div>
+              <DestinySliceFocusResult
+                focus={focus}
+                sectionTendency={copy.sectionTendency}
+                sectionDeconstruction={copy.sectionDeconstruction}
+                sectionThreshold={copy.sectionThreshold}
+                coreTendencyLabel={copy.coreTendencyLabel}
+                energyProbabilityLabel={copy.energyProbabilityLabel}
+              />
 
               <Button
                 type="button"
@@ -352,8 +398,9 @@ export function SingleCardFlow() {
                 onClick={() => {
                   setReadingId(null);
                   setCard(null);
-                  setGuidance(null);
+                  setFocus(null);
                   setRevealed(false);
+                  setQuestion('');
                   setStep('intro');
                 }}
               >
@@ -364,10 +411,12 @@ export function SingleCardFlow() {
             <div className="card destiny-slice-locked">
               <p className="destiny-slice-locked-hint">{copy.resultLockedHint}</p>
               <div className="destiny-slice-locked-preview" aria-hidden>
-                <p className="destiny-slice-action-label">{copy.actionLabel}</p>
+                <p className="destiny-slice-focus-heading">{copy.sectionTendency}</p>
                 <p className="destiny-slice-locked-blur">······</p>
-                <p className="destiny-slice-action-label" style={{ marginTop: 12 }}>{copy.insightTitle}</p>
-                <p className="destiny-slice-locked-blur">······ ······ ······</p>
+                <p className="destiny-slice-focus-heading" style={{ marginTop: 12 }}>{copy.sectionDeconstruction}</p>
+                <p className="destiny-slice-locked-blur">······ ······</p>
+                <p className="destiny-slice-focus-heading" style={{ marginTop: 12 }}>{copy.sectionThreshold}</p>
+                <p className="destiny-slice-locked-blur">······ ······</p>
               </div>
               <PaywallPanel
                 copy={copy}

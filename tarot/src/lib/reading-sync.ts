@@ -83,13 +83,15 @@ export function buildSingleCardSyncPayload(
       : record.card.cardName;
   const summary =
     record.fullReport?.synthesis?.slice(0, 500) ??
-    (record.briefText && 'action' in record.briefText
-      ? record.briefText.action.slice(0, 500)
-      : record.briefText && 'headline' in record.briefText
-        ? record.briefText.headline.slice(0, 500)
-        : record.briefText && 'text' in record.briefText
-          ? record.briefText.text.slice(0, 500)
-          : cardLine);
+    (record.briefText && 'tendency' in record.briefText
+      ? `${record.briefText.tendency} · ${record.briefText.deconstruction}`.slice(0, 500)
+      : record.briefText && 'action' in record.briefText
+        ? record.briefText.action.slice(0, 500)
+        : record.briefText && 'headline' in record.briefText
+          ? record.briefText.headline.slice(0, 500)
+          : record.briefText && 'text' in record.briefText
+            ? record.briefText.text.slice(0, 500)
+            : cardLine);
 
   const payload: Record<string, unknown> = {
     type: 'single_card',

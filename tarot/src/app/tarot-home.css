@@ -1812,6 +1812,15 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
+  padding: 8px 0 4px;
+}
+
+.single-card-reveal-placeholder {
+  width: 160px;
+  height: 240px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #1a1030 0%, #2d1b4e 45%, #1a1030 100%);
+  border: 1.5px solid rgb(var(--tarot-accent-rgb) / 0.25);
 }
 
 .single-card-reveal-icon {
@@ -2056,76 +2065,166 @@
 
 /* ─── 定命切片：牌堆抽牌 ─────────────────────────────────── */
 
+.destiny-slice-status {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.destiny-slice-greeting {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.destiny-slice-intro-lead {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+.destiny-slice-question-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
 .destiny-slice-deck {
   margin-top: 16px;
-  padding: 20px 12px 8px;
-  text-align: center;
+  padding: 0 0 8px;
 }
 
 .destiny-slice-deck-hint {
-  margin: 0 0 18px;
+  margin: 0 0 12px;
+  padding: 0 16px;
   font-size: 13px;
   color: var(--text-muted);
+  text-align: center;
 }
 
-.destiny-slice-deck-fan {
-  position: relative;
-  height: 168px;
+.destiny-slice-deck-table {
+  margin: 0 -16px;
+  padding: 28px 0 20px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgb(var(--tarot-accent-rgb) / 0.12), transparent 70%),
+    linear-gradient(180deg, rgb(20 12 36 / 0.45), rgb(12 8 24 / 0.2));
+  border-top: 1px solid rgb(var(--tarot-accent-rgb) / 0.12);
+  border-bottom: 1px solid rgb(var(--tarot-accent-rgb) / 0.12);
+}
+
+.destiny-slice-deck-spread {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 48px 16px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scrollbar-width: thin;
 }
 
-.destiny-slice-deck-card {
-  position: absolute;
-  bottom: 0;
-  width: 72px;
-  height: 112px;
+.destiny-slice-spread-card {
+  flex: 0 0 auto;
+  margin-left: -52px;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: transform 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
+  scroll-snap-align: center;
+  transition: transform 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
+  transform-origin: bottom center;
 }
 
-.destiny-slice-deck-card:disabled {
+.destiny-slice-spread-card:first-child {
+  margin-left: 0;
+}
+
+.destiny-slice-spread-card:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
-.destiny-slice-deck-card--dim {
+.destiny-slice-spread-card--dim {
   opacity: 0.35;
-  filter: blur(1px);
+  filter: blur(1px) grayscale(0.4);
 }
 
-.destiny-slice-deck-card--active {
-  transform: translateY(-14px) scale(1.06) !important;
+.destiny-slice-spread-card--active {
+  transform: translateY(-10px) scale(1.04);
 }
 
-.destiny-slice-deck-card-face {
+.destiny-slice-spread-card--picked {
+  transform: translateY(-18px) scale(1.08);
+  z-index: 20;
+}
+
+.destiny-slice-spread-card-img {
   display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(160deg, #1a1030 0%, #2d1b4e 45%, #1a1030 100%);
-  border: 1.5px solid rgb(var(--tarot-accent-rgb) / 0.35);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
-}
-
-.destiny-slice-deck-card-sigil {
-  position: absolute;
-  inset: 28% 32%;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.4);
+  width: 72px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
   pointer-events: none;
+  user-select: none;
 }
 
-.destiny-slice-deck-card-sigil::after {
-  content: '';
-  position: absolute;
-  inset: 30%;
-  border-radius: 50%;
-  background: rgb(var(--tarot-accent-rgb) / 0.25);
+.destiny-slice-focus-result {
+  padding: 18px 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.destiny-slice-focus-section + .destiny-slice-focus-section {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.destiny-slice-focus-heading {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.destiny-slice-focus-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.destiny-slice-focus-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.destiny-slice-focus-key {
+  color: var(--text-muted);
+}
+
+.destiny-slice-focus-key::after {
+  content: '：';
+}
+
+.destiny-slice-focus-value {
+  color: var(--text-primary);
+}
+
+.destiny-slice-focus-value--tendency {
+  font-weight: 700;
+  color: rgb(var(--tarot-accent-rgb));
+}
+
+.destiny-slice-focus-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
 }
 
 .destiny-slice-intro {

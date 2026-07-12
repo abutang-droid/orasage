@@ -18,7 +18,16 @@ export type SingleCardStoredCard = {
   element: string;
 };
 
-/** 定命切片：简洁行动指引 */
+/** 定命切片 Focus：冷峻是非/倾向性数据切片 */
+export type DestinySliceFocusPayload = {
+  tendency: string;
+  probability: string;
+  deconstruction: string;
+  threshold: string;
+  llm: boolean;
+};
+
+/** @deprecated 旧版行动指引 */
 export type DestinySliceGuidancePayload = {
   action: string;
   insight: string;
@@ -44,9 +53,21 @@ export type SingleCardLegacyBriefPayload = {
 };
 
 export type SingleCardBriefPayload =
+  | DestinySliceFocusPayload
   | DestinySliceGuidancePayload
   | SingleCardVerdictPayload
   | SingleCardLegacyBriefPayload;
+
+export function isDestinySliceFocus(
+  brief: SingleCardBriefPayload | null | undefined,
+): brief is DestinySliceFocusPayload {
+  return (
+    brief != null
+    && 'tendency' in brief
+    && typeof brief.tendency === 'string'
+    && 'deconstruction' in brief
+  );
+}
 
 export function isDestinySliceGuidance(
   brief: SingleCardBriefPayload | null | undefined,

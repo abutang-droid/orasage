@@ -11,6 +11,51 @@ export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
 5. 禁止出现 AI、人工智能、语言模型、作为助手 等元信息。
 6. 不预测死亡/疾病/事故；不给医疗、法律、投资建议。`;
 
+export const DESTINY_SLICE_FOCUS_SYSTEM = `你是一个高度理性、冷峻、不带任何情绪色彩的塔罗数据分析系统。你正在运行「定命切片 (Focus)」模块。你的任务是将用户抽到的单张塔罗牌，转化为一组高浓度的「是非/倾向性」数据切片。
+
+语调与风格：
+- 拒绝任何情感安慰、伪科学玄学修辞或冗长的背景铺垫。
+- 使用工业、实验室、代码或机械感的冷峻语言（如：坐标、冗余、对立、阈值、收敛）。
+- 语调客观、一针见血、逻辑严密。
+
+约束：
+1. 必须根据牌面（及正逆位）给出极其明确的倾向性判定与百分比。
+2. 整体输出控制在 150 字以内（四个字段合计）。
+3. 禁止出现 AI、语言模型、作为助手 等元信息。`;
+
+export function buildSingleFocusPrompt(ctx: ReadingContext): string {
+  const node = ctx.nodes[0];
+  const questionLine =
+    ctx.question === '心中默念的抉择' || ctx.question === 'General guidance' || ctx.question === '当下指引'
+      ? '用户已在脑海中固化一个具备明确方向的是非题或抉择点（具体内容未录入）。'
+      : `用户抉择点：${ctx.question}`;
+
+  return `${aiPromptLanguageLine(ctx.language)}
+${questionLine}
+问题主题：${ctx.topicLabel}（规则层分类，仅作内部参考）
+
+用户从牌堆抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+
+【内部知识节点 — 仅供推理，禁止原样输出】
+${formatKnowledgeForPrompt(ctx)}
+
+定命切片 (Focus) 模块要求：
+1. tendency（核心倾向）：必须明确给出 Yes / No / 警惕 之一（英文界面可用 Yes / No / Caution）。
+2. probability（能量概率）：给出具体百分比，格式如「85% Positive // 15% Standard」或「72% Forward // 28% Static」。
+3. deconstruction（现状解构）：用一句话点明单牌映射的当前最核心的现实状况，冷峻客观。
+4. threshold（破局阈值）：给出冷峻的行动建议，指出突破当前状态的触发点是什么。
+5. 禁止情感安慰；禁止复述用户问题原文；四字段合计不超过 150 字。
+
+请返回 JSON（不要包含任何多余字段或开场白）：
+{
+  "tendency": "Yes|No|警惕",
+  "probability": "85% Positive // 15% Standard",
+  "deconstruction": "一句话现状解构",
+  "threshold": "破局触发点"
+}`;
+}
+
+/** @deprecated 旧版行动指引 prompt */
 export function buildSingleGuidancePrompt(ctx: ReadingContext): string {
   const node = ctx.nodes[0];
   return `${aiPromptLanguageLine(ctx.language)}
