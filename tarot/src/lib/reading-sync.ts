@@ -6,6 +6,7 @@ import {
 } from '../../../shared/reading-sync/sync';
 import type { DailyFortuneFullReport, DailyFortuneRecordDto } from './daily-fortune/types';
 import type { SingleCardRecordDto } from './single-card/types';
+import { DESTINY_SLICE_SILENT_QUESTION } from './single-card/constants';
 import type { ThreeCardFullReport, ThreeCardRecordDto } from './three-card/types';
 
 export { newReadingId, syncReading, WUXING_CRYSTAL_SKU };
@@ -76,7 +77,10 @@ export function buildSingleCardSyncPayload(
 ): ReadingSyncPayload {
   const readingId = existingSyncId ?? newReadingId('tarot');
   const cardLine = `${record.card.cardName}(${record.card.orientation})`;
-  const questionLabel = record.question?.slice(0, 40) || '当下指引';
+  const questionLabel =
+    record.question && record.question !== DESTINY_SLICE_SILENT_QUESTION
+      ? record.question.slice(0, 40)
+      : record.card.cardName;
   const summary =
     record.fullReport?.synthesis?.slice(0, 500) ??
     (record.briefText && 'action' in record.briefText

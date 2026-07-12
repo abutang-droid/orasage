@@ -1,28 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
+import { DESTINY_SLICE_SILENT_QUESTION } from '@/lib/single-card/constants';
 import { createSingleCardReading, drawSingleCard } from '@/lib/single-card/record';
-import { normalizeQuestion } from '@/lib/reading-stable';
 
 const bodySchema = z.object({
-  question: z.string().trim().min(4, '请写下你面临的抉择（至少 4 个字）').max(500),
-  pickIndex: z.number().int().min(0).max(20).optional(),
+  pickIndex: z.number().int().min(0).max(20),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const ensured = await ensureAuthUser();
     const body = bodySchema.parse(await req.json());
-    const question = normalizeQuestion(body.question);
-    if (!question || question.length < 4) {
-      return NextResponse.json({ error: '请写下你面临的抉择（至少 4 个字）' }, { status: 400 });
-    }
 
-    const seedSuffix = body.pickIndex != null ? `:pick${body.pickIndex}` : '';
-    const card = drawSingleCard(`${question}${seedSuffix}`);
+    const drawSeed = `${ensured.userId}:${Date.now()}:pick${body.pickIndex}`;
+    const card = drawSingleCard(drawSeed);
     const record = await createSingleCardReading({
       userId: ensured.userId,
-      question,
+      question: DESTINY_SLICE_SILENT_QUESTION,
       card,
     });
 
@@ -30,7 +25,6 @@ export async function POST(req: NextRequest) {
       ok: true,
       readingId: record.id,
       card: record.card,
-      question: record.question,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;
