@@ -44,7 +44,9 @@ export function redirectAfterCheckout(result: AppCheckoutResponse) {
   }
   if (result.orderNo) {
     window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}`;
+    return;
   }
+  throw new Error('结账链接生成失败，请稍后重试');
 }
 
 export function isMockCheckoutProvider(provider: string): boolean {
