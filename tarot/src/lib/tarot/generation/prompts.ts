@@ -14,8 +14,8 @@ export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
 export function buildSingleGuidancePrompt(ctx: ReadingContext): string {
   const node = ctx.nodes[0];
   return `${aiPromptLanguageLine(ctx.language)}
-用户面临的抉择：${ctx.question}
-问题主题：${ctx.topicLabel}（规则层分类）
+用户已在心中默念自己的问题（具体内容不可知，禁止在输出中复述、引用或猜测用户问了什么）。
+问题主题：${ctx.topicLabel}（规则层分类，仅作内部参考）
 
 用户从牌堆抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
 
@@ -28,6 +28,7 @@ ${TAROT_GENERATION_STYLE}
 - action：一句话行动指引（祈使句，20-40字），直接告诉用户下一步可以怎么做
 - insight：结合牌义说明为何如此建议，80-120字，不说绝对话
 - 不要输出是/否判断，聚焦「怎么做」而非「会不会」
+- 禁止复述或猜测用户心中默念的具体问题，指引应普适、可执行
 
 请返回 JSON：
 {

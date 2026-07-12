@@ -118,7 +118,6 @@ export function SingleCardFlow() {
   const copy = useSingleCardCopy();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
-  const [question, setQuestion] = useState('');
   const [readingId, setReadingId] = useState<string | null>(null);
   const [card, setCard] = useState<SingleCardStoredCard | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -156,7 +155,6 @@ export function SingleCardFlow() {
 
   const hydrateRecord = useCallback((rec: SingleCardRecordDto, unlocked: boolean) => {
     setReadingId(rec.id);
-    setQuestion(rec.question);
     setCard(rec.card);
     setRevealed(true);
 
@@ -203,12 +201,6 @@ export function SingleCardFlow() {
   }, [loadSession, copy.loadFailed]);
 
   const submitDraw = async (pickIndex: number) => {
-    const trimmed = question.trim();
-    if (trimmed.length < 4) {
-      setError(copy.questionTooShort);
-      return;
-    }
-
     setStep('drawing');
     setRevealed(false);
     setCard(null);
@@ -220,7 +212,7 @@ export function SingleCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed, pickIndex }),
+        body: JSON.stringify({ pickIndex }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || copy.drawFailed);
@@ -304,22 +296,10 @@ export function SingleCardFlow() {
         <div className="destiny-slice-intro animate-fade-in-up delay-200">
           <div className="card daily-fortune-panel">
             <p className="daily-fortune-panel-lead">{copy.introLead}</p>
-            <label className="three-card-question-label" htmlFor="destiny-slice-question">
-              {copy.questionLabel}
-            </label>
-            <textarea
-              id="destiny-slice-question"
-              className="three-card-question-input"
-              rows={3}
-              maxLength={500}
-              placeholder={copy.questionPlaceholder}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-            />
           </div>
 
           <DestinySliceDeck
-            disabled={question.trim().length < 4 || drawLoading}
+            disabled={drawLoading}
             hint={copy.deckHint}
             pickLabel={copy.pickCard}
             onPick={(index) => void submitDraw(index)}
@@ -347,11 +327,6 @@ export function SingleCardFlow() {
 
       {step === 'result' && card && (
         <div className="destiny-slice-result animate-fade-in-up">
-          <div className="card single-card-result-question">
-            <p className="single-card-result-question-label">{copy.yourQuestion}</p>
-            <p className="single-card-result-question-text">{question}</p>
-          </div>
-
           <SingleCardReveal
             card={card}
             revealed
