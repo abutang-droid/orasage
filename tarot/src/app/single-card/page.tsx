@@ -3,7 +3,7 @@ import '../tarot-home.css';
 
 export const metadata = {
   title: '定命切片 · Manto',
-  description: '面临抉择不知如何选择？从牌堆抽一张，获得简洁行动指引。一次付费永久解锁。',
+  description: '面临抉择？免费抽牌，付费一次永久解锁行动指引',
 };
 
 export default function SingleCardPage() {

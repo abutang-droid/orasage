@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
-import { isDestinySliceUnlocked, tryUnlockFromOrder } from '@/lib/single-card-unlock';
 import { createSingleCardReading, drawSingleCard } from '@/lib/single-card/record';
 import { normalizeQuestion } from '@/lib/reading-stable';
 
@@ -19,16 +18,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请写下你面临的抉择（至少 4 个字）' }, { status: 400 });
     }
 
-    const unlocked = await isDestinySliceUnlocked(ensured.userId);
-    if (!unlocked) {
-      const res = NextResponse.json(
-        { ok: false, error: 'unlock_required', unlocked: false },
-        { status: 402 },
-      );
-      if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
-      return res;
-    }
-
     const seedSuffix = body.pickIndex != null ? `:pick${body.pickIndex}` : '';
     const card = drawSingleCard(`${question}${seedSuffix}`);
     const record = await createSingleCardReading({
@@ -42,7 +31,6 @@ export async function POST(req: NextRequest) {
       readingId: record.id,
       card: record.card,
       question: record.question,
-      unlocked: true,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;

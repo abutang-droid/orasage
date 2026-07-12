@@ -4,6 +4,7 @@ import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { generateDestinySliceGuidance } from '@/lib/single-card/guidance';
 import { getSingleCardReading, saveSingleCardBrief } from '@/lib/single-card/record';
+import { isDestinySliceUnlocked } from '@/lib/single-card-unlock';
 import { maybeSyncSingleCardReading } from '@/lib/single-card/sync';
 import { prisma } from '@/lib/prisma';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
@@ -29,6 +30,16 @@ export async function POST(req: NextRequest) {
     const record = await getSingleCardReading(ensured.userId, body.readingId);
     if (!record) {
       return NextResponse.json({ error: '记录不存在' }, { status: 404 });
+    }
+
+    const unlocked = await isDestinySliceUnlocked(ensured.userId);
+    if (!unlocked) {
+      const res = NextResponse.json(
+        { ok: false, error: 'paywall', locked: true },
+        { status: 402 },
+      );
+      if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
+      return res;
     }
 
     if (record.briefText) {
