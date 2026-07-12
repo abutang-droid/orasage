@@ -4,7 +4,7 @@ import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { generateSingleCardFullReport } from '@/lib/single-card/full-report';
 import { getSingleCardReading, saveSingleCardFullReport } from '@/lib/single-card/record';
-import { isDestinySliceGuidance, isSingleCardVerdict } from '@/lib/single-card/types';
+import { isDestinySliceFocus, isDestinySliceGuidance, isSingleCardVerdict } from '@/lib/single-card/types';
 import { maybeSyncSingleCardReading } from '@/lib/single-card/sync';
 import { resolveSingleCardReportAccess } from '@/lib/single-card-access';
 import { prisma } from '@/lib/prisma';
@@ -78,11 +78,13 @@ export async function POST(req: NextRequest) {
     }
 
     const literalMeaning = record.briefText
-      ? isDestinySliceGuidance(record.briefText)
-        ? record.briefText.insight
-        : isSingleCardVerdict(record.briefText)
-          ? record.briefText.explanation
-          : record.briefText.text
+      ? isDestinySliceFocus(record.briefText)
+        ? record.briefText.deconstruction
+        : isDestinySliceGuidance(record.briefText)
+          ? record.briefText.insight
+          : isSingleCardVerdict(record.briefText)
+            ? record.briefText.explanation
+            : record.briefText.text
       : undefined;
 
     const fullReport = await generateSingleCardFullReport({

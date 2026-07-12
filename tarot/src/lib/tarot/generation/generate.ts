@@ -8,11 +8,13 @@ import type { ExtractedKnowledgeNode } from '@/lib/tarot/knowledge/types';
 import {
   buildDailyFortunePrompt,
   buildLiteralTranslatePrompt,
+  buildSingleFocusPrompt,
   buildSingleFullPrompt,
   buildSingleGuidancePrompt,
   buildSingleVerdictPrompt,
   buildSpreadBriefPrompt,
   buildSpreadFullPrompt,
+  DESTINY_SLICE_FOCUS_SYSTEM,
 } from './prompts';
 
 // ─── Fallbacks（规则层模板，不经 LLM）────────────────────────
@@ -49,7 +51,67 @@ function fallbackFromNodes(
   };
 }
 
-// ─── Destiny slice guidance (行动指引) ───────────────────────
+// ─── Destiny slice Focus (是非/倾向切片) ─────────────────────
+
+const focusSchema = z.object({
+  tendency: z.string().min(1),
+  probability: z.string().min(1),
+  deconstruction: z.string().min(1),
+  threshold: z.string().min(1),
+});
+
+function fallbackFocusFromNodes(nodes: ExtractedKnowledgeNode[]) {
+  const node = nodes[0];
+  if (!node) {
+    return {
+      tendency: '警惕',
+      probability: '50% Static // 50% Unknown',
+      deconstruction: '坐标信号弱，当前状态处于未收敛区间。',
+      threshold: '暂停推进，先剥离一个可验证的冗余变量再重采样。',
+      llm: false,
+    };
+  }
+  const forward = node.orientation === '正位';
+  const pct = forward ? 68 : 34;
+  const inv = 100 - pct;
+  return {
+    tendency: forward ? 'Yes' : '警惕',
+    probability: `${pct}% ${forward ? 'Forward' : 'Reverse'} // ${inv}% Standard`,
+    deconstruction: `「${node.cardName}」${node.orientation}映射：${node.scenario.replace(/。$/, '')}，系统处于${forward ? '正向收敛' : '逆向阻滞'}相位。`,
+    threshold: node.advice[0] ?? '设定单一触发条件，满足后再执行下一步，避免多变量并行。',
+    llm: false,
+  };
+}
+
+export async function generateDestinySliceGuidanceFromLayers(input: ReadingContextInput) {
+  const ctx = buildReadingContext({ ...input, spreadType: 'single' });
+  const fallback = fallbackFocusFromNodes(ctx.nodes);
+
+  if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
+
+  const raw = await chatCompletion({
+    system: DESTINY_SLICE_FOCUS_SYSTEM,
+    user: buildSingleFocusPrompt(ctx),
+    maxTokens: 500,
+    temperature: 0.35,
+    timeoutMs: 24000,
+  });
+  if (!raw) return fallback;
+
+  const parsed = parseJsonFromLlm<unknown>(raw);
+  const validated = focusSchema.safeParse(parsed);
+  if (!validated.success) return fallback;
+
+  return {
+    tendency: sanitizeTarotReaderText(validated.data.tendency),
+    probability: sanitizeTarotReaderText(validated.data.probability),
+    deconstruction: sanitizeTarotReaderText(validated.data.deconstruction),
+    threshold: sanitizeTarotReaderText(validated.data.threshold),
+    llm: true,
+  };
+}
+
+// ─── Legacy guidance schema (行动指引) ───────────────────────
 
 const guidanceSchema = z.object({
   action: z.string().min(1),
@@ -73,7 +135,8 @@ function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: st
   };
 }
 
-export async function generateDestinySliceGuidanceFromLayers(input: ReadingContextInput) {
+/** @deprecated 旧版行动指引生成 */
+export async function generateDestinySliceLegacyGuidanceFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
   const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question);
 

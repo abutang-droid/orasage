@@ -1,23 +1,9 @@
 'use client';
 
+import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { useCardName } from '@/lib/i18n/context';
 import { getCardById } from '@/lib/tarot/cards';
 import type { SingleCardStoredCard } from '@/lib/single-card/types';
-
-function SingleCardIcon({ revealed }: { revealed: boolean }) {
-  return (
-    <div
-      className={`single-card-reveal-icon${revealed ? ' single-card-reveal-icon--revealed' : ''}`}
-      aria-hidden
-    >
-      <span className="single-card-reveal-icon-orbit" />
-      <span className="single-card-reveal-icon-core" />
-      <span className="single-card-reveal-icon-spark single-card-reveal-icon-spark--1" />
-      <span className="single-card-reveal-icon-spark single-card-reveal-icon-spark--2" />
-      <span className="single-card-reveal-icon-spark single-card-reveal-icon-spark--3" />
-    </div>
-  );
-}
 
 type Props = {
   card: SingleCardStoredCard | null;
@@ -34,7 +20,17 @@ export function SingleCardReveal({ card, revealed, orientationLabel, hint }: Pro
     <div className="single-card-reveal">
       {hint ? <p className="single-card-reveal-hint">{hint}</p> : null}
       <div className="single-card-reveal-body">
-        <SingleCardIcon revealed={revealed} />
+        {cardMeta ? (
+          <TarotFlipCard
+            card={cardMeta}
+            flipped={revealed}
+            glowing={revealed}
+            size="lg"
+            orientation={card?.orientation ?? '正位'}
+          />
+        ) : (
+          <div className="single-card-reveal-placeholder" aria-hidden />
+        )}
         {revealed && card && cardMeta ? (
           <div className="single-card-reveal-meta">
             <p className="single-card-reveal-name">{cardNameFor(cardMeta)}</p>
