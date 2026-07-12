@@ -2,8 +2,8 @@ import { ThreeCardFlow } from '@/components/three-card/ThreeCardFlow';
 import '../tarot-home.css';
 
 export const metadata = {
-  title: '三牌阵 · Manto',
-  description: '过去、现在、未来三牌阵占卜，简读免费，完整详读付费解锁',
+  title: '脉络解构 // TRILOGY · Manto',
+  description: '多维数据链条。依次翻开过去·现在·未来三帧切片，免费字面释义，付费解锁链路推演。',
 };
 
 export default function ReadingPage() {

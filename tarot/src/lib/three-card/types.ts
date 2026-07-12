@@ -23,16 +23,14 @@ export type ThreeCardStoredCard = {
 export type ThreeCardBriefPayload = {
   perCard: Array<{ position: string; text: string }>;
   synthesis: string;
+  literal?: boolean;
   llm: boolean;
 };
 
-export type ThreeCardFullReport = {
-  cards: Array<{ interpretation: string; mantra: string }>;
-  synthesis: string;
-  suggestions: string[];
-  affirmation: string;
-  llm: boolean;
-};
+import type { ThreeCardFullReport } from './trilogy-types';
+
+export type { ThreeCardFullReport, ThreeCardTrilogyPayload, ThreeCardLegacyFullReport } from './trilogy-types';
+export { isThreeCardTrilogy } from './trilogy-types';
 
 export type ThreeCardRecordDto = {
   id: string;

@@ -8,6 +8,7 @@ import type { DailyFortuneFullReport, DailyFortuneRecordDto } from './daily-fort
 import type { SingleCardRecordDto } from './single-card/types';
 import { DESTINY_SLICE_SILENT_QUESTION } from './single-card/constants';
 import type { ThreeCardFullReport, ThreeCardRecordDto } from './three-card/types';
+import { isThreeCardTrilogy } from './three-card/trilogy-types';
 
 export { newReadingId, syncReading, WUXING_CRYSTAL_SKU };
 export type { ReadingSyncPayload };
@@ -131,7 +132,11 @@ export function buildThreeCardSyncPayload(
     .join(' · ');
   const questionLabel = record.question?.slice(0, 40) || '当下指引';
   const summary =
-    record.fullReport?.synthesis?.slice(0, 500) ??
+    (record.fullReport && isThreeCardTrilogy(record.fullReport)
+      ? `${record.fullReport.mode} · ${record.fullReport.chainAnalysis}`.slice(0, 500)
+      : record.fullReport && 'synthesis' in record.fullReport
+        ? record.fullReport.synthesis?.slice(0, 500)
+        : null) ??
     record.briefText?.synthesis?.slice(0, 500) ??
     cardLine;
 
@@ -148,8 +153,8 @@ export function buildThreeCardSyncPayload(
   }
 
   const title = record.paidTier
-    ? `三牌阵详读 · ${questionLabel}`
-    : `三牌阵 · ${questionLabel}`;
+    ? `脉络解构 · ${questionLabel}`
+    : `脉络解构 · ${questionLabel}`;
 
   return {
     appSource: 'tarot',

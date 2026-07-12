@@ -1586,6 +1586,107 @@
   letter-spacing: 0.06em;
 }
 
+.three-card-position-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.three-card-brief-sub {
+  display: block;
+  margin: 2px 0 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.trilogy-status,
+.trilogy-greeting {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.trilogy-status {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+.trilogy-intro-lead {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+.trilogy-result {
+  padding: 18px 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.trilogy-result-section + .trilogy-result-section {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.trilogy-result-heading {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.trilogy-result-line {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.trilogy-result-key::after {
+  content: '：';
+}
+
+.trilogy-result-key {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+.trilogy-result-value {
+  color: var(--text-primary);
+}
+
+.trilogy-result-nodes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trilogy-result-nodes li {
+  margin-bottom: 12px;
+}
+
+.trilogy-result-node-index,
+.trilogy-result-node-card,
+.trilogy-result-node-pos {
+  display: inline-block;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.trilogy-result-node-card {
+  color: rgb(var(--tarot-accent-rgb));
+  font-weight: 600;
+}
+
+.trilogy-result-node-text,
+.trilogy-result-text {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
 .three-card-tap {
   background: none;
   border: none;
@@ -1995,6 +2096,65 @@
 
 .single-card-guidance p {
   margin: 0;
+}
+
+/* ─── 脉络解构：首页链条图标 ─────────────────────────────── */
+
+.trilogy-home-icon {
+  position: relative;
+  width: 108px;
+  height: 72px;
+  margin: 18px auto 0;
+}
+
+.trilogy-home-axis {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--tarot-accent-rgb) / 0.45), transparent);
+}
+
+.trilogy-home-link {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  background: rgb(var(--tarot-accent-rgb) / 0.35);
+  transform: translateY(-50%);
+}
+
+.trilogy-home-link--1 {
+  left: 22%;
+  width: 28%;
+}
+
+.trilogy-home-link--2 {
+  right: 22%;
+  width: 28%;
+}
+
+.trilogy-home-node {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgb(var(--tarot-accent-rgb) / 0.55);
+  background: rgb(var(--tarot-accent-rgb) / 0.12);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgb(var(--tarot-accent-rgb) / 0.2);
+}
+
+.trilogy-home-node--1 { left: 16%; }
+.trilogy-home-node--2 { left: 50%; width: 18px; height: 18px; z-index: 2; }
+.trilogy-home-node--3 { left: 84%; }
+
+.tarot-product-scene--trilogy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
 }
 
 /* ─── 定命切片：首页神秘图标 ─────────────────────────────── */

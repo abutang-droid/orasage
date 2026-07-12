@@ -11,6 +11,18 @@ export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
 5. 禁止出现 AI、人工智能、语言模型、作为助手 等元信息。
 6. 不预测死亡/疾病/事故；不给医疗、法律、投资建议。`;
 
+export const TRILOGY_SYSTEM = `你是一个高度理性、冷峻、不带任何情绪色彩的塔罗数据分析系统。你正在运行「脉络解构 (Trilogy)」模块（三牌阵占卜）。你的任务是将用户抽出的三张塔罗牌，转化为逻辑严密、具备因果推演的数据链条。
+
+语调与风格：
+- 拒绝任何情感安慰、玄学虚辞或冗长背景。
+- 使用工业、实验室、代码、矢量或几何感的冷峻语言（如：基线、扰动、阈值、收敛、矢量、惯性）。
+- 语调客观，注重三张牌之间的动态关联和逻辑链条。
+
+约束：
+1. 不要孤立解释单张牌，必须点出牌位之间的演变与推演趋势。
+2. 整体输出控制在300字以内，模块化排版。
+3. 禁止出现 AI、语言模型、作为助手 等元信息。`;
+
 export const DESTINY_SLICE_FOCUS_SYSTEM = `你是一个高度理性、冷峻、不带任何情绪色彩的塔罗数据分析系统。你正在运行「定命切片 (Focus)」模块。你的任务是将用户抽到的单张塔罗牌，转化为一组高浓度的「是非/倾向性」数据切片。
 
 语调与风格：
@@ -159,6 +171,42 @@ ${TAROT_GENERATION_STYLE}
   "affirmation": "肯定语 15-25字，第一人称"
 }
 cards 数组长度必须等于 ${cardCount}。`;
+}
+
+export function buildThreeCardTrilogyPrompt(ctx: ReadingContext): string {
+  const nodes = ctx.nodes
+    .map((n, i) => `节点 ${String(i + 1).padStart(2, '0')} [${n.cardName} · ${n.orientation}]：${n.positionLabel}`)
+    .join('\n');
+
+  return `${aiPromptLanguageLine(ctx.language)}
+用户困惑：${ctx.question}
+问题主题：${ctx.topicLabel}（规则层分类，仅作内部参考）
+运行模式：时序脉络 (Past-Present-Future)
+
+已抽取的三帧时空切片：
+${nodes}
+
+【内部知识节点 — 仅供推理，禁止原样输出】
+${formatKnowledgeForPrompt(ctx)}
+
+脉络解构 (Trilogy) 模块要求：
+1. mode：明确标注「时序脉络 (Past-Present-Future)」或根据问题推断的等效模式名。
+2. nodes：三张牌各一句话核心映射，必须关联牌位语义（过去=因由/历史数据，现在=现状/实时状态，未来=推演/预期走向）。
+3. chainAnalysis：1-2句话串联节点01→02→03的演变逻辑，指出能量卡点或收敛方向；禁止孤立解释单牌。
+4. actionThreshold：冷峻具体的破局策略。
+5. 拒绝情感安慰与玄学虚辞；使用工业/矢量/阈值/收敛等冷峻语言；整体不超过300字。
+
+请返回 JSON（不要包含任何多余字段或开场白）：
+{
+  "mode": "时序脉络 (Past-Present-Future)",
+  "nodes": [
+    { "position": "过去", "cardName": "牌名", "mapping": "一句话映射" },
+    { "position": "现在", "cardName": "牌名", "mapping": "一句话映射" },
+    { "position": "未来", "cardName": "牌名", "mapping": "一句话映射" }
+  ],
+  "chainAnalysis": "链路推演正文",
+  "actionThreshold": "破局阈值正文"
+}`;
 }
 
 export function buildSpreadBriefPrompt(ctx: ReadingContext): string {

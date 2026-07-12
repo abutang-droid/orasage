@@ -13,14 +13,14 @@ import { POSITION_KEYS, useThreeCardCopy } from '@/lib/i18n/reading-copy';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
+import { ThreeCardTrilogyResult } from '@/components/three-card/ThreeCardTrilogyResult';
 import type {
-  ThreeCardAnswer,
   ThreeCardBriefPayload,
   ThreeCardFullReport,
-  ThreeCardQuestion,
   ThreeCardRecordDto,
   ThreeCardStoredCard,
 } from '@/lib/three-card/types';
+import { isThreeCardTrilogy } from '@/lib/three-card/trilogy-types';
 
 type BillingPayload = {
   threeCardReport: TarotBillingProduct | null;
@@ -35,7 +35,7 @@ type SessionPayload = {
   record: ThreeCardRecordDto | null;
 };
 
-type Step = 'loading' | 'intro' | 'questions' | 'revealing' | 'brief' | 'paywall' | 'full_report';
+type Step = 'loading' | 'intro' | 'revealing' | 'brief' | 'paywall' | 'full_report';
 
 const POSITION_ORDER = [...POSITION_KEYS];
 
@@ -45,9 +45,6 @@ export function ThreeCardFlow() {
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [question, setQuestion] = useState('');
-  const [questions, setQuestions] = useState<ThreeCardQuestion[]>([]);
-  const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState<ThreeCardAnswer[]>([]);
   const [readingId, setReadingId] = useState<string | null>(null);
   const [cards, setCards] = useState<ThreeCardStoredCard[]>([]);
   const [revealedCount, setRevealedCount] = useState(0);
@@ -59,7 +56,6 @@ export function ThreeCardFlow() {
   const [checkoutSku, setCheckoutSku] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [briefLoading, setBriefLoading] = useState(false);
-  const [questionsLoading, setQuestionsLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
 
   const sortedCards = [...cards].sort(
@@ -72,7 +68,6 @@ export function ThreeCardFlow() {
     setReadingId(rec.id);
     setQuestion(rec.question);
     setCards(rec.cards);
-    setAnswers(rec.qaAnswers ?? []);
     setBrief(rec.briefText);
     setFullReport(rec.fullReport);
     setPaidTier(rec.paidTier);
@@ -140,42 +135,11 @@ export function ThreeCardFlow() {
     void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession]);
 
-  const beginQuestions = async () => {
-    setError('');
-    setStep('questions');
-    setQIndex(0);
-    setAnswers([]);
-    setQuestionsLoading(true);
-    try {
-      const res = await fetch('/api/three-card/questions', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim() || undefined }),
-      });
-      const data = await res.json();
-      setQuestions(data.questions ?? []);
-    } catch {
-      setError(copy.questionsFailed);
-      setStep('intro');
-    } finally {
-      setQuestionsLoading(false);
-    }
+  const beginDraw = () => {
+    void submitStart();
   };
 
-  const pickAnswer = (answer: string) => {
-    const q = questions[qIndex];
-    if (!q) return;
-    const nextAnswers = [...answers, { questionId: q.id, question: q.text, answer }];
-    setAnswers(nextAnswers);
-    if (qIndex + 1 < questions.length) {
-      setQIndex(qIndex + 1);
-      return;
-    }
-    void submitStart(nextAnswers);
-  };
-
-  const submitStart = async (finalAnswers: ThreeCardAnswer[]) => {
+  const submitStart = async () => {
     setStep('revealing');
     setRevealedCount(0);
     setCards([]);
@@ -188,7 +152,7 @@ export function ThreeCardFlow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: question.trim() || undefined,
-          answers: finalAnswers,
+          answers: [],
         }),
       });
       const data = await res.json();
@@ -197,7 +161,7 @@ export function ThreeCardFlow() {
       setCards(data.cards);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.drawFailed);
-      setStep('questions');
+      setStep('intro');
     } finally {
       setDrawLoading(false);
     }
@@ -262,7 +226,6 @@ export function ThreeCardFlow() {
     }
   };
 
-  const currentQ = questions[qIndex];
   const reportProduct = session?.billing.threeCardReport;
   const bundleProduct = session?.billing.threeCardBundle;
   const readingReturnPath = readingId
@@ -281,19 +244,25 @@ export function ThreeCardFlow() {
   }
 
   return (
-    <div className="three-card-page">
+    <div className="three-card-page trilogy-page">
       <div className="page-header animate-fade-in-up">
-        <span className="label">{copy.label}</span>
         <h1>{copy.title}</h1>
-        <p>
-          {copy.nicknameGreeting(session?.nickname)}
-          {copy.subtitle}
-        </p>
+        <p className="trilogy-status">{copy.statusBadge}</p>
+        {session?.nickname ? (
+          <p className="trilogy-greeting">{copy.nicknameGreeting(session.nickname)}</p>
+        ) : null}
       </div>
 
       {step === 'intro' && (
         <div className="daily-fortune-panel card animate-fade-in-up delay-100">
-          <p className="daily-fortune-panel-lead">{copy.introLead}</p>
+          <p className="daily-fortune-panel-lead trilogy-intro-lead">
+            {copy.introLead.split('\n').map((line, i) => (
+              <span key={i}>
+                {line}
+                {i < copy.introLead.split('\n').length - 1 ? <br /> : null}
+              </span>
+            ))}
+          </p>
           <label className="three-card-question-label" htmlFor="three-card-question">
             {copy.questionLabel}
           </label>
@@ -309,35 +278,10 @@ export function ThreeCardFlow() {
           <Button
             type="button"
             className="daily-fortune-panel-btn w-full"
-            onClick={() => void beginQuestions()}
+            onClick={beginDraw}
           >
             {copy.start}
           </Button>
-        </div>
-      )}
-
-      {step === 'questions' && questionsLoading && (
-        <MantoThinking message={copy.sensing} hint={copy.sensingHint} />
-      )}
-
-      {step === 'questions' && !questionsLoading && currentQ && (
-        <div className="daily-fortune-panel card animate-fade-in-up">
-          <div className="daily-fortune-q-progress">
-            {copy.questionProgress(qIndex + 1, questions.length)}
-          </div>
-          <p className="daily-fortune-q-text">{currentQ.text}</p>
-          <div className="daily-fortune-q-options">
-            {currentQ.options.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                className="daily-fortune-q-option"
-                onClick={() => pickAnswer(opt)}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
         </div>
       )}
 
@@ -363,6 +307,7 @@ export function ThreeCardFlow() {
                   return (
                     <div key={c.positionLabel} className="three-card-slot">
                       <span className="three-card-position">{copy.position(c.positionLabel)}</span>
+                      <span className="three-card-position-sub">{copy.positionSublabel(c.positionLabel)}</span>
                       <TarotFlipCard
                         card={meta}
                         flipped={isRevealed}
@@ -415,13 +360,10 @@ export function ThreeCardFlow() {
             {brief.perCard.map((item) => (
               <div key={item.position} className="three-card-brief-item">
                 <strong>{copy.position(item.position)}</strong>
+                <span className="three-card-brief-sub">{copy.positionSublabel(item.position)}</span>
                 <p>{item.text}</p>
               </div>
             ))}
-            <div className="three-card-brief-synthesis">
-              <strong>{copy.synthesis}</strong>
-              <p>{brief.synthesis}</p>
-            </div>
           </div>
 
           <div className="card three-card-unlock-cta">
@@ -532,53 +474,89 @@ export function ThreeCardFlow() {
       {step === 'full_report' && fullReport && (
         <div className="three-card-full animate-fade-in-up">
           <div className="three-card-grid three-card-grid--compact">
-            {sortedCards.map((c, i) => {
+            {sortedCards.map((c) => {
               const meta = getCardById(c.cardId);
-              const cardReport = fullReport.cards[i];
               return (
-                <div key={c.positionLabel} className="three-card-full-card card">
+                <div key={c.positionLabel} className="three-card-slot">
                   {meta ? (
-                    <div className="three-card-full-card-visual">
-                      <TarotFlipCard
-                        card={meta}
-                        flipped
-                        size="sm"
-                        orientation={c.orientation}
-                      />
-                    </div>
+                    <TarotFlipCard
+                      card={meta}
+                      flipped
+                      size="sm"
+                      orientation={c.orientation}
+                      caption={`${copy.position(c.positionLabel)} · ${cardNameFor(meta)}`}
+                    />
                   ) : null}
-                  <p className="three-card-caption">
-                    {copy.position(c.positionLabel)} · {meta ? cardNameFor(meta) : c.cardName} ·{' '}
-                    {copy.orientation(c.orientation)}
-                  </p>
-                  {cardReport && (
-                    <>
-                      <p className="three-card-full-text">{cardReport.interpretation}</p>
-                      <p className="three-card-mantra">「{cardReport.mantra}」</p>
-                    </>
-                  )}
+                  <span className="three-card-position-sub">{copy.positionSublabel(c.positionLabel)}</span>
                 </div>
               );
             })}
           </div>
 
-          <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">{copy.fullSynthesis}</h2>
-            <p>{fullReport.synthesis}</p>
-          </div>
+          {isThreeCardTrilogy(fullReport) ? (
+            <ThreeCardTrilogyResult
+              trilogy={fullReport}
+              sectionArchitecture={copy.sectionArchitecture}
+              modeLabel={copy.modeLabel}
+              sectionNodes={copy.sectionNodes}
+              sectionChain={copy.sectionChain}
+              sectionThreshold={copy.sectionThreshold}
+              positionLabel={copy.position}
+            />
+          ) : (
+            <>
+              <div className="three-card-grid three-card-grid--compact">
+                {sortedCards.map((c, i) => {
+                  const meta = getCardById(c.cardId);
+                  const cardReport = fullReport.cards[i];
+                  return (
+                    <div key={c.positionLabel} className="three-card-full-card card">
+                      {meta ? (
+                        <div className="three-card-full-card-visual">
+                          <TarotFlipCard
+                            card={meta}
+                            flipped
+                            size="sm"
+                            orientation={c.orientation}
+                          />
+                        </div>
+                      ) : null}
+                      <p className="three-card-caption">
+                        {copy.position(c.positionLabel)} · {meta ? cardNameFor(meta) : c.cardName} ·{' '}
+                        {copy.orientation(c.orientation)}
+                      </p>
+                      {cardReport && (
+                        <>
+                          <p className="three-card-full-text">{cardReport.interpretation}</p>
+                          <p className="three-card-mantra">「{cardReport.mantra}」</p>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
-          <div className="card three-card-suggestions">
-            <h2 className="daily-fortune-section-title">{copy.suggestions}</h2>
-            <ul>
-              {fullReport.suggestions.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          </div>
+              <div className="card daily-fortune-brief">
+                <h2 className="daily-fortune-section-title">{copy.fullSynthesis}</h2>
+                <p>{fullReport.synthesis}</p>
+              </div>
 
-          <div className="card three-card-affirmation">
-            <p>{fullReport.affirmation}</p>
-          </div>
+              <div className="card three-card-suggestions">
+                <h2 className="daily-fortune-section-title">{copy.suggestions}</h2>
+                <ul>
+                  {fullReport.suggestions.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {'affirmation' in fullReport && fullReport.affirmation ? (
+                <div className="card three-card-affirmation">
+                  <p>{fullReport.affirmation}</p>
+                </div>
+              ) : null}
+            </>
+          )}
 
           {paidTier === 'bundle' && bundleProduct?.requiresShipping && (
             <div className="card three-card-bundle-note">
@@ -600,8 +578,6 @@ export function ThreeCardFlow() {
             className="w-full mt-3"
             onClick={() => {
               setQuestion('');
-              setQuestions([]);
-              setAnswers([]);
               setReadingId(null);
               setCards([]);
               setBrief(null);

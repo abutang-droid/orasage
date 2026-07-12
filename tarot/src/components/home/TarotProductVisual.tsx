@@ -23,6 +23,19 @@ type TarotProductVisualProps = {
   className?: string;
 };
 
+function TrilogyIcon() {
+  return (
+    <div className="trilogy-home-icon" aria-hidden>
+      <span className="trilogy-home-link trilogy-home-link--1" />
+      <span className="trilogy-home-link trilogy-home-link--2" />
+      <span className="trilogy-home-node trilogy-home-node--1" />
+      <span className="trilogy-home-node trilogy-home-node--2" />
+      <span className="trilogy-home-node trilogy-home-node--3" />
+      <span className="trilogy-home-axis" />
+    </div>
+  );
+}
+
 function DestinySliceIcon() {
   return (
     <div className="destiny-slice-home-icon" aria-hidden>
@@ -58,10 +71,8 @@ function CardScene({ variant }: { variant: TarotProductVisualProps['variant'] })
 
   if (variant === 'three') {
     return (
-      <div className="tarot-product-scene tarot-product-scene--three">
-        <TarotMiniCard src="/cards/back.webp" className="tarot-product-scene-card tarot-product-scene-card--three-left" rotate={-16} />
-        <TarotMiniCard src="/cards/back.webp" className="tarot-product-scene-card tarot-product-scene-card--three-center" rotate={0} glow />
-        <TarotMiniCard src="/cards/back.webp" className="tarot-product-scene-card tarot-product-scene-card--three-right" rotate={16} />
+      <div className="tarot-product-scene tarot-product-scene--trilogy">
+        <TrilogyIcon />
       </div>
     );
   }
