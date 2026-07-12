@@ -23,13 +23,25 @@ type TarotProductVisualProps = {
   className?: string;
 };
 
+function DestinySliceIcon() {
+  return (
+    <div className="destiny-slice-home-icon" aria-hidden>
+      <span className="destiny-slice-home-icon-ring destiny-slice-home-icon-ring--outer" />
+      <span className="destiny-slice-home-icon-ring destiny-slice-home-icon-ring--inner" />
+      <span className="destiny-slice-home-icon-slice" />
+      <span className="destiny-slice-home-icon-glow" />
+      <span className="destiny-slice-home-icon-dot destiny-slice-home-icon-dot--1" />
+      <span className="destiny-slice-home-icon-dot destiny-slice-home-icon-dot--2" />
+      <span className="destiny-slice-home-icon-dot destiny-slice-home-icon-dot--3" />
+    </div>
+  );
+}
+
 function CardScene({ variant }: { variant: TarotProductVisualProps['variant'] }) {
   if (variant === 'single') {
     return (
-      <div className="tarot-product-scene tarot-product-scene--single">
-        <TarotMiniCard src="/cards/back.webp" className="tarot-product-scene-card tarot-product-scene-card--back-a" rotate={-18} glow />
-        <TarotMiniCard src="/cards/back.webp" className="tarot-product-scene-card tarot-product-scene-card--back-b" rotate={16} />
-        <TarotMiniCard src="/cards/0.webp" className="tarot-product-scene-card tarot-product-scene-card--hero" rotate={-4} glow priority />
+      <div className="tarot-product-scene tarot-product-scene--destiny-slice">
+        <DestinySliceIcon />
       </div>
     );
   }

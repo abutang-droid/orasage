@@ -9,6 +9,7 @@ import {
   buildDailyFortunePrompt,
   buildLiteralTranslatePrompt,
   buildSingleFullPrompt,
+  buildSingleGuidancePrompt,
   buildSingleVerdictPrompt,
   buildSpreadBriefPrompt,
   buildSpreadFullPrompt,
@@ -48,7 +49,57 @@ function fallbackFromNodes(
   };
 }
 
-// ─── Single-card verdict (是/否启示) ───────────────────────────
+// ─── Destiny slice guidance (行动指引) ───────────────────────
+
+const guidanceSchema = z.object({
+  action: z.string().min(1),
+  insight: z.string().min(1),
+});
+
+function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: string) {
+  const node = nodes[0];
+  if (!node) {
+    return {
+      action: '先停下来，把两个选项各写下来，对比你真正害怕失去的是什么。',
+      insight: '牌面信息暂不可用，但犹豫本身说明你在认真对待这个选择。',
+      llm: false,
+    };
+  }
+  const advice = node.advice[0] ?? '给自己一点空间，不必今天就做决定。';
+  return {
+    action: advice,
+    insight: `围绕「${question}」，「${node.cardName}」${node.orientation}提示：${node.scenario.replace(/。$/, '')}`,
+    llm: false,
+  };
+}
+
+export async function generateDestinySliceGuidanceFromLayers(input: ReadingContextInput) {
+  const ctx = buildReadingContext({ ...input, spreadType: 'single' });
+  const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question);
+
+  if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
+
+  const raw = await chatCompletion({
+    system: TAROT_READER_SYSTEM,
+    user: buildSingleGuidancePrompt(ctx),
+    maxTokens: 700,
+    temperature: 0.75,
+    timeoutMs: 24000,
+  });
+  if (!raw) return fallback;
+
+  const parsed = parseJsonFromLlm<unknown>(raw);
+  const validated = guidanceSchema.safeParse(parsed);
+  if (!validated.success) return fallback;
+
+  return {
+    action: sanitizeTarotReaderText(validated.data.action),
+    insight: sanitizeTarotReaderText(validated.data.insight),
+    llm: true,
+  };
+}
+
+// ─── Single-card verdict (是/否启示, legacy) ─────────────────
 
 const verdictSchema = z.object({
   verdict: z.enum(['yes', 'no', 'lean_yes', 'lean_no', 'unclear']),

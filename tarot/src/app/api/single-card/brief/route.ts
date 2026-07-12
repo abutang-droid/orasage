@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
-import { generateSingleCardVerdict } from '@/lib/single-card/verdict';
+import { generateDestinySliceGuidance } from '@/lib/single-card/guidance';
 import { getSingleCardReading, saveSingleCardBrief } from '@/lib/single-card/record';
 import { maybeSyncSingleCardReading } from '@/lib/single-card/sync';
 import { prisma } from '@/lib/prisma';
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    const brief = await generateSingleCardVerdict({
+    const brief = await generateDestinySliceGuidance({
       question: record.question,
       card: record.card,
       language,
@@ -69,6 +69,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '参数错误' }, { status: 400 });
     }
     console.error('[single-card/brief]', err);
-    return NextResponse.json({ error: '启示生成失败' }, { status: 500 });
+    return NextResponse.json({ error: '指引生成失败' }, { status: 500 });
   }
 }

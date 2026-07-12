@@ -8,27 +8,21 @@ import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 import { TarotProductVisual } from '@/components/home/TarotProductVisual';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
 
-type SingleQuota = {
-  allowance?: number;
-  remaining?: number | null;
-  drawsUsed?: number;
-  templeBonusGranted?: boolean;
+type UnlockPayload = {
+  unlocked: boolean;
 };
 
 export function TarotHomeV2() {
   const router = useRouter();
   const home = useHomeCopy();
-  const [singleQuota, setSingleQuota] = useState<SingleQuota | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     void fetch('/api/single-card/quota', { credentials: 'include', cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
-      .then((single) => setSingleQuota(single))
-      .catch(() => setSingleQuota(null));
+      .then((data: UnlockPayload | null) => setUnlocked(data?.unlocked ?? false))
+      .catch(() => setUnlocked(false));
   }, []);
-
-  const singleRemaining = singleQuota?.remaining ?? 1;
-  const templeBonus = singleQuota?.templeBonusGranted ?? false;
 
   return (
     <div className="tarot-home tarot-home-visual">
@@ -50,11 +44,10 @@ export function TarotHomeV2() {
             desc={home.singleCardDesc}
             cta={home.singleCardCta}
             badges={[
-              { key: 'remaining', label: home.quotaTodayRemaining(singleRemaining ?? 1) },
               {
-                key: 'temple',
-                label: templeBonus ? home.templeBonusGranted : home.templeBonusAvailable,
-                muted: !templeBonus,
+                key: 'unlock',
+                label: unlocked ? home.singleCardUnlockedBadge : home.singleCardUnlockBadge,
+                muted: !unlocked,
               },
             ]}
           />

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
-import { consumeSingleCardDraw, getSingleCardQuota } from '@/lib/single-card-quota';
+import { isDestinySliceUnlocked, tryUnlockFromOrder } from '@/lib/single-card-unlock';
 import { createSingleCardReading, drawSingleCard } from '@/lib/single-card/record';
 import { normalizeQuestion } from '@/lib/reading-stable';
 
 const bodySchema = z.object({
-  question: z.string().trim().min(4, '请写下你的明确问题（至少 4 个字）').max(500),
+  question: z.string().trim().min(4, '请写下你面临的抉择（至少 4 个字）').max(500),
+  pickIndex: z.number().int().min(0).max(20).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -15,37 +16,33 @@ export async function POST(req: NextRequest) {
     const body = bodySchema.parse(await req.json());
     const question = normalizeQuestion(body.question);
     if (!question || question.length < 4) {
-      return NextResponse.json({ error: '请写下你的明确问题（至少 4 个字）' }, { status: 400 });
+      return NextResponse.json({ error: '请写下你面临的抉择（至少 4 个字）' }, { status: 400 });
     }
 
-    const access = await consumeSingleCardDraw(ensured.userId);
-    if (!access.ok) {
-      const quota = await getSingleCardQuota(ensured.userId);
+    const unlocked = await isDestinySliceUnlocked(ensured.userId);
+    if (!unlocked) {
       const res = NextResponse.json(
-        { ok: false, error: 'quota_exhausted', quota, remaining: 0 },
+        { ok: false, error: 'unlock_required', unlocked: false },
         { status: 402 },
       );
       if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
       return res;
     }
 
-    const card = drawSingleCard(question);
+    const seedSuffix = body.pickIndex != null ? `:pick${body.pickIndex}` : '';
+    const card = drawSingleCard(`${question}${seedSuffix}`);
     const record = await createSingleCardReading({
       userId: ensured.userId,
       question,
       card,
     });
 
-    const quota = await getSingleCardQuota(ensured.userId);
-
     const res = NextResponse.json({
       ok: true,
       readingId: record.id,
       card: record.card,
       question: record.question,
-      quota,
-      remaining: access.remaining,
-      source: access.source,
+      unlocked: true,
     });
     if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
     return res;

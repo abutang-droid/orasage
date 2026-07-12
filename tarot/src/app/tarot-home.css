@@ -1987,3 +1987,184 @@
 .single-card-guidance p {
   margin: 0;
 }
+
+/* ─── 定命切片：首页神秘图标 ─────────────────────────────── */
+
+.destiny-slice-home-icon {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  margin: 0 auto;
+}
+
+.destiny-slice-home-icon-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgb(var(--tarot-accent-rgb) / 0.28);
+}
+
+.destiny-slice-home-icon-ring--outer {
+  inset: 4%;
+  animation: destiny-slice-orbit 18s linear infinite;
+}
+
+.destiny-slice-home-icon-ring--inner {
+  inset: 22%;
+  border-style: dashed;
+  animation: destiny-slice-orbit 12s linear infinite reverse;
+}
+
+.destiny-slice-home-icon-slice {
+  position: absolute;
+  inset: 30% 28% 30% 52%;
+  border-radius: 50% 8% 50% 8%;
+  background: linear-gradient(145deg, rgb(var(--tarot-accent-rgb) / 0.55), rgb(var(--tarot-accent-rgb) / 0.15));
+  transform: rotate(-18deg);
+  box-shadow: 0 0 20px rgb(var(--tarot-accent-rgb) / 0.2);
+}
+
+.destiny-slice-home-icon-glow {
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--tarot-accent-rgb) / 0.35), transparent 70%);
+}
+
+.destiny-slice-home-icon-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--tarot-accent-rgb) / 0.7);
+}
+
+.destiny-slice-home-icon-dot--1 { top: 12%; left: 50%; transform: translateX(-50%); }
+.destiny-slice-home-icon-dot--2 { bottom: 18%; left: 22%; }
+.destiny-slice-home-icon-dot--3 { bottom: 22%; right: 20%; }
+
+.tarot-product-scene--destiny-slice {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes destiny-slice-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── 定命切片：牌堆抽牌 ─────────────────────────────────── */
+
+.destiny-slice-deck {
+  margin-top: 16px;
+  padding: 20px 12px 8px;
+  text-align: center;
+}
+
+.destiny-slice-deck-hint {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.destiny-slice-deck-fan {
+  position: relative;
+  height: 168px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.destiny-slice-deck-card {
+  position: absolute;
+  bottom: 0;
+  width: 72px;
+  height: 112px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
+}
+
+.destiny-slice-deck-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.destiny-slice-deck-card--dim {
+  opacity: 0.35;
+  filter: blur(1px);
+}
+
+.destiny-slice-deck-card--active {
+  transform: translateY(-14px) scale(1.06) !important;
+}
+
+.destiny-slice-deck-card-face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #1a1030 0%, #2d1b4e 45%, #1a1030 100%);
+  border: 1.5px solid rgb(var(--tarot-accent-rgb) / 0.35);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+.destiny-slice-deck-card-sigil {
+  position: absolute;
+  inset: 28% 32%;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.4);
+  pointer-events: none;
+}
+
+.destiny-slice-deck-card-sigil::after {
+  content: '';
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: rgb(var(--tarot-accent-rgb) / 0.25);
+}
+
+.destiny-slice-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.destiny-slice-action {
+  padding: 20px 16px;
+  text-align: center;
+  background: linear-gradient(180deg, rgb(var(--tarot-accent-rgb) / 0.08), transparent);
+}
+
+.destiny-slice-action-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.destiny-slice-action-text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.destiny-slice-unlock-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.destiny-slice-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

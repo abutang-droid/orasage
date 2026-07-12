@@ -50,6 +50,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
   { sku: 'ziwei-chat-pack-10', name: '紫微问答加量包', desc: '额外 10 次 OraSage 对话机会', priceCents: 990, priceCentsUsd: 138, category: 'service' },
   { sku: 'ziwei-chat-yearly', name: '紫微问答年卡', desc: '365 天无限 OraSage 对话', priceCents: 9900, priceCentsUsd: 1375, category: 'service' },
   { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 4800, priceCentsUsd: 667, category: 'report' },
+  { sku: 'tarot-destiny-slice', name: '定命切片', desc: '面临抉择时抽牌得行动指引 · 一次付费永久解锁', priceCents: 2900, priceCentsUsd: 403, category: 'report' },
   { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, priceCentsUsd: 2750, category: 'service' },
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
