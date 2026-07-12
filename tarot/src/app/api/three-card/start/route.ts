@@ -16,8 +16,9 @@ const bodySchema = z.object({
         answer: z.string().min(1).max(200),
       }),
     )
-    .min(1)
-    .max(8),
+    .max(8)
+    .optional()
+    .default([]),
 });
 
 export async function POST(req: NextRequest) {
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     return res;
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: '请完整回答引导问题' }, { status: 400 });
+      return NextResponse.json({ error: '参数错误' }, { status: 400 });
     }
     console.error('[three-card/start]', err);
     return NextResponse.json({ error: '抽牌失败' }, { status: 500 });
