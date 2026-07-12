@@ -11,6 +11,34 @@ export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
 5. 禁止出现 AI、人工智能、语言模型、作为助手 等元信息。
 6. 不预测死亡/疾病/事故；不给医疗、法律、投资建议。`;
 
+export function buildSingleVerdictPrompt(ctx: ReadingContext): string {
+  const node = ctx.nodes[0];
+  return `${aiPromptLanguageLine(ctx.language)}
+用户明确问题：${ctx.question}
+问题主题：${ctx.topicLabel}（规则层分类）
+
+抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+
+【内部知识节点 — 仅供推理，禁止原样输出】
+${formatKnowledgeForPrompt(ctx)}
+
+${TAROT_GENERATION_STYLE}
+
+单牌占卜要求：用户带着明确问题抽牌，结论必须给出「是/否」方向的启示。
+- verdict 取值：yes（明确肯定）、no（明确否定）、lean_yes（倾向于是）、lean_no（倾向于否）、unclear（时机未到/信息不足，不宜强行二选一）
+- headline 用一句话直接回应问题，必须包含是或否倾向（如「倾向于「是」」「答案偏向「否」」「此刻不宜下定论」）
+- explanation 结合牌义说明为何如此判断，120-200字
+- guidance 给一条可执行建议，40-80字
+
+请返回 JSON：
+{
+  "verdict": "yes|no|lean_yes|lean_no|unclear",
+  "headline": "一句话是/否结论",
+  "explanation": "结合牌面与问题的解读",
+  "guidance": "行动建议"
+}`;
+}
+
 export function buildSingleFullPrompt(ctx: ReadingContext): string {
   const node = ctx.nodes[0];
   return `${aiPromptLanguageLine(ctx.language)}

@@ -9,6 +9,7 @@ import {
   buildDailyFortunePrompt,
   buildLiteralTranslatePrompt,
   buildSingleFullPrompt,
+  buildSingleVerdictPrompt,
   buildSpreadBriefPrompt,
   buildSpreadFullPrompt,
 } from './prompts';
@@ -44,6 +45,66 @@ function fallbackFromNodes(
     ],
     affirmation: '我的平静比任何风暴都更有力量。',
     llm: false,
+  };
+}
+
+// ─── Single-card verdict (是/否启示) ───────────────────────────
+
+const verdictSchema = z.object({
+  verdict: z.enum(['yes', 'no', 'lean_yes', 'lean_no', 'unclear']),
+  headline: z.string().min(1),
+  explanation: z.string().min(1),
+  guidance: z.string().min(1),
+});
+
+function fallbackVerdictFromNodes(nodes: ExtractedKnowledgeNode[], question: string) {
+  const node = nodes[0];
+  if (!node) {
+    return {
+      verdict: 'unclear' as const,
+      headline: '此刻不宜强行下定论',
+      explanation: '牌面信息暂不可用，请稍后再试或换一种方式提问。',
+      guidance: '把问题写得更具体一些，再抽一次看看。',
+      llm: false,
+    };
+  }
+  const positive = node.orientation === '正位';
+  const verdict = positive ? ('lean_yes' as const) : ('lean_no' as const);
+  const headline = positive ? '倾向于「是」' : '倾向于「否」';
+  return {
+    verdict,
+    headline,
+    explanation: `围绕「${question}」，「${node.cardName}」${node.orientation}指向${node.scenario.replace(/。$/, '')}。${node.meaning}`,
+    guidance: node.advice[0] ?? '信任第一直觉，同时留一点余地观察变化。',
+    llm: false,
+  };
+}
+
+export async function generateSingleCardVerdictFromLayers(input: ReadingContextInput) {
+  const ctx = buildReadingContext({ ...input, spreadType: 'single' });
+  const fallback = fallbackVerdictFromNodes(ctx.nodes, ctx.question);
+
+  if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
+
+  const raw = await chatCompletion({
+    system: TAROT_READER_SYSTEM,
+    user: buildSingleVerdictPrompt(ctx),
+    maxTokens: 900,
+    temperature: 0.75,
+    timeoutMs: 26000,
+  });
+  if (!raw) return fallback;
+
+  const parsed = parseJsonFromLlm<unknown>(raw);
+  const validated = verdictSchema.safeParse(parsed);
+  if (!validated.success) return fallback;
+
+  return {
+    verdict: validated.data.verdict,
+    headline: sanitizeTarotReaderText(validated.data.headline),
+    explanation: sanitizeTarotReaderText(validated.data.explanation),
+    guidance: sanitizeTarotReaderText(validated.data.guidance),
+    llm: true,
   };
 }
 

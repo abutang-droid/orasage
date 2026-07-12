@@ -6,13 +6,23 @@ import type {
   SingleCardFullReport,
   SingleCardRecordDto,
   SingleCardStoredCard,
+  SingleCardVerdictPayload,
 } from './types';
 
 function parseBrief(raw: string | null): SingleCardBriefPayload | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as SingleCardBriefPayload;
-    return { ...parsed, literal: true };
+    if ('verdict' in parsed && parsed.verdict) {
+      return parsed as SingleCardVerdictPayload;
+    }
+    if ('literal' in parsed && parsed.literal) {
+      return { ...parsed, literal: true };
+    }
+    if ('text' in parsed && typeof parsed.text === 'string') {
+      return { text: parsed.text, literal: true, llm: false };
+    }
+    return null;
   } catch {
     return { text: raw, literal: true, llm: false };
   }
