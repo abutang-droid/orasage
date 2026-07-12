@@ -36,6 +36,23 @@ function TrilogyIcon() {
   );
 }
 
+/** 祈福入口图标：香炉 + 心光，无塔罗牌面 */
+function TempleBlessingIcon() {
+  return (
+    <div className="temple-home-icon" aria-hidden>
+      <span className="temple-home-icon-halo" />
+      <span className="temple-home-icon-glow" />
+      <span className="temple-home-icon-pedestal" />
+      <span className="temple-home-icon-censer" />
+      <span className="temple-home-icon-flame" />
+      <span className="temple-home-icon-smoke temple-home-icon-smoke--l" />
+      <span className="temple-home-icon-smoke temple-home-icon-smoke--r" />
+      <span className="temple-home-icon-spark temple-home-icon-spark--1" />
+      <span className="temple-home-icon-spark temple-home-icon-spark--2" />
+    </div>
+  );
+}
+
 function DestinySliceIcon() {
   return (
     <div className="destiny-slice-home-icon" aria-hidden>
@@ -79,8 +96,7 @@ function CardScene({ variant }: { variant: TarotProductVisualProps['variant'] })
 
   return (
     <div className="tarot-product-scene tarot-product-scene--temple">
-      <div className="tarot-product-scene-incense" aria-hidden />
-      <TarotMiniCard src="/cards/17.webp" className="tarot-product-scene-card tarot-product-scene-card--temple" rotate={-6} glow />
+      <TempleBlessingIcon />
     </div>
   );
 }
