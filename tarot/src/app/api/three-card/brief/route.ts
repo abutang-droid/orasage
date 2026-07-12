@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     const brief = await generateThreeCardBrief({
       question: record.question,
       cards: record.cards,
-      answers: (record.qaAnswers ?? []) as ThreeCardAnswer[],
       language,
     });
 

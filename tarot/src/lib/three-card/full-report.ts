@@ -1,8 +1,5 @@
-import {
-  interpretReadingWithLlm,
-  type ReadingCardInput,
-} from '@/lib/llm/reading-interpret';
 import type { AiLocale } from '../../../../shared/ai-locale/index';
+import { generateThreeCardTrilogyFromLayers } from '@/lib/tarot/generation/generate';
 import type { ThreeCardAnswer, ThreeCardFullReport, ThreeCardStoredCard } from './types';
 
 export async function generateThreeCardFullReport(input: {
@@ -11,28 +8,24 @@ export async function generateThreeCardFullReport(input: {
   answers: ThreeCardAnswer[];
   language?: AiLocale;
 }): Promise<ThreeCardFullReport> {
-  const cardInputs: ReadingCardInput[] = input.cards.map((c) => ({
-    position: c.position,
-    positionLabel: c.positionLabel,
-    cardName: c.cardName,
-    cardNameEn: c.cardNameEn,
-    cardId: c.cardId,
-    orientation: c.orientation,
-    element: c.element,
-  }));
-
-  const result = await interpretReadingWithLlm({
-    question: input.question || '当下指引',
-    spreadType: '三牌阵（过去·现在·未来）',
-    cards: cardInputs,
-    language: input.language ?? 'zh-CN',
+  const { question, cards, answers, language = 'zh-CN' } = input;
+  return generateThreeCardTrilogyFromLayers({
+    question,
+    answers: answers.map((a) => ({
+      questionId: a.questionId,
+      question: a.question,
+      answer: a.answer,
+    })),
+    cards: cards.map((c) => ({
+      cardId: c.cardId,
+      cardName: c.cardName,
+      cardNameEn: c.cardNameEn,
+      orientation: c.orientation,
+      element: c.element,
+      position: c.position,
+      positionLabel: c.positionLabel,
+    })),
+    spreadType: 'three-card',
+    language,
   });
-
-  return {
-    cards: result.cards,
-    synthesis: result.synthesis,
-    suggestions: result.suggestions,
-    affirmation: result.affirmation,
-    llm: result.llm,
-  };
 }

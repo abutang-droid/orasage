@@ -7,6 +7,7 @@ import type {
   ThreeCardRecordDto,
   ThreeCardStoredCard,
 } from './types';
+import { isThreeCardTrilogy } from './trilogy-types';
 
 const POSITION_KEYS: Record<string, string> = {
   过去: 'past',
@@ -26,7 +27,10 @@ function parseBrief(raw: string | null): ThreeCardBriefPayload | null {
 function parseFullReport(raw: string | null): ThreeCardFullReport | null {
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as ThreeCardFullReport;
+    const parsed = JSON.parse(raw) as ThreeCardFullReport;
+    if (isThreeCardTrilogy(parsed)) return parsed;
+    if ('cards' in parsed && Array.isArray(parsed.cards)) return parsed;
+    return null;
   } catch {
     return null;
   }

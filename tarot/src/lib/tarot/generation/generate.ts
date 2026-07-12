@@ -14,7 +14,9 @@ import {
   buildSingleVerdictPrompt,
   buildSpreadBriefPrompt,
   buildSpreadFullPrompt,
+  buildThreeCardTrilogyPrompt,
   DESTINY_SLICE_FOCUS_SYSTEM,
+  TRILOGY_SYSTEM,
 } from './prompts';
 
 // ─── Fallbacks（规则层模板，不经 LLM）────────────────────────
@@ -308,6 +310,67 @@ export async function generateSpreadBriefFromLayers(input: ReadingContextInput) 
   const validated = briefSchema.safeParse(parsed);
   if (!validated.success || validated.data.perCard.length !== ctx.nodes.length) return fallback;
   return { ...validated.data, llm: true };
+}
+
+// ─── Three-card Trilogy (脉络解构) ───────────────────────────
+
+const trilogySchema = z.object({
+  mode: z.string().min(1),
+  nodes: z.array(z.object({
+    position: z.string().min(1),
+    cardName: z.string().min(1),
+    mapping: z.string().min(1),
+  })).min(3),
+  chainAnalysis: z.string().min(1),
+  actionThreshold: z.string().min(1),
+});
+
+function fallbackTrilogyFromNodes(nodes: ExtractedKnowledgeNode[]) {
+  const trilogyNodes = nodes.map((n) => ({
+    position: n.positionLabel ?? n.cardName,
+    cardName: n.cardName,
+    mapping: `${n.scenario.replace(/。$/, '')}，${n.orientation === '正位' ? '正向基线' : '逆向扰动'}。`,
+  }));
+  const names = nodes.map((n) => n.cardName).join(' → ');
+  return {
+    mode: '时序脉络 (Past-Present-Future)',
+    nodes: trilogyNodes,
+    chainAnalysis: `链路 ${names}：历史冗余经现在态折射，未来向量呈${nodes[2]?.orientation === '正位' ? '收敛' : '发散'}趋势。`,
+    actionThreshold: nodes[1]?.advice[0] ?? '设定单一触发阈值，满足后再推进下一节点。',
+    llm: false,
+  };
+}
+
+export async function generateThreeCardTrilogyFromLayers(input: ReadingContextInput) {
+  const ctx = buildReadingContext({ ...input, spreadType: 'three-card' });
+  const fallback = fallbackTrilogyFromNodes(ctx.nodes);
+
+  if (!isLlmConfigured() || ctx.nodes.length < 3) return fallback;
+
+  const raw = await chatCompletion({
+    system: TRILOGY_SYSTEM,
+    user: buildThreeCardTrilogyPrompt(ctx),
+    maxTokens: 800,
+    temperature: 0.35,
+    timeoutMs: 28000,
+  });
+  if (!raw) return fallback;
+
+  const parsed = parseJsonFromLlm<unknown>(raw);
+  const validated = trilogySchema.safeParse(parsed);
+  if (!validated.success) return fallback;
+
+  return {
+    mode: sanitizeTarotReaderText(validated.data.mode),
+    nodes: validated.data.nodes.map((n) => ({
+      position: sanitizeTarotReaderText(n.position),
+      cardName: sanitizeTarotReaderText(n.cardName),
+      mapping: sanitizeTarotReaderText(n.mapping),
+    })),
+    chainAnalysis: sanitizeTarotReaderText(validated.data.chainAnalysis),
+    actionThreshold: sanitizeTarotReaderText(validated.data.actionThreshold),
+    llm: true,
+  };
 }
 
 // ─── Daily fortune ────────────────────────────────────────────
