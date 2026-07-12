@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@orasage/ui/button';
+import { Button, buttonVariants } from '@orasage/ui/button';
+import { cn } from '@orasage/ui';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
 import { TarotFlipCard } from '@/components/TarotFlipCard';
@@ -88,6 +89,7 @@ export function ThreeCardFlow() {
     });
     const data = await res.json();
     if (res.status === 401) {
+      setIsLoggedIn(false);
       setStep('paywall');
       return;
     }
@@ -207,7 +209,10 @@ export function ThreeCardFlow() {
       setError(copy.loginBeforeBuy);
       return;
     }
-    if (!readingId) return;
+    if (!readingId) {
+      setError(copy.checkoutFailed);
+      return;
+    }
     setCheckoutSku(sku);
     setError('');
     try {
@@ -369,11 +374,12 @@ export function ThreeCardFlow() {
           <div className="card three-card-unlock-cta">
             <p>{copy.unlockLead}</p>
             {!isLoggedIn ? (
-              <Button asChild className="w-full">
-                <Link href={loginHref} className="block text-center no-underline">
-                  {copy.loginUnlock}
-                </Link>
-              </Button>
+              <a
+                href={loginHref}
+                className={cn(buttonVariants(), 'w-full block text-center no-underline')}
+              >
+                {copy.loginUnlock}
+              </a>
             ) : (
               <Button type="button" className="w-full" onClick={goToPaywall}>
                 {copy.viewPlans}
@@ -385,6 +391,7 @@ export function ThreeCardFlow() {
 
       {step === 'paywall' && (
         <div className="three-card-paywall animate-fade-in-up">
+          {error ? <p className="paywall-error">{error}</p> : null}
           {!isLoggedIn ? (
             <GuestLoginWall
               title={copy.paywallTitle}
@@ -591,7 +598,7 @@ export function ThreeCardFlow() {
         </div>
       )}
 
-      {error ? (
+      {error && step !== 'paywall' ? (
         <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
       ) : null}
 

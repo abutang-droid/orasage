@@ -1776,6 +1776,29 @@
   color: var(--gold);
 }
 
+.three-card-paywall {
+  position: relative;
+  z-index: 2;
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + 12px);
+}
+
+.paywall-actions {
+  position: relative;
+  z-index: 2;
+}
+
+.paywall-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgb(185 28 28 / 0.08);
+  border: 1px solid rgb(185 28 28 / 0.25);
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .three-card-full-card {
   padding: 12px;
   margin-bottom: 0;
@@ -1848,6 +1871,8 @@
 }
 
 .guest-login-wall {
+  position: relative;
+  z-index: 2;
   text-align: center;
   padding: 20px 16px;
   margin-bottom: 12px;
@@ -1886,6 +1911,10 @@
   display: block;
   width: 100%;
   text-align: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .guest-login-wall-preview {
@@ -2430,6 +2459,8 @@
 
 .destiny-slice-locked {
   padding: 16px;
+  position: relative;
+  z-index: 2;
 }
 
 .destiny-slice-locked-hint {
@@ -2446,6 +2477,8 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   filter: blur(0);
+  pointer-events: none;
+  user-select: none;
 }
 
 .destiny-slice-locked-blur {

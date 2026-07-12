@@ -102,18 +102,20 @@ function PaywallPanel({
 }) {
   if (!session?.isLoggedIn) {
     return (
-      <GuestLoginWall
-        title={copy.paywallTitle}
-        message={copy.paywallMessage}
-        hint={copy.paywallHint}
-        ctaLabel={copy.paywallCta}
-        returnPath={returnPath}
-      />
+      <div className="paywall-actions">
+        <GuestLoginWall
+          title={copy.paywallTitle}
+          message={copy.paywallMessage}
+          hint={copy.paywallHint}
+          ctaLabel={copy.paywallCta}
+          returnPath={returnPath}
+        />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="paywall-actions">
       <h2 className="daily-fortune-section-title">{copy.paywallTitle}</h2>
       <p className="daily-fortune-paywall-desc">{copy.paywallDesc}</p>
       {unlockProduct ? (
@@ -134,7 +136,7 @@ function PaywallPanel({
         {checkoutSku ? copy.redirecting : copy.buyUnlock}
       </Button>
       <p className="destiny-slice-unlock-note">{copy.unlockForever}</p>
-    </>
+    </div>
   );
 }
 
@@ -266,6 +268,10 @@ export function SingleCardFlow() {
   const handleUnlockCheckout = async () => {
     if (!session?.isLoggedIn) {
       setError(copy.loginBeforeBuy);
+      return;
+    }
+    if (!readingId) {
+      setError(copy.checkoutFailed);
       return;
     }
     const sku =
@@ -410,6 +416,7 @@ export function SingleCardFlow() {
           ) : (
             <div className="card destiny-slice-locked">
               <p className="destiny-slice-locked-hint">{copy.resultLockedHint}</p>
+              {error ? <p className="paywall-error">{error}</p> : null}
               <div className="destiny-slice-locked-preview" aria-hidden>
                 <p className="destiny-slice-focus-heading">{copy.sectionTendency}</p>
                 <p className="destiny-slice-locked-blur">······</p>
@@ -431,7 +438,7 @@ export function SingleCardFlow() {
         </div>
       )}
 
-      {error ? (
+      {error && step !== 'result' ? (
         <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
       ) : null}
 

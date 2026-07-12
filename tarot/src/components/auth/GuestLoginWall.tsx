@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Button } from '@orasage/ui/button';
+import { buttonVariants } from '@orasage/ui/button';
+import { cn } from '@orasage/ui';
 import { buildLoginUrlFromWindow } from '@/lib/login-url';
 import { useReadingCommon } from '@/lib/i18n/reading-copy';
 
@@ -38,9 +38,12 @@ export function GuestLoginWall({
         <h3 className="guest-login-wall-title">{title ?? common.loginDefaultTitle}</h3>
         <p className="guest-login-wall-message">{message}</p>
         {hint ? <p className="guest-login-wall-hint">{hint}</p> : null}
-        <Button asChild className="guest-login-wall-cta w-full">
-          <Link href={loginHref}>{ctaLabel ?? common.loginDefaultCta}</Link>
-        </Button>
+        <a
+          href={loginHref}
+          className={cn(buttonVariants(), 'guest-login-wall-cta w-full no-underline')}
+        >
+          {ctaLabel ?? common.loginDefaultCta}
+        </a>
       </div>
       {children ? <div className="guest-login-wall-preview" aria-hidden>{children}</div> : null}
     </div>
