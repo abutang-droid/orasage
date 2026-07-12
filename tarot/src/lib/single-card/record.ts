@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { drawCards } from '@/lib/tarot/draw';
 import type {
+  DestinySliceGuidancePayload,
   SingleCardAnswer,
   SingleCardBriefPayload,
   SingleCardFullReport,
@@ -13,6 +14,9 @@ function parseBrief(raw: string | null): SingleCardBriefPayload | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as SingleCardBriefPayload;
+    if ('action' in parsed && typeof parsed.action === 'string') {
+      return parsed as DestinySliceGuidancePayload;
+    }
     if ('verdict' in parsed && parsed.verdict) {
       return parsed as SingleCardVerdictPayload;
     }

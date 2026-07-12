@@ -3,35 +3,36 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
+import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
+import { DestinySliceDeck } from '@/components/single-card/DestinySliceDeck';
 import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
+import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
+  DestinySliceGuidancePayload,
   SingleCardBriefPayload,
   SingleCardRecordDto,
   SingleCardStoredCard,
-  SingleCardVerdictKind,
-  SingleCardVerdictPayload,
 } from '@/lib/single-card/types';
-import { isSingleCardVerdict } from '@/lib/single-card/types';
-
-type Quota = {
-  dateKey: string;
-  allowance: number;
-  remaining: number;
-  drawsUsed: number;
-  templeBonusGranted: boolean;
-  templeFreeReportAvailable: boolean;
-};
+import {
+  isDestinySliceGuidance,
+  isSingleCardVerdict,
+} from '@/lib/single-card/types';
 
 type SessionPayload = {
   isLoggedIn: boolean;
   nickname: string | null;
-  quota: Quota;
+  unlocked: boolean;
+  billing: {
+    destinySliceUnlock: TarotBillingProduct | null;
+    skus: { destinySliceUnlockSku: string };
+  };
   record: SingleCardRecordDto | null;
 };
 
-type Step = 'loading' | 'intro' | 'drawing' | 'result' | 'quota_exhausted';
+type Step = 'loading' | 'paywall' | 'intro' | 'drawing' | 'result';
 
 function langBody(lang: string) {
   if (lang === 'en') return { language: 'en' };
@@ -40,17 +41,22 @@ function langBody(lang: string) {
   return { language: 'zh-CN' };
 }
 
-function normalizeVerdict(
+function normalizeGuidance(
   brief: SingleCardBriefPayload | null,
   copy: ReturnType<typeof useSingleCardCopy>,
-): SingleCardVerdictPayload | null {
+): DestinySliceGuidancePayload | null {
   if (!brief) return null;
-  if (isSingleCardVerdict(brief)) return brief;
+  if (isDestinySliceGuidance(brief)) return brief;
+  if (isSingleCardVerdict(brief)) {
+    return {
+      action: brief.headline,
+      insight: brief.explanation || brief.guidance,
+      llm: brief.llm,
+    };
+  }
   return {
-    verdict: 'unclear',
-    headline: copy.legacyHeadline,
-    explanation: brief.text,
-    guidance: '',
+    action: copy.legacyAction,
+    insight: brief.text,
     llm: brief.llm,
   };
 }
@@ -63,13 +69,14 @@ export function SingleCardFlow() {
   const [readingId, setReadingId] = useState<string | null>(null);
   const [card, setCard] = useState<SingleCardStoredCard | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [verdict, setVerdict] = useState<SingleCardVerdictPayload | null>(null);
+  const [guidance, setGuidance] = useState<DestinySliceGuidancePayload | null>(null);
   const [error, setError] = useState('');
-  const [verdictLoading, setVerdictLoading] = useState(false);
+  const [guidanceLoading, setGuidanceLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
+  const [checkoutSku, setCheckoutSku] = useState<string | null>(null);
 
-  const loadVerdict = useCallback(async (id: string) => {
-    setVerdictLoading(true);
+  const loadGuidance = useCallback(async (id: string) => {
+    setGuidanceLoading(true);
     setError('');
     try {
       const res = await fetch('/api/single-card/brief', {
@@ -79,14 +86,13 @@ export function SingleCardFlow() {
         body: JSON.stringify({ readingId: id, ...langBody(copy.lang) }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || copy.verdictFailed);
-      const payload = data.brief as SingleCardBriefPayload;
-      setVerdict(normalizeVerdict(payload, copy));
+      if (!res.ok) throw new Error(data.error || copy.guidanceFailed);
+      setGuidance(normalizeGuidance(data.brief as SingleCardBriefPayload, copy));
       setStep('result');
     } catch (err) {
-      setError(err instanceof Error ? err.message : copy.verdictFailed);
+      setError(err instanceof Error ? err.message : copy.guidanceFailed);
     } finally {
-      setVerdictLoading(false);
+      setGuidanceLoading(false);
     }
   }, [copy]);
 
@@ -95,22 +101,27 @@ export function SingleCardFlow() {
     setQuestion(rec.question);
     setCard(rec.card);
     setRevealed(true);
-    const v = normalizeVerdict(rec.briefText, copy);
-    if (v) {
-      setVerdict(v);
+    const g = normalizeGuidance(rec.briefText, copy);
+    if (g) {
+      setGuidance(g);
       setStep('result');
     } else {
       setStep('drawing');
-      void loadVerdict(rec.id);
+      void loadGuidance(rec.id);
     }
-  }, [copy, loadVerdict]);
+  }, [copy, loadGuidance]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const orderParam = params?.get('order');
     const readingParam = params?.get('readingId');
 
-    const qs = readingParam ? `?readingId=${encodeURIComponent(readingParam)}` : '';
-    const res = await fetch(`/api/single-card/session${qs}`, { credentials: 'include', cache: 'no-store' });
+    const qs = new URLSearchParams();
+    if (readingParam) qs.set('readingId', readingParam);
+    if (orderParam) qs.set('order', orderParam);
+    const query = qs.toString() ? `?${qs.toString()}` : '';
+
+    const res = await fetch(`/api/single-card/session${query}`, { credentials: 'include', cache: 'no-store' });
     const data = (await res.json()) as SessionPayload;
     setSession(data);
 
@@ -119,8 +130,8 @@ export function SingleCardFlow() {
       return;
     }
 
-    if (data.quota.remaining <= 0) {
-      setStep('quota_exhausted');
+    if (!data.unlocked) {
+      setStep('paywall');
       return;
     }
 
@@ -131,7 +142,7 @@ export function SingleCardFlow() {
     void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession, copy.loadFailed]);
 
-  const submitDraw = async () => {
+  const submitDraw = async (pickIndex: number) => {
     const trimmed = question.trim();
     if (trimmed.length < 4) {
       setError(copy.questionTooShort);
@@ -141,7 +152,7 @@ export function SingleCardFlow() {
     setStep('drawing');
     setRevealed(false);
     setCard(null);
-    setVerdict(null);
+    setGuidance(null);
     setDrawLoading(true);
     setError('');
     try {
@@ -149,21 +160,19 @@ export function SingleCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed }),
+        body: JSON.stringify({ question: trimmed, pickIndex }),
       });
       const data = await res.json();
       if (res.status === 402) {
-        setSession((s) => (s ? { ...s, quota: data.quota } : s));
-        setStep('quota_exhausted');
+        setStep('paywall');
         return;
       }
       if (!res.ok) throw new Error(data.error || copy.drawFailed);
       setReadingId(data.readingId);
       setCard(data.card);
-      setSession((s) => (s ? { ...s, quota: data.quota } : s));
       setDrawLoading(false);
-      setTimeout(() => setRevealed(true), 500);
-      setTimeout(() => void loadVerdict(data.readingId), 1200);
+      setTimeout(() => setRevealed(true), 600);
+      setTimeout(() => void loadGuidance(data.readingId), 1300);
     } catch (err) {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
@@ -171,11 +180,34 @@ export function SingleCardFlow() {
     }
   };
 
-  const verdictClass = (kind: SingleCardVerdictKind) => {
-    if (kind === 'yes' || kind === 'lean_yes') return 'single-card-verdict--yes';
-    if (kind === 'no' || kind === 'lean_no') return 'single-card-verdict--no';
-    return 'single-card-verdict--unclear';
+  const handleUnlockCheckout = async () => {
+    if (!session?.isLoggedIn) {
+      setError(copy.loginBeforeBuy);
+      return;
+    }
+    const sku =
+      session.billing.destinySliceUnlock?.sku
+      ?? session.billing.skus.destinySliceUnlockSku
+      ?? 'tarot-destiny-slice';
+    setCheckoutSku(sku);
+    setError('');
+    try {
+      const successUrl = `${window.location.origin}/single-card?unlocked=1`;
+      const result = await startAppCheckout({
+        sku,
+        successUrl,
+        cancelUrl: `${window.location.origin}/single-card`,
+      });
+      redirectAfterCheckout(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : copy.checkoutFailed);
+    } finally {
+      setCheckoutSku(null);
+    }
   };
+
+  const unlockProduct = session?.billing.destinySliceUnlock;
+  const returnPath = '/single-card';
 
   if (step === 'loading') {
     return (
@@ -188,7 +220,7 @@ export function SingleCardFlow() {
   }
 
   return (
-    <div className="three-card-page">
+    <div className="three-card-page destiny-slice-page">
       <div className="page-header animate-fade-in-up">
         <span className="label">{copy.label}</span>
         <h1>{copy.title}</h1>
@@ -198,51 +230,67 @@ export function SingleCardFlow() {
         </p>
       </div>
 
-      {session && step !== 'quota_exhausted' && (
-        <div className="daily-fortune-quota card animate-fade-in-up delay-100">
-          <div className="daily-fortune-quota-row">
-            <span>{copy.quotaAllowance}</span>
-            <strong>{copy.times(session.quota.allowance)}</strong>
-          </div>
-          <div className="daily-fortune-quota-row">
-            <span>{copy.quotaRemaining}</span>
-            <strong>{copy.times(session.quota.remaining)}</strong>
-          </div>
-          {session.quota.templeBonusGranted ? (
-            <div className="daily-fortune-quota-row">
-              <span>{copy.templeBonusGranted}</span>
-            </div>
+      {step === 'paywall' && (
+        <div className="card daily-fortune-paywall animate-fade-in-up">
+          {!session?.isLoggedIn ? (
+            <GuestLoginWall
+              title={copy.paywallTitle}
+              message={copy.paywallMessage}
+              hint={copy.paywallHint}
+              ctaLabel={copy.paywallCta}
+              returnPath={returnPath}
+            />
           ) : (
-            <div className="daily-fortune-quota-row">
-              <span>{copy.templeBonusHint}</span>
-            </div>
+            <>
+              <h2 className="daily-fortune-section-title">{copy.paywallTitle}</h2>
+              <p className="daily-fortune-paywall-desc">{copy.paywallDesc}</p>
+              {unlockProduct ? (
+                <>
+                  <p className="three-card-tier-name">{unlockProduct.name}</p>
+                  <p className="three-card-tier-desc">{unlockProduct.desc}</p>
+                  <p className="three-card-tier-price">{unlockProduct.priceDisplay}</p>
+                </>
+              ) : (
+                <p className="three-card-tier-desc">{copy.paywallFallback}</p>
+              )}
+              <Button
+                type="button"
+                className="w-full mt-3"
+                disabled={checkoutSku !== null}
+                onClick={() => void handleUnlockCheckout()}
+              >
+                {checkoutSku ? copy.redirecting : copy.buyUnlock}
+              </Button>
+              <p className="destiny-slice-unlock-note">{copy.unlockForever}</p>
+            </>
           )}
         </div>
       )}
 
-      {step === 'intro' && (
-        <div className="daily-fortune-panel card animate-fade-in-up delay-200">
-          <p className="daily-fortune-panel-lead">{copy.introLead}</p>
-          <label className="three-card-question-label" htmlFor="single-card-question">
-            {copy.questionLabel}
-          </label>
-          <textarea
-            id="single-card-question"
-            className="three-card-question-input"
-            rows={3}
-            maxLength={500}
-            placeholder={copy.questionPlaceholder}
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+      {step === 'intro' && session?.unlocked && (
+        <div className="destiny-slice-intro animate-fade-in-up delay-200">
+          <div className="card daily-fortune-panel">
+            <p className="daily-fortune-panel-lead">{copy.introLead}</p>
+            <label className="three-card-question-label" htmlFor="destiny-slice-question">
+              {copy.questionLabel}
+            </label>
+            <textarea
+              id="destiny-slice-question"
+              className="three-card-question-input"
+              rows={3}
+              maxLength={500}
+              placeholder={copy.questionPlaceholder}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+          </div>
+
+          <DestinySliceDeck
+            disabled={question.trim().length < 4 || drawLoading}
+            hint={copy.deckHint}
+            pickLabel={copy.pickCard}
+            onPick={(index) => void submitDraw(index)}
           />
-          <Button
-            type="button"
-            className="daily-fortune-panel-btn w-full"
-            disabled={question.trim().length < 4}
-            onClick={() => void submitDraw()}
-          >
-            {copy.start}
-          </Button>
         </div>
       )}
 
@@ -250,7 +298,7 @@ export function SingleCardFlow() {
         <div className="daily-fortune-draw card animate-fade-in-up">
           {drawLoading || !card ? (
             <MantoThinking message={copy.drawing} hint={copy.drawingHint} />
-          ) : verdictLoading ? (
+          ) : guidanceLoading ? (
             <>
               <SingleCardReveal
                 card={card}
@@ -258,14 +306,14 @@ export function SingleCardFlow() {
                 orientationLabel={copy.orientation}
                 hint={revealed ? copy.cardRevealed : copy.cardFlipping}
               />
-              <MantoThinking message={copy.writingVerdict} hint={copy.writingVerdictHint} />
+              <MantoThinking message={copy.writingGuidance} hint={copy.writingGuidanceHint} />
             </>
           ) : null}
         </div>
       )}
 
-      {step === 'result' && verdict && card && (
-        <div className="single-card-result animate-fade-in-up">
+      {step === 'result' && guidance && card && (
+        <div className="destiny-slice-result animate-fade-in-up">
           <div className="card single-card-result-question">
             <p className="single-card-result-question-label">{copy.yourQuestion}</p>
             <p className="single-card-result-question-text">{question}</p>
@@ -277,53 +325,30 @@ export function SingleCardFlow() {
             orientationLabel={copy.orientation}
           />
 
-          <div className={`card single-card-verdict ${verdictClass(verdict.verdict)}`}>
-            <p className="single-card-verdict-label">{copy.verdictLabel}</p>
-            <p className="single-card-verdict-headline">{verdict.headline}</p>
-            <p className="single-card-verdict-kind">{copy.verdictKind(verdict.verdict)}</p>
+          <div className="card destiny-slice-action">
+            <p className="destiny-slice-action-label">{copy.actionLabel}</p>
+            <p className="destiny-slice-action-text">{guidance.action}</p>
           </div>
 
           <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">{copy.explanationTitle}</h2>
-            <p>{verdict.explanation}</p>
-            {verdict.guidance ? (
-              <div className="single-card-guidance">
-                <strong>{copy.guidanceTitle}</strong>
-                <p>{verdict.guidance}</p>
-              </div>
-            ) : null}
+            <h2 className="daily-fortune-section-title">{copy.insightTitle}</h2>
+            <p>{guidance.insight}</p>
           </div>
 
-          {session && session.quota.remaining > 0 && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full mt-3"
-              onClick={() => {
-                setReadingId(null);
-                setCard(null);
-                setVerdict(null);
-                setRevealed(false);
-                setStep('intro');
-              }}
-            >
-              {copy.drawAgain(session.quota.remaining)}
-            </Button>
-          )}
-        </div>
-      )}
-
-      {step === 'quota_exhausted' && (
-        <div className="card daily-fortune-paywall animate-fade-in-up">
-          <h2 className="daily-fortune-section-title">{copy.quotaExhaustedTitle}</h2>
-          <p className="daily-fortune-paywall-desc">{copy.quotaExhaustedDesc}</p>
-          {!session?.quota.templeBonusGranted && (
-            <Button asChild variant="outline" className="w-full mb-2.5">
-              <Link href="/temple" className="block text-center no-underline">
-                {copy.templeBonus}
-              </Link>
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full mt-3"
+            onClick={() => {
+              setReadingId(null);
+              setCard(null);
+              setGuidance(null);
+              setRevealed(false);
+              setStep('intro');
+            }}
+          >
+            {copy.drawAgain}
+          </Button>
         </div>
       )}
 

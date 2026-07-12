@@ -11,6 +11,32 @@ export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
 5. 禁止出现 AI、人工智能、语言模型、作为助手 等元信息。
 6. 不预测死亡/疾病/事故；不给医疗、法律、投资建议。`;
 
+export function buildSingleGuidancePrompt(ctx: ReadingContext): string {
+  const node = ctx.nodes[0];
+  return `${aiPromptLanguageLine(ctx.language)}
+用户面临的抉择：${ctx.question}
+问题主题：${ctx.topicLabel}（规则层分类）
+
+用户从牌堆抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+
+【内部知识节点 — 仅供推理，禁止原样输出】
+${formatKnowledgeForPrompt(ctx)}
+
+${TAROT_GENERATION_STYLE}
+
+定命切片要求：用户站在十字路口不知如何选择，需要简洁、可执行的行动指引。
+- action：一句话行动指引（祈使句，20-40字），直接告诉用户下一步可以怎么做
+- insight：结合牌义说明为何如此建议，80-120字，不说绝对话
+- 不要输出是/否判断，聚焦「怎么做」而非「会不会」
+
+请返回 JSON：
+{
+  "action": "简洁行动指引",
+  "insight": "结合牌面与处境的简短解读"
+}`;
+}
+
+/** @deprecated 旧版是/否结论 prompt */
 export function buildSingleVerdictPrompt(ctx: ReadingContext): string {
   const node = ctx.nodes[0];
   return `${aiPromptLanguageLine(ctx.language)}

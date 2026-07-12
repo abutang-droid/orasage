@@ -4,12 +4,14 @@ export type TarotBillingSkus = {
   dailyOverageSku: string;
   threeCardReportSku: string;
   threeCardBundleSku: string;
+  destinySliceUnlockSku: string;
 };
 
 const FALLBACK: TarotBillingSkus = {
   dailyOverageSku: 'tarot-daily-draw',
   threeCardReportSku: 'report-tarot',
   threeCardBundleSku: 'report-tarot-bundle',
+  destinySliceUnlockSku: 'tarot-destiny-slice',
 };
 
 export type TarotBillingProduct = {
@@ -25,6 +27,7 @@ export type TarotBillingConfig = {
   dailyOverage: TarotBillingProduct | null;
   threeCardReport: TarotBillingProduct | null;
   threeCardBundle: TarotBillingProduct | null;
+  destinySliceUnlock: TarotBillingProduct | null;
 };
 
 function mapProduct(p: Record<string, unknown> | null | undefined): TarotBillingProduct | null {
@@ -71,6 +74,7 @@ export async function fetchTarotBillingSkus(): Promise<TarotBillingSkus> {
       dailyOverageSku: firstEntry(data, 'daily.overage')?.sku ?? FALLBACK.dailyOverageSku,
       threeCardReportSku: firstEntry(data, 'threecard.report')?.sku ?? FALLBACK.threeCardReportSku,
       threeCardBundleSku: firstEntry(data, 'threecard.bundle')?.sku ?? FALLBACK.threeCardBundleSku,
+      destinySliceUnlockSku: firstEntry(data, 'singlecard.unlock')?.sku ?? FALLBACK.destinySliceUnlockSku,
     };
   } catch {
     return FALLBACK;
@@ -83,18 +87,27 @@ export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBi
     const overage = firstEntry(data, 'daily.overage');
     const report = firstEntry(data, 'threecard.report');
     const bundle = firstEntry(data, 'threecard.bundle');
+    const sliceUnlock = firstEntry(data, 'singlecard.unlock');
     return {
       skus: {
         dailyOverageSku: overage?.sku ?? FALLBACK.dailyOverageSku,
         threeCardReportSku: report?.sku ?? FALLBACK.threeCardReportSku,
         threeCardBundleSku: bundle?.sku ?? FALLBACK.threeCardBundleSku,
+        destinySliceUnlockSku: sliceUnlock?.sku ?? FALLBACK.destinySliceUnlockSku,
       },
       dailyOverage: mapProduct(overage?.product),
       threeCardReport: mapProduct(report?.product),
       threeCardBundle: mapProduct(bundle?.product),
+      destinySliceUnlock: mapProduct(sliceUnlock?.product),
     };
   } catch {
-    return { skus: FALLBACK, dailyOverage: null, threeCardReport: null, threeCardBundle: null };
+    return {
+      skus: FALLBACK,
+      dailyOverage: null,
+      threeCardReport: null,
+      threeCardBundle: null,
+      destinySliceUnlock: null,
+    };
   }
 }
 

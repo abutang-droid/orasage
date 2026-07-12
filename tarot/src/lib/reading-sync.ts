@@ -79,11 +79,13 @@ export function buildSingleCardSyncPayload(
   const questionLabel = record.question?.slice(0, 40) || '当下指引';
   const summary =
     record.fullReport?.synthesis?.slice(0, 500) ??
-    (record.briefText && 'headline' in record.briefText
-      ? record.briefText.headline.slice(0, 500)
-      : record.briefText && 'text' in record.briefText
-        ? record.briefText.text.slice(0, 500)
-        : cardLine);
+    (record.briefText && 'action' in record.briefText
+      ? record.briefText.action.slice(0, 500)
+      : record.briefText && 'headline' in record.briefText
+        ? record.briefText.headline.slice(0, 500)
+        : record.briefText && 'text' in record.briefText
+          ? record.briefText.text.slice(0, 500)
+          : cardLine);
 
   const payload: Record<string, unknown> = {
     type: 'single_card',
@@ -98,8 +100,8 @@ export function buildSingleCardSyncPayload(
   }
 
   const title = record.paidTier
-    ? `单牌阵详读 · ${questionLabel}`
-    : `单牌阵 · ${questionLabel}`;
+    ? `定命切片详读 · ${questionLabel}`
+    : `定命切片 · ${questionLabel}`;
 
   return {
     appSource: 'tarot',

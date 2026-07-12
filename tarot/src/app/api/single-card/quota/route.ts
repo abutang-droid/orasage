@@ -1,22 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getAuthUser } from '@/lib/auth';
-import { getSingleCardQuota } from '@/lib/single-card-quota';
+import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
+import { isDestinySliceUnlocked } from '@/lib/single-card-unlock';
 
 export async function GET() {
-  const auth = await getAuthUser();
-  if (!auth) {
-    return NextResponse.json({
-      requiresAuth: false,
-      dateKey: null,
-      allowance: 1,
-      remaining: null,
-      drawsUsed: 0,
-      templeBonusGranted: false,
-    });
-  }
-  const quota = await getSingleCardQuota(auth.userId);
-  return NextResponse.json({
-    requiresAuth: true,
-    ...quota,
-  });
+  const ensured = await ensureAuthUser();
+  const unlocked = await isDestinySliceUnlocked(ensured.userId);
+  const res = NextResponse.json({ unlocked });
+  if (ensured.newToken) res.cookies.set(setAuthCookie(ensured.newToken));
+  return res;
 }

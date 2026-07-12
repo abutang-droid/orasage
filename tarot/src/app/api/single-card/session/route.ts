@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureAuthUser, setAuthCookie } from '@/lib/auth';
 import { isOrasageLoggedIn } from '@/lib/daily-fortune/auth';
 import { getSingleCardReading } from '@/lib/single-card/record';
-import { getSingleCardQuota } from '@/lib/single-card-quota';
+import { isDestinySliceUnlocked, tryUnlockFromOrder } from '@/lib/single-card-unlock';
 import { fetchTarotBillingConfig } from '@/lib/tarot-billing-config';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
   const ensured = await ensureAuthUser();
   const readingId = req.nextUrl.searchParams.get('readingId');
+  const orderParam = req.nextUrl.searchParams.get('order');
 
   const user = await prisma.user.findUnique({
     where: { id: ensured.userId },
@@ -16,7 +17,15 @@ export async function GET(req: NextRequest) {
   });
   const loggedIn = await isOrasageLoggedIn(user?.email);
   const billing = await fetchTarotBillingConfig();
-  const quota = await getSingleCardQuota(ensured.userId);
+
+  let unlocked = await isDestinySliceUnlocked(ensured.userId);
+  if (!unlocked && orderParam && loggedIn) {
+    unlocked = await tryUnlockFromOrder(
+      ensured.userId,
+      orderParam,
+      billing.skus.destinySliceUnlockSku,
+    );
+  }
 
   let record = null;
   if (readingId) {
@@ -26,11 +35,10 @@ export async function GET(req: NextRequest) {
   const res = NextResponse.json({
     isLoggedIn: loggedIn,
     nickname: user?.nickname ?? null,
-    quota,
+    unlocked,
     billing: {
-      threeCardReport: billing.threeCardReport,
-      threeCardBundle: billing.threeCardBundle,
-      skus: billing.skus,
+      destinySliceUnlock: billing.destinySliceUnlock,
+      skus: { destinySliceUnlockSku: billing.skus.destinySliceUnlockSku },
     },
     record,
   });

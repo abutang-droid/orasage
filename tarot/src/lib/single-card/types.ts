@@ -18,10 +18,16 @@ export type SingleCardStoredCard = {
   element: string;
 };
 
-/** 是/否结论方向 */
+/** 定命切片：简洁行动指引 */
+export type DestinySliceGuidancePayload = {
+  action: string;
+  insight: string;
+  llm: boolean;
+};
+
+/** @deprecated 旧版是/否结论 */
 export type SingleCardVerdictKind = 'yes' | 'no' | 'lean_yes' | 'lean_no' | 'unclear';
 
-/** 抽牌后的启示结论（免费层） */
 export type SingleCardVerdictPayload = {
   verdict: SingleCardVerdictKind;
   headline: string;
@@ -30,14 +36,23 @@ export type SingleCardVerdictPayload = {
   llm: boolean;
 };
 
-/** @deprecated 旧版字面释义，仅用于历史记录兼容 */
+/** @deprecated 旧版字面释义 */
 export type SingleCardLegacyBriefPayload = {
   text: string;
   literal: true;
   llm: boolean;
 };
 
-export type SingleCardBriefPayload = SingleCardVerdictPayload | SingleCardLegacyBriefPayload;
+export type SingleCardBriefPayload =
+  | DestinySliceGuidancePayload
+  | SingleCardVerdictPayload
+  | SingleCardLegacyBriefPayload;
+
+export function isDestinySliceGuidance(
+  brief: SingleCardBriefPayload | null | undefined,
+): brief is DestinySliceGuidancePayload {
+  return brief != null && 'action' in brief && typeof brief.action === 'string';
+}
 
 export function isSingleCardVerdict(
   brief: SingleCardBriefPayload | null | undefined,
