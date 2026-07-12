@@ -1793,3 +1793,197 @@
   opacity: 0.55;
   pointer-events: none;
 }
+
+/* ─── Single-card yes/no flow (no tarot images) ───────────── */
+
+.single-card-reveal {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.single-card-reveal-hint {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.single-card-reveal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.single-card-reveal-icon {
+  position: relative;
+  width: 88px;
+  height: 88px;
+}
+
+.single-card-reveal-icon-core {
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgb(var(--tarot-accent-rgb) / 0.35), rgb(var(--tarot-accent-rgb) / 0.12));
+  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.3);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.single-card-reveal-icon-orbit {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 1.5px dashed rgb(var(--tarot-accent-rgb) / 0.28);
+  animation: single-card-orbit 12s linear infinite;
+}
+
+.single-card-reveal-icon-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 22px;
+  margin-left: -1px;
+  margin-top: -44px;
+  transform-origin: 50% 44px;
+  background: linear-gradient(to bottom, rgb(var(--tarot-accent-rgb) / 0.5), transparent);
+  border-radius: 2px;
+  opacity: 0.45;
+}
+
+.single-card-reveal-icon-spark--1 { transform: rotate(0deg); }
+.single-card-reveal-icon-spark--2 { transform: rotate(120deg); }
+.single-card-reveal-icon-spark--3 { transform: rotate(240deg); }
+
+.single-card-reveal-icon--revealed .single-card-reveal-icon-core {
+  transform: scale(1.08);
+  box-shadow: 0 0 24px rgb(var(--tarot-accent-rgb) / 0.25);
+}
+
+@keyframes single-card-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.single-card-reveal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.single-card-reveal-name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.single-card-reveal-orientation {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.single-card-reveal-pending {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+.single-card-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.single-card-result-question {
+  padding: 14px 16px;
+}
+
+.single-card-result-question-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.single-card-result-question-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.single-card-verdict {
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.single-card-verdict-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.single-card-verdict-headline {
+  margin: 0 0 8px;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.single-card-verdict-kind {
+  margin: 0;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.single-card-verdict--yes .single-card-verdict-headline {
+  color: #15803d;
+}
+
+.single-card-verdict--yes .single-card-verdict-kind {
+  background: rgb(21 128 61 / 0.12);
+  color: #15803d;
+}
+
+.single-card-verdict--no .single-card-verdict-headline {
+  color: #b45309;
+}
+
+.single-card-verdict--no .single-card-verdict-kind {
+  background: rgb(180 83 9 / 0.12);
+  color: #b45309;
+}
+
+.single-card-verdict--unclear .single-card-verdict-headline {
+  color: var(--text-primary);
+}
+
+.single-card-verdict--unclear .single-card-verdict-kind {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.single-card-guidance {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.single-card-guidance strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.single-card-guidance p {
+  margin: 0;
+}

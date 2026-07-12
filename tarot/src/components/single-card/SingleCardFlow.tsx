@@ -3,24 +3,17 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
-import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
-import { TarotFlipCard } from '@/components/TarotFlipCard';
-import { buildLoginUrl } from '@/lib/login-url';
-import { profileUrlFromLang } from '@/lib/orasage-locale';
-import { useCardName } from '@/lib/i18n/context';
+import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
-import { getCardById } from '@/lib/tarot/cards';
-import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
-import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
-  SingleCardAnswer,
   SingleCardBriefPayload,
-  SingleCardFullReport,
-  SingleCardQuestion,
   SingleCardRecordDto,
   SingleCardStoredCard,
+  SingleCardVerdictKind,
+  SingleCardVerdictPayload,
 } from '@/lib/single-card/types';
+import { isSingleCardVerdict } from '@/lib/single-card/types';
 
 type Quota = {
   dateKey: string;
@@ -31,29 +24,14 @@ type Quota = {
   templeFreeReportAvailable: boolean;
 };
 
-type BillingPayload = {
-  threeCardReport: TarotBillingProduct | null;
-  threeCardBundle: TarotBillingProduct | null;
-  skus: { threeCardReportSku: string; threeCardBundleSku: string };
-};
-
 type SessionPayload = {
   isLoggedIn: boolean;
   nickname: string | null;
   quota: Quota;
-  billing: BillingPayload;
   record: SingleCardRecordDto | null;
 };
 
-type Step =
-  | 'loading'
-  | 'intro'
-  | 'questions'
-  | 'drawing'
-  | 'brief'
-  | 'paywall'
-  | 'full_report'
-  | 'quota_exhausted';
+type Step = 'loading' | 'intro' | 'drawing' | 'result' | 'quota_exhausted';
 
 function langBody(lang: string) {
   if (lang === 'en') return { language: 'en' };
@@ -62,32 +40,36 @@ function langBody(lang: string) {
   return { language: 'zh-CN' };
 }
 
+function normalizeVerdict(
+  brief: SingleCardBriefPayload | null,
+  copy: ReturnType<typeof useSingleCardCopy>,
+): SingleCardVerdictPayload | null {
+  if (!brief) return null;
+  if (isSingleCardVerdict(brief)) return brief;
+  return {
+    verdict: 'unclear',
+    headline: copy.legacyHeadline,
+    explanation: brief.text,
+    guidance: '',
+    llm: brief.llm,
+  };
+}
+
 export function SingleCardFlow() {
   const copy = useSingleCardCopy();
-  const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [question, setQuestion] = useState('');
-  const [questions, setQuestions] = useState<SingleCardQuestion[]>([]);
-  const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState<SingleCardAnswer[]>([]);
   const [readingId, setReadingId] = useState<string | null>(null);
   const [card, setCard] = useState<SingleCardStoredCard | null>(null);
-  const [flipped, setFlipped] = useState(false);
-  const [brief, setBrief] = useState<SingleCardBriefPayload | null>(null);
-  const [fullReport, setFullReport] = useState<SingleCardFullReport | null>(null);
-  const [paidTier, setPaidTier] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [pendingOrderNo, setPendingOrderNo] = useState<string | null>(null);
-  const [checkoutSku, setCheckoutSku] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [verdict, setVerdict] = useState<SingleCardVerdictPayload | null>(null);
   const [error, setError] = useState('');
-  const [briefLoading, setBriefLoading] = useState(false);
+  const [verdictLoading, setVerdictLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
-  const [questionsLoading, setQuestionsLoading] = useState(false);
-  const [fullLoading, setFullLoading] = useState(false);
 
-  const loadBrief = useCallback(async (id: string) => {
-    setBriefLoading(true);
+  const loadVerdict = useCallback(async (id: string) => {
+    setVerdictLoading(true);
     setError('');
     try {
       const res = await fetch('/api/single-card/brief', {
@@ -97,105 +79,43 @@ export function SingleCardFlow() {
         body: JSON.stringify({ readingId: id, ...langBody(copy.lang) }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || copy.briefFailed);
-      setBrief(data.brief);
-      setStep('brief');
+      if (!res.ok) throw new Error(data.error || copy.verdictFailed);
+      const payload = data.brief as SingleCardBriefPayload;
+      setVerdict(normalizeVerdict(payload, copy));
+      setStep('result');
     } catch (err) {
-      setError(err instanceof Error ? err.message : copy.briefFailed);
+      setError(err instanceof Error ? err.message : copy.verdictFailed);
     } finally {
-      setBriefLoading(false);
+      setVerdictLoading(false);
     }
-  }, [copy.briefFailed, copy.lang]);
+  }, [copy]);
 
-  const hydrateRecord = useCallback((rec: SingleCardRecordDto, loggedIn: boolean) => {
+  const hydrateRecord = useCallback((rec: SingleCardRecordDto) => {
     setReadingId(rec.id);
     setQuestion(rec.question);
-    setAnswers(rec.qaAnswers ?? []);
     setCard(rec.card);
-    setBrief(rec.briefText);
-    setFullReport(rec.fullReport);
-    setPaidTier(rec.paidTier);
-    setFlipped(true);
-    if (rec.fullReport && rec.paidTier) {
-      setStep('full_report');
-    } else if (rec.briefText) {
-      setStep(loggedIn ? 'paywall' : 'brief');
+    setRevealed(true);
+    const v = normalizeVerdict(rec.briefText, copy);
+    if (v) {
+      setVerdict(v);
+      setStep('result');
     } else {
       setStep('drawing');
-      void loadBrief(rec.id);
+      void loadVerdict(rec.id);
     }
-  }, [loadBrief]);
-
-  const fetchFullReport = useCallback(async (
-    id: string,
-    opts?: { orderNo?: string | null; useTempleFree?: boolean },
-  ) => {
-    setFullLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/single-card/full-report', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          readingId: id,
-          orderNo: opts?.orderNo ?? undefined,
-          useTempleFree: opts?.useTempleFree === true,
-          ...langBody(copy.lang),
-        }),
-      });
-      const data = await res.json();
-      if (res.status === 401 || res.status === 402) {
-        if (data.templeFreeAvailable === false && session) {
-          setSession({
-            ...session,
-            quota: { ...session.quota, templeFreeReportAvailable: data.templeFreeAvailable ?? false },
-          });
-        }
-        setStep('paywall');
-        return;
-      }
-      if (!res.ok) throw new Error(data.error || copy.fullFailed);
-      setFullReport(data.fullReport);
-      setPaidTier(data.tier);
-      setStep('full_report');
-      setPendingOrderNo(null);
-      if (session && data.tier === 'temple_free') {
-        setSession({
-          ...session,
-          quota: { ...session.quota, templeFreeReportAvailable: false },
-        });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : copy.fullFailed);
-    } finally {
-      setFullLoading(false);
-    }
-  }, [copy.fullFailed, copy.lang, session]);
+  }, [copy, loadVerdict]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const orderParam = params?.get('order');
     const readingParam = params?.get('readingId');
-    if (orderParam) setPendingOrderNo(orderParam);
 
     const qs = readingParam ? `?readingId=${encodeURIComponent(readingParam)}` : '';
     const res = await fetch(`/api/single-card/session${qs}`, { credentials: 'include', cache: 'no-store' });
     const data = (await res.json()) as SessionPayload;
     setSession(data);
-    setIsLoggedIn(data.isLoggedIn);
 
     if (data.record) {
-      hydrateRecord(data.record, data.isLoggedIn);
-      if (orderParam && data.record.id && !data.record.fullReport) {
-        await fetchFullReport(data.record.id, { orderNo: orderParam });
-      }
-      return;
-    }
-
-    if (orderParam && readingParam) {
-      setReadingId(readingParam);
-      await fetchFullReport(readingParam, { orderNo: orderParam });
+      hydrateRecord(data.record);
       return;
     }
 
@@ -205,52 +125,23 @@ export function SingleCardFlow() {
     }
 
     setStep('intro');
-  }, [fetchFullReport, hydrateRecord]);
+  }, [hydrateRecord]);
 
   useEffect(() => {
     void loadSession().catch(() => setError(copy.loadFailed));
   }, [loadSession, copy.loadFailed]);
 
-  const beginQuestions = async () => {
-    setError('');
-    setStep('questions');
-    setQIndex(0);
-    setAnswers([]);
-    setQuestionsLoading(true);
-    try {
-      const res = await fetch('/api/single-card/questions', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim() || undefined, ...langBody(copy.lang) }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || copy.questionsFailed);
-      setQuestions(data.questions ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : copy.questionsFailed);
-      setStep('intro');
-    } finally {
-      setQuestionsLoading(false);
-    }
-  };
-
-  const pickAnswer = (answer: string) => {
-    const q = questions[qIndex];
-    if (!q) return;
-    const nextAnswers = [...answers, { questionId: q.id, question: q.text, answer }];
-    setAnswers(nextAnswers);
-    if (qIndex + 1 < questions.length) {
-      setQIndex(qIndex + 1);
+  const submitDraw = async () => {
+    const trimmed = question.trim();
+    if (trimmed.length < 4) {
+      setError(copy.questionTooShort);
       return;
     }
-    void submitDraw(nextAnswers);
-  };
 
-  const submitDraw = async (finalAnswers: SingleCardAnswer[]) => {
     setStep('drawing');
-    setFlipped(false);
+    setRevealed(false);
     setCard(null);
+    setVerdict(null);
     setDrawLoading(true);
     setError('');
     try {
@@ -258,10 +149,7 @@ export function SingleCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: question.trim() || undefined,
-          answers: finalAnswers,
-        }),
+        body: JSON.stringify({ question: trimmed }),
       });
       const data = await res.json();
       if (res.status === 402) {
@@ -274,49 +162,20 @@ export function SingleCardFlow() {
       setCard(data.card);
       setSession((s) => (s ? { ...s, quota: data.quota } : s));
       setDrawLoading(false);
-      setTimeout(() => setFlipped(true), 500);
-      setTimeout(() => void loadBrief(data.readingId), 1400);
+      setTimeout(() => setRevealed(true), 500);
+      setTimeout(() => void loadVerdict(data.readingId), 1200);
     } catch (err) {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
-      setStep('questions');
+      setStep('intro');
     }
   };
 
-  const goToPaywall = () => setStep('paywall');
-
-  const handleCheckout = async (sku: string) => {
-    if (!isLoggedIn) {
-      setError(copy.loginBeforeBuy);
-      return;
-    }
-    if (!readingId) return;
-    setCheckoutSku(sku);
-    setError('');
-    try {
-      const successUrl = `${window.location.origin}/single-card?readingId=${encodeURIComponent(readingId)}&paid=1`;
-      const result = await startAppCheckout({
-        sku,
-        readingId,
-        successUrl,
-        cancelUrl: `${window.location.origin}/single-card?readingId=${encodeURIComponent(readingId)}`,
-      });
-      redirectAfterCheckout(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : copy.checkoutFailed);
-    } finally {
-      setCheckoutSku(null);
-    }
+  const verdictClass = (kind: SingleCardVerdictKind) => {
+    if (kind === 'yes' || kind === 'lean_yes') return 'single-card-verdict--yes';
+    if (kind === 'no' || kind === 'lean_no') return 'single-card-verdict--no';
+    return 'single-card-verdict--unclear';
   };
-
-  const cardMeta = card ? getCardById(card.cardId) : null;
-  const reportProduct = session?.billing.threeCardReport;
-  const bundleProduct = session?.billing.threeCardBundle;
-  const readingReturnPath = readingId
-    ? `/single-card?readingId=${encodeURIComponent(readingId)}`
-    : '/single-card';
-  const loginHref = buildLoginUrl(readingReturnPath);
-  const templeFreeAvailable = session?.quota.templeFreeReportAvailable ?? false;
 
   if (step === 'loading') {
     return (
@@ -339,7 +198,7 @@ export function SingleCardFlow() {
         </p>
       </div>
 
-      {session && step !== 'paywall' && step !== 'quota_exhausted' && (
+      {session && step !== 'quota_exhausted' && (
         <div className="daily-fortune-quota card animate-fade-in-up delay-100">
           <div className="daily-fortune-quota-row">
             <span>{copy.quotaAllowance}</span>
@@ -376,99 +235,63 @@ export function SingleCardFlow() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <Button type="button" className="daily-fortune-panel-btn w-full" onClick={() => void beginQuestions()}>
+          <Button
+            type="button"
+            className="daily-fortune-panel-btn w-full"
+            disabled={question.trim().length < 4}
+            onClick={() => void submitDraw()}
+          >
             {copy.start}
           </Button>
         </div>
       )}
 
-      {step === 'questions' && (
-        <div className="daily-fortune-panel card animate-fade-in-up">
-          {questionsLoading ? (
-            <MantoThinking message={copy.sensing} hint={copy.sensingHint} />
-          ) : questions[qIndex] ? (
-            <>
-              <p className="daily-fortune-panel-lead">{questions[qIndex].text}</p>
-              <div className="three-card-options">
-                {questions[qIndex].options.map((opt) => (
-                  <Button
-                    key={opt}
-                    type="button"
-                    variant="outline"
-                    className="three-card-option-btn"
-                    onClick={() => pickAnswer(opt)}
-                  >
-                    {opt}
-                  </Button>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p>{copy.questionsFailed}</p>
-          )}
-        </div>
-      )}
-
       {step === 'drawing' && (
         <div className="daily-fortune-draw card animate-fade-in-up">
-          {drawLoading || !card || !cardMeta ? (
+          {drawLoading || !card ? (
             <MantoThinking message={copy.drawing} hint={copy.drawingHint} />
-          ) : briefLoading ? (
-            <MantoThinking message={copy.writingBrief} hint={copy.writingBriefHint} />
-          ) : (
+          ) : verdictLoading ? (
             <>
-              <p className="daily-fortune-draw-hint">
-                {flipped ? copy.cardRevealed : copy.cardFlipping}
-              </p>
-              <div className="daily-fortune-draw-card">
-                <TarotFlipCard
-                  card={cardMeta}
-                  flipped={flipped}
-                  glowing
-                  size="lg"
-                  orientation={card.orientation}
-                  caption={
-                    flipped
-                      ? `${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`
-                      : undefined
-                  }
-                />
-              </div>
+              <SingleCardReveal
+                card={card}
+                revealed={revealed}
+                orientationLabel={copy.orientation}
+                hint={revealed ? copy.cardRevealed : copy.cardFlipping}
+              />
+              <MantoThinking message={copy.writingVerdict} hint={copy.writingVerdictHint} />
             </>
-          )}
+          ) : null}
         </div>
       )}
 
-      {step === 'brief' && brief && card && cardMeta && (
-        <div className="three-card-brief animate-fade-in-up">
-          <div className="daily-fortune-draw-card" style={{ marginBottom: 16 }}>
-            <TarotFlipCard
-              card={cardMeta}
-              flipped
-              size="md"
-              orientation={card.orientation}
-              caption={`${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`}
-            />
+      {step === 'result' && verdict && card && (
+        <div className="single-card-result animate-fade-in-up">
+          <div className="card single-card-result-question">
+            <p className="single-card-result-question-label">{copy.yourQuestion}</p>
+            <p className="single-card-result-question-text">{question}</p>
+          </div>
+
+          <SingleCardReveal
+            card={card}
+            revealed
+            orientationLabel={copy.orientation}
+          />
+
+          <div className={`card single-card-verdict ${verdictClass(verdict.verdict)}`}>
+            <p className="single-card-verdict-label">{copy.verdictLabel}</p>
+            <p className="single-card-verdict-headline">{verdict.headline}</p>
+            <p className="single-card-verdict-kind">{copy.verdictKind(verdict.verdict)}</p>
           </div>
 
           <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">{copy.freeBrief}</h2>
-            <p>{brief.text}</p>
-          </div>
-
-          <div className="card three-card-unlock-cta">
-            <p>{copy.unlockLead}</p>
-            {!isLoggedIn ? (
-              <Button asChild className="w-full">
-                <Link href={loginHref} className="block text-center no-underline">
-                  {copy.loginUnlock}
-                </Link>
-              </Button>
-            ) : (
-              <Button type="button" className="w-full" onClick={goToPaywall}>
-                {copy.viewPlans}
-              </Button>
-            )}
+            <h2 className="daily-fortune-section-title">{copy.explanationTitle}</h2>
+            <p>{verdict.explanation}</p>
+            {verdict.guidance ? (
+              <div className="single-card-guidance">
+                <strong>{copy.guidanceTitle}</strong>
+                <p>{verdict.guidance}</p>
+              </div>
+            ) : null}
           </div>
 
           {session && session.quota.remaining > 0 && (
@@ -479,158 +302,14 @@ export function SingleCardFlow() {
               onClick={() => {
                 setReadingId(null);
                 setCard(null);
-                setBrief(null);
-                setAnswers([]);
-                setQuestions([]);
-                setFlipped(false);
+                setVerdict(null);
+                setRevealed(false);
                 setStep('intro');
               }}
             >
               {copy.drawAgain(session.quota.remaining)}
             </Button>
           )}
-        </div>
-      )}
-
-      {step === 'paywall' && (
-        <div className="three-card-paywall animate-fade-in-up">
-          {!isLoggedIn ? (
-            <GuestLoginWall
-              title={copy.paywallTitle}
-              message={copy.paywallMessage}
-              hint={copy.paywallHint}
-              ctaLabel={copy.paywallCta}
-              returnPath={readingReturnPath}
-            />
-          ) : (
-            <>
-              {templeFreeAvailable && readingId && (
-                <div className="card three-card-tier mb-3">
-                  <h2 className="daily-fortune-section-title">{copy.useTempleFree}</h2>
-                  <p className="three-card-tier-desc">{copy.templeFreeHint}</p>
-                  <Button
-                    type="button"
-                    className="w-full mt-3"
-                    disabled={fullLoading}
-                    onClick={() => void fetchFullReport(readingId, { useTempleFree: true })}
-                  >
-                    {fullLoading ? copy.redirecting : copy.useTempleFree}
-                  </Button>
-                </div>
-              )}
-
-              <div className="card three-card-tier">
-                <h2 className="daily-fortune-section-title">{copy.tier1Title}</h2>
-                {reportProduct ? (
-                  <>
-                    <p className="three-card-tier-name">{reportProduct.name}</p>
-                    <p className="three-card-tier-desc">{reportProduct.desc}</p>
-                    <p className="three-card-tier-price">{reportProduct.priceDisplay}</p>
-                  </>
-                ) : (
-                  <p className="three-card-tier-desc">{copy.tier1Fallback}</p>
-                )}
-                <Button
-                  type="button"
-                  className="w-full mt-3"
-                  disabled={checkoutSku !== null}
-                  onClick={() =>
-                    void handleCheckout(
-                      reportProduct?.sku ?? session?.billing.skus.threeCardReportSku ?? 'report-tarot',
-                    )
-                  }
-                >
-                  {checkoutSku === (reportProduct?.sku ?? session?.billing.skus.threeCardReportSku)
-                    ? copy.redirecting
-                    : copy.buyReport}
-                </Button>
-              </div>
-
-              <div className="card three-card-tier three-card-tier--bundle">
-                <h2 className="daily-fortune-section-title">{copy.tier2Title}</h2>
-                {bundleProduct ? (
-                  <>
-                    <p className="three-card-tier-name">{bundleProduct.name}</p>
-                    <p className="three-card-tier-desc">{bundleProduct.desc}</p>
-                    <p className="three-card-tier-price">{bundleProduct.priceDisplay}</p>
-                  </>
-                ) : (
-                  <p className="three-card-tier-desc">{copy.tier2Fallback}</p>
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full mt-3"
-                  disabled={checkoutSku !== null}
-                  onClick={() =>
-                    void handleCheckout(
-                      bundleProduct?.sku ?? session?.billing.skus.threeCardBundleSku ?? 'report-tarot-bundle',
-                    )
-                  }
-                >
-                  {checkoutSku === (bundleProduct?.sku ?? session?.billing.skus.threeCardBundleSku)
-                    ? copy.redirecting
-                    : copy.buyBundle}
-                </Button>
-              </div>
-            </>
-          )}
-          {brief && (
-            <Button type="button" variant="ghost" className="w-full mt-3" onClick={() => setStep('brief')}>
-              {copy.backBrief}
-            </Button>
-          )}
-        </div>
-      )}
-
-      {step === 'full_report' && fullReport && card && cardMeta && (
-        <div className="three-card-full animate-fade-in-up">
-          <div className="daily-fortune-draw-card" style={{ marginBottom: 16 }}>
-            <TarotFlipCard
-              card={cardMeta}
-              flipped
-              size="md"
-              orientation={card.orientation}
-              caption={`${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`}
-            />
-          </div>
-
-          <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">{copy.paidView}</h2>
-            {fullReport.cards.map((item, i) => (
-              <div key={i} className="three-card-brief-item">
-                <p>{item.interpretation}</p>
-                {item.mantra ? <p className="three-card-mantra">{item.mantra}</p> : null}
-              </div>
-            ))}
-            <div className="three-card-brief-synthesis">
-              <strong>{copy.fullSynthesis}</strong>
-              <p>{fullReport.synthesis}</p>
-            </div>
-            {fullReport.suggestions.length > 0 && (
-              <div className="three-card-suggestions">
-                <strong>{copy.suggestions}</strong>
-                <ul>
-                  {fullReport.suggestions.map((s) => (
-                    <li key={s}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {fullReport.affirmation && (
-              <p className="three-card-affirmation">{fullReport.affirmation}</p>
-            )}
-          </div>
-
-          {paidTier === 'bundle' && (
-            <p className="three-card-bundle-note">{copy.bundleNote}</p>
-          )}
-
-          <Button asChild variant="outline" className="w-full mt-3">
-            <a href={profileUrlFromLang(copy.lang)} className="block text-center no-underline">
-              {copy.viewOrders}
-            </a>
-          </Button>
         </div>
       )}
 
