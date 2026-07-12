@@ -32,7 +32,7 @@ type SessionPayload = {
   record: SingleCardRecordDto | null;
 };
 
-type Step = 'loading' | 'paywall' | 'intro' | 'drawing' | 'result';
+type Step = 'loading' | 'intro' | 'drawing' | 'result';
 
 function langBody(lang: string) {
   if (lang === 'en') return { language: 'en' };
@@ -61,6 +61,59 @@ function normalizeGuidance(
   };
 }
 
+function PaywallPanel({
+  copy,
+  session,
+  unlockProduct,
+  checkoutSku,
+  onCheckout,
+  returnPath,
+}: {
+  copy: ReturnType<typeof useSingleCardCopy>;
+  session: SessionPayload | null;
+  unlockProduct: TarotBillingProduct | null;
+  checkoutSku: string | null;
+  onCheckout: () => void;
+  returnPath: string;
+}) {
+  if (!session?.isLoggedIn) {
+    return (
+      <GuestLoginWall
+        title={copy.paywallTitle}
+        message={copy.paywallMessage}
+        hint={copy.paywallHint}
+        ctaLabel={copy.paywallCta}
+        returnPath={returnPath}
+      />
+    );
+  }
+
+  return (
+    <>
+      <h2 className="daily-fortune-section-title">{copy.paywallTitle}</h2>
+      <p className="daily-fortune-paywall-desc">{copy.paywallDesc}</p>
+      {unlockProduct ? (
+        <>
+          <p className="three-card-tier-name">{unlockProduct.name}</p>
+          <p className="three-card-tier-desc">{unlockProduct.desc}</p>
+          <p className="three-card-tier-price">{unlockProduct.priceDisplay}</p>
+        </>
+      ) : (
+        <p className="three-card-tier-desc">{copy.paywallFallback}</p>
+      )}
+      <Button
+        type="button"
+        className="w-full mt-3"
+        disabled={checkoutSku !== null}
+        onClick={onCheckout}
+      >
+        {checkoutSku ? copy.redirecting : copy.buyUnlock}
+      </Button>
+      <p className="destiny-slice-unlock-note">{copy.unlockForever}</p>
+    </>
+  );
+}
+
 export function SingleCardFlow() {
   const copy = useSingleCardCopy();
   const [step, setStep] = useState<Step>('loading');
@@ -86,6 +139,11 @@ export function SingleCardFlow() {
         body: JSON.stringify({ readingId: id, ...langBody(copy.lang) }),
       });
       const data = await res.json();
+      if (res.status === 402) {
+        setGuidance(null);
+        setStep('result');
+        return;
+      }
       if (!res.ok) throw new Error(data.error || copy.guidanceFailed);
       setGuidance(normalizeGuidance(data.brief as SingleCardBriefPayload, copy));
       setStep('result');
@@ -96,11 +154,18 @@ export function SingleCardFlow() {
     }
   }, [copy]);
 
-  const hydrateRecord = useCallback((rec: SingleCardRecordDto) => {
+  const hydrateRecord = useCallback((rec: SingleCardRecordDto, unlocked: boolean) => {
     setReadingId(rec.id);
     setQuestion(rec.question);
     setCard(rec.card);
     setRevealed(true);
+
+    if (!unlocked) {
+      setGuidance(null);
+      setStep('result');
+      return;
+    }
+
     const g = normalizeGuidance(rec.briefText, copy);
     if (g) {
       setGuidance(g);
@@ -126,12 +191,7 @@ export function SingleCardFlow() {
     setSession(data);
 
     if (data.record) {
-      hydrateRecord(data.record);
-      return;
-    }
-
-    if (!data.unlocked) {
-      setStep('paywall');
+      hydrateRecord(data.record, data.unlocked);
       return;
     }
 
@@ -163,16 +223,18 @@ export function SingleCardFlow() {
         body: JSON.stringify({ question: trimmed, pickIndex }),
       });
       const data = await res.json();
-      if (res.status === 402) {
-        setStep('paywall');
-        return;
-      }
       if (!res.ok) throw new Error(data.error || copy.drawFailed);
       setReadingId(data.readingId);
       setCard(data.card);
       setDrawLoading(false);
       setTimeout(() => setRevealed(true), 600);
-      setTimeout(() => void loadGuidance(data.readingId), 1300);
+
+      const unlocked = session?.unlocked ?? false;
+      if (unlocked) {
+        setTimeout(() => void loadGuidance(data.readingId), 1300);
+      } else {
+        setTimeout(() => setStep('result'), 1300);
+      }
     } catch (err) {
       setDrawLoading(false);
       setError(err instanceof Error ? err.message : copy.drawFailed);
@@ -192,11 +254,16 @@ export function SingleCardFlow() {
     setCheckoutSku(sku);
     setError('');
     try {
-      const successUrl = `${window.location.origin}/single-card?unlocked=1`;
+      const successQs = new URLSearchParams();
+      if (readingId) successQs.set('readingId', readingId);
+      successQs.set('unlocked', '1');
+      const successUrl = `${window.location.origin}/single-card?${successQs.toString()}`;
+      const cancelQs = readingId ? `?readingId=${encodeURIComponent(readingId)}` : '';
       const result = await startAppCheckout({
         sku,
+        readingId: readingId ?? undefined,
         successUrl,
-        cancelUrl: `${window.location.origin}/single-card`,
+        cancelUrl: `${window.location.origin}/single-card${cancelQs}`,
       });
       redirectAfterCheckout(result);
     } catch (err) {
@@ -207,7 +274,10 @@ export function SingleCardFlow() {
   };
 
   const unlockProduct = session?.billing.destinySliceUnlock;
-  const returnPath = '/single-card';
+  const returnPath = readingId
+    ? `/single-card?readingId=${encodeURIComponent(readingId)}`
+    : '/single-card';
+  const showGuidance = Boolean(guidance && session?.unlocked);
 
   if (step === 'loading') {
     return (
@@ -230,44 +300,7 @@ export function SingleCardFlow() {
         </p>
       </div>
 
-      {step === 'paywall' && (
-        <div className="card daily-fortune-paywall animate-fade-in-up">
-          {!session?.isLoggedIn ? (
-            <GuestLoginWall
-              title={copy.paywallTitle}
-              message={copy.paywallMessage}
-              hint={copy.paywallHint}
-              ctaLabel={copy.paywallCta}
-              returnPath={returnPath}
-            />
-          ) : (
-            <>
-              <h2 className="daily-fortune-section-title">{copy.paywallTitle}</h2>
-              <p className="daily-fortune-paywall-desc">{copy.paywallDesc}</p>
-              {unlockProduct ? (
-                <>
-                  <p className="three-card-tier-name">{unlockProduct.name}</p>
-                  <p className="three-card-tier-desc">{unlockProduct.desc}</p>
-                  <p className="three-card-tier-price">{unlockProduct.priceDisplay}</p>
-                </>
-              ) : (
-                <p className="three-card-tier-desc">{copy.paywallFallback}</p>
-              )}
-              <Button
-                type="button"
-                className="w-full mt-3"
-                disabled={checkoutSku !== null}
-                onClick={() => void handleUnlockCheckout()}
-              >
-                {checkoutSku ? copy.redirecting : copy.buyUnlock}
-              </Button>
-              <p className="destiny-slice-unlock-note">{copy.unlockForever}</p>
-            </>
-          )}
-        </div>
-      )}
-
-      {step === 'intro' && session?.unlocked && (
+      {step === 'intro' && (
         <div className="destiny-slice-intro animate-fade-in-up delay-200">
           <div className="card daily-fortune-panel">
             <p className="daily-fortune-panel-lead">{copy.introLead}</p>
@@ -312,7 +345,7 @@ export function SingleCardFlow() {
         </div>
       )}
 
-      {step === 'result' && guidance && card && (
+      {step === 'result' && card && (
         <div className="destiny-slice-result animate-fade-in-up">
           <div className="card single-card-result-question">
             <p className="single-card-result-question-label">{copy.yourQuestion}</p>
@@ -325,30 +358,52 @@ export function SingleCardFlow() {
             orientationLabel={copy.orientation}
           />
 
-          <div className="card destiny-slice-action">
-            <p className="destiny-slice-action-label">{copy.actionLabel}</p>
-            <p className="destiny-slice-action-text">{guidance.action}</p>
-          </div>
+          {showGuidance ? (
+            <>
+              <div className="card destiny-slice-action">
+                <p className="destiny-slice-action-label">{copy.actionLabel}</p>
+                <p className="destiny-slice-action-text">{guidance!.action}</p>
+              </div>
 
-          <div className="card daily-fortune-brief">
-            <h2 className="daily-fortune-section-title">{copy.insightTitle}</h2>
-            <p>{guidance.insight}</p>
-          </div>
+              <div className="card daily-fortune-brief">
+                <h2 className="daily-fortune-section-title">{copy.insightTitle}</h2>
+                <p>{guidance!.insight}</p>
+              </div>
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full mt-3"
-            onClick={() => {
-              setReadingId(null);
-              setCard(null);
-              setGuidance(null);
-              setRevealed(false);
-              setStep('intro');
-            }}
-          >
-            {copy.drawAgain}
-          </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full mt-3"
+                onClick={() => {
+                  setReadingId(null);
+                  setCard(null);
+                  setGuidance(null);
+                  setRevealed(false);
+                  setStep('intro');
+                }}
+              >
+                {copy.drawAgain}
+              </Button>
+            </>
+          ) : (
+            <div className="card destiny-slice-locked">
+              <p className="destiny-slice-locked-hint">{copy.resultLockedHint}</p>
+              <div className="destiny-slice-locked-preview" aria-hidden>
+                <p className="destiny-slice-action-label">{copy.actionLabel}</p>
+                <p className="destiny-slice-locked-blur">······</p>
+                <p className="destiny-slice-action-label" style={{ marginTop: 12 }}>{copy.insightTitle}</p>
+                <p className="destiny-slice-locked-blur">······ ······ ······</p>
+              </div>
+              <PaywallPanel
+                copy={copy}
+                session={session}
+                unlockProduct={unlockProduct ?? null}
+                checkoutSku={checkoutSku}
+                onCheckout={() => void handleUnlockCheckout()}
+                returnPath={returnPath}
+              />
+            </div>
+          )}
         </div>
       )}
 

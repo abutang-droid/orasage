@@ -2168,3 +2168,32 @@
   flex-direction: column;
   gap: 14px;
 }
+
+.destiny-slice-locked {
+  padding: 16px;
+}
+
+.destiny-slice-locked-hint {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.destiny-slice-locked-preview {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  filter: blur(0);
+}
+
+.destiny-slice-locked-blur {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  filter: blur(4px);
+  user-select: none;
+}
