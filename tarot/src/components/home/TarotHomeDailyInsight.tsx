@@ -7,6 +7,7 @@ import { ChevronRight } from 'lucide-react';
 import { getCardById } from '@/lib/tarot/cards';
 import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
+import { DailyInsightGlyph } from '@/components/home/HomeTileGlyphs';
 import type { DailyFortuneRecordDto } from '@/lib/daily-fortune/types';
 
 type StatsPayload = {
@@ -20,18 +21,6 @@ type SessionPayload = {
 
 function formatCount(n: number): string {
   return n.toLocaleString('en-US');
-}
-
-function DailyInsightIcon() {
-  return (
-    <div className="tarot-daily-insight-icon" aria-hidden>
-      <span className="tarot-daily-insight-icon-orbit" />
-      <span className="tarot-daily-insight-icon-core" />
-      <span className="tarot-daily-insight-icon-ray tarot-daily-insight-icon-ray--1" />
-      <span className="tarot-daily-insight-icon-ray tarot-daily-insight-icon-ray--2" />
-      <span className="tarot-daily-insight-icon-ray tarot-daily-insight-icon-ray--3" />
-    </div>
-  );
 }
 
 export function TarotHomeDailyInsight() {
@@ -84,42 +73,40 @@ export function TarotHomeDailyInsight() {
   return (
     <Link
       href="/daily-fortune"
-      className={`tarot-home-daily-insight${completed ? ' tarot-home-daily-insight--done' : ''} animate-fade-in-up delay-100`}
+      className={`home-tile home-tile--featured home-tile--daily${completed ? ' home-tile--done' : ''} animate-fade-in-up delay-100`}
       onClick={handleNavigate}
     >
-      <div className="tarot-home-daily-insight-art">
-        <DailyInsightIcon />
-      </div>
-      <div className="tarot-home-daily-insight-body">
-        <div className="tarot-home-daily-insight-head">
-          <h2 className="tarot-home-daily-insight-title">{home.dailyInsightTitle}</h2>
-        </div>
+      <div className="home-tile-body">
+        <h2 className="home-tile-title">{home.dailyInsightTitle}</h2>
 
         {completed ? (
-          <div className="tarot-home-daily-insight-result">
-            <p className="tarot-home-daily-insight-tone">{tone.result}</p>
-            <div className="tarot-home-daily-insight-guide">
-              <p className="tarot-home-daily-insight-guide-label">{home.attitudeGuideLabel}</p>
-              <p className="tarot-home-daily-insight-guide-text">{attitude}</p>
+          <div className="home-tile-daily-result">
+            <p className="home-tile-daily-tone">{tone.result}</p>
+            <div className="home-tile-daily-guide">
+              <p className="home-tile-daily-guide-label">{home.attitudeGuideLabel}</p>
+              <p className="home-tile-daily-guide-text">{attitude}</p>
             </div>
           </div>
         ) : (
-          <div className="tarot-home-daily-insight-copy">
-            {stats ? (
-              <p className="tarot-home-daily-insight-count">
-                {home.participantCount(formatCount(stats.displayCount))}
-              </p>
-            ) : null}
+          <div className="home-tile-daily-copy">
             {home.dailyInsightLines.map((line) => (
               <p key={line}>{line}</p>
             ))}
+            {stats ? (
+              <p className="home-tile-daily-count">
+                {home.participantCount(formatCount(stats.displayCount))}
+              </p>
+            ) : null}
           </div>
         )}
 
-        <span className="tarot-home-daily-insight-cta">
+        <span className="home-tile-cta home-tile-cta--primary">
           <span>{completed ? home.dailyInsightViewAgain : home.dailyCta}</span>
           <ChevronRight size={16} strokeWidth={2} aria-hidden />
         </span>
+      </div>
+      <div className="home-tile-art">
+        <DailyInsightGlyph />
       </div>
     </Link>
   );
