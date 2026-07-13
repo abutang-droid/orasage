@@ -16,7 +16,7 @@ import {
   type OnboardingPrefill,
 } from '@/lib/onboarding-v2';
 import { useOnboardingCopy } from '@/lib/i18n/feature-copy';
-import { customFaithDisplayName, formatFaithLabel, isCustomFaithId } from '@/lib/faiths/religions';
+import { customFaithDisplayName, formatFaithLabel, isCustomFaithId, SKIP_FAITH_ID } from '@/lib/faiths/religions';
 import { useUser } from '@/lib/user';
 
 const MANTO_PORTRAIT = '/images/manto-mentor.png';
@@ -306,6 +306,18 @@ export function OnboardingFlow() {
     void finishOnboarding(next);
   };
 
+  const onFaithSkip = (ctx: { continentCode: string; countryCode: string }) => {
+    const next: OnboardingDraft = {
+      ...draft,
+      faith: SKIP_FAITH_ID,
+      countryCode: ctx.countryCode || draft.countryCode,
+      continentCode: ctx.continentCode || draft.continentCode,
+    };
+    setDraft(next);
+    pushUser(copy.faithSkipLabel);
+    void finishOnboarding(next);
+  };
+
   if (userLoading || !prefillLoaded) {
     return (
       <div className="onboarding-page">
@@ -445,6 +457,7 @@ export function OnboardingFlow() {
                   faith: draft.faith || undefined,
                 }}
                 onComplete={onGeoJourneyComplete}
+                onFaithSkip={onFaithSkip}
                 title=""
                 subtitle=""
                 faithConfirmLabel={copy.faithConfirm}

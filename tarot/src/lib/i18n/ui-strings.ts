@@ -420,6 +420,12 @@ export const faith = {
     pt: 'Confirmar',
     es: 'Confirmar',
   },
+  skip: {
+    zh: '无信仰 / 暂时跳过',
+    en: 'No faith / skip for now',
+    pt: 'Sem fé / pular por agora',
+    es: 'Sin fe / omitir por ahora',
+  },
 } as const satisfies Record<string, LangMap>;
 
 export const temple = {
@@ -710,6 +716,24 @@ export const temple = {
     en: 'Profile → Settings',
     pt: 'Perfil → Configurações',
     es: 'Perfil → Ajustes',
+  },
+  skippedHomeTitle: {
+    zh: '祈福',
+    en: 'Blessing',
+    pt: 'Bênção',
+    es: 'Bendición',
+  },
+  skippedHomeLead: {
+    zh: '你尚未选择信仰与守护神，可随时补选后开始参拜。',
+    en: 'You have not chosen a faith or patron yet. Set them up anytime to begin worship.',
+    pt: 'Você ainda não escolheu fé ou patrono. Configure quando quiser para começar.',
+    es: 'Aún no has elegido fe o patrón. Configúralos cuando quieras para comenzar.',
+  },
+  setupFaithCta: {
+    zh: '选择信仰与守护神',
+    en: 'Choose faith & patron',
+    pt: 'Escolher fé e patrono',
+    es: 'Elegir fe y patrón',
   },
   meritAria: {
     zh: '我的功德',
@@ -1022,6 +1046,7 @@ export function useFaithCopy() {
       moreFaithsTitle: p(faith.moreFaithsTitle),
       customLead: p(faith.customLead),
       customPlaceholder: p(faith.customPlaceholder),
+      skip: p(faith.skip),
       current: (name: string) => formatTemplate(p(faith.current), { name }),
       selectedLead: (name: string) => formatTemplate(p(faith.selectedLead), { name }),
     };
@@ -1081,6 +1106,9 @@ export function useTempleCopy() {
       donationSuccess: p(temple.donationSuccess),
       changeFaithHint: p(temple.changeFaithHint),
       settingsLink: p(temple.settingsLink),
+      skippedHomeTitle: p(temple.skippedHomeTitle),
+      skippedHomeLead: p(temple.skippedHomeLead),
+      setupFaithCta: p(temple.setupFaithCta),
       meritAria: p(temple.meritAria),
       meritLoading: p(temple.meritLoading),
       meritLabel: p(temple.meritLabel),

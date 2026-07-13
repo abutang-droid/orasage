@@ -39,6 +39,8 @@ type GeoJourneyPickerProps = {
   /** 信仰选完后继续选守护神（祈福页）；引导流程可关闭 */
   pickDeity?: boolean;
   fullscreen?: boolean;
+  /** 信仰步骤显示「跳过」并回调（不选信仰直接进入后续流程） */
+  onFaithSkip?: (ctx: { continentCode: string; countryCode: string }) => void;
 };
 
 type FaithApiResponse = {
@@ -55,6 +57,7 @@ export function GeoJourneyPicker({
   deityConfirmLabel,
   pickDeity = false,
   fullscreen = true,
+  onFaithSkip,
 }: GeoJourneyPickerProps) {
   const { p, sourceLabel } = useGeoCopy();
   const { lang } = useLang();
@@ -384,6 +387,11 @@ export function GeoJourneyPicker({
       return;
     }
   }, [step, confirmRegion, confirmCountry]);
+
+  const handleFaithSkipClick = useCallback(() => {
+    if (!onFaithSkip || !continentCode || !countryCode) return;
+    onFaithSkip({ continentCode, countryCode });
+  }, [onFaithSkip, continentCode, countryCode]);
 
   useEffect(() => {
     if (step === 'country' && continentCode && countries.length === 0 && !countriesLoading) {
@@ -786,6 +794,7 @@ export function GeoJourneyPicker({
                   value={pendingFaith ?? value?.faith}
                   countryCode={countryCode}
                   onChange={onFaithPicked}
+                  onSkip={onFaithSkip ? handleFaithSkipClick : undefined}
                   title=""
                   subtitle=""
                   confirmLabel={resolvedFaithConfirm}

@@ -701,6 +701,11 @@ body {
   width: 100%;
   font-size: 13px;
 }
+.faith-picker-skip-btn {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
 .faith-picker-other { margin-top: 8px; }
 .faith-picker-other-lead {
   margin-bottom: 10px;

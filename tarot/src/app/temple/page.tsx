@@ -9,6 +9,7 @@ import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
 import { useTempleCopy } from "@/lib/i18n/ui-strings"
 import { formatFaithLabel } from "@/lib/faiths/religions"
+import { FAITH_STORAGE_KEY, isSkippedFaith, SKIP_FAITH_ID } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
 import { facingForFaithCode } from "@/lib/temple/facing"
@@ -60,6 +61,13 @@ function TemplePageContent() {
     }
 
     const storedFaith = loadStoredFaith() || user?.faith || null
+    if (isSkippedFaith(storedFaith)) {
+      setSelectedFaith(SKIP_FAITH_ID)
+      setSelectedCountry(user?.countryCode ?? null)
+      setSelectedContinent(user?.continentCode ?? null)
+      setPhase("home")
+      return
+    }
     if (storedFaith) {
       setSelectedFaith(storedFaith)
       setSelectedCountry(user?.countryCode ?? null)
@@ -72,7 +80,7 @@ function TemplePageContent() {
   }, [changeAction, user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
 
   useEffect(() => {
-    if (!selectedFaith) return
+    if (!selectedFaith || isSkippedFaith(selectedFaith)) return
     let cancelled = false
     setSanctuariesLoading(true)
     const q = `?faith=${encodeURIComponent(selectedFaith)}`
@@ -145,6 +153,20 @@ function TemplePageContent() {
 
     setPhase("pick")
   }, [setFaith, setGeo, setDeity])
+
+  const handleFaithSkip = useCallback(async (ctx: { continentCode: string; countryCode: string }) => {
+    setSelectedFaith(SKIP_FAITH_ID)
+    setSelectedCountry(ctx.countryCode)
+    setSelectedContinent(ctx.continentCode)
+    try {
+      localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id: SKIP_FAITH_ID }))
+    } catch {
+      /* ignore */
+    }
+    await setGeo(ctx.continentCode, ctx.countryCode)
+    await setFaith(SKIP_FAITH_ID)
+    setPhase("home")
+  }, [setFaith, setGeo])
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
@@ -239,19 +261,21 @@ function TemplePageContent() {
           faith: selectedFaith ?? undefined,
         }}
         onComplete={(result) => void handleJourneyComplete(result)}
+        onFaithSkip={(ctx) => void handleFaithSkip(ctx)}
         pickDeity
         fullscreen
       />
     )
   }
 
-  if (phase === "home" && savedDeity) {
+  if (phase === "home" && (savedDeity || isSkippedFaith(selectedFaith))) {
     return (
       <TempleHome
-        deity={savedDeity}
+        deity={savedDeity ?? undefined}
         donated={donated}
         latestBlessing={latestBlessing}
         onWorship={handleStartWorship}
+        onSetupFaith={isSkippedFaith(selectedFaith) ? () => setPhase("journey") : undefined}
       />
     )
   }

@@ -38,6 +38,8 @@ export const WORLD_FAITHS: FaithOption[] = [
 ].sort((a, b) => a.rank - b.rank);
 
 export const CUSTOM_FAITH_ID = 'other';
+/** 用户主动跳过信仰选择（无信仰 / 暂不选择） */
+export const SKIP_FAITH_ID = 'none';
 export const SPECIAL_FAITH_IDS = new Set(['none', 'other']);
 
 export const TOP_FAITH_COUNT = 10;
@@ -68,6 +70,10 @@ export function getCustomFaithOption(list?: FaithOption[]): FaithOption {
 
 export function isCustomFaithId(id: string | null | undefined): boolean {
   return id === CUSTOM_FAITH_ID || Boolean(id?.startsWith('other:'));
+}
+
+export function isSkippedFaith(id: string | null | undefined): boolean {
+  return id === SKIP_FAITH_ID;
 }
 
 export function customFaithDisplayName(id: string): string {

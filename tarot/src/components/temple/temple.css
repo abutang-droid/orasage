@@ -565,6 +565,24 @@
   display: block;
 }
 
+.temple-home-deity-portrait--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(var(--tarot-accent-rgb) / 0.1);
+  color: var(--gold-light);
+  border: 1px solid rgb(var(--tarot-accent-rgb) / 0.22);
+}
+
+.temple-home-skipped-lead {
+  margin: 0 0 16px;
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
 .temple-home-deity-name {
   margin: 0;
   font-family: var(--font-display);
