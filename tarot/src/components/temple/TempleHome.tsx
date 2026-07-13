@@ -33,9 +33,10 @@ type LeaderboardEntry = {
 };
 
 type TempleHomeProps = {
-  deity: Sanctuary;
+  deity?: Sanctuary;
   donated?: boolean;
   onWorship: () => void;
+  onSetupFaith?: () => void;
   latestBlessing?: LastBlessing | null;
 };
 
@@ -43,6 +44,7 @@ export function TempleHome({
   deity,
   donated,
   onWorship,
+  onSetupFaith,
   latestBlessing,
 }: TempleHomeProps) {
   const { lang } = useLang();
@@ -98,7 +100,7 @@ export function TempleHome({
     };
   }, []);
 
-  const displayBlessing = blessing?.text ?? deity.blessingText;
+  const displayBlessing = blessing?.text ?? deity?.blessingText;
 
   return (
     <div className="temple-home">
@@ -108,18 +110,35 @@ export function TempleHome({
 
       <TempleStatusCard />
 
-      <section className="temple-home-shrine" aria-label={temple.myPatron}>
+      <section className="temple-home-shrine" aria-label={deity ? temple.myPatron : temple.skippedHomeTitle}>
         <div className="temple-home-shrine-bg" aria-hidden />
         <div className="temple-home-shrine-inner">
-          <div className="temple-home-deity-portrait">
-            <img src={deity.imageUrl} alt={deity.name} />
-          </div>
-          <h1 className="temple-home-deity-name">{deity.name}</h1>
-          <p className="temple-home-deity-en">{deity.nameEN}</p>
-          <Button type="button" className="temple-home-worship-btn w-full" onClick={onWorship}>
-            <Church size={18} strokeWidth={1.75} aria-hidden />
-            {summary?.prayedToday ? temple.worshipAgain : temple.worshipToday}
-          </Button>
+          {deity ? (
+            <>
+              <div className="temple-home-deity-portrait">
+                <img src={deity.imageUrl} alt={deity.name} />
+              </div>
+              <h1 className="temple-home-deity-name">{deity.name}</h1>
+              <p className="temple-home-deity-en">{deity.nameEN}</p>
+              <Button type="button" className="temple-home-worship-btn w-full" onClick={onWorship}>
+                <Church size={18} strokeWidth={1.75} aria-hidden />
+                {summary?.prayedToday ? temple.worshipAgain : temple.worshipToday}
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="temple-home-deity-portrait temple-home-deity-portrait--placeholder" aria-hidden>
+                <Church size={28} strokeWidth={1.5} />
+              </div>
+              <h1 className="temple-home-deity-name">{temple.skippedHomeTitle}</h1>
+              <p className="temple-home-deity-en temple-home-skipped-lead">{temple.skippedHomeLead}</p>
+              {onSetupFaith ? (
+                <Button type="button" className="temple-home-worship-btn w-full" onClick={onSetupFaith}>
+                  {temple.setupFaithCta}
+                </Button>
+              ) : null}
+            </>
+          )}
         </div>
       </section>
 
@@ -188,7 +207,7 @@ export function TempleHome({
       </section>
 
       <section className="temple-home-donation" aria-label={temple.donationAria}>
-        <TempleDonation deityName={deity.name} />
+        <TempleDonation deityName={deity?.name} />
       </section>
 
       <p className="temple-home-settings-hint">

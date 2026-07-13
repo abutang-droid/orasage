@@ -21,6 +21,7 @@ import { splitFaithsByRank } from '@/lib/cms/faiths';
 type FaithPickerProps = {
   value?: string | null;
   onChange: (faithId: string) => void;
+  onSkip?: () => void;
   countryCode?: string | null;
   title?: string;
   subtitle?: string;
@@ -75,6 +76,7 @@ function FaithCard({
 export function FaithPicker({
   value,
   onChange,
+  onSkip,
   countryCode,
   title,
   subtitle,
@@ -298,6 +300,12 @@ export function FaithPicker({
           </Button>
         </div>
       )}
+
+      {onSkip ? (
+        <Button type="button" variant="ghost" className="faith-picker-skip-btn w-full" onClick={onSkip}>
+          {faithCopy.skip}
+        </Button>
+      ) : null}
     </div>
   );
 }

@@ -217,6 +217,12 @@ const onboarding = {
     pt: 'Confirmar e concluir',
     es: 'Confirmar y terminar',
   },
+  faithSkipLabel: {
+    zh: '无信仰 / 暂时跳过',
+    en: 'No faith / skip for now',
+    pt: 'Sem fé / pular por agora',
+    es: 'Sin fe / omitir por ahora',
+  },
   prefillBirthday: {
     zh: '生日：{value}',
     en: 'Birthday: {value}',
@@ -809,6 +815,7 @@ export function useOnboardingCopy() {
       done: p(onboarding.done),
       saveFailed: p(onboarding.saveFailed),
       faithConfirm: p(onboarding.faithConfirm),
+      faithSkipLabel: p(onboarding.faithSkipLabel),
       genderOptions: GENDER_KEYS.map((key) => ({
         key,
         label: genderLabel(lang, key),
