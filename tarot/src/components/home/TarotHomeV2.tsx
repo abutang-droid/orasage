@@ -33,44 +33,40 @@ export function TarotHomeV2() {
 
       <TarotHomeGreeting />
       <TarotHomeHero />
-      <TarotHomeDailyInsight />
 
-      <section className="tarot-home-spreads animate-fade-in-up delay-150">
-        <div className="tarot-home-visual-grid">
-          <TarotProductVisual
-            href="/single-card"
-            variant="single"
-            title={home.singleCardTitle}
-            desc={home.singleCardDesc}
-            cta={home.singleCardCta}
-            badges={[
-              {
-                key: 'unlock',
-                label: unlocked ? home.singleCardUnlockedBadge : home.singleCardUnlockBadge,
-                muted: !unlocked,
-              },
-            ]}
-          />
+      <section className="tarot-home-tiles animate-fade-in-up delay-150">
+        <TarotHomeDailyInsight />
 
-          <TarotProductVisual
-            variant="three"
-            title={home.threeCardTitle}
-            desc={home.threeCardDesc}
-            note={home.threeCardNote}
-            cta={home.threeCardCta}
-            onClick={() => router.push('/reading')}
-          />
-        </div>
-      </section>
+        <TarotProductVisual
+          href="/single-card"
+          variant="single"
+          title={home.singleCardTitle}
+          desc={home.singleCardDesc}
+          cta={home.singleCardCta}
+          badges={[
+            {
+              key: 'unlock',
+              label: unlocked ? home.singleCardUnlockedBadge : home.singleCardUnlockBadge,
+              muted: !unlocked,
+            },
+          ]}
+        />
 
-      <section className="tarot-home-temple animate-fade-in-up delay-200">
+        <TarotProductVisual
+          variant="three"
+          title={home.threeCardTitle}
+          desc={home.threeCardDesc}
+          note={home.threeCardNote}
+          cta={home.threeCardCta}
+          onClick={() => router.push('/reading')}
+        />
+
         <TarotProductVisual
           href="/temple"
           variant="temple"
           title={home.templeTitle}
           desc={home.templeDesc}
           cta={home.templeCta}
-          className="tarot-home-visual-temple"
         />
       </section>
     </div>
