@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
 import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
@@ -10,6 +10,7 @@ import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
 export function Header() {
   const tNav = useTranslations('nav');
   const locale = useLocale();
+  const pathname = usePathname();
 
   const navItems: Array<
     | { href: '/' | '/famous' | '/daozang'; label: string }
@@ -60,7 +61,8 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-[current=page]:text-foreground aria-[current=page]:font-medium"
                 >
                   {item.label}
                 </Link>

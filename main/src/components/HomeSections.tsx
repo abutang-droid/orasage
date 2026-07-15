@@ -79,8 +79,18 @@ function productBadgeLabel(
   return categoryLabel.slice(0, 2);
 }
 
-export function Hero({ hero }: { hero: HomeHeroContent }) {
-  if (!hero.enabled) return null;
+export function Hero({
+  hero,
+  fallbackTitle,
+}: {
+  hero: HomeHeroContent;
+  fallbackTitle: string;
+}) {
+  if (!hero.enabled) {
+    return (
+      <h1 className="sr-only">{fallbackTitle}</h1>
+    );
+  }
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
@@ -90,6 +100,8 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
     !hero.eyebrow &&
     !hero.subtitle &&
     !hero.bodyText;
+
+  const visibleHeadline = hero.headline?.trim() || null;
 
   return (
     <section className="home-hero relative overflow-hidden">
@@ -106,11 +118,13 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
       >
         {hero.eyebrow ? <p className="home-eyebrow">{hero.eyebrow}</p> : null}
 
-        {hero.headline ? (
+        {visibleHeadline ? (
           <h1 className="mt-3 font-serif text-[1.75rem] font-bold leading-[var(--os-line-heading-1)] tracking-[var(--os-letter-tight)] text-foreground sm:mt-4 sm:text-heading-1">
-            {hero.headline}
+            {visibleHeadline}
           </h1>
-        ) : null}
+        ) : (
+          <h1 className="sr-only">{fallbackTitle}</h1>
+        )}
 
         {hero.subtitle ? (
           <p className="mx-auto mt-4 max-w-lg text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground sm:text-base">
@@ -119,12 +133,19 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
         ) : null}
 
         {showImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={hero.imageUrl!}
-            alt={hero.imageAlt ?? ''}
-            className="home-hero-image border border-border"
-          />
+          <div className="home-hero-media">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={hero.imageUrl!}
+              alt={hero.imageAlt ?? ''}
+              width={1600}
+              height={900}
+              decoding="async"
+              fetchPriority="high"
+              sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1152px) calc(100vw - 3rem), 1152px"
+              className="home-hero-image border border-border"
+            />
+          </div>
         ) : null}
 
         {hero.bodyText ? (
@@ -216,9 +237,10 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
+                aria-pressed={active}
                 className={cn(
                   badgeVariants({ variant: active ? 'default' : 'outline' }),
-                  'min-h-9 shrink-0 cursor-pointer rounded-[var(--os-radius-btn)] px-4 text-xs tracking-[var(--os-letter-wide)]',
+                  'home-shop-filter min-h-11 shrink-0 cursor-pointer rounded-[var(--os-radius-btn)] px-4 text-xs tracking-[var(--os-letter-wide)]',
                 )}
               >
                 {t(`categories.${cat.id}`)}
@@ -230,10 +252,11 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
           href={externalUrls.shop}
           className={cn(
             buttonVariants({ variant: 'outline', size: 'sm' }),
-            'home-shop-more shrink-0 whitespace-nowrap',
+            'home-shop-more shrink-0 whitespace-nowrap min-h-11',
           )}
         >
-          {t('cta')} →
+          <span>{t('cta')}</span>
+          <span aria-hidden> →</span>
         </a>
       </div>
 
@@ -255,6 +278,10 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
                   alt={item.name}
                   className="home-product-image"
                   loading="lazy"
+                  decoding="async"
+                  width={400}
+                  height={400}
+                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
                 />
               </div>
             ) : (
@@ -268,7 +295,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
             <h3 className="mt-2.5 text-sm font-medium leading-snug text-foreground sm:text-[15px]">
               {item.name}
             </h3>
-            <p className="mt-1 line-clamp-2 text-[11px] leading-[var(--os-line-label)] text-muted-foreground sm:text-xs">
+            <p className="mt-1 line-clamp-2 text-xs leading-[var(--os-line-label)] text-muted-foreground sm:text-xs">
               {item.desc}
             </p>
             {item.priceDisplay ? (
@@ -300,7 +327,8 @@ export function ContentSections() {
             {t('famousDesc')}
           </p>
           <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
-            {t('explore')} →
+            <span>{t('explore')}</span>
+            <span aria-hidden> →</span>
           </p>
         </Link>
         <Link
@@ -315,7 +343,8 @@ export function ContentSections() {
             {t('daozangDesc')}
           </p>
           <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
-            {t('explore')} →
+            <span>{t('explore')}</span>
+            <span aria-hidden> →</span>
           </p>
         </Link>
       </div>

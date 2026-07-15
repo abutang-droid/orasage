@@ -21,7 +21,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <div className="home-portal">
-      <Hero hero={hero} />
+      <Hero hero={hero} fallbackTitle={tHero('title')} />
       <ToolCards />
       <ShopSection catalog={homepageCatalog} />
       <ContentSections />
