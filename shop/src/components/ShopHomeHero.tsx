@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import {
   fetchShopHomeHero,
   fallbackShopHomeHero,
@@ -42,7 +43,13 @@ export async function ShopHomeHero({ loggedIn }: Props) {
   });
   const hero = await fetchShopHomeHero(fallback);
 
-  if (!hero.enabled) return null;
+  if (!hero.enabled) {
+    return (
+      <section className="shop-hero">
+        <h1 className="sr-only">{th('heroTitle')}</h1>
+      </section>
+    );
+  }
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
@@ -66,12 +73,25 @@ export async function ShopHomeHero({ loggedIn }: Props) {
       <div className={`shop-hero-inner${mediaOnly ? ' shop-hero-inner--media-only' : ''}`}>
         {hero.eyebrow ? <p className="shop-hero-eyebrow">{hero.eyebrow}</p> : null}
 
-        {hero.headline ? <h1 className="shop-hero-title">{hero.headline}</h1> : null}
+        {hero.headline ? (
+          <h1 className="shop-hero-title">{hero.headline}</h1>
+        ) : (
+          <h1 className="sr-only">{th('heroTitle')}</h1>
+        )}
 
         {hero.subtitle ? <p className="shop-hero-subtitle">{hero.subtitle}</p> : null}
 
         {showImage ? (
-          <img src={hero.imageUrl!} alt={hero.imageAlt ?? ''} className="shop-hero-image" />
+          <div className="shop-hero-image-wrap">
+            <Image
+              src={hero.imageUrl!}
+              alt={hero.imageAlt ?? ''}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 72rem"
+              className="shop-hero-image"
+            />
+          </div>
         ) : null}
 
         {hero.bodyText ? <p className="shop-hero-body">{hero.bodyText}</p> : null}

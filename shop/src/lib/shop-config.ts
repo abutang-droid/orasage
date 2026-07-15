@@ -18,16 +18,18 @@ export async function fetchShopHomeLayout(): Promise<ShopHomeLayout> {
   }
 }
 
-export async function fetchCrystalContent(): Promise<CrystalContentMap> {
+export async function fetchCrystalContent(
+  locale = 'zh-CN',
+): Promise<CrystalContentMap> {
   try {
     const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
     const res = await fetch(`${authInternalUrl}/api/products/crystal-content`, {
       next: { revalidate: 30 },
     } as RequestInit);
-    if (!res.ok) return mergeCrystalContent(null);
+    if (!res.ok) return mergeCrystalContent(null, locale);
     const data = (await res.json()) as { content?: Partial<CrystalContentMap> };
-    return mergeCrystalContent(data.content);
+    return mergeCrystalContent(data.content, locale);
   } catch {
-    return mergeCrystalContent(null);
+    return mergeCrystalContent(null, locale);
   }
 }

@@ -1,7 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Check, ShoppingCart, Sparkles, Wand2 } from 'lucide-react';
@@ -10,7 +17,9 @@ import type { CrystalLineupItem } from '@/lib/crystal-lineup';
 import { resolveInitialBaseSku } from '@/lib/crystal-lineup';
 import type { CrystalBaseSku } from '../../../shared/shop-crystal/index';
 import {
-  DEFAULT_CRYSTAL_CONTENT,
+  CRYSTAL_ELEMENT_LABELS,
+  getDefaultCrystalContent,
+  normalizeCrystalLocale,
   type CrystalContentMap,
 } from '../../../shared/shop-crystal/content';
 import type { Product } from '@/lib/products';
@@ -35,12 +44,29 @@ function resolveDisplayPrice(product: Product, currency: 'cny' | 'usd') {
   return product.priceDisplay ?? formatShopPrice(cents, currency);
 }
 
+function productDisplayName(name: string, tagline?: string) {
+  let rest = name;
+  if (tagline && rest.startsWith(tagline)) {
+    rest = rest.slice(tagline.length).replace(/^\s*[·•]\s*/, '');
+  } else {
+    rest = rest.replace(/^[^·]*·\s*/, '');
+  }
+  return rest
+    .replace(/\s*[·•]\s*(礼盒装|禮盒裝|Gift box|Caixa presente)\s*$/i, '')
+    .trim();
+}
+
 export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const t = useTranslations('crystalShowcase');
   const tp = useTranslations('product');
   const searchParams = useSearchParams();
-  const { currency } = useShopLocale();
+  const { currency, locale } = useShopLocale();
   const { addItem } = useCart();
+  const crystalLocale = normalizeCrystalLocale(locale);
+  const defaults = useMemo(() => getDefaultCrystalContent(crystalLocale), [crystalLocale]);
+  const elementLabels = CRYSTAL_ELEMENT_LABELS[crystalLocale];
+  const panelId = useId();
+  const tablistRef = useRef<HTMLDivElement>(null);
 
   const initialBase = resolveInitialBaseSku(lineup, searchParams.get('element'));
   const [activeBaseSku, setActiveBaseSku] = useState<CrystalBaseSku>(initialBase);
@@ -57,8 +83,20 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const activeProduct = pack === 'gift' && active?.gift ? active.gift : active?.standard;
   const canGift = Boolean(active?.gift);
   const entry = active
-    ? (content?.[active.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[active.baseSku])
+    ? (content?.[active.baseSku] ?? defaults[active.baseSku])
     : null;
+
+  const recommendationsHref = `https://orasage.com/${crystalLocale}/profile/recommendations`;
+  const elementLabel = active
+    ? (elementLabels[active.baseSku] ?? active.element)
+    : '';
+
+  useEffect(() => {
+    const root = tablistRef.current;
+    if (!root) return;
+    const selected = root.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    selected?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+  }, [activeBaseSku]);
 
   if (!active || !activeProduct) {
     return <p className="text-center text-sage-muted">{t('empty')}</p>;
@@ -108,6 +146,26 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
     setError('');
   }
 
+  function onTabKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (!keys.includes(e.key)) return;
+    e.preventDefault();
+    const idx = lineup.findIndex((row) => row.baseSku === active.baseSku);
+    if (idx < 0) return;
+    let next = idx;
+    if (e.key === 'ArrowRight') next = (idx + 1) % lineup.length;
+    if (e.key === 'ArrowLeft') next = idx <= 0 ? lineup.length - 1 : idx - 1;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = lineup.length - 1;
+    const target = lineup[next];
+    if (!target) return;
+    selectBase(target.baseSku);
+    const btn = tablistRef.current?.querySelector<HTMLElement>(
+      `[role="tab"][data-base-sku="${target.baseSku}"]`,
+    );
+    btn?.focus();
+  }
+
   const diyElementHref = `/diy?element=${encodeURIComponent(active.element)}`;
   const diyBaseHref = `/diy?base=${encodeURIComponent(active.baseSku)}`;
 
@@ -124,37 +182,51 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           <li>{t('guideStep3')}</li>
         </ol>
         <p className="crystal-guide-note">
-          <a href="https://orasage.com/zh-CN/profile/recommendations" className="crystal-inline-link">
+          <a href={recommendationsHref} className="crystal-inline-link crystal-touch-link">
             {t('guideCta')}
           </a>
         </p>
       </section>
 
-      <div className="crystal-element-tabs" role="tablist" aria-label={t('elementTabs')}>
-        {lineup.map((row) => {
-          const selected = row.baseSku === active.baseSku;
-          const rowEntry = content?.[row.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[row.baseSku];
-          return (
-            <button
-              key={row.baseSku}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              className="crystal-element-tab"
-              data-selected={selected}
-              style={{ '--crystal-accent': row.accent } as React.CSSProperties}
-              onClick={() => selectBase(row.baseSku)}
-            >
-              <span className="crystal-element-tab-char">{row.element}</span>
-              <span className="crystal-element-tab-tagline">{rowEntry?.tagline}</span>
-            </button>
-          );
-        })}
+      <div className="crystal-element-tabs-wrap">
+        <div
+          className="crystal-element-tabs"
+          role="tablist"
+          aria-label={t('elementTabs')}
+          ref={tablistRef}
+          onKeyDown={onTabKeyDown}
+        >
+          {lineup.map((row) => {
+            const selected = row.baseSku === active.baseSku;
+            const rowEntry = content?.[row.baseSku] ?? defaults[row.baseSku];
+            const label = elementLabels[row.baseSku] ?? row.element;
+            return (
+              <button
+                key={row.baseSku}
+                type="button"
+                role="tab"
+                data-base-sku={row.baseSku}
+                id={`${panelId}-tab-${row.baseSku}`}
+                aria-selected={selected}
+                aria-controls={panelId}
+                tabIndex={selected ? 0 : -1}
+                className="crystal-element-tab"
+                data-selected={selected}
+                onClick={() => selectBase(row.baseSku)}
+              >
+                <span className="crystal-element-tab-char">{label}</span>
+                <span className="crystal-element-tab-tagline">{rowEntry?.tagline}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <section
         className="crystal-feature"
-        style={{ '--crystal-accent': active.accent } as React.CSSProperties}
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={`${panelId}-tab-${active.baseSku}`}
       >
         <div className="crystal-feature-halo" aria-hidden />
         <div className="crystal-feature-media">
@@ -164,6 +236,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
             category="crystal"
             imageUrl={activeProduct.imageUrl}
             className="crystal-feature-image"
+            sizes="(max-width: 768px) 100vw, 36rem"
             priority
           />
           {entry?.keywords?.length ? (
@@ -177,18 +250,18 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
 
         <div className="crystal-feature-body">
           <p className="crystal-feature-eyebrow">
-            {t('elementLabel', { element: active.element })}
+            {t('elementLabel', { element: elementLabel })}
           </p>
           <h2 className="crystal-feature-title">
             {entry?.tagline ? (
               <>
                 <span className="crystal-feature-tagline">{entry.tagline}</span>
                 <span className="crystal-feature-name">
-                  {active.standard.name.replace(/^[^·]*·\s*/, '').replace(/ · 礼盒装$/, '')}
+                  {productDisplayName(active.standard.name, entry.tagline)}
                 </span>
               </>
             ) : (
-              active.standard.name.replace(/ · 礼盒装$/, '')
+              productDisplayName(active.standard.name)
             )}
           </h2>
           <p className="crystal-feature-desc">{active.standard.desc}</p>
@@ -205,10 +278,12 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
             </ul>
           ) : null}
 
-          <div className="crystal-pack-toggle" role="group" aria-label={t('packToggle')}>
+          <div className="crystal-pack-toggle" role="radiogroup" aria-label={t('packToggle')}>
             <button
               type="button"
+              role="radio"
               className="crystal-pack-option"
+              aria-checked={pack === 'standard'}
               data-active={pack === 'standard'}
               onClick={() => setPack('standard')}
             >
@@ -220,7 +295,10 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
             </button>
             <button
               type="button"
+              role="radio"
               className="crystal-pack-option"
+              aria-checked={pack === 'gift'}
+              aria-disabled={!canGift}
               data-active={pack === 'gift'}
               data-disabled={!canGift}
               disabled={!canGift}
@@ -239,7 +317,10 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           ) : null}
 
           <p className="crystal-learn-more">
-            <Link href={`/product/${encodeURIComponent(activeProduct.sku)}`} className="crystal-detail-link">
+            <Link
+              href={`/product/${encodeURIComponent(activeProduct.sku)}`}
+              className="crystal-detail-link crystal-touch-link"
+            >
               {t('learnMore')}
             </Link>
           </p>
@@ -250,19 +331,22 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               onClick={() => void handleBuy()}
               disabled={loading}
               loading={loading}
-              className="min-w-0 flex-1"
+              className="crystal-action-buy min-w-0"
             >
               {loading ? tp('buying') : tp('buyNow')}
             </Button>
-            <Button asChild variant="outline" className="min-w-0 flex-1">
-              <Link href={diyBaseHref}>✦ {tp('customBracelet')}</Link>
+            <Button asChild variant="outline" className="crystal-action-diy min-w-0">
+              <Link href={diyBaseHref} className="crystal-action-diy-link">
+                <Wand2 size={16} strokeWidth={1.8} aria-hidden />
+                <span>{tp('customBracelet')}</span>
+              </Link>
             </Button>
             <Button
               type="button"
               variant="secondary"
               onClick={handleAddToCart}
               aria-label={added ? tp('added') : tp('addToCart')}
-              className="h-control-md w-11 min-w-11 shrink-0 p-0"
+              className="crystal-action-cart h-control-md w-11 min-w-11 shrink-0 p-0"
             >
               {added ? (
                 <Check size={18} strokeWidth={2} aria-hidden />
@@ -271,16 +355,22 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               )}
             </Button>
           </div>
-          {error ? <p className="crystal-error">{error}</p> : null}
+          <div className="sr-only" role="status" aria-live="polite">
+            {added ? tp('addedToCart') : ''}
+          </div>
+          {error ? (
+            <p className="crystal-error" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       </section>
 
       {entry?.ritual ? (
-        <section
-          className="crystal-ritual"
-          style={{ '--crystal-accent': active.accent } as React.CSSProperties}
-        >
-          <span className="crystal-ritual-mark" aria-hidden>✦</span>
+        <section className="crystal-ritual">
+          <span className="crystal-ritual-mark" aria-hidden>
+            <Sparkles size={16} strokeWidth={1.8} />
+          </span>
           <div>
             <h3 className="crystal-ritual-title">{t('ritualTitle')}</h3>
             <p className="crystal-ritual-text">{entry.ritual}</p>
@@ -288,18 +378,23 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
         </section>
       ) : null}
 
-      <div className="crystal-thumb-strip">
+      <div
+        className="crystal-thumb-strip"
+        role="group"
+        aria-label={t('elementTabs')}
+      >
         {lineup.map((row) => {
           const selected = row.baseSku === active.baseSku;
           const thumbProduct = row.standard;
-          const rowEntry = content?.[row.baseSku] ?? DEFAULT_CRYSTAL_CONTENT[row.baseSku];
+          const rowEntry = content?.[row.baseSku] ?? defaults[row.baseSku];
+          const label = elementLabels[row.baseSku] ?? row.element;
           return (
             <button
               key={row.baseSku}
               type="button"
               className="crystal-thumb"
               data-selected={selected}
-              style={{ '--crystal-accent': row.accent } as React.CSSProperties}
+              aria-pressed={selected}
               onClick={() => selectBase(row.baseSku)}
               aria-label={thumbProduct.name}
             >
@@ -309,18 +404,16 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
                 category="crystal"
                 imageUrl={thumbProduct.imageUrl}
                 className="crystal-thumb-image"
+                sizes="(max-width: 640px) 18vw, 7rem"
               />
-              <span className="crystal-thumb-element">{row.element}</span>
+              <span className="crystal-thumb-element">{label}</span>
               <span className="crystal-thumb-tagline">{rowEntry?.tagline}</span>
             </button>
           );
         })}
       </div>
 
-      <section
-        className="crystal-diy-entry"
-        style={{ '--crystal-accent': active.accent } as React.CSSProperties}
-      >
+      <section className="crystal-diy-entry">
         <div className="crystal-diy-entry-icon" aria-hidden>
           <Wand2 size={22} strokeWidth={1.6} />
         </div>
@@ -329,11 +422,12 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           <p className="crystal-diy-entry-hint">{t('diyHint')}</p>
           <div className="crystal-diy-entry-actions">
             <Button asChild className="crystal-diy-entry-cta">
-              <Link href={diyElementHref}>
-                ✦ {t('diyCtaElement', { element: active.element })}
+              <Link href={diyElementHref} className="crystal-action-diy-link">
+                <Wand2 size={16} strokeWidth={1.8} aria-hidden />
+                <span>{t('diyCtaElement', { element: elementLabel })}</span>
               </Link>
             </Button>
-            <Link href="/diy" className="crystal-diy-entry-generic">
+            <Link href="/diy" className="crystal-diy-entry-generic crystal-touch-link">
               {t('diyCtaGeneric')}
             </Link>
           </div>

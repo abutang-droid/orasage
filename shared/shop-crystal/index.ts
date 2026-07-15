@@ -10,15 +10,16 @@ export const CRYSTAL_BASE_SKUS = [
 
 export type CrystalBaseSku = (typeof CRYSTAL_BASE_SKUS)[number];
 
+/** accent is neutral gray token hex — UI chrome must not use element-colored halos (SHOP S14). */
 export const CRYSTAL_ELEMENT_META: Record<
   CrystalBaseSku,
   { element: string; elementKey: string; accent: string }
 > = {
-  "crystal-wood": { element: "木", elementKey: "wood", accent: "#4ade80" },
-  "crystal-fire": { element: "火", elementKey: "fire", accent: "#f87171" },
-  "crystal-earth": { element: "土", elementKey: "earth", accent: "#fbbf24" },
-  "crystal-metal": { element: "金", elementKey: "metal", accent: "#e5e7eb" },
-  "crystal-water": { element: "水", elementKey: "water", accent: "#60a5fa" },
+  "crystal-wood": { element: "木", elementKey: "wood", accent: "#9ca3af" },
+  "crystal-fire": { element: "火", elementKey: "fire", accent: "#9ca3af" },
+  "crystal-earth": { element: "土", elementKey: "earth", accent: "#9ca3af" },
+  "crystal-metal": { element: "金", elementKey: "metal", accent: "#9ca3af" },
+  "crystal-water": { element: "水", elementKey: "water", accent: "#9ca3af" },
 };
 
 export function crystalGiftSku(baseSku: string): string {

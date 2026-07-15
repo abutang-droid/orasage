@@ -1,4 +1,5 @@
 import { inferRequiresShipping, inferRequiresWristSize } from '../../../shared/shop-fulfillment/index';
+import { localizeFallbackProducts } from './fallback-products-i18n';
 
 export type ProductCategory = 'crystal' | 'report' | 'service';
 
@@ -138,7 +139,7 @@ export async function fetchProducts(locale = 'zh-CN'): Promise<Product[]> {
     return cachedProducts;
   } catch (err) {
     console.warn('[shop] fetchProducts fallback:', err);
-    return FALLBACK_PRODUCTS;
+    return localizeFallbackProducts(FALLBACK_PRODUCTS, locale);
   }
 }
 
@@ -161,7 +162,8 @@ export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product
   } catch (err) {
     console.warn('[shop] getProduct single fetch fallback:', err);
   }
-  return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
+  const fallback = localizeFallbackProducts(FALLBACK_PRODUCTS, locale).find((p) => p.sku === sku);
+  return fallback ?? null;
 }
 
 export async function getProductByElement(element: string, locale = 'zh-CN'): Promise<Product | null> {

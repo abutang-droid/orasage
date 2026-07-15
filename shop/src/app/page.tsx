@@ -47,7 +47,7 @@ export default async function ShopPage() {
     }));
 
   const crystalLineup = buildCrystalLineup(productsWithImages);
-  const crystalContent = homeLayout === 'crystal_v1' ? await fetchCrystalContent() : null;
+  const crystalContent = homeLayout === 'crystal_v1' ? await fetchCrystalContent(locale) : null;
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -65,7 +65,9 @@ export default async function ShopPage() {
 
       <p className="shop-footer-note">
         {th('footerNote')}{' '}
-        <a href="https://auth.orasage.com/center">{th('userCenter')}</a>
+        <a href="https://auth.orasage.com/center" className="crystal-touch-link">
+          {th('userCenter')}
+        </a>
         {th('footerView') ? ` ${th('footerView')}` : ''}
       </p>
     </main>

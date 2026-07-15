@@ -19,6 +19,12 @@
     scroll-padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 16px);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   @media (min-width: 1024px) {
     html {
       scroll-padding-bottom: 0;
