@@ -82,27 +82,23 @@ export type RecommendProduct = {
 };
 
 export async function fetchZiweiRecommendProduct(chart: ZiweiChart): Promise<RecommendProduct | null> {
-  try {
-    const { birthInfo, wuxingJuName } = chart;
-    const res = await fetch('/api/recommend/product', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      cache: 'no-store',
-      body: JSON.stringify({
-        year: birthInfo.year,
-        month: birthInfo.month,
-        day: birthInfo.day,
-        hour: birthInfo.hour,
-        gender: birthInfo.gender,
-        name: birthInfo.name,
-        city: birthInfo.city,
-        wuxingJuName,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { product: RecommendProduct };
-    return data.product;
-  } catch {
-    return null;
-  }
+  const { birthInfo, wuxingJuName } = chart;
+  const res = await fetch('/api/recommend/product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store',
+    body: JSON.stringify({
+      year: birthInfo.year,
+      month: birthInfo.month,
+      day: birthInfo.day,
+      hour: birthInfo.hour,
+      gender: birthInfo.gender,
+      name: birthInfo.name,
+      city: birthInfo.city,
+      wuxingJuName,
+    }),
+  });
+  if (!res.ok) throw new Error(`recommend ${res.status}`);
+  const data = (await res.json()) as { product?: RecommendProduct | null };
+  return data.product ?? null;
 }

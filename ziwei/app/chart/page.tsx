@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@orasage/ui/button';
 import { useT, useLocale } from '@/lib/i18n';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
-import ChartBoard from '@/components/ChartBoard';
+import ChartBoard, { type ChartUiState } from '@/components/ChartBoard';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
-import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/ziwei/share';
+import { formToSearchParams, searchParamsToForm, formToBirthInfo, searchParamsToChartUi } from '@/lib/ziwei/share';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import { syncBirthFormProfile } from '@/lib/profile-sync';
 import { syncZiweiReading } from '@/lib/reading-sync';
@@ -21,6 +21,7 @@ import {
   loadChartSession,
   saveChartSession,
   saveLastReadingId,
+  type ChartSessionUi,
 } from '@/lib/ziwei-reading-session';
 import { isMinorChartPair } from '@/lib/minor';
 
@@ -45,12 +46,14 @@ function HemingPanel({
 
   return (
     <>
-      <div className="ziwei-calc-person-tabs">
+      <div className="ziwei-calc-person-tabs" role="tablist" aria-label={t('form.person.editing')}>
         <span className="ziwei-calc-person-hint">{t('form.person.editing')}</span>
         {([0, 1] as const).map((idx) => (
           <Button
             key={idx}
             type="button"
+            role="tab"
+            aria-selected={activePerson === idx}
             variant="outline"
             onClick={() => setActivePerson(idx)}
             className={`ziwei-calc-person-tab${activePerson === idx ? ' is-active' : ''}`}
@@ -86,11 +89,30 @@ function HemingPanel({
   );
 }
 
-function persistChartUrl(form: BirthFormState, opts: { readingId: string; mode?: 'single' | 'heming' }) {
-  const params = formToSearchParams(form, { readingId: opts.readingId, mode: opts.mode });
+function persistChartUrl(
+  form: BirthFormState,
+  opts: {
+    readingId: string;
+    mode?: 'single' | 'heming';
+    ui?: ChartSessionUi;
+  },
+) {
+  const params = formToSearchParams(form, {
+    readingId: opts.readingId,
+    mode: opts.mode,
+    ui: opts.ui,
+  });
   if (typeof window !== 'undefined') {
     window.history.replaceState({}, '', `/chart?${params.toString()}`);
   }
+}
+
+function defaultChartUi(): ChartUiState {
+  return {
+    selectedBranch: null,
+    timeView: 'mingpan',
+    liunianYear: new Date().getFullYear(),
+  };
 }
 
 export default function ChartPage() {
@@ -106,6 +128,7 @@ export default function ChartPage() {
   const [savedFormB, setSavedFormB] = useState<BirthFormState | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [hemingTab, setHemingTab] = useState<'A' | 'B'>('A');
+  const [chartUi, setChartUi] = useState<ChartUiState>(defaultChartUi);
   const [loggedIn, setLoggedIn] = useState(false);
   const [recommendDismissed, setRecommendDismissed] = useState(false);
   const [chatSessionKey, setChatSessionKey] = useState(0);
@@ -132,6 +155,7 @@ export default function ChartPage() {
     info: BirthInfo,
     form?: BirthFormState,
     existingReadingId?: string,
+    uiOverride?: ChartUiState,
   ) => {
     setLoading(true);
     setError('');
@@ -145,8 +169,10 @@ export default function ChartPage() {
       const id = syncZiweiReading(data, { existingReadingId: rid, lang: locale });
       bindReading(id, { resetChat: !existingReadingId });
       if (syncForm) {
-        saveChartSession({ readingId: id, mode: 'single', form: syncForm });
-        persistChartUrl(syncForm, { readingId: id });
+        const ui: ChartSessionUi = { ...(uiOverride ?? chartUi), hemingTab: 'A' };
+        setChartUi(ui);
+        saveChartSession({ readingId: id, mode: 'single', form: syncForm, ui });
+        persistChartUrl(syncForm, { readingId: id, ui });
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t('insight.error'));
@@ -161,6 +187,7 @@ export default function ChartPage() {
     formA: BirthFormState,
     formB: BirthFormState,
     existingReadingId?: string,
+    uiOverride?: ChartUiState,
   ) => {
     setLoading(true);
     setError('');
@@ -169,15 +196,30 @@ export default function ChartPage() {
       const dataB = generateChart(infoB);
       setChart(dataA);
       setChartB(dataB);
-      setHemingTab('A');
+      const nextUi: ChartSessionUi = {
+        ...(uiOverride ?? chartUi),
+        hemingTab: 'A',
+      };
+      setHemingTab(nextUi.hemingTab);
+      setChartUi(nextUi);
       setSavedFormB(formB);
       void syncBirthFormProfile(formA, { label: 'A' });
       void syncBirthFormProfile(formB, { label: 'B' });
       const rid = existingReadingId ?? getLastReadingId() ?? undefined;
       const id = syncZiweiReading(dataA, { couplePartner: dataB, existingReadingId: rid, lang: locale });
       bindReading(id, { resetChat: !existingReadingId });
-      saveChartSession({ readingId: id, mode: 'heming', form: formA, formB });
-      persistChartUrl(formA, { readingId: id, mode: 'heming' });
+      saveChartSession({
+        readingId: id,
+        mode: 'heming',
+        form: formA,
+        formB,
+        ui: nextUi,
+      });
+      persistChartUrl(formA, {
+        readingId: id,
+        mode: 'heming',
+        ui: nextUi,
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t('insight.error'));
     } finally {
@@ -200,23 +242,42 @@ export default function ChartPage() {
     const rid = params.get('rid') || getLastReadingId() || undefined;
     const session = loadChartSession();
     const formData = searchParamsToForm(params);
+    const uiFromUrl = searchParamsToChartUi(params);
+    const mergedUi: ChartUiState = {
+      ...defaultChartUi(),
+      selectedBranch: uiFromUrl.selectedBranch ?? session?.ui?.selectedBranch ?? null,
+      timeView: uiFromUrl.timeView ?? session?.ui?.timeView ?? 'mingpan',
+      liunianYear: uiFromUrl.liunianYear ?? session?.ui?.liunianYear ?? new Date().getFullYear(),
+    };
+    setChartUi(mergedUi);
+    if (uiFromUrl.hemingTab || session?.ui?.hemingTab) {
+      setHemingTab(uiFromUrl.hemingTab ?? session?.ui?.hemingTab ?? 'A');
+    }
 
     const restore = async () => {
       if (formData?.year) {
         const fullForm: BirthFormState = { ...emptyBirthForm(), ...formData };
         setSavedForm(fullForm);
-        if (urlMode === 'heming' && session?.formB) {
-          setSavedFormB(session.formB);
-          await handleHemingSubmit(
-            formToBirthInfo(fullForm),
-            formToBirthInfo(session.formB),
-            fullForm,
-            session.formB,
-            rid,
-          );
-        } else {
-          await handleSingleSubmit(formToBirthInfo(fullForm), fullForm, rid);
+        if (urlMode === 'heming') {
+          if (session?.formB) {
+            setSavedFormB(session.formB);
+            await handleHemingSubmit(
+              formToBirthInfo(fullForm),
+              formToBirthInfo(session.formB),
+              fullForm,
+              session.formB,
+              rid,
+              mergedUi,
+            );
+          } else {
+            setMode('heming');
+            setError(t('heming.missingB'));
+            setChart(null);
+            setChartB(null);
+          }
+          return;
         }
+        await handleSingleSubmit(formToBirthInfo(fullForm), fullForm, rid, mergedUi);
         return;
       }
 
@@ -231,12 +292,17 @@ export default function ChartPage() {
             session.form,
             session.formB,
             session.readingId || rid,
+            mergedUi,
           );
+        } else if (session.mode === 'heming' && !session.formB) {
+          setMode('heming');
+          setError(t('heming.missingB'));
         } else {
           await handleSingleSubmit(
             formToBirthInfo(session.form),
             session.form,
             session.readingId || rid,
+            mergedUi,
           );
         }
       }
@@ -256,8 +322,13 @@ export default function ChartPage() {
 
   useEffect(() => {
     if (!chart || !postPaidFocus) return;
+    const reduce = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const timer = window.setTimeout(() => {
-      chatAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      chatAnchorRef.current?.scrollIntoView({
+        behavior: reduce ? 'auto' : 'smooth',
+        block: 'start',
+      });
       setPostPaidFocus(false);
     }, 400);
     return () => window.clearTimeout(timer);
@@ -272,8 +343,30 @@ export default function ChartPage() {
     setSavedFormB(null);
     setFormKey((k) => k + 1);
     setRecommendDismissed(false);
+    setChartUi(defaultChartUi());
+    setHemingTab('A');
     clearChartSession();
     if (typeof window !== 'undefined') window.history.replaceState({}, '', '/chart');
+  };
+
+  const syncUi = (next: ChartUiState) => {
+    setChartUi(next);
+    const form = savedForm;
+    if (!form?.year || !readingId) return;
+    const ui: ChartSessionUi = { ...next, hemingTab };
+    const session = loadChartSession();
+    saveChartSession({
+      readingId,
+      mode: mode === 'heming' ? 'heming' : 'single',
+      form,
+      formB: savedFormB ?? session?.formB,
+      ui,
+    });
+    persistChartUrl(form, {
+      readingId,
+      mode: mode === 'heming' ? 'heming' : undefined,
+      ui,
+    });
   };
 
   const activeChart = mode === 'heming' && hemingTab === 'B' && chartB ? chartB : chart;
@@ -287,13 +380,15 @@ export default function ChartPage() {
       <div className="ziwei-chart-page orasage-fade-in">
         <ZiweiHomeHero />
         <div className="ziwei-calc-form ziwei-calc-section">
-          <div className="ziwei-calc-mode-bar">
+          <div className="ziwei-calc-mode-bar" role="tablist" aria-label={t('tab.single')}>
             {(['single', 'heming'] as const).map((m) => (
               <Button
                 key={m}
                 type="button"
+                role="tab"
+                aria-selected={mode === m}
                 variant="outline"
-                onClick={() => setMode(m)}
+                onClick={() => { setMode(m); setError(''); }}
                 className={`ziwei-calc-mode-btn${mode === m ? ' is-active' : ''}`}
               >
                 {m === 'single' ? t('tab.single') : t('tab.heming')}
@@ -319,7 +414,14 @@ export default function ChartPage() {
           ) : (
             <HemingPanel onSubmit={(a, b, fa, fb) => void handleHemingSubmit(a, b, fa, fb)} loading={loading} />
           )}
-          {error && <div className="ziwei-calc-error">{error}</div>}
+          {error && (
+            <div className="ziwei-calc-error" role="alert">
+              <p>{error}</p>
+              {mode === 'heming' && error === t('heming.missingB') ? (
+                <p className="ziwei-calc-error-hint">{t('heming.backToForm')}</p>
+              ) : null}
+            </div>
+          )}
         </div>
         <ZiweiHomeFeed />
       </div>
@@ -340,13 +442,28 @@ export default function ChartPage() {
         </Button>
         <div className="ziwei-chart-toolbar-sep" />
         {mode === 'heming' && chartB ? (
-          <div className="ziwei-heming-tabs">
+          <div className="ziwei-heming-tabs" role="tablist" aria-label={t('heming.person.a')}>
             {(['A', 'B'] as const).map((tab) => (
               <Button
                 key={tab}
                 type="button"
+                role="tab"
+                aria-selected={hemingTab === tab}
                 variant="outline"
-                onClick={() => setHemingTab(tab)}
+                onClick={() => {
+                  setHemingTab(tab);
+                  if (savedForm && readingId) {
+                    const ui: ChartSessionUi = { ...chartUi, hemingTab: tab };
+                    saveChartSession({
+                      readingId,
+                      mode: 'heming',
+                      form: savedForm,
+                      formB: savedFormB ?? undefined,
+                      ui,
+                    });
+                    persistChartUrl(savedForm, { readingId, mode: 'heming', ui });
+                  }
+                }}
                 className={`ziwei-heming-tab${hemingTab === tab ? ' is-active' : ''}`}
               >
                 {tab === 'A' ? `甲 · ${t('heming.person.a')}` : `乙 · ${t('heming.person.b')}`}
@@ -366,7 +483,11 @@ export default function ChartPage() {
 
       <div className="ziwei-result-stack">
         <div className="ziwei-result-chart ziwei-chart-rice-paper">
-          <ChartBoard chart={activeChart ?? chart} />
+          <ChartBoard
+            chart={activeChart ?? chart}
+            uiState={chartUi}
+            onUiStateChange={syncUi}
+          />
         </div>
 
         <ZiweiBriefInsight chart={activeChart ?? chart} minorMode={minorMode} />

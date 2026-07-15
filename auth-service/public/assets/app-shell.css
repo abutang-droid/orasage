@@ -1,3 +1,23 @@
+/* Skip link — first Tab target (CC-10) */
+.orasage-skip-link {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--shell-text, #171717);
+  color: var(--shell-bg, #fff);
+  font-size: 14px;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.orasage-skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--shell-text, #171717);
+  outline-offset: 2px;
+}
+
 :root {
   --shell-top-h: 52px;
   --shell-bottom-h: 56px;
@@ -258,6 +278,12 @@
   color: var(--shell-text);
 }
 
+.orasage-site-topnav-link[aria-current='page'],
+.orasage-site-topnav-link[data-active='true'] {
+  color: var(--shell-text);
+  font-weight: 600;
+}
+
 .orasage-site-topnav-menu .orasage-auth-chip {
   margin-inline-start: 4px;
 }
@@ -510,12 +536,14 @@
   padding: 4px 2px;
 }
 
-.orasage-app-nav-item[data-active='true'] {
+.orasage-app-nav-item[data-active='true'],
+.orasage-app-nav-item[aria-current='page'] {
   color: var(--shell-gold);
   font-weight: 600;
 }
 
-.orasage-app-nav-item[data-active='true']::before {
+.orasage-app-nav-item[data-active='true']::before,
+.orasage-app-nav-item[aria-current='page']::before {
   content: '';
   position: absolute;
   top: 0;
@@ -579,4 +607,12 @@
 .orasage-app-explore-link:hover {
   border-color: var(--shell-gold);
   color: var(--shell-gold);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .orasage-auth-chip--loading {
+    animation: none;
+    opacity: 0.7;
+  }
 }

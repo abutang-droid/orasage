@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import '../../shared/design-tokens/orasage-tokens.css';
@@ -17,8 +16,8 @@
 
 :root {
   /* ── 字体 ── */
-  --font:       'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-serif: 'Noto Serif SC', 'Songti SC', serif;
+  --font:       var(--font-ziwei-sans, 'Noto Sans SC'), 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: var(--font-ziwei-serif, 'Noto Serif SC'), 'Songti SC', serif;
   --font-mono:  'SF Mono', 'Menlo', 'Noto Sans Mono', monospace;
 
   /* ── DS v1.1 语义色（via orasage-tokens）── */
@@ -127,6 +126,12 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -1329,5 +1334,140 @@ a:hover { color: var(--gold-light); }
   }
   .ziwei-star-major {
     font-size: 12px;
+  }
+}
+
+
+/* ─── CC-04 mobile chart reflow ─── */
+.ziwei-chart-mobile { display: none; }
+.ziwei-chart-grid--desktop { display: grid; }
+
+@media (max-width: 767px) {
+  .ziwei-chart-grid--desktop { display: none; }
+  .ziwei-chart-mobile { display: block; }
+  .ziwei-chart-mobile-center {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+    border-radius: var(--os-radius-card, 1rem);
+    background: var(--os-color-mono-white, #fff);
+    padding: 0.75rem;
+  }
+  .ziwei-chart-mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .ziwei-chart-mobile-grid .ziwei-chart-grid-cell {
+    min-width: 0;
+  }
+  .ziwei-palace-cell {
+    min-height: auto;
+    height: auto;
+  }
+  .ziwei-palace-name,
+  .ziwei-sihua-badge,
+  .ziwei-palace-ganzhi {
+    font-size: 12px;
+  }
+  .ziwei-star-major {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 359px) {
+  .ziwei-chart-mobile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TimeNav tokens (CC-03/09) */
+.ziwei-timenav-tabs {
+  background: var(--os-color-mono-white, #fff);
+  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+.ziwei-timenav-tab.is-active,
+.ziwei-timenav-liunian.is-active {
+  background: color-mix(in srgb, var(--os-color-mono-black, #171717) 8%, transparent);
+  color: var(--os-color-mono-black, #171717);
+  border-color: var(--os-color-mono-black, #171717);
+  font-weight: 600;
+}
+.ziwei-timenav-tab {
+  color: var(--os-color-mono-gray-deep, #6b7280);
+  border-color: transparent;
+}
+.ziwei-heming-tab.is-active,
+.ziwei-calc-mode-btn.is-active,
+.ziwei-calc-person-tab.is-active,
+.ziwei-calc-segment-btn.is-active {
+  background: var(--os-color-mono-black, #171717) !important;
+  color: var(--os-color-mono-white, #fff) !important;
+  border-color: var(--os-color-mono-black, #171717) !important;
+  font-weight: 600;
+}
+
+.ziwei-palace-cell:focus-visible {
+  outline: 2px solid var(--os-color-mono-black, #171717);
+  outline-offset: 2px;
+}
+
+.ziwei-brief-slot,
+.ziwei-recommend-slot {
+  min-height: 4.5rem;
+}
+
+.ziwei-hero-skeleton {
+  min-height: 8rem;
+}
+
+.ziwei-hero-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: min(42vh, 420px);
+  margin: 1rem auto 0;
+  overflow: hidden;
+  border-radius: var(--os-radius-card, 1rem);
+  border: 1px solid var(--os-color-mono-gray-light, #e7e5e4);
+}
+.ziwei-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Remap rice-paper accents toward mono tokens on active board (CC-09) */
+.ziwei-chart-rice-paper {
+  --zp-bg: var(--os-color-mono-ivory, #fafaf8);
+  --zp-paper: var(--os-color-mono-white, #ffffff);
+  --zp-ink: var(--os-color-mono-black, #171717);
+  --zp-ink-muted: var(--os-color-mono-gray-deep, #6b7280);
+  --zp-border: var(--os-color-mono-black, #171717);
+  --zp-border-soft: var(--os-color-mono-gray-light, #e7e5e4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  .orasage-fade-in,
+  .ziwei-home-feed-track,
+  .ziwei-chart-board * {
+    animation: none !important;
+    transition: none !important;
   }
 }

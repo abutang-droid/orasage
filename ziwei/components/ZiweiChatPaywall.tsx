@@ -49,7 +49,7 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
       const result = await startAppCheckout({
         sku,
         readingId,
-        recommendationContext: '紫微 Orasage 问答',
+        recommendationContext: '紫微 OraSage 问答',
         successUrl: returnBase,
       });
       if (result.checkoutUrl) {
@@ -71,7 +71,7 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
         {quota && quota.freeRemaining <= 0 && quota.packCredits > 0
           ? `加量包余额 ${quota.packCredits} 次已用尽。`
           : `本盘免费 ${quota?.freePerReading ?? 5} 次已用尽。`}
-        选择方案继续向 Orasage 提问：
+        选择方案继续向 OraSage 提问：
       </p>
       <div className="ziwei-chat-paywall-plans">
         {products.map((plan) => (

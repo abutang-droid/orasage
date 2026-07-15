@@ -3,7 +3,7 @@
 import { ChevronLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { Button } from '@orasage/ui/button';
-import { appBrandLabel, appHomeUrl, shouldShowAppShellPageBack, type AppId } from './config';
+import { mainPortalUrl, shouldShowAppShellPageBack, type AppId } from './config';
 import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
@@ -51,14 +51,19 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const showBack = showPageBack && shouldShowAppShellPageBack(appId, pathname) && !immersive;
-  const brandLabel = appBrandLabel(appId, locale);
+  const brandHref = mainPortalUrl(locale);
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
+      <a href="#orasage-main-content" className="orasage-skip-link">
+        Skip to content
+      </a>
+
       {showSiteTopNav && (
         <SiteTopNav
           locale={locale}
           context={appId}
+          pathname={pathname}
           trailing={headerExtra}
           showLocaleSwitcher={showLocaleSwitcher}
           onLocaleChange={onLocaleChange}
@@ -67,8 +72,8 @@ export function AppShell({
 
       {showMobileBar && (
         <header className="orasage-site-mobile-bar lg:hidden">
-          <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
-            {brandLabel}
+          <a href={brandHref} className="orasage-site-mobile-bar-brand">
+            OraSage
           </a>
           <div className="orasage-site-mobile-bar-actions">
             {headerExtra}
@@ -80,7 +85,11 @@ export function AppShell({
         </header>
       )}
 
-      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
+      <main
+        id="orasage-main-content"
+        className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}
+        tabIndex={-1}
+      >
         {showBack && (
           <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
             <Button
