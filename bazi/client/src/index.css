@@ -264,6 +264,20 @@
     animation: spin-slow 4s linear infinite;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-spin,
+    .animate-spin-slow,
+    .animate-pulse {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    html {
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* ── 滚轮选择器 ── */
   .wheel-scroll::-webkit-scrollbar { display: none; }
   .wheel-scroll { -ms-overflow-style: none; scrollbar-width: none; }

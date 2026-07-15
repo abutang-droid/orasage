@@ -38,7 +38,7 @@ const ui: TranslationDict = {
   "date.hour": "时",
   "date.minute": "分",
 
-  "form.hint.time": "如果不清楚准确出生时间，系统将默认为 00:00",
+  "form.hint.time": "如果不清楚准确出生时间，系统将默认为 08:00",
   "form.submit.single": "开始排盘",
   "form.submit.couple": "开始合盘",
   "form.saved_profile": "从用户中心导入",

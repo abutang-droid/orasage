@@ -13,6 +13,7 @@ export type CityMessages = {
   longitudeWest: string;
   timezone: string;
   loadFailed: string;
+  clear: string;
 };
 
 const MESSAGES: Record<CityLocale, CityMessages> = {
@@ -29,6 +30,7 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     longitudeWest: "西经",
     timezone: "时区",
     loadFailed: "城市数据加载失败",
+    clear: "清除出生地",
   },
   "zh-TW": {
     placeholder: "請輸入出生城市",
@@ -43,6 +45,7 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     longitudeWest: "西經",
     timezone: "時區",
     loadFailed: "城市資料載入失敗",
+    clear: "清除出生地",
   },
   en: {
     placeholder: "Enter birthplace city",
@@ -57,6 +60,7 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     longitudeWest: "W",
     timezone: "TZ",
     loadFailed: "Failed to load city data",
+    clear: "Clear birthplace",
   },
   "pt-BR": {
     placeholder: "Digite a cidade de nascimento",
@@ -71,6 +75,7 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     longitudeWest: "O",
     timezone: "Fuso",
     loadFailed: "Falha ao carregar dados da cidade",
+    clear: "Limpar local de nascimento",
   },
 };
 

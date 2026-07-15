@@ -30,7 +30,7 @@ const ui: TranslationDict = {
   "date.hour": "時",
   "date.minute": "分",
 
-  "form.hint.time": "如果不清楚準確出生時間，系統將預設為 00:00",
+  "form.hint.time": "如果不清楚準確出生時間，系統將預設為 08:00",
   "form.submit.single": "開始排盤",
   "form.submit.couple": "開始合盤",
   "form.error.gender": "請選擇性別",
