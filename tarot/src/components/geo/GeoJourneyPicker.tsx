@@ -7,6 +7,11 @@ import { FaithPicker } from '@/components/FaithPicker';
 import type { GeoDetectSource } from '@/lib/geo/detect-country';
 import { useCountrySuggestion, type CountrySuggestion } from '@/lib/geo/use-country-suggestion';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
+import {
+  normalizeCountryCode,
+  resolveCountryLabel,
+  resolveRegionLabel,
+} from '@/lib/geo/country-label';
 import { storeGeo } from '@/lib/geo/types';
 import {
   getMoreFaiths,
@@ -124,9 +129,10 @@ export function GeoJourneyPicker({
 
         if (!initDone.current) {
           if (value?.continentCode && value?.countryCode) {
+            const normalizedCountry = normalizeCountryCode(value.countryCode);
             setContinentCode(value.continentCode);
-            setCountryCode(value.countryCode);
-            setStep(value.faith ? 'faith' : 'country');
+            setCountryCode(normalizedCountry);
+            setStep('faith');
             setLocationSource('manual');
           }
           initDone.current = true;
@@ -394,7 +400,12 @@ export function GeoJourneyPicker({
   }, [onFaithSkip, continentCode, countryCode]);
 
   useEffect(() => {
-    if (step === 'country' && continentCode && countries.length === 0 && !countriesLoading) {
+    const needsCountries =
+      continentCode &&
+      countries.length === 0 &&
+      !countriesLoading &&
+      (step === 'country' || step === 'faith' || step === 'deity');
+    if (needsCountries) {
       void loadCountries(continentCode);
     }
   }, [step, continentCode, countries.length, countriesLoading, loadCountries]);
@@ -406,17 +417,13 @@ export function GeoJourneyPicker({
   }, [step, countryCode, loadFaiths]);
 
   const regionName = useMemo(
-    () => regions.find((r) => r.code === continentCode)?.nameZh ?? '',
-    [regions, continentCode],
+    () => resolveRegionLabel(continentCode, regions, lang),
+    [regions, continentCode, lang],
   );
 
   const countryName = useMemo(
-    () =>
-      countries.find((c) => c.code === countryCode)?.nameZh ??
-      allCountries.find((c) => c.code === countryCode)?.nameZh ??
-      suggestion?.country.nameZh ??
-      '',
-    [countries, countryCode, allCountries, suggestion?.country.nameZh],
+    () => resolveCountryLabel(countryCode, allCountries.length ? allCountries : countries, lang),
+    [countryCode, allCountries, countries, lang],
   );
 
   const showDetectConfirm = Boolean(detectedSuggestion) && !countryCode;
@@ -443,7 +450,9 @@ export function GeoJourneyPicker({
   const mapContinentCode = showDetectConfirm
     ? detectedSuggestion?.country.regionCode
     : continentCode;
-  const mapCountryCode = showDetectConfirm ? detectedSuggestion?.country.code : countryCode;
+  const mapCountryCode = showDetectConfirm
+    ? normalizeCountryCode(detectedSuggestion?.country.code)
+    : normalizeCountryCode(countryCode);
   const mapCountries = useMemo(() => {
     if (showDetectConfirm && detectedSuggestion) {
       return allCountries.filter((c) => c.regionCode === detectedSuggestion.country.regionCode);
