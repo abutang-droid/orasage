@@ -25,7 +25,13 @@ export type SiteTopNavProps = {
   trailing?: ReactNode;
   showLocaleSwitcher?: boolean;
   onLocaleChange?: (locale: string) => void;
+  pathname?: string;
 };
+
+function isNavItemCurrent(itemId: (typeof TOP_NAV_ITEMS)[number]['id'], context: NavContext): boolean {
+  if (context === 'portal') return itemId === 'home';
+  return itemId === context;
+}
 
 /** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
 export function SiteTopNav({
@@ -49,8 +55,15 @@ export function SiteTopNav({
           {TOP_NAV_ITEMS.map((item) => {
             const href = typeof item.href === 'function' ? item.href(locale) : item.href;
             const label = pickLabel(SHELL_LABELS[item.id], locale);
+            const current = isNavItemCurrent(item.id, context);
             return (
-              <a key={item.id} href={href} className="orasage-site-topnav-link">
+              <a
+                key={item.id}
+                href={href}
+                className="orasage-site-topnav-link"
+                data-active={current ? 'true' : undefined}
+                aria-current={current ? 'page' : undefined}
+              >
                 {label}
               </a>
             );

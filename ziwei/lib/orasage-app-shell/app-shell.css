@@ -89,9 +89,9 @@
 
 /* 双类选择器：稳定压过 @orasage/ui Button 的单类工具类（与样式表加载顺序无关） */
 .orasage-app-lang .orasage-app-lang-btn {
-  /* 固定高度胶囊；宽度随最长文案（Português）自适应，避免与下拉符号挤占换行 */
+  /* 桌面视觉 36px；触控环境抬到 44px（SHOP S06） */
   height: 36px;
-  min-height: 36px;
+  min-height: var(--os-size-target-preferred, 44px);
   min-width: max-content;
   padding: 0 12px;
   border: 1px solid var(--shell-border);
@@ -105,6 +105,15 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  transition: color var(--os-motion-instant, 80ms) var(--os-ease-standard, ease),
+    border-color var(--os-motion-instant, 80ms) var(--os-ease-standard, ease),
+    background var(--os-motion-instant, 80ms) var(--os-ease-standard, ease);
+}
+
+@media (pointer: fine) and (min-width: 1024px) {
+  .orasage-app-lang .orasage-app-lang-btn {
+    min-height: 36px;
+  }
 }
 
 .orasage-app-lang .orasage-app-lang-btn span {
@@ -133,7 +142,7 @@
   justify-content: flex-start;
   width: 100%;
   height: auto;
-  min-height: 0;
+  min-height: var(--os-size-target-preferred, 44px);
   padding: 10px 12px;
   border: none;
   border-radius: 0;
@@ -147,8 +156,9 @@
 }
 
 .orasage-app-lang .orasage-app-lang-item:hover,
+.orasage-app-lang .orasage-app-lang-item[aria-selected='true'],
 .orasage-app-lang .orasage-app-lang-item[aria-current='true'] {
-  background: rgba(201, 160, 90, 0.12);
+  background: color-mix(in srgb, var(--shell-text, #171717) 8%, transparent);
   color: var(--shell-gold);
 }
 
@@ -258,6 +268,16 @@
   color: var(--shell-text);
 }
 
+.orasage-site-topnav-link[aria-current='page'],
+.orasage-site-topnav-link[data-active='true'] {
+  color: var(--shell-text);
+  font-weight: 600;
+}
+
+.orasage-site-topnav-link:active {
+  color: var(--shell-text);
+}
+
 .orasage-site-topnav-menu .orasage-auth-chip {
   margin-inline-start: 4px;
 }
@@ -273,6 +293,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   min-height: var(--shell-top-h);
   padding: env(safe-area-inset-top, 0px) 16px 0;
   background: var(--shell-bg);
@@ -284,6 +305,7 @@
   letter-spacing: 0.08em;
   color: var(--shell-gold);
   text-decoration: none;
+  min-width: 0;
 }
 
 .orasage-site-mobile-bar-actions {
@@ -291,6 +313,25 @@
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+/* 超窄屏：品牌与操作分两行，保证 44px 触控（SHOP §6） */
+@media (max-width: 360px) {
+  .orasage-site-mobile-bar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-bottom: 0.35rem;
+  }
+
+  .orasage-site-mobile-bar-brand {
+    flex: 1 1 auto;
+    padding-block: 0.35rem;
+  }
+
+  .orasage-site-mobile-bar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -395,7 +436,7 @@
   display: inline-flex;
   align-items: center;
   max-width: min(160px, 42vw);
-  min-height: 32px;
+  min-height: var(--os-size-target-preferred, 44px);
   padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid var(--shell-border);
@@ -407,12 +448,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
-  transition: border-color 0.15s var(--orasage-ease-organic, ease), background 0.15s var(--orasage-ease-organic, ease);
+  transition: border-color var(--os-motion-instant, 80ms) var(--os-ease-standard, ease),
+    background var(--os-motion-instant, 80ms) var(--os-ease-standard, ease);
+}
+
+@media (pointer: fine) and (min-width: 1024px) {
+  .orasage-auth-chip {
+    min-height: 32px;
+  }
 }
 
 .orasage-auth-chip:hover {
   border-color: var(--shell-gold);
-  background: rgba(201, 160, 90, 0.08);
+  background: color-mix(in srgb, var(--shell-text, #171717) 6%, transparent);
+}
+
+.orasage-auth-chip:active {
+  background: color-mix(in srgb, var(--shell-text, #171717) 10%, transparent);
 }
 
 .orasage-auth-chip--signed-in {
@@ -421,10 +473,16 @@
 
 .orasage-auth-chip--loading {
   width: 72px;
-  min-height: 32px;
+  min-height: var(--os-size-target-preferred, 44px);
   border-color: transparent;
   background: var(--shell-border-subtle);
   animation: orasage-auth-pulse 1.2s ease-in-out infinite;
+}
+
+@media (pointer: fine) and (min-width: 1024px) {
+  .orasage-auth-chip--loading {
+    min-height: 32px;
+  }
 }
 
 @keyframes orasage-auth-pulse {
@@ -503,19 +561,22 @@
   border: none;
   background: transparent;
   color: var(--shell-muted);
-  font-size: 10px;
+  font-size: 12px;
   text-decoration: none;
   cursor: pointer;
   position: relative;
   padding: 4px 2px;
+  min-height: var(--os-size-target-preferred, 44px);
 }
 
-.orasage-app-nav-item[data-active='true'] {
+.orasage-app-nav-item[data-active='true'],
+.orasage-app-nav-item[aria-current='page'] {
   color: var(--shell-gold);
   font-weight: 600;
 }
 
-.orasage-app-nav-item[data-active='true']::before {
+.orasage-app-nav-item[data-active='true']::before,
+.orasage-app-nav-item[aria-current='page']::before {
   content: '';
   position: absolute;
   top: 0;
@@ -529,7 +590,7 @@
 
 .orasage-app-nav-brand {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
 }
 
@@ -579,4 +640,12 @@
 .orasage-app-explore-link:hover {
   border-color: var(--shell-gold);
   color: var(--shell-gold);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .orasage-auth-chip--loading {
+    animation: none;
+    opacity: 0.7;
+  }
 }

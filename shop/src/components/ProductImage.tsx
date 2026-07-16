@@ -9,6 +9,8 @@ type ProductImageProps = {
   imageUrl?: string | null;
   className?: string;
   priority?: boolean;
+  /** Responsive sizes hint — feature vs thumb slots differ (SHOP S07). */
+  sizes?: string;
 };
 
 export function ProductImage({
@@ -18,6 +20,7 @@ export function ProductImage({
   imageUrl,
   className = '',
   priority = false,
+  sizes = '(max-width: 640px) 50vw, 25vw',
 }: ProductImageProps) {
   const src = imageUrl || fallbackProductImageUrl(sku, category);
 
@@ -27,7 +30,7 @@ export function ProductImage({
         src={src}
         alt={name}
         fill
-        sizes="(max-width: 640px) 50vw, 25vw"
+        sizes={sizes}
         className="shop-product-image"
         priority={priority}
       />
