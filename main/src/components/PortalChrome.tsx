@@ -10,18 +10,23 @@ export async function PortalChrome({ children, locale }: { children: ReactNode; 
 
   return (
     <>
-      <main className="orasage-portal-main flex-1">{children}</main>
+      <a href="#main-content" className="orasage-skip-link">
+        跳到主要内容
+      </a>
+      <main id="main-content" className="orasage-portal-main flex-1" tabIndex={-1}>
+        {children}
+      </main>
       <div
         className="orasage-app-shell"
         data-theme="light"
         style={{
           minHeight: 0,
           background: 'transparent',
-          ['--shell-bg' as string]: '#fafaf8',
-          ['--shell-text' as string]: '#171717',
-          ['--shell-muted' as string]: '#6b7280',
-          ['--shell-gold' as string]: '#171717',
-          ['--shell-border' as string]: '#e7e5e4',
+          ['--shell-bg' as string]: 'var(--os-color-mono-bg)',
+          ['--shell-text' as string]: 'var(--os-color-mono-black)',
+          ['--shell-muted' as string]: 'var(--os-color-mono-gray-deep)',
+          ['--shell-gold' as string]: 'var(--os-color-mono-black)',
+          ['--shell-border' as string]: 'var(--os-color-mono-gray-light)',
         }}
       >
         <FixedBottomNav context="portal" locale={locale} pathname={pathname} />
