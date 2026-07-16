@@ -238,6 +238,10 @@
 
 .bazi-calc-segment-btn {
   min-width: 2rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.5rem 0.6rem;
   border: none;
   font-family: var(--font-sans);
@@ -250,6 +254,12 @@
   transition: background var(--os-motion-fast), color var(--os-motion-fast);
 }
 
+.bazi-calc-segment-btn:focus-within {
+  outline: 2px solid var(--os-color-mono-black);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
 .bazi-calc-segment-btn + .bazi-calc-segment-btn {
   border-left: 1px solid var(--bazi-control-border);
 }
@@ -258,6 +268,18 @@
   color: var(--os-color-mono-white);
   background: var(--os-color-mono-black);
   font-weight: 600;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .bazi-calc-submit {
@@ -312,6 +334,22 @@
   font-size: 0.9375rem;
   font-weight: 400;
   caret-color: var(--os-color-mono-black);
+}
+
+.bazi-city-field .orasage-city-clear {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -10px -6px -10px 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--os-color-mono-gray-deep);
+  cursor: pointer;
 }
 
 .bazi-city-dropdown {
@@ -445,10 +483,38 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bazi-home-feed-track {
-    animation: none;
+    animation: none !important;
     flex-wrap: wrap;
     width: 100%;
     padding: 0.75rem 1rem;
     gap: 0.75rem 1.5rem;
   }
+
+  .bazi-home-feed-track [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  .animate-fade-in-up,
+  .animate-spin,
+  .animate-spin-slow,
+  .animate-pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.orasage-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: 0.75rem 1rem;
+  background: var(--os-color-mono-black, #171717);
+  color: var(--os-color-mono-white, #fff);
+  border-radius: 0 0 8px 0;
+  font-size: 0.875rem;
+}
+
+.orasage-skip-link:focus {
+  left: 0;
 }

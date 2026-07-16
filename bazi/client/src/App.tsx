@@ -29,6 +29,12 @@ function AppBody() {
   const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // T6-03：根语言与当前 locale 贯通
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {
     const el = containerRef.current;
@@ -59,10 +65,15 @@ function AppBody() {
 
   return (
     <CityProvider api={cityApi} locale={locale}>
+      <a href="#bazi-main" className="orasage-skip-link">
+        跳到主要内容
+      </a>
       <OraSageToaster />
       <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
         <OraSageAppShell>
-          <Router />
+          <main id="bazi-main" tabIndex={-1}>
+            <Router />
+          </main>
         </OraSageAppShell>
       </div>
     </CityProvider>
