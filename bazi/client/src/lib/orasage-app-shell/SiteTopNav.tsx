@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
+import { daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
@@ -25,9 +25,15 @@ export type SiteTopNavProps = {
   trailing?: ReactNode;
   showLocaleSwitcher?: boolean;
   onLocaleChange?: (locale: string) => void;
+  pathname?: string;
 };
 
-/** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
+function isNavItemCurrent(itemId: (typeof TOP_NAV_ITEMS)[number]['id'], context: NavContext): boolean {
+  if (context === 'portal') return itemId === 'home';
+  return itemId === context;
+}
+
+/** PC 顶栏 — 左品牌 OraSage + 右导航（DS：顶部品牌统一 OraSage） */
 export function SiteTopNav({
   locale = 'zh-CN',
   context = 'portal',
@@ -35,22 +41,27 @@ export function SiteTopNav({
   showLocaleSwitcher = true,
   onLocaleChange,
 }: SiteTopNavProps) {
-  const isPortal = context === 'portal';
-  const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
-  const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
+  const brandHref = mainPortalUrl(locale);
 
   return (
     <header className="orasage-site-topnav">
       <div className="orasage-site-topnav-inner">
         <a href={brandHref} className="orasage-site-topnav-brand">
-          {brandLabel}
+          OraSage
         </a>
         <nav className="orasage-site-topnav-menu" aria-label="Site navigation">
           {TOP_NAV_ITEMS.map((item) => {
             const href = typeof item.href === 'function' ? item.href(locale) : item.href;
             const label = pickLabel(SHELL_LABELS[item.id], locale);
+            const current = isNavItemCurrent(item.id, context);
             return (
-              <a key={item.id} href={href} className="orasage-site-topnav-link">
+              <a
+                key={item.id}
+                href={href}
+                className="orasage-site-topnav-link"
+                data-active={current ? 'true' : undefined}
+                aria-current={current ? 'page' : undefined}
+              >
                 {label}
               </a>
             );

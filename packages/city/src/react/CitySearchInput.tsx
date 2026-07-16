@@ -13,6 +13,10 @@ export type CitySearchInputProps = {
   fieldClassName?: string;
   dropdownClassName?: string;
   optionClassName?: string;
+  /** Optional accessible name wiring for parent forms (ziwei/bazi). */
+  inputId?: string;
+  ariaLabel?: string;
+  ariaDescribedBy?: string;
 };
 
 export async function resolveCityCoords(
@@ -34,6 +38,9 @@ export function CitySearchInput({
   fieldClassName,
   dropdownClassName,
   optionClassName,
+  inputId,
+  ariaLabel,
+  ariaDescribedBy,
 }: CitySearchInputProps) {
   const { api, locale } = useCityContext();
   const t = getCityMessages(locale);
@@ -216,6 +223,7 @@ export function CitySearchInput({
           <path d="M21 21l-4.35-4.35" />
         </svg>
         <input
+          id={inputId}
           type="text"
           value={query}
           onChange={handleInput}
@@ -225,6 +233,8 @@ export function CitySearchInput({
           }}
           onBlur={() => setFocused(false)}
           placeholder={t.placeholder}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
         />
         {aiSearching ? (
           <span className="text-xs text-primary/70 shrink-0">{t.aiMatching}</span>

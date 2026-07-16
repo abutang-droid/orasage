@@ -64,7 +64,19 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
 }
 
 /** BirthFormState → URLSearchParams（用于分享链接与付费回跳） */
-export function formToSearchParams(form: BirthFormState, extras?: { readingId?: string; mode?: string }): URLSearchParams {
+export function formToSearchParams(
+  form: BirthFormState,
+  extras?: {
+    readingId?: string;
+    mode?: string;
+    ui?: {
+      selectedBranch?: number | null;
+      timeView?: string;
+      liunianYear?: number;
+      hemingTab?: 'A' | 'B';
+    };
+  },
+): URLSearchParams {
   const p = new URLSearchParams();
   if (form.name) p.set('n', form.name);
   p.set('y', form.year);
@@ -83,7 +95,41 @@ export function formToSearchParams(form: BirthFormState, extras?: { readingId?: 
   if (form.calendar === 'lunar') p.set('cal', 'lunar');
   if (extras?.readingId) p.set('rid', extras.readingId);
   if (extras?.mode === 'heming') p.set('mode', 'heming');
+  const ui = extras?.ui;
+  if (ui) {
+    if (ui.timeView && ui.timeView !== 'mingpan') p.set('tv', ui.timeView);
+    if (typeof ui.liunianYear === 'number') p.set('ly', String(ui.liunianYear));
+    if (typeof ui.selectedBranch === 'number') p.set('pb', String(ui.selectedBranch));
+    if (ui.hemingTab === 'B') p.set('ht', 'B');
+  }
   return p;
+}
+
+export type ChartUiQuery = {
+  selectedBranch: number | null;
+  timeView: 'mingpan' | 'daxian' | 'liunian';
+  liunianYear: number;
+  hemingTab: 'A' | 'B';
+};
+
+/** Whitelist-parse non-sensitive chart UI state from URL. */
+export function searchParamsToChartUi(params: URLSearchParams): Partial<ChartUiQuery> {
+  const out: Partial<ChartUiQuery> = {};
+  const tv = params.get('tv');
+  if (tv === 'mingpan' || tv === 'daxian' || tv === 'liunian') out.timeView = tv;
+  const ly = params.get('ly');
+  if (ly && /^\d{4}$/.test(ly)) {
+    const year = Number(ly);
+    if (year >= 1900 && year <= 2200) out.liunianYear = year;
+  }
+  const pb = params.get('pb');
+  if (pb !== null && /^\d{1,2}$/.test(pb)) {
+    const branch = Number(pb);
+    if (branch >= 0 && branch <= 11) out.selectedBranch = branch;
+  }
+  const ht = params.get('ht');
+  if (ht === 'A' || ht === 'B') out.hemingTab = ht;
+  return out;
 }
 
 /** URLSearchParams → Partial<BirthFormState>，不完整时返回 null */

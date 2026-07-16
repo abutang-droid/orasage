@@ -1,9 +1,10 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useT } from '@/lib/i18n';
 import type { Palace, Star } from '@/lib/ziwei/types';
 import { STEMS, BRANCHES } from '@/lib/ziwei/constants';
 import clsx from 'clsx';
+import type { KeyboardEvent } from 'react';
 
 interface PalaceCellProps {
   palace: Palace; onClick?: () => void; onStarClick?: (star: Star) => void;
@@ -24,18 +25,41 @@ const SiHuaBadge = ({ siHua, overlay, label, onClick }: { siHua: string; overlay
 
 export default function PalaceCell({ palace, onClick, onStarClick, isSelected, isSanFang, delay = 0, overlayStarSiHua, overlayLabel, onSiHuaClick }: PalaceCellProps) {
   const t = useT();
+  const reduceMotion = useReducedMotion();
   const { branch, stem, name, stars, daXianAge, isCurrentDaXian, isMingGong, isShenGong } = palace;
   const ganzhi = `${STEMS[stem]}${BRANCHES[branch]}`;
   const majorStars = stars.filter(s => s.type === 'major');
   const luckyStars = stars.filter(s => s.type === 'lucky');
   const shaStars = stars.filter(s => s.type === 'sha');
 
+  const statusBits = [
+    isSelected ? t('chart.palace.selected') : '',
+    isSanFang ? t('chart.palace.sanfang') : '',
+    isMingGong ? t('chart.palace.ming') : '',
+    isShenGong ? t('chart.palace.shen') : '',
+    isCurrentDaXian ? t('chart.palace.daxian') : '',
+  ].filter(Boolean);
+  const ariaLabel = [name, ganzhi, ...statusBits].join(' · ');
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
+      initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25, delay, ease: 'easeOut' }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.25, delay, ease: 'easeOut' }}
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-pressed={onClick ? Boolean(isSelected) : undefined}
+      aria-label={onClick ? ariaLabel : undefined}
       className={clsx(
         'ziwei-palace-cell',
         isCurrentDaXian && 'is-daxian',
@@ -61,7 +85,11 @@ export default function PalaceCell({ palace, onClick, onStarClick, isSelected, i
         {majorStars.map((star) => {
           const overlaySiHua = overlayStarSiHua?.[star.name];
           return (
-            <div key={star.name} className="ziwei-palace-major-row" onClick={(e) => { e.stopPropagation(); onStarClick?.(star); }}>
+            <div
+              key={star.name}
+              className="ziwei-palace-major-row"
+              onClick={onStarClick ? (e) => { e.stopPropagation(); onStarClick(star); } : undefined}
+            >
               <span className={clsx('ziwei-star-major', star.brightness === 'bright' && 'is-bright', star.brightness === 'dim' && 'is-dim')}>
                 {star.name}
               </span>
@@ -71,7 +99,7 @@ export default function PalaceCell({ palace, onClick, onStarClick, isSelected, i
                   siHua={overlaySiHua}
                   overlay
                   label={overlayLabel}
-                  onClick={(e) => { e.stopPropagation(); onSiHuaClick?.(star.name, overlaySiHua); }}
+                  onClick={onSiHuaClick ? (e) => { e.stopPropagation(); onSiHuaClick(star.name, overlaySiHua); } : undefined}
                 />
               ) : null}
             </div>
@@ -91,7 +119,7 @@ export default function PalaceCell({ palace, onClick, onStarClick, isSelected, i
                     siHua={overlaySiHua}
                     overlay
                     label={overlayLabel}
-                    onClick={(e) => { e.stopPropagation(); onSiHuaClick?.(s.name, overlaySiHua); }}
+                    onClick={onSiHuaClick ? (e) => { e.stopPropagation(); onSiHuaClick(s.name, overlaySiHua); } : undefined}
                   />
                 ) : null}
               </span>

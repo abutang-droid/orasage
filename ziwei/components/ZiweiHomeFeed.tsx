@@ -17,6 +17,30 @@ function FeedChip({ kind, label }: { kind: ZiweiFeedItem['kind']; label: string 
   );
 }
 
+function FeedItems({
+  items,
+  orderLabel,
+  reviewLabel,
+}: {
+  items: ZiweiFeedItem[];
+  orderLabel: string;
+  reviewLabel: string;
+}) {
+  return (
+    <>
+      {items.map((item) => (
+        <span key={item.id} className="ziwei-home-feed-item">
+          <FeedChip
+            kind={item.kind}
+            label={item.kind === 'review' ? reviewLabel : orderLabel}
+          />
+          <span className="ziwei-home-feed-text">{item.message}</span>
+        </span>
+      ))}
+    </>
+  );
+}
+
 /** CMS 可配置的滚动订单/评价信息流 */
 export function ZiweiHomeFeed() {
   const t = useT();
@@ -37,21 +61,17 @@ export function ZiweiHomeFeed() {
 
   const orderLabel = t('feed.kind.order');
   const reviewLabel = t('feed.kind.review');
-  const loop = [...items, ...items];
 
   return (
     <section className="ziwei-home-feed" aria-label={t('feed.aria')}>
       <div className="ziwei-home-feed-mask">
         <div className="ziwei-home-feed-track">
-          {loop.map((item, index) => (
-            <span key={`${item.id}-${index}`} className="ziwei-home-feed-item">
-              <FeedChip
-                kind={item.kind}
-                label={item.kind === 'review' ? reviewLabel : orderLabel}
-              />
-              <span className="ziwei-home-feed-text">{item.message}</span>
-            </span>
-          ))}
+          <div className="ziwei-home-feed-group">
+            <FeedItems items={items} orderLabel={orderLabel} reviewLabel={reviewLabel} />
+          </div>
+          <div className="ziwei-home-feed-group" aria-hidden>
+            <FeedItems items={items} orderLabel={orderLabel} reviewLabel={reviewLabel} />
+          </div>
         </div>
       </div>
     </section>

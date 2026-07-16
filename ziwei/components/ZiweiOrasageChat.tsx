@@ -258,7 +258,7 @@ export function ZiweiOrasageChat({
                 key={i}
                 className={msg.role === 'user' ? 'ziwei-msg ziwei-msg-user' : 'ziwei-msg ziwei-msg-ai'}
               >
-                {msg.role === 'assistant' && <span className="ziwei-msg-label">Orasage</span>}
+                {msg.role === 'assistant' && <span className="ziwei-msg-label">OraSage</span>}
                 <div>{msg.content}</div>
               </div>
             ))}

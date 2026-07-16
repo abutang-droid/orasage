@@ -483,6 +483,11 @@
   animation: ziwei-feed-scroll 48s linear infinite;
 }
 
+.ziwei-home-feed-group {
+  display: flex;
+  gap: 2rem;
+}
+
 .ziwei-home-feed-track:hover {
   animation-play-state: paused;
 }

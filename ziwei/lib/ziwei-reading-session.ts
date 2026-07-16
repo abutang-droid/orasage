@@ -1,13 +1,24 @@
 import type { BirthFormState } from '@/components/BirthForm';
+import type { TimeView } from '@/components/TimeNav';
 
 const READING_ID_KEY = 'ziwei:lastReadingId';
 const SESSION_KEY = 'ziwei:chartSession';
+const SESSION_VERSION = 1;
+
+export type ChartSessionUi = {
+  selectedBranch: number | null;
+  timeView: TimeView;
+  liunianYear: number;
+  hemingTab: 'A' | 'B';
+};
 
 export type ChartSession = {
+  v?: number;
   readingId: string;
   mode: 'single' | 'heming';
   form: BirthFormState;
   formB?: BirthFormState;
+  ui?: ChartSessionUi;
 };
 
 export function saveLastReadingId(readingId: string) {
@@ -26,7 +37,7 @@ export function getLastReadingId(): string | null {
 
 export function saveChartSession(session: ChartSession) {
   try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...session, v: SESSION_VERSION }));
     saveLastReadingId(session.readingId);
   } catch { /* ignore */ }
 }

@@ -54,40 +54,63 @@ export function ZiweiHomeHero() {
     };
   }, [t]);
 
-  if (!hero?.enabled) return null;
-
-  const showImage = hero.displayMode === 'image' && hero.imageUrl;
-  const showVideo = hero.displayMode === 'video' && hero.videoUrl;
-  const mediaOnly =
-    Boolean(showImage || showVideo) &&
-    !hero.headline &&
-    !hero.eyebrow &&
-    !hero.subtitle &&
-    !hero.bodyText;
+  const title = t('home.title');
+  const content = hero?.enabled ? hero : null;
 
   return (
-    <section className="ziwei-hero">
-      {showVideo ? (
-        <HeroVideo
-          src={hero.videoUrl!}
-          poster={hero.videoPosterUrl}
-          autoplay={hero.videoAutoplay}
-        />
-      ) : null}
+    <section className="ziwei-hero" aria-busy={!hero ? true : undefined}>
+      {!content ? (
+        <div className="ziwei-hero-inner ziwei-hero-skeleton">
+          <h1 className="sr-only">{title}</h1>
+        </div>
+      ) : (
+        <>
+          {content.displayMode === 'video' && content.videoUrl ? (
+            <HeroVideo
+              src={content.videoUrl}
+              poster={content.videoPosterUrl}
+              autoplay={content.videoAutoplay}
+            />
+          ) : null}
 
-      <div className={`ziwei-hero-inner orasage-fade-in${mediaOnly ? ' ziwei-hero-inner--media-only' : ''}`}>
-        {hero.eyebrow ? <p className="ziwei-hero-eyebrow">{hero.eyebrow}</p> : null}
+          <div
+            className={`ziwei-hero-inner orasage-fade-in${
+              Boolean(content.displayMode === 'image' && content.imageUrl)
+              && !content.headline
+              && !content.eyebrow
+              && !content.subtitle
+              && !content.bodyText
+                ? ' ziwei-hero-inner--media-only'
+                : ''
+            }`}
+          >
+            {content.eyebrow ? <p className="ziwei-hero-eyebrow">{content.eyebrow}</p> : null}
 
-        {hero.headline ? <h1 className="ziwei-hero-title">{hero.headline}</h1> : null}
+            {content.headline ? (
+              <h1 className="ziwei-hero-title">{content.headline}</h1>
+            ) : (
+              <h1 className="sr-only">{title}</h1>
+            )}
 
-        {hero.subtitle ? <p className="ziwei-hero-subtitle">{hero.subtitle}</p> : null}
+            {content.subtitle ? <p className="ziwei-hero-subtitle">{content.subtitle}</p> : null}
 
-        {showImage ? (
-          <img src={hero.imageUrl!} alt={hero.imageAlt ?? ''} className="ziwei-hero-image" />
-        ) : null}
+            {content.displayMode === 'image' && content.imageUrl ? (
+              <div className="ziwei-hero-image-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={content.imageUrl}
+                  alt={content.imageAlt ?? ''}
+                  className="ziwei-hero-image"
+                  width={1600}
+                  height={900}
+                />
+              </div>
+            ) : null}
 
-        {hero.bodyText ? <p className="ziwei-hero-body">{hero.bodyText}</p> : null}
-      </div>
+            {content.bodyText ? <p className="ziwei-hero-body">{content.bodyText}</p> : null}
+          </div>
+        </>
+      )}
     </section>
   );
 }
