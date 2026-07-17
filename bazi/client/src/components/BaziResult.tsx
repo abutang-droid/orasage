@@ -1748,7 +1748,6 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
       <AIAnalysisPanel resultData={result as unknown as Record<string, unknown>} type="single" autoTrigger onReportReady={onReportReady} />
       {purchasedPlan === "basic" && braceletRec?.deficiencyWx && (
         <BaziConfiguredProductRecommend
-          element={braceletRec.deficiencyWx}
           chart={{
             birthStr: result.birthStr,
             gender: result.gender,

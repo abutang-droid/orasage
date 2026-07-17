@@ -1354,8 +1354,8 @@ adminApiRouter.post("/stripe/sync", requireSuperAdmin, async (req, res) => {
     res.json({ syncRun: formatSyncRun(run) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "同步失败";
-    const syncRun = (err as { syncRun?: unknown }).syncRun ?? null;
-    res.status(500).json({ error: message, syncRun: formatSyncRun(syncRun as ReturnType<typeof formatSyncRun>) });
+    const syncRun = (err as { syncRun?: Parameters<typeof formatSyncRun>[0] }).syncRun ?? null;
+    res.status(500).json({ error: message, syncRun: formatSyncRun(syncRun) });
   }
 });
 
