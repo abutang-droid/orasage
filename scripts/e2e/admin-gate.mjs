@@ -2,7 +2,7 @@
  * E2E: TC-ADMIN-001 / TC-ADMIN-002 — admin role gate (API + browser)
  *
  * - API: unauthenticated → 401; regular user → 403 on /api/admin/*
- * - Browser: regular user sees gate card, not dashboard; /products → auth login
+ * - Browser: guest + regular user → admin home /products redirect to auth login
  * - Optional happy path when E2E_ADMIN_EMAIL + E2E_ADMIN_PASSWORD are set
  *
  * Usage: node admin-gate.mjs
@@ -21,6 +21,36 @@ const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
 
 function cookieHeader(token) {
   return `orasage_token=${token}`;
+}
+
+function authLoginPattern() {
+  const host = new URL(BASE.auth).host.replace(/\./g, '\\.');
+  return new RegExp(`${host}/login`);
+}
+
+function adminHostPattern() {
+  return new URL(BASE.admin).host.replace(/\./g, '\\.');
+}
+
+function adminRedirectInUrl(url) {
+  if (!url.includes('redirect=')) return false;
+  const decoded = decodeURIComponent(url);
+  const adminOrigin = new URL(BASE.admin).origin;
+  const adminHost = new URL(BASE.admin).host;
+  return decoded.includes(adminOrigin) || decoded.includes(adminHost);
+}
+
+function authCookie(token, siteUrl) {
+  const { hostname } = new URL(siteUrl);
+  const isLocal = hostname === '127.0.0.1' || hostname === 'localhost';
+  return {
+    name: 'orasage_token',
+    value: token,
+    domain: isLocal ? hostname : '.orasage.com',
+    path: '/',
+    secure: !isLocal,
+    sameSite: 'Lax',
+  };
 }
 
 async function registerUser() {
@@ -62,37 +92,38 @@ async function assertApiRegularUserForbidden(token) {
   console.log('[admin-gate] API /api/admin/stats regular user → 403 OK');
 }
 
-async function assertBrowserRegularUserGate(token) {
+async function assertBrowserNonStaffRedirect(token) {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ locale: 'zh-CN' });
-  await context.addCookies([
-    {
-      name: 'orasage_token',
-      value: token,
-      domain: '.orasage.com',
-      path: '/',
-      secure: true,
-      sameSite: 'Lax',
-    },
-  ]);
+
+  console.log('[admin-gate] browser GET admin home (guest)');
+  const guestPage = await context.newPage();
+  await guestPage.goto(`${BASE.admin}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await guestPage.waitForURL(authLoginPattern(), { timeout: 60000 });
+  if (!adminRedirectInUrl(guestPage.url())) {
+    throw new Error(`guest login redirect should target admin: ${guestPage.url()}`);
+  }
+  console.log('[admin-gate] guest admin home → auth login OK');
+
+  await context.addCookies([authCookie(token, BASE.admin)]);
   const page = await context.newPage();
 
   console.log('[admin-gate] browser GET admin home (regular user)');
   await page.goto(`${BASE.admin}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.getByRole('heading', { name: 'OraSage 管理后台' }).waitFor({ state: 'visible', timeout: 20000 });
-  await page.getByText('使用 orasage 管理员账号登录').waitFor({ state: 'visible', timeout: 20000 });
-  const overview = page.getByRole('heading', { name: '后台首页' });
-  if (await overview.count()) {
-    throw new Error('regular user must not see 运营概览 dashboard');
+  await page.waitForURL(authLoginPattern(), { timeout: 60000 });
+  if (!adminRedirectInUrl(page.url())) {
+    throw new Error(`regular user login redirect should target admin: ${page.url()}`);
   }
-  console.log('[admin-gate] admin home shows gate card for regular user');
+  if (await page.getByRole('heading', { name: '后台首页' }).count()) {
+    throw new Error('regular user must not see 后台首页 dashboard');
+  }
+  console.log('[admin-gate] regular user admin home → auth login OK');
 
   console.log('[admin-gate] browser GET /products → auth login redirect');
   await page.goto(`${BASE.admin}/products`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForURL(/auth\.orasage\.com\/login/, { timeout: 60000 });
-  const url = page.url();
-  if (!url.includes('redirect=') || !decodeURIComponent(url).includes('admin.orasage.com')) {
-    throw new Error(`login redirect should target admin: ${url}`);
+  await page.waitForURL(authLoginPattern(), { timeout: 60000 });
+  if (!adminRedirectInUrl(page.url())) {
+    throw new Error(`login redirect should target admin: ${page.url()}`);
   }
   console.log('[admin-gate] /products redirects to auth login with admin redirect');
 
@@ -117,7 +148,7 @@ async function assertAdminHappyPath() {
   await page.getByLabel(/邮箱|Email/i).fill(ADMIN_EMAIL);
   await page.getByLabel(/密码|Password/i).fill(ADMIN_PASSWORD);
   await page.getByRole('button', { name: /登录|Sign in/i }).click();
-  await page.waitForURL(/admin\.orasage\.com/, { timeout: 60000 });
+  await page.waitForURL(new RegExp(adminHostPattern()), { timeout: 60000 });
 
   await page.getByRole('heading', { name: '运营概览' }).waitFor({ state: 'visible', timeout: 20000 });
   await page.getByRole('link', { name: '商品' }).waitFor({ state: 'visible', timeout: 10000 });
@@ -144,7 +175,7 @@ async function main() {
 
   const user = await registerUser();
   await assertApiRegularUserForbidden(user.token);
-  await assertBrowserRegularUserGate(user.token);
+  await assertBrowserNonStaffRedirect(user.token);
   await assertAdminHappyPath();
 
   console.log('[admin-gate] TC-ADMIN-001/002 passed');
