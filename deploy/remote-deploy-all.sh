@@ -43,9 +43,9 @@ SCP="scp $SSH_OPTS -P $SSH_PORT"
 log "上传 bootstrap 脚本..."
 $SCP "$SCRIPT_DIR/bootstrap-all-on-vps.sh" "${SSH_USER}@${SSH_HOST}:/tmp/bootstrap-all-on-vps.sh"
 
-log "在 VPS 上执行全量部署 (ref=$ORASAGE_REF, fortune=$FORTUNE_MODE)..."
+log "在 VPS 上执行全量部署 (ref=$ORASAGE_REF, fortune=$FORTUNE_MODE, nginx=$NGINX_SITE)..."
 $SSH "sudo ORASAGE_REF='$ORASAGE_REF' FORTUNE_MODE='$FORTUNE_MODE' SKIP_CMS='$SKIP_CMS' \
-  DEPLOY_DIR='/opt/orasage' bash /tmp/bootstrap-all-on-vps.sh"
+  NGINX_SITE='$NGINX_SITE' DEPLOY_DIR='/opt/orasage' bash /tmp/bootstrap-all-on-vps.sh"
 
 log "远程全量部署完成"
 log "验证: curl -sI https://orasage.com https://bazi.orasage.com https://admin.orasage.com"
