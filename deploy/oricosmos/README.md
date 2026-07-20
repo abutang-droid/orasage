@@ -120,16 +120,20 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ## 7. 部署应用
 
+**必须**带上 `NGINX_SITE=oricosmos`，否则脚本会误装生产 `orasage.conf`（证书路径是 `orasage.com`，新机上会失败）。
+
 ```bash
 cd /opt/orasage
-ORASAGE_REF=cursor/wold-a564 FORTUNE_MODE=native \
+git pull origin cursor/wold-a564
+
+NGINX_SITE=oricosmos ORASAGE_REF=cursor/wold-a564 FORTUNE_MODE=native \
   bash deploy/bootstrap-all-on-vps.sh
 ```
 
 首次未齐 `.env` 时可：
 
 ```bash
-ORASAGE_REF=cursor/wold-a564 FORTUNE_MODE=proxy SKIP_CMS=1 \
+NGINX_SITE=oricosmos ORASAGE_REF=cursor/wold-a564 FORTUNE_MODE=proxy SKIP_CMS=1 \
   bash deploy/bootstrap-all-on-vps.sh
 ```
 
@@ -137,7 +141,7 @@ ORASAGE_REF=cursor/wold-a564 FORTUNE_MODE=proxy SKIP_CMS=1 \
 
 ```bash
 SSH_HOST=<新VM公网IP> SSH_USER=ubuntu \
-ORASAGE_REF=cursor/wold-a564 \
+NGINX_SITE=oricosmos ORASAGE_REF=cursor/wold-a564 \
 bash deploy/remote-deploy-all.sh
 ```
 

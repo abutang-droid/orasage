@@ -121,11 +121,17 @@ deploy_proxy() {
 }
 
 ensure_nginx() {
-  log "确保 Nginx 配置..."
+  log "确保 Nginx 配置 (NGINX_SITE=${NGINX_SITE:-orasage})..."
   # 移除迁移期 proxy 配置，避免仍反代到旧上游
   if [ -f /etc/nginx/conf.d/ziwei-proxy.conf ]; then
     mv /etc/nginx/conf.d/ziwei-proxy.conf /etc/nginx/conf.d/ziwei-proxy.conf.disabled
     log "已禁用 /etc/nginx/conf.d/ziwei-proxy.conf（旧上游反代）"
+  fi
+  if [ -f "$DEPLOY_DIR/deploy/lib/nginx-site.sh" ]; then
+    # shellcheck source=../lib/nginx-site.sh
+    source "$DEPLOY_DIR/deploy/lib/nginx-site.sh"
+    install_nginx_site
+    return
   fi
   NGINX_CONF="/etc/nginx/sites-available/orasage"
   if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then

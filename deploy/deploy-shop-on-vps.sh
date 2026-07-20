@@ -178,7 +178,12 @@ sudo systemctl enable orasage-shop
 sudo systemctl restart orasage-shop
 
 # ── 9. 确保 Nginx 配置 ───────────────────────────────────────
-if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
+NGINX_SITE="${NGINX_SITE:-orasage}"
+if [ -f "$DEPLOY_DIR/deploy/lib/nginx-site.sh" ]; then
+  log "部署 Nginx 配置 (NGINX_SITE=$NGINX_SITE)..."
+  sudo DEPLOY_DIR="$DEPLOY_DIR" NGINX_SITE="$NGINX_SITE" \
+    bash -c 'source "$DEPLOY_DIR/deploy/lib/nginx-site.sh" && install_nginx_site'
+elif [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
   log "部署 Nginx 配置..."
   sudo cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" /etc/nginx/sites-available/orasage
   sudo ln -sf /etc/nginx/sites-available/orasage /etc/nginx/sites-enabled/orasage
@@ -193,7 +198,9 @@ curl -sf http://127.0.0.1:3101/health | head -c 200 && echo ""
 curl -sf http://127.0.0.1:3102/api/health && echo ""
 curl -sf http://127.0.0.1:3103 -o /dev/null -w "admin  → HTTP %{http_code}\n" || true
 
-for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com; do
+APEX="orasage.com"
+[ "$NGINX_SITE" = "oricosmos" ] && APEX="oricosmos.com"
+for domain in "$APEX" "auth.$APEX" "shop.$APEX" "admin.$APEX"; do
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" || echo "000")
   if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
     log "✅ ${domain} → HTTP $code"

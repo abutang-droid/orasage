@@ -14,6 +14,8 @@
 #   SKIP_CMS                                — 1 跳过 cms
 #   GCP_IAP_PROXY_COMMAND                   — GCP IAP 隧道（GitHub Actions 用）
 
+#   NGINX_SITE                              — orasage | oricosmos（默认 orasage）
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,6 +25,7 @@ source "$SCRIPT_DIR/lib/ssh-setup.sh"
 ORASAGE_REF="${ORASAGE_REF:-main}"
 FORTUNE_MODE="${FORTUNE_MODE:-native}"
 SKIP_CMS="${SKIP_CMS:-0}"
+NGINX_SITE="${NGINX_SITE:-orasage}"
 
 log() { echo "[deploy-all] $*"; }
 

@@ -113,7 +113,13 @@ deploy_proxy() {
 }
 
 ensure_nginx() {
-  log "确保 Nginx 配置..."
+  log "确保 Nginx 配置 (NGINX_SITE=${NGINX_SITE:-orasage})..."
+  if [ -f "$DEPLOY_DIR/deploy/lib/nginx-site.sh" ]; then
+    # shellcheck source=../lib/nginx-site.sh
+    source "$DEPLOY_DIR/deploy/lib/nginx-site.sh"
+    install_nginx_site
+    return
+  fi
   NGINX_CONF="/etc/nginx/sites-available/orasage"
   if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
     cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" "$NGINX_CONF"
