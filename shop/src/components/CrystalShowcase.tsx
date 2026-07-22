@@ -18,6 +18,7 @@ import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 type PackVariant = 'standard' | 'gift';
 
@@ -124,7 +125,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
           <li>{t('guideStep3')}</li>
         </ol>
         <p className="crystal-guide-note">
-          <a href="https://orasage.com/zh-CN/profile/recommendations" className="crystal-inline-link">
+          <a href={`${ORASAGE_URLS.main}/zh-CN/profile/recommendations`} className="crystal-inline-link">
             {t('guideCta')}
           </a>
         </p>

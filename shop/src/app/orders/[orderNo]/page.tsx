@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@orasage/ui/button';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 import {
   SHIPMENT_STATUS_LABELS,
   formatShippingDisplay,
@@ -131,7 +132,7 @@ export default function OrderDetailPage() {
           <Link href="/">继续购物</Link>
         </Button>
         <Button asChild className="w-full">
-          <a href="https://auth.orasage.com/center">用户中心</a>
+          <a href={ORASAGE_URLS.authCenter}>用户中心</a>
         </Button>
       </div>
     </main>

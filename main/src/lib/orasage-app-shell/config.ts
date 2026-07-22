@@ -88,7 +88,9 @@ export type OrasageUrls = {
   ziwei: string;
   tarot: string;
   shop: string;
+  auth: string;
   authLogin: string;
+  authCenter: string;
   temple: string;
 };
 
@@ -99,7 +101,9 @@ export function orasageUrlsFor(apex: string = getSiteApex()): OrasageUrls {
     ziwei: `https://ziwei.${apex}`,
     tarot: `https://tarot.${apex}`,
     shop: `https://shop.${apex}`,
+    auth: `https://auth.${apex}`,
     authLogin: `https://auth.${apex}/login`,
+    authCenter: `https://auth.${apex}/center`,
     temple: `https://tarot.${apex}/temple`,
   };
 }

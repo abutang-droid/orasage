@@ -10,9 +10,10 @@ import { useCart } from '@/lib/cart';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
 import { ProductImage } from '@/components/ProductImage';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
-const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL ?? 'https://shop.orasage.com';
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL ?? 'https://auth.orasage.com';
+const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL ?? ORASAGE_URLS.shop;
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL ?? ORASAGE_URLS.auth;
 
 export default function CartPage() {
   const t = useTranslations('cart');

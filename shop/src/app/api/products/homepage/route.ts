@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { detectShopLocale, SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../../shared/shop-locale/index';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
@@ -42,7 +43,7 @@ export async function GET() {
       priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
       category: p.category,
       categoryLabel: categoryLabels[p.category],
-      shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,
+      shopUrl: `${ORASAGE_URLS.shop}?sku=${encodeURIComponent(p.sku)}`,
     }));
     const categorySet = new Set(products.map((p) => p.category));
     const categories = (['crystal', 'report', 'service'] as const)

@@ -1,7 +1,9 @@
+import { getSiteApex } from './orasage-app-shell/config';
+
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL ||
   process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
+  `https://admin.${getSiteApex()}/cms`;
 
 export type CmsMediaRef = {
   url?: string | null;
