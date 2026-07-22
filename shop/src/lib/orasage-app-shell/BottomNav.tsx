@@ -1,12 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Flame, Layers, ShoppingCart, Sparkles, User } from 'lucide-react';
 import {
-  ORASAGE_URLS,
   appHomeUrl,
+  getSiteApex,
   isOnProfile,
   isOnTemple,
-  profileUrl,
+  orasageUrlsFor,
+  resolveClientSiteApex,
   type NavContext,
 } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
@@ -39,11 +41,30 @@ export type FixedBottomNavProps = {
   pathname?: string;
 };
 
+function navUrls(locale: string, context: NavContext, apex: string) {
+  const urls = orasageUrlsFor(apex);
+  return {
+    tarot: appHomeUrl('tarot', apex),
+    bazi: appHomeUrl('bazi', apex),
+    // Same-app relative path when already on tarot (avoids wrong apex bake)
+    temple: context === 'tarot' ? '/temple' : urls.temple,
+    shop: urls.shop,
+    profile: `${urls.main}/${locale}/profile`,
+  };
+}
+
 /**
  * 固定底栏 5 键 — 全站移动壳（含宽屏，不再切换 PC 顶栏）
  * 塔罗 · 八字 · 祈福 · 商店 · 我的
  */
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
+  // SSR / first paint: env apex (hydration-safe). After mount: hostname apex.
+  const [hrefs, setHrefs] = useState(() => navUrls(locale, context, getSiteApex()));
+
+  useEffect(() => {
+    setHrefs(navUrls(locale, context, resolveClientSiteApex()));
+  }, [locale, context]);
+
   const onTarot = context === 'tarot' && !isOnTemple(pathname);
   const onBazi = context === 'bazi';
   const onTemple = isOnTemple(pathname);
@@ -53,47 +74,27 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
   return (
     <nav className="orasage-app-bottomnav" aria-label="App navigation">
       <div className="orasage-app-bottomnav-inner">
-        <a
-          href={appHomeUrl('tarot')}
-          className="orasage-app-nav-item"
-          data-active={onTarot ? 'true' : 'false'}
-        >
+        <a href={hrefs.tarot} className="orasage-app-nav-item" data-active={onTarot ? 'true' : 'false'}>
           <NavIcon name="tarot" active={onTarot} />
           <span>{pickLabel(SHELL_LABELS.tarot, locale)}</span>
         </a>
 
-        <a
-          href={appHomeUrl('bazi')}
-          className="orasage-app-nav-item"
-          data-active={onBazi ? 'true' : 'false'}
-        >
+        <a href={hrefs.bazi} className="orasage-app-nav-item" data-active={onBazi ? 'true' : 'false'}>
           <NavIcon name="bazi" active={onBazi} />
           <span>{pickLabel(SHELL_LABELS.bazi, locale)}</span>
         </a>
 
-        <a
-          href={ORASAGE_URLS.temple}
-          className="orasage-app-nav-item"
-          data-active={onTemple ? 'true' : 'false'}
-        >
+        <a href={hrefs.temple} className="orasage-app-nav-item" data-active={onTemple ? 'true' : 'false'}>
           <NavIcon name="blessing" active={onTemple} />
           <span>{pickLabel(SHELL_LABELS.blessing, locale)}</span>
         </a>
 
-        <a
-          href={ORASAGE_URLS.shop}
-          className="orasage-app-nav-item"
-          data-active={onShop ? 'true' : 'false'}
-        >
+        <a href={hrefs.shop} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>
           <NavIcon name="shop" active={onShop} />
           <span>{pickLabel(SHELL_LABELS.shop, locale)}</span>
         </a>
 
-        <a
-          href={profileUrl(locale)}
-          className="orasage-app-nav-item"
-          data-active={onProfile ? 'true' : 'false'}
-        >
+        <a href={hrefs.profile} className="orasage-app-nav-item" data-active={onProfile ? 'true' : 'false'}>
           <NavIcon name="mine" active={onProfile} />
           <span>{pickLabel(SHELL_LABELS.mine, locale)}</span>
         </a>

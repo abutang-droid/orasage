@@ -24,9 +24,6 @@ export function getShopBaseUrl(): string {
   return process.env.NEXT_PUBLIC_SHOP_URL || ORASAGE_URLS.shop;
 }
 
-/** @deprecated Prefer getShopBaseUrl() — kept for call sites expecting a string snapshot at import. */
-export const SHOP_BASE_URL = 'https://shop.orasage.com';
-
 /** 商城首页定位到指定 SKU（高亮并滚动到对应商品卡片） */
 export function shopUrlForSku(sku: string): string {
   const encoded = encodeURIComponent(sku);
@@ -53,7 +50,7 @@ export interface ShopProduct {
 
 export async function fetchCrystalProducts(): Promise<ShopProduct[]> {
   try {
-    const res = await fetch(`${SHOP_BASE_URL}/api/products`, { next: { revalidate: 60 } } as RequestInit);
+    const res = await fetch(`${getShopBaseUrl()}/api/products`, { next: { revalidate: 60 } } as RequestInit);
     if (!res.ok) return [];
     const data = await res.json() as { products: ShopProduct[] };
     return data.products.filter((p) => p.sku.startsWith('crystal-'));

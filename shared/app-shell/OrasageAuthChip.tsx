@@ -1,7 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ORASAGE_URLS, profileUrl } from './config';
+import {
+  getSiteApex,
+  orasageUrlsFor,
+  resolveClientSiteApex,
+} from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 
 type AuthMeUser = {
@@ -11,7 +15,15 @@ type AuthMeUser = {
 
 export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
   const [user, setUser] = useState<AuthMeUser | null | undefined>(undefined);
-  const authBase = ORASAGE_URLS.authLogin.replace(/\/login$/, '');
+  const [apex, setApex] = useState(() => getSiteApex());
+
+  useEffect(() => {
+    setApex(resolveClientSiteApex());
+  }, []);
+
+  const urls = orasageUrlsFor(apex);
+  const authBase = urls.authLogin.replace(/\/login$/, '');
+  const profileHref = `${urls.main}/${locale}/profile`;
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +57,7 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
   if (user) {
     return (
       <a
-        href={profileUrl(locale)}
+        href={profileHref}
         className="orasage-auth-chip orasage-auth-chip--signed-in"
         title={`${pickLabel(SHELL_LABELS.signedIn, locale)} · ${user.email}`}
       >
@@ -55,9 +67,9 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
   }
 
   const returnUrl = encodeURIComponent(
-    typeof window !== 'undefined' ? window.location.href : ORASAGE_URLS.main,
+    typeof window !== 'undefined' ? window.location.href : urls.main,
   );
-  const loginUrl = `${ORASAGE_URLS.authLogin}?redirect=${returnUrl}`;
+  const loginUrl = `${urls.authLogin}?redirect=${returnUrl}`;
 
   return (
     <a href={loginUrl} className="orasage-auth-chip">

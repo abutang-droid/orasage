@@ -20,6 +20,7 @@ export {
   isOnProfile,
   isOnTemple,
   getSiteApex,
+  resolveClientSiteApex,
   orasageUrlsFor,
   apexFromHostname,
   normalizeSiteApex,
