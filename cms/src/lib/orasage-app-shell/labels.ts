@@ -84,9 +84,9 @@ export const SHELL_LABELS: LabelSet = {
     'pt-BR': 'Zi Wei',
   },
   tarot: {
-    'zh-CN': '塔罗牌',
+    'zh-CN': '塔罗',
     en: 'Tarot',
-    'zh-TW': '塔羅牌',
+    'zh-TW': '塔羅',
     'pt-BR': 'Tarô',
   },
   energyShop: {

@@ -47,6 +47,19 @@ function redirectTemple(request: NextRequest): NextResponse | null {
   return null;
 }
 
+/** 门户首页默认进入塔罗（底栏第 1 键） */
+function redirectPortalHomeToTarot(request: NextRequest): NextResponse | null {
+  const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
+  if (normalized === '/') {
+    return NextResponse.redirect(externalUrls.tarot, 308);
+  }
+  const localeHome = new RegExp(`^/(${PORTAL_LOCALES})$`);
+  if (localeHome.test(normalized)) {
+    return NextResponse.redirect(externalUrls.tarot, 308);
+  }
+  return null;
+}
+
 /** /zh、/zh/... → /zh-CN（报告中的 404 修复） */
 function redirectZhAlias(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
@@ -69,6 +82,9 @@ export default function middleware(request: NextRequest) {
 
   const templeRedirect = redirectTemple(request);
   if (templeRedirect) return templeRedirect;
+
+  const homeRedirect = redirectPortalHomeToTarot(request);
+  if (homeRedirect) return homeRedirect;
 
   const zhRedirect = redirectZhAlias(request);
   if (zhRedirect) return zhRedirect;

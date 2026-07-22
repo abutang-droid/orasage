@@ -24,10 +24,10 @@ cp shared/app-shell/app-shell.css auth-service/public/assets/app-shell.css
 
 见 [`docs/AGENT-RULES.md`](../../docs/AGENT-RULES.md)：
 
-- **PC（≥1024px）**：`SiteTopNav` 顶栏
-- **移动（<1024px）**：`FixedBottomNav` 5 键底栏
+- **全端移动壳**：`FixedBottomNav` 5 键底栏（塔罗 · 八字 · 祈福 · 商店 · 我的）
+- PC 顶栏 `SiteTopNav` 已下线（文件保留，CSS 强制隐藏）
 
-CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断首页/子页。
+改 shell 后跑 `npm run app-shell:sync`。
 
 ## PC 页脚
 
