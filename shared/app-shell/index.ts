@@ -4,7 +4,7 @@ export { OrasageAuthChip } from './OrasageAuthChip';
 export { SiteTopNav } from './SiteTopNav';
 export { LocaleSwitcher } from './LocaleSwitcher';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
-export type { AppId, NavContext } from './config';
+export type { AppId, NavContext, OrasageUrls } from './config';
 export {
   appBrandLabel,
   appHomeUrl,
@@ -19,4 +19,9 @@ export {
   isOnPortalHome,
   isOnProfile,
   isOnTemple,
+  getSiteApex,
+  orasageUrlsFor,
+  apexFromHostname,
+  normalizeSiteApex,
 } from './config';
+

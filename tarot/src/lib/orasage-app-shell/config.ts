@@ -25,7 +25,33 @@ export function appBrandLabel(appId: AppId, locale: string): string {
   return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
 }
 
-/** Apex host for the current deployment (orasage.com | oricosmos.com). */
+const KNOWN_APEXES = ['oricosmos.com', 'orasage.com'] as const;
+
+export function normalizeSiteApex(raw: string): string {
+  return raw
+    .replace(/^https?:\/\//, '')
+    .replace(/^\./, '')
+    .split('/')[0]
+    .trim()
+    .toLowerCase();
+}
+
+/** Derive apex from a hostname (tarot.oricosmos.com → oricosmos.com). */
+export function apexFromHostname(hostname: string): string | null {
+  const host = hostname.toLowerCase().split(':')[0].trim();
+  if (!host || host === 'localhost' || host === '127.0.0.1') return null;
+  for (const apex of KNOWN_APEXES) {
+    if (host === apex || host.endsWith(`.${apex}`)) return apex;
+  }
+  const parts = host.split('.').filter(Boolean);
+  if (parts.length >= 2) return parts.slice(-2).join('.');
+  return null;
+}
+
+/**
+ * Apex host for the current deployment (orasage.com | oricosmos.com).
+ * Priority: env → browser host → default orasage.com
+ */
 export function getSiteApex(): string {
   const raw =
     (typeof process !== 'undefined' &&
@@ -33,13 +59,13 @@ export function getSiteApex(): string {
         process.env.SITE_APEX ||
         process.env.VITE_SITE_APEX)) ||
     '';
-  if (raw) {
-    return raw
-      .replace(/^https?:\/\//, '')
-      .replace(/^\./, '')
-      .split('/')[0]
-      .trim();
+  if (raw) return normalizeSiteApex(raw);
+
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const fromHost = apexFromHostname(window.location.hostname);
+    if (fromHost) return fromHost;
   }
+
   return 'orasage.com';
 }
 
@@ -65,8 +91,17 @@ export function orasageUrlsFor(apex: string = getSiteApex()): OrasageUrls {
   };
 }
 
-/** Cross-app public URLs — set SITE_APEX / NEXT_PUBLIC_SITE_APEX at build time. */
-export const ORASAGE_URLS: OrasageUrls = orasageUrlsFor();
+/**
+ * Cross-app public URLs — always resolved via getSiteApex() (env or runtime host).
+ * Use property access at call sites (not module-level snapshots).
+ */
+export const ORASAGE_URLS: OrasageUrls = new Proxy({} as OrasageUrls, {
+  get(_target, prop: string | symbol) {
+    if (typeof prop !== 'string') return undefined;
+    const urls = orasageUrlsFor(getSiteApex());
+    return urls[prop as keyof OrasageUrls];
+  },
+});
 
 export function mainPortalUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}`;

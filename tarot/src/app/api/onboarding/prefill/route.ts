@@ -9,8 +9,13 @@ import {
   normalizeNickname,
   type OnboardingPrefill,
 } from '@/lib/onboarding-v2';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
-const AUTH_URL = process.env.AUTH_URL || process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com';
+const AUTH_URL =
+  process.env.AUTH_URL ||
+  process.env.NEXT_PUBLIC_AUTH_URL ||
+  ORASAGE_URLS.authLogin.replace(/\/login$/, '');
+
 
 type AuthProfile = {
   name?: string;

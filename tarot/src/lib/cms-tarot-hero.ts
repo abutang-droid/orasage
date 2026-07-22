@@ -1,3 +1,4 @@
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 import {
   mapCmsHeroContent,
   type CmsHeroRaw,
@@ -10,7 +11,10 @@ import { fallbackTarotHomeHeroContent } from '@/lib/i18n/reading-copy';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
-const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL || 'https://admin.orasage.com/cms';
+function cmsPublicUrl() {
+  return process.env.CMS_PUBLIC_URL || process.env.NEXT_PUBLIC_CMS_URL || `https://admin.${ORASAGE_URLS.main.replace(/^https?:\/\//, '')}/cms`;
+}
+const CMS_PUBLIC_URL = cmsPublicUrl();
 
 function heroApiUrl(lang?: Lang): string {
   if (typeof window !== 'undefined') {

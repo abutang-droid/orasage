@@ -74,26 +74,55 @@ deploy_native() {
   }
   ensure_tarot_env_kv MERIT_SHARE_PATH_ENABLED true
 
-  if [ -z "${DATABASE_URL:-}" ]; then
-    log "错误: 缺少 DATABASE_URL（PostgreSQL），请在 $APP_DIR/.env 中配置"
-    exit 1
-  fi
-  npx prisma migrate deploy
-
   NGINX_SITE="${NGINX_SITE:-orasage}"
   if [ -f "$DEPLOY_DIR/deploy/lib/site-env.sh" ]; then
     # shellcheck disable=SC1091
     source "$DEPLOY_DIR/deploy/lib/site-env.sh"
     apply_site_env
   fi
+
+  # Persist public URLs into .env so rebuilds / runtime match the deployment apex
+  ensure_tarot_env_kv SITE_APEX "${SITE_APEX:-orasage.com}"
+  ensure_tarot_env_kv NEXT_PUBLIC_SITE_APEX "${SITE_APEX:-orasage.com}"
+  ensure_tarot_env_kv NEXT_PUBLIC_SITE_URL "${TAROT_URL:-https://tarot.${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv NEXT_PUBLIC_APP_URL "${TAROT_URL:-https://tarot.${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv NEXT_PUBLIC_MAIN_URL "${APP_URL:-https://${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv NEXT_PUBLIC_AUTH_URL "${AUTH_URL:-https://auth.${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv NEXT_PUBLIC_SHOP_URL "${SHOP_URL:-https://shop.${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv NEXT_PUBLIC_CMS_URL "${CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
+  ensure_tarot_env_kv AUTH_URL "${AUTH_URL:-https://auth.${SITE_APEX:-orasage.com}}"
+  ensure_tarot_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
+
+  set -a
+  if [ -f .env ]; then
+    load_dotenv .env
+  fi
+  set +a
+
+  if [ -z "${DATABASE_URL:-}" ]; then
+    log "错误: 缺少 DATABASE_URL（PostgreSQL），请在 $APP_DIR/.env 中配置"
+    exit 1
+  fi
+  npx prisma migrate deploy
+
   export NEXT_PUBLIC_SITE_APEX="${SITE_APEX:-orasage.com}"
   export NEXT_PUBLIC_SITE_URL="${TAROT_URL:-https://tarot.${SITE_APEX:-orasage.com}}"
+  export NEXT_PUBLIC_APP_URL="${TAROT_URL:-https://tarot.${SITE_APEX:-orasage.com}}"
+  export NEXT_PUBLIC_MAIN_URL="${APP_URL:-https://${SITE_APEX:-orasage.com}}"
   export NEXT_PUBLIC_AUTH_URL="${AUTH_URL:-https://auth.${SITE_APEX:-orasage.com}}"
+  export NEXT_PUBLIC_SHOP_URL="${SHOP_URL:-https://shop.${SITE_APEX:-orasage.com}}"
   export NEXT_PUBLIC_CMS_URL="${CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
 
   npm run build
 
-  cp "$DEPLOY_DIR/deploy/tarot/orasage-tarot.service" /etc/systemd/system/
+  # Install unit with correct npm path when /usr/local/bin/npm is missing
+  UNIT_SRC="$DEPLOY_DIR/deploy/tarot/orasage-tarot.service"
+  UNIT_DST=/etc/systemd/system/orasage-tarot.service
+  cp "$UNIT_SRC" "$UNIT_DST"
+  NPM_BIN="$(command -v npm || true)"
+  if [ -n "$NPM_BIN" ] && [ "$NPM_BIN" != "/usr/local/bin/npm" ]; then
+    sed -i "s|/usr/local/bin/npm|${NPM_BIN}|g" "$UNIT_DST"
+  fi
   systemctl daemon-reload
   systemctl enable orasage-tarot
   systemctl restart orasage-tarot
@@ -148,14 +177,18 @@ verify() {
       docker compose -f "$PROXY_DIR/docker-compose.yml" logs --tail 30 2>/dev/null || true
     fi
   fi
-  ext_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://tarot.orasage.com || echo "000")
-  log "  https://tarot.orasage.com → HTTP $ext_code"
+  ext_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://tarot.${SITE_APEX:-orasage.com}" || echo "000")
+  log "  https://tarot.${SITE_APEX:-orasage.com} → HTTP $ext_code"
 }
 
 # ── main ──────────────────────────────────────────────────────
 log "开始部署 tarot（模式: $MODE）..."
 require_cmd git
 require_cmd curl
+
+# Avoid dubious ownership when script is run via sudo
+git config --global --add safe.directory "$DEPLOY_DIR" 2>/dev/null || true
+
 sync_config_repo
 
 case "$MODE" in
@@ -166,4 +199,4 @@ esac
 
 ensure_nginx
 verify
-log "tarot 部署完成 → https://tarot.orasage.com"
+log "tarot 部署完成 → https://tarot.${SITE_APEX:-orasage.com}"

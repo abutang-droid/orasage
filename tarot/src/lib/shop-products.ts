@@ -1,3 +1,5 @@
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
+
 /** 五行 → 统一商城 SKU */
 export const ELEMENT_TO_SHOP_SKU: Record<string, string> = {
   木: 'crystal-wood',
@@ -18,17 +20,22 @@ export const TAROT_ELEMENT_TO_WUXING: Record<string, string> = {
   大阿卡纳: '金',
 };
 
+export function getShopBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_SHOP_URL || ORASAGE_URLS.shop;
+}
+
+/** @deprecated Prefer getShopBaseUrl() — kept for call sites expecting a string snapshot at import. */
 export const SHOP_BASE_URL = 'https://shop.orasage.com';
 
 /** 商城首页定位到指定 SKU（高亮并滚动到对应商品卡片） */
 export function shopUrlForSku(sku: string): string {
   const encoded = encodeURIComponent(sku);
-  return `${SHOP_BASE_URL}?sku=${encoded}#${encoded}`;
+  return `${getShopBaseUrl()}?sku=${encoded}#${encoded}`;
 }
 
 export function shopUrlForWuxing(wuxing: string): string {
   const sku = ELEMENT_TO_SHOP_SKU[wuxing];
-  return sku ? shopUrlForSku(sku) : SHOP_BASE_URL;
+  return sku ? shopUrlForSku(sku) : getShopBaseUrl();
 }
 
 export function shopUrlForTarotElement(element: string): string {

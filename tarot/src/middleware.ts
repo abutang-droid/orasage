@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
+import { apexFromHostname, normalizeSiteApex } from "@/lib/orasage-app-shell/config"
 
-const MAIN_PROFILE = "https://orasage.com/zh-CN/profile"
-const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
-const MAIN_MERIT = "https://orasage.com/zh-CN/profile/merit"
+function siteApex(request: NextRequest): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_APEX || process.env.SITE_APEX
+  if (fromEnv) return normalizeSiteApex(fromEnv)
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.hostname
+  return apexFromHostname(host) || "orasage.com"
+}
 
-const PORTAL_LOCALES = 'zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar';
+function mainUrls(request: NextRequest) {
+  const apex = siteApex(request)
+  const main = `https://${apex}`
+  return {
+    profile: `${main}/zh-CN/profile`,
+    settings: `${main}/zh-CN/profile/settings`,
+    merit: `${main}/zh-CN/profile/merit`,
+  }
+}
+
+const PORTAL_LOCALES = 'zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar'
 
 function redirectLocaleTemple(request: NextRequest): NextResponse | null {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
@@ -17,6 +31,7 @@ function redirectLocaleTemple(request: NextRequest): NextResponse | null {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
+  const urls = mainUrls(request)
 
   const localeTempleRedirect = redirectLocaleTemple(request)
   if (localeTempleRedirect) return localeTempleRedirect
@@ -26,15 +41,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/profile") {
-    return NextResponse.redirect(MAIN_PROFILE)
+    return NextResponse.redirect(urls.profile)
   }
 
   if (pathname === "/profile/merit") {
-    return NextResponse.redirect(MAIN_MERIT)
+    return NextResponse.redirect(urls.merit)
   }
 
   if (pathname === "/profile/settings" || pathname === "/settings") {
-    return NextResponse.redirect(MAIN_SETTINGS)
+    return NextResponse.redirect(urls.settings)
   }
 
   return NextResponse.next()

@@ -1,3 +1,4 @@
+import { siteUrls } from './site-urls.ts';
 /**
  * 订单提醒 — 新订单 / 支付成功推送到运营 Telegram 与邮箱。
  *
@@ -75,7 +76,7 @@ function buildText(event: OrderNotifyEvent, order: OrderLike): string {
     `时间：${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC`,
   );
   if (order.recommendationContext) lines.push(`推荐上下文：${order.recommendationContext.slice(0, 200)}`);
-  lines.push("", "后台：https://admin.orasage.com/shop/orders");
+  lines.push("", `后台：${siteUrls().admin}/shop/orders`);
   return lines.join("\n");
 }
 
