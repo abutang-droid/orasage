@@ -542,7 +542,155 @@
   z-index: 1;
 }
 
-/* ── Greeting ── */
+/* ── Stage Hero（首页第一屏） ── */
+.tarot-home-hero--stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  min-height: calc(100dvh - var(--shell-top-h, 52px) - var(--shell-bottom-h, 56px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.5rem);
+  margin: 0 -1.25rem 1.25rem;
+  padding: 1.5rem 1.25rem 1.75rem;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 18%, rgb(var(--tarot-accent-rgb) / 0.14), transparent 62%),
+    linear-gradient(180deg, rgb(var(--tarot-accent-alt-rgb) / 0.06) 0%, transparent 42%),
+    linear-gradient(165deg, #f7f4ef 0%, #fafaf8 48%, #f3f0ea 100%);
+}
+
+.tarot-home-hero-stage-media {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 14rem;
+  width: 100%;
+}
+
+.tarot-home-hero-stage-image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: min(42vh, 22rem);
+  object-fit: cover;
+  object-position: center;
+}
+
+.tarot-home-hero-stage-video {
+  width: 100%;
+  overflow: hidden;
+}
+
+.tarot-home-hero-stage-video video {
+  display: block;
+  width: 100%;
+  height: min(42vh, 22rem);
+  object-fit: cover;
+}
+
+.tarot-home-hero-stage-scene {
+  position: relative;
+  width: 13.5rem;
+  height: 12.5rem;
+}
+
+.tarot-home-hero-stage-scene-glow {
+  position: absolute;
+  inset: 8% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--tarot-accent-rgb) / 0.32) 0%, transparent 72%);
+  filter: blur(10px);
+}
+
+.tarot-home-hero-stage-card {
+  position: absolute;
+  bottom: 0;
+}
+
+.tarot-home-hero-stage-card--left {
+  left: 0;
+  z-index: 1;
+}
+
+.tarot-home-hero-stage-card--right {
+  right: 0;
+  z-index: 1;
+}
+
+.tarot-home-hero-stage-card--center {
+  left: 50%;
+  bottom: 0.35rem;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.tarot-home-hero-stage-copy {
+  text-align: left;
+  max-width: 22rem;
+}
+
+.tarot-home-hero-brand {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.tarot-home-hero-headline {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.125rem, 4.2vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.tarot-home-hero-support {
+  margin: 0 0 1.15rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.tarot-home-hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tarot-home-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--text-primary);
+  color: #fafaf8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.tarot-home-hero-cta:hover,
+.tarot-home-hero-cta:focus-visible {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarot-home-hero-stage-scene.animate-float {
+    animation: none;
+  }
+}
+
+/* ── Greeting（保留样式，首页已不作为第一屏） ── */
 .tarot-home-greeting {
   display: flex;
   align-items: center;
@@ -580,7 +728,7 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Hero (visual only) ── */
+/* ── Hero (legacy visual helper) ── */
 .tarot-home-hero--visual {
   padding: 0.25rem 0 1rem;
 }

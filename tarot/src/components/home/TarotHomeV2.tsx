@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TarotHomeDailyInsight } from '@/components/home/TarotHomeDailyInsight';
-import { TarotHomeGreeting } from '@/components/home/TarotHomeGreeting';
 import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 import { TarotProductVisual } from '@/components/home/TarotProductVisual';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
@@ -31,10 +30,11 @@ export function TarotHomeV2() {
         <div className="tarot-home-visual-glow tarot-home-visual-glow--b" />
       </div>
 
-      <TarotHomeGreeting />
+      {/* 第一屏：Hero */}
       <TarotHomeHero />
 
-      <section className="tarot-home-tiles animate-fade-in-up delay-150">
+      {/* 第二屏起：产品入口 */}
+      <section className="tarot-home-tiles animate-fade-in-up delay-150" aria-label="Readings">
         <TarotHomeDailyInsight />
 
         <TarotProductVisual
