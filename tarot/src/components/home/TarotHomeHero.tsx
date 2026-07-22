@@ -51,7 +51,7 @@ function HeroVideo({
   autoplay?: boolean;
 }) {
   return (
-    <div className="tarot-home-hero-stage-video" aria-hidden>
+    <div className="tarot-home-hero-stage-video">
       <video
         src={src}
         poster={poster ?? undefined}
@@ -65,7 +65,7 @@ function HeroVideo({
   );
 }
 
-/** 首页第一屏 Hero：品牌 + 主视觉 + 一句文案 + 主 CTA */
+/** 首页 Hero：标题/引导在前，主视觉按图片比例自适应 */
 export function TarotHomeHero() {
   const home = useHomeCopy();
   const [hero, setHero] = useState<TarotHomeHeroContent>(() => fallbackTarotHomeHero(home.lang));
@@ -74,7 +74,6 @@ export function TarotHomeHero() {
     let cancelled = false;
     void fetchTarotHomeHero(home.lang).then((content) => {
       if (cancelled) return;
-      // CMS 显式关闭时仍保留本地 fallback，保证首页第一屏始终是 Hero
       setHero(content.enabled ? content : fallbackTarotHomeHero(home.lang));
     });
     return () => {
@@ -86,9 +85,24 @@ export function TarotHomeHero() {
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
   const headline = hero.headline?.trim() || home.heroHeadline;
   const subtitle = hero.subtitle?.trim() || home.heroSubtitle;
+  const mediaMode = showVideo ? 'video' : showImage ? 'image' : 'cards';
 
   return (
-    <section className="tarot-home-hero tarot-home-hero--stage" aria-label="Hero">
+    <section
+      className={`tarot-home-hero tarot-home-hero--stage tarot-home-hero--stage-${mediaMode}`}
+      aria-label="Hero"
+    >
+      <div className="tarot-home-hero-stage-copy animate-fade-in-up">
+        <p className="tarot-home-hero-brand">Manto</p>
+        <h1 className="tarot-home-hero-headline">{headline}</h1>
+        <p className="tarot-home-hero-support">{subtitle}</p>
+        <div className="tarot-home-hero-cta-group">
+          <Link href="/daily-fortune" className="tarot-home-hero-cta">
+            {home.dailyCta}
+          </Link>
+        </div>
+      </div>
+
       <div className="tarot-home-hero-stage-media">
         {showVideo ? (
           <HeroVideo
@@ -105,17 +119,6 @@ export function TarotHomeHero() {
         ) : (
           <HeroCards />
         )}
-      </div>
-
-      <div className="tarot-home-hero-stage-copy animate-fade-in-up">
-        <p className="tarot-home-hero-brand">Manto</p>
-        <h1 className="tarot-home-hero-headline">{headline}</h1>
-        <p className="tarot-home-hero-support">{subtitle}</p>
-        <div className="tarot-home-hero-cta-group">
-          <Link href="/daily-fortune" className="tarot-home-hero-cta">
-            {home.dailyCta}
-          </Link>
-        </div>
       </div>
     </section>
   );

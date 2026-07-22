@@ -542,57 +542,75 @@
   z-index: 1;
 }
 
-/* ── Stage Hero（首页第一屏） ── */
+/* ── Stage Hero（标题/引导在前，主视觉按图片自适应） ── */
 .tarot-home-hero--stage {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 1.25rem;
-  min-height: calc(100dvh - var(--shell-top-h, 52px) - var(--shell-bottom-h, 56px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.5rem);
+  gap: 1rem;
   margin: 0 -1.25rem 1.25rem;
-  padding: 1.5rem 1.25rem 1.75rem;
+  padding: 1.25rem 1.25rem 1.5rem;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 90% 70% at 50% 18%, rgb(var(--tarot-accent-rgb) / 0.14), transparent 62%),
-    linear-gradient(180deg, rgb(var(--tarot-accent-alt-rgb) / 0.06) 0%, transparent 42%),
+    radial-gradient(ellipse 90% 70% at 50% 12%, rgb(var(--tarot-accent-rgb) / 0.12), transparent 62%),
+    linear-gradient(180deg, rgb(var(--tarot-accent-alt-rgb) / 0.05) 0%, transparent 40%),
     linear-gradient(165deg, #f7f4ef 0%, #fafaf8 48%, #f3f0ea 100%);
 }
 
+.tarot-home-hero-stage-copy {
+  position: relative;
+  z-index: 2;
+  text-align: left;
+  max-width: 22rem;
+  order: 0;
+}
+
 .tarot-home-hero-stage-media {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 14rem;
+  position: relative;
+  z-index: 1;
+  order: 1;
+  display: block;
   width: 100%;
+  line-height: 0;
 }
 
 .tarot-home-hero-stage-image {
   display: block;
   width: 100%;
-  max-width: none;
-  height: min(42vh, 22rem);
-  object-fit: cover;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
   object-position: center;
+  vertical-align: middle;
 }
 
 .tarot-home-hero-stage-video {
   width: 100%;
   overflow: hidden;
+  line-height: 0;
 }
 
 .tarot-home-hero-stage-video video {
   display: block;
   width: 100%;
-  height: min(42vh, 22rem);
-  object-fit: cover;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.tarot-home-hero--stage-cards .tarot-home-hero-stage-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  padding: 0.5rem 0 0.25rem;
 }
 
 .tarot-home-hero-stage-scene {
   position: relative;
-  width: 13.5rem;
-  height: 12.5rem;
+  width: min(13.5rem, 72vw);
+  height: min(12.5rem, 66vw);
 }
 
 .tarot-home-hero-stage-scene-glow {
@@ -623,11 +641,6 @@
   bottom: 0.35rem;
   transform: translateX(-50%);
   z-index: 2;
-}
-
-.tarot-home-hero-stage-copy {
-  text-align: left;
-  max-width: 22rem;
 }
 
 .tarot-home-hero-brand {
