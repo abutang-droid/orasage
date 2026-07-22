@@ -1,6 +1,6 @@
 import type { products } from "../db/schema.ts";
+import { siteUrls } from "./site-urls.ts";
 import {
-import { siteUrls } from './site-urls.ts';
   currencyForLocale,
   detectShopLocale,
   formatShopPrice,
