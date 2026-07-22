@@ -103,7 +103,31 @@ deploy_native() {
     log "错误: 缺少 DATABASE_URL（PostgreSQL），请在 $APP_DIR/.env 中配置"
     exit 1
   fi
-  npx prisma migrate deploy
+
+  # All tarot migrations are written to be re-runnable. If a previous deploy left a
+  # failed row in _prisma_migrations, roll it back and retry once.
+  run_prisma_migrate_deploy() {
+    if npx prisma migrate deploy; then
+      return 0
+    fi
+    log "migrate deploy 失败，尝试自动恢复失败迁移后重试…"
+    local failed
+    failed="$(psql "$DATABASE_URL" -tAc \
+      "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NULL AND rolled_back_at IS NULL ORDER BY started_at" \
+      2>/dev/null || true)"
+    if [ -z "$failed" ]; then
+      log "未找到可恢复的失败迁移记录"
+      return 1
+    fi
+    local name
+    while IFS= read -r name; do
+      [ -z "$name" ] && continue
+      log "resolve --rolled-back $name"
+      npx prisma migrate resolve --rolled-back "$name" || true
+    done <<< "$failed"
+    npx prisma migrate deploy
+  }
+  run_prisma_migrate_deploy
 
   export NEXT_PUBLIC_SITE_APEX="${SITE_APEX:-orasage.com}"
   export NEXT_PUBLIC_SITE_URL="${TAROT_URL:-https://tarot.${SITE_APEX:-orasage.com}}"
