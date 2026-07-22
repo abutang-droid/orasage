@@ -125,20 +125,6 @@ export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
   ];
 }
 
-/** 底栏第 2 键探索轮换项（八字 / 塔罗 / 紫微 / 道藏 / 名人） */
-export const BOTTOM_NAV_ROTATION = ['bazi', 'tarot', 'ziwei', 'daozang', 'famous'] as const;
-export type BottomNavRotationId = (typeof BOTTOM_NAV_ROTATION)[number];
-
-/** 固定底栏锚点页 — 与第 1/3/4/5 键功能重叠时需轮换第 2 键 */
-export type NavAnchor = 'portal-home' | 'temple' | 'shop' | 'profile';
-
-export const ANCHOR_ROTATION_SLOT: Record<NavAnchor, BottomNavRotationId> = {
-  'portal-home': 'bazi',
-  temple: 'ziwei',
-  shop: 'tarot',
-  profile: 'famous',
-};
-
 export function normalizePathname(pathname: string): string {
   return pathname.replace(/\/$/, '') || '/';
 }
@@ -155,66 +141,4 @@ export function isOnProfile(pathname: string): boolean {
 export function isOnTemple(pathname: string): boolean {
   const p = normalizePathname(pathname);
   return p === '/temple' || p.startsWith('/temple/');
-}
-
-export function detectNavAnchor(context: NavContext, pathname: string): NavAnchor | null {
-  if (context === 'portal') {
-    if (isOnPortalHome(pathname)) return 'portal-home';
-    if (isOnProfile(pathname)) return 'profile';
-    return null;
-  }
-  if (context === 'shop' && isCurrentAppHome('shop', pathname)) return 'shop';
-  if (isOnTemple(pathname)) return 'temple';
-  return null;
-}
-
-export function rotationExploreLink(
-  id: BottomNavRotationId,
-  locale: string,
-): { href: string; label: string } {
-  switch (id) {
-    case 'bazi':
-      return { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) };
-    case 'tarot':
-      return { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) };
-    case 'ziwei':
-      return { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) };
-    case 'daozang':
-      return { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) };
-    case 'famous':
-      return { href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) };
-  }
-}
-
-export type SecondNavSlot = {
-  href: string;
-  label: string;
-  active: boolean;
-  /** orasage = 门户品牌（玄璧图形，VI §6.3）；explore = 轮换探索项；app = 当前子应用品牌 */
-  kind: 'orasage' | 'explore' | 'app';
-};
-
-/** 底栏第 2 键：锚点页用探索轮换，否则为当前子应用品牌 */
-export function resolveSecondNavSlot(
-  context: NavContext,
-  pathname: string,
-  locale: string,
-): SecondNavSlot {
-  const anchor = detectNavAnchor(context, pathname);
-  if (anchor) {
-    const link = rotationExploreLink(ANCHOR_ROTATION_SLOT[anchor], locale);
-    return { href: link.href, label: link.label, active: false, kind: 'explore' };
-  }
-
-  if (context === 'portal') {
-    return { href: mainPortalUrl(locale), label: 'OraSage', active: false, kind: 'orasage' };
-  }
-
-  const appId = context;
-  return {
-    href: appHomeUrl(appId),
-    label: appBrandLabel(appId, locale),
-    active: isCurrentAppHome(appId, pathname),
-    kind: 'app',
-  };
 }

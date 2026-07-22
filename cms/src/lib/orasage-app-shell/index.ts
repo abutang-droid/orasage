@@ -16,5 +16,7 @@ export {
   isAppSubpage,
   shouldShowAppShellPageBack,
   isMainPortalHome,
-  resolveSecondNavSlot,
+  isOnPortalHome,
+  isOnProfile,
+  isOnTemple,
 } from './config';

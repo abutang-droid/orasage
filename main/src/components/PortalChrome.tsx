@@ -3,7 +3,7 @@ import { FixedBottomNav } from '@/lib/orasage-app-shell/BottomNav';
 import { ORASAGE_PATHNAME_HEADER } from '@/lib/portal-pathname';
 import { headers } from 'next/headers';
 
-/** 门户页面包裹：全站移动端 5 键底栏（PC 由 CSS 隐藏，顶栏导航代替） */
+/** 门户页面包裹：全站固定 5 键底栏（移动壳，宽屏同布局） */
 export async function PortalChrome({ children, locale }: { children: ReactNode; locale: string }) {
   const headersList = await headers();
   const pathname = headersList.get(ORASAGE_PATHNAME_HEADER) ?? '/';

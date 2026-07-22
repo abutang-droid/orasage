@@ -1,6 +1,5 @@
 import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
 import { bottomNavHtml } from './bottom-nav-html.ts';
-import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
 const LOCALES = EXTENDED_LOCALES;
@@ -37,7 +36,7 @@ function authStrings(locale: string): FooterStrings {
   return FOOTER_STRINGS[key] ?? FOOTER_STRINGS.en;
 }
 
-/** 移动顶栏 — 左品牌 + 右登录芯片（与子应用一致） */
+/** 顶栏 — 左品牌 + 右登录芯片（与子应用一致；宽屏同移动壳） */
 export function mobileNavHtml(locale: string): string {
   const main = mainPortalUrl(locale);
   const loginLabelText = authLoginLabel(locale);
@@ -46,12 +45,12 @@ export function mobileNavHtml(locale: string): string {
 
   return `
 <header class="orasage-site-mobile-bar orasage-auth-mobile-bar">
-  <a href="${main}" class="orasage-site-mobile-bar-brand">OraSage</a>
+  <a href="https://tarot.orasage.com" class="orasage-site-mobile-bar-brand">OraSage</a>
   <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${loginLabelText}</a>
 </header>`;
 }
 
-/** PC 页脚 — 与 main Footer / DS §7 一致 */
+/** 页脚 HTML（移动壳下由 CSS 隐藏） */
 export function footerHtml(locale: string): string {
   const main = mainPortalUrl(locale);
   const { copyright, privacy, terms } = authStrings(locale);
@@ -83,7 +82,6 @@ export function authPageLayout(title: string, body: string, locale: string): str
   <link rel="stylesheet" href="/assets/app-shell.css">
 </head>
 <body class="orasage-auth-body">
-  ${topNavHtml(locale)}
   ${mobileNavHtml(locale)}
   <div class="orasage-auth-main">
     ${body}
