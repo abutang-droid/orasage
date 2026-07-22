@@ -20,7 +20,9 @@ export const ENV = {
   cookieDomain:
     process.env.COOKIE_DOMAIN ||
     process.env.JWT_COOKIE_DOMAIN ||
-    ".orasage.com",
+    (process.env.SITE_APEX || process.env.NEXT_PUBLIC_SITE_APEX
+      ? `.${(process.env.SITE_APEX || process.env.NEXT_PUBLIC_SITE_APEX || "").replace(/^\./, "")}`
+      : ".orasage.com"),
   isProduction: process.env.NODE_ENV === "production",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",

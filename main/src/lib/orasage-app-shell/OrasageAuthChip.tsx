@@ -9,14 +9,13 @@ type AuthMeUser = {
   email: string;
 };
 
-const AUTH_BASE = ORASAGE_URLS.authLogin.replace(/\/login$/, '');
-
 export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
   const [user, setUser] = useState<AuthMeUser | null | undefined>(undefined);
+  const authBase = ORASAGE_URLS.authLogin.replace(/\/login$/, '');
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${AUTH_BASE}/auth/me`, { credentials: 'include' })
+    fetch(`${authBase}/auth/me`, { credentials: 'include' })
       .then(async (res) => {
         if (res.status === 401) return null;
         if (!res.ok) throw new Error(`auth/me ${res.status}`);
@@ -32,7 +31,7 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authBase]);
 
   if (user === undefined) {
     return (

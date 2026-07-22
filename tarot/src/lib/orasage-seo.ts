@@ -1,14 +1,31 @@
 import type { Metadata } from 'next';
+import { getSiteApex, orasageUrlsFor } from '@/lib/orasage-app-shell/config';
 
 export const ORASAGE_SITE_NAME = 'OraSage';
 
+/** Resolved at call time from SITE_APEX / runtime host. */
+export function getOrasageUrls() {
+  return orasageUrlsFor(getSiteApex());
+}
+
+/** @deprecated Prefer getOrasageUrls() — kept for existing imports (Proxy-like snapshot via getter object). */
 export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
-} as const;
+  get main() {
+    return getOrasageUrls().main;
+  },
+  get bazi() {
+    return getOrasageUrls().bazi;
+  },
+  get ziwei() {
+    return getOrasageUrls().ziwei;
+  },
+  get tarot() {
+    return getOrasageUrls().tarot;
+  },
+  get shop() {
+    return getOrasageUrls().shop;
+  },
+};
 
 /** UI keeps product brands; SEO titles end with | OraSage */
 export function orasageTitle(pageTitle: string): string {

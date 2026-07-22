@@ -4,6 +4,7 @@ import { Alert, AlertDescription, Badge, Card, CardContent } from '@orasage/ui';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOrders, type UserOrder } from '@/lib/auth';
+import { externalUrls } from '@/lib/urls';
 import { formatOrderProductTitle } from '../../../../shared/shop-cart/cart-order';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 import { formatShippingDisplay } from '../../../../shared/shop-fulfillment/index';
@@ -86,7 +87,7 @@ export function OrdersList() {
               )}
               <p className="mt-3">
                 <a
-                  href={`https://shop.orasage.com/orders/${encodeURIComponent(o.orderNo)}`}
+                  href={`${externalUrls.shop}/orders/${encodeURIComponent(o.orderNo)}`}
                   className="text-xs text-primary underline underline-offset-2"
                 >
                   {t('trackShipment')}

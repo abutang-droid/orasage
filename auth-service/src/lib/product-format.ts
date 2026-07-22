@@ -1,5 +1,6 @@
 import type { products } from "../db/schema.ts";
 import {
+import { siteUrls } from './site-urls.ts';
   currencyForLocale,
   detectShopLocale,
   formatShopPrice,
@@ -188,7 +189,7 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     }),
     active: p.active,
     sortOrder: p.sortOrder,
-    shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
+    shopUrl: `${siteUrls().shop}/product/${encodeURIComponent(p.sku)}`,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };

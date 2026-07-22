@@ -1,19 +1,22 @@
-const AUTH_URL =
-  (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_AUTH_URL) ||
-  process.env.NEXT_PUBLIC_AUTH_URL ||
-  process.env.AUTH_URL ||
-  'https://auth.orasage.com';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
-const APP_URL =
-  (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL) ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  'https://tarot.orasage.com';
+function authUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_AUTH_URL ||
+    process.env.AUTH_URL ||
+    ORASAGE_URLS.authLogin.replace(/\/login$/, '')
+  );
+}
 
-/** 构建带回跳路径的统一登录 URL（auth.orasage.com） */
+function appUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.tarot;
+}
+
+/** 构建带回跳路径的统一登录 URL */
 export function buildLoginUrl(returnPath = '/'): string {
   const path = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
-  const target = `${APP_URL.replace(/\/$/, '')}${path}`;
-  return `${AUTH_URL.replace(/\/$/, '')}/login?redirect=${encodeURIComponent(target)}`;
+  const target = `${appUrl().replace(/\/$/, '')}${path}`;
+  return `${authUrl().replace(/\/$/, '')}/login?redirect=${encodeURIComponent(target)}`;
 }
 
 export function buildLoginUrlFromWindow(): string {

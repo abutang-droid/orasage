@@ -119,7 +119,7 @@ pagesRouter.get("/register", (req, res) => {
 pagesRouter.get("/center", async (req, res) => {
   const user = await getAuthUser(req);
   const locale = resolveAuthPageLocale(req);
-  const target = `https://orasage.com/${locale}/profile`;
+  const target = `${siteUrls().main}/${locale}/profile`;
   if (!user) {
     res.redirect(`/login?redirect=${encodeURIComponent(target)}`);
     return;
