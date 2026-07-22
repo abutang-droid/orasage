@@ -107,7 +107,7 @@ export function TarotHomeHero() {
         )}
       </div>
 
-      <div className="tarot-home-hero-stage-copy">
+      <div className="tarot-home-hero-stage-copy animate-fade-in-up">
         <p className="tarot-home-hero-brand">Manto</p>
         <h1 className="tarot-home-hero-headline">{headline}</h1>
         <p className="tarot-home-hero-support">{subtitle}</p>
