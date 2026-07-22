@@ -50,7 +50,11 @@ export function apexFromHostname(hostname: string): string | null {
 
 /**
  * Apex host for the current deployment (orasage.com | oricosmos.com).
- * Priority: env → browser host → default orasage.com
+ * Priority: env → browser host → default orasage.com.
+ * Safe for SSR / first paint (matches baked NEXT_PUBLIC_*).
+ *
+ * Bottom nav and other client chrome should call {@link resolveClientSiteApex}
+ * after mount so a wrong env bake cannot keep oricosmos pages on orasage.com.
  */
 export function getSiteApex(): string {
   const raw =
@@ -67,6 +71,15 @@ export function getSiteApex(): string {
   }
 
   return 'orasage.com';
+}
+
+/** Browser-only apex from the current hostname (ignores env bake). */
+export function resolveClientSiteApex(): string {
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const fromHost = apexFromHostname(window.location.hostname);
+    if (fromHost) return fromHost;
+  }
+  return getSiteApex();
 }
 
 export type OrasageUrls = {
@@ -156,8 +169,8 @@ export function isCurrentAppHome(appId: AppId, pathname: string): boolean {
   return pathname === home;
 }
 
-export function appHomeUrl(appId: AppId): string {
-  const base = ORASAGE_URLS[appId];
+export function appHomeUrl(appId: AppId, apex: string = getSiteApex()): string {
+  const base = orasageUrlsFor(apex)[appId];
   const path = APP_HOME_PATH[appId];
   return path === '/' ? base : `${base}${path}`;
 }
