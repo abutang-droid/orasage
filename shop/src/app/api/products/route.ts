@@ -3,6 +3,7 @@ import { fetchProducts, getProduct, type Product } from '@/lib/products';
 import { detectShopLocale } from '@/lib/currency';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../shared/shop-locale/index';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 function mapProduct(p: Product, imageUrl?: string | null) {
   return {
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     products: products.map((p) => ({
       ...mapProduct(p, imageMap.get(p.sku)),
-      shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
+      shopUrl: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(p.sku)}`,
     })),
   });
 }
