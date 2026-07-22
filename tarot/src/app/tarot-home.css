@@ -663,38 +663,10 @@
 }
 
 .tarot-home-hero-support {
-  margin: 0 0 1.15rem;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.55;
   color: var(--text-secondary);
-}
-
-.tarot-home-hero-cta-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.tarot-home-hero-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.7rem 1.25rem;
-  border-radius: 0.75rem;
-  background: var(--text-primary);
-  color: #fafaf8;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.tarot-home-hero-cta:hover,
-.tarot-home-hero-cta:focus-visible {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
