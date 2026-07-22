@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   fetchTarotHomeHero,
@@ -96,11 +95,6 @@ export function TarotHomeHero() {
         <p className="tarot-home-hero-brand">Manto</p>
         <h1 className="tarot-home-hero-headline">{headline}</h1>
         <p className="tarot-home-hero-support">{subtitle}</p>
-        <div className="tarot-home-hero-cta-group">
-          <Link href="/daily-fortune" className="tarot-home-hero-cta">
-            {home.dailyCta}
-          </Link>
-        </div>
       </div>
 
       <div className="tarot-home-hero-stage-media">
