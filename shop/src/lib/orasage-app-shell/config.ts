@@ -25,15 +25,48 @@ export function appBrandLabel(appId: AppId, locale: string): string {
   return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
 }
 
-export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
-  authLogin: 'https://auth.orasage.com/login',
-  temple: 'https://tarot.orasage.com/temple',
-} as const;
+/** Apex host for the current deployment (orasage.com | oricosmos.com). */
+export function getSiteApex(): string {
+  const raw =
+    (typeof process !== 'undefined' &&
+      (process.env.NEXT_PUBLIC_SITE_APEX ||
+        process.env.SITE_APEX ||
+        process.env.VITE_SITE_APEX)) ||
+    '';
+  if (raw) {
+    return raw
+      .replace(/^https?:\/\//, '')
+      .replace(/^\./, '')
+      .split('/')[0]
+      .trim();
+  }
+  return 'orasage.com';
+}
+
+export type OrasageUrls = {
+  main: string;
+  bazi: string;
+  ziwei: string;
+  tarot: string;
+  shop: string;
+  authLogin: string;
+  temple: string;
+};
+
+export function orasageUrlsFor(apex: string = getSiteApex()): OrasageUrls {
+  return {
+    main: `https://${apex}`,
+    bazi: `https://bazi.${apex}`,
+    ziwei: `https://ziwei.${apex}`,
+    tarot: `https://tarot.${apex}`,
+    shop: `https://shop.${apex}`,
+    authLogin: `https://auth.${apex}/login`,
+    temple: `https://tarot.${apex}/temple`,
+  };
+}
+
+/** Cross-app public URLs — set SITE_APEX / NEXT_PUBLIC_SITE_APEX at build time. */
+export const ORASAGE_URLS: OrasageUrls = orasageUrlsFor();
 
 export function mainPortalUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}`;

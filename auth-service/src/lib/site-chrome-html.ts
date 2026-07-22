@@ -2,6 +2,7 @@ import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index
 import { bottomNavHtml } from './bottom-nav-html.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
+import { siteUrls } from './site-urls.ts';
 
 const LOCALES = EXTENDED_LOCALES;
 
@@ -29,7 +30,7 @@ export function localeFromRedirect(url?: string): string {
 }
 
 function mainPortalUrl(locale: string): string {
-  return `https://orasage.com/${locale}`;
+  return `${siteUrls().main}/${locale}`;
 }
 
 function authStrings(locale: string): FooterStrings {
@@ -42,7 +43,7 @@ export function mobileNavHtml(locale: string): string {
   const main = mainPortalUrl(locale);
   const loginLabelText = authLoginLabel(locale);
   const profile = `${main}/profile`;
-  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
+  const loginHref = `${siteUrls().auth}/login?redirect=${encodeURIComponent(main)}`;
 
   return `
 <header class="orasage-site-mobile-bar orasage-auth-mobile-bar">

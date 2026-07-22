@@ -120,7 +120,9 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ## 7. 部署应用
 
-**必须**带上 `NGINX_SITE=oricosmos`，否则脚本会误装生产 `orasage.conf`（证书路径是 `orasage.com`，新机上会失败）。
+**必须**带上 `NGINX_SITE=oricosmos`，否则脚本会误装生产 `orasage.conf`，且前端导航会仍指向 `orasage.com`。
+
+`NGINX_SITE=oricosmos` 会在构建时注入 `SITE_APEX=oricosmos.com` / `NEXT_PUBLIC_SITE_APEX`，使顶栏、底栏、登录跳转全部指向 `*.oricosmos.com`。
 
 ```bash
 cd /opt/orasage

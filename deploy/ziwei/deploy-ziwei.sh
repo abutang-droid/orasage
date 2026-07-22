@@ -97,6 +97,17 @@ deploy_native() {
   [ -f .env ] && source .env
   set +a
 
+  NGINX_SITE="${NGINX_SITE:-orasage}"
+  if [ -f "$DEPLOY_DIR/deploy/lib/site-env.sh" ]; then
+    # shellcheck disable=SC1091
+    source "$DEPLOY_DIR/deploy/lib/site-env.sh"
+    apply_site_env
+  fi
+  export NEXT_PUBLIC_SITE_APEX="${SITE_APEX:-orasage.com}"
+  export NEXT_PUBLIC_SITE_URL="${ZIWEI_URL:-https://ziwei.${SITE_APEX:-orasage.com}}"
+  export NEXT_PUBLIC_AUTH_URL="${AUTH_URL:-https://auth.${SITE_APEX:-orasage.com}}"
+  export NEXT_PUBLIC_CMS_URL="${CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
+
   npm run build
 
   cp "$DEPLOY_DIR/deploy/ziwei/orasage-ziwei.service" /etc/systemd/system/

@@ -1,8 +1,10 @@
 import { pickLabel, SHELL_LABELS } from '../../../shared/app-shell/labels.ts';
+import { siteUrls } from './site-urls.ts';
 
 /** 静态页固定底栏 HTML（与 shared/app-shell 一致） */
 export function bottomNavHtml(locale = 'zh-CN'): string {
-  const main = `https://orasage.com/${locale}`;
+  const u = siteUrls();
+  const main = `${u.main}/${locale}`;
   const home = pickLabel(SHELL_LABELS.home, locale);
   const blessing = pickLabel(SHELL_LABELS.blessing, locale);
   const shop = pickLabel(SHELL_LABELS.shop, locale);
@@ -20,11 +22,11 @@ export function bottomNavHtml(locale = 'zh-CN'): string {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--shell-muted)" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
       <span class="orasage-app-nav-brand">OraSage</span>
     </a>
-    <a href="https://tarot.orasage.com/temple" class="orasage-app-nav-item" data-active="false">
+    <a href="${u.temple}" class="orasage-app-nav-item" data-active="false">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--shell-muted)" stroke-width="1.6"><path d="M12 3v3M8 6l2 2M16 6l-2 2"/><path d="M6 10h12v10H6z"/></svg>
       <span>${blessing}</span>
     </a>
-    <a href="https://shop.orasage.com" class="orasage-app-nav-item" data-active="false">
+    <a href="${u.shop}" class="orasage-app-nav-item" data-active="false">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--shell-muted)" stroke-width="1.6"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg>
       <span>${shop}</span>
     </a>

@@ -42,7 +42,11 @@ fi
 # ── 2. 环境变量 ──────────────────────────────────────────────
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
   log "警告: $DEPLOY_DIR/.env 不存在，从模板创建（请检查 JWT_SECRET）"
-  cp "$DEPLOY_DIR/deploy/.env.example" "$DEPLOY_DIR/.env"
+  if [ "${NGINX_SITE:-orasage}" = "oricosmos" ] && [ -f "$DEPLOY_DIR/deploy/.env.oricosmos.example" ]; then
+    cp "$DEPLOY_DIR/deploy/.env.oricosmos.example" "$DEPLOY_DIR/.env"
+  else
+    cp "$DEPLOY_DIR/deploy/.env.example" "$DEPLOY_DIR/.env"
+  fi
 fi
 
 # shellcheck disable=SC1091
@@ -53,6 +57,35 @@ if [ -z "${JWT_SECRET:-}" ] && [ -f "$DEPLOY_DIR/auth-service/.env" ]; then
   # shellcheck disable=SC1091
   source "$DEPLOY_DIR/auth-service/.env" 2>/dev/null || true
 fi
+
+ensure_root_env_kv() {
+  local key="$1" val="$2"
+  if grep -q "^${key}=" "$DEPLOY_DIR/.env" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${val}|" "$DEPLOY_DIR/.env"
+  else
+    echo "${key}=${val}" >> "$DEPLOY_DIR/.env"
+  fi
+}
+
+# NGINX_SITE=oricosmos → bake oricosmos.com into NEXT_PUBLIC_* / cookie domain
+NGINX_SITE="${NGINX_SITE:-orasage}"
+# shellcheck disable=SC1091
+source "$DEPLOY_DIR/deploy/lib/site-env.sh"
+apply_site_env
+
+# Persist apex URLs so systemd (auth/main/shop) and rebuilds stay on this site
+ensure_root_env_kv SITE_APEX "$SITE_APEX"
+ensure_root_env_kv NEXT_PUBLIC_SITE_APEX "$NEXT_PUBLIC_SITE_APEX"
+ensure_root_env_kv APP_URL "$APP_URL"
+ensure_root_env_kv AUTH_URL "$AUTH_URL"
+ensure_root_env_kv SHOP_URL "$SHOP_URL"
+ensure_root_env_kv ADMIN_URL "$ADMIN_URL"
+ensure_root_env_kv BAZI_URL "$BAZI_URL"
+ensure_root_env_kv ZIWEI_URL "$ZIWEI_URL"
+ensure_root_env_kv TAROT_URL "$TAROT_URL"
+ensure_root_env_kv CMS_PUBLIC_URL "$CMS_PUBLIC_URL"
+ensure_root_env_kv COOKIE_DOMAIN "$COOKIE_DOMAIN"
+ensure_root_env_kv JWT_COOKIE_DOMAIN "$JWT_COOKIE_DOMAIN"
 
 if [ -z "${JWT_SECRET:-}" ]; then
   log "错误: 缺少 JWT_SECRET。请在 $DEPLOY_DIR/.env 或 auth-service/.env 中配置（与 auth 服务共用同一值）"
@@ -69,20 +102,16 @@ done
 
 export JWT_SECRET
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL
+export ADMIN_URL
+export SITE_APEX
+export NEXT_PUBLIC_SITE_APEX
+export NEXT_PUBLIC_AUTH_URL
+export COOKIE_DOMAIN
+export JWT_COOKIE_DOMAIN
 
 # shop report-job 分发依赖各 App 内网 URL
-ensure_root_env_kv() {
-  local key="$1" val="$2"
-  if grep -q "^${key}=" "$DEPLOY_DIR/.env" 2>/dev/null; then
-    sed -i "s|^${key}=.*|${key}=${val}|" "$DEPLOY_DIR/.env"
-  else
-    echo "${key}=${val}" >> "$DEPLOY_DIR/.env"
-  fi
-}
 ensure_root_env_kv CMS_INTERNAL_URL "${CMS_INTERNAL_URL:-http://127.0.0.1:3120/cms}"
-ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.orasage.com/cms}"
 ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
 ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
@@ -130,8 +159,10 @@ log "安装 main 依赖..."
 cd "$DEPLOY_DIR/main"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 main..."
-export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+log "构建 main (SITE_APEX=$SITE_APEX)..."
+export NEXT_PUBLIC_APP_URL="$APP_URL"
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
 rm -rf .next
 "$NPM_BIN" run build
 
@@ -146,11 +177,13 @@ log "安装 admin 依赖..."
 cd "$DEPLOY_DIR/admin"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 admin..."
+log "构建 admin (SITE_APEX=$SITE_APEX)..."
 export JWT_SECRET="${JWT_SECRET}"
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL
+export ADMIN_URL
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
 "$NPM_BIN" run build
 
 log "配置 orasage-admin 服务..."
@@ -164,10 +197,13 @@ log "安装 shop 依赖..."
 cd "$DEPLOY_DIR/shop"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 shop..."
+log "构建 shop (SITE_APEX=$SITE_APEX)..."
 export JWT_SECRET="${JWT_SECRET:-}"
 export AUTH_INTERNAL_URL="${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
-export SHOP_URL="${SHOP_URL:-https://shop.orasage.com}"
+export SHOP_URL
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
+export NEXT_PUBLIC_SHOP_URL="$SHOP_URL"
 "$NPM_BIN" run build
 
 # ── 8. systemd 服务 ──────────────────────────────────────────

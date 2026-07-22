@@ -69,7 +69,16 @@ deploy_native() {
   fi
   npx drizzle-kit push --force
 
-  export VITE_AUTH_URL="${VITE_AUTH_URL:-https://auth.orasage.com}"
+  NGINX_SITE="${NGINX_SITE:-orasage}"
+  if [ -f "$DEPLOY_DIR/deploy/lib/site-env.sh" ]; then
+    # shellcheck disable=SC1091
+    source "$DEPLOY_DIR/deploy/lib/site-env.sh"
+    apply_site_env
+  fi
+  export VITE_AUTH_URL="${VITE_AUTH_URL:-https://auth.${SITE_APEX:-orasage.com}}"
+  export VITE_SHOP_URL="${VITE_SHOP_URL:-https://shop.${SITE_APEX:-orasage.com}}"
+  export VITE_SITE_APEX="${VITE_SITE_APEX:-${SITE_APEX:-orasage.com}}"
+  export VITE_CMS_PUBLIC_URL="${VITE_CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
   export VITE_LUNAR_DATA_DIR="${VITE_LUNAR_DATA_DIR:-/data}"
   # 空字符串会让 Vite 把 OAuth 门户当成已配置，前端应走 orasage auth 回退
   unset VITE_OAUTH_PORTAL_URL VITE_APP_ID 2>/dev/null || true

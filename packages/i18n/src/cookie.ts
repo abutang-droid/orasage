@@ -1,10 +1,11 @@
 import { LOCALE_COOKIE } from './locales';
 
-/** Cross-subdomain cookie domain for orasage.com (undefined on localhost). */
+/** Cross-subdomain cookie domain (undefined on localhost). */
 export function cookieDomain(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   const host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') return undefined;
+  if (host === 'oricosmos.com' || host.endsWith('.oricosmos.com')) return '.oricosmos.com';
   if (host === 'orasage.com' || host.endsWith('.orasage.com')) return '.orasage.com';
   return undefined;
 }

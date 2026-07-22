@@ -3,25 +3,18 @@ import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
 import { authPageLayout } from "../lib/site-chrome-html.ts";
 import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
+import { allowedRedirectHosts, siteApex, siteUrls } from "../lib/site-urls.ts";
 
 export const pagesRouter = Router();
 
-const ALLOWED_HOSTS = [
-  "orasage.com",
-  "auth.orasage.com",
-  "admin.orasage.com",
-  "shop.orasage.com",
-  "bazi.orasage.com",
-  "ziwei.orasage.com",
-  "tarot.orasage.com",
-];
-
 function safeRedirect(url: string | undefined, locale: string): string {
-  const fallback = `https://orasage.com/${locale}/profile`;
+  const apex = siteApex();
+  const fallback = `${siteUrls(apex).main}/${locale}/profile`;
   if (!url) return fallback;
   try {
     const u = new URL(url);
-    if (ALLOWED_HOSTS.includes(u.hostname) || u.hostname.endsWith(".orasage.com")) return url;
+    const allowed = allowedRedirectHosts(apex);
+    if (allowed.includes(u.hostname) || u.hostname.endsWith(`.${apex}`)) return url;
   } catch {
     if (url.startsWith("/")) return url;
   }
