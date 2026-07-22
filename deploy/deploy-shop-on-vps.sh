@@ -123,7 +123,8 @@ AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:54
 if command -v psql >/dev/null 2>&1; then
   sudo -u postgres psql orasage_auth \
     -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || true
-  for mig in 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql; do
+  # Base schema first (users/products); deploy used to skip these and break login.
+  for mig in 0000_illegal_master_chief.sql 0001_user_center.sql 0002_add_shop_source.sql 0003_products.sql 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql 0037_destiny_slice_unlock.sql; do
     if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
       log "  应用 $mig ..."
       psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
@@ -134,6 +135,25 @@ if command -v psql >/dev/null 2>&1; then
 else
   log "psql 未找到，跳过迁移（请手动执行 auth-service/drizzle/*.sql）"
 fi
+
+# Sync remaining schema from Drizzle (safe if SQL already applied)
+log "drizzle-kit push auth schema..."
+(
+  cd "$DEPLOY_DIR/auth-service"
+  set -a
+  # shellcheck disable=SC1091
+  [ -f "$DEPLOY_DIR/.env" ] && source "$DEPLOY_DIR/.env"
+  [ -f .env ] && source .env
+  set +a
+  if [ -n "${DATABASE_URL:-}" ]; then
+    "$NPM_BIN" install --no-audit --no-fund >/dev/null
+    # Answer "No" to any truncate prompts (keep existing seed rows)
+    printf 'n\nn\nn\nn\nn\nn\nn\nn\nn\nn\n' | DATABASE_URL="$DATABASE_URL" npx drizzle-kit push --force \
+      || log "警告: drizzle-kit push 失败，请检查 DATABASE_URL / schema"
+  else
+    log "警告: 无 DATABASE_URL，跳过 drizzle-kit push"
+  fi
+)
 
 # ── 4. 部署 auth-service ─────────────────────────────────────
 log "构建 auth-service..."
