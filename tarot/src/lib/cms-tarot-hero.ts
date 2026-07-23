@@ -24,21 +24,33 @@ function heroApiUrl(lang?: Lang): string {
   return `${CMS_INTERNAL_URL}/api/globals/tarot-home-hero?depth=1`;
 }
 
+function hasCmsCopy(hero: Pick<MappedHeroContent, 'eyebrow' | 'headline' | 'subtitle' | 'bodyText'>): boolean {
+  return Boolean(
+    hero.headline?.trim() ||
+      hero.eyebrow?.trim() ||
+      hero.subtitle?.trim() ||
+      hero.bodyText?.trim(),
+  );
+}
+
 /**
- * CMS Hero globals are Chinese-only today. For en/pt/es, keep media/displayMode
- * from CMS but swap eyebrow/headline/subtitle to the UI locale dictionary.
+ * CMS Hero globals are Chinese-only today.
+ * For en/pt/es: keep displayMode + media from CMS; only swap non-empty
+ * eyebrow/headline/subtitle to the UI locale dictionary. Empty CMS copy in
+ * image/video mode stays empty (media-only), matching bazi/ziwei.
  */
 export function applyTarotHeroLocaleCopy(
   hero: TarotHomeHeroContent,
   lang: Lang,
 ): TarotHomeHeroContent {
   if (!hero.enabled || lang === 'zh') return hero;
+  if (!hasCmsCopy(hero)) return hero;
   const localized = fallbackTarotHomeHeroContent(lang);
   return {
     ...hero,
-    eyebrow: localized.eyebrow,
-    headline: localized.headline,
-    subtitle: localized.subtitle,
+    eyebrow: hero.eyebrow?.trim() ? localized.eyebrow : hero.eyebrow,
+    headline: hero.headline?.trim() ? localized.headline : hero.headline,
+    subtitle: hero.subtitle?.trim() ? localized.subtitle : hero.subtitle,
   };
 }
 
@@ -85,6 +97,20 @@ export async function fetchTarotHomeHero(lang: Lang = 'zh'): Promise<TarotHomeHe
       return applyTarotHeroLocaleCopy(data as TarotHomeHeroContent, lang);
     }
     return resolveTarotHeroFromRaw(data as CmsHeroRaw, lang);
+  } catch {
+    return fallbackTarotHomeHero(lang);
+  }
+}
+
+/** Server Components: pull CMS global directly (no self-HTTP). */
+export async function loadTarotHomeHero(lang: Lang = 'zh'): Promise<TarotHomeHeroContent> {
+  try {
+    const res = await fetch(`${CMS_INTERNAL_URL}/api/globals/tarot-home-hero?depth=1`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return fallbackTarotHomeHero(lang);
+    const data = (await res.json()) as CmsHeroRaw;
+    return resolveTarotHeroFromRaw(data, lang);
   } catch {
     return fallbackTarotHomeHero(lang);
   }

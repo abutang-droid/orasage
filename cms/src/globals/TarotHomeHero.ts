@@ -12,7 +12,7 @@ export const TarotHomeHero: GlobalConfig = {
   admin: {
     group: false,
     description:
-      '配置 tarot 首页顶部 Hero 文案与媒体（运营文案按中文维护）。英文 / 葡语 / 西语前台会自动使用内置翻译；未启用或拉取失败时，前台使用内置默认文案。',
+      '配置 tarot 首页顶部 Hero 文案与媒体（运营文案按中文维护）。图片/视频模式可留空文案，前台仅展示媒体并按比例自适应。若填写中文文案，英文 / 葡语 / 西语前台会自动使用内置翻译；未启用或拉取失败时，前台使用内置默认。',
   },
   fields: homeHeroFields({
     eyebrow: '塔罗占卜',
