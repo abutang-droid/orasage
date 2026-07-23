@@ -26,11 +26,14 @@ export async function resolveHomepageProducts(locale = "zh-CN") {
   const featuredSkus = await listHomepageFeaturedSkus();
 
   let rows;
+  // 首页与目录一致：仅 active + visibility=public（计费 / 直链商品不得上首页）
+  const publicActive = and(eq(products.active, true), eq(products.visibility, "public"));
+
   if (featuredSkus.length > 0) {
     const catalog = await db
       .select()
       .from(products)
-      .where(and(inArray(products.sku, featuredSkus), eq(products.active, true)));
+      .where(and(inArray(products.sku, featuredSkus), publicActive));
     const bySku = new Map(catalog.map((p) => [p.sku, p]));
     rows = featuredSkus
       .map((sku) => bySku.get(sku))
@@ -39,7 +42,7 @@ export async function resolveHomepageProducts(locale = "zh-CN") {
     rows = await db
       .select()
       .from(products)
-      .where(eq(products.active, true))
+      .where(publicActive)
       .orderBy(asc(products.sortOrder), asc(products.id))
       .limit(MAX_HOMEPAGE_PRODUCTS);
   }

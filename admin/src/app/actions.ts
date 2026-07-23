@@ -8,6 +8,14 @@ import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
 import { getAdminToken } from '@/lib/auth';
 
+function omitUndefined<T extends Record<string, unknown>>(obj: T): T {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) out[key] = value;
+  }
+  return out as T;
+}
+
 export async function saveProductAction(formData: FormData) {
   const payload = parseProductFormPayload(formData);
   const isEdit = formData.get('isEdit') === '1';
@@ -17,7 +25,11 @@ export async function saveProductAction(formData: FormData) {
     : listPath;
   const returnPath = isEdit ? editPath : listPath;
 
-  if (!payload.sku || !payload.name || !payload.description || payload.priceCents < 0) {
+  const priceOk = payload.priceCents === undefined || payload.priceCents >= 0;
+  if (!payload.sku || !payload.name || !payload.description || !priceOk) {
+    redirect(`${returnPath}?save_err=${encodeURIComponent('请填写完整商品信息')}`);
+  }
+  if (!isEdit && (payload.priceCents === undefined || payload.priceCents < 0)) {
     redirect(`${returnPath}?save_err=${encodeURIComponent('请填写完整商品信息')}`);
   }
   if (payload.kind === 'combo' && (!payload.comboItems || payload.comboItems.length === 0)) {
@@ -37,13 +49,23 @@ export async function saveProductAction(formData: FormData) {
         },
       );
     }
-    const productPayload = { ...payload, attachments };
+    const productPayload = omitUndefined({ ...payload, attachments });
 
     if (isEdit) {
       const { sku, ...patch } = productPayload;
       await updateProduct(sku, patch);
     } else {
-      await createProduct(productPayload);
+      // 新建时补齐可见性/形态默认值（表单一般会带，此处仅兜底）
+      await createProduct({
+        ...productPayload,
+        kind: productPayload.kind ?? 'standard',
+        visibility: productPayload.visibility ?? 'public',
+        category: productPayload.category ?? 'crystal',
+        sortOrder: productPayload.sortOrder ?? 0,
+        active: productPayload.active ?? true,
+        requiresShipping: productPayload.requiresShipping ?? true,
+        priceCents: productPayload.priceCents ?? 0,
+      });
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : '保存失败';

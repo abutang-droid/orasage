@@ -39,6 +39,8 @@ export function ProductInlineEditForm({
     <form action={saveProductAction} className="inline-form" encType="multipart/form-data">
       <input type="hidden" name="isEdit" value="1" />
       <input type="hidden" name="sku" value={product.sku} />
+      {/* 行内编辑不改可见性/形态；显式不提交这两项，避免被解析默认成 public/standard */}
+      <input type="hidden" name="active_present" value="1" />
       <ProductImageField imageUrl={imageUrl} />
       <input name="name" defaultValue={product.name} required />
       <input name="element" defaultValue={product.element ?? ''} placeholder="五行" />
