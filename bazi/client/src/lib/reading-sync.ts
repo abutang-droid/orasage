@@ -40,7 +40,7 @@ export const PLAN_REPORT_SKU: Record<string, string> = {
 };
 
 export const PLAN_COUPLE_REPORT_SKU: Record<string, string> = {
-  basic: 'report-bazi-couple-basic',
+  basic: 'report-bazi-basic',
   advanced: 'report-bazi-couple-advanced',
   premium: 'report-bazi-couple-premium',
 };
