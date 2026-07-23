@@ -32,13 +32,10 @@ const CRYSTAL_MATERIALS: Record<string, string> = {
 
 const REPORT_EYEBROWS: Array<{ match: (sku: string) => boolean; label: string }> = [
   { match: (sku) => sku.includes('bazi'), label: '八字解读 · 数字报告' },
-  { match: (sku) => sku.includes('ziwei'), label: '紫微斗数 · 数字报告' },
   { match: (sku) => sku.includes('tarot') || sku === 'tarot-daily-draw', label: '塔罗解读 · 数字报告' },
 ];
 
 const SERVICE_EYEBROWS: Record<string, string> = {
-  'ziwei-chat-pack-10': '紫微问答 · 加量包',
-  'ziwei-chat-yearly': '紫微问答 · 年卡',
   'temple-donation': '祈福乐捐 · 自愿支持',
 };
 
