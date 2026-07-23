@@ -280,6 +280,64 @@
       "media": "Mídia",
       "review": "Análise",
       "article": "Artigo"
+    },
+    "manifest": {
+      "wear": "Usar para Manifestar",
+      "read": "Ler para Manifestar",
+      "act": "Agir para Manifestar"
+    },
+    "closure": {
+      "eyebrow": "OraSage · Oracle + Sage",
+      "crystal": {
+        "title": "Ver, depois carregar",
+        "sub": "See your map. Carry your clarity.",
+        "body": "Uma leitura do destino ajuda você a ver seu mapa energético; um cristal permite carregar essa clareza consigo.",
+        "bodyWithElement": "Uma leitura do destino ajuda você a ver seu mapa energético; um cristal permite carregar essa clareza consigo. Se o seu relatório sugere equilibrar o elemento {element}, este cristal é uma escolha clássica de apoio.",
+        "cta": "Começar uma leitura BaZi",
+        "note": "Receba sua recomendação pessoal de cristal"
+      },
+      "reportBazi": {
+        "title": "Leia o mapa, depois carregue o remédio",
+        "sub": "Read your chart. Carry your remedy.",
+        "body": "Um relatório BaZi traça o contorno do seu mapa energético. Para mais apoio, combine com um cristal dos cinco elementos ou faça upgrade para a edição presente, para que a compreensão se torne prática diária.",
+        "cta": "Ir para a leitura BaZi",
+        "note": "Desbloqueie o relatório completo no app"
+      },
+      "reportZiwei": {
+        "title": "Leia as estrelas, depois dê um passo",
+        "sub": "Read your stars. Walk with intention.",
+        "body": "Um relatório Zi Wei mapeia os doze palácios da vida. Depois de ler, aprofunde no chat OraSage ou combine com uma pulseira energética para manter o equilíbrio por perto.",
+        "cta": "Ir para Zi Wei Dou Shu",
+        "note": "Veja a leitura completa no app"
+      },
+      "reportTarot": {
+        "title": "Veja o momento, depois escolha",
+        "sub": "See the pattern. Choose your step.",
+        "body": "O tarô não é previsão — é uma porta para a consciência. As cartas iluminam o presente; a ação continua nas suas mãos. Fortuna diária e relatórios mais profundos funcionam bem juntos.",
+        "cta": "Ir para o Tarô",
+        "note": "Puxe e leia dentro do app"
+      },
+      "temple": {
+        "title": "Bênção é conexão",
+        "sub": "Blessing is connection.",
+        "body": "Cada bênção conecta você a uma boa vontade maior. Doações ajudam a manter a prática de bênçãos do OraSage, para que a experiência continue disponível.",
+        "cta": "Explorar OraSage",
+        "note": "Obrigado pelo seu apoio voluntário"
+      },
+      "ziweiChat": {
+        "title": "Conversar é crescer",
+        "sub": "Ask deeper. Understand more.",
+        "body": "As perguntas depois de uma leitura de mapa costumam ser onde a compreensão se aprofunda. O chat OraSage leva você de ver o mapa a realmente compreendê-lo.",
+        "cta": "Ir para Zi Wei Dou Shu",
+        "note": "Os créditos são creditados automaticamente na conta"
+      },
+      "default": {
+        "title": "Clarear a dúvida, dar o próximo passo",
+        "sub": "Clarity first. Action follows.",
+        "body": "Às vezes você não precisa de outro relatório, e sim de alguém que ouça com atenção e ajude a organizar. Uma consulta de 30 minutos foca na pergunta mais real do seu momento.",
+        "cta": "Conhecer os sistemas de destino OraSage",
+        "note": "Após o pagamento, um consultor confirmará o horário"
+      }
     }
   }
 }
