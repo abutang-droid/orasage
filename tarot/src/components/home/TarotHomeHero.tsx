@@ -82,8 +82,15 @@ export function TarotHomeHero() {
 
   const showImage = hero.displayMode === 'image' && hero.imageUrl;
   const showVideo = hero.displayMode === 'video' && hero.videoUrl;
-  const headline = hero.headline?.trim() || home.heroHeadline;
-  const subtitle = hero.subtitle?.trim() || home.heroSubtitle;
+  // CMS globals are Chinese-only; non-zh always prefer UI dictionary copy.
+  const headline =
+    home.lang === 'zh'
+      ? (hero.headline?.trim() || home.heroHeadline)
+      : home.heroHeadline;
+  const subtitle =
+    home.lang === 'zh'
+      ? (hero.subtitle?.trim() || home.heroSubtitle)
+      : home.heroSubtitle;
   const mediaMode = showVideo ? 'video' : showImage ? 'image' : 'cards';
 
   return (

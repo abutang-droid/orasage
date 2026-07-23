@@ -837,10 +837,10 @@ const home = {
     es: 'Saca una carta — mira cómo se desarrolla el día',
   },
   heroSubtitle: {
-    zh: '今日启示、单牌占卜与三牌占卜，从这里开始',
-    en: "Today's insight, single-card and three-card readings start here",
-    pt: 'Revelação de hoje, carta única e três cartas começam aqui',
-    es: 'Revelación de hoy, carta única y tres cartas empiezan aquí',
+    zh: '每日运势与三牌占卜，都在这里开始',
+    en: 'Daily fortune and three-card readings both start here',
+    pt: 'A fortuna diária e a leitura de três cartas começam aqui',
+    es: 'La fortuna diaria y la lectura de tres cartas empiezan aquí',
   },
 } as const satisfies Record<string, LangMap>;
 
