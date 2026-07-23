@@ -44,6 +44,14 @@ export async function parseAttachmentsFromFormAsync(
   return attachments.length > 0 ? attachments : null;
 }
 
+type ProductKind = 'standard' | 'digital' | 'service' | 'diy' | 'combo';
+type ProductVisibility = 'public' | 'unlisted' | 'app_only';
+
+/**
+ * 解析商品表单。
+ * 关键：visibility / kind 仅在表单显式提交时写入；缺失时不填默认值，
+ * 避免属性/媒体等局部表单 PATCH 把计费商品（app_only）改成 public 暴露到商城目录。
+ */
 export function parseProductFormPayload(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   const name = String(formData.get('name') ?? '').trim();
@@ -52,9 +60,18 @@ export function parseProductFormPayload(formData: FormData) {
   const material = String(formData.get('material') ?? '').trim();
   const color = String(formData.get('color') ?? '').trim();
   const packaging = String(formData.get('packaging') ?? '').trim();
-  const category = String(formData.get('category') ?? 'crystal').trim();
-  const kind = String(formData.get('kind') ?? 'standard') as 'standard' | 'digital' | 'service' | 'diy' | 'combo';
-  const visibility = String(formData.get('visibility') ?? 'public') as 'public' | 'unlisted' | 'app_only';
+  const hasCategory = formData.has('category');
+  const category = hasCategory
+    ? String(formData.get('category') ?? 'crystal').trim()
+    : undefined;
+  const hasKind = formData.has('kind');
+  const kind = hasKind
+    ? (String(formData.get('kind') ?? 'standard') as ProductKind)
+    : undefined;
+  const hasVisibility = formData.has('visibility');
+  const visibility = hasVisibility
+    ? (String(formData.get('visibility') ?? 'public') as ProductVisibility)
+    : undefined;
   const slug = String(formData.get('slug') ?? '').trim();
   const comboUseComponentSum = formData.get('comboUseComponentSum') === '1';
   const comboItemsRaw = String(formData.get('comboItemsJson') ?? '').trim();
@@ -73,9 +90,11 @@ export function parseProductFormPayload(formData: FormData) {
     }
   }
   // 单一列价：USDT；兼容旧表单 priceYuan/priceUsd
+  const hasPriceField =
+    formData.has('priceUsdt') || formData.has('priceUsd') || formData.has('priceYuan');
   const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? '').trim();
   const priceYuanRaw = String(formData.get('priceYuan') ?? '').trim();
-  let priceCentsUsd = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
+  let priceCentsUsd: number | null = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
   let priceCents = priceYuanRaw ? Math.round(Number(priceYuanRaw) * 100) : 0;
   if (priceCentsUsd != null && priceCentsUsd >= 0) {
     const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
@@ -95,14 +114,20 @@ export function parseProductFormPayload(formData: FormData) {
     const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
     salePriceCents = Math.round(salePriceCentsUsd * cnyRate);
   }
-  const sortOrder = Number(formData.get('sortOrder') ?? 0);
+  const hasSortOrder = formData.has('sortOrder');
+  const sortOrder = hasSortOrder ? Number(formData.get('sortOrder') ?? 0) : undefined;
+  // 完整商品表单带 active_present；未带则不改上架状态（避免局部表单误下架）
+  const hasActiveField = formData.has('active_present') || formData.has('active');
   const active = formData.get('active') === 'on';
-  const requiresShipping = kind === 'combo' ? false : formData.get('requiresShipping') === 'on';
+  const hasRequiresShipping = formData.has('requiresShipping_present') || formData.has('requiresShipping');
+  const requiresShipping =
+    kind === 'combo' ? false : formData.get('requiresShipping') === 'on';
 
   const tagIds = formData
     .getAll('tagIds')
     .map((v) => Number(v))
     .filter((n) => Number.isInteger(n) && n > 0);
+  const hasTagIds = formData.has('tagIds') || formData.has('tagIds_present');
 
   const stockRaw = parseOptionalNumber(formData.get('stock'));
 
@@ -130,20 +155,47 @@ export function parseProductFormPayload(formData: FormData) {
     visibility,
     comboUseComponentSum: kind === 'combo' ? comboUseComponentSum : undefined,
     comboItems: kind === 'combo' ? comboItems : undefined,
-    stock: stockRaw != null && stockRaw >= 0 ? Math.round(stockRaw) : null,
-    lowStockAt: parseOptionalNumber(formData.get('lowStockAt')),
-    slug: slug || null,
+    stock: formData.has('stock')
+      ? stockRaw != null && stockRaw >= 0
+        ? Math.round(stockRaw)
+        : null
+      : undefined,
+    lowStockAt: formData.has('lowStockAt')
+      ? parseOptionalNumber(formData.get('lowStockAt'))
+      : undefined,
+    slug: formData.has('slug') ? slug || null : undefined,
     seoTitleI18n: parseI18nMapFromForm(formData, 'seo_title_i18n'),
     seoDescI18n: parseI18nMapFromForm(formData, 'seo_desc_i18n'),
-    tagIds,
-    priceCents,
-    priceCentsUsd: priceCentsUsd != null && priceCentsUsd >= 0 ? priceCentsUsd : null,
-    salePriceCents: salePriceCents != null && salePriceCents >= 0 ? salePriceCents : null,
-    salePriceCentsUsd: salePriceCentsUsd != null && salePriceCentsUsd >= 0 ? salePriceCentsUsd : null,
-    saleStartsAt: saleStartsRaw ? new Date(saleStartsRaw) : null,
-    saleEndsAt: saleEndsRaw ? new Date(saleEndsRaw) : null,
+    tagIds: hasTagIds ? tagIds : undefined,
+    priceCents: hasPriceField ? priceCents : undefined,
+    priceCentsUsd: hasPriceField
+      ? priceCentsUsd != null && priceCentsUsd >= 0
+        ? priceCentsUsd
+        : null
+      : undefined,
+    salePriceCents: formData.has('salePriceUsdt') || formData.has('salePriceUsd') || formData.has('salePriceYuan')
+      ? salePriceCents != null && salePriceCents >= 0
+        ? salePriceCents
+        : null
+      : undefined,
+    salePriceCentsUsd:
+      formData.has('salePriceUsdt') || formData.has('salePriceUsd') || formData.has('salePriceYuan')
+        ? salePriceCentsUsd != null && salePriceCentsUsd >= 0
+          ? salePriceCentsUsd
+          : null
+        : undefined,
+    saleStartsAt: formData.has('saleStartsAt')
+      ? saleStartsRaw
+        ? new Date(saleStartsRaw)
+        : null
+      : undefined,
+    saleEndsAt: formData.has('saleEndsAt')
+      ? saleEndsRaw
+        ? new Date(saleEndsRaw)
+        : null
+      : undefined,
     sortOrder,
-    active,
-    requiresShipping,
+    active: hasActiveField ? active : undefined,
+    requiresShipping: (hasRequiresShipping || kind === 'combo') ? requiresShipping : undefined,
   };
 }

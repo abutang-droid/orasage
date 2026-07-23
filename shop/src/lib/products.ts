@@ -46,8 +46,12 @@ function fallbackTagsForProduct(p: Pick<Product, 'element'>): ProductTag[] {
   return tag ? [tag] : [];
 }
 
-/** 静态兜底（auth-service 不可用时） */
-const FALLBACK_PRODUCTS_RAW: Omit<Product, 'tags'>[] = [
+/**
+ * 目录静态兜底（auth-service 不可用时）。
+ * 仅含商城应展示的公开商品；计费 SKU（app_only）不得进入目录兜底，
+ * 否则 auth 短暂不可用时会在前台「露出」仅计费商品。
+ */
+const CATALOG_FALLBACK_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 招财旺运 · 生机生长', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
   { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 提振活力 · 勇敢行动', priceCents: 9800, priceCentsUsd: 1361, category: 'crystal' },
   { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固根基 · 聚财守正', priceCents: 10800, priceCentsUsd: 1500, category: 'crystal' },
@@ -58,6 +62,11 @@ const FALLBACK_PRODUCTS_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'crystal-earth-gift', name: '厚土之根 · 黄水晶能量手串 · 礼盒装', element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属土 · 赠礼专属包装', priceCents: 14800, priceCentsUsd: 2056, category: 'crystal' },
   { sku: 'crystal-metal-gift', name: '澄明之境 · 白水晶能量手串 · 礼盒装', element: '金', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属金 · 赠礼专属包装', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
   { sku: 'crystal-water-gift', name: '深海静盾 · 黑曜石能量手串 · 礼盒装', element: '水', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属水 · 赠礼专属包装', priceCents: 15800, priceCentsUsd: 2194, category: 'crystal' },
+  { sku: 'diy-bracelet', name: '共振定制 · DIY 能量手串', desc: '自选珠石与配饰 · 按件计费', priceCents: 0, priceCentsUsd: 0, category: 'crystal' },
+];
+
+/** App 计费深链 / 结账兜底（不进入目录列表） */
+const BILLING_FALLBACK_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'report-bazi', name: '八字深度报告', desc: '完整命盘解析 · PDF 交付', priceCents: 6800, priceCentsUsd: 944, category: 'report' },
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
   { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, priceCentsUsd: 1375, category: 'report' },
@@ -77,11 +86,14 @@ const FALLBACK_PRODUCTS_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
 
-export const FALLBACK_PRODUCTS: Product[] = FALLBACK_PRODUCTS_RAW.map((p) => ({
-  ...p,
-  tags: fallbackTagsForProduct(p),
-}));
+function withFallbackTags(list: Omit<Product, 'tags'>[]): Product[] {
+  return list.map((p) => ({ ...p, tags: fallbackTagsForProduct(p) }));
+}
 
+/** @deprecated 名称保留兼容；仅含公开目录兜底，不含计费 SKU */
+export const FALLBACK_PRODUCTS: Product[] = withFallbackTags(CATALOG_FALLBACK_RAW);
+
+const BILLING_FALLBACK_PRODUCTS: Product[] = withFallbackTags(BILLING_FALLBACK_RAW);
 export const ELEMENT_TO_SKU: Record<string, string> = {
   木: 'crystal-wood',
   火: 'crystal-fire',
@@ -114,6 +126,7 @@ interface ApiProduct {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  visibility?: 'public' | 'unlisted' | 'app_only' | string;
   tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
@@ -162,7 +175,10 @@ export async function fetchProducts(locale = 'zh-CN'): Promise<Product[]> {
     } as RequestInit);
     if (!res.ok) throw new Error(`products API ${res.status}`);
     const data = await res.json() as { products: ApiProduct[] };
-    cachedProducts = data.products.map(mapApiProduct);
+    // 防御：目录只展示 public；即使上游误返回 app_only/unlisted 也不进列表
+    cachedProducts = data.products
+      .filter((p) => !p.visibility || p.visibility === 'public')
+      .map(mapApiProduct);
     cacheExpiry = Date.now() + CACHE_TTL_MS;
     cacheLocale = locale;
     return cachedProducts;
@@ -191,7 +207,11 @@ export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product
   } catch (err) {
     console.warn('[shop] getProduct single fetch fallback:', err);
   }
-  return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
+  return (
+    BILLING_FALLBACK_PRODUCTS.find((p) => p.sku === sku)
+    ?? FALLBACK_PRODUCTS.find((p) => p.sku === sku)
+    ?? null
+  );
 }
 
 export async function getProductByElement(element: string, locale = 'zh-CN'): Promise<Product | null> {

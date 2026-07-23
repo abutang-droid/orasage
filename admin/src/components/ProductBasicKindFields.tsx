@@ -28,6 +28,10 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
 
   return (
     <>
+      {/* 哨兵字段：确保 PATCH 能区分「未提交」与「显式取消勾选」 */}
+      <input type="hidden" name="active_present" value="1" />
+      <input type="hidden" name="requiresShipping_present" value="1" />
+      <input type="hidden" name="tagIds_present" value="1" />
       <label>
         形态
         <select name="kind" value={kind} onChange={(e) => setKind(e.target.value)}>
