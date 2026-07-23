@@ -37,7 +37,6 @@ const REPORT_EYEBROWS: Array<{ match: (sku: string) => boolean; label: string }>
 ];
 
 const SERVICE_EYEBROWS: Record<string, string> = {
-  'service-consult': '能量咨询 · 一对一',
   'ziwei-chat-pack-10': '紫微问答 · 加量包',
   'ziwei-chat-yearly': '紫微问答 · 年卡',
   'temple-donation': '祈福乐捐 · 自愿支持',
