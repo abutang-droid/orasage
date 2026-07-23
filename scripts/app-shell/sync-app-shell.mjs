@@ -23,6 +23,7 @@ const TS_FILES = [
   'OrasageAuthChip.tsx',
   'SiteTopNav.tsx',
   'LocaleSwitcher.tsx',
+  'LocaleFallbackNotice.tsx',
   'locale-cookie.ts',
   'BottomNav.tsx',
   'config.ts',

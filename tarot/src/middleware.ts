@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
+import {
+  detectLocale,
+  LOCALE_COOKIE,
+  LOCALE_OVERRIDE_COOKIE,
+  toCoreLocale,
+} from "@orasage/i18n"
 import { apexFromHostname, normalizeSiteApex } from "@/lib/orasage-app-shell/config"
 
 function siteApex(request: NextRequest): string {
@@ -8,13 +14,27 @@ function siteApex(request: NextRequest): string {
   return apexFromHostname(host) || "orasage.com"
 }
 
+function resolvePortalLocale(request: NextRequest): string {
+  return toCoreLocale(
+    detectLocale({
+      queryLocale: request.nextUrl.searchParams.get("lang"),
+      cookieLocale:
+        request.cookies.get(LOCALE_OVERRIDE_COOKIE)?.value ??
+        request.cookies.get(LOCALE_COOKIE)?.value ??
+        null,
+      acceptLanguage: request.headers.get("accept-language"),
+    }),
+  )
+}
+
 function mainUrls(request: NextRequest) {
   const apex = siteApex(request)
+  const locale = resolvePortalLocale(request)
   const main = `https://${apex}`
   return {
-    profile: `${main}/zh-CN/profile`,
-    settings: `${main}/zh-CN/profile/settings`,
-    merit: `${main}/zh-CN/profile/merit`,
+    profile: `${main}/${locale}/profile`,
+    settings: `${main}/${locale}/profile/settings`,
+    merit: `${main}/${locale}/profile/merit`,
   }
 }
 
@@ -24,7 +44,15 @@ function redirectLocaleTemple(request: NextRequest): NextResponse | null {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
   const localeTemple = new RegExp(`^/(${PORTAL_LOCALES})/temple$`)
   if (localeTemple.test(pathname)) {
-    return NextResponse.redirect(new URL("/temple", request.url))
+    const locale = pathname.split("/")[1]
+    const url = new URL("/temple", request.url)
+    request.nextUrl.searchParams.forEach((value, key) => {
+      url.searchParams.set(key, value)
+    })
+    if (locale && locale !== "zh-CN" && !url.searchParams.has("lang")) {
+      url.searchParams.set("lang", toCoreLocale(locale))
+    }
+    return NextResponse.redirect(url)
   }
   return null
 }

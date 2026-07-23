@@ -41,14 +41,21 @@ export type FixedBottomNavProps = {
   pathname?: string;
 };
 
+/** Append locale query so cross-subdomain hops keep language even if cookie is missing. */
+function withLocaleQuery(href: string, locale: string, param: 'lang' | 'locale'): string {
+  if (!locale || locale === 'zh-CN') return href;
+  const join = href.includes('?') ? '&' : '?';
+  return `${href}${join}${param}=${encodeURIComponent(locale)}`;
+}
+
 function navUrls(locale: string, context: NavContext, apex: string) {
   const urls = orasageUrlsFor(apex);
   return {
-    tarot: appHomeUrl('tarot', apex),
-    bazi: appHomeUrl('bazi', apex),
+    tarot: withLocaleQuery(appHomeUrl('tarot', apex), locale, 'lang'),
+    bazi: withLocaleQuery(appHomeUrl('bazi', apex), locale, 'lang'),
     // Same-app relative path when already on tarot (avoids wrong apex bake)
-    temple: context === 'tarot' ? '/temple' : urls.temple,
-    shop: urls.shop,
+    temple: withLocaleQuery(context === 'tarot' ? '/temple' : urls.temple, locale, 'lang'),
+    shop: withLocaleQuery(urls.shop, locale, 'locale'),
     profile: `${urls.main}/${locale}/profile`,
   };
 }

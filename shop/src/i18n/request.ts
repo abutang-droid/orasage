@@ -10,6 +10,7 @@ import {
 async function resolveShopLocale(): Promise<CoreLocale> {
   const jar = await cookies();
   const hdrs = await headers();
+  // Prefer cookies (incl. ones set by shop middleware from ?locale=).
   const override = jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
   const portal = jar.get(SHOP_LOCALE_COOKIE)?.value;
   const locale = detectShopLocale({

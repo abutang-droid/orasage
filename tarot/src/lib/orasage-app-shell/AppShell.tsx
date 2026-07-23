@@ -8,6 +8,7 @@ import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
 import { OrasageAuthChip } from './OrasageAuthChip';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { LocaleFallbackNotice } from './LocaleFallbackNotice';
 import './app-shell.css';
 
 export type LocaleOption = { code: string; label: string };
@@ -68,6 +69,8 @@ export function AppShell({
           </div>
         </header>
       )}
+
+      <LocaleFallbackNotice locale={locale} />
 
       <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
         {showBack && (
