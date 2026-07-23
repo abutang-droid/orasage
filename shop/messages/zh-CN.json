@@ -253,8 +253,28 @@
     "disc": "隔片"
   },
   "pdp": {
+    "backToShop": "← 返回商城",
+    "notFound": "商品不存在",
+    "specifications": "商品规格",
+    "crystalEyebrow": "五行·{element} · {material}",
     "attachmentsTitle": "资料下载",
     "mediaLinksTitle": "媒体与用户报道",
+    "testimonialsTitle": "佩戴者的声音",
+    "starsAria": "{rating} 星",
+    "reviews": {
+      "title": "用户评价",
+      "featured": "精选",
+      "empty": "暂无用户公开评价，购买后可留下第一条。",
+      "formTitle": "写下你的评价",
+      "rating": "评分",
+      "starOption": "{n} 星",
+      "body": "评价内容",
+      "placeholder": "分享佩戴或使用体验…",
+      "submit": "提交评价",
+      "submitting": "提交中…",
+      "submitFailed": "提交失败",
+      "submitted": "评价已提交，审核通过后将展示"
+    },
     "linkKind": {
       "internal": "站内",
       "media": "媒体",
