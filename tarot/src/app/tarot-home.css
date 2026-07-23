@@ -585,19 +585,21 @@
   vertical-align: middle;
 }
 
-/* CMS 图片/视频且无文案：媒体占满 Hero，按固有比例自适应 */
+/* CMS 图片/视频且无文案：媒体通栏，按固有宽高比自适应（不裁切） */
 .tarot-home-hero--stage-media-only {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding: 0;
   gap: 0;
+  margin-bottom: 1.25rem;
 }
 
 .tarot-home-hero--stage-media-only .tarot-home-hero-stage-media {
   order: 0;
+  width: 100%;
 }
 
 .tarot-home-hero--stage-image .tarot-home-hero-stage-image,
 .tarot-home-hero--stage-video .tarot-home-hero-stage-video video {
+  display: block;
   width: 100%;
   height: auto;
   max-width: 100%;
