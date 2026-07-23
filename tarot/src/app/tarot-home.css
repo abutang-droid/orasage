@@ -585,11 +585,16 @@
   vertical-align: middle;
 }
 
-/* CMS 图片/视频且无文案：媒体通栏，按固有宽高比自适应（不裁切） */
+/*
+ * CMS 图片/视频且无文案：按固有比例自适应。
+ * 取消 stage 的负 margin 破出，使宽度与下方 .tarot-home-tiles 对齐
+ * （.tarot-home 左右 padding 1.25rem）。
+ */
 .tarot-home-hero--stage-media-only {
   padding: 0;
   gap: 0;
-  margin-bottom: 1.25rem;
+  margin: 0 0 1.25rem;
+  background: transparent;
 }
 
 .tarot-home-hero--stage-media-only .tarot-home-hero-stage-media {
