@@ -62,7 +62,7 @@ export default async function ProductPage({ params }: PageProps) {
     priceCentsUsd: product.priceCentsUsd,
   });
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
-  const englishSubtitle = cmsPage?.subtitle?.trim();
+  const subtitle = cmsPage?.subtitle?.trim();
   const rawContent = buildPdpContent(cmsPage?.sections ?? []);
   const specTitle = locale.startsWith('zh') ? '商品规格' : 'Specifications';
   const content = injectProductSpecs(rawContent, product.specs ?? [], specTitle);
@@ -90,8 +90,8 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="shop-pdp-info">
             <p className="shop-pdp-category">{eyebrow}</p>
             <h1 className="shop-pdp-title">{product.name}</h1>
-            {englishSubtitle ? (
-              <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
+            {subtitle ? (
+              <p className="shop-pdp-english-subtitle">{subtitle}</p>
             ) : null}
             <p className="shop-pdp-price">{displayPrice}</p>
             <ProductDetailActions product={product} />
