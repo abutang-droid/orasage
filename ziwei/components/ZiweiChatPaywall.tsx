@@ -73,25 +73,29 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
           : `本盘免费 ${quota?.freePerReading ?? 5} 次已用尽。`}
         选择方案继续向 Orasage 提问：
       </p>
-      <div className="ziwei-chat-paywall-plans">
-        {products.map((plan) => (
-          <Button
-            key={plan.sku}
-            type="button"
-            variant="outline"
-            className={`ziwei-chat-plan${plan.type === 'yearly' ? ' is-featured' : ''}`}
-            disabled={Boolean(loadingSku)}
-            loading={loadingSku === plan.sku}
-            onClick={() => void handlePay(plan.sku)}
-          >
-            <div>
-              <strong>{plan.name}</strong>
-              <span>{plan.desc}</span>
-            </div>
-            <em>{plan.priceDisplay}</em>
-          </Button>
-        ))}
-      </div>
+      {products.length ? (
+        <div className="ziwei-chat-paywall-plans">
+          {products.map((plan) => (
+            <Button
+              key={plan.sku}
+              type="button"
+              variant="outline"
+              className={`ziwei-chat-plan${plan.type === 'yearly' ? ' is-featured' : ''}`}
+              disabled={Boolean(loadingSku)}
+              loading={loadingSku === plan.sku}
+              onClick={() => void handlePay(plan.sku)}
+            >
+              <div>
+                <strong>{plan.name}</strong>
+                <span>{plan.desc}</span>
+              </div>
+              <em>{plan.priceDisplay}</em>
+            </Button>
+          ))}
+        </div>
+      ) : (
+        <p className="ziwei-brief-muted">加量方案暂未开放，请稍后再试或联系客服。</p>
+      )}
       {error ? <p className="ziwei-brief-error">{error}</p> : null}
       {loadingSku ? <p className="ziwei-brief-muted">正在跳转结账…</p> : null}
     </div>

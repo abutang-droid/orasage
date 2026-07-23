@@ -691,67 +691,8 @@ ${shipping ? '数字报告解锁 + 实体商品物流发货，物流信息可在
 
 function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): GeneratedPage {
   const isDonation = sku === 'temple-donation';
-  const isChat = sku.includes('ziwei-chat');
 
   const configs: Record<string, { subtitle: string; body: string; specs: Array<{ label: string; value: string }>; guide: string; manifestEn: string; manifestZh: string; testimonials: Array<{ author: string; body: string }> }> = {
-    'ziwei-chat-pack-10': {
-      subtitle: 'Zi Wei Chat Pack · 10 Credits',
-      body: `✦ 紫微问答加量包 — 10 次对话
-
-为 Orasage 紫微对话充值 10 次额外提问额度：
-• 跨排盘累积，不会过期清零
-• 在命盘解读后追问「为什么」「怎么办」
-• 比单次购买更实惠
-
-✦ 适合谁
-
-已经体验过免费问答、想要更深入追问排盘细节的用户。`,
-      specs: [
-        { label: '额度', value: '10 次 OraSage 对话' },
-        { label: '有效期', value: '永久累积，不过期' },
-        { label: '生效方式', value: '付款后自动充值到紫微账户' },
-      ],
-      guide: `🌟 读完排盘报告后 → 追问「这个星曜对我意味着什么」
-💬 日常疑惑 → 用对话快速获得视角
-📅 大限交替年 → 集中提问，消耗额度
-🎁 送给朋友 → 一份可累积的对话礼物`,
-      manifestEn: `I ask deeper. I understand more.\nEach question opens a new door.`,
-      manifestZh: `我问得更深。我更理解。\n每个问题打开一扇新门。`,
-      testimonials: [
-        { author: '王**', body: '加量包很实惠，到账快，排盘完接着问方便多了。' },
-        { author: '张**', body: '10 次够用很久，跨排盘累积很人性化。' },
-        { author: '李**', body: '对话质量比预期好，不是机械回复。' },
-      ],
-    },
-    'ziwei-chat-yearly': {
-      subtitle: 'Zi Wei Chat Yearly · Unlimited',
-      body: `✦ 紫微问答年卡 — 365 天无限对话
-
-一整年 unlimited OraSage 对话权限：
-• 任意排盘、任意追问
-• 适合深度使用者与学习者
-• 日均成本远低于单次加量
-
-✦ 适合谁
-
-紫微爱好者、从业者、或一年内有多张命盘要解读的用户。`,
-      specs: [
-        { label: '权益', value: '365 天无限 OraSage 对话' },
-        { label: '生效', value: '付款后立即生效' },
-        { label: '续费', value: '到期前可续费延长' },
-      ],
-      guide: `📚 学习紫微期间 → 随时提问巩固理解
-👨‍👩‍👧 为家人排盘 → 一年内 unlimited 解读
-💼 从业者辅助 → 客户命盘快速追问
-🎁 新年礼物 → 送一年的对话陪伴`,
-      manifestEn: `I explore freely. I learn daily.\nA year of questions, a lifetime of insight.`,
-      manifestZh: `我自由探索。我每天学习。\n一年的提问，一生的洞察。`,
-      testimonials: [
-        { author: '赵**', body: '重度用户必备，算过日均成本很划算。' },
-        { author: '吴**', body: '给爸妈排盘这一年随便问，他们很喜欢。' },
-        { author: '郑**', body: '无限对话让学习紫微轻松很多。' },
-      ],
-    },
     'temple-donation': {
       subtitle: 'Temple Blessing · Voluntary Support',
       body: `✦ 祈福乐捐 — 自愿支持
@@ -786,7 +727,6 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
   const related = all
     .filter((p) => {
       if (p.sku === sku) return false;
-      if (isChat) return p.sku.includes('ziwei-chat');
       if (isDonation) return p.category === 'crystal';
       return p.category === product.category;
     })
@@ -797,11 +737,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
     ? `OraSage 祈福体系连接古今祈愿传统与现代数字体验。乐捐不是购买商品，而是对这份连接的自愿维护——让祈福功能持续可用、体验持续优化。
 
 每一分钱都用于基础设施与内容建设，透明、轻量、无压力。`
-    : isChat
-      ? `紫微斗数博大精深，排盘之后的「追问」往往是理解的关键。OraSage 对话将 AI 与命理知识库结合，让你可以用自然语言深入探索命盘细节。
-
-加量包与年卡让不同深度的用户都能找到适合自己的方式。`
-      : `有时我们需要的不是一份报告，而是一个愿意认真听、能帮你理清的人。30 分钟咨询聚焦你的真实困惑，结合命理视角给出可执行的建议。`;
+    : `能量服务帮助你把命理洞察落到日常行动——在需要时获得清晰、可执行的指引。`;
 
   return {
     subtitle: cfg.subtitle,
@@ -811,7 +747,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
       { type: 'richText', body: cfg.body },
       {
         type: 'richText',
-        body: `── ${isDonation ? '祈福与乐捐' : isChat ? '对话的力量' : '咨询的意义'} ──\n\n${storyBody}`,
+        body: `── ${isDonation ? '祈福与乐捐' : '服务说明'} ──\n\n${storyBody}`,
       },
       { type: 'specList', title: '服务说明', specItems: cfg.specs },
       {
@@ -826,9 +762,6 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
         faqItems: [
           { question: '购买后如何生效？', answer: '登录同一 OraSage 账户，权益自动同步到对应服务入口。' },
           { question: '可以转让吗？', answer: '账户权益与购买账号绑定，不支持转让或折现。' },
-          ...(isConsult
-            ? [{ question: '如何预约？', answer: '付款后 24 小时内顾问通过订单联系方式与您确认时段。' }]
-            : []),
         ],
       },
       ...(related.length
