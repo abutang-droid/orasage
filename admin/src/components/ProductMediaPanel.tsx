@@ -17,6 +17,8 @@ type ProductMediaPanelProps = {
   heroRows: HeroImageRow[];
   galleryVideoUrl?: string | null;
   sceneVideoUrl?: string | null;
+  /** When current locale borrows media from en/zh-CN */
+  fallbackNotice?: string | null;
   saveMediaAction: (formData: FormData) => Promise<void>;
 };
 
@@ -32,6 +34,7 @@ export function ProductMediaPanel({
   heroRows,
   galleryVideoUrl,
   sceneVideoUrl,
+  fallbackNotice = null,
   saveMediaAction,
 }: ProductMediaPanelProps) {
   const catalogInputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +67,13 @@ export function ProductMediaPanel({
 
   return (
     <div className="product-media-panel">
+      <p className="muted product-media-rule">
+        多语言图/视频：各语言可单独设置；未设置时前台按 <strong>英语 → 简体中文</strong> 取已有内容。
+        列表主图全语言共用一份。
+      </p>
+      {fallbackNotice ? (
+        <p className="muted panel-notice product-media-fallback-notice">{fallbackNotice}</p>
+      ) : null}
       <div className="product-media-stats">
         <div className={`product-media-stat${catalogImageUrl ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">列表主图</span>
@@ -87,7 +97,7 @@ export function ProductMediaPanel({
         <section className="product-media-card">
           <header className="product-media-card-head">
             <h3>列表主图</h3>
-            <p className="muted">商城分类、购物车、订单列表等卡片（建议 1:1 或 4:5）</p>
+            <p className="muted">商城分类、购物车、订单列表等卡片（全语言共用 · 建议 1:1 或 4:5）</p>
           </header>
           <form action={saveCatalogImageAction} encType="multipart/form-data" className="product-catalog-image-form">
             <input type="hidden" name="sku" value={sku} />
@@ -156,7 +166,8 @@ export function ProductMediaPanel({
         <header className="product-media-card-head">
           <h3>详情轮播与视频（{locale}）</h3>
           <p className="muted">
-            详情页顶部图库 + 视频。轮播 <strong>{heroCount}</strong> / 6 张，视频 <strong>{videoCount}</strong> 个。
+            本语言专用；为空则前台回退英语→简体。轮播 <strong>{heroCount}</strong> / 6 张，视频{' '}
+            <strong>{videoCount}</strong> 个。
           </p>
         </header>
 

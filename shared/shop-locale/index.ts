@@ -51,3 +51,12 @@ export function formatShopPrice(cents: number, currency: ShopCurrency): string {
   if (currency === 'cny') return `¥${(cents / 100).toFixed(2)}`;
   return `$${(cents / 100).toFixed(2)}`;
 }
+
+export {
+  PRODUCT_MEDIA_FALLBACK_LOCALES,
+  productMediaLocaleChain,
+  mergeProductMediaFromPages,
+  mediaFallbackRuleLabel,
+  type ProductMediaBundle,
+  type ProductMediaSources,
+} from './media-fallback';
