@@ -2120,24 +2120,17 @@
   padding: 0.05rem 0.45rem;
 }
 
-/* ── 底部结算条 ── */
+/* ── 底部结算条（始终叠在 5 键底栏之上，全端一致） ── */
 .shop-diy-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-  z-index: 30;
+  bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(10px);
   border-top: 1px solid var(--os-color-mono-line, #e5e7eb);
   padding: 0.7rem 1rem;
-}
-
-@media (min-width: 1024px) {
-  .shop-diy-bar {
-    bottom: 0;
-    padding-bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
-  }
 }
 
 .shop-diy-bar-in {
@@ -2184,20 +2177,22 @@
   cursor: not-allowed;
 }
 
-/* ── 八字推荐弹层 ── */
+/* ── 八字推荐弹层（高于 5 键底栏，底部留出底栏高度） ── */
 .shop-diy-modal-mask {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 60;
   background: rgba(23, 23, 23, 0.45);
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 640px) {
   .shop-diy-modal-mask {
     align-items: center;
+    padding-bottom: 0;
   }
 }
 
@@ -2287,25 +2282,19 @@
   letter-spacing: 0.08em;
 }
 
-/* ── Toast ── */
+/* ── Toast（相对结算条 + 底栏上浮） ── */
 .shop-diy-toast {
   position: fixed;
   left: 50%;
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 6rem);
+  bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 6rem);
   transform: translateX(-50%);
-  z-index: 60;
+  z-index: 70;
   background: var(--os-color-mono-black, #171717);
   color: #fff;
   font-size: 0.75rem;
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
   white-space: nowrap;
-}
-
-@media (min-width: 1024px) {
-  .shop-diy-toast {
-    bottom: 6.5rem;
-  }
 }
 
 /* ── 入口 ── */

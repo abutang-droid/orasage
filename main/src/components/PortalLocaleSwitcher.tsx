@@ -34,8 +34,11 @@ export function PortalLocaleSwitcher({ className = '' }: { className?: string })
     setOpen(false);
     if (code === active) return;
     setLocaleCookie(code);
+    // Path-locale replace remounts the segment; follow with refresh so RSC
+    // payloads (CMS / nav) don't stay on the previous language.
     startTransition(() => {
       router.replace(pathname, { locale: code });
+      router.refresh();
     });
     // 已登录时同步偏好；游客请求 401 由 catch 吞掉
     void updateProfile({ languagePreference: code }).catch(() => undefined);

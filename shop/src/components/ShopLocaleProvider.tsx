@@ -37,13 +37,18 @@ function writeOverrideCookie(locale: string): void {
   document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(locale)}; path=/${domainPart}; max-age=31536000; SameSite=Lax${secure}`;
 }
 
-/** Keep `?locale=` in sync so refresh / share links don't snap back to an old query. */
-function syncShopLocaleUrl(locale: string): void {
-  if (typeof window === 'undefined') return;
+/** Build URL with `?locale=` in sync so refresh / share links don't snap back to an old query. */
+function shopLocaleUrl(locale: string): string {
   const url = new URL(window.location.href);
   if (locale === 'zh-CN') url.searchParams.delete('locale');
   else url.searchParams.set('locale', locale);
-  window.history.replaceState({}, '', url.toString());
+  return url.toString();
+}
+
+/** Soft URL sync (no navigation) — used on first-load cookie detection. */
+function syncShopLocaleUrl(locale: string): void {
+  if (typeof window === 'undefined') return;
+  window.history.replaceState({}, '', shopLocaleUrl(locale));
 }
 
 export function ShopLocaleProvider({ children }: { children: React.ReactNode }) {
@@ -84,10 +89,10 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const normalized = detectShopLocale({ queryLocale: raw });
     writeOverrideCookie(normalized);
     setLocaleCookie(normalized);
-    syncShopLocaleUrl(normalized);
-    setLocaleState(normalized);
-    router.refresh();
-  }, [router]);
+    // Soft RSC refresh leaves NextIntlClientProvider / SSR product copy stale.
+    // Hard navigate so layout, messages, and catalog all remount with the new locale.
+    window.location.assign(shopLocaleUrl(normalized));
+  }, []);
 
   const value = useMemo(
     () => ({ locale, currency: currencyForLocale(locale), setLocale: applyLocale }),
