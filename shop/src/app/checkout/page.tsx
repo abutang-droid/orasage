@@ -71,6 +71,7 @@ function CheckoutContent() {
   const coupleFromUrl = searchParams.get('shipping') === 'couple';
   const [coupleShipping, setCoupleShipping] = useState(coupleFromUrl);
   const readingId = searchParams.get('readingId') ?? undefined;
+  const crystalSku = searchParams.get('crystalSku') ?? undefined;
   const planType = searchParams.get('planType') ?? undefined;
   const appSource = searchParams.get('appSource') ?? 'shop';
   const priceCentsParam = searchParams.get('priceCents');
@@ -323,6 +324,7 @@ function CheckoutContent() {
           sku,
           appSource,
           readingId,
+          crystalSku,
           planType,
           shippingMode: coupleShipping ? 'couple' : 'single',
           successUrl: returnUrl ?? undefined,
@@ -343,6 +345,7 @@ function CheckoutContent() {
       if (appSource) params.set('appSource', appSource);
       if (planType) params.set('planType', planType);
       if (readingId) params.set('readingId', readingId);
+      if (crystalSku) params.set('crystalSku', crystalSku);
       if (coupleShipping) params.set('shipping', 'couple');
       router.replace(`/checkout?${params.toString()}`);
       return true;

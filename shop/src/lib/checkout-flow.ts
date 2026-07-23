@@ -46,6 +46,8 @@ export const startCheckoutBodySchema = z.object({
   cancelUrl: z.string().url().optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
+  /** 八字组合「五行推荐水晶」变量：实际履约水晶 SKU */
+  crystalSku: z.string().max(100).optional(),
   planType: z.string().max(32).optional(),
   shippingMode: z.enum(['single', 'couple']).optional(),
   priceCents: z.number().int().positive().optional(),
@@ -156,16 +158,32 @@ export async function createCheckoutOrder(
     checkoutExtras.shipping = 'couple';
   }
 
+  const { resolveComboCrystalFulfillment } = await import('./combo-crystal');
+  const crystalFulfillment = await resolveComboCrystalFulfillment({
+    comboSku: product.sku,
+    locale,
+    productName: product.name,
+    readingId: input.readingId,
+    crystalSku: input.crystalSku,
+    recommendationContext: input.recommendationContext,
+  });
+  const orderTitleBase = crystalFulfillment?.title ?? product.name;
+  const orderTitle = quantity > 1 ? `${orderTitleBase} ×${quantity}` : orderTitleBase;
+  const recommendationContext = crystalFulfillment?.context ?? input.recommendationContext;
+  if (crystalFulfillment?.crystalSku) {
+    checkoutExtras.crystalSku = crystalFulfillment.crystalSku;
+  }
+
   await syncOrderToAuth({
     userId: input.userId,
     orderNo,
-    title: quantity > 1 ? `${product.name} ×${quantity}` : product.name,
+    title: orderTitle,
     sku: product.sku,
     amountCents,
     currency: 'USDT',
     status: 'pending',
     appSource: input.appSource ?? 'shop',
-    recommendationContext: input.recommendationContext,
+    recommendationContext,
     readingId: input.readingId,
   });
 
@@ -186,8 +204,11 @@ export async function createCheckoutOrder(
       if (input.appSource) stripeMeta.appSource = input.appSource;
       if (input.readingId) stripeMeta.readingId = input.readingId;
       if (input.planType) stripeMeta.planType = input.planType;
-      if (input.recommendationContext) {
-        stripeMeta.recommendationContext = input.recommendationContext.slice(0, 500);
+      if (recommendationContext) {
+        stripeMeta.recommendationContext = recommendationContext.slice(0, 500);
+      }
+      if (crystalFulfillment?.crystalSku) {
+        stripeMeta.crystalSku = crystalFulfillment.crystalSku;
       }
 
       const charge = toStripeAmount(
@@ -216,7 +237,7 @@ export async function createCheckoutOrder(
         checkoutUrl: session.url,
         provider: 'stripe',
         amountCents,
-        title: product.name,
+        title: orderTitleBase,
         needsShipping,
         shippingMode: input.shippingMode,
       };
@@ -228,7 +249,7 @@ export async function createCheckoutOrder(
     checkoutUrl: mockCheckoutUrl(orderNo, input.successUrl, checkoutExtras),
     provider: 'mock',
     amountCents,
-    title: product.name,
+    title: orderTitleBase,
     needsShipping,
     shippingMode: input.shippingMode,
   };

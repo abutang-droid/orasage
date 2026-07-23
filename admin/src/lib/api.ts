@@ -67,6 +67,7 @@ export interface AdminProduct {
   comboItems?: Array<{
     componentSku: string;
     quantity: number;
+    role?: 'fixed' | 'element_crystal';
     name: string;
     kind: string;
     category: string;

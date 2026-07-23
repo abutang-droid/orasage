@@ -75,15 +75,20 @@ export function parseProductFormPayload(formData: FormData) {
   const slug = String(formData.get('slug') ?? '').trim();
   const comboUseComponentSum = formData.get('comboUseComponentSum') === '1';
   const comboItemsRaw = String(formData.get('comboItemsJson') ?? '').trim();
-  let comboItems: Array<{ componentSku: string; quantity: number }> | undefined;
+  let comboItems: Array<{ componentSku: string; quantity: number; role?: 'fixed' | 'element_crystal' }> | undefined;
   if (kind === 'combo' && comboItemsRaw) {
     try {
-      const parsed = JSON.parse(comboItemsRaw) as Array<{ componentSku?: string; quantity?: number }>;
+      const parsed = JSON.parse(comboItemsRaw) as Array<{
+        componentSku?: string;
+        quantity?: number;
+        role?: string;
+      }>;
       comboItems = parsed
         .filter((item) => item.componentSku?.trim())
         .map((item) => ({
           componentSku: String(item.componentSku).trim(),
           quantity: Math.max(1, Number(item.quantity) || 1),
+          role: item.role === 'element_crystal' ? 'element_crystal' : 'fixed',
         }));
     } catch {
       comboItems = undefined;
