@@ -73,13 +73,22 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
     return featuredSkus.map((sku) => bySku.get(sku)).filter((p): p is Product => Boolean(p));
   }, [products, featuredSkus, activeTag, legacyCategory]);
 
+  // 「全部」下精选区已展示的 SKU 不再出现在下方目录，避免同一商品渲染两次
+  const catalogGrid = useMemo(() => {
+    if (featured.length === 0) return filtered;
+    const featuredSet = new Set(featured.map((p) => p.sku));
+    return filtered.filter((p) => !featuredSet.has(p.sku));
+  }, [filtered, featured]);
+
   useEffect(() => {
     if (!highlightSku) return;
-    const el = document.getElementById(highlightSku);
+    const el =
+      document.getElementById(highlightSku)
+      ?? document.getElementById(`featured-${highlightSku}`);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [highlightSku, filtered]);
+  }, [highlightSku, catalogGrid, featured]);
 
   const showAll = !activeTag && !legacyCategory;
 
@@ -118,7 +127,7 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
             {featured.map((product) => (
               <div
                 key={product.sku}
-                id={`featured-${product.sku}`}
+                id={product.sku}
                 className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
               >
                 <ProductCard product={product} />
@@ -128,22 +137,25 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
         </section>
       )}
 
-      <section className="shop-collection-section">
-        <div className="shop-collection-grid">
-          {filtered.map((product) => (
-            <div
-              key={product.sku}
-              id={product.sku}
-              className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <p className="mt-6 text-center text-sage-muted">{tc('emptyFilter')}</p>
-        )}
-      </section>
+      {catalogGrid.length > 0 ? (
+        <section className="shop-collection-section">
+          <div className="shop-collection-grid">
+            {catalogGrid.map((product) => (
+              <div
+                key={product.sku}
+                id={product.sku}
+                className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {filtered.length === 0 ? (
+        <p className="mt-6 text-center text-sage-muted">{tc('emptyFilter')}</p>
+      ) : null}
     </>
   );
 }
