@@ -100,7 +100,7 @@ export const userOrders = pgTable("user_orders", {
   title: varchar("title", { length: 200 }).notNull(),
   sku: varchar("sku", { length: 100 }),
   amountCents: integer("amount_cents").notNull().default(0),
-  currency: varchar("currency", { length: 8 }).notNull().default("CNY"),
+  currency: varchar("currency", { length: 8 }).notNull().default("USDT"),
   status: orderStatusEnum("status").notNull().default("pending"),
   appSource: appSourceEnum("app_source"),
   shippingAddress: text("shipping_address"),

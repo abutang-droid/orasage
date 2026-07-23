@@ -103,7 +103,6 @@ export function buildComboMeta(
   const items: ResolvedComboItem[] = [];
   let componentSumCents = 0;
   let componentSumUsdCents = 0;
-  let hasUsd = true;
   let hasElementCrystal = false;
 
   for (const [index, row] of itemRows.entries()) {
@@ -113,10 +112,12 @@ export function buildComboMeta(
     const role = normalizeComboItemRole(row.role);
     if (role === "element_crystal") hasElementCrystal = true;
     const fulfillment = resolveItemFulfillment(component);
-    const usd = component.priceCentsUsd;
-    if (usd == null) hasUsd = false;
-    componentSumCents += component.priceCents * qty;
-    if (usd != null) componentSumUsdCents += usd * qty;
+    // 列价统一为 USDT 分（双列同义）
+    const usdt = component.priceCentsUsd != null && component.priceCentsUsd > 0
+      ? component.priceCentsUsd
+      : component.priceCents;
+    componentSumCents += usdt * qty;
+    componentSumUsdCents += usdt * qty;
 
     const displayName = role === "element_crystal"
       ? `五行推荐水晶（变量 · 参考 ${pickLocalized(component.nameI18n, locale, component.name)}）`
@@ -130,8 +131,8 @@ export function buildComboMeta(
       name: displayName,
       kind: component.kind,
       category: component.category,
-      priceCents: component.priceCents,
-      priceCentsUsd: component.priceCentsUsd ?? null,
+      priceCents: usdt,
+      priceCentsUsd: usdt,
       requiresShipping: fulfillment.requiresShipping,
       requiresWristSize: fulfillment.requiresWristSize,
     });
@@ -142,7 +143,7 @@ export function buildComboMeta(
   return {
     items,
     componentSumCents,
-    componentSumUsdCents: hasUsd ? componentSumUsdCents : null,
+    componentSumUsdCents,
     useComponentSum: combo.comboUseComponentSum,
     requiresShipping: items.some((i) => i.requiresShipping),
     requiresWristSize: items.some((i) => i.requiresWristSize),
@@ -269,10 +270,9 @@ export async function syncComboDerivedFields(comboSku: string) {
   };
 
   if (combo.comboUseComponentSum) {
-    updates.priceCents = meta.componentSumCents;
-    if (meta.componentSumUsdCents != null) {
-      updates.priceCentsUsd = meta.componentSumUsdCents;
-    }
+    const usdtSum = meta.componentSumUsdCents ?? meta.componentSumCents;
+    updates.priceCents = usdtSum;
+    updates.priceCentsUsd = usdtSum;
   }
 
   await db.update(products).set(updates).where(eq(products.sku, comboSku));

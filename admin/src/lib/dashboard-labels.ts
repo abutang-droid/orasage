@@ -27,7 +27,7 @@ export function orderStatusLabel(status: string): string {
 }
 
 export function formatRevenue(cents: number): string {
-  return `¥${(cents / 100).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${(cents / 100).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
 }
 
 export function formatDayLabel(day: string): string {

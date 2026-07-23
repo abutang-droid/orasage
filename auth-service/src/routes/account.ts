@@ -21,6 +21,7 @@ import {
 } from "../lib/wallets.ts";
 import { getFxRates } from "../lib/shop-settings.ts";
 import {
+  formatOrderAmountDisplay,
   normalizePayCurrency,
   resolvePayAmountCents,
   setRuntimeWoldPerUsdt,
@@ -168,7 +169,7 @@ accountRouter.get("/orders", async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(o.amountCents, o.currency),
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
@@ -338,7 +339,7 @@ accountRouter.get("/orders/:orderNo", async (req, res) => {
       sku: order.sku,
       amountCents: order.amountCents,
       currency: order.currency,
-      amountDisplay: `¥${(order.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(order.amountCents, order.currency),
       status: order.status,
       statusLabel: STATUS_LABELS[order.status] ?? order.status,
       appSource: order.appSource,
@@ -750,7 +751,7 @@ internalRouter.post("/orders", async (req, res) => {
       title: body.title,
       sku: body.sku,
       amountCents: body.amountCents,
-      currency: body.currency ?? "CNY",
+      currency: body.currency ?? "USDT",
       status: body.status ?? "pending",
       appSource: body.appSource,
       shippingAddress: body.shippingAddress,

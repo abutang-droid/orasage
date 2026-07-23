@@ -36,8 +36,10 @@ function applyOverride<T extends ReturnType<typeof formatProduct>>(
     return product;
   }
   const currency: ShopCurrency = currencyForLocale(locale);
-  const priceCents = slot.priceOverrideCents ?? product.priceCents;
-  const priceCentsUsd = slot.priceOverrideUsdCents ?? product.priceCentsUsd;
+  // 覆盖价统一为 USDT 分（双列同义）
+  const usdtOverride = slot.priceOverrideUsdCents ?? slot.priceOverrideCents;
+  const priceCents = usdtOverride ?? product.priceCents;
+  const priceCentsUsd = usdtOverride ?? product.priceCentsUsd;
   const pricing = { priceCents, priceCentsUsd };
   const resolvedCents = resolvePriceCents(pricing, currency);
   const usdtCents = resolveUsdtCents(pricing);

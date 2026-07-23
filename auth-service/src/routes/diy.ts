@@ -113,8 +113,10 @@ export async function computeDiyQuote(beadCodes: string[], wristCm: number): Pro
     if (qty > bead.stock) {
       throw new Error(`「${bead.name} ${bead.diameterMm}mm」库存不足（剩余 ${bead.stock} 颗）`);
     }
-    const usd = bead.priceCentsUsd ?? Math.round(bead.priceCents / 7.2);
-    totalCents += bead.priceCents * qty;
+    const usd = bead.priceCentsUsd != null && bead.priceCentsUsd > 0
+      ? bead.priceCentsUsd
+      : bead.priceCents;
+    totalCents += usd * qty;
     totalCentsUsd += usd * qty;
     const len = bead.beadType === "disc" && bead.thicknessMm ? bead.thicknessMm : bead.diameterMm;
     lengthMm += len * qty;
@@ -128,12 +130,15 @@ export async function computeDiyQuote(beadCodes: string[], wristCm: number): Pro
   if (effectiveLengthMm > targetMm + config.fitToleranceMm) {
     throw new Error("串长超出所选手围，请移除部分珠子或调大手围");
   }
-  if (totalCents < config.minOrderCents) {
-    throw new Error(`定制手串最低金额为 ¥${(config.minOrderCents / 100).toFixed(0)}`);
+  if (totalCentsUsd < config.minOrderCents) {
+    throw new Error(`定制手串最低金额为 ${(config.minOrderCents / 100).toFixed(2)} USDT`);
   }
 
   const items = [...counts.entries()].map(([code, quantity]) => {
     const bead = byCode.get(code)!;
+    const unit = bead.priceCentsUsd != null && bead.priceCentsUsd > 0
+      ? bead.priceCentsUsd
+      : bead.priceCents;
     const sizeLabel = bead.beadType === "disc" && bead.thicknessMm
       ? `${bead.diameterMm}×${bead.thicknessMm}mm`
       : `${bead.diameterMm}mm`;
@@ -144,12 +149,12 @@ export async function computeDiyQuote(beadCodes: string[], wristCm: number): Pro
       material: bead.material,
       type: bead.beadType,
       sizeLabel,
-      priceCents: bead.priceCents,
+      priceCents: unit,
       quantity,
     };
   });
 
-  return { ok: true, totalCents, totalCentsUsd, lengthMm, effectiveLengthMm, targetMm, items };
+  return { ok: true, totalCents: totalCentsUsd, totalCentsUsd, lengthMm, effectiveLengthMm, targetMm, items };
 }
 
 diyInternalRouter.post("/quote", async (req, res) => {

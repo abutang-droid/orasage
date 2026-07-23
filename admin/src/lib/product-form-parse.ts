@@ -94,31 +94,23 @@ export function parseProductFormPayload(formData: FormData) {
       comboItems = undefined;
     }
   }
-  // 单一列价：USDT；兼容旧表单 priceYuan/priceUsd
+  // 单一列价：USDT 分（双列同写）；兼容旧字段名 priceUsd
   const hasPriceField =
     formData.has('priceUsdt') || formData.has('priceUsd') || formData.has('priceYuan');
-  const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? '').trim();
-  const priceYuanRaw = String(formData.get('priceYuan') ?? '').trim();
+  const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? formData.get('priceYuan') ?? '').trim();
   let priceCentsUsd: number | null = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
-  let priceCents = priceYuanRaw ? Math.round(Number(priceYuanRaw) * 100) : 0;
+  let priceCents = 0;
   if (priceCentsUsd != null && priceCentsUsd >= 0) {
-    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
-    priceCents = Math.round(priceCentsUsd * cnyRate);
-  } else if (priceCents > 0) {
-    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
-    priceCentsUsd = Math.max(50, Math.round(priceCents / cnyRate));
+    priceCents = priceCentsUsd;
   }
 
-  const saleUsdtRaw = String(formData.get('salePriceUsdt') ?? formData.get('salePriceUsd') ?? '').trim();
-  const saleYuanRaw = String(formData.get('salePriceYuan') ?? '').trim();
+  const saleUsdtRaw = String(formData.get('salePriceUsdt') ?? formData.get('salePriceUsd') ?? formData.get('salePriceYuan') ?? '').trim();
   const saleStartsRaw = String(formData.get('saleStartsAt') ?? '').trim();
   const saleEndsRaw = String(formData.get('saleEndsAt') ?? '').trim();
   let salePriceCentsUsd = saleUsdtRaw ? Math.round(Number(saleUsdtRaw) * 100) : null;
-  let salePriceCents = saleYuanRaw ? Math.round(Number(saleYuanRaw) * 100) : null;
-  if (salePriceCentsUsd != null && salePriceCentsUsd >= 0) {
-    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
-    salePriceCents = Math.round(salePriceCentsUsd * cnyRate);
-  }
+  let salePriceCents: number | null = salePriceCentsUsd != null && salePriceCentsUsd >= 0
+    ? salePriceCentsUsd
+    : null;
   const hasSortOrder = formData.has('sortOrder');
   const sortOrder = hasSortOrder ? Number(formData.get('sortOrder') ?? 0) : undefined;
   // 完整商品表单带 active_present；未带则不改上架状态（避免局部表单误下架）

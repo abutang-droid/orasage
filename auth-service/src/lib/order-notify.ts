@@ -50,11 +50,11 @@ function enabledEvents(): Set<string> {
 }
 
 function formatAmount(order: OrderLike): string {
-  const value = (order.amountCents / 100).toFixed(2);
   const cur = order.currency.toUpperCase();
-  if (cur === "CNY") return `¥${value}`;
-  if (cur === "USD") return `$${value}`;
-  return `${value} ${cur}`;
+  if (cur === "WOLD") return `${(order.amountCents / 100).toFixed(2)} WOLD`;
+  if (cur === "USDT" || cur === "USD") return `${(order.amountCents / 100).toFixed(2)} USDT`;
+  if (cur === "CNY") return `¥${(order.amountCents / 100).toFixed(2)}`;
+  return `${(order.amountCents / 100).toFixed(2)} ${cur}`;
 }
 
 function buildText(event: OrderNotifyEvent, order: OrderLike): string {

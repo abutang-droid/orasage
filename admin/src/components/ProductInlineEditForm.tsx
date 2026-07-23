@@ -58,11 +58,11 @@ export function ProductInlineEditForm({
         defaultValue={
           product.priceCentsUsd != null
             ? (product.priceCentsUsd / 100).toFixed(2)
-            : (product.priceCents / 100 / 7.2).toFixed(2)
+            : (product.priceCents / 100).toFixed(2)
         }
-        placeholder="价格"
+        placeholder="USDT"
         required
-        title="价格（单位见商城→计价）"
+        title="标价 USDT（与 WOLD 按商城计价换算）"
       />
       <input name="sortOrder" type="number" defaultValue={product.sortOrder} />
       <label>

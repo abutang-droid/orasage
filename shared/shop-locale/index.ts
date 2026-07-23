@@ -28,8 +28,8 @@ export function detectShopLocale(options?: {
 }
 
 /**
- * 前台统一以 USDT（= USD 分）列价；不再按语言切 CNY。
- * 保留 `cny` 类型仅供后台/遗留字段展示。
+ * 前台/后端统一以 USDT（= USD 分）列价；WOLD 仅展示/支付派生。
+ * 保留 `cny` 类型仅兼容极少数遗留调用。
  */
 export function currencyForLocale(_locale: string): ShopCurrency {
   return 'usd';
@@ -53,11 +53,14 @@ export function normalizePayCurrency(value: string | null | undefined): PayCurre
 }
 
 export type ProductPricing = {
+  /** 遗留列：现与 USDT 分对齐存储，不再表示 CNY */
   priceCents: number;
+  /** 列价源：USDT 分（与 USD 分 1:1） */
   priceCentsUsd?: number | null;
 };
 
-const CNY_TO_USD_RATE = Number(process.env.CNY_TO_USD_RATE ?? '7.2');
+/** @deprecated 列价已统一 USDT；仅用于一次性历史回填 */
+const LEGACY_CNY_TO_USDT_RATE = Number(process.env.CNY_TO_USD_RATE ?? '7.2');
 
 /** 运行时汇率覆盖（来自 shop_settings，优先于 env） */
 let runtimeWoldPerUsdt: number | null = null;
@@ -70,8 +73,11 @@ export function setRuntimeWoldPerUsdt(rate: number | null | undefined): void {
   runtimeWoldPerUsdt = rate;
 }
 
+/** @deprecated */
 export function cnyToUsdRate(): number {
-  return Number.isFinite(CNY_TO_USD_RATE) && CNY_TO_USD_RATE > 0 ? CNY_TO_USD_RATE : 7.2;
+  return Number.isFinite(LEGACY_CNY_TO_USDT_RATE) && LEGACY_CNY_TO_USDT_RATE > 0
+    ? LEGACY_CNY_TO_USDT_RATE
+    : 7.2;
 }
 
 /** 1 USDT = N WOLD */
@@ -81,15 +87,24 @@ export function woldPerUsdt(): number {
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
+/**
+ * 解析列价（分）。
+ * - usd：USDT 分（优先 priceCentsUsd，否则 priceCents — 迁移后二者同为 USDT）
+ * - cny：遗留调用，返回同一数值（已不再表示人民币）
+ */
 export function resolvePriceCents(pricing: ProductPricing, currency: ShopCurrency): number {
-  if (currency === 'cny') return pricing.priceCents;
-  if (pricing.priceCentsUsd != null && pricing.priceCentsUsd > 0) return pricing.priceCentsUsd;
-  return Math.max(50, Math.round(pricing.priceCents / cnyToUsdRate()));
+  const usdt = resolveUsdtCents(pricing);
+  if (currency === 'cny') return usdt;
+  return usdt;
 }
 
-/** 商品 USDT 分（与 USD 分 1:1；列价以 priceCentsUsd 为准） */
+/** 商品 USDT 分（列价源） */
 export function resolveUsdtCents(pricing: ProductPricing): number {
-  return resolvePriceCents(pricing, 'usd');
+  if (pricing.priceCentsUsd != null && pricing.priceCentsUsd > 0) {
+    return pricing.priceCentsUsd;
+  }
+  if (pricing.priceCents > 0) return pricing.priceCents;
+  return 0;
 }
 
 /** USDT 分 → WOLD 分（同精度百分之一） */
@@ -115,7 +130,7 @@ export function formatPayPrice(cents: number, payCurrency: PayCurrency): string 
   return payCurrency === 'WOLD' ? formatWoldPrice(cents) : formatUsdtPrice(cents);
 }
 
-/** 前台主展示：USDT + WOLD */
+/** 前台/后台主展示：USDT + WOLD */
 export function formatDualShopPrice(pricingOrUsdtCents: ProductPricing | number, rate = woldPerUsdt()): string {
   const usdtCents =
     typeof pricingOrUsdtCents === 'number'
@@ -125,13 +140,22 @@ export function formatDualShopPrice(pricingOrUsdtCents: ProductPricing | number,
 }
 
 export function formatShopPrice(cents: number, currency: ShopCurrency): string {
-  if (currency === 'cny') return `¥${(cents / 100).toFixed(2)}`;
+  if (currency === 'cny') return formatUsdtPrice(cents);
   return formatUsdtPrice(cents);
 }
 
-/** 后台只配 USDT 时，同步写回遗留 CNY 分 */
+/**
+ * 写入目录价时：两列同存 USDT 分（兼容仍读 price_cents 的旧路径）。
+ * @deprecated 名称保留；不再换算 CNY。
+ */
 export function usdtCentsToLegacyCnyCents(usdtCents: number): number {
-  return Math.max(0, Math.round(usdtCents * cnyToUsdRate()));
+  return Math.max(0, Math.round(usdtCents));
+}
+
+/** 后台保存：USDT 分 → 双列同写 */
+export function usdtCentsAsListPair(usdtCents: number): { priceCents: number; priceCentsUsd: number } {
+  const n = Math.max(0, Math.round(usdtCents));
+  return { priceCents: n, priceCentsUsd: n };
 }
 
 export {
@@ -142,3 +166,5 @@ export {
   type ProductMediaBundle,
   type ProductMediaSources,
 } from './media-fallback';
+
+export { formatOrderAmountDisplay } from './format-order-amount';

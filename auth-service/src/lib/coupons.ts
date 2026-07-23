@@ -74,7 +74,7 @@ export function validateCoupon(coupon: CouponRow, orderCents: number, at: Date =
   if (coupon.endsAt && at > coupon.endsAt) return "优惠码已过期";
   if (coupon.maxUses != null && coupon.usedCount >= coupon.maxUses) return "优惠码已达使用上限";
   if (orderCents < coupon.minOrderCents) {
-    return `订单金额需满 ¥${(coupon.minOrderCents / 100).toFixed(2)}`;
+    return `订单金额需满 ${(coupon.minOrderCents / 100).toFixed(2)} USDT`;
   }
   return null;
 }

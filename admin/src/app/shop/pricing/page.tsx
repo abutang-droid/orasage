@@ -35,7 +35,7 @@ export default async function ShopPricingPage({
       <section className="panel">
         <h2>列价货币</h2>
         <p className="muted" style={{ marginBottom: '0.75rem' }}>
-          当前固定为 <strong>USDT</strong>（与 USD 1:1）。商品编辑页「价格」即 USDT 金额，无需按商品再选币种。
+          当前固定为 <strong>USDT</strong>（与 USD 1:1）。商品编辑页「价格 USDT」即为列价；WOLD 仅按下方汇率展示/支付，无需按商品再选币种。
         </p>
         <dl className="form-grid" style={{ marginBottom: 0 }}>
           <div>

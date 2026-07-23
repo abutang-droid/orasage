@@ -49,7 +49,7 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
         </select>
       </label>
       <label>
-        价格{kind === 'combo' ? '（组合优惠价）' : ''}
+        价格 USDT{kind === 'combo' ? '（组合优惠价）' : ''}
         <input
           name="priceUsdt"
           type="number"
@@ -60,14 +60,15 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
             product?.priceCentsUsd != null
               ? (product.priceCentsUsd / 100).toFixed(2)
               : product
-                ? (product.priceCents / 100 / 7.2).toFixed(2)
+                ? (product.priceCents / 100).toFixed(2)
                 : ''
           }
           placeholder="39.90"
+          title="列价为 USDT；前台同时显示 WOLD（见商城→计价）"
         />
       </label>
       <label>
-        促销价（可选）
+        促销价 USDT（可选）
         <input
           name="salePriceUsdt"
           type="number"

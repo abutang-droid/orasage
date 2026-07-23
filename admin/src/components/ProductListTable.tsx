@@ -217,7 +217,7 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
               <th>形态</th>
               <th>可见性</th>
               <th>库存</th>
-              <th>价格</th>
+              <th>USDT</th>
               <th>状态</th>
               <th>详情页</th>
               <th>操作</th>
