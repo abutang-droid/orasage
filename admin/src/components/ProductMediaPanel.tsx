@@ -77,9 +77,9 @@ export function ProductMediaPanel({
           <span className="product-media-stat-label">视频</span>
           <strong>{videoCount} 个</strong>
         </div>
-        <div className="product-media-stat">
+        <div className={`product-media-stat${pageStatus === 'published' ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">详情页</span>
-          <strong>{pageStatus === 'published' ? '已发布' : pageStatus === 'draft' ? '草稿' : '未创建'}</strong>
+          <strong>{pageStatus === 'published' ? '已发布' : pageStatus === 'draft' ? '草稿（保存媒体后将发布）' : '未创建'}</strong>
         </div>
       </div>
 
