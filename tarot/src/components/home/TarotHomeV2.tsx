@@ -5,13 +5,18 @@ import { useEffect, useState } from 'react';
 import { TarotHomeDailyInsight } from '@/components/home/TarotHomeDailyInsight';
 import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 import { TarotProductVisual } from '@/components/home/TarotProductVisual';
+import type { TarotHomeHeroContent } from '@/lib/cms-tarot-hero';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
 
 type UnlockPayload = {
   unlocked: boolean;
 };
 
-export function TarotHomeV2() {
+type Props = {
+  initialHero?: TarotHomeHeroContent;
+};
+
+export function TarotHomeV2({ initialHero }: Props) {
   const router = useRouter();
   const home = useHomeCopy();
   const [unlocked, setUnlocked] = useState(false);
@@ -30,8 +35,8 @@ export function TarotHomeV2() {
         <div className="tarot-home-visual-glow tarot-home-visual-glow--b" />
       </div>
 
-      {/* 第一屏：Hero */}
-      <TarotHomeHero />
+      {/* 第一屏：Hero（SSR 带入 CMS，避免首屏 cards fallback） */}
+      <TarotHomeHero initialHero={initialHero} />
 
       {/* 第二屏起：产品入口 */}
       <section className="tarot-home-tiles animate-fade-in-up delay-150" aria-label="Readings">
