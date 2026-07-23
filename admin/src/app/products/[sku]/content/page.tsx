@@ -100,8 +100,8 @@ export default async function ProductContentPage({ params, searchParams }: PageP
         </p>
         <h1>详情内容 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{sku}</code> · 文案按语言独立；图/视频未设置时前台按{' '}
-          <strong>英语 → 简体中文</strong> 回退。发布后约 30 秒内商城生效。
+          SKU <code>{sku}</code> · 副标题 / SEO / 详情区块 / 评价均按语言独立保存；图/视频未设置时前台按{' '}
+          <strong>英语 → 简体中文</strong> 回退。切换上方语言 Tab 后请分别填写并保存。发布后约 30 秒内商城生效。
           <a
             href={`https://shop.orasage.com/product/${encodeURIComponent(sku)}`}
             target="_blank"
@@ -119,6 +119,7 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             key={l.code}
             href={`/products/${encodeURIComponent(sku)}/content?locale=${l.code}`}
             className={`product-edit-tab${l.code === locale ? ' is-active' : ''}`}
+            prefetch={false}
           >
             {l.label}
           </Link>
@@ -135,7 +136,12 @@ export default async function ProductContentPage({ params, searchParams }: PageP
 
       <section className="panel">
         <h2>详情页（{locale}）{doc ? '' : ' · 尚未创建，保存后生成'}</h2>
-        <form action={saveProductPageContentAction} encType="multipart/form-data">
+        {/* key=locale：切换语言 Tab 时强制重挂载，避免副标题等 defaultValue / 客户端 state 残留上一语言 */}
+        <form
+          key={`pdp-content-${sku}-${locale}`}
+          action={saveProductPageContentAction}
+          encType="multipart/form-data"
+        >
           <input type="hidden" name="sku" value={sku} />
           <input type="hidden" name="locale" value={locale} />
 
@@ -147,9 +153,13 @@ export default async function ProductContentPage({ params, searchParams }: PageP
                 <option value="published">已发布</option>
               </select>
             </label>
-            <label>
-              副标题 / 一句话卖点
-              <input name="subtitle" defaultValue={doc?.subtitle ?? ''} />
+            <label className="full-width">
+              副标题 / 一句话卖点（仅本语言 {locale}）
+              <input
+                name="subtitle"
+                defaultValue={doc?.subtitle ?? ''}
+                placeholder={locale === 'en' ? 'One-line selling point' : '显示在商品名称下方'}
+              />
             </label>
             <label>
               SEO 标题
@@ -191,7 +201,7 @@ export default async function ProductContentPage({ params, searchParams }: PageP
         </form>
       </section>
 
-      <section className="panel">
+      <section className="panel" key={`pdp-testimonials-${sku}-${locale}`}>
         <h2>精选评价（{locale} · {testimonials.length} 条）</h2>
         <div className="table-wrap" style={{ marginBottom: '1rem' }}>
           <table className="data-table">

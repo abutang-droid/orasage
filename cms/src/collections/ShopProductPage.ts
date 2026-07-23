@@ -74,7 +74,9 @@ export const ShopProductPage: CollectionConfig = {
       name: 'subtitle',
       type: 'text',
       label: '副标题 / 一句话卖点',
-      admin: { description: '显示在商品名称下方' },
+      admin: {
+        description: '显示在商品名称下方；随本文档「语言」字段独立存储，每种语言各写一份',
+      },
     },
     {
       name: 'seoTitle',
