@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FUTURE_LOCALE_LABELS, localeLabel } from '@orasage/i18n';
+import { localeLabel } from '@orasage/i18n';
 import { pickLabel, SHELL_LABELS } from './labels';
 
 const QUERY_KEY = 'langUnavailable';
@@ -35,9 +35,9 @@ export function LocaleFallbackNotice({
 
   if (!requested) return null;
 
-  const requestedLabel =
-    (FUTURE_LOCALE_LABELS as Record<string, string>)[requested] ??
-    localeLabel(requested, requested);
+  // localeLabel covers phase-1 + FUTURE_LOCALE_LABELS (avoid named re-export
+  // issues under Next's package resolution for @orasage/i18n).
+  const requestedLabel = localeLabel(requested, requested);
   const activeLabel = localeLabel(locale);
   const template = pickLabel(SHELL_LABELS.localeUnavailable, locale);
   const message = template
