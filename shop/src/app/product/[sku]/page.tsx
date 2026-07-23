@@ -16,6 +16,7 @@ import { ProductDetailActions } from '@/components/ProductDetailActions';
 import { ProductHeroGallery } from '@/components/ProductHeroGallery';
 import { ProductInfoAccordion } from '@/components/ProductInfoAccordion';
 import { ProductManifest } from '@/components/ProductManifest';
+import { ProductAdvisorQuote } from '@/components/ProductAdvisorQuote';
 import { ProductSceneVideo } from '@/components/ProductSceneVideo';
 import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductUgcReviews } from '@/components/ProductUgcReviews';
@@ -119,16 +120,7 @@ export default async function ProductPage({ params }: PageProps) {
           <ProductSceneVideo src={cmsPage.sceneVideoUrl} productName={product.name} />
         ) : null}
 
-        {content.quote?.quote ? (
-          <section className="shop-pdp-advisor">
-            <blockquote className="shop-pdp-quote">
-              <p>{content.quote.quote}</p>
-              {content.quote.attribution ? (
-                <footer className="shop-pdp-quote-footer">— {content.quote.attribution}</footer>
-              ) : null}
-            </blockquote>
-          </section>
-        ) : null}
+        {content.quote ? <ProductAdvisorQuote section={content.quote} /> : null}
 
         <ProductAttachments items={product.attachments ?? []} />
 

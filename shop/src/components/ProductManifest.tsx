@@ -1,30 +1,28 @@
+import { getLocale, getTranslations } from 'next-intl/server';
 import type { ProductPageSection } from '@/lib/cms-product-page';
-import { splitManifestQuote } from '@/lib/pdp-content-parser';
+import { pickLocaleQuoteText } from '@/lib/pdp-content-parser';
 
-function manifestEyebrow(attribution?: string): { en: string; zh: string } {
-  if (attribution?.includes('Read to Manifest')) {
-    return { en: 'Read to Manifest', zh: '解读显化' };
-  }
-  if (attribution?.includes('Act to Manifest')) {
-    return { en: 'Act to Manifest', zh: '行动显化' };
-  }
-  return { en: 'Wear to Manifest', zh: '佩戴显化' };
+function manifestEyebrowKey(attribution?: string): 'wear' | 'read' | 'act' {
+  if (attribution?.includes('Read to Manifest')) return 'read';
+  if (attribution?.includes('Act to Manifest')) return 'act';
+  return 'wear';
 }
 
-export function ProductManifest({ section }: { section: ProductPageSection }) {
+export async function ProductManifest({ section }: { section: ProductPageSection }) {
   if (!section.quote) return null;
 
-  const { english, chinese } = splitManifestQuote(section.quote);
-  const eyebrow = manifestEyebrow(section.attribution);
+  const [locale, t] = await Promise.all([getLocale(), getTranslations('pdp.manifest')]);
+  const text = pickLocaleQuoteText(section.quote, locale);
+  if (!text.trim()) return null;
+
+  const eyebrow = t(manifestEyebrowKey(section.attribution));
+  const preferZh = locale === 'zh-CN' || locale === 'zh-TW' || locale.startsWith('zh');
 
   return (
-    <section className="shop-pdp-manifest" aria-label={eyebrow.zh}>
-      <p className="shop-pdp-manifest-eyebrow">
-        {eyebrow.zh} · {eyebrow.en}
-      </p>
+    <section className="shop-pdp-manifest" aria-label={eyebrow}>
+      <p className="shop-pdp-manifest-eyebrow">{eyebrow}</p>
       <blockquote className="shop-pdp-manifest-quote">
-        {english ? <p className="shop-pdp-manifest-en">{english}</p> : null}
-        {chinese ? <p className="shop-pdp-manifest-zh">{chinese}</p> : null}
+        <p className={preferZh ? 'shop-pdp-manifest-zh' : 'shop-pdp-manifest-en'}>{text}</p>
       </blockquote>
     </section>
   );

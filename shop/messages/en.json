@@ -280,6 +280,64 @@
       "media": "Media",
       "review": "Review",
       "article": "Article"
+    },
+    "manifest": {
+      "wear": "Wear to Manifest",
+      "read": "Read to Manifest",
+      "act": "Act to Manifest"
+    },
+    "closure": {
+      "eyebrow": "OraSage · Oracle + Sage",
+      "crystal": {
+        "title": "See, then carry",
+        "sub": "See your map. Carry your clarity.",
+        "body": "A destiny reading helps you see your energy map; a crystal lets you carry that clarity with you.",
+        "bodyWithElement": "A destiny reading helps you see your energy map; a crystal lets you carry that clarity with you. If your report suggests balancing the {element} element, this crystal is a classic remedy choice.",
+        "cta": "Start a BaZi reading",
+        "note": "Get your personal crystal recommendation"
+      },
+      "reportBazi": {
+        "title": "Read your chart, then carry the remedy",
+        "sub": "Read your chart. Carry your remedy.",
+        "body": "A BaZi report outlines your energy map. For further support, pair it with an elemental crystal or upgrade to a gift-box edition so insight becomes daily practice.",
+        "cta": "Go to BaZi reading",
+        "note": "Unlock the full report in the app"
+      },
+      "reportZiwei": {
+        "title": "Read your stars, then take a step",
+        "sub": "Read your stars. Walk with intention.",
+        "body": "A Zi Wei report maps the twelve palaces of life. After reading, ask deeper questions in OraSage chat, or pair with an energy bracelet to keep balance close at hand.",
+        "cta": "Go to Zi Wei Dou Shu",
+        "note": "View the full chart reading in the app"
+      },
+      "reportTarot": {
+        "title": "See the moment, then choose",
+        "sub": "See the pattern. Choose your step.",
+        "body": "Tarot is not prediction — it is an entrance to awareness. The cards light up the present; action stays in your hands. Daily fortune and deeper reports work well together.",
+        "cta": "Go to Tarot",
+        "note": "Draw and read inside the app"
+      },
+      "temple": {
+        "title": "Blessing is connection",
+        "sub": "Blessing is connection.",
+        "body": "Every blessing connects you to a wider goodwill. Donations help keep OraSage’s blessing practice running so the experience stays available.",
+        "cta": "Explore OraSage",
+        "note": "Thank you for your voluntary support"
+      },
+      "ziweiChat": {
+        "title": "Conversation is growth",
+        "sub": "Ask deeper. Understand more.",
+        "body": "The questions after a chart reading are often where understanding deepens. OraSage chat moves you from seeing the chart to truly knowing it.",
+        "cta": "Go to Zi Wei Dou Shu",
+        "note": "Credits top up to your account automatically"
+      },
+      "default": {
+        "title": "Clear the fog, take the next step",
+        "sub": "Clarity first. Action follows.",
+        "body": "Sometimes you need not another report, but someone who listens carefully and helps you sort things out. A 30-minute consultation focuses on your most real question right now.",
+        "cta": "Learn about OraSage destiny systems",
+        "note": "After payment, an advisor will confirm your time slot"
+      }
     }
   }
 }

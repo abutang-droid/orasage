@@ -280,6 +280,64 @@
       "media": "媒體",
       "review": "測評",
       "article": "文章"
+    },
+    "manifest": {
+      "wear": "佩戴顯化",
+      "read": "解讀顯化",
+      "act": "行動顯化"
+    },
+    "closure": {
+      "eyebrow": "OraSage · Oracle + Sage",
+      "crystal": {
+        "title": "看見，然後攜帶",
+        "sub": "See your map. Carry your clarity.",
+        "body": "命理解讀讓你「看見」自己的能量地圖，水晶讓你「攜帶」這份清醒。",
+        "bodyWithElement": "命理解讀讓你「看見」自己的能量地圖，水晶讓你「攜帶」這份清醒。若你的報告提示五行「{element}」需調和，這款水晶正是命理師常見的補能之選。",
+        "cta": "先做八字解讀",
+        "note": "獲取你的專屬水晶推薦"
+      },
+      "reportBazi": {
+        "title": "讀懂命盤，再攜帶能量",
+        "sub": "Read your chart. Carry your remedy.",
+        "body": "八字報告幫你看見能量地圖的輪廓；若需要進一步補能，可搭配五行水晶或升級禮盒版，讓洞察落在日常。",
+        "cta": "前往八字解讀",
+        "note": "在 App 內解鎖完整報告"
+      },
+      "reportZiwei": {
+        "title": "讀懂星盤，再邁出一步",
+        "sub": "Read your stars. Walk with intention.",
+        "body": "紫微報告描繪十二宮的人生面向；讀懂之後，用 OraSage 對話深入追問，或搭配能量手串讓平衡觸手可及。",
+        "cta": "前往紫微斗數",
+        "note": "在 App 內查看完整命盤解讀"
+      },
+      "reportTarot": {
+        "title": "看見當下，再選擇行動",
+        "sub": "See the pattern. Choose your step.",
+        "body": "塔羅解讀不是預言，而是覺察的入口；牌面照亮當下，行動仍在你手中。每日運勢與深度報告可組合使用。",
+        "cta": "前往塔羅",
+        "note": "在 App 內抽取與查看解讀"
+      },
+      "temple": {
+        "title": "祈福即連接",
+        "sub": "Blessing is connection.",
+        "body": "每一次祈福都是與更大善意的連接；樂捐支持 OraSage 祈福體系持續運營，讓這份體驗長久可用。",
+        "cta": "探索 OraSage",
+        "note": "感謝你的自願支持"
+      },
+      "ziweiChat": {
+        "title": "對話即成長",
+        "sub": "Ask deeper. Understand more.",
+        "body": "排盤之後的追問，往往是理解的關鍵。OraSage 對話讓命盤從「看見」走向「懂得」。",
+        "cta": "前往紫微斗數",
+        "note": "額度自動充值到帳戶"
+      },
+      "default": {
+        "title": "理清困惑，邁出下一步",
+        "sub": "Clarity first. Action follows.",
+        "body": "有時你需要的不是另一份報告，而是一個願意認真聽、能幫你理清的人。30 分鐘諮詢，聚焦你此刻最真實的問題。",
+        "cta": "了解 OraSage 命理體系",
+        "note": "付款後顧問將聯繫確認時段"
+      }
     }
   }
 }
