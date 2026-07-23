@@ -10,7 +10,8 @@ export const BAZI_SINGLE_SKUS: Record<PlanType, string> = {
 };
 
 export const BAZI_COUPLE_SKUS: Record<PlanType, string> = {
-  basic: 'report-bazi-couple-basic',
+  // 合盘 basic 与单盘共用同一数字报告 SKU（已去掉重复的 report-bazi-couple-basic）
+  basic: 'report-bazi-basic',
   advanced: 'report-bazi-couple-advanced',
   premium: 'report-bazi-couple-premium',
 };

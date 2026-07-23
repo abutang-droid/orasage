@@ -67,11 +67,9 @@ const CATALOG_FALLBACK_RAW: Omit<Product, 'tags'>[] = [
 
 /** App 计费深链 / 结账兜底（不进入目录列表） */
 const BILLING_FALLBACK_RAW: Omit<Product, 'tags'>[] = [
-  { sku: 'report-bazi', name: '八字深度报告', desc: '完整命盘解析 · PDF 交付', priceCents: 6800, priceCentsUsd: 944, category: 'report' },
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
   { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 9900, priceCentsUsd: 1375, category: 'report' },
   { sku: 'report-bazi-premium', name: '八字终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 29900, priceCentsUsd: 4153, category: 'report' },
-  { sku: 'report-bazi-couple-basic', name: '八字合盘深度解读', desc: '双人合盘 AI 解读报告', priceCents: 990, priceCentsUsd: 138, category: 'report' },
   { sku: 'report-bazi-couple-advanced', name: '八字合盘报告 + 能量手串', desc: '合盘解读 + 双人五行水晶推荐', priceCents: 19800, priceCentsUsd: 2750, category: 'report' },
   { sku: 'report-bazi-couple-premium', name: '八字合盘终极能量礼盒', desc: '完整合盘报告 + 水晶礼盒', priceCents: 59800, priceCentsUsd: 8306, category: 'report' },
   { sku: 'report-ziwei', name: '紫微深度报告', desc: '十二宫详解 · 流年运势', priceCents: 7800, priceCentsUsd: 1083, category: 'report' },

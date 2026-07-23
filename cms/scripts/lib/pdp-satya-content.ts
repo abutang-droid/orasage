@@ -361,7 +361,7 @@ type ReportConfig = {
 };
 
 function parseReportSku(sku: string): ReportConfig | null {
-  if (sku === 'report-bazi' || sku.startsWith('report-bazi')) {
+  if (sku.startsWith('report-bazi')) {
     const isCouple = sku.includes('couple');
     const tier: ReportTier = sku.includes('premium')
       ? isCouple
@@ -373,9 +373,7 @@ function parseReportSku(sku: string): ReportConfig | null {
           : 'advanced'
         : sku.includes('couple')
           ? 'couple-basic'
-          : sku === 'report-bazi'
-            ? 'legacy'
-            : 'basic';
+          : 'basic';
 
     const tierLabels: Record<ReportTier, string> = {
       legacy: '完整命盘 · 数字交付',
