@@ -45,7 +45,7 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
         </select>
       </label>
       <label>
-        价格 USDT{kind === 'combo' ? '（组合优惠价）' : ''}
+        价格{kind === 'combo' ? '（组合优惠价）' : ''}
         <input
           name="priceUsdt"
           type="number"
@@ -62,11 +62,8 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
           placeholder="39.90"
         />
       </label>
-      <p className="full-width muted">
-        前台以 USDT 列价，并按「USDT↔WOLD 汇率」显示 WOLD。结账时用户可选 USDT 或 WOLD 支付。
-      </p>
       <label>
-        促销价 USDT（可选）
+        促销价（可选）
         <input
           name="salePriceUsdt"
           type="number"

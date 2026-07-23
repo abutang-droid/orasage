@@ -58,8 +58,9 @@ export function ProductInlineEditForm({
             ? (product.priceCentsUsd / 100).toFixed(2)
             : (product.priceCents / 100 / 7.2).toFixed(2)
         }
-        placeholder="USDT"
+        placeholder="价格"
         required
+        title="价格（单位见商城→计价）"
       />
       <input name="sortOrder" type="number" defaultValue={product.sortOrder} />
       <label>

@@ -33,7 +33,7 @@ function BeadForm({ bead }: { bead?: AdminDiyBead }) {
       </label>
       <label>直径 mm<input name="diameterMm" type="number" step="0.1" min="1" required defaultValue={bead?.diameterMm} /></label>
       <label>厚度 mm（隔片）<input name="thicknessMm" type="number" step="0.1" min="0.5" defaultValue={bead?.thicknessMm ?? ''} placeholder="仅隔片填写" /></label>
-      <label>单颗价 USDT<input name="priceUsdt" type="number" step="0.01" min="0" required defaultValue={bead?.priceCentsUsd != null ? (bead.priceCentsUsd / 100).toFixed(2) : bead ? (bead.priceCents / 100 / 7.2).toFixed(2) : ''} /></label>
+      <label>单颗价<input name="priceUsdt" type="number" step="0.01" min="0" required defaultValue={bead?.priceCentsUsd != null ? (bead.priceCentsUsd / 100).toFixed(2) : bead ? (bead.priceCents / 100 / 7.2).toFixed(2) : ''} title="单位见商城→计价" /></label>
       <label>库存<input name="stock" type="number" min="0" defaultValue={bead?.stock ?? 999} /></label>
       <label>排序<input name="sortOrder" type="number" defaultValue={bead?.sortOrder ?? 0} /></label>
       <label className="full-width">图片 URL<input name="imageUrl" defaultValue={bead?.imageUrl ?? ''} placeholder="留空使用渐变色占位（可粘贴 CMS 媒体库图片地址）" /></label>
@@ -135,7 +135,7 @@ export default async function BeadsPage({
                 <th>五行</th>
                 <th>材质</th>
                 <th>尺寸</th>
-                <th>单颗 USDT</th>
+                <th>单颗价</th>
                 <th>库存</th>
                 <th>状态</th>
                 <th>操作</th>
@@ -155,8 +155,8 @@ export default async function BeadsPage({
                   <td>{bead.type === 'disc' && bead.thicknessMm ? `${bead.diameterMm}×${bead.thicknessMm}mm` : `${bead.diameterMm}mm`}</td>
                   <td>
                     {bead.priceCentsUsd != null
-                      ? `${(bead.priceCentsUsd / 100).toFixed(2)} USDT`
-                      : `${(bead.priceCents / 100 / 7.2).toFixed(2)} USDT`}
+                      ? (bead.priceCentsUsd / 100).toFixed(2)
+                      : (bead.priceCents / 100 / 7.2).toFixed(2)}
                   </td>
                   <td>{bead.stock}</td>
                   <td>{bead.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>

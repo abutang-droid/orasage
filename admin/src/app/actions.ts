@@ -284,15 +284,22 @@ export async function saveHomepageProductsAction(formData: FormData) {
 
 export async function saveShopLayoutAction(formData: FormData) {
   const homeLayout = String(formData.get('homeLayout') ?? 'legacy') as 'legacy' | 'crystal_v1';
-  const woldRaw = String(formData.get('woldPerUsdt') ?? '').trim();
-  const woldPerUsdt = woldRaw ? Number(woldRaw) : undefined;
-  await saveShopConfig({
-    homeLayout,
-    ...(woldPerUsdt != null && Number.isFinite(woldPerUsdt) && woldPerUsdt > 0
-      ? { woldPerUsdt }
-      : {}),
-  });
+  await saveShopConfig({ homeLayout });
   revalidatePath('/products');
+  revalidatePath('/shop/crystal-home');
+}
+
+/** 全站计价：USDT↔WOLD 汇率（仅此一处配置） */
+export async function saveShopPricingAction(formData: FormData) {
+  const woldRaw = String(formData.get('woldPerUsdt') ?? '').trim();
+  const woldPerUsdt = Number(woldRaw);
+  if (!Number.isFinite(woldPerUsdt) || woldPerUsdt <= 0) {
+    throw new Error('请填写有效的 USDT→WOLD 汇率');
+  }
+  await saveShopConfig({ woldPerUsdt });
+  revalidatePath('/shop/pricing');
+  revalidatePath('/products');
+  redirect('/shop/pricing?saved=ok');
 }
 
 const CRYSTAL_CONTENT_SKUS = [

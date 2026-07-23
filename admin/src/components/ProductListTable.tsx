@@ -217,7 +217,7 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
               <th>形态</th>
               <th>可见性</th>
               <th>库存</th>
-              <th>价格 USDT</th>
+              <th>价格</th>
               <th>状态</th>
               <th>详情页</th>
               <th>操作</th>
@@ -271,7 +271,7 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
                   </td>
                   <td>
                     {p.priceCentsUsd != null
-                      ? `${(p.priceCentsUsd / 100).toFixed(2)} USDT`
+                      ? (p.priceCentsUsd / 100).toFixed(2)
                       : (p.priceDisplayUsd ?? p.priceDisplay ?? '—')}
                   </td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
