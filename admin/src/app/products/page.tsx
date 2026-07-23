@@ -31,6 +31,7 @@ export default async function ProductsPage({
   let products: Awaited<ReturnType<typeof getProducts>>['products'] = [];
   let homepageSkus: string[] = [];
   let shopHomeLayout: 'legacy' | 'crystal_v1' = 'legacy';
+  let woldPerUsdt = 1;
   let tagData: Awaited<ReturnType<typeof getTags>> = { groups: [], tags: [] };
   let categories: Awaited<ReturnType<typeof getCategories>>['categories'] = [];
   let productImageMap = new Map<string, string>();
@@ -56,7 +57,9 @@ export default async function ProductsPage({
     console.error('[admin/homepage-products]', err);
   }
   try {
-    ({ homeLayout: shopHomeLayout } = await getShopConfig());
+    const cfg = await getShopConfig();
+    shopHomeLayout = cfg.homeLayout;
+    woldPerUsdt = cfg.woldPerUsdt > 0 ? cfg.woldPerUsdt : 1;
   } catch (err) {
     console.error('[admin/shop-config]', err);
   }
@@ -122,9 +125,9 @@ export default async function ProductsPage({
       </section>
 
       <section className="panel">
-        <h2>商城首页布局</h2>
+        <h2>商城首页与计价</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
-          切换 shop.orasage.com 首页展示形态。经典目录保留全品类网格；水晶专题为五行主编排 + 标准装/礼盒装双规格。
+          切换首页展示形态；商品以 USDT 列价，结账可选 USDT / WOLD，汇率在此配置。
         </p>
         <form action={saveShopLayoutAction} className="form-grid">
           <label className="full-width">
@@ -134,7 +137,18 @@ export default async function ProductsPage({
               <option value="crystal_v1">水晶专题（五行主编排）</option>
             </select>
           </label>
-          <AdminSubmitButton className="full-width">保存首页布局</AdminSubmitButton>
+          <label className="full-width">
+            USDT → WOLD 汇率（1 USDT = ? WOLD）
+            <input
+              name="woldPerUsdt"
+              type="number"
+              step="0.0001"
+              min="0.0001"
+              required
+              defaultValue={woldPerUsdt}
+            />
+          </label>
+          <AdminSubmitButton className="full-width">保存布局与汇率</AdminSubmitButton>
         </form>
       </section>
 

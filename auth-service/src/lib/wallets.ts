@@ -3,7 +3,7 @@ import { db } from "../db/index.ts";
 import { userWallets, users, walletLedgerEntries } from "../db/schema.ts";
 import type { walletLedgerKindEnum } from "../db/schema.ts";
 
-export const SUPPORTED_WALLET_CURRENCIES = ["CNY", "USD", "BRL"] as const;
+export const SUPPORTED_WALLET_CURRENCIES = ["CNY", "USD", "BRL", "USDT", "WOLD"] as const;
 export type WalletCurrency = (typeof SUPPORTED_WALLET_CURRENCIES)[number];
 
 export type WalletLedgerKind = typeof walletLedgerKindEnum.enumValues[number];
@@ -31,6 +31,8 @@ export function formatWalletAmount(cents: number, currency: string): string {
   if (cur === "CNY") return `¥${value}`;
   if (cur === "USD") return `$${value}`;
   if (cur === "BRL") return `R$${value}`;
+  if (cur === "USDT") return `${value} USDT`;
+  if (cur === "WOLD") return `${value} WOLD`;
   return `${value} ${cur}`;
 }
 

@@ -50,18 +50,15 @@ export function ProductInlineEditForm({
         ))}
       </select>
       <input
-        name="priceYuan"
+        name="priceUsdt"
         type="number"
         step="0.01"
-        defaultValue={(product.priceCents / 100).toFixed(2)}
-        required
-      />
-      <input
-        name="priceUsd"
-        type="number"
-        step="0.01"
-        defaultValue={product.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''}
-        placeholder="USD"
+        defaultValue={
+          product.priceCentsUsd != null
+            ? (product.priceCentsUsd / 100).toFixed(2)
+            : (product.priceCents / 100 / 7.2).toFixed(2)
+        }
+        placeholder="USDT"
         required
       />
       <input name="sortOrder" type="number" defaultValue={product.sortOrder} />

@@ -5,7 +5,8 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
-import { getCrystalContent, getShopPublicConfig } from "../lib/shop-settings.ts";
+import { getCrystalContent, getFxRates, getShopPublicConfig } from "../lib/shop-settings.ts";
+import { setRuntimeWoldPerUsdt } from "../../../shared/shop-locale/index.ts";
 import {
   formatProductLink,
   getCategoryLabelMap,
@@ -80,14 +81,17 @@ productsRouter.get("/", async (req, res) => {
     rows = rows.filter((row) => ids.has(row.id));
   }
 
-  const [categoryLabels, tagMap] = await Promise.all([
+  const [categoryLabels, tagMap, fx] = await Promise.all([
     getCategoryLabelMap(),
     tagsForProducts(rows.map((r) => r.id), locale),
+    getFxRates(),
   ]);
+  setRuntimeWoldPerUsdt(fx.woldPerUsdt);
 
   res.json({
     products: await formatProductsWithCombos(rows, { locale, categoryLabels, tagMap }),
     locale,
+    woldPerUsdt: fx.woldPerUsdt,
   });
 });
 

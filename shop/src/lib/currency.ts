@@ -1,29 +1,41 @@
-import type { ShopCurrency } from '../../../shared/shop-locale/index';
+import type { PayCurrency, ShopCurrency } from '../../../shared/shop-locale/index';
 import {
   currencyForLocale,
   detectShopLocale,
   formatDualShopPrice,
+  formatPayPrice,
   formatShopPrice,
   formatUsdtPrice,
   formatWoldPrice,
+  isPayCurrency,
+  normalizePayCurrency,
+  resolvePayAmountCents,
   resolvePriceCents,
   resolveUsdtCents,
   resolveWoldCents,
+  setRuntimeWoldPerUsdt,
+  usdtCentsToLegacyCnyCents,
   woldPerUsdt,
 } from '../../../shared/shop-locale/index';
 
-export type { ShopCurrency };
+export type { PayCurrency, ShopCurrency };
 
 export {
   currencyForLocale,
   detectShopLocale,
   formatDualShopPrice,
+  formatPayPrice,
   formatShopPrice,
   formatUsdtPrice,
   formatWoldPrice,
+  isPayCurrency,
+  normalizePayCurrency,
+  resolvePayAmountCents,
   resolvePriceCents,
   resolveUsdtCents,
   resolveWoldCents,
+  setRuntimeWoldPerUsdt,
+  usdtCentsToLegacyCnyCents,
   woldPerUsdt,
 };
 

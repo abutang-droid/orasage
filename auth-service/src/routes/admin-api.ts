@@ -6,7 +6,14 @@ import { contactMessages, homepageFeaturedProducts, products, userOrders, userRe
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
-import { getCrystalContent, getShopPublicConfig, setCrystalContent, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
+import {
+  getCrystalContent,
+  getShopPublicConfig,
+  setCrystalContent,
+  setFxRates,
+  setShopHomeLayout,
+  SHOP_HOME_LAYOUTS,
+} from "../lib/shop-settings.ts";
 import {
   listComboItems,
   resolveComboMeta,
@@ -227,7 +234,10 @@ adminApiRouter.put("/homepage-products", P.products, async (req, res) => {
 });
 
 const shopLayoutSchema = z.object({
-  homeLayout: z.enum(SHOP_HOME_LAYOUTS),
+  homeLayout: z.enum(SHOP_HOME_LAYOUTS).optional(),
+  woldPerUsdt: z.number().positive().max(1_000_000).optional(),
+}).refine((b) => b.homeLayout !== undefined || b.woldPerUsdt !== undefined, {
+  message: "至少提供一个配置项",
 });
 
 adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
@@ -244,8 +254,14 @@ adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
 adminApiRouter.put("/shop-config", P.products, async (req, res) => {
   try {
     const body = shopLayoutSchema.parse(req.body);
-    const homeLayout = await setShopHomeLayout(body.homeLayout);
-    res.json({ homeLayout });
+    if (body.homeLayout !== undefined) {
+      await setShopHomeLayout(body.homeLayout);
+    }
+    if (body.woldPerUsdt !== undefined) {
+      await setFxRates({ woldPerUsdt: body.woldPerUsdt });
+    }
+    const config = await getShopPublicConfig();
+    res.json(config);
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });

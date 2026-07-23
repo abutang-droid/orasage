@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
-import { getOrderByNo, updateOrderStatus } from '@/lib/orders';
+import { getOrderByNo } from '@/lib/orders';
 import { dispatchReportJob } from '@/lib/reportJob';
 import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
 import { parseShippingAddress } from '../../../../../shared/shop-fulfillment/index';
 import { orderNeedsShippingBeforePay } from '@/lib/order-fulfillment';
+import { ENV } from '@/lib/env';
+import { paymentsUseStripe } from '@/lib/payment-mode';
+import { normalizePayCurrency } from '@/lib/currency';
+import { resolvePayProvider } from '../../../../../shared/payments/pay-currency';
 
-/** 模拟支付 — PAYMENT_MODE=mock 时完成订单（需登录，且订单必须属于当前用户） */
+const bodySchema = z.object({
+  currency: z.string().min(3).max(8),
+  provider: z.enum(['mock', 'stripe', 'wallet']).optional(),
+});
+
+/**
+ * 支付入口：选择 USDT / WOLD 后路由到对应支付通道。
+ * - mock（默认）：auth internal /pay 标记已付
+ * - wallet：扣对应币种钱包
+ * - stripe：仅 USDT（数字商品已在建单时走 Stripe Session；此处返回提示）
+ */
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
   if (!user) {
@@ -19,6 +34,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const raw = await req.json().catch(() => ({}));
+    const body = bodySchema.parse(raw);
+    const payCurrency = normalizePayCurrency(body.currency);
+    if (!payCurrency) {
+      return NextResponse.json({ error: '请选择 USDT 或 WOLD 支付' }, { status: 400 });
+    }
+
     const order = await getOrderByNo(orderNo);
     if (!order) {
       return NextResponse.json({ error: '订单不存在' }, { status: 404 });
@@ -35,22 +57,67 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请先填写收货信息' }, { status: 400 });
     }
 
-    await updateOrderStatus(orderNo, 'paid');
-    // 报告生成走后台，避免 LLM 耗时导致结账页卡在「处理中」
-    void dispatchReportJob(order).catch((err) => {
-      console.error('[pay] report-job error:', err);
+    const preferred = body.provider
+      ?? (paymentsUseStripe() && payCurrency === 'USDT' ? undefined : 'mock');
+    const provider = resolvePayProvider({
+      payCurrency,
+      preferred: preferred === 'stripe' ? 'stripe' : preferred,
     });
-    if (order.appSource === 'tarot') {
-      await notifyTarotOfferMerit({
-        recommendationContext: order.recommendationContext,
-        orderNo,
-        amountCents: order.amountCents,
-        sku: order.sku,
-      });
+
+    // Stripe 实体单仍走 mock/wallet；数字商品建单时已给 checkoutUrl
+    const payProvider = provider === 'stripe' ? 'mock' : provider;
+
+    const res = await fetch(
+      `${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(orderNo)}/pay`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          currency: payCurrency,
+          provider: payProvider,
+        }),
+      },
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: (data as { error?: string }).error || '支付失败' },
+        { status: res.status },
+      );
     }
-    return NextResponse.json({ success: true, orderNo, status: 'paid' });
+
+    const paidOrder = await getOrderByNo(orderNo);
+    if (paidOrder) {
+      void dispatchReportJob(paidOrder).catch((err) => {
+        console.error('[pay] report-job error:', err);
+      });
+      if (paidOrder.appSource === 'tarot') {
+        await notifyTarotOfferMerit({
+          recommendationContext: paidOrder.recommendationContext,
+          orderNo,
+          amountCents: paidOrder.amountCents,
+          sku: paidOrder.sku,
+        });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      orderNo,
+      status: 'paid',
+      currency: payCurrency,
+      amountCents: (data as { amountCents?: number }).amountCents,
+      provider: payProvider,
+    });
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: '参数错误', details: err.errors }, { status: 400 });
+    }
     console.error('[pay]', err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : '支付失败' }, { status: 500 });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : '支付失败' },
+      { status: 500 },
+    );
   }
 }

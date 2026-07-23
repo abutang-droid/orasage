@@ -128,8 +128,16 @@ export async function saveDiyBeadAction(formData: FormData) {
   const beadType = String(formData.get('beadType') ?? 'crystal') as 'crystal' | 'spacer' | 'disc';
   const diameterMm = Number(formData.get('diameterMm') ?? 0);
   const thicknessRaw = String(formData.get('thicknessMm') ?? '').trim();
-  const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
-  const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
+  const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? '').trim();
+  const priceYuanRaw = String(formData.get('priceYuan') ?? '').trim();
+  const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
+  let priceCentsUsd = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
+  let priceCents = priceYuanRaw ? Math.round(Number(priceYuanRaw) * 100) : 0;
+  if (priceCentsUsd != null && priceCentsUsd >= 0) {
+    priceCents = Math.round(priceCentsUsd * cnyRate);
+  } else if (priceCents > 0) {
+    priceCentsUsd = Math.max(50, Math.round(priceCents / cnyRate));
+  }
   const imageUrl = String(formData.get('imageUrl') ?? '').trim();
   const colors = String(formData.get('colors') ?? '').trim();
   const stock = Number(formData.get('stock') ?? 999);
@@ -137,7 +145,7 @@ export async function saveDiyBeadAction(formData: FormData) {
   const active = formData.get('active') === 'on';
   const isEdit = formData.get('isEdit') === '1';
 
-  if (!code || !name || !material || diameterMm <= 0 || priceCents < 0) {
+  if (!code || !name || !material || diameterMm <= 0 || priceCents < 0 || priceCentsUsd == null) {
     throw new Error('请填写完整珠子信息');
   }
 
@@ -150,7 +158,7 @@ export async function saveDiyBeadAction(formData: FormData) {
     diameterMm,
     thicknessMm: beadType === 'disc' && thicknessRaw ? Number(thicknessRaw) : null,
     priceCents,
-    priceCentsUsd: priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null,
+    priceCentsUsd,
     imageUrl: imageUrl || null,
     colors: colors || null,
     stock: Number.isFinite(stock) ? stock : 999,
@@ -276,7 +284,14 @@ export async function saveHomepageProductsAction(formData: FormData) {
 
 export async function saveShopLayoutAction(formData: FormData) {
   const homeLayout = String(formData.get('homeLayout') ?? 'legacy') as 'legacy' | 'crystal_v1';
-  await saveShopConfig(homeLayout);
+  const woldRaw = String(formData.get('woldPerUsdt') ?? '').trim();
+  const woldPerUsdt = woldRaw ? Number(woldRaw) : undefined;
+  await saveShopConfig({
+    homeLayout,
+    ...(woldPerUsdt != null && Number.isFinite(woldPerUsdt) && woldPerUsdt > 0
+      ? { woldPerUsdt }
+      : {}),
+  });
   revalidatePath('/products');
 }
 

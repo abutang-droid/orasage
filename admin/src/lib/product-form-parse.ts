@@ -72,15 +72,29 @@ export function parseProductFormPayload(formData: FormData) {
       comboItems = undefined;
     }
   }
-  const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
-  const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
-  const priceCentsUsd = priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null;
+  // 单一列价：USDT；兼容旧表单 priceYuan/priceUsd
+  const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? '').trim();
+  const priceYuanRaw = String(formData.get('priceYuan') ?? '').trim();
+  let priceCentsUsd = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
+  let priceCents = priceYuanRaw ? Math.round(Number(priceYuanRaw) * 100) : 0;
+  if (priceCentsUsd != null && priceCentsUsd >= 0) {
+    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
+    priceCents = Math.round(priceCentsUsd * cnyRate);
+  } else if (priceCents > 0) {
+    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
+    priceCentsUsd = Math.max(50, Math.round(priceCents / cnyRate));
+  }
+
+  const saleUsdtRaw = String(formData.get('salePriceUsdt') ?? formData.get('salePriceUsd') ?? '').trim();
   const saleYuanRaw = String(formData.get('salePriceYuan') ?? '').trim();
-  const saleUsdRaw = String(formData.get('salePriceUsd') ?? '').trim();
   const saleStartsRaw = String(formData.get('saleStartsAt') ?? '').trim();
   const saleEndsRaw = String(formData.get('saleEndsAt') ?? '').trim();
-  const salePriceCents = saleYuanRaw ? Math.round(Number(saleYuanRaw) * 100) : null;
-  const salePriceCentsUsd = saleUsdRaw ? Math.round(Number(saleUsdRaw) * 100) : null;
+  let salePriceCentsUsd = saleUsdtRaw ? Math.round(Number(saleUsdtRaw) * 100) : null;
+  let salePriceCents = saleYuanRaw ? Math.round(Number(saleYuanRaw) * 100) : null;
+  if (salePriceCentsUsd != null && salePriceCentsUsd >= 0) {
+    const cnyRate = Number(process.env.CNY_TO_USD_RATE ?? '7.2') || 7.2;
+    salePriceCents = Math.round(salePriceCentsUsd * cnyRate);
+  }
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
   const requiresShipping = kind === 'combo' ? false : formData.get('requiresShipping') === 'on';
