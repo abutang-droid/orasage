@@ -695,6 +695,7 @@ internalRouter.get("/readings/:readingId", async (req, res) => {
       title: row.title,
       summary: row.summary,
       reportUrl: row.reportUrl,
+      crystalSku: row.crystalSku,
       payloadJson: row.payloadJson,
     },
   });

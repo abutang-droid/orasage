@@ -1,13 +1,18 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { productComboItems, products } from "../db/schema.ts";
 import type { ProductRow } from "./product-format.ts";
 import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/shop-fulfillment/index.ts";
 import { pickLocalized } from "./product-i18n.ts";
+import {
+  normalizeComboItemRole,
+  type ComboItemRole,
+} from "../../../shared/shop-combo/crystal-role.ts";
 
 export type ComboItemInput = {
   componentSku: string;
   quantity?: number;
+  role?: ComboItemRole | string;
 };
 
 export type ComboItemRow = typeof productComboItems.$inferSelect;
@@ -16,6 +21,7 @@ export type ResolvedComboItem = {
   componentSku: string;
   quantity: number;
   sortOrder: number;
+  role: ComboItemRole;
   name: string;
   kind: string;
   category: string;
@@ -32,9 +38,17 @@ export type ComboMeta = {
   useComponentSum: boolean;
   requiresShipping: boolean;
   requiresWristSize: boolean;
+  hasElementCrystal: boolean;
 };
 
 const COMPONENT_KINDS = new Set(["standard", "digital", "service"]);
+
+type ComboItemLike = {
+  componentSku: string;
+  quantity: number;
+  sortOrder?: number;
+  role?: string | null;
+};
 
 export async function listComboItems(comboSku: string): Promise<ComboItemRow[]> {
   return db
@@ -80,7 +94,7 @@ function resolveItemFulfillment(component: ProductRow) {
 
 export function buildComboMeta(
   combo: ProductRow,
-  itemRows: ComboItemRow[],
+  itemRows: ComboItemLike[],
   componentBySku: Map<string, ProductRow>,
   locale = "zh-CN",
 ): ComboMeta | null {
@@ -90,22 +104,30 @@ export function buildComboMeta(
   let componentSumCents = 0;
   let componentSumUsdCents = 0;
   let hasUsd = true;
+  let hasElementCrystal = false;
 
-  for (const row of itemRows) {
+  for (const [index, row] of itemRows.entries()) {
     const component = componentBySku.get(row.componentSku);
     if (!component) continue;
     const qty = Math.max(1, row.quantity);
+    const role = normalizeComboItemRole(row.role);
+    if (role === "element_crystal") hasElementCrystal = true;
     const fulfillment = resolveItemFulfillment(component);
     const usd = component.priceCentsUsd;
     if (usd == null) hasUsd = false;
     componentSumCents += component.priceCents * qty;
     if (usd != null) componentSumUsdCents += usd * qty;
 
+    const displayName = role === "element_crystal"
+      ? `五行推荐水晶（变量 · 参考 ${pickLocalized(component.nameI18n, locale, component.name)}）`
+      : pickLocalized(component.nameI18n, locale, component.name);
+
     items.push({
       componentSku: row.componentSku,
       quantity: qty,
-      sortOrder: row.sortOrder,
-      name: pickLocalized(component.nameI18n, locale, component.name),
+      sortOrder: row.sortOrder ?? index,
+      role,
+      name: displayName,
       kind: component.kind,
       category: component.category,
       priceCents: component.priceCents,
@@ -124,6 +146,7 @@ export function buildComboMeta(
     useComponentSum: combo.comboUseComponentSum,
     requiresShipping: items.some((i) => i.requiresShipping),
     requiresWristSize: items.some((i) => i.requiresWristSize),
+    hasElementCrystal,
   };
 }
 
@@ -161,26 +184,37 @@ export async function validateComboItems(comboSku: string, items: ComboItemInput
   if (items.length > 20) return "组合子商品不能超过 20 个";
 
   const seen = new Set<string>();
+  let elementCrystalCount = 0;
   for (const item of items) {
     const sku = item.componentSku.trim();
+    const role = normalizeComboItemRole(item.role);
     if (!sku) return "子商品 SKU 不能为空";
     if (sku === comboSku) return "组合不能包含自身";
     if (seen.has(sku)) return `子商品 SKU 重复：${sku}`;
     seen.add(sku);
     const qty = item.quantity ?? 1;
     if (!Number.isInteger(qty) || qty < 1 || qty > 99) return `子商品 ${sku} 数量无效`;
+    if (role === "element_crystal") elementCrystalCount += 1;
   }
+  if (elementCrystalCount > 1) return "五行推荐水晶变量子项最多一个";
 
   const componentSkus = [...seen];
   const rows = await db.select().from(products).where(inArray(products.sku, componentSkus));
   const bySku = new Map(rows.map((r) => [r.sku, r]));
 
-  for (const sku of componentSkus) {
+  for (const item of items) {
+    const sku = item.componentSku.trim();
+    const role = normalizeComboItemRole(item.role);
     const row = bySku.get(sku);
     if (!row) return `未知子商品 SKU：${sku}`;
     if (!row.active) return `子商品已下架：${sku}`;
     if (row.kind === "combo") return `不能嵌套组合商品：${sku}`;
     if (!COMPONENT_KINDS.has(row.kind)) return `子商品形态不支持：${sku}`;
+    if (role === "element_crystal") {
+      if (row.category !== "crystal" && !sku.startsWith("crystal-")) {
+        return `五行推荐变量须选择水晶类 SKU 作为参考/回退：${sku}`;
+      }
+    }
   }
 
   return null;
@@ -197,6 +231,7 @@ export async function setComboItems(comboSku: string, items: ComboItemInput[]) {
     componentSku: item.componentSku.trim(),
     quantity: Math.max(1, item.quantity ?? 1),
     sortOrder: index,
+    role: normalizeComboItemRole(item.role),
   }));
 
   if (values.length > 0) {

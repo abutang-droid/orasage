@@ -504,6 +504,7 @@ const comboItemsSchema = z.object({
   items: z.array(z.object({
     componentSku: z.string().min(1).max(100),
     quantity: z.number().int().min(1).max(99).optional(),
+    role: z.enum(["fixed", "element_crystal"]).optional(),
   })).max(20),
 });
 

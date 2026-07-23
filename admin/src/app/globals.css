@@ -790,7 +790,7 @@ details summary {
 
 .product-combo-row {
   display: grid;
-  grid-template-columns: 1fr 120px auto;
+  grid-template-columns: minmax(9rem, 0.9fr) minmax(12rem, 1.4fr) 100px auto;
   gap: 0.75rem;
   align-items: end;
 }

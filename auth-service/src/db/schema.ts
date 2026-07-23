@@ -223,6 +223,8 @@ export const productComboItems = pgTable("product_combo_items", {
   componentSku: varchar("component_sku", { length: 100 }).notNull(),
   quantity: integer("quantity").notNull().default(1),
   sortOrder: integer("sort_order").notNull().default(0),
+  /** fixed=固定子商品；element_crystal=按八字五行推荐的可变水晶（component_sku 为回退/参考价） */
+  role: varchar("role", { length: 30 }).notNull().default("fixed"),
 });
 
 /** 前台展示分类（Q3：可配置 + 多语言，替代原 product_category 枚举） */

@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
       cancelUrl: body.cancelUrl,
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
+      crystalSku: body.crystalSku,
       planType: body.planType,
       shippingMode: body.shippingMode,
       locale: body.locale,

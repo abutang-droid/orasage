@@ -216,6 +216,7 @@ const productBodySchema = z.object({
   comboItems: z.array(z.object({
     componentSku: z.string().min(1).max(100),
     quantity: z.number().int().min(1).max(99).optional(),
+    role: z.enum(["fixed", "element_crystal"]).optional(),
   })).max(20).optional(),
   visibility: z.enum(["public", "unlisted", "app_only"]).optional(),
   stock: z.number().int().nonnegative().optional().nullable(),

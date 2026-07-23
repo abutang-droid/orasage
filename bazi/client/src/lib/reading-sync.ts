@@ -21,6 +21,11 @@ export function syncBaziSingleReading(
   const crystalSku = braceletToCrystalSku(braceletRec ?? null);
   const readingId = existingReadingId ?? newReadingId('bazi');
   const payloadJson = JSON.stringify({ type: 'single', lang, resultData: data });
+  if (crystalSku && typeof sessionStorage !== 'undefined') {
+    try {
+      sessionStorage.setItem('bazi:lastCrystalSku', crystalSku);
+    } catch { /* ignore */ }
+  }
   void syncReading({
     appSource: 'bazi',
     readingId,

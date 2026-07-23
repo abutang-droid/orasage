@@ -82,6 +82,8 @@ export function buildShopCheckoutUrl(params: {
   sku: string;
   returnUrl: string;
   readingId?: string;
+  /** 五行推荐水晶实际 SKU（组合商品变量子项履约） */
+  crystalSku?: string;
   planType: PlanType;
   mode: 'single' | 'couple';
   context?: string;
@@ -93,6 +95,7 @@ export function buildShopCheckoutUrl(params: {
     planType: params.planType,
   });
   if (params.readingId) qs.set('readingId', params.readingId);
+  if (params.crystalSku) qs.set('crystalSku', params.crystalSku);
   if (params.mode === 'couple') qs.set('shipping', 'couple');
   if (params.context) qs.set('context', params.context);
   return `${SHOP_URL}/checkout?${qs.toString()}`;
