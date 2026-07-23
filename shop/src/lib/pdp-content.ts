@@ -48,10 +48,15 @@ export function productEyebrow(
   sku: string,
   element?: string | null,
   material?: string | null,
+  /** 本地化「五行·{element} · {material}」；未传则回退中文格式 */
+  formatCrystalEyebrow?: (element: string, material: string) => string,
 ): string | null {
   const resolvedMaterial = material?.trim() || CRYSTAL_MATERIALS[sku];
   if (resolvedMaterial) {
-    return element ? `五行·${element} · ${resolvedMaterial}` : resolvedMaterial;
+    if (!element) return resolvedMaterial;
+    return formatCrystalEyebrow
+      ? formatCrystalEyebrow(element, resolvedMaterial)
+      : `五行·${element} · ${resolvedMaterial}`;
   }
 
   const report = REPORT_EYEBROWS.find((r) => r.match(sku));
