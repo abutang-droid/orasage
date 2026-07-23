@@ -39,7 +39,8 @@
     "loading": "載入商品…",
     "featured": "精選推薦",
     "featuredSubtitle": "命理解讀後最常搭配的能量好物",
-    "diy": "共振定制"
+    "diy": "共振定制",
+    "emptyFilter": "該標籤下暫無商品"
   },
   "crystalShowcase": {
     "empty": "水晶手串暫不可用，請稍後再試。",

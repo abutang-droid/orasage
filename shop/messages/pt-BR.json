@@ -39,7 +39,8 @@
     "loading": "Carregando produtos…",
     "featured": "Destaques",
     "featuredSubtitle": "Combinações populares após uma leitura",
-    "diy": "Ressonância personalizada"
+    "diy": "Ressonância personalizada",
+    "emptyFilter": "Nenhum produto com esta tag"
   },
   "crystalShowcase": {
     "empty": "Pulseiras de cristal indisponíveis no momento.",

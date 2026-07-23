@@ -39,7 +39,8 @@
     "loading": "Loading products…",
     "featured": "Featured",
     "featuredSubtitle": "Popular pairings after a reading",
-    "diy": "Custom resonance"
+    "diy": "Custom resonance",
+    "emptyFilter": "No products for this tag"
   },
   "crystalShowcase": {
     "empty": "Crystal bracelets are not available yet.",

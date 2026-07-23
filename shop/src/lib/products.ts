@@ -2,6 +2,13 @@ import { inferRequiresShipping, inferRequiresWristSize } from '../../../shared/s
 
 export type ProductCategory = 'crystal' | 'report' | 'service';
 
+export type ProductTag = {
+  id: number;
+  code: string;
+  label: string;
+  groupCode: string;
+};
+
 export interface Product {
   sku: string;
   name: string;
@@ -19,13 +26,28 @@ export interface Product {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  tags?: ProductTag[];
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
   imageUrl?: string | null;
 }
 
+const ELEMENT_TAG_FALLBACK: Record<string, ProductTag> = {
+  木: { id: 1, code: 'element-wood', label: '木', groupCode: 'element' },
+  火: { id: 2, code: 'element-fire', label: '火', groupCode: 'element' },
+  土: { id: 3, code: 'element-earth', label: '土', groupCode: 'element' },
+  金: { id: 4, code: 'element-metal', label: '金', groupCode: 'element' },
+  水: { id: 5, code: 'element-water', label: '水', groupCode: 'element' },
+};
+
+function fallbackTagsForProduct(p: Pick<Product, 'element'>): ProductTag[] {
+  if (!p.element) return [];
+  const tag = ELEMENT_TAG_FALLBACK[p.element];
+  return tag ? [tag] : [];
+}
+
 /** 静态兜底（auth-service 不可用时） */
-export const FALLBACK_PRODUCTS: Product[] = [
+const FALLBACK_PRODUCTS_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 招财旺运 · 生机生长', priceCents: 12800, priceCentsUsd: 1778, category: 'crystal' },
   { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 提振活力 · 勇敢行动', priceCents: 9800, priceCentsUsd: 1361, category: 'crystal' },
   { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固根基 · 聚财守正', priceCents: 10800, priceCentsUsd: 1500, category: 'crystal' },
@@ -54,6 +76,11 @@ export const FALLBACK_PRODUCTS: Product[] = [
   { sku: 'service-consult', name: '能量咨询 30 分钟', desc: '一对一命理师在线答疑', priceCents: 19800, priceCentsUsd: 2750, category: 'service' },
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
+
+export const FALLBACK_PRODUCTS: Product[] = FALLBACK_PRODUCTS_RAW.map((p) => ({
+  ...p,
+  tags: fallbackTagsForProduct(p),
+}));
 
 export const ELEMENT_TO_SKU: Record<string, string> = {
   木: 'crystal-wood',
@@ -87,12 +114,14 @@ interface ApiProduct {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
 }
 
 function mapApiProduct(p: ApiProduct): Product {
   const fulfillment = { category: p.category, sku: p.sku, requiresShipping: p.requiresShipping };
+  const tags = (p.tags ?? []).filter((t) => t?.code);
   return {
     sku: p.sku,
     name: p.name,
@@ -110,6 +139,7 @@ function mapApiProduct(p: ApiProduct): Product {
     currency: p.currency,
     priceDisplay: p.priceDisplay,
     category: p.category,
+    tags: tags.length > 0 ? tags : fallbackTagsForProduct({ element: p.element ?? undefined }),
     requiresShipping: p.requiresShipping ?? inferRequiresShipping(fulfillment),
     requiresWristSize: p.requiresWristSize ?? inferRequiresWristSize(fulfillment),
   };

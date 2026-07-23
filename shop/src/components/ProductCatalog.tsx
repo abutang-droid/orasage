@@ -3,46 +3,75 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import type { Product, ProductCategory } from '@/lib/products';
+import type { Product, ProductCategory, ProductTag } from '@/lib/products';
+import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { ProductCard } from './ProductCard';
-
-const CATEGORY_ORDER: ProductCategory[] = ['crystal', 'report', 'service'];
 
 type ProductCatalogProps = {
   products: Product[];
   featuredSkus?: string[];
 };
 
+function catalogHref(opts: {
+  tag?: string | null;
+  locale?: string;
+  sku?: string | null;
+}): string {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set('tag', opts.tag);
+  if (opts.locale && opts.locale !== 'zh-CN') params.set('locale', opts.locale);
+  if (opts.sku) params.set('sku', opts.sku);
+  const q = params.toString();
+  return q ? `/?${q}` : '/';
+}
+
+/** 目录中出现的推荐标签（去重，按分组与编码稳定排序） */
+function collectFilterTags(products: Product[]): ProductTag[] {
+  const byCode = new Map<string, ProductTag>();
+  for (const product of products) {
+    for (const tag of product.tags ?? []) {
+      if (!tag.code || byCode.has(tag.code)) continue;
+      byCode.set(tag.code, tag);
+    }
+  }
+  return [...byCode.values()].sort((a, b) => {
+    const groupCmp = (a.groupCode || '').localeCompare(b.groupCode || '');
+    if (groupCmp !== 0) return groupCmp;
+    return a.code.localeCompare(b.code);
+  });
+}
+
 export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogProps) {
   const t = useTranslations('categories');
   const tc = useTranslations('catalog');
+  const { locale } = useShopLocale();
   const searchParams = useSearchParams();
-  const activeCategory = (searchParams.get('cat') as ProductCategory | null) ?? 'all';
+  const activeTag = searchParams.get('tag')?.trim() || null;
+  /** 旧 ?cat= 链接仍可筛选，但不在 UI 上主动按分类展示 */
+  const legacyCatParam = searchParams.get('cat');
+  const legacyCategory: ProductCategory | null =
+    legacyCatParam === 'crystal' || legacyCatParam === 'report' || legacyCatParam === 'service'
+      ? legacyCatParam
+      : null;
   const highlightSku = searchParams.get('sku');
 
+  const filterTags = useMemo(() => collectFilterTags(products), [products]);
+
   const filtered = useMemo(() => {
-    if (activeCategory === 'all') return products;
-    return products.filter((p) => p.category === activeCategory);
-  }, [products, activeCategory]);
+    if (activeTag) {
+      return products.filter((p) => (p.tags ?? []).some((tag) => tag.code === activeTag));
+    }
+    if (legacyCategory) {
+      return products.filter((p) => p.category === legacyCategory);
+    }
+    return products;
+  }, [products, activeTag, legacyCategory]);
 
   const featured = useMemo(() => {
-    if (featuredSkus.length === 0) return [];
+    if (activeTag || legacyCategory || featuredSkus.length === 0) return [];
     const bySku = new Map(products.map((p) => [p.sku, p]));
     return featuredSkus.map((sku) => bySku.get(sku)).filter((p): p is Product => Boolean(p));
-  }, [products, featuredSkus]);
-
-  const sections = useMemo(() => {
-    if (activeCategory !== 'all') {
-      return [{ id: activeCategory, label: t(activeCategory), items: filtered }];
-    }
-    return CATEGORY_ORDER
-      .map((cat) => ({
-        id: cat,
-        label: t(cat),
-        items: products.filter((p) => p.category === cat),
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [activeCategory, filtered, products, t]);
+  }, [products, featuredSkus, activeTag, legacyCategory]);
 
   useEffect(() => {
     if (!highlightSku) return;
@@ -52,19 +81,26 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
     }
   }, [highlightSku, filtered]);
 
-  const categories: Array<ProductCategory | 'all'> = ['all', 'crystal', 'report', 'service'];
+  const showAll = !activeTag && !legacyCategory;
 
   return (
     <>
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden">
-        {categories.map((cat) => (
+        <a
+          href={catalogHref({ locale, sku: highlightSku })}
+          data-active={showAll}
+          className="shop-category-pill"
+        >
+          {t('all')}
+        </a>
+        {filterTags.map((tag) => (
           <a
-            key={cat}
-            href={cat === 'all' ? '/' : `/?cat=${cat}`}
-            data-active={activeCategory === cat}
+            key={tag.code}
+            href={catalogHref({ tag: tag.code, locale, sku: highlightSku })}
+            data-active={activeTag === tag.code}
             className="shop-category-pill"
           >
-            {cat === 'all' ? t('all') : t(cat)}
+            {tag.label}
           </a>
         ))}
         <a href="/diy" className="shop-category-pill shop-category-pill--diy">
@@ -72,7 +108,7 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
         </a>
       </div>
 
-      {activeCategory === 'all' && featured.length > 0 && (
+      {showAll && featured.length > 0 && (
         <section className="shop-collection-section">
           <div className="shop-collection-header">
             <h2 className="shop-collection-title">{tc('featured')}</h2>
@@ -82,7 +118,7 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
             {featured.map((product) => (
               <div
                 key={product.sku}
-                id={product.sku}
+                id={`featured-${product.sku}`}
                 className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
               >
                 <ProductCard product={product} />
@@ -92,26 +128,22 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
         </section>
       )}
 
-      {sections.map((section) => (
-        <section key={section.id} className="shop-collection-section">
-          {activeCategory === 'all' && (
-            <div className="shop-collection-header">
-              <h2 className="shop-collection-title">{section.label}</h2>
+      <section className="shop-collection-section">
+        <div className="shop-collection-grid">
+          {filtered.map((product) => (
+            <div
+              key={product.sku}
+              id={product.sku}
+              className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
+            >
+              <ProductCard product={product} />
             </div>
-          )}
-          <div className="shop-collection-grid">
-            {section.items.map((product) => (
-              <div
-                key={product.sku}
-                id={product.sku}
-                className={highlightSku === product.sku ? 'rounded-2xl ring-2 ring-sage-primary/30' : ''}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
+          ))}
+        </div>
+        {filtered.length === 0 && (
+          <p className="mt-6 text-center text-sage-muted">{tc('emptyFilter')}</p>
+        )}
+      </section>
     </>
   );
 }
