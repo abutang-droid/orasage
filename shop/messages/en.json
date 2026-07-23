@@ -253,8 +253,28 @@
     "disc": "Disc"
   },
   "pdp": {
+    "backToShop": "← Back to shop",
+    "notFound": "Product not found",
+    "specifications": "Specifications",
+    "crystalEyebrow": "Element · {element} · {material}",
     "attachmentsTitle": "Downloads",
     "mediaLinksTitle": "Media & User Stories",
+    "testimonialsTitle": "Wearer voices",
+    "starsAria": "{rating} stars",
+    "reviews": {
+      "title": "Customer reviews",
+      "featured": "Featured",
+      "empty": "No public reviews yet. Be the first after your purchase.",
+      "formTitle": "Write a review",
+      "rating": "Rating",
+      "starOption": "{n} stars",
+      "body": "Your review",
+      "placeholder": "Share how it feels to wear or use…",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "submitFailed": "Could not submit",
+      "submitted": "Review submitted — it will appear after approval"
+    },
     "linkKind": {
       "internal": "On-site",
       "media": "Media",

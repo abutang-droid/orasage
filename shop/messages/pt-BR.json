@@ -253,8 +253,28 @@
     "disc": "Disco"
   },
   "pdp": {
+    "backToShop": "← Voltar à loja",
+    "notFound": "Produto não encontrado",
+    "specifications": "Especificações",
+    "crystalEyebrow": "Elemento · {element} · {material}",
     "attachmentsTitle": "Downloads",
     "mediaLinksTitle": "Mídia e Avaliações",
+    "testimonialsTitle": "Vozes de quem usa",
+    "starsAria": "{rating} estrelas",
+    "reviews": {
+      "title": "Avaliações de clientes",
+      "featured": "Destaque",
+      "empty": "Ainda não há avaliações públicas. Seja o primeiro após a compra.",
+      "formTitle": "Escreva sua avaliação",
+      "rating": "Nota",
+      "starOption": "{n} estrelas",
+      "body": "Sua avaliação",
+      "placeholder": "Conte como é usar ou vestir…",
+      "submit": "Enviar avaliação",
+      "submitting": "Enviando…",
+      "submitFailed": "Falha ao enviar",
+      "submitted": "Avaliação enviada — será exibida após aprovação"
+    },
     "linkKind": {
       "internal": "No site",
       "media": "Mídia",

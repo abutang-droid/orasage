@@ -70,7 +70,12 @@ export function ProductCard({ product }: { product: Product }) {
     window.setTimeout(() => setAdded(false), 1500);
   }
 
-  const badgeLabel = product.element;
+  // 优先用目录 API 返回的本地化标签（element-*）；勿直接用 products.element（存的是中文五行字）
+  const badgeLabel =
+    product.tags?.find((t) => t.groupCode === 'element' || t.code.startsWith('element-'))
+      ?.label
+      ?.trim()
+    || null;
 
   return (
     <Card variant="interactive" className="flex h-full flex-col p-3 shadow-none">
@@ -82,7 +87,7 @@ export function ProductCard({ product }: { product: Product }) {
           imageUrl={product.imageUrl}
         />
         <span className="shop-product-badge">
-          {badgeLabel ?? <Sparkles size={12} strokeWidth={1.8} aria-hidden />}
+          {badgeLabel || product.element || <Sparkles size={12} strokeWidth={1.8} aria-hidden />}
         </span>
         <CardTitle className="shop-product-name text-base font-semibold leading-snug">
           {product.name}
