@@ -125,19 +125,60 @@ const LANGUAGE_LABELS: Record<AiLocale, string> = {
   'pt-BR': 'Português (Brasil)',
 };
 
-/** Prefix for system prompts (bazi / ziwei report style). */
-export function aiSystemLanguagePrefix(locale: AiLocale): string {
-  return SYSTEM_PREFIX[locale] ?? SYSTEM_PREFIX['zh-CN'];
+/** True when the UI locale must not leak Simplified/Traditional Chinese narrative. */
+export function isNonChineseAiLocale(locale: AiLocale): boolean {
+  return locale === 'en' || locale === 'pt-BR';
+}
+
+/**
+ * Hard constraint for en / pt-BR: no Chinese interpretive prose.
+ * Proper nouns from Chinese cosmology may stay in transliteration / brief romanization.
+ */
+export function aiNoChineseLeakRule(locale: AiLocale): string {
+  if (!isNonChineseAiLocale(locale)) return '';
+  if (locale === 'pt-BR') {
+    return [
+      'Idioma obrigatório: Português (Brasil).',
+      'Não escreva interpretação, títulos de seção, listas ou frases em chinês.',
+      'Não misture chinês com português. Nomes técnicos (ex.: BaZi, Zi Wei) podem ficar em romanização.',
+    ].join(' ');
+  }
+  return [
+    'Mandatory language: English.',
+    'Do not write interpretations, section titles, bullet lists, or sentences in Chinese.',
+    'Do not mix Chinese with English. Technical proper nouns (e.g. BaZi, Zi Wei) may stay romanized.',
+  ].join(' ');
 }
 
 /** User-prompt line instructing output language (tarot / generic). */
 export function aiPromptLanguageLine(locale: AiLocale): string {
   const label = LANGUAGE_LABELS[locale] ?? locale;
-  return `语言：${label}（locale=${locale}）`;
+  const base =
+    locale === 'en'
+      ? `Output language: English (locale=${locale}).`
+      : locale === 'pt-BR'
+        ? `Idioma de saída: Português (Brasil) (locale=${locale}).`
+        : `语言：${label}（locale=${locale}）`;
+  const noLeak = aiNoChineseLeakRule(locale);
+  return noLeak ? `${base}\n${noLeak}` : base;
 }
 
 /** Short rule for system prompts — reply in the same language as the page UI. */
 export function aiLanguageReplyRule(locale: AiLocale): string {
   const label = LANGUAGE_LABELS[locale] ?? locale;
-  return `回复语言：必须使用${label}，与当前页面 UI 语言一致。`;
+  const base =
+    locale === 'en'
+      ? `Reply language: must be English, matching the current page UI.`
+      : locale === 'pt-BR'
+        ? `Idioma da resposta: deve ser Português (Brasil), igual ao idioma da UI.`
+        : `回复语言：必须使用${label}，与当前页面 UI 语言一致。`;
+  const noLeak = aiNoChineseLeakRule(locale);
+  return noLeak ? `${base} ${noLeak}` : base;
+}
+
+/** Strong system-prompt prefix (includes no-Chinese rule for en/pt-BR). */
+export function aiSystemLanguagePrefix(locale: AiLocale): string {
+  const prefix = SYSTEM_PREFIX[locale] ?? SYSTEM_PREFIX['zh-CN'];
+  const noLeak = aiNoChineseLeakRule(locale);
+  return noLeak ? `${prefix}${noLeak} ` : prefix;
 }

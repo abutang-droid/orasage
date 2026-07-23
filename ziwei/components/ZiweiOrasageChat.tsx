@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Button } from '@orasage/ui/button';
 import { Input } from '@orasage/ui/input';
-import { useT } from '@/lib/i18n';
+import { useLocale, useT } from '@/lib/i18n';
+import { aiRequestLanguage } from '@/lib/ai-request-lang';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { loginUrl } from '@/lib/login-url';
 import {
@@ -56,6 +57,7 @@ export function ZiweiOrasageChat({
   onQuotaChange,
 }: Props) {
   const t = useT();
+  const { locale } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -93,6 +95,7 @@ export function ZiweiOrasageChat({
           chartData: chartData ?? chart,
           mode,
           minorMode,
+          language: aiRequestLanguage(locale),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -103,7 +106,7 @@ export function ZiweiOrasageChat({
     finally {
       setLoadingFollowUps(false);
     }
-  }, [chart, chartData, mode, minorMode]);
+  }, [chart, chartData, mode, minorMode, locale]);
 
   useEffect(() => {
     void refreshQuota();
@@ -153,6 +156,7 @@ export function ZiweiOrasageChat({
           mode,
           readingId,
           minorMode,
+          language: aiRequestLanguage(locale),
         }),
       });
 

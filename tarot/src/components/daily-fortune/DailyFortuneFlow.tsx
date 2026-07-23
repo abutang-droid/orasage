@@ -10,6 +10,7 @@ import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
+import { aiLangBody } from '@/lib/i18n/ai-lang-body';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
 import { shopUrlForSku } from '@/lib/shop-products';
 import type {
@@ -154,7 +155,7 @@ export function DailyFortuneFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: [] }),
+        body: JSON.stringify({ answers: [], ...aiLangBody(copy.lang) }),
       });
       const data = await res.json();
       if (res.status === 409 || data.alreadyDrewToday) {

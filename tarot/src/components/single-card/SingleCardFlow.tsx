@@ -8,6 +8,7 @@ import { MantoThinking } from '@/components/MantoThinking';
 import { DestinySliceDeck } from '@/components/single-card/DestinySliceDeck';
 import { DestinySliceFocusResult } from '@/components/single-card/DestinySliceFocusResult';
 import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
+import { aiLangBody as langBody } from '@/lib/i18n/ai-lang-body';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
@@ -35,13 +36,6 @@ type SessionPayload = {
 };
 
 type Step = 'loading' | 'intro' | 'drawing' | 'result';
-
-function langBody(lang: string) {
-  if (lang === 'en') return { language: 'en' };
-  if (lang === 'pt') return { language: 'pt-BR' };
-  if (lang === 'es') return { language: 'en' };
-  return { language: 'zh-CN' };
-}
 
 function normalizeFocus(
   brief: SingleCardBriefPayload | null,

@@ -1,6 +1,6 @@
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { chatCompletion, isLlmConfigured } from '@/lib/llm/client';
-import { TAROT_BLESSING_SYSTEM } from '@/lib/llm/prompts';
+import { tarotBlessingSystem } from '@/lib/llm/prompts';
 import { aiPromptLanguageLine, type AiLocale } from '../../../../shared/ai-locale/index';
 
 const BLESSINGS: Record<string, string[]> = {
@@ -57,7 +57,7 @@ export async function generateBlessingTextAsync(opts: {
     .join('\n');
 
   const llm = await chatCompletion({
-    system: TAROT_BLESSING_SYSTEM,
+    system: tarotBlessingSystem(language),
     user: userPrompt,
     maxTokens: 200,
     temperature: 0.85,

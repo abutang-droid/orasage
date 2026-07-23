@@ -1,25 +1,33 @@
 import type { AiLocale } from '../../shared/ai-locale/index';
-import { aiLanguageReplyRule } from '../../shared/ai-locale/index';
+import { aiLanguageReplyRule, isNonChineseAiLocale } from '../../shared/ai-locale/index';
 
 const ADULT_INTERPRET_BASE = `你是一位精通紫微斗数的命理师，拥有深厚的东方传统命理学知识，同时融合现代心理学视角。
 你的解读风格：
 - 温暖、专业、有洞察力
 - 用现代语言诠释传统命理，避免晦涩术语
 - 结合心理学视角，帮助用户理解自身特质
-- 客观中立，不做绝对化预言`;
+- 客观中立，不做绝对化预言
+- 命盘 JSON 可能含中文宫位/星曜名：消化后用目标语言叙述，禁止整段中文解读`;
 
 const MINOR_INTERPRET_BASE = `你是一位精通紫微斗数的命理师，当前咨询对象为未满 16 周岁的未成年人（或合盘中含未成年人，整体按未成年人保护处理）。
 你必须严格遵守：
 - 只解读：基础命格性格、健康注意事项、学业优势与建议、未来发展方向与选择（宏观、非具体预言）
 - 禁止涉及：感情婚姻、桃花、配偶、事业财运细节、投资、官非、流年吉凶断语、任何成人化或可能诱导重大人生决策的内容
-- 语气积极、保护性、面向家长/青少年可共读`;
+- 语气积极、保护性、面向家长/青少年可共读
+- 命盘 JSON 可能含中文：消化后用目标语言叙述，禁止整段中文解读`;
 
 export function adultInterpretSystem(locale: AiLocale): string {
-  return `${ADULT_INTERPRET_BASE}\n- ${aiLanguageReplyRule(locale)}`;
+  const extra = isNonChineseAiLocale(locale)
+    ? '\n- Chart field names may stay romanized; all narrative sentences must match the UI language.'
+    : '';
+  return `${ADULT_INTERPRET_BASE}\n- ${aiLanguageReplyRule(locale)}${extra}`;
 }
 
 export function minorInterpretSystem(locale: AiLocale): string {
-  return `${MINOR_INTERPRET_BASE}\n- ${aiLanguageReplyRule(locale)}`;
+  const extra = isNonChineseAiLocale(locale)
+    ? '\n- Chart field names may stay romanized; all narrative sentences must match the UI language.'
+    : '';
+  return `${MINOR_INTERPRET_BASE}\n- ${aiLanguageReplyRule(locale)}${extra}`;
 }
 
 export function adultPreviewSystem(locale: AiLocale): string {

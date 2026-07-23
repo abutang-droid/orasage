@@ -3,7 +3,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@orasage/ui/button';
 import { Input } from '@orasage/ui/input';
-import { useT } from '@/lib/i18n';
+import { useLocale, useT } from '@/lib/i18n';
+import { aiRequestLanguage } from '@/lib/ai-request-lang';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
 interface Message { role: 'user' | 'assistant'; content: string; }
@@ -21,6 +22,7 @@ export default function ChatPanel({ chart, mode = 'single', chartData }: ChatPan
   const [apiError, setApiError] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const t = useT();
+  const { locale } = useLocale();
 
   const PRESET_QUESTIONS = [
     t('chat.preset.overview'), t('chat.preset.love'), t('chat.preset.career'),
@@ -38,7 +40,12 @@ export default function ChatPanel({ chart, mode = 'single', chartData }: ChatPan
     try {
       const res = await fetch('/api/interpret', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, chartData: chartData ?? chart, mode }),
+        body: JSON.stringify({
+          messages: newMessages,
+          chartData: chartData ?? chart,
+          mode,
+          language: aiRequestLanguage(locale),
+        }),
       });
       if (!res.ok) { const errData = await res.json().catch(() => ({})); throw new Error(errData.error || '请求失败，请稍后再试'); }
       if (!res.body) throw new Error('无响应流');
