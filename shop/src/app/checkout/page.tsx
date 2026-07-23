@@ -11,7 +11,6 @@ import { useCart } from '@/lib/cart';
 import {
   formatDualShopPrice,
   formatPayPrice,
-  formatShopPrice,
   resolvePayAmountCents,
   setRuntimeWoldPerUsdt,
   type PayCurrency,
