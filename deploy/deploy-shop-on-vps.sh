@@ -226,6 +226,15 @@ export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
 export NEXT_PUBLIC_SHOP_URL="$SHOP_URL"
 "$NPM_BIN" run build
 
+# systemd unit runs as ubuntu; builds under je leave .next owned by je →
+# next/image cache mkdir EACCES and blank product photos.
+SHOP_RUN_USER="$(grep -E '^User=' "$DEPLOY_DIR/deploy/shop/orasage-shop.service" 2>/dev/null | cut -d= -f2 || true)"
+SHOP_RUN_USER="${SHOP_RUN_USER:-ubuntu}"
+if [ -d "$DEPLOY_DIR/shop/.next" ]; then
+  log "修正 shop .next 归属 → $SHOP_RUN_USER（next/image 缓存可写）..."
+  sudo chown -R "$SHOP_RUN_USER:$SHOP_RUN_USER" "$DEPLOY_DIR/shop/.next"
+fi
+
 # ── 8. systemd 服务 ──────────────────────────────────────────
 log "配置 orasage-shop 服务..."
 sudo cp "$DEPLOY_DIR/deploy/shop/orasage-shop.service" /etc/systemd/system/

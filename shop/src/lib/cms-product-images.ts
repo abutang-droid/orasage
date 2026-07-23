@@ -1,11 +1,7 @@
-import { getSiteApex } from './orasage-app-shell/config';
+import { resolveCmsMediaUrl } from './cms-media';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
-const CMS_PUBLIC_URL =
-  process.env.CMS_PUBLIC_URL ||
-  process.env.NEXT_PUBLIC_CMS_URL ||
-  `https://admin.${getSiteApex()}/cms`;
 
 type CmsMedia = {
   url?: string | null;
@@ -16,14 +12,6 @@ type CmsProductImageRow = {
   sku: string;
   image?: CmsMedia | number | null;
 };
-
-function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | null {
-  if (!media || typeof media === 'number') return null;
-  const url = media.url;
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-}
 
 let cachedMap: Map<string, string> | null = null;
 let cacheExpiry = 0;
@@ -44,7 +32,7 @@ export async function fetchProductImageMap(): Promise<Map<string, string>> {
     if (!res.ok) return map;
     const data = (await res.json()) as { docs?: CmsProductImageRow[] };
     for (const row of data.docs ?? []) {
-      const url = resolveMediaUrl(row.image);
+      const url = resolveCmsMediaUrl(row.image);
       if (row.sku && url) map.set(row.sku, url);
     }
     cachedMap = map;
