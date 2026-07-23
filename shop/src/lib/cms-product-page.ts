@@ -1,3 +1,7 @@
+import {
+  mergeProductMediaFromPages,
+  productMediaLocaleChain,
+} from '../../../shared/shop-locale/media-fallback';
 import { resolveCmsMediaUrl } from '@/lib/cms-media';
 
 const CMS_INTERNAL_URL =
@@ -143,15 +147,28 @@ async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProdu
   }
 }
 
-/** 拉取已发布的商品详情页；当前语言无文档时回退 zh-CN */
+/**
+ * 拉取已发布商品详情页。
+ * 文案：当前语言 → 英语 → 简体（整页缺失时）。
+ * 图/视频：按字段回退，当前语言未设则 英语 → 简体。
+ */
 export async function fetchCmsProductPage(
   sku: string,
   locale = 'zh-CN',
 ): Promise<CmsProductPage | null> {
-  const page = await fetchPageForLocale(sku, locale);
-  if (page) return page;
-  if (locale !== 'zh-CN') {
-    return fetchPageForLocale(sku, 'zh-CN');
-  }
-  return null;
+  const chain = productMediaLocaleChain(locale);
+  const pages = await Promise.all(chain.map((code) => fetchPageForLocale(sku, code)));
+  const base = pages.find(Boolean) ?? null;
+  if (!base) return null;
+
+  const { media } = mergeProductMediaFromPages(pages);
+
+  return {
+    ...base,
+    // Keep the storefront request locale for consumers; media may be borrowed.
+    locale,
+    heroImages: media.heroImages,
+    galleryVideoUrl: media.galleryVideoUrl,
+    sceneVideoUrl: media.sceneVideoUrl,
+  };
 }

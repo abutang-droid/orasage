@@ -3,11 +3,14 @@ import { notFound, redirect } from 'next/navigation';
 import { getShopStaff, getAdminToken, loginUrl } from '@/lib/auth';
 import { getProducts } from '@/lib/api';
 import {
-  getCmsProductPageDoc,
   listCmsTestimonials,
   type CmsProductPageDoc,
   type CmsTestimonialDoc,
 } from '@/lib/cms-content-api';
+import {
+  mediaFallbackNotice,
+  resolveCmsProductPageMedia,
+} from '@/lib/cms-product-media-fallback';
 import {
   saveProductPageContentAction,
   saveTestimonialAction,
@@ -67,11 +70,15 @@ export default async function ProductContentPage({ params, searchParams }: PageP
 
   let doc: CmsProductPageDoc | null = null;
   let testimonials: CmsTestimonialDoc[] = [];
+  let fallbackNotice: string | null = null;
   try {
-    [doc, testimonials] = await Promise.all([
-      getCmsProductPageDoc(sku, locale, token),
+    const [mediaResolved, tlist] = await Promise.all([
+      resolveCmsProductPageMedia(sku, locale, token),
       listCmsTestimonials(sku, locale, token),
     ]);
+    doc = mediaResolved.own;
+    testimonials = tlist;
+    fallbackNotice = mediaFallbackNotice(locale, mediaResolved.sources);
   } catch (err) {
     console.error('[admin/products/content cms]', err);
   }
@@ -93,8 +100,8 @@ export default async function ProductContentPage({ params, searchParams }: PageP
         </p>
         <h1>详情内容 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{sku}</code> · 每个语言独立一份文档，前台缺失语言自动回退简体。
-          发布后约 30 秒内商城生效。
+          SKU <code>{sku}</code> · 文案按语言独立；图/视频未设置时前台按{' '}
+          <strong>英语 → 简体中文</strong> 回退。发布后约 30 秒内商城生效。
           <a
             href={`https://shop.orasage.com/product/${encodeURIComponent(sku)}`}
             target="_blank"
@@ -121,6 +128,9 @@ export default async function ProductContentPage({ params, searchParams }: PageP
       {sp.saved === 'ok' ? <p className="muted panel-notice">已保存。</p> : null}
       {sp.err ? (
         <p className="muted panel-notice panel-notice--error">保存失败：{decodeURIComponent(sp.err)}</p>
+      ) : null}
+      {fallbackNotice ? (
+        <p className="muted panel-notice">{fallbackNotice}</p>
       ) : null}
 
       <section className="panel">
@@ -151,7 +161,7 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             </label>
           </div>
 
-          <h3 className="product-content-subhead">详情视频</h3>
+          <h3 className="product-content-subhead">详情视频（本语言；空则回退英语→简体）</h3>
           <div className="product-media-video-fields" style={{ marginBottom: '1rem' }}>
             <ProductVideoUploadField
               name="galleryVideo"
@@ -167,7 +177,9 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             />
           </div>
 
-          <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>
+          <h3 className="product-content-subhead">
+            详情轮播图（本语言；空则回退英语→简体 · 建议 1:1 或 4:5）
+          </h3>
           <ProductHeroGalleryEditor rows={heroRows} />
 
           <h3 className="product-content-subhead">详情区块（按顺序渲染在购买区下方）</h3>

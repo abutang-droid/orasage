@@ -4,8 +4,11 @@ import { getShopStaff, getAdminToken, loginUrl } from '@/lib/auth';
 import { getProducts, getTags, getCategories, getProductLinks, getBillingSlots } from '@/lib/api';
 import { fetchAdminProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPageStatusMap } from '@/lib/cms-product-pages';
-import { getCmsProductPageDoc } from '@/lib/cms-content-api';
 import { resolveCmsMediaUrl } from '@/lib/cms-media-utils';
+import {
+  mediaFallbackNotice,
+  resolveCmsProductPageMedia,
+} from '@/lib/cms-product-media-fallback';
 import { saveProductMediaAction } from '@/app/content-actions';
 import { ProductEditForm } from '@/components/ProductEditForm';
 import { ProductLinksPanel } from '@/components/ProductLinksPanel';
@@ -74,16 +77,20 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
   const product = products.find((p) => p.sku === sku);
   if (!product) notFound();
 
-  let cmsDoc = null;
+  const editLocale = 'zh-CN';
+  let mediaResolved: Awaited<ReturnType<typeof resolveCmsProductPageMedia>> | null = null;
   if (token) {
     try {
-      cmsDoc = await getCmsProductPageDoc(sku, 'zh-CN', token);
+      mediaResolved = await resolveCmsProductPageMedia(sku, editLocale, token);
     } catch (err) {
       console.error('[admin/products/edit cms]', err);
     }
   }
 
-  const heroRows = (cmsDoc?.heroImages ?? [])
+  // Editor shows only this locale’s own media (never prefill borrowed en/zh-CN —
+  // that would persist fallbacks into the wrong language on save).
+  const ownHeroes = mediaResolved?.own?.heroImages ?? [];
+  const heroRows = ownHeroes
     .map((row) => ({
       mediaId: typeof row.image === 'number' ? row.image : row.image?.id,
       url: resolveCmsMediaUrl(row.image),
@@ -91,6 +98,12 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
       sort: row.sort ?? 0,
     }))
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+
+  const galleryVideoUrl = mediaResolved?.own?.galleryVideoUrl ?? null;
+  const sceneVideoUrl = mediaResolved?.own?.sceneVideoUrl ?? null;
+  const fallbackNotice = mediaResolved
+    ? mediaFallbackNotice(editLocale, mediaResolved.sources)
+    : null;
 
   return (
     <div className="admin-page">
@@ -132,9 +145,11 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
           sku={product.sku}
           catalogImageUrl={productImageMap.get(product.sku)}
           pageStatus={productPageStatusMap.get(product.sku) ?? 'none'}
+          locale={editLocale}
           heroRows={heroRows}
-          galleryVideoUrl={cmsDoc?.galleryVideoUrl}
-          sceneVideoUrl={cmsDoc?.sceneVideoUrl}
+          galleryVideoUrl={galleryVideoUrl}
+          sceneVideoUrl={sceneVideoUrl}
+          fallbackNotice={fallbackNotice}
           saveMediaAction={saveProductMediaAction}
         />
       </section>
