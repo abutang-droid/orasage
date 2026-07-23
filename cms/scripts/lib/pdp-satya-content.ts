@@ -692,38 +692,8 @@ ${shipping ? '数字报告解锁 + 实体商品物流发货，物流信息可在
 function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): GeneratedPage {
   const isDonation = sku === 'temple-donation';
   const isChat = sku.includes('ziwei-chat');
-  const isConsult = sku === 'service-consult';
 
   const configs: Record<string, { subtitle: string; body: string; specs: Array<{ label: string; value: string }>; guide: string; manifestEn: string; manifestZh: string; testimonials: Array<{ author: string; body: string }> }> = {
-    'service-consult': {
-      subtitle: 'Energy Consultation · 30 Minutes',
-      body: `✦ 一对一能量咨询 — 30 分钟
-
-由 OraSage 命理顾问在线答疑，帮助你：
-• 理清当下困惑的核心问题
-• 结合命盘/牌阵给出可执行建议
-• 在 30 分钟内聚焦 1–2 个议题，不泛泛而谈
-
-✦ 适合谁
-
-正在做重要决定、感情/职业迷茫、或刚读完报告需要「有人帮你看懂」的你。`,
-      specs: [
-        { label: '服务时长', value: '30 分钟视频/语音' },
-        { label: '预约方式', value: '付款后 24 小时内顾问联系确认时段' },
-        { label: '交付形式', value: '在线实时对话，无物流' },
-      ],
-      guide: `🌅 重大决定前 → 带着具体问题来，效率最高
-💼 报告读不懂时 → 让顾问帮你「翻译」成行动
-❤️ 感情困惑 → 聚焦一个最想搞清的问题
-📋 咨询前准备 → 写下 2–3 个具体问题`,
-      manifestEn: `I ask clearly. I leave with direction.\nThirty minutes, one honest conversation.`,
-      manifestZh: `我清楚地提问。我带着方向离开。\n三十分钟，一次真诚的对话。`,
-      testimonials: [
-        { author: '林**', body: '顾问很耐心，半小时里把纠结半年的问题理清了，不是鸡汤，有具体建议。' },
-        { author: '周**', body: '报告看完一头雾水，咨询完才知道重点在哪。物超所值。' },
-        { author: '陈**', body: '预约流程顺，顾问准时，专业又不吓人。' },
-      ],
-    },
     'ziwei-chat-pack-10': {
       subtitle: 'Zi Wei Chat Pack · 10 Credits',
       body: `✦ 紫微问答加量包 — 10 次对话
@@ -817,7 +787,6 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
     .filter((p) => {
       if (p.sku === sku) return false;
       if (isChat) return p.sku.includes('ziwei-chat');
-      if (isConsult) return p.category === 'report' || p.sku === 'service-consult';
       if (isDonation) return p.category === 'crystal';
       return p.category === product.category;
     })
