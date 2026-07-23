@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getProduct, categoryLabels } from '@/lib/products';
+import { getProduct } from '@/lib/products';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
