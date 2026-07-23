@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
-import { detectShopLocale, SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../../shared/shop-locale/index';
+import {
+  detectShopLocale,
+  formatDualShopPrice,
+  SHOP_LOCALE_COOKIE,
+  SHOP_LOCALE_OVERRIDE_COOKIE,
+} from '../../../../../../shared/shop-locale/index';
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
@@ -40,7 +45,11 @@ export async function GET() {
       desc: p.desc,
       description: p.desc,
       priceCents: p.priceCents,
-      priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
+      priceCentsUsd: p.priceCentsUsd,
+      priceDisplay: formatDualShopPrice({
+        priceCents: p.priceCents,
+        priceCentsUsd: p.priceCentsUsd,
+      }),
       category: p.category,
       categoryLabel: categoryLabels[p.category],
       shopUrl: `${ORASAGE_URLS.shop}?sku=${encodeURIComponent(p.sku)}`,

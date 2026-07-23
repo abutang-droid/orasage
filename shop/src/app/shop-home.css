@@ -968,8 +968,9 @@
 
 .shop-pdp-price {
   margin-top: 1rem;
-  font-size: 1.375rem;
+  font-size: 1.15rem;
   font-weight: 500;
+  line-height: 1.4;
   color: var(--os-color-mono-black, #171717);
 }
 
@@ -1430,8 +1431,9 @@
 }
 
 .shop-product-price {
-  font-size: 1.125rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.35;
   color: var(--os-color-mono-black, #171717);
 }
 

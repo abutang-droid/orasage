@@ -14,8 +14,7 @@ import {
   type CrystalContentMap,
 } from '../../../shared/shop-crystal/content';
 import type { Product } from '@/lib/products';
-import { useShopLocale } from '@/components/ShopLocaleProvider';
-import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { formatDualShopPrice } from '@/lib/currency';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
@@ -27,20 +26,17 @@ type CrystalShowcaseProps = {
   content?: CrystalContentMap;
 };
 
-function resolveDisplayPrice(product: Product, currency: 'cny' | 'usd') {
-  const cents = product.priceCentsResolved
-    ?? resolvePriceCents(
-      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-      currency,
-    );
-  return product.priceDisplay ?? formatShopPrice(cents, currency);
+function resolveDisplayPrice(product: Product) {
+  return formatDualShopPrice({
+    priceCents: product.priceCents,
+    priceCentsUsd: product.priceCentsUsd,
+  });
 }
 
 export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const t = useTranslations('crystalShowcase');
   const tp = useTranslations('product');
   const searchParams = useSearchParams();
-  const { currency } = useShopLocale();
   const { addItem } = useCart();
 
   const initialBase = resolveInitialBaseSku(lineup, searchParams.get('element'));
@@ -216,7 +212,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               <span className="crystal-pack-name">{t('packStandard')}</span>
               <span className="crystal-pack-hint">{t('packStandardHint')}</span>
               <span className="crystal-pack-price">
-                {resolveDisplayPrice(active.standard, currency)}
+                {resolveDisplayPrice(active.standard)}
               </span>
             </button>
             <button
@@ -230,7 +226,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               <span className="crystal-pack-name">{t('packGift')}</span>
               <span className="crystal-pack-hint">{t('packGiftHint')}</span>
               <span className="crystal-pack-price">
-                {active.gift ? resolveDisplayPrice(active.gift, currency) : '—'}
+                {active.gift ? resolveDisplayPrice(active.gift) : '—'}
               </span>
             </button>
           </div>

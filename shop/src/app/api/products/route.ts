@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchProducts, getProduct, type Product } from '@/lib/products';
-import { detectShopLocale } from '@/lib/currency';
+import { detectShopLocale, formatDualShopPrice } from '@/lib/currency';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../shared/shop-locale/index';
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
@@ -12,7 +12,11 @@ function mapProduct(p: Product, imageUrl?: string | null) {
     element: p.element,
     desc: p.desc,
     priceCents: p.priceCents,
-    priceDisplay: p.priceDisplay ?? `¥${(p.priceCents / 100).toFixed(2)}`,
+    priceCentsUsd: p.priceCentsUsd,
+    priceDisplay: formatDualShopPrice({
+      priceCents: p.priceCents,
+      priceCentsUsd: p.priceCentsUsd,
+    }),
     category: p.category,
     requiresShipping: p.requiresShipping,
     imageUrl: imageUrl ?? null,

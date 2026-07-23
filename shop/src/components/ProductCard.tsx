@@ -13,8 +13,7 @@ import {
   CardTitle,
 } from '@orasage/ui/card';
 import type { Product } from '@/lib/products';
-import { useShopLocale } from '@/components/ShopLocaleProvider';
-import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { formatDualShopPrice } from '@/lib/currency';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 
@@ -23,15 +22,12 @@ export function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
-  const { currency } = useShopLocale();
   const { addItem } = useCart();
 
-  const displayCents = product.priceCentsResolved
-    ?? resolvePriceCents(
-      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-      currency,
-    );
-  const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
+  const displayPrice = formatDualShopPrice({
+    priceCents: product.priceCents,
+    priceCentsUsd: product.priceCentsUsd,
+  });
 
   async function handleBuy() {
     setLoading(true);

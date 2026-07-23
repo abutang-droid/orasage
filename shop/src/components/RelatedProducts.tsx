@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import type { Product } from '@/lib/products';
 import { ProductImage } from '@/components/ProductImage';
-import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
-import type { ShopCurrency } from '@/lib/currency';
+import { formatDualShopPrice } from '@/lib/currency';
 
 export async function RelatedProducts({ skus, title }: { skus: string[]; title?: string }) {
   if (!skus.length) return null;
@@ -20,8 +19,6 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
 
   if (!related.length) return null;
 
-  const currency = (await import('@/lib/currency')).currencyForLocale(locale);
-
   return (
     <div className="shop-pdp-related">
       <h3 className="shop-pdp-related-heading">{title || '与之共振'}</h3>
@@ -31,7 +28,6 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
             key={product.sku}
             product={product}
             imageUrl={imageMap.get(product.sku) ?? product.imageUrl ?? null}
-            currency={currency}
           />
         ))}
       </div>
@@ -42,19 +38,14 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
 function RelatedProductCard({
   product,
   imageUrl,
-  currency,
 }: {
   product: Product;
   imageUrl: string | null;
-  currency: ShopCurrency;
 }) {
-  const displayCents =
-    product.priceCentsResolved ??
-    resolvePriceCents(
-      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-      currency,
-    );
-  const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
+  const displayPrice = formatDualShopPrice({
+    priceCents: product.priceCents,
+    priceCentsUsd: product.priceCentsUsd,
+  });
 
   return (
     <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-pdp-related-card">

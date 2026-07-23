@@ -20,7 +20,7 @@ import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
-import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
+import { formatDualShopPrice } from '@/lib/currency';
 
 type PageProps = { params: Promise<{ sku: string }> };
 
@@ -57,13 +57,10 @@ export default async function ProductPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  const currency = currencyForLocale(locale);
-  const displayCents = product.priceCentsResolved
-    ?? resolvePriceCents(
-      { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-      currency,
-    );
-  const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
+  const displayPrice = formatDualShopPrice({
+    priceCents: product.priceCents,
+    priceCentsUsd: product.priceCentsUsd,
+  });
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
   const rawContent = buildPdpContent(cmsPage?.sections ?? []);

@@ -8,6 +8,7 @@ import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutCouponForm, type CouponState } from '@/components/CheckoutCouponForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
+import { formatDualShopPrice, formatShopPrice } from '@/lib/currency';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
 
 type CheckoutOrder = {
@@ -245,8 +246,11 @@ function CheckoutContent() {
           if (!res.ok) throw new Error(data.error || t('loadProductFailed'));
           const product = data.product as ProductPreview & { priceDisplay?: string; priceCents?: number };
           if (cancelled) return;
-          const displayPrice = priceCents && Number.isFinite(priceCents)
-            ? `¥${(priceCents / 100).toFixed(2)}`
+          const displayPrice = (priceCents && Number.isFinite(priceCents)) || (priceCentsUsd && Number.isFinite(priceCentsUsd))
+            ? formatDualShopPrice({
+              priceCents: priceCents && Number.isFinite(priceCents) ? priceCents : 0,
+              priceCentsUsd: priceCentsUsd && Number.isFinite(priceCentsUsd) ? priceCentsUsd : null,
+            })
             : (product.priceDisplay ?? '');
           setProductPreview({
             sku: product.sku,
@@ -474,9 +478,9 @@ function CheckoutContent() {
   }
 
   const effectiveAmountCents = couponPricing?.amountCents ?? order.amountCents;
-  const amountDisplay = order.currency?.toUpperCase() === 'USD'
-    ? `$${(effectiveAmountCents / 100).toFixed(2)}`
-    : `¥${(effectiveAmountCents / 100).toFixed(2)}`;
+  const amountDisplay = order.currency?.toUpperCase() === 'CNY'
+    ? formatShopPrice(effectiveAmountCents, 'cny')
+    : formatDualShopPrice(effectiveAmountCents);
 
   const couponEnabled = effectiveAppSource === 'shop' && !isReportDigitalCheckout;
 

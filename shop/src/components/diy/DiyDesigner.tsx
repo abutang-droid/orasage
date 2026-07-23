@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { DiyBead, DiyConfig } from '@/lib/diy';
 import { ELEMENT_TO_FEED_MATERIAL, ELEMENT_TO_MAIN_MATERIAL } from '@/lib/diy';
-import { formatShopPrice, resolvePriceCents, type ShopCurrency } from '@/lib/currency';
+import {
+  formatDualShopPrice,
+  resolveUsdtCents,
+  type ShopCurrency,
+} from '@/lib/currency';
 
 const DRAFT_KEY = 'orasage_diy_draft_v1';
 const RULER_MIN = 10;
@@ -52,7 +56,14 @@ function wristText(v: number): string {
   return Number.isInteger(s) ? String(s) : s.toFixed(1);
 }
 
-export function DiyDesigner({ beads, config, currency, initialMaterial, initialElement }: DiyDesignerProps) {
+export function DiyDesigner({
+  beads,
+  config,
+  currency: _settlementCurrency,
+  initialMaterial,
+  initialElement,
+}: DiyDesignerProps) {
+  void _settlementCurrency;
   const td = useTranslations('diy');
   const beadByCode = useMemo(() => new Map(beads.map((b) => [b.code, b])), [beads]);
 
@@ -86,9 +97,9 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
     () => design.reduce((sum, code) => {
       const bead = beadByCode.get(code);
       if (!bead) return sum;
-      return sum + resolvePriceCents({ priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd }, currency);
+      return sum + resolveUsdtCents({ priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd });
     }, 0),
-    [design, beadByCode, currency],
+    [design, beadByCode],
   );
   const crystalKinds = useMemo(() => {
     const set = new Set<string>();
@@ -608,10 +619,10 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
             {catalogList.map((bead) => {
               const c = beadColors(bead);
               const gradient = `radial-gradient(circle at 35% 30%, ${c.g0} 0%, ${c.g1} 55%, ${c.g2} 100%)`;
-              const displayCents = resolvePriceCents(
-                { priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd },
-                currency,
-              );
+              const displayCents = resolveUsdtCents({
+                priceCents: bead.priceCents,
+                priceCentsUsd: bead.priceCentsUsd,
+              });
               return (
                 <button type="button" key={bead.code} className="shop-diy-card" onClick={() => addBead(bead.code)}>
                   {bead.imageUrl ? (
@@ -624,7 +635,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                     />
                   )}
                   <div className="shop-diy-card-nm">{bead.name}</div>
-                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatShopPrice(displayCents, currency)}{td('perBead')}</div>
+                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatDualShopPrice(displayCents)}{td('perBead')}</div>
                   <div className="shop-diy-card-tags">
                     {bead.type !== 'crystal' ? <span className="shop-diy-card-type">{typeLabel(bead.type)}</span> : null}
                     {bead.element ? <span className="shop-diy-card-el">{td('tabElement', { el: bead.element })}</span> : null}
@@ -640,12 +651,12 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
       <div className="shop-diy-bar">
         <div className="shop-diy-bar-in">
           <div className="shop-diy-bar-price">
-            <div className="shop-diy-bar-amount">{formatShopPrice(totalDisplayCents, currency)}</div>
+            <div className="shop-diy-bar-amount">{formatDualShopPrice(totalDisplayCents)}</div>
             <div className="shop-diy-bar-note">
               {design.length === 0
                 ? td('startDesign')
                 : belowMin
-                  ? td('belowMin', { amount: formatShopPrice(config.minOrderCents, 'cny') })
+                  ? td('belowMin', { amount: formatDualShopPrice({ priceCents: config.minOrderCents }) })
                   : fit !== '合适'
                     ? td('fitAdjust', { fit: fitLabel(fit) || '—' })
                     : td('repriceNote')}

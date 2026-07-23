@@ -2,8 +2,14 @@ import type { ShopCurrency } from '../../../shared/shop-locale/index';
 import {
   currencyForLocale,
   detectShopLocale,
+  formatDualShopPrice,
   formatShopPrice,
+  formatUsdtPrice,
+  formatWoldPrice,
   resolvePriceCents,
+  resolveUsdtCents,
+  resolveWoldCents,
+  woldPerUsdt,
 } from '../../../shared/shop-locale/index';
 
 export type { ShopCurrency };
@@ -11,12 +17,19 @@ export type { ShopCurrency };
 export {
   currencyForLocale,
   detectShopLocale,
+  formatDualShopPrice,
   formatShopPrice,
+  formatUsdtPrice,
+  formatWoldPrice,
   resolvePriceCents,
+  resolveUsdtCents,
+  resolveWoldCents,
+  woldPerUsdt,
 };
 
-/** @deprecated use formatShopPrice */
+/** @deprecated use formatShopPrice / formatDualShopPrice */
 export function formatProductPrice(cents: number, currency: ShopCurrency): string {
+  if (currency === 'usd') return formatDualShopPrice(cents);
   return formatShopPrice(cents, currency);
 }
 

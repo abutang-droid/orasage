@@ -3,8 +3,13 @@ import { db } from "../db/index.ts";
 import { appBillingSlots, products } from "../db/schema.ts";
 import {
   currencyForLocale,
+  formatDualShopPrice,
   formatShopPrice,
+  formatUsdtPrice,
+  formatWoldPrice,
   resolvePriceCents,
+  resolveUsdtCents,
+  resolveWoldCents,
   type ShopCurrency,
 } from "../../../shared/shop-locale/index.ts";
 import { formatProduct } from "./product-format.ts";
@@ -33,18 +38,19 @@ function applyOverride<T extends ReturnType<typeof formatProduct>>(
   const currency: ShopCurrency = currencyForLocale(locale);
   const priceCents = slot.priceOverrideCents ?? product.priceCents;
   const priceCentsUsd = slot.priceOverrideUsdCents ?? product.priceCentsUsd;
-  const resolvedCents = resolvePriceCents({ priceCents, priceCentsUsd }, currency);
+  const pricing = { priceCents, priceCentsUsd };
+  const resolvedCents = resolvePriceCents(pricing, currency);
+  const usdtCents = resolveUsdtCents(pricing);
   return {
     ...product,
     priceCents,
     priceCentsUsd,
     priceCentsResolved: resolvedCents,
-    priceDisplay: formatShopPrice(resolvedCents, currency),
+    priceDisplay: formatDualShopPrice(pricing),
+    priceDisplayUsdt: formatUsdtPrice(usdtCents),
+    priceDisplayWold: formatWoldPrice(resolveWoldCents(usdtCents)),
     priceDisplayCny: formatShopPrice(priceCents, "cny"),
-    priceDisplayUsd: formatShopPrice(
-      resolvePriceCents({ priceCents, priceCentsUsd }, "usd"),
-      "usd",
-    ),
+    priceDisplayUsd: formatUsdtPrice(usdtCents),
     recommendPriceOverride: true,
   };
 }
