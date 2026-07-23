@@ -152,6 +152,40 @@
   color: var(--shell-gold);
 }
 
+.orasage-locale-fallback-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--shell-border);
+  background: rgba(201, 160, 90, 0.1);
+  color: var(--shell-text);
+  font-size: 12px;
+  line-height: 1.45;
+  z-index: 2;
+}
+
+.orasage-locale-fallback-notice p {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.orasage-locale-fallback-dismiss {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--shell-gold);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .orasage-app-main {
   flex: 1;
   position: relative;

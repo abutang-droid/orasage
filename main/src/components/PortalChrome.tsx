@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { FixedBottomNav } from '@/lib/orasage-app-shell/BottomNav';
+import { LocaleFallbackNotice } from '@/lib/orasage-app-shell/LocaleFallbackNotice';
 import { ORASAGE_PATHNAME_HEADER } from '@/lib/portal-pathname';
 import { headers } from 'next/headers';
 
@@ -10,6 +11,21 @@ export async function PortalChrome({ children, locale }: { children: ReactNode; 
 
   return (
     <>
+      <div
+        className="orasage-app-shell"
+        data-theme="light"
+        style={{
+          minHeight: 0,
+          background: 'transparent',
+          ['--shell-bg' as string]: '#fafaf8',
+          ['--shell-text' as string]: '#171717',
+          ['--shell-muted' as string]: '#6b7280',
+          ['--shell-gold' as string]: '#171717',
+          ['--shell-border' as string]: '#e7e5e4',
+        }}
+      >
+        <LocaleFallbackNotice locale={locale} />
+      </div>
       <main className="orasage-portal-main flex-1">{children}</main>
       <div
         className="orasage-app-shell"

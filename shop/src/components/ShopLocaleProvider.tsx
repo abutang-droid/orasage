@@ -10,7 +10,7 @@ import {
   SHOP_LOCALE_OVERRIDE_COOKIE,
   type ShopCurrency,
 } from '../../../shared/shop-locale/index';
-import { setLocaleCookie } from '@/lib/orasage-app-shell';
+import { cookieDomain, setLocaleCookie } from '@/lib/orasage-app-shell';
 
 type ShopLocaleContextValue = {
   locale: string;
@@ -29,6 +29,23 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match.split('=').slice(1).join('=')) : null;
 }
 
+function writeOverrideCookie(locale: string): void {
+  if (typeof document === 'undefined') return;
+  const domain = cookieDomain();
+  const domainPart = domain ? `; domain=${domain}` : '';
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(locale)}; path=/${domainPart}; max-age=31536000; SameSite=Lax${secure}`;
+}
+
+/** Keep `?locale=` in sync so refresh / share links don't snap back to an old query. */
+function syncShopLocaleUrl(locale: string): void {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  if (locale === 'zh-CN') url.searchParams.delete('locale');
+  else url.searchParams.set('locale', locale);
+  window.history.replaceState({}, '', url.toString());
+}
+
 export function ShopLocaleProvider({ children }: { children: React.ReactNode }) {
   const intlLocale = useLocale();
   const router = useRouter();
@@ -43,8 +60,9 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const fromQuery = params.get('locale');
     if (fromQuery) {
       const normalized = detectShopLocale({ queryLocale: fromQuery });
-      document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+      writeOverrideCookie(normalized);
       setLocaleCookie(normalized);
+      if (normalized !== fromQuery) syncShopLocaleUrl(normalized);
       router.refresh();
       return;
     }
@@ -57,14 +75,16 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     });
     if (detected !== intlLocale) {
       setLocaleCookie(detected);
+      syncShopLocaleUrl(detected);
       router.refresh();
     }
   }, [intlLocale, router]);
 
   const applyLocale = useCallback((raw: string) => {
     const normalized = detectShopLocale({ queryLocale: raw });
-    document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+    writeOverrideCookie(normalized);
     setLocaleCookie(normalized);
+    syncShopLocaleUrl(normalized);
     setLocaleState(normalized);
     router.refresh();
   }, [router]);
