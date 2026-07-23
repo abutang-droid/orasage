@@ -4,7 +4,12 @@ import { useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { TEMPLE_DONATION, templeDonationMeritRange, templeDonationQuantity } from '@/lib/merit';
 import { useDonationCopy } from '@/lib/i18n/ui-strings';
-import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { buildLoginUrlFromWindow } from '@/lib/login-url';
+import {
+  startAppCheckout,
+  redirectAfterCheckout,
+  isCheckoutAuthRequiredError,
+} from '@/lib/shop-checkout';
 import './temple.css';
 
 const PRESET_CENTS = [1, 10, 50, 100] as const;
@@ -22,12 +27,15 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
   const [amountCents, setAmountCents] = useState<number>(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
 
   const meritRange = useMemo(() => templeDonationMeritRange(amountCents), [amountCents]);
+  const loginHref = buildLoginUrlFromWindow();
 
   async function handleDonate() {
     setLoading(true);
     setError(null);
+    setNeedsLogin(false);
     try {
       const returnUrl = `${window.location.origin}/temple?donated=1`;
       const result = await startAppCheckout({
@@ -39,6 +47,12 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
       });
       redirectAfterCheckout(result);
     } catch (err) {
+      if (isCheckoutAuthRequiredError(err)) {
+        // Show a tappable login CTA (old UI was plain "请先登录" text) and jump immediately.
+        setNeedsLogin(true);
+        window.location.assign(buildLoginUrlFromWindow());
+        return;
+      }
       setError(err instanceof Error ? err.message : copy.error);
     } finally {
       setLoading(false);
@@ -93,7 +107,20 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
         {loading ? copy.submitLoading : copy.submit(formatUsd(amountCents))}
       </Button>
 
-      {error && <p className="temple-donation-error">{error}</p>}
+      {needsLogin || error ? (
+        <p className="temple-donation-error" role="alert">
+          {needsLogin || /登录|login|sign in/i.test(error ?? '') ? (
+            <>
+              <span>{copy.loginRequired}</span>{' '}
+              <a href={loginHref} className="temple-donation-login-link">
+                {copy.loginCta}
+              </a>
+            </>
+          ) : (
+            error
+          )}
+        </p>
+      ) : null}
     </div>
   );
 }
