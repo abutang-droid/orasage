@@ -278,16 +278,24 @@
     "starsAria": "{rating} 星",
     "reviews": {
       "title": "用户评价",
+      "count": "{count} 条评价",
+      "empty": "暂无评价",
       "featured": "精选",
-      "formTitle": "写下你的评价",
+      "formTitle": "撰写评价",
+      "formHint": "仅限已购买该商品的用户；提交后经审核展示",
       "rating": "评分",
       "starOption": "{n} 星",
       "body": "评价内容",
       "placeholder": "分享佩戴或使用体验…",
+      "charsHint": "至少 5 个字",
       "submit": "提交评价",
       "submitting": "提交中…",
       "submitFailed": "提交失败",
-      "submitted": "评价已提交，审核通过后将展示"
+      "submitted": "评价已提交，审核通过后将展示",
+      "gateLoading": "正在确认评价权限…",
+      "loginRequired": "登录后可为已购商品撰写评价",
+      "loginCta": "登录后评价",
+      "purchaseRequired": "购买该商品后才可在此评价"
     },
     "linkKind": {
       "internal": "站内",

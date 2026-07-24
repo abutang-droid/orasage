@@ -278,16 +278,24 @@
     "starsAria": "{rating} 星",
     "reviews": {
       "title": "用戶評價",
+      "count": "{count} 則評價",
+      "empty": "暫無評價",
       "featured": "精選",
-      "formTitle": "寫下你的評價",
+      "formTitle": "撰寫評價",
+      "formHint": "僅限已購買該商品的用戶；提交後經審核展示",
       "rating": "評分",
       "starOption": "{n} 星",
       "body": "評價內容",
       "placeholder": "分享佩戴或使用體驗…",
+      "charsHint": "至少 5 個字",
       "submit": "提交評價",
       "submitting": "提交中…",
       "submitFailed": "提交失敗",
-      "submitted": "評價已提交，審核通過後將展示"
+      "submitted": "評價已提交，審核通過後將展示",
+      "gateLoading": "正在確認評價權限…",
+      "loginRequired": "登入後可為已購商品撰寫評價",
+      "loginCta": "登入後評價",
+      "purchaseRequired": "購買該商品後才可在此評價"
     },
     "linkKind": {
       "internal": "站內",

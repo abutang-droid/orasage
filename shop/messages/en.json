@@ -278,16 +278,24 @@
     "starsAria": "{rating} stars",
     "reviews": {
       "title": "Customer reviews",
+      "count": "{count} reviews",
+      "empty": "No reviews yet",
       "featured": "Featured",
       "formTitle": "Write a review",
+      "formHint": "Verified buyers only. Reviews appear after moderation.",
       "rating": "Rating",
       "starOption": "{n} stars",
       "body": "Your review",
       "placeholder": "Share how it feels to wear or use…",
+      "charsHint": "At least 5 characters",
       "submit": "Submit review",
       "submitting": "Submitting…",
       "submitFailed": "Could not submit",
-      "submitted": "Review submitted — it will appear after approval"
+      "submitted": "Review submitted — it will appear after approval",
+      "gateLoading": "Checking review access…",
+      "loginRequired": "Sign in to review products you’ve purchased",
+      "loginCta": "Sign in to review",
+      "purchaseRequired": "Purchase this product before leaving a review"
     },
     "linkKind": {
       "internal": "On-site",

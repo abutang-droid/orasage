@@ -278,16 +278,24 @@
     "starsAria": "{rating} estrelas",
     "reviews": {
       "title": "Avaliações de clientes",
+      "count": "{count} avaliações",
+      "empty": "Ainda sem avaliações",
       "featured": "Destaque",
-      "formTitle": "Escreva sua avaliação",
+      "formTitle": "Escrever avaliação",
+      "formHint": "Somente compradores verificados. A avaliação aparece após moderação.",
       "rating": "Nota",
       "starOption": "{n} estrelas",
       "body": "Sua avaliação",
       "placeholder": "Conte como é usar ou vestir…",
+      "charsHint": "Pelo menos 5 caracteres",
       "submit": "Enviar avaliação",
       "submitting": "Enviando…",
       "submitFailed": "Falha ao enviar",
-      "submitted": "Avaliação enviada — será exibida após aprovação"
+      "submitted": "Avaliação enviada — será exibida após aprovação",
+      "gateLoading": "Verificando permissão…",
+      "loginRequired": "Entre para avaliar produtos que você comprou",
+      "loginCta": "Entrar para avaliar",
+      "purchaseRequired": "Compre este produto para deixar uma avaliação"
     },
     "linkKind": {
       "internal": "No site",
