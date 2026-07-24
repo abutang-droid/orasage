@@ -67,8 +67,22 @@ export default async function ProductPage({ params }: PageProps) {
   });
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const subtitle = cmsPage?.subtitle?.trim();
-  const rawContent = buildPdpContent(cmsPage?.sections ?? []);
-  const content = injectProductSpecs(rawContent, product.specs ?? [], t('specifications'));
+  const rawContent = buildPdpContent(cmsPage?.sections ?? [], {
+    productDetails: t('ui.productDetails'),
+    energyDetails: t('ui.energyDetails'),
+    reportDetails: t('ui.reportDetails'),
+    serviceDetails: t('ui.serviceDetails'),
+    story: t('ui.story'),
+    deepDive: t('ui.deepDive'),
+    more: t('ui.more'),
+    specifications: t('ui.specifications'),
+    guide: t('ui.guide'),
+    guidePairing: t('ui.guidePairing'),
+    guideUpgrade: t('ui.guideUpgrade'),
+    faq: t('ui.faq'),
+    related: t('ui.related'),
+  });
+  const content = injectProductSpecs(rawContent, product.specs ?? [], t('ui.specifications'));
   const relatedSkus = resolveRelatedCrystalSkus(product.sku, content.relatedSkus);
   const tc = await getTranslations('categories');
   const elementLabel =

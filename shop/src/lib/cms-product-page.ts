@@ -125,12 +125,24 @@ function mapDoc(doc: CmsPageDoc): CmsProductPage | null {
   };
 }
 
-async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProductPage | null> {
+/** 是否有可展示的文案（副标题 / SEO / 区块） */
+export function pageHasCopy(page: CmsProductPage | null | undefined): boolean {
+  if (!page) return false;
+  if (page.subtitle?.trim()) return true;
+  if (page.seoTitle?.trim() || page.seoDescription?.trim()) return true;
+  return page.sections.length > 0;
+}
+
+async function fetchPageForLocale(
+  sku: string,
+  locale: string,
+  status: 'published' | 'draft',
+): Promise<CmsProductPage | null> {
   try {
     const params = new URLSearchParams({
       'where[sku][equals]': sku,
       'where[locale][equals]': locale,
-      'where[status][equals]': 'published',
+      'where[status][equals]': status,
       limit: '1',
       depth: '2',
     });
@@ -148,8 +160,23 @@ async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProdu
 }
 
 /**
- * 拉取已发布商品详情页。
- * 文案：当前语言 → 英语 → 简体（整页缺失时）。
+ * 单语言：已发布优先；若无已发布但有带文案的草稿，则使用草稿。
+ * （运营常在语言 Tab 填了英文却忘了改「已发布」，此前会整页回退中文。）
+ */
+async function fetchBestPageForLocale(
+  sku: string,
+  locale: string,
+): Promise<CmsProductPage | null> {
+  const published = await fetchPageForLocale(sku, locale, 'published');
+  if (published) return published;
+  const draft = await fetchPageForLocale(sku, locale, 'draft');
+  if (draft && pageHasCopy(draft)) return draft;
+  return null;
+}
+
+/**
+ * 拉取商品详情页。
+ * 文案整页：当前语言（已发布→有内容的草稿）→ 英语 → 简体。
  * 图/视频：按字段回退，当前语言未设则 英语 → 简体。
  */
 export async function fetchCmsProductPage(
@@ -157,8 +184,8 @@ export async function fetchCmsProductPage(
   locale = 'zh-CN',
 ): Promise<CmsProductPage | null> {
   const chain = productMediaLocaleChain(locale);
-  const pages = await Promise.all(chain.map((code) => fetchPageForLocale(sku, code)));
-  const base = pages.find(Boolean) ?? null;
+  const pages = await Promise.all(chain.map((code) => fetchBestPageForLocale(sku, code)));
+  const base = pages.find((page) => pageHasCopy(page)) ?? pages.find(Boolean) ?? null;
   if (!base) return null;
 
   const { media } = mergeProductMediaFromPages(pages);
