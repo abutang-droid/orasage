@@ -8,6 +8,8 @@ import { WorshipScreen } from "@/components/temple/WorshipScreen"
 import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
 import { useTempleCopy } from "@/lib/i18n/ui-strings"
+import { useLang, useTarotLocale } from "@/lib/i18n/context"
+import { deityDisplayName, deityMatchesQuery, deitySubtitle } from "@/lib/i18n/deity-locale"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import { FAITH_STORAGE_KEY, isSkippedFaith, SKIP_FAITH_ID } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
@@ -21,6 +23,8 @@ type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 
 function TemplePageContent() {
   const temple = useTempleCopy()
+  const { lang } = useLang()
+  const { locale } = useTarotLocale()
   const searchParams = useSearchParams()
   const donated = searchParams.get("donated") === "1"
   const changeAction = searchParams.get("change")
@@ -47,8 +51,8 @@ function TemplePageContent() {
   const [worshipSaving, setWorshipSaving] = useState(false)
 
   useEffect(() => {
-    setLatestBlessing(loadLastBlessing())
-  }, [])
+    setLatestBlessing(loadLastBlessing(lang))
+  }, [lang])
 
   useEffect(() => {
     if (changeAction === "faith") {
@@ -137,7 +141,7 @@ function TemplePageContent() {
         if (deity) {
           setSelectedDeity(deity)
           setSavedDeity(deity)
-          localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
+          localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deityDisplayName(deity, lang) }))
           void fetch('/api/onboarding', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -152,7 +156,7 @@ function TemplePageContent() {
     }
 
     setPhase("pick")
-  }, [setFaith, setGeo, setDeity])
+  }, [setFaith, setGeo, setDeity, lang])
 
   const handleFaithSkip = useCallback(async (ctx: { continentCode: string; countryCode: string }) => {
     setSelectedFaith(SKIP_FAITH_ID)
@@ -170,7 +174,7 @@ function TemplePageContent() {
 
   const handleSelectDeity = useCallback((deity: Sanctuary) => {
     setSelectedDeity(deity)
-    localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deity.name }))
+    localStorage.setItem("manto:deity", JSON.stringify({ id: deity.id, name: deityDisplayName(deity, lang) }))
     setSavedDeity(deity)
     void setDeity(deity.id)
     void fetch('/api/onboarding', {
@@ -179,22 +183,24 @@ function TemplePageContent() {
       body: JSON.stringify({ step: 'deity' }),
     })
     setPhase("worship")
-  }, [setDeity])
+  }, [setDeity, lang])
 
   const handleWorshipComplete = useCallback(async (duration: number, stage: number) => {
     if (!selectedDeity || worshipSaving) return
     setWorshipSaving(true)
+    const localizedName = deityDisplayName(selectedDeity, lang)
     try {
       const res = await fetch("/api/temple", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deityCode: selectedDeity.id,
-          deityName: selectedDeity.name,
+          deityName: localizedName,
           faithCode: selectedFaith,
           worshipStage: stage,
           durationSec: duration,
           markOnboardingComplete: !user?.onboardingCompleted,
+          language: locale,
         }),
       })
       const data = res.ok ? await res.json() : null
@@ -202,8 +208,9 @@ function TemplePageContent() {
       if (blessingText?.trim()) {
         const stored: LastBlessing = {
           text: blessingText.trim(),
-          deityName: selectedDeity.name,
-          date: new Date().toLocaleDateString("zh-CN"),
+          deityName: localizedName,
+          date: new Date().toLocaleDateString(locale),
+          lang,
         }
         storeLastBlessing(stored)
         setLatestBlessing(stored)
@@ -228,7 +235,7 @@ function TemplePageContent() {
     } finally {
       setWorshipSaving(false)
     }
-  }, [selectedDeity, selectedFaith, user?.onboardingCompleted, worshipSaving])
+  }, [selectedDeity, selectedFaith, user?.onboardingCompleted, worshipSaving, lang, locale])
 
   const handleBlessingDone = useCallback(() => {
     setPhase("home")
@@ -241,8 +248,8 @@ function TemplePageContent() {
     setPhase("worship")
   }, [savedDeity])
 
-  const filteredDeities = sanctuaries.filter(d =>
-    !searchQuery || d.name.includes(searchQuery) || d.nameEN.toLowerCase().includes(searchQuery.toLowerCase()) || d.region.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDeities = sanctuaries.filter((d) =>
+    !searchQuery || deityMatchesQuery(d, searchQuery) || d.region.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   const worshipFacing = useMemo(
@@ -342,16 +349,18 @@ function TemplePageContent() {
                 }}
               >
                 <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden' }}>
-                  <img src={deity.imageUrl} alt={deity.name}
+                  <img src={deity.imageUrl} alt={deityDisplayName(deity, lang)}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: 2 }}>
-                    {deity.name}
+                    {deityDisplayName(deity, lang)}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
-                    {deity.nameEN}
-                  </div>
+                  {deitySubtitle(deity, lang) ? (
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
+                      {deitySubtitle(deity, lang)}
+                    </div>
+                  ) : null}
                 </div>
               </button>
             ))}

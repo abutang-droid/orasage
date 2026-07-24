@@ -17,6 +17,7 @@ import {
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { useGeoCopy, geo, formatTemplate } from '@/lib/i18n/ui-strings';
 import { useLang } from '@/lib/i18n/context';
+import { deityDisplayName, deitySubtitle } from '@/lib/i18n/deity-locale';
 import './geo-journey.css';
 
 const JourneyVectorMap = dynamic(
@@ -822,10 +823,12 @@ export function GeoJourneyPicker({
                       onClick={() => onDeityPicked(deity.id)}
                     >
                       <span className="geo-journey-deity-avatar">
-                        <img src={deity.imageUrl} alt={deity.name} />
+                        <img src={deity.imageUrl} alt={deityDisplayName(deity, lang)} />
                       </span>
-                      <span className="geo-journey-deity-name">{deity.name}</span>
-                      <span className="geo-journey-deity-en">{deity.nameEN}</span>
+                      <span className="geo-journey-deity-name">{deityDisplayName(deity, lang)}</span>
+                      {deitySubtitle(deity, lang) ? (
+                        <span className="geo-journey-deity-en">{deitySubtitle(deity, lang)}</span>
+                      ) : null}
                     </button>
                   ))}
                 </div>

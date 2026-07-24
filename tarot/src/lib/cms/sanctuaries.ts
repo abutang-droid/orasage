@@ -1,4 +1,4 @@
-import { DEITIES, filterDeitiesByFaith, type Deity } from '@/lib/faiths/deities';
+import { DEITIES, filterDeitiesByFaith, localizedNamesForCode, type Deity } from '@/lib/faiths/deities';
 import type { CmsFaith } from '@/lib/cms/faiths';
 import { resolveWorshipFacing, facingForFaithCode, type WorshipFacing } from '@/lib/temple/facing';
 
@@ -10,6 +10,8 @@ export type CmsSanctuary = {
   code: string;
   nameZh: string;
   nameEn: string;
+  namePt?: string | null;
+  nameEs?: string | null;
   tradition?: string | null;
   region?: string | null;
   domains?: { label: string; id?: string }[] | null;
@@ -64,11 +66,14 @@ export function mapCmsSanctuary(s: CmsSanctuary, faithFacingByCode?: Map<string,
   const faithFields = primaryFaith ? faithFacingByCode?.get(primaryFaith) : undefined;
 
   const worshipFacing = resolveWorshipFacing(s, faithFields);
+  const fromSeed = localizedNamesForCode(s.code);
 
   return {
     id: s.code,
     name: s.nameZh,
     nameEN: s.nameEn,
+    namePt: s.namePt?.trim() || fromSeed.namePt || s.nameEn,
+    nameEs: s.nameEs?.trim() || fromSeed.nameEs || s.nameEn,
     tradition: (s.tradition === 'latin' || s.tradition === 'seasia' ? s.tradition : 'seasia') as Deity['tradition'],
     region: s.region ?? '',
     domains: (s.domains ?? []).map((d) => d.label).filter(Boolean),
