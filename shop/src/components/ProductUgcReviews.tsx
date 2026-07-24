@@ -65,9 +65,7 @@ export function ProductUgcReviews({ sku, reviews }: { sku: string; reviews: UgcR
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="muted">{tr('empty')}</p>
-      )}
+      ) : null}
 
       <form className="shop-review-form panel" onSubmit={(e) => void onSubmit(e)}>
         <h3 className="shop-review-form-title">{tr('formTitle')}</h3>
