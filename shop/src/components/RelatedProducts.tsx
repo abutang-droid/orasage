@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import type { Product } from '@/lib/products';
 import { ProductImage } from '@/components/ProductImage';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
@@ -12,6 +13,7 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
   const { getServerShopLocale } = await import('@/lib/currency-server');
 
   const locale = await getServerShopLocale();
+  const t = await getTranslations('pdp');
   const [products, imageMap] = await Promise.all([fetchProducts(locale), fetchProductImageMap()]);
   const related = skus
     .map((sku) => products.find((p) => p.sku === sku))
@@ -24,7 +26,7 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
 
   return (
     <div className="shop-pdp-related">
-      <h3 className="shop-pdp-related-heading">{title || '与之共振'}</h3>
+      <h3 className="shop-pdp-related-heading">{title?.trim() || t('ui.related')}</h3>
       <div className="shop-pdp-related-grid">
         {related.map((product) => (
           <RelatedProductCard

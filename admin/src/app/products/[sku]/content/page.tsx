@@ -148,9 +148,9 @@ export default async function ProductContentPage({ params, searchParams }: PageP
           <div className="form-grid" style={{ marginBottom: '1.25rem' }}>
             <label>
               发布状态
-              <select name="status" defaultValue={doc?.status ?? 'draft'}>
-                <option value="draft">草稿（前台降级简版）</option>
-                <option value="published">已发布</option>
+              <select name="status" defaultValue={doc?.status ?? 'published'}>
+                <option value="published">已发布（前台展示本语言）</option>
+                <option value="draft">草稿（前台仍可能展示有内容的草稿；无内容则回退其它语言）</option>
               </select>
             </label>
             <label className="full-width">

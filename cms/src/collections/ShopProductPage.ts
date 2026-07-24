@@ -67,7 +67,8 @@ export const ShopProductPage: CollectionConfig = {
       options: [...STATUS_OPTIONS],
       admin: {
         position: 'sidebar',
-        description: '草稿不会在商城详情页展示（将降级为简版 PDP）',
+        description:
+          '已发布优先展示。若本语言仅有「带文案的草稿」、没有已发布版，前台仍会展示该草稿，避免英文页误回退到中文。',
       },
     },
     {
