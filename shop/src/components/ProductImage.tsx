@@ -9,6 +9,8 @@ type ProductImageProps = {
   category?: ProductCategory;
   imageUrl?: string | null;
   className?: string;
+  /** Override Next/Image `sizes` (defaults assume single-column catalog). */
+  sizes?: string;
   priority?: boolean;
 };
 
@@ -18,6 +20,7 @@ export function ProductImage({
   category,
   imageUrl,
   className = '',
+  sizes = '(max-width: 640px) 92vw, 28rem',
   priority = false,
 }: ProductImageProps) {
   const src = imageUrl || fallbackProductImageUrl(sku, category);
@@ -31,7 +34,7 @@ export function ProductImage({
         src={src}
         alt={name}
         fill
-        sizes="(max-width: 640px) 50vw, 25vw"
+        sizes={sizes}
         className="shop-product-image"
         priority={priority}
         unoptimized={unoptimized}

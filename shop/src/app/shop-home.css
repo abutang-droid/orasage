@@ -152,12 +152,66 @@
   padding: 0.75rem;
 }
 
+/* One product per row — horizontal media + copy (catalog / featured). */
+.shop-product-card--row {
+  padding: 0.875rem;
+}
+
+.shop-product-card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.shop-product-card-media-link {
+  flex-shrink: 0;
+  width: 7.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.shop-product-card-media.shop-product-image-wrap {
+  width: 100%;
+  margin-bottom: 0;
+  border-radius: calc(var(--os-radius-card, 1rem) - 6px);
+}
+
+.shop-product-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
 .shop-product-card-link {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   text-decoration: none;
   color: inherit;
+}
+
+.shop-product-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.shop-product-card-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.shop-product-card-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #dc2626;
 }
 
 .shop-product-image-wrap {
@@ -220,8 +274,8 @@
 
 .shop-collection-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
 }
 
 .shop-pdp {
@@ -1386,29 +1440,36 @@
 
 .shop-product-badge {
   display: inline-flex;
-  height: 2.5rem;
-  width: 2.5rem;
+  width: fit-content;
+  max-width: 100%;
   align-items: center;
   justify-content: center;
+  gap: 0.25rem;
+  min-height: 1.375rem;
+  padding: 0.125rem 0.5rem;
   border-radius: 999px;
-  background: rgb(var(--os-rgb-mono-gray-light) / 0.5);
-  font-size: 0.875rem;
+  background: rgb(var(--os-rgb-mono-gray-light) / 0.65);
+  font-size: 0.6875rem;
   font-weight: 500;
+  line-height: 1.2;
   color: var(--os-color-mono-gray-deep, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .shop-product-name {
-  margin-top: 0.75rem;
+  margin-top: 0.35rem;
   font-size: 1rem;
   font-weight: 500;
   color: var(--os-color-mono-black, #171717);
 }
 
 .shop-product-desc {
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
   flex: 1;
   font-size: 0.75rem;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--os-color-mono-gray-deep, #6b7280);
 }
 
@@ -1417,6 +1478,12 @@
   font-weight: 600;
   line-height: 1.35;
   color: var(--os-color-mono-black, #171717);
+}
+
+@media (min-width: 400px) {
+  .shop-product-card-media-link {
+    width: 8.25rem;
+  }
 }
 
 .shop-footer-note {
