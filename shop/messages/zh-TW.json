@@ -279,7 +279,6 @@
     "reviews": {
       "title": "用戶評價",
       "featured": "精選",
-      "empty": "暫無用戶公開評價，購買後可留下第一條。",
       "formTitle": "寫下你的評價",
       "rating": "評分",
       "starOption": "{n} 星",

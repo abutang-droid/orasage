@@ -279,7 +279,6 @@
     "reviews": {
       "title": "Avaliações de clientes",
       "featured": "Destaque",
-      "empty": "Ainda não há avaliações públicas. Seja o primeiro após a compra.",
       "formTitle": "Escreva sua avaliação",
       "rating": "Nota",
       "starOption": "{n} estrelas",

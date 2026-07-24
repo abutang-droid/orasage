@@ -279,7 +279,6 @@
     "reviews": {
       "title": "Customer reviews",
       "featured": "Featured",
-      "empty": "No public reviews yet. Be the first after your purchase.",
       "formTitle": "Write a review",
       "rating": "Rating",
       "starOption": "{n} stars",
