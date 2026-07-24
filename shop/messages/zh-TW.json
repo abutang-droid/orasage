@@ -39,7 +39,8 @@
     "loading": "載入商品…",
     "featured": "精選推薦",
     "featuredSubtitle": "命理解讀後最常搭配的能量好物",
-    "diy": "共振定制"
+    "diy": "共振定制",
+    "emptyFilter": "該標籤下暫無商品"
   },
   "crystalShowcase": {
     "empty": "水晶手串暫不可用，請稍後再試。",
@@ -99,6 +100,10 @@
     "mixedCartNote": "訂單含數位商品與實體商品。請填寫收貨地址，實體商品將按此地址發貨；數位商品支付後自動交付，無需郵寄。",
     "orderNo": "訂單號：{orderNo}",
     "mockPay": "模擬支付（完成訂單）",
+    "payCurrencyLabel": "選擇支付貨幣",
+    "payWith": "使用 {currency} 支付",
+    "payNow": "確認支付（{currency}）",
+    "fxHint": "匯率：1 USDT = {rate} WOLD（後台可配置）",
     "orderNotFound": "訂單不存在",
     "missingOrderOrSku": "缺少訂單號或商品",
     "saveShippingFailed": "儲存收貨資訊失敗",
@@ -248,13 +253,113 @@
     "disc": "隔片"
   },
   "pdp": {
+    "backToShop": "← 返回商城",
+    "notFound": "商品不存在",
+    "specifications": "商品規格",
+    "ui": {
+      "productDetails": "商品詳情",
+      "energyDetails": "能量詳解",
+      "reportDetails": "報告詳解",
+      "serviceDetails": "服務詳解",
+      "story": "靈性故事",
+      "deepDive": "深度解讀",
+      "more": "更多介紹",
+      "specifications": "商品規格",
+      "guide": "佩戴指南",
+      "guidePairing": "佩戴指南與搭配",
+      "guideUpgrade": "使用指南與升級",
+      "faq": "常見問題",
+      "related": "與之共振"
+    },
+    "crystalEyebrow": "五行·{element} · {material}",
     "attachmentsTitle": "資料下載",
     "mediaLinksTitle": "媒體與用戶報導",
+    "testimonialsTitle": "佩戴者的聲音",
+    "starsAria": "{rating} 星",
+    "reviews": {
+      "title": "用戶評價",
+      "count": "{count} 則評價",
+      "empty": "暫無評價",
+      "featured": "精選",
+      "formTitle": "撰寫評價",
+      "formHint": "僅限已購買該商品的用戶；提交後經審核展示",
+      "rating": "評分",
+      "starOption": "{n} 星",
+      "body": "評價內容",
+      "placeholder": "分享佩戴或使用體驗…",
+      "charsHint": "至少 5 個字",
+      "submit": "提交評價",
+      "submitting": "提交中…",
+      "submitFailed": "提交失敗",
+      "submitted": "評價已提交，審核通過後將展示",
+      "gateLoading": "正在確認評價權限…",
+      "loginRequired": "登入後可為已購商品撰寫評價",
+      "loginCta": "登入後評價",
+      "purchaseRequired": "購買該商品後才可在此評價"
+    },
     "linkKind": {
       "internal": "站內",
       "media": "媒體",
       "review": "測評",
       "article": "文章"
+    },
+    "manifest": {
+      "wear": "佩戴顯化",
+      "read": "解讀顯化",
+      "act": "行動顯化"
+    },
+    "closure": {
+      "eyebrow": "OraSage · Oracle + Sage",
+      "crystal": {
+        "title": "看見，然後攜帶",
+        "sub": "See your map. Carry your clarity.",
+        "body": "命理解讀讓你「看見」自己的能量地圖，水晶讓你「攜帶」這份清醒。",
+        "bodyWithElement": "命理解讀讓你「看見」自己的能量地圖，水晶讓你「攜帶」這份清醒。若你的報告提示五行「{element}」需調和，這款水晶正是命理師常見的補能之選。",
+        "cta": "先做八字解讀",
+        "note": "獲取你的專屬水晶推薦"
+      },
+      "reportBazi": {
+        "title": "讀懂命盤，再攜帶能量",
+        "sub": "Read your chart. Carry your remedy.",
+        "body": "八字報告幫你看見能量地圖的輪廓；若需要進一步補能，可搭配五行水晶或升級禮盒版，讓洞察落在日常。",
+        "cta": "前往八字解讀",
+        "note": "在 App 內解鎖完整報告"
+      },
+      "reportZiwei": {
+        "title": "讀懂星盤，再邁出一步",
+        "sub": "Read your stars. Walk with intention.",
+        "body": "紫微報告描繪十二宮的人生面向；讀懂之後，用 OraSage 對話深入追問，或搭配能量手串讓平衡觸手可及。",
+        "cta": "前往紫微斗數",
+        "note": "在 App 內查看完整命盤解讀"
+      },
+      "reportTarot": {
+        "title": "看見當下，再選擇行動",
+        "sub": "See the pattern. Choose your step.",
+        "body": "塔羅解讀不是預言，而是覺察的入口；牌面照亮當下，行動仍在你手中。每日運勢與深度報告可組合使用。",
+        "cta": "前往塔羅",
+        "note": "在 App 內抽取與查看解讀"
+      },
+      "temple": {
+        "title": "祈福即連接",
+        "sub": "Blessing is connection.",
+        "body": "每一次祈福都是與更大善意的連接；樂捐支持 OraSage 祈福體系持續運營，讓這份體驗長久可用。",
+        "cta": "探索 OraSage",
+        "note": "感謝你的自願支持"
+      },
+      "ziweiChat": {
+        "title": "對話即成長",
+        "sub": "Ask deeper. Understand more.",
+        "body": "排盤之後的追問，往往是理解的關鍵。OraSage 對話讓命盤從「看見」走向「懂得」。",
+        "cta": "前往紫微斗數",
+        "note": "額度自動充值到帳戶"
+      },
+      "default": {
+        "title": "理清困惑，邁出下一步",
+        "sub": "Clarity first. Action follows.",
+        "body": "有時你需要的不是另一份報告，而是一個願意認真聽、能幫你理清的人。30 分鐘諮詢，聚焦你此刻最真實的問題。",
+        "cta": "了解 OraSage 命理體系",
+        "note": "付款後顧問將聯繫確認時段"
+      }
     }
   }
 }

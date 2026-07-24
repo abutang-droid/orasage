@@ -501,6 +501,14 @@
   text-align: center;
 }
 
+.temple-donation-login-link {
+  color: var(--gold-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .temple-donation-toast {
   margin: 0 0 16px;
   padding: 10px 14px;

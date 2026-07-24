@@ -22,7 +22,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         pathname={pathname}
         showBottomNav={!isOnboarding}
         showMobileBar={!isOnboarding}
-        showSiteTopNav={!isOnboarding}
         immersive={isOnboarding}
         showPageBack={!isTemple}
         footer={isOnboarding ? null : <PortalFooter />}

@@ -28,6 +28,10 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
 
   return (
     <>
+      {/* 哨兵字段：确保 PATCH 能区分「未提交」与「显式取消勾选」 */}
+      <input type="hidden" name="active_present" value="1" />
+      <input type="hidden" name="requiresShipping_present" value="1" />
+      <input type="hidden" name="tagIds_present" value="1" />
       <label>
         形态
         <select name="kind" value={kind} onChange={(e) => setKind(e.target.value)}>
@@ -45,54 +49,37 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
         </select>
       </label>
       <label>
-        价格 CNY（元）{kind === 'combo' ? '（组合优惠价）' : ''}
+        价格 USDT{kind === 'combo' ? '（组合优惠价）' : ''}
         <input
-          name="priceYuan"
-          type="number"
-          step="0.01"
-          min="0"
-          required
-          defaultValue={product ? (product.priceCents / 100).toFixed(2) : ''}
-          placeholder="128"
-        />
-      </label>
-      <label>
-        价格 USD{kind === 'combo' ? '（组合优惠价）' : ''}
-        <input
-          name="priceUsd"
+          name="priceUsdt"
           type="number"
           step="0.01"
           min="0"
           required
           defaultValue={
-            product?.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''
+            product?.priceCentsUsd != null
+              ? (product.priceCentsUsd / 100).toFixed(2)
+              : product
+                ? (product.priceCents / 100).toFixed(2)
+                : ''
           }
-          placeholder="17.99"
+          placeholder="39.90"
+          title="列价为 USDT；前台同时显示 WOLD（见商城→计价）"
         />
       </label>
       <label>
-        促销价 CNY（元，可选）
+        促销价 USDT（可选）
         <input
-          name="salePriceYuan"
+          name="salePriceUsdt"
           type="number"
           step="0.01"
           min="0"
           defaultValue={
-            product?.salePriceCents != null ? (product.salePriceCents / 100).toFixed(2) : ''
+            product?.salePriceCentsUsd != null
+              ? (product.salePriceCentsUsd / 100).toFixed(2)
+              : ''
           }
           placeholder="限时价"
-        />
-      </label>
-      <label>
-        促销价 USD（可选）
-        <input
-          name="salePriceUsd"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={
-            product?.salePriceCentsUsd != null ? (product.salePriceCentsUsd / 100).toFixed(2) : ''
-          }
         />
       </label>
       <label>

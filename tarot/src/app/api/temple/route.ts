@@ -35,8 +35,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '未登录' }, { status: 401 });
     }
 
-    const body = worshipSchema.parse(await req.json());
-    const language = resolveAiLocaleFromRequest(req, body);
+    const raw = await req.json();
+    const body = worshipSchema.parse(raw);
+    const language = resolveAiLocaleFromRequest(req, raw);
     const result = await recordWorship({
       userId: auth.userId,
       deityCode: body.deityCode,

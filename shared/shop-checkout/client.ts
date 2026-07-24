@@ -18,6 +18,20 @@ export type AppCheckoutResponse = {
   title?: string;
 };
 
+/** Thrown when /api/checkout returns 401 — callers should send the user to login. */
+export class CheckoutAuthRequiredError extends Error {
+  readonly status = 401 as const;
+
+  constructor(message = '请先登录') {
+    super(message);
+    this.name = 'CheckoutAuthRequiredError';
+  }
+}
+
+export function isCheckoutAuthRequiredError(err: unknown): err is CheckoutAuthRequiredError {
+  return err instanceof CheckoutAuthRequiredError;
+}
+
 /** 各命理 App 前端调用本 App 的 /api/checkout 代理 */
 export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppCheckoutResponse> {
   const res = await fetch('/api/checkout', {
@@ -28,7 +42,9 @@ export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppChe
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) {
-    throw new Error(data.error || '请先完成邮箱验证');
+    throw new CheckoutAuthRequiredError(
+      typeof data.error === 'string' && data.error ? data.error : '请先登录',
+    );
   }
   if (!res.ok) {
     throw new Error(data.error || `结账失败 (${res.status})`);

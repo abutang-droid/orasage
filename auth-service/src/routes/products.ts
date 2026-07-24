@@ -5,7 +5,8 @@ import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
-import { getCrystalContent, getShopPublicConfig } from "../lib/shop-settings.ts";
+import { getCrystalContent, getFxRates, getShopPublicConfig } from "../lib/shop-settings.ts";
+import { setRuntimeWoldPerUsdt } from "../../../shared/shop-locale/index.ts";
 import {
   formatProductLink,
   getCategoryLabelMap,
@@ -38,15 +39,14 @@ async function formatProductsWithCombos(
 
 function localeFromRequest(req: { query: Record<string, unknown>; headers: Record<string, string | string[] | undefined> }): string {
   const cookieHeader = typeof req.headers.cookie === "string" ? req.headers.cookie : "";
-  const cookieLocale = cookieHeader
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith("NEXT_LOCALE=") || part.startsWith("orasage_shop_locale="))
-    ?.split("=")[1];
+  const cookies = cookieHeader.split(";").map((part) => part.trim());
+  const read = (name: string) =>
+    cookies.find((part) => part.startsWith(`${name}=`))?.split("=").slice(1).join("=");
+  const raw = read("NEXT_LOCALE") ?? read("orasage_shop_locale");
   return resolveProductLocale({
     queryLocale: typeof req.query.locale === "string" ? req.query.locale : undefined,
     acceptLanguage: typeof req.headers["accept-language"] === "string" ? req.headers["accept-language"] : undefined,
-    cookieLocale: cookieLocale ? decodeURIComponent(cookieLocale) : undefined,
+    cookieLocale: raw ? decodeURIComponent(raw) : undefined,
   });
 }
 
@@ -80,14 +80,17 @@ productsRouter.get("/", async (req, res) => {
     rows = rows.filter((row) => ids.has(row.id));
   }
 
-  const [categoryLabels, tagMap] = await Promise.all([
+  const [categoryLabels, tagMap, fx] = await Promise.all([
     getCategoryLabelMap(),
     tagsForProducts(rows.map((r) => r.id), locale),
+    getFxRates(),
   ]);
+  setRuntimeWoldPerUsdt(fx.woldPerUsdt);
 
   res.json({
     products: await formatProductsWithCombos(rows, { locale, categoryLabels, tagMap }),
     locale,
+    woldPerUsdt: fx.woldPerUsdt,
   });
 });
 
@@ -212,6 +215,7 @@ const productBodySchema = z.object({
   comboItems: z.array(z.object({
     componentSku: z.string().min(1).max(100),
     quantity: z.number().int().min(1).max(99).optional(),
+    role: z.enum(["fixed", "element_crystal"]).optional(),
   })).max(20).optional(),
   visibility: z.enum(["public", "unlisted", "app_only"]).optional(),
   stock: z.number().int().nonnegative().optional().nullable(),

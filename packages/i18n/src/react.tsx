@@ -105,6 +105,14 @@ export function I18nProvider({
   useEffect(() => {
     if (!detectOnMount) return;
     const detected = mapLocaleRef.current(detectLocaleFromBrowser());
+    const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const hasQueryLang = Boolean(urlParam && params?.get(urlParam));
+    // Deep-link ?lang= / cookie / navigator must persist NEXT_LOCALE so
+    // cross-subdomain jumps (main → tarot → shop) keep the same language.
+    if (detected !== localeRef.current || hasQueryLang) {
+      setLocaleCookie(detected);
+      if (urlParam) syncUrlParam(urlParam, detected);
+    }
     setLocaleState((current) => (detected === current ? current : detected));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

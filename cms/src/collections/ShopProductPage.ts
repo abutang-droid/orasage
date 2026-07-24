@@ -22,7 +22,7 @@ const SECTION_TYPE_OPTIONS = [
   { label: '相关商品', value: 'relatedSkus' },
 ] as const;
 
-/** 商城商品详情落地页 — 多图 + 区块化长内容；一 SKU 多语言文档（缺失回退 zh-CN） */
+/** 商城商品详情落地页 — 多图 + 区块化长内容；一 SKU 多语言文档 */
 export const ShopProductPage: CollectionConfig = {
   slug: 'shop-product-pages',
   labels: {
@@ -34,7 +34,7 @@ export const ShopProductPage: CollectionConfig = {
     useAsTitle: 'sku',
     defaultColumns: ['sku', 'status', 'locale', 'updatedAt'],
     description:
-      '商品 PDP 内容：详情轮播多图与区块化文案。列表缩略图仍用「商品主图」集合；此处 heroImages 仅用于详情页。',
+      '商品 PDP：详情轮播/视频按语言存储；某语言未设置时前台按 英语→简体 回退。列表缩略图用「商品主图」（全语言共用）。',
   },
   access: cmsAccessForSlug('shop-product-pages'),
   fields: [
@@ -67,14 +67,17 @@ export const ShopProductPage: CollectionConfig = {
       options: [...STATUS_OPTIONS],
       admin: {
         position: 'sidebar',
-        description: '草稿不会在商城详情页展示（将降级为简版 PDP）',
+        description:
+          '已发布优先展示。若本语言仅有「带文案的草稿」、没有已发布版，前台仍会展示该草稿，避免英文页误回退到中文。',
       },
     },
     {
       name: 'subtitle',
       type: 'text',
       label: '副标题 / 一句话卖点',
-      admin: { description: '显示在商品名称下方' },
+      admin: {
+        description: '显示在商品名称下方；随本文档「语言」字段独立存储，每种语言各写一份',
+      },
     },
     {
       name: 'seoTitle',
@@ -92,7 +95,8 @@ export const ShopProductPage: CollectionConfig = {
       type: 'text',
       label: '主图视频 URL',
       admin: {
-        description: '可选。占用一个主图位（最多 4 图 + 1 视频），建议 1:1 或 16:9 MP4',
+        description:
+          '可选。建议 1:1 或 16:9 MP4。未填时前台回退：英语 → 简体中文。',
       },
     },
     {
@@ -100,7 +104,7 @@ export const ShopProductPage: CollectionConfig = {
       type: 'text',
       label: '场景视频 URL',
       admin: {
-        description: '可选。展示在详情内容区的场景视频，建议 16:9 MP4',
+        description: '可选。建议 16:9 MP4。未填时前台回退：英语 → 简体中文。',
       },
     },
     {
@@ -109,7 +113,8 @@ export const ShopProductPage: CollectionConfig = {
       type: 'array',
       minRows: 0,
       admin: {
-        description: '建议 1:1 或 4:5，首张为详情页默认主图。列表缩略图仍使用「商品主图」。',
+        description:
+          '建议 1:1 或 4:5。为空时前台回退英语→简体轮播。列表缩略图仍用「商品主图」。',
       },
       fields: [
         {

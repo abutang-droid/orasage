@@ -1,9 +1,26 @@
 import { Router } from "express";
 import { z } from "zod";
 import { getAuthUser } from "../lib/auth-user.ts";
-import { createProductReview, listApprovedReviewsForSku } from "../lib/product-reviews.ts";
+import {
+  createProductReview,
+  getReviewEligibility,
+  listApprovedReviewsForSku,
+  ReviewPurchaseRequiredError,
+} from "../lib/product-reviews.ts";
 
 export const reviewsRouter = Router();
+
+reviewsRouter.get("/products/:sku/eligibility", async (req, res) => {
+  try {
+    const sku = String(req.params.sku);
+    const user = await getAuthUser(req);
+    const eligibility = await getReviewEligibility(user?.id ?? null, sku);
+    res.json(eligibility);
+  } catch (err) {
+    console.error("[reviews] eligibility:", err);
+    res.status(500).json({ error: "加载评价权限失败" });
+  }
+});
 
 reviewsRouter.get("/products/:sku", async (req, res) => {
   try {
@@ -47,6 +64,10 @@ reviewsRouter.post("/", async (req, res) => {
       },
     });
   } catch (err) {
+    if (err instanceof ReviewPurchaseRequiredError) {
+      res.status(403).json({ error: err.message, code: "purchase_required" });
+      return;
+    }
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
       return;

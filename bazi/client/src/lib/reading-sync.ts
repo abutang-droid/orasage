@@ -21,6 +21,11 @@ export function syncBaziSingleReading(
   const crystalSku = braceletToCrystalSku(braceletRec ?? null);
   const readingId = existingReadingId ?? newReadingId('bazi');
   const payloadJson = JSON.stringify({ type: 'single', lang, resultData: data });
+  if (crystalSku && typeof sessionStorage !== 'undefined') {
+    try {
+      sessionStorage.setItem('bazi:lastCrystalSku', crystalSku);
+    } catch { /* ignore */ }
+  }
   void syncReading({
     appSource: 'bazi',
     readingId,
@@ -40,7 +45,7 @@ export const PLAN_REPORT_SKU: Record<string, string> = {
 };
 
 export const PLAN_COUPLE_REPORT_SKU: Record<string, string> = {
-  basic: 'report-bazi-couple-basic',
+  basic: 'report-bazi-basic',
   advanced: 'report-bazi-couple-advanced',
   premium: 'report-bazi-couple-premium',
 };

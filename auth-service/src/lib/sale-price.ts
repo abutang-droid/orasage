@@ -7,10 +7,12 @@ import {
 type ProductRow = typeof products.$inferSelect;
 
 export function isSaleActive(
-  row: Pick<ProductRow, "salePriceCents" | "saleStartsAt" | "saleEndsAt">,
+  row: Pick<ProductRow, "salePriceCents" | "salePriceCentsUsd" | "saleStartsAt" | "saleEndsAt">,
   at: Date = new Date(),
 ): boolean {
-  if (row.salePriceCents == null) return false;
+  const hasSale = (row.salePriceCentsUsd != null && row.salePriceCentsUsd > 0)
+    || (row.salePriceCents != null && row.salePriceCents > 0);
+  if (!hasSale) return false;
   if (row.saleStartsAt && at < row.saleStartsAt) return false;
   if (row.saleEndsAt && at > row.saleEndsAt) return false;
   return true;
@@ -18,12 +20,14 @@ export function isSaleActive(
 
 export function effectiveListPrice(row: ProductRow): { priceCents: number; priceCentsUsd: number | null } {
   if (isSaleActive(row)) {
+    const usdt = row.salePriceCentsUsd ?? row.salePriceCents ?? row.priceCentsUsd ?? row.priceCents;
     return {
-      priceCents: row.salePriceCents!,
-      priceCentsUsd: row.salePriceCentsUsd ?? row.priceCentsUsd,
+      priceCents: usdt,
+      priceCentsUsd: usdt,
     };
   }
-  return { priceCents: row.priceCents, priceCentsUsd: row.priceCentsUsd };
+  const usdt = row.priceCentsUsd ?? row.priceCents;
+  return { priceCents: usdt, priceCentsUsd: row.priceCentsUsd ?? usdt };
 }
 
 export function resolvedEffectivePriceCents(row: ProductRow, currency: ShopCurrency): number {

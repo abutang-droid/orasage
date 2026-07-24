@@ -1,5 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
+import { cookieDomainFromHost, LOCALE_COOKIE } from '@orasage/i18n';
 import { routing } from './i18n/navigation';
 import { ORASAGE_PATHNAME_HEADER, stripLocalePrefix } from './lib/portal-pathname';
 import { externalUrls } from './lib/urls';
@@ -21,6 +22,49 @@ const DEPRECATED_LOCALE_REDIRECT: Record<string, string> = {
   ar: 'en',
 };
 
+function requestHost(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-host') ||
+    request.headers.get('host') ||
+    request.nextUrl.hostname
+  );
+}
+
+/** Persist NEXT_LOCALE on cross-subdomain redirects (main → tarot / temple). */
+function attachLocaleCookie(response: NextResponse, request: NextRequest, locale: string): void {
+  const domain = cookieDomainFromHost(requestHost(request));
+  response.cookies.set(LOCALE_COOKIE, locale, {
+    path: '/',
+    maxAge: 31536000,
+    sameSite: 'lax',
+    secure: request.nextUrl.protocol === 'https:',
+    ...(domain ? { domain } : {}),
+  });
+}
+
+function redirectExternal(
+  request: NextRequest,
+  targetBase: string,
+  locale: string | null,
+  extra?: Record<string, string>,
+): NextResponse {
+  const url = new URL(targetBase);
+  request.nextUrl.searchParams.forEach((value, key) => {
+    if (!url.searchParams.has(key)) url.searchParams.set(key, value);
+  });
+  if (locale && locale !== 'zh-CN') {
+    url.searchParams.set('lang', locale);
+  }
+  if (extra) {
+    for (const [key, value] of Object.entries(extra)) {
+      url.searchParams.set(key, value);
+    }
+  }
+  const response = NextResponse.redirect(url, 308);
+  if (locale) attachLocaleCookie(response, request, locale);
+  return response;
+}
+
 function redirectDeprecatedLocale(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
   const match = pathname.match(/^\/([^/]+)(\/.*)?$/);
@@ -31,6 +75,8 @@ function redirectDeprecatedLocale(request: NextRequest): NextResponse | null {
   if (!target) return null;
   const url = request.nextUrl.clone();
   url.pathname = `/${target}${rest}`;
+  // Soft hint: requested language is not live yet (phase 1 = zh-CN / en / pt-BR).
+  url.searchParams.set('langUnavailable', seg);
   return NextResponse.redirect(url, 308);
 }
 
@@ -38,11 +84,28 @@ function redirectDeprecatedLocale(request: NextRequest): NextResponse | null {
 function redirectTemple(request: NextRequest): NextResponse | null {
   const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
   if (normalized === '/temple') {
-    return NextResponse.redirect(externalUrls.temple, 308);
+    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? 'zh-CN';
+    return redirectExternal(request, externalUrls.temple, locale);
   }
   const localeTemple = new RegExp(`^/(${PORTAL_LOCALES})/temple$`);
-  if (localeTemple.test(normalized)) {
-    return NextResponse.redirect(externalUrls.temple, 308);
+  const match = normalized.match(localeTemple);
+  if (match) {
+    return redirectExternal(request, externalUrls.temple, match[1]);
+  }
+  return null;
+}
+
+/** 门户首页默认进入塔罗（底栏第 1 键）— 转发 path locale / cookie */
+function redirectPortalHomeToTarot(request: NextRequest): NextResponse | null {
+  const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
+  if (normalized === '/') {
+    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? 'zh-CN';
+    return redirectExternal(request, externalUrls.tarot, locale);
+  }
+  const localeHome = new RegExp(`^/(${PORTAL_LOCALES})$`);
+  const match = normalized.match(localeHome);
+  if (match) {
+    return redirectExternal(request, externalUrls.tarot, match[1]);
   }
   return null;
 }
@@ -69,6 +132,9 @@ export default function middleware(request: NextRequest) {
 
   const templeRedirect = redirectTemple(request);
   if (templeRedirect) return templeRedirect;
+
+  const homeRedirect = redirectPortalHomeToTarot(request);
+  if (homeRedirect) return homeRedirect;
 
   const zhRedirect = redirectZhAlias(request);
   if (zhRedirect) return zhRedirect;

@@ -1,3 +1,4 @@
+import { siteUrls } from './site-urls.ts';
 /**
  * 订单提醒 — 新订单 / 支付成功推送到运营 Telegram 与邮箱。
  *
@@ -49,11 +50,11 @@ function enabledEvents(): Set<string> {
 }
 
 function formatAmount(order: OrderLike): string {
-  const value = (order.amountCents / 100).toFixed(2);
   const cur = order.currency.toUpperCase();
-  if (cur === "CNY") return `¥${value}`;
-  if (cur === "USD") return `$${value}`;
-  return `${value} ${cur}`;
+  if (cur === "WOLD") return `${(order.amountCents / 100).toFixed(2)} WOLD`;
+  if (cur === "USDT" || cur === "USD") return `${(order.amountCents / 100).toFixed(2)} USDT`;
+  if (cur === "CNY") return `¥${(order.amountCents / 100).toFixed(2)}`;
+  return `${(order.amountCents / 100).toFixed(2)} ${cur}`;
 }
 
 function buildText(event: OrderNotifyEvent, order: OrderLike): string {
@@ -75,7 +76,7 @@ function buildText(event: OrderNotifyEvent, order: OrderLike): string {
     `时间：${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC`,
   );
   if (order.recommendationContext) lines.push(`推荐上下文：${order.recommendationContext.slice(0, 200)}`);
-  lines.push("", "后台：https://admin.orasage.com/shop/orders");
+  lines.push("", `后台：${siteUrls().admin}/shop/orders`);
   return lines.join("\n");
 }
 

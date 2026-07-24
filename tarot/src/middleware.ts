@@ -1,22 +1,68 @@
 import { NextRequest, NextResponse } from "next/server"
+import {
+  detectLocale,
+  LOCALE_COOKIE,
+  LOCALE_OVERRIDE_COOKIE,
+  toCoreLocale,
+} from "@orasage/i18n"
+import { apexFromHostname, normalizeSiteApex } from "@/lib/orasage-app-shell/config"
 
-const MAIN_PROFILE = "https://orasage.com/zh-CN/profile"
-const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
-const MAIN_MERIT = "https://orasage.com/zh-CN/profile/merit"
+function siteApex(request: NextRequest): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_APEX || process.env.SITE_APEX
+  if (fromEnv) return normalizeSiteApex(fromEnv)
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.hostname
+  return apexFromHostname(host) || "orasage.com"
+}
 
-const PORTAL_LOCALES = 'zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar';
+function resolvePortalLocale(request: NextRequest): string {
+  return toCoreLocale(
+    detectLocale({
+      queryLocale:
+        request.nextUrl.searchParams.get("lang") ||
+        request.nextUrl.searchParams.get("locale"),
+      // Prefer portal NEXT_LOCALE; shop override is fallback only.
+      cookieLocale:
+        request.cookies.get(LOCALE_COOKIE)?.value ??
+        request.cookies.get(LOCALE_OVERRIDE_COOKIE)?.value ??
+        null,
+      acceptLanguage: request.headers.get("accept-language"),
+    }),
+  )
+}
+
+function mainUrls(request: NextRequest) {
+  const apex = siteApex(request)
+  const locale = resolvePortalLocale(request)
+  const main = `https://${apex}`
+  return {
+    profile: `${main}/${locale}/profile`,
+    settings: `${main}/${locale}/profile/settings`,
+    merit: `${main}/${locale}/profile/merit`,
+  }
+}
+
+const PORTAL_LOCALES = 'zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar'
 
 function redirectLocaleTemple(request: NextRequest): NextResponse | null {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
   const localeTemple = new RegExp(`^/(${PORTAL_LOCALES})/temple$`)
   if (localeTemple.test(pathname)) {
-    return NextResponse.redirect(new URL("/temple", request.url))
+    const locale = pathname.split("/")[1]
+    const url = new URL("/temple", request.url)
+    request.nextUrl.searchParams.forEach((value, key) => {
+      url.searchParams.set(key, value)
+    })
+    if (locale && locale !== "zh-CN" && !url.searchParams.has("lang")) {
+      url.searchParams.set("lang", toCoreLocale(locale))
+    }
+    return NextResponse.redirect(url)
   }
   return null
 }
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
+  const urls = mainUrls(request)
 
   const localeTempleRedirect = redirectLocaleTemple(request)
   if (localeTempleRedirect) return localeTempleRedirect
@@ -26,15 +72,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/profile") {
-    return NextResponse.redirect(MAIN_PROFILE)
+    return NextResponse.redirect(urls.profile)
   }
 
   if (pathname === "/profile/merit") {
-    return NextResponse.redirect(MAIN_MERIT)
+    return NextResponse.redirect(urls.merit)
   }
 
   if (pathname === "/profile/settings" || pathname === "/settings") {
-    return NextResponse.redirect(MAIN_SETTINGS)
+    return NextResponse.redirect(urls.settings)
   }
 
   return NextResponse.next()

@@ -5,6 +5,7 @@ import { Church } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { useLang } from '@/lib/i18n/context';
+import { deityDisplayName, deitySubtitle } from '@/lib/i18n/deity-locale';
 import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import { meritLevelTitle } from '@/lib/merit';
@@ -57,8 +58,8 @@ export function TempleHome({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setBlessing(latestBlessing ?? loadLastBlessing());
-  }, [latestBlessing]);
+    setBlessing(latestBlessing ?? loadLastBlessing(lang));
+  }, [latestBlessing, lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,7 +101,10 @@ export function TempleHome({
     };
   }, []);
 
-  const displayBlessing = blessing?.text ?? deity?.blessingText;
+  const primaryName = deity ? deityDisplayName(deity, lang) : '';
+  const secondaryName = deity ? deitySubtitle(deity, lang) : null;
+  // CMS blessingText is Chinese-only; only use it for zh UI.
+  const displayBlessing = blessing?.text ?? (lang === 'zh' ? deity?.blessingText : null);
 
   return (
     <div className="temple-home">
@@ -116,10 +120,10 @@ export function TempleHome({
           {deity ? (
             <>
               <div className="temple-home-deity-portrait">
-                <img src={deity.imageUrl} alt={deity.name} />
+                <img src={deity.imageUrl} alt={primaryName} />
               </div>
-              <h1 className="temple-home-deity-name">{deity.name}</h1>
-              <p className="temple-home-deity-en">{deity.nameEN}</p>
+              <h1 className="temple-home-deity-name">{primaryName}</h1>
+              {secondaryName ? <p className="temple-home-deity-en">{secondaryName}</p> : null}
               <Button type="button" className="temple-home-worship-btn w-full" onClick={onWorship}>
                 <Church size={18} strokeWidth={1.75} aria-hidden />
                 {summary?.prayedToday ? temple.worshipAgain : temple.worshipToday}
@@ -207,7 +211,7 @@ export function TempleHome({
       </section>
 
       <section className="temple-home-donation" aria-label={temple.donationAria}>
-        <TempleDonation deityName={deity?.name} />
+        <TempleDonation deityName={primaryName || undefined} />
       </section>
 
       <p className="temple-home-settings-hint">

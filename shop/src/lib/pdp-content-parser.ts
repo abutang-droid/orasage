@@ -127,7 +127,11 @@ export function parseRichTextBody(body: string): RichBlock[] {
 
 export function splitManifestQuote(quote: string): { english: string; chinese: string } {
   const parts = quote.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-  if (parts.length <= 1) return { english: quote.trim(), chinese: '' };
+  if (parts.length <= 1) {
+    const single = quote.trim();
+    const hasCjk = /[\u4e00-\u9fff]/.test(single);
+    return hasCjk ? { english: '', chinese: single } : { english: single, chinese: '' };
+  }
 
   const englishLines: string[] = [];
   const chineseLines: string[] = [];
@@ -144,4 +148,12 @@ export function splitManifestQuote(quote: string): { english: string; chinese: s
     english: englishLines.join('\n\n'),
     chinese: chineseLines.join('\n\n'),
   };
+}
+
+/** 按商城语言挑选双语显化引文 / 推荐语中的一侧 */
+export function pickLocaleQuoteText(quote: string, locale: string): string {
+  const { english, chinese } = splitManifestQuote(quote);
+  const preferZh = locale === 'zh-CN' || locale === 'zh-TW' || locale.startsWith('zh');
+  if (preferZh) return chinese || english || quote.trim();
+  return english || chinese || quote.trim();
 }

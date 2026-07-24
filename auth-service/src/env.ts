@@ -17,7 +17,12 @@ export const ENV = {
   jwtSecret: envOrThrow("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "30d",
   corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
-  cookieDomain: process.env.COOKIE_DOMAIN || ".orasage.com",
+  cookieDomain:
+    process.env.COOKIE_DOMAIN ||
+    process.env.JWT_COOKIE_DOMAIN ||
+    (process.env.SITE_APEX || process.env.NEXT_PUBLIC_SITE_APEX
+      ? `.${(process.env.SITE_APEX || process.env.NEXT_PUBLIC_SITE_APEX || "").replace(/^\./, "")}`
+      : ".orasage.com"),
   isProduction: process.env.NODE_ENV === "production",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",

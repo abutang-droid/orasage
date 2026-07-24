@@ -8,6 +8,14 @@ import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
 import { getAdminToken } from '@/lib/auth';
 
+function omitUndefined<T extends Record<string, unknown>>(obj: T): T {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) out[key] = value;
+  }
+  return out as T;
+}
+
 export async function saveProductAction(formData: FormData) {
   const payload = parseProductFormPayload(formData);
   const isEdit = formData.get('isEdit') === '1';
@@ -17,7 +25,11 @@ export async function saveProductAction(formData: FormData) {
     : listPath;
   const returnPath = isEdit ? editPath : listPath;
 
-  if (!payload.sku || !payload.name || !payload.description || payload.priceCents < 0) {
+  const priceOk = payload.priceCents === undefined || payload.priceCents >= 0;
+  if (!payload.sku || !payload.name || !payload.description || !priceOk) {
+    redirect(`${returnPath}?save_err=${encodeURIComponent('请填写完整商品信息')}`);
+  }
+  if (!isEdit && (payload.priceCents === undefined || payload.priceCents < 0)) {
     redirect(`${returnPath}?save_err=${encodeURIComponent('请填写完整商品信息')}`);
   }
   if (payload.kind === 'combo' && (!payload.comboItems || payload.comboItems.length === 0)) {
@@ -37,13 +49,23 @@ export async function saveProductAction(formData: FormData) {
         },
       );
     }
-    const productPayload = { ...payload, attachments };
+    const productPayload = omitUndefined({ ...payload, attachments });
 
     if (isEdit) {
       const { sku, ...patch } = productPayload;
       await updateProduct(sku, patch);
     } else {
-      await createProduct(productPayload);
+      // 新建时补齐可见性/形态默认值（表单一般会带，此处仅兜底）
+      await createProduct({
+        ...productPayload,
+        kind: productPayload.kind ?? 'standard',
+        visibility: productPayload.visibility ?? 'public',
+        category: productPayload.category ?? 'crystal',
+        sortOrder: productPayload.sortOrder ?? 0,
+        active: productPayload.active ?? true,
+        requiresShipping: productPayload.requiresShipping ?? true,
+        priceCents: productPayload.priceCents ?? 0,
+      });
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : '保存失败';
@@ -128,8 +150,9 @@ export async function saveDiyBeadAction(formData: FormData) {
   const beadType = String(formData.get('beadType') ?? 'crystal') as 'crystal' | 'spacer' | 'disc';
   const diameterMm = Number(formData.get('diameterMm') ?? 0);
   const thicknessRaw = String(formData.get('thicknessMm') ?? '').trim();
-  const priceCents = Math.round(Number(formData.get('priceYuan') ?? 0) * 100);
-  const priceUsdRaw = String(formData.get('priceUsd') ?? '').trim();
+  const priceUsdtRaw = String(formData.get('priceUsdt') ?? formData.get('priceUsd') ?? formData.get('priceYuan') ?? '').trim();
+  let priceCentsUsd = priceUsdtRaw ? Math.round(Number(priceUsdtRaw) * 100) : null;
+  let priceCents = priceCentsUsd != null && priceCentsUsd >= 0 ? priceCentsUsd : 0;
   const imageUrl = String(formData.get('imageUrl') ?? '').trim();
   const colors = String(formData.get('colors') ?? '').trim();
   const stock = Number(formData.get('stock') ?? 999);
@@ -137,7 +160,7 @@ export async function saveDiyBeadAction(formData: FormData) {
   const active = formData.get('active') === 'on';
   const isEdit = formData.get('isEdit') === '1';
 
-  if (!code || !name || !material || diameterMm <= 0 || priceCents < 0) {
+  if (!code || !name || !material || diameterMm <= 0 || priceCents < 0 || priceCentsUsd == null) {
     throw new Error('请填写完整珠子信息');
   }
 
@@ -150,7 +173,7 @@ export async function saveDiyBeadAction(formData: FormData) {
     diameterMm,
     thicknessMm: beadType === 'disc' && thicknessRaw ? Number(thicknessRaw) : null,
     priceCents,
-    priceCentsUsd: priceUsdRaw ? Math.round(Number(priceUsdRaw) * 100) : null,
+    priceCentsUsd,
     imageUrl: imageUrl || null,
     colors: colors || null,
     stock: Number.isFinite(stock) ? stock : 999,
@@ -178,7 +201,7 @@ export async function saveDiyBeadAction(formData: FormData) {
 
 export async function saveDiyConfigAction(formData: FormData) {
   const lengthCorrectionMm = Number(formData.get('lengthCorrectionMm') ?? 3);
-  const minOrderYuan = Number(formData.get('minOrderYuan') ?? 99);
+  const minOrderUsdt = Number(formData.get('minOrderUsdt') ?? formData.get('minOrderYuan') ?? 13.75);
   const fitToleranceMm = Number(formData.get('fitToleranceMm') ?? 8);
   const wristEaseMm = Number(formData.get('wristEaseMm') ?? 10);
 
@@ -186,7 +209,7 @@ export async function saveDiyConfigAction(formData: FormData) {
   try {
     await saveDiyConfig({
       lengthCorrectionMm,
-      minOrderCents: Math.round(minOrderYuan * 100),
+      minOrderCents: Math.round(minOrderUsdt * 100),
       fitToleranceMm,
       wristEaseMm,
     });
@@ -276,8 +299,22 @@ export async function saveHomepageProductsAction(formData: FormData) {
 
 export async function saveShopLayoutAction(formData: FormData) {
   const homeLayout = String(formData.get('homeLayout') ?? 'legacy') as 'legacy' | 'crystal_v1';
-  await saveShopConfig(homeLayout);
+  await saveShopConfig({ homeLayout });
   revalidatePath('/products');
+  revalidatePath('/shop/crystal-home');
+}
+
+/** 全站计价：USDT↔WOLD 汇率（仅此一处配置） */
+export async function saveShopPricingAction(formData: FormData) {
+  const woldRaw = String(formData.get('woldPerUsdt') ?? '').trim();
+  const woldPerUsdt = Number(woldRaw);
+  if (!Number.isFinite(woldPerUsdt) || woldPerUsdt <= 0) {
+    throw new Error('请填写有效的 USDT→WOLD 汇率');
+  }
+  await saveShopConfig({ woldPerUsdt });
+  revalidatePath('/shop/pricing');
+  revalidatePath('/products');
+  redirect('/shop/pricing?saved=ok');
 }
 
 const CRYSTAL_CONTENT_SKUS = [
@@ -346,12 +383,13 @@ export async function saveBillingSlotAction(formData: FormData) {
   for (let i = 0; i < SLOT_ENTRY_ROWS; i += 1) {
     const sku = String(formData.get(`entry_sku_${i}`) ?? '').trim();
     if (!sku) continue;
-    const cny = String(formData.get(`entry_cny_${i}`) ?? '').trim();
-    const usd = String(formData.get(`entry_usd_${i}`) ?? '').trim();
+    const usdt = String(formData.get(`entry_usdt_${i}`) ?? formData.get(`entry_usd_${i}`) ?? formData.get(`entry_cny_${i}`) ?? '').trim();
+    const usdtCents = usdt ? Math.round(Number(usdt) * 100) : null;
     entries.push({
       sku,
-      priceOverrideCents: cny ? Math.round(Number(cny) * 100) : null,
-      priceOverrideUsdCents: usd ? Math.round(Number(usd) * 100) : null,
+      // 双列同写 USDT 分（覆盖价不再使用 CNY）
+      priceOverrideCents: usdtCents,
+      priceOverrideUsdCents: usdtCents,
     });
   }
 

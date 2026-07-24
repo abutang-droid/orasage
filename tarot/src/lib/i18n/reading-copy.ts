@@ -276,6 +276,7 @@ const threeCard = {
   sectionArchitecture: { zh: '[ 架构定义 ]', en: '[ Architecture ]', pt: '[ Arquitetura ]', es: '[ Arquitectura ]' },
   modeLabel: { zh: '模式', en: 'Mode', pt: 'Modo', es: 'Modo' },
   sectionNodes: { zh: '[ 节点测绘 ]', en: '[ Node mapping ]', pt: '[ Mapeamento de nós ]', es: '[ Mapeo de nodos ]' },
+  nodeIndex: { zh: '节点 {n}', en: 'Node {n}', pt: 'Nó {n}', es: 'Nodo {n}' },
   sectionChain: { zh: '[ 链路推演 ]', en: '[ Chain inference ]', pt: '[ Inferência de cadeia ]', es: '[ Inferencia de cadena ]' },
   sectionThreshold: { zh: '[ 行动阈值 ]', en: '[ Action threshold ]', pt: '[ Limiar de ação ]', es: '[ Umbral de acción ]' },
   fullSynthesis: {
@@ -332,16 +333,16 @@ const threeCard = {
 const singleCard = {
   label: { zh: '定命切片', en: 'Destiny Slice', pt: 'Fatia do Destino', es: 'Fragmento del Destino' },
   title: {
-    zh: '定命切片 // FOCUS',
-    en: 'Destiny Slice // FOCUS',
-    pt: 'Fatia do Destino // FOCUS',
-    es: 'Fragmento del Destino // FOCUS',
+    zh: '定命切片',
+    en: 'Destiny Slice',
+    pt: 'Fatia do Destino',
+    es: 'Fragmento del Destino',
   },
   statusBadge: {
-    zh: '[ 状态：单点高能聚焦 // 非零即一判断 ]',
-    en: '[ Status: single-point focus // binary tendency ]',
-    pt: '[ Status: foco de ponto único // tendência binária ]',
-    es: '[ Estado: foco de punto único // tendencia binaria ]',
+    zh: '单点聚焦 · 倾向判断',
+    en: 'Single-point focus · tendency',
+    pt: 'Foco pontual · tendência',
+    es: 'Foco puntual · tendencia',
   },
   subtitle: {
     zh: '',
@@ -433,11 +434,14 @@ const singleCard = {
     pt: 'Falha ao gerar orientação',
     es: 'Error al generar guía',
   },
-  sectionTendency: { zh: '[ 倾向判定 ]', en: '[ Tendency ]', pt: '[ Tendência ]', es: '[ Tendencia ]' },
+  sectionTendency: { zh: '倾向判定', en: 'Tendency', pt: 'Tendência', es: 'Tendencia' },
   coreTendencyLabel: { zh: '核心倾向', en: 'Core tendency', pt: 'Tendência central', es: 'Tendencia central' },
   energyProbabilityLabel: { zh: '能量概率', en: 'Energy probability', pt: 'Probabilidade energética', es: 'Probabilidad energética' },
-  sectionDeconstruction: { zh: '[ 现状解构 ]', en: '[ Deconstruction ]', pt: '[ Desconstrução ]', es: '[ Deconstrucción ]' },
-  sectionThreshold: { zh: '[ 破局阈值 ]', en: '[ Threshold ]', pt: '[ Limiar ]', es: '[ Umbral ]' },
+  sectionDeconstruction: { zh: '现状解构', en: 'Deconstruction', pt: 'Desconstrução', es: 'Deconstrucción' },
+  sectionThreshold: { zh: '破局阈值', en: 'Threshold', pt: 'Limiar', es: 'Umbral' },
+  tendencyYes: { zh: 'Yes', en: 'Yes', pt: 'Sim', es: 'Sí' },
+  tendencyNo: { zh: 'No', en: 'No', pt: 'Não', es: 'No' },
+  tendencyCaution: { zh: '警惕', en: 'Caution', pt: 'Atenção', es: 'Precaución' },
   paywallTitle: {
     zh: '解锁数据切片',
     en: 'Unlock data slice',
@@ -837,10 +841,10 @@ const home = {
     es: 'Saca una carta — mira cómo se desarrolla el día',
   },
   heroSubtitle: {
-    zh: '今日启示、单牌占卜与三牌占卜，从这里开始',
-    en: "Today's insight, single-card and three-card readings start here",
-    pt: 'Revelação de hoje, carta única e três cartas começam aqui',
-    es: 'Revelación de hoy, carta única y tres cartas empiezan aquí',
+    zh: '每日运势与三牌占卜，都在这里开始',
+    en: 'Daily fortune and three-card readings both start here',
+    pt: 'A fortuna diária e a leitura de três cartas começam aqui',
+    es: 'La fortuna diaria y la lectura de tres cartas empiezan aquí',
   },
 } as const satisfies Record<string, LangMap>;
 
@@ -1015,9 +1019,15 @@ export function useReadingCommon() {
       positionSublabel: (key: string) => positionSublabel(lang, key),
       orientation: (o: string) => orientationLabel(lang, o),
       nicknameGreeting: (nickname?: string | null) => {
-        if (!nickname || nickname === p(common.traveler)) return '';
-        if (lang === 'zh') return `${nickname}，`;
-        return `${nickname}, `;
+        if (!nickname?.trim()) return '';
+        const defaults = new Set(
+          Object.values(common.traveler).map((v) => v.trim()).filter(Boolean),
+        );
+        // DB guest nickname is always the Chinese default
+        defaults.add('旅人');
+        if (defaults.has(nickname.trim())) return '';
+        if (lang === 'zh') return `${nickname.trim()}，`;
+        return `${nickname.trim()}, `;
       },
     };
   }, [lang]);
@@ -1066,6 +1076,7 @@ export function useThreeCardCopy() {
       sectionArchitecture: p(threeCard.sectionArchitecture),
       modeLabel: p(threeCard.modeLabel),
       sectionNodes: p(threeCard.sectionNodes),
+      nodeIndex: (n: number) => formatTemplate(p(threeCard.nodeIndex), { n: String(n).padStart(2, '0') }),
       sectionChain: p(threeCard.sectionChain),
       sectionThreshold: p(threeCard.sectionThreshold),
       fullSynthesis: p(threeCard.fullSynthesis),
@@ -1166,6 +1177,22 @@ export function useSingleCardCopy() {
       energyProbabilityLabel: p(singleCard.energyProbabilityLabel),
       sectionDeconstruction: p(singleCard.sectionDeconstruction),
       sectionThreshold: p(singleCard.sectionThreshold),
+      localizeTendency: (raw: string) => {
+        const t = raw.trim().toLowerCase();
+        if (t === 'yes' || t === 'sim' || t === 'sí' || t === 'si') return p(singleCard.tendencyYes);
+        if (t === 'no' || t === 'não' || t === 'nao') return p(singleCard.tendencyNo);
+        if (
+          t === 'caution'
+          || t === '警惕'
+          || t === 'atenção'
+          || t === 'atencao'
+          || t === 'precaución'
+          || t === 'precaucion'
+        ) {
+          return p(singleCard.tendencyCaution);
+        }
+        return raw;
+      },
       paywallTitle: p(singleCard.paywallTitle),
       paywallDesc: p(singleCard.paywallDesc),
       paywallMessage: p(singleCard.paywallMessage),

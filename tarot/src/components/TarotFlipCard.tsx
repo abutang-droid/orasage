@@ -1,6 +1,8 @@
 'use client';
 
 import CardFrame from '@/components/CardFrame';
+import { useCardName, useLang } from '@/lib/i18n/context';
+import { orientationLabel } from '@/lib/i18n/reading-copy';
 import type { TarotCardData } from '@/lib/tarot/cards';
 
 const SIZE_WIDTH = {
@@ -16,7 +18,8 @@ type TarotFlipCardProps = {
   size?: keyof typeof SIZE_WIDTH;
   orientation?: '正位' | '逆位';
   onClick?: () => void;
-  caption?: string;
+  /** undefined = auto localized caption when flipped; null = hide caption; string = custom */
+  caption?: string | null;
   disabled?: boolean;
 };
 
@@ -31,11 +34,19 @@ export function TarotFlipCard({
   caption,
   disabled = false,
 }: TarotFlipCardProps) {
+  const { lang } = useLang();
+  const cardNameFor = useCardName();
+  const displayName = cardNameFor(card);
+  const orientLabel = orientationLabel(lang, orientation);
+  const autoCaption = `${displayName} · ${orientLabel}`;
+  const showCaption = caption !== null && (caption !== undefined || flipped);
+  const captionText = caption === undefined ? (flipped ? autoCaption : '') : (caption ?? '');
+
   const width = SIZE_WIDTH[size];
   const framePad = Math.round(width * 0.03);
   const plaqueH = Math.round(width * 0.18);
   const cardH = Math.round(width * 1.48);
-  const totalH = cardH + framePad * 2 + (caption ? 0 : plaqueH);
+  const totalH = cardH + framePad * 2 + (showCaption && captionText ? 0 : plaqueH);
 
   const inner = (
     <div
@@ -58,16 +69,9 @@ export function TarotFlipCard({
           </div>
         </div>
       </div>
-      {caption ? (
-        <p className="tarot-flip-card-caption">{caption}</p>
-      ) : (
-        flipped && (
-          <p className="tarot-flip-card-caption">
-            {card.name}
-            {orientation ? ` · ${orientation}` : ''}
-          </p>
-        )
-      )}
+      {showCaption && captionText ? (
+        <p className="tarot-flip-card-caption">{captionText}</p>
+      ) : null}
     </div>
   );
 
@@ -77,7 +81,7 @@ export function TarotFlipCard({
         type="button"
         className="tarot-flip-card-btn"
         onClick={onClick}
-        aria-label={flipped ? `${card.name} ${orientation}` : '翻开塔罗牌'}
+        aria-label={flipped ? `${displayName} ${orientLabel}` : displayName}
       >
         {inner}
       </button>

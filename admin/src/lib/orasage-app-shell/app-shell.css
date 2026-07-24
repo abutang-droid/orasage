@@ -152,6 +152,40 @@
   color: var(--shell-gold);
 }
 
+.orasage-locale-fallback-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--shell-border);
+  background: rgba(201, 160, 90, 0.1);
+  color: var(--shell-text);
+  font-size: 12px;
+  line-height: 1.45;
+  z-index: 2;
+}
+
+.orasage-locale-fallback-notice p {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.orasage-locale-fallback-dismiss {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--shell-gold);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .orasage-app-main {
   flex: 1;
   position: relative;
@@ -177,24 +211,9 @@
   padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
-@media (min-width: 1024px) {
-  .orasage-app-main,
-  .orasage-portal-main {
-    padding-bottom: 12px;
-  }
-
-  .orasage-app-main--no-bottomnav {
-    padding-bottom: 12px;
-  }
-
-  .orasage-page-toolbar .orasage-auth-chip {
-    display: none;
-  }
-}
-
-/* —— PC 顶栏主导航（左品牌 + 右链接，页面流内非浮层色块） —— */
+/* —— 旧 PC 顶栏（已下线：全站仅移动壳，保留选择器以免遗留 HTML 露出来） —— */
 .orasage-site-topnav {
-  display: none;
+  display: none !important;
   position: relative;
   z-index: 10;
   background: var(--shell-bg);
@@ -262,13 +281,7 @@
   margin-inline-start: 4px;
 }
 
-@media (min-width: 1024px) {
-  .orasage-site-topnav {
-    display: block;
-  }
-}
-
-/* —— 移动顶栏（仅 Logo + 登录） —— */
+/* —— 顶栏（仅 Logo + 登录；宽屏同移动壳） —— */
 .orasage-site-mobile-bar {
   display: flex;
   align-items: center;
@@ -293,23 +306,11 @@
   flex-shrink: 0;
 }
 
-@media (min-width: 1024px) {
-  .orasage-site-mobile-bar {
-    display: none;
-  }
-}
-
-/* PC 页脚 — 版权/隐私；移动端隐藏（底栏已承载导航） */
+/* 页脚 — 移动壳下隐藏（底栏已承载导航；法律页可从「我的」进入） */
 .orasage-portal-footer {
   display: none;
   margin-top: auto;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@media (min-width: 1024px) {
-  .orasage-portal-footer {
-    display: block;
-  }
 }
 
 .orasage-portal-footer-inner {
@@ -362,16 +363,6 @@
 
 .orasage-portal-footer-link:hover {
   color: var(--shell-gold);
-}
-
-@media (min-width: 1024px) {
-  .orasage-app-bottomnav {
-    display: none !important;
-  }
-
-  .orasage-page-toolbar--subpage {
-    display: none !important;
-  }
 }
 
 .orasage-page-toolbar--subpage {
@@ -445,11 +436,9 @@
   padding: 4px 0;
 }
 
-/* 页面自带返回链：移动端由 AppShell 统一提供，避免双层返回 */
-@media (max-width: 1023px) {
-  .orasage-subpage-back-local {
-    display: none !important;
-  }
+/* 页面自带返回链：由 AppShell 统一提供，避免双层返回 */
+.orasage-subpage-back-local {
+  display: none !important;
 }
 
 .orasage-page-back:hover {

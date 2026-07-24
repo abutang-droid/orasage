@@ -42,6 +42,10 @@ export type SeedSanctuary = {
   code: string;
   nameZh: string;
   nameEn: string;
+  /** Portuguese display name (pt-BR UI). Falls back to nameEn when omitted. */
+  namePt?: string;
+  /** Spanish display name. Falls back to nameEn when omitted. */
+  nameEs?: string;
   faithCodes: string[];
   tradition: 'latin' | 'seasia' | 'global';
   region: string;
@@ -58,6 +62,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'aparecida',
     nameZh: '阿帕雷西达圣母',
     nameEn: 'Nossa Senhora Aparecida',
+    namePt: 'Nossa Senhora Aparecida',
+    nameEs: 'Nuestra Señora Aparecida',
     faithCodes: ['christianity'],
     tradition: 'latin',
     region: 'Brazil',
@@ -71,6 +77,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'guadalupe',
     nameZh: '瓜达卢佩圣母',
     nameEn: 'Virgen de Guadalupe',
+    namePt: 'Virgem de Guadalupe',
+    nameEs: 'Virgen de Guadalupe',
     faithCodes: ['christianity'],
     tradition: 'latin',
     region: 'Mexico/Central America',
@@ -83,7 +91,9 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
   {
     code: 'lujan',
     nameZh: '卢汉圣母',
-    nameEn: 'Nuestra Señora de Luján',
+    nameEn: 'Our Lady of Luján',
+    namePt: 'Nossa Senhora de Luján',
+    nameEs: 'Nuestra Señora de Luján',
     faithCodes: ['christianity'],
     tradition: 'latin',
     region: 'Argentina',
@@ -97,6 +107,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'santonino',
     nameZh: '圣婴耶稣',
     nameEn: 'Santo Niño de Cebú',
+    namePt: 'Santo Niño de Cebú',
+    nameEs: 'Santo Niño de Cebú',
     faithCodes: ['christianity'],
     tradition: 'latin',
     region: 'Philippines',
@@ -110,6 +122,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'guanyin',
     nameZh: '观音',
     nameEn: 'Guan Yin',
+    namePt: 'Guan Yin',
+    nameEs: 'Guan Yin',
     faithCodes: ['buddhism', 'chinese_folk', 'taoism'],
     tradition: 'seasia',
     region: 'Chinese Diaspora / Thailand',
@@ -124,6 +138,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'brahma',
     nameZh: '四面佛',
     nameEn: 'Brahma (Erawan)',
+    namePt: 'Brahma (Erawan)',
+    nameEs: 'Brahma (Erawan)',
     faithCodes: ['hinduism', 'buddhism'],
     tradition: 'seasia',
     region: 'Thailand',
@@ -137,6 +153,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'ganesha',
     nameZh: '象神',
     nameEn: 'Ganesha',
+    namePt: 'Ganesha',
+    nameEs: 'Ganesha',
     faithCodes: ['hinduism'],
     tradition: 'seasia',
     region: 'India / Thailand',
@@ -150,6 +168,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'mazu',
     nameZh: '妈祖',
     nameEn: 'Mazu',
+    namePt: 'Mazu',
+    nameEs: 'Mazu',
     faithCodes: ['chinese_folk', 'taoism'],
     tradition: 'seasia',
     region: 'Chinese Diaspora',
@@ -285,6 +305,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'allan_kardec',
     nameZh: '阿兰·卡里德',
     nameEn: 'Allan Kardec',
+    namePt: 'Allan Kardec',
+    nameEs: 'Allan Kardec',
     faithCodes: ['spiritism'],
     tradition: 'latin',
     region: 'Brazil / Global',
@@ -391,6 +413,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'pachamama',
     nameZh: '帕查 Mama',
     nameEn: 'Pachamama',
+    namePt: 'Pachamama',
+    nameEs: 'Pachamama',
     faithCodes: ['indigenous'],
     tradition: 'latin',
     region: 'Andes / Americas',
@@ -404,6 +428,8 @@ export const SEED_SANCTUARIES: SeedSanctuary[] = [
     code: 'iemanja',
     nameZh: '伊曼雅',
     nameEn: 'Yemanjá',
+    namePt: 'Iemanjá',
+    nameEs: 'Yemayá',
     faithCodes: ['afro_brazilian', 'spiritism'],
     tradition: 'latin',
     region: 'Brazil / Caribbean',

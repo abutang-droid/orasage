@@ -74,25 +74,20 @@ function SlotEditor({
                 </select>
               </label>
               <label>
-                覆盖价 CNY（元）
+                覆盖价 USDT
                 <input
-                  name={`entry_cny_${i}`}
+                  name={`entry_usdt_${i}`}
                   type="number"
                   step="0.01"
                   min="0"
-                  defaultValue={entry?.priceOverrideCents != null ? (entry.priceOverrideCents / 100).toFixed(2) : ''}
-                  placeholder="留空=目录价"
-                />
-              </label>
-              <label>
-                覆盖价 USD
-                <input
-                  name={`entry_usd_${i}`}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  defaultValue={entry?.priceOverrideUsdCents != null ? (entry.priceOverrideUsdCents / 100).toFixed(2) : ''}
-                  placeholder="留空=目录价"
+                  defaultValue={
+                    entry?.priceOverrideUsdCents != null
+                      ? (entry.priceOverrideUsdCents / 100).toFixed(2)
+                      : entry?.priceOverrideCents != null
+                        ? (entry.priceOverrideCents / 100).toFixed(2)
+                        : ''
+                  }
+                  placeholder="留空=目录价；WOLD 按商城汇率换算"
                 />
               </label>
             </div>

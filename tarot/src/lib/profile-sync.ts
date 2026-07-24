@@ -1,3 +1,5 @@
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
+
 export type ProfileSyncSource = 'bazi' | 'ziwei' | 'tarot';
 
 export type ProfileSyncPayload = {
@@ -15,12 +17,18 @@ export type ProfileSyncPayload = {
   label?: string | null;
 };
 
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com';
+function authBaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_AUTH_URL ||
+    process.env.AUTH_URL ||
+    ORASAGE_URLS.authLogin.replace(/\/login$/, '')
+  );
+}
 
 export async function syncSavedProfile(payload: ProfileSyncPayload): Promise<void> {
   if (!payload.name?.trim()) return;
   try {
-    const res = await fetch(`${AUTH_URL}/auth/me/profiles/sync`, {
+    const res = await fetch(`${authBaseUrl()}/auth/me/profiles/sync`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

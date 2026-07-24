@@ -14,6 +14,39 @@ export type PdpContent = {
   relatedTitle?: string;
 };
 
+/** CMS 未给区块标题时的本地化回退（避免英文页露出中文默认） */
+export type PdpUiTitles = {
+  productDetails: string;
+  energyDetails: string;
+  reportDetails: string;
+  serviceDetails: string;
+  story: string;
+  deepDive: string;
+  more: string;
+  specifications: string;
+  guide: string;
+  guidePairing: string;
+  guideUpgrade: string;
+  faq: string;
+  related: string;
+};
+
+const DEFAULT_PDP_UI_TITLES: PdpUiTitles = {
+  productDetails: '商品详情',
+  energyDetails: '能量详解',
+  reportDetails: '报告详解',
+  serviceDetails: '服务详解',
+  story: '灵性故事',
+  deepDive: '深度解读',
+  more: '更多介绍',
+  specifications: '商品规格',
+  guide: '佩戴指南',
+  guidePairing: '佩戴指南与搭配',
+  guideUpgrade: '使用指南与升级',
+  faq: '常见问题',
+  related: '与之共振',
+};
+
 const CRYSTAL_SKUS = [
   'crystal-wood',
   'crystal-fire',
@@ -32,14 +65,10 @@ const CRYSTAL_MATERIALS: Record<string, string> = {
 
 const REPORT_EYEBROWS: Array<{ match: (sku: string) => boolean; label: string }> = [
   { match: (sku) => sku.includes('bazi'), label: '八字解读 · 数字报告' },
-  { match: (sku) => sku.includes('ziwei'), label: '紫微斗数 · 数字报告' },
   { match: (sku) => sku.includes('tarot') || sku === 'tarot-daily-draw', label: '塔罗解读 · 数字报告' },
 ];
 
 const SERVICE_EYEBROWS: Record<string, string> = {
-  'service-consult': '能量咨询 · 一对一',
-  'ziwei-chat-pack-10': '紫微问答 · 加量包',
-  'ziwei-chat-yearly': '紫微问答 · 年卡',
   'temple-donation': '祈福乐捐 · 自愿支持',
 };
 
@@ -48,10 +77,15 @@ export function productEyebrow(
   sku: string,
   element?: string | null,
   material?: string | null,
+  /** 本地化「五行·{element} · {material}」；未传则回退中文格式 */
+  formatCrystalEyebrow?: (element: string, material: string) => string,
 ): string | null {
   const resolvedMaterial = material?.trim() || CRYSTAL_MATERIALS[sku];
   if (resolvedMaterial) {
-    return element ? `五行·${element} · ${resolvedMaterial}` : resolvedMaterial;
+    if (!element) return resolvedMaterial;
+    return formatCrystalEyebrow
+      ? formatCrystalEyebrow(element, resolvedMaterial)
+      : `五行·${element} · ${resolvedMaterial}`;
   }
 
   const report = REPORT_EYEBROWS.find((r) => r.match(sku));
@@ -60,25 +94,33 @@ export function productEyebrow(
   return SERVICE_EYEBROWS[sku] ?? null;
 }
 
-function firstRichTitle(body: string): string {
+function firstRichTitle(body: string, titles: PdpUiTitles): string {
   if (body.includes('✦')) {
-    if (body.includes('解读') || body.includes('运势') || body.includes('牌阵')) return '报告详解';
-    if (body.includes('咨询') || body.includes('对话') || body.includes('乐捐')) return '服务详解';
-    return '能量详解';
+    if (body.includes('解读') || body.includes('运势') || body.includes('牌阵')) {
+      return titles.reportDetails;
+    }
+    if (body.includes('咨询') || body.includes('对话') || body.includes('乐捐')) {
+      return titles.serviceDetails;
+    }
+    return titles.energyDetails;
   }
-  return '商品详情';
+  return titles.productDetails;
 }
 
-function laterRichTitle(body: string): string {
-  if (body.includes('图谱') || body.includes('灵性')) return '灵性故事';
+function laterRichTitle(body: string, titles: PdpUiTitles): string {
+  if (body.includes('图谱') || body.includes('灵性')) return titles.story;
   if (body.includes('方法论') || body.includes('意义') || body.includes('觉察') || body.includes('祈福')) {
-    return '深度解读';
+    return titles.deepDive;
   }
-  return '更多介绍';
+  return titles.more;
 }
 
 /** 将 CMS sections 归类为折叠面板 + 页面时刻（显化引文 / 推荐语 / 相关商品） */
-export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
+export function buildPdpContent(
+  sections: ProductPageSection[],
+  uiTitles: Partial<PdpUiTitles> = {},
+): PdpContent {
+  const titles: PdpUiTitles = { ...DEFAULT_PDP_UI_TITLES, ...uiTitles };
   const buckets = new Map<string, PdpAccordionItem>();
   const order = ['details', 'story', 'extra', 'promise', 'guide', 'faq'];
   let manifest: ProductPageSection | null = null;
@@ -112,27 +154,37 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
     if (section.type === 'richText' && section.body) {
       richCount += 1;
       if (richCount === 1) {
-        put('details', firstRichTitle(section.body), section);
-      } else if (section.body.includes('搭配') || section.body.includes('升级路径')) {
-        put('guide', section.body.includes('升级') ? '升级路径' : '佩戴指南与搭配', section);
+        put('details', firstRichTitle(section.body, titles), section);
+      } else if (
+        section.body.includes('搭配') ||
+        section.body.includes('升级路径') ||
+        /pairing|upgrade path/i.test(section.body)
+      ) {
+        put(
+          'guide',
+          section.body.includes('升级') || /upgrade/i.test(section.body)
+            ? titles.guideUpgrade
+            : titles.guidePairing,
+          section,
+        );
       } else {
-        put(buckets.has('story') ? 'extra' : 'story', laterRichTitle(section.body), section);
+        put(buckets.has('story') ? 'extra' : 'story', laterRichTitle(section.body, titles), section);
       }
       continue;
     }
 
     if (section.type === 'specList' && section.specItems?.length) {
-      put('promise', section.title || '商品规格', section);
+      put('promise', section.title || titles.specifications, section);
       continue;
     }
 
     if (section.type === 'guide' && (section.title || section.body)) {
-      put('guide', section.title || '佩戴指南', section);
+      put('guide', section.title || titles.guide, section);
       continue;
     }
 
     if (section.type === 'faq' && section.faqItems?.length) {
-      put('faq', section.title || '常见问题', section);
+      put('faq', section.title || titles.faq, section);
       continue;
     }
   }
@@ -140,16 +192,24 @@ export function buildPdpContent(sections: ProductPageSection[]): PdpContent {
   const guide = buckets.get('guide');
   if (guide && guide.sections.length > 1) {
     const hasUpgrade = guide.sections.some(
-      (s) => s.type === 'richText' && s.body?.includes('升级'),
+      (s) =>
+        s.type === 'richText' &&
+        (s.body?.includes('升级') || /upgrade/i.test(s.body ?? '')),
     );
-    guide.title = hasUpgrade ? '使用指南与升级' : '佩戴指南与搭配';
+    guide.title = hasUpgrade ? titles.guideUpgrade : titles.guidePairing;
   }
 
   const accordions = order
     .map((id) => buckets.get(id))
     .filter((item): item is PdpAccordionItem => Boolean(item));
 
-  return { accordions, manifest, quote, relatedSkus, relatedTitle };
+  return {
+    accordions,
+    manifest,
+    quote,
+    relatedSkus,
+    relatedTitle: relatedTitle || titles.related,
+  };
 }
 
 /** CMS 无 specList 时，注入 auth-service 结构化规格 */

@@ -33,8 +33,7 @@ function BeadForm({ bead }: { bead?: AdminDiyBead }) {
       </label>
       <label>直径 mm<input name="diameterMm" type="number" step="0.1" min="1" required defaultValue={bead?.diameterMm} /></label>
       <label>厚度 mm（隔片）<input name="thicknessMm" type="number" step="0.1" min="0.5" defaultValue={bead?.thicknessMm ?? ''} placeholder="仅隔片填写" /></label>
-      <label>单颗价 CNY（元）<input name="priceYuan" type="number" step="0.01" min="0" required defaultValue={bead ? (bead.priceCents / 100).toFixed(2) : ''} /></label>
-      <label>单颗价 USD<input name="priceUsd" type="number" step="0.01" min="0" defaultValue={bead?.priceCentsUsd != null ? (bead.priceCentsUsd / 100).toFixed(2) : ''} placeholder="留空按汇率折算" /></label>
+      <label>单颗价 USDT<input name="priceUsdt" type="number" step="0.01" min="0" required defaultValue={bead?.priceCentsUsd != null ? (bead.priceCentsUsd / 100).toFixed(2) : bead ? (bead.priceCents / 100).toFixed(2) : ''} title="列价 USDT；前台同时显示 WOLD" /></label>
       <label>库存<input name="stock" type="number" min="0" defaultValue={bead?.stock ?? 999} /></label>
       <label>排序<input name="sortOrder" type="number" defaultValue={bead?.sortOrder ?? 0} /></label>
       <label className="full-width">图片 URL<input name="imageUrl" defaultValue={bead?.imageUrl ?? ''} placeholder="留空使用渐变色占位（可粘贴 CMS 媒体库图片地址）" /></label>
@@ -111,7 +110,7 @@ export default async function BeadsPage({
         </p>
         <form action={saveDiyConfigAction} className="form-grid">
           <label>串长修正 mm<input name="lengthCorrectionMm" type="number" step="0.5" min="0" defaultValue={config.lengthCorrectionMm} /></label>
-          <label>最低下单金额 CNY（元）<input name="minOrderYuan" type="number" step="1" min="0" defaultValue={(config.minOrderCents / 100).toFixed(0)} /></label>
+          <label>最低下单金额 USDT<input name="minOrderUsdt" type="number" step="0.01" min="0" defaultValue={(config.minOrderCents / 100).toFixed(2)} /></label>
           <label>合适度容差 mm<input name="fitToleranceMm" type="number" step="0.5" min="1" defaultValue={config.fitToleranceMm} /></label>
           <label>手围松量 mm<input name="wristEaseMm" type="number" step="0.5" min="0" defaultValue={config.wristEaseMm} /></label>
           <AdminSubmitButton>保存配置</AdminSubmitButton>
@@ -136,8 +135,7 @@ export default async function BeadsPage({
                 <th>五行</th>
                 <th>材质</th>
                 <th>尺寸</th>
-                <th>单颗 CNY</th>
-                <th>单颗 USD</th>
+                <th>单颗价</th>
                 <th>库存</th>
                 <th>状态</th>
                 <th>操作</th>
@@ -155,8 +153,11 @@ export default async function BeadsPage({
                   <td>{bead.element ?? '—'}</td>
                   <td>{bead.material}</td>
                   <td>{bead.type === 'disc' && bead.thicknessMm ? `${bead.diameterMm}×${bead.thicknessMm}mm` : `${bead.diameterMm}mm`}</td>
-                  <td>¥{(bead.priceCents / 100).toFixed(2)}</td>
-                  <td>{bead.priceCentsUsd != null ? `$${(bead.priceCentsUsd / 100).toFixed(2)}` : '—'}</td>
+                  <td>
+                    {(
+                      (bead.priceCentsUsd != null ? bead.priceCentsUsd : bead.priceCents) / 100
+                    ).toFixed(2)}
+                  </td>
                   <td>{bead.stock}</td>
                   <td>{bead.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td>

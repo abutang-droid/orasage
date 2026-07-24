@@ -1,10 +1,16 @@
 import { z } from 'zod';
 import { chatCompletion, isLlmConfigured, parseJsonFromLlm } from '@/lib/llm/client';
-import { TAROT_READER_SYSTEM } from '@/lib/llm/prompts';
+import { tarotReaderSystem } from '@/lib/llm/prompts';
 import { sanitizeTarotFullReport, sanitizeTarotReaderText } from '@/lib/llm/sanitize-output';
 import { getLiteralMeaning } from '@/lib/tarot/knowledge';
 import { buildReadingContext, type ReadingContextInput } from '@/lib/tarot/rules/build-context';
 import type { ExtractedKnowledgeNode } from '@/lib/tarot/knowledge/types';
+import {
+  aiLanguageReplyRule,
+  isNonChineseAiLocale,
+  type AiLocale,
+} from '../../../../../shared/ai-locale/index';
+import { cardNameForAi, orientationForAi } from '../../i18n/card-locale';
 import {
   buildDailyFortunePrompt,
   buildLiteralTranslatePrompt,
@@ -15,23 +21,66 @@ import {
   buildSpreadBriefPrompt,
   buildSpreadFullPrompt,
   buildThreeCardTrilogyPrompt,
-  DESTINY_SLICE_FOCUS_SYSTEM,
-  TRILOGY_SYSTEM,
+  destinySliceFocusSystem,
+  trilogySystem,
 } from './prompts';
 
-// ─── Fallbacks（规则层模板，不经 LLM）────────────────────────
+// ─── Fallbacks（规则层模板，不经 LLM；en/pt 不用中文）────────
 
 function fallbackFromNodes(
   nodes: ExtractedKnowledgeNode[],
   question: string,
+  language: AiLocale = 'zh-CN',
   synthesisPrefix?: string,
 ) {
+  const upright = (n: ExtractedKnowledgeNode) => n.orientation === '正位';
+  if (isNonChineseAiLocale(language)) {
+    const en = language === 'en';
+    const cards = nodes.map((n) => {
+      const pos = n.positionLabel ? (en ? ` in ${n.positionLabel}` : ` em ${n.positionLabel}`) : '';
+      const flow = upright(n)
+        ? (en ? 'energy flows more freely' : 'a energia flui com mais facilidade')
+        : (en ? 'a shift in perspective is needed' : 'é preciso mudar o olhar');
+      const name = cardNameForAi(n, language);
+      const orient = orientationForAi(language, n.orientation);
+      return {
+        interpretation: en
+          ? `${name}${pos} (${orient}): right now ${flow}.`
+          : `${name}${pos} (${orient}): agora ${flow}.`,
+        mantra: upright(n)
+          ? (en ? 'Move with the current; do not force it.' : 'Siga o fluxo; não force.')
+          : (en ? 'Change the angle — the answer often waits around the turn.' : 'Mude o ângulo — a resposta costuma estar na curva.'),
+      };
+    });
+    const names = nodes.map((n) => cardNameForAi(n, language)).join(', ');
+    const synthesis =
+      synthesisPrefix ??
+      (nodes.length >= 3
+        ? (en
+          ? `On “${question}”, the three cards ${names} link past, present, and future — place each cue in your real situation.`
+          : `Sobre “${question}”, as três cartas ${names} ligam passado, presente e futuro — leve cada sinal para a sua situação real.`)
+        : (en
+          ? `On “${question}”, ${names} offers guidance for now — read it with theme “${nodes[0]?.topic ?? 'overall'}”.`
+          : `Sobre “${question}”, ${names} oferece orientação agora — leia com o tema “${nodes[0]?.topic ?? 'geral'}”.`));
+    return {
+      cards,
+      synthesis,
+      suggestions: en
+        ? ['Treat the cards as a mirror, not a verdict.', 'In the next three days, do one small thing you have been delaying.', 'Trust the first instinct, then verify.']
+        : ['Trate as cartas como espelho, não sentença.', 'Nos próximos três dias, faça uma pequena coisa que você adia.', 'Confie no primeiro impulso e depois confirme.'],
+      affirmation: en
+        ? 'My calm is stronger than any storm.'
+        : 'Minha calma é mais forte do que qualquer tempestade.',
+      llm: false,
+    };
+  }
+
   const cards = nodes.map((n) => {
     const pos = n.positionLabel ? `在${n.positionLabel}` : '';
-    const flow = n.orientation === '正位' ? '顺畅流动' : '需要调整的角度';
+    const flow = upright(n) ? '顺畅流动' : '需要调整的角度';
     return {
       interpretation: `「${n.cardName}」${pos}${n.orientation}，${n.scenario.replace(/。$/, '')}，当下能量${flow}。`,
-      mantra: n.orientation === '正位' ? '顺势而行，不必强求。' : '换个角度，答案往往就在转身处。',
+      mantra: upright(n) ? '顺势而行，不必强求。' : '换个角度，答案往往就在转身处。',
     };
   });
   const names = nodes.map((n) => n.cardName).join('、');
@@ -62,37 +111,57 @@ const focusSchema = z.object({
   threshold: z.string().min(1),
 });
 
-function fallbackFocusFromNodes(nodes: ExtractedKnowledgeNode[]) {
+function fallbackFocusFromNodes(nodes: ExtractedKnowledgeNode[], language: AiLocale = 'zh-CN') {
   const node = nodes[0];
+  const en = language === 'en';
+  const pt = language === 'pt-BR';
   if (!node) {
     return {
-      tendency: '警惕',
+      tendency: en || pt ? 'Caution' : '警惕',
       probability: '50% Static // 50% Unknown',
-      deconstruction: '坐标信号弱，当前状态处于未收敛区间。',
-      threshold: '暂停推进，先剥离一个可验证的冗余变量再重采样。',
+      deconstruction: en
+        ? 'Signal is weak; the state has not converged.'
+        : pt
+          ? 'Sinal fraco; o estado ainda não convergiu.'
+          : '坐标信号弱，当前状态处于未收敛区间。',
+      threshold: en
+        ? 'Pause. Remove one verifiable variable, then resample.'
+        : pt
+          ? 'Pause. Remova uma variável verificável e amostrar de novo.'
+          : '暂停推进，先剥离一个可验证的冗余变量再重采样。',
       llm: false,
     };
   }
   const forward = node.orientation === '正位';
   const pct = forward ? 68 : 34;
   const inv = 100 - pct;
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
   return {
-    tendency: forward ? 'Yes' : '警惕',
+    tendency: forward ? 'Yes' : (en || pt ? 'Caution' : '警惕'),
     probability: `${pct}% ${forward ? 'Forward' : 'Reverse'} // ${inv}% Standard`,
-    deconstruction: `「${node.cardName}」${node.orientation}映射：${node.scenario.replace(/。$/, '')}，系统处于${forward ? '正向收敛' : '逆向阻滞'}相位。`,
-    threshold: node.advice[0] ?? '设定单一触发条件，满足后再执行下一步，避免多变量并行。',
+    deconstruction: en
+      ? `${name} (${orient}): system in ${forward ? 'forward convergence' : 'reverse drag'}.`
+      : pt
+        ? `${name} (${orient}): sistema em ${forward ? 'convergência' : 'arrasto reverso'}.`
+        : `「${node.cardName}」${node.orientation}映射：${node.scenario.replace(/。$/, '')}，系统处于${forward ? '正向收敛' : '逆向阻滞'}相位。`,
+    threshold: en
+      ? 'Set one trigger condition; only then take the next step.'
+      : pt
+        ? 'Defina um único gatilho; só então avance.'
+        : (node.advice[0] ?? '设定单一触发条件，满足后再执行下一步，避免多变量并行。'),
     llm: false,
   };
 }
 
 export async function generateDestinySliceGuidanceFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
-  const fallback = fallbackFocusFromNodes(ctx.nodes);
+  const fallback = fallbackFocusFromNodes(ctx.nodes, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: DESTINY_SLICE_FOCUS_SYSTEM,
+    system: destinySliceFocusSystem(ctx.language),
     user: buildSingleFocusPrompt(ctx),
     maxTokens: 500,
     temperature: 0.35,
@@ -120,19 +189,42 @@ const guidanceSchema = z.object({
   insight: z.string().min(1),
 });
 
-function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: string) {
+function fallbackGuidanceFromNodes(
+  nodes: ExtractedKnowledgeNode[],
+  question: string,
+  language: AiLocale = 'zh-CN',
+) {
   const node = nodes[0];
+  const en = language === 'en';
+  const pt = language === 'pt-BR';
   if (!node) {
     return {
-      action: '先停下来，把两个选项各写下来，对比你真正害怕失去的是什么。',
-      insight: '牌面信息暂不可用，但犹豫本身说明你在认真对待这个选择。',
+      action: en
+        ? 'Pause. Write both options down and name what you fear losing.'
+        : pt
+          ? 'Pause. Escreva as duas opções e nomeie o que teme perder.'
+          : '先停下来，把两个选项各写下来，对比你真正害怕失去的是什么。',
+      insight: en
+        ? 'Card data is unavailable, but hesitation itself shows you take this choice seriously.'
+        : pt
+          ? 'Dados da carta indisponíveis, mas a hesitação mostra que você leva a escolha a sério.'
+          : '牌面信息暂不可用，但犹豫本身说明你在认真对待这个选择。',
       llm: false,
     };
   }
-  const advice = node.advice[0] ?? '给自己一点空间，不必今天就做决定。';
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
   return {
-    action: advice,
-    insight: `围绕「${question}」，「${node.cardName}」${node.orientation}提示：${node.scenario.replace(/。$/, '')}`,
+    action: en
+      ? 'Give yourself space — you do not need to decide today.'
+      : pt
+        ? 'Dê espaço a si — não precisa decidir hoje.'
+        : (node.advice[0] ?? '给自己一点空间，不必今天就做决定。'),
+    insight: en
+      ? `On “${question}”, ${name} (${orient}) invites a clearer next step without rushing.`
+      : pt
+        ? `Sobre “${question}”, ${name} (${orient}) convida a um próximo passo mais claro, sem pressa.`
+        : `围绕「${question}」，「${node.cardName}」${node.orientation}提示：${node.scenario.replace(/。$/, '')}`,
     llm: false,
   };
 }
@@ -140,12 +232,12 @@ function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: st
 /** @deprecated 旧版行动指引生成 */
 export async function generateDestinySliceLegacyGuidanceFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
-  const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question);
+  const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildSingleGuidancePrompt(ctx),
     maxTokens: 700,
     temperature: 0.75,
@@ -173,37 +265,63 @@ const verdictSchema = z.object({
   guidance: z.string().min(1),
 });
 
-function fallbackVerdictFromNodes(nodes: ExtractedKnowledgeNode[], question: string) {
+function fallbackVerdictFromNodes(
+  nodes: ExtractedKnowledgeNode[],
+  question: string,
+  language: AiLocale = 'zh-CN',
+) {
   const node = nodes[0];
+  const en = language === 'en';
+  const pt = language === 'pt-BR';
   if (!node) {
     return {
       verdict: 'unclear' as const,
-      headline: '此刻不宜强行下定论',
-      explanation: '牌面信息暂不可用，请稍后再试或换一种方式提问。',
-      guidance: '把问题写得更具体一些，再抽一次看看。',
+      headline: en ? 'No firm answer yet' : pt ? 'Ainda sem resposta firme' : '此刻不宜强行下定论',
+      explanation: en
+        ? 'Card data is unavailable. Try again shortly.'
+        : pt
+          ? 'Dados da carta indisponíveis. Tente de novo em breve.'
+          : '牌面信息暂不可用，请稍后再试或换一种方式提问。',
+      guidance: en
+        ? 'Make the question more specific, then draw again.'
+        : pt
+          ? 'Deixe a pergunta mais específica e tire de novo.'
+          : '把问题写得更具体一些，再抽一次看看。',
       llm: false,
     };
   }
   const positive = node.orientation === '正位';
   const verdict = positive ? ('lean_yes' as const) : ('lean_no' as const);
-  const headline = positive ? '倾向于「是」' : '倾向于「否」';
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
+  const headline = positive
+    ? (en ? 'Leaning yes' : pt ? 'Inclina para sim' : '倾向于「是」')
+    : (en ? 'Leaning no' : pt ? 'Inclina para não' : '倾向于「否」');
   return {
     verdict,
     headline,
-    explanation: `围绕「${question}」，「${node.cardName}」${node.orientation}指向${node.scenario.replace(/。$/, '')}。${node.meaning}`,
-    guidance: node.advice[0] ?? '信任第一直觉，同时留一点余地观察变化。',
+    explanation: en
+      ? `On “${question}”, ${name} (${orient}) suggests a clearer lean — read it against your real situation.`
+      : pt
+        ? `Sobre “${question}”, ${name} (${orient}) sugere uma tendência — leve isso para a sua situação real.`
+        : `围绕「${question}」，「${node.cardName}」${node.orientation}指向${node.scenario.replace(/。$/, '')}。${node.meaning}`,
+    guidance: en
+      ? 'Trust the first instinct, and leave room to observe.'
+      : pt
+        ? 'Confie no primeiro impulso e deixe espaço para observar.'
+        : (node.advice[0] ?? '信任第一直觉，同时留一点余地观察变化。'),
     llm: false,
   };
 }
 
 export async function generateSingleCardVerdictFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
-  const fallback = fallbackVerdictFromNodes(ctx.nodes, ctx.question);
+  const fallback = fallbackVerdictFromNodes(ctx.nodes, ctx.question, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildSingleVerdictPrompt(ctx),
     maxTokens: 900,
     temperature: 0.75,
@@ -235,12 +353,12 @@ const fullSchema = z.object({
 
 export async function generateSingleCardFullFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
-  const fallback = fallbackFromNodes(ctx.nodes, ctx.question);
+  const fallback = fallbackFromNodes(ctx.nodes, ctx.question, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildSingleFullPrompt(ctx),
     maxTokens: 1400,
     temperature: 0.8,
@@ -258,12 +376,12 @@ export async function generateSingleCardFullFromLayers(input: ReadingContextInpu
 
 export async function generateSpreadFullFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext(input);
-  const fallback = fallbackFromNodes(ctx.nodes, ctx.question);
+  const fallback = fallbackFromNodes(ctx.nodes, ctx.question, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildSpreadFullPrompt(ctx),
     maxTokens: 1800,
     temperature: 0.8,
@@ -286,19 +404,25 @@ const briefSchema = z.object({
 
 export async function generateSpreadBriefFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext(input);
+  const en = ctx.language === 'en';
+  const pt = ctx.language === 'pt-BR';
   const fallback = {
     perCard: ctx.nodes.map((n) => ({
-      position: n.positionLabel ?? n.cardName,
+      position: n.positionLabel ?? (isNonChineseAiLocale(ctx.language) ? (n.cardNameEn || n.cardName) : n.cardName),
       text: n.scenario.slice(0, 70),
     })),
-    synthesis: `围绕「${ctx.question}」，牌面提示${ctx.topicLabel}议题值得持续关注。`,
+    synthesis: en
+      ? `On “${ctx.question}”, the cards highlight “${ctx.topicLabel}” — keep watching this theme.`
+      : pt
+        ? `Sobre “${ctx.question}”, as cartas destacam “${ctx.topicLabel}” — continue observando este tema.`
+        : `围绕「${ctx.question}」，牌面提示${ctx.topicLabel}议题值得持续关注。`,
     llm: false,
   };
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildSpreadBriefPrompt(ctx),
     maxTokens: 900,
     temperature: 0.8,
@@ -325,30 +449,46 @@ const trilogySchema = z.object({
   actionThreshold: z.string().min(1),
 });
 
-function fallbackTrilogyFromNodes(nodes: ExtractedKnowledgeNode[]) {
+function fallbackTrilogyFromNodes(nodes: ExtractedKnowledgeNode[], language: AiLocale = 'zh-CN') {
+  const en = language === 'en';
+  const pt = language === 'pt-BR';
   const trilogyNodes = nodes.map((n) => ({
-    position: n.positionLabel ?? n.cardName,
-    cardName: n.cardName,
-    mapping: `${n.scenario.replace(/。$/, '')}，${n.orientation === '正位' ? '正向基线' : '逆向扰动'}。`,
+    position: n.positionLabel ?? (isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName),
+    cardName: isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName,
+    mapping: en
+      ? `${n.scenario.replace(/。$/, '')}; ${n.orientation === '正位' ? 'forward baseline' : 'reverse disturbance'}.`
+      : pt
+        ? `${n.scenario.replace(/。$/, '')}; ${n.orientation === '正位' ? 'linha de base' : 'perturbação reversa'}.`
+        : `${n.scenario.replace(/。$/, '')}，${n.orientation === '正位' ? '正向基线' : '逆向扰动'}。`,
   }));
-  const names = nodes.map((n) => n.cardName).join(' → ');
+  const names = nodes.map((n) => (isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName)).join(' → ');
+  const converging = nodes[2]?.orientation === '正位';
   return {
-    mode: '时序脉络 (Past-Present-Future)',
+    mode: en || pt ? 'Timeline (Past-Present-Future)' : '时序脉络 (Past-Present-Future)',
     nodes: trilogyNodes,
-    chainAnalysis: `链路 ${names}：历史冗余经现在态折射，未来向量呈${nodes[2]?.orientation === '正位' ? '收敛' : '发散'}趋势。`,
-    actionThreshold: nodes[1]?.advice[0] ?? '设定单一触发阈值，满足后再推进下一节点。',
+    chainAnalysis: en
+      ? `Chain ${names}: past noise refracts through the present; future vector trends ${converging ? 'convergent' : 'divergent'}.`
+      : pt
+        ? `Cadeia ${names}: ruído do passado refrata no presente; vetor futuro tende a ${converging ? 'convergir' : 'divergir'}.`
+        : `链路 ${names}：历史冗余经现在态折射，未来向量呈${converging ? '收敛' : '发散'}趋势。`,
+    actionThreshold: nodes[1]?.advice[0]
+      ?? (en
+        ? 'Set one trigger threshold; advance only after it is met.'
+        : pt
+          ? 'Defina um único limiar; só avance depois de atingido.'
+          : '设定单一触发阈值，满足后再推进下一节点。'),
     llm: false,
   };
 }
 
 export async function generateThreeCardTrilogyFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'three-card' });
-  const fallback = fallbackTrilogyFromNodes(ctx.nodes);
+  const fallback = fallbackTrilogyFromNodes(ctx.nodes, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length < 3) return fallback;
 
   const raw = await chatCompletion({
-    system: TRILOGY_SYSTEM,
+    system: trilogySystem(ctx.language),
     user: buildThreeCardTrilogyPrompt(ctx),
     maxTokens: 800,
     temperature: 0.35,
@@ -390,24 +530,58 @@ export async function generateDailyFortuneFromLayers(input: ReadingContextInput)
   const ctx = buildReadingContext({ ...input, spreadType: 'daily' });
   const node = ctx.nodes[0];
   const mk = (tag: string, text: string) => ({ tag, text });
-  const fallback = {
-    brief: node
-      ? `今日主牌「${node.cardName}」（${node.orientation}）指向${ctx.topicLabel}。${node.scenario}`
-      : '今日运势暂不可用。',
-    full: {
-      work: mk('平稳', node ? `工作方面，${node.advice[0]}` : '保持耐心。'),
-      love: mk('温和', node ? `感情方面，留意${node.keywords[0] ?? '内心'}带来的信号。` : '真诚表达。'),
-      career: mk('蓄势', node ? `事业层面，${node.advice[1] ?? node.scenario}` : '整理优先级。'),
-      wealth: mk('谨慎', '财运上宜守不宜攻，小额试探可以。'),
-      summary: node?.meaning ?? '',
-    },
-    llm: false,
-  };
+  const en = ctx.language === 'en';
+  const pt = ctx.language === 'pt-BR';
+  const name = node ? cardNameForAi(node, ctx.language) : '';
+  const orient = node ? orientationForAi(ctx.language, node.orientation) : '';
+  const fallback = isNonChineseAiLocale(ctx.language)
+    ? {
+        brief: node
+          ? (en
+            ? `Today’s card ${name} (${orient}) speaks to ${ctx.topicLabel}. Move with intention and keep one clear focus.`
+            : `A carta de hoje ${name} (${orient}) fala de ${ctx.topicLabel}. Aja com intenção e mantenha um foco claro.`)
+          : (en ? 'Daily fortune is unavailable right now.' : 'A fortuna diária não está disponível agora.'),
+        full: {
+          work: mk(
+            en ? 'Steady' : 'Estável',
+            en ? 'At work, keep a steady pace and finish one important task.' : 'No trabalho, mantenha ritmo estável e conclua uma tarefa importante.',
+          ),
+          love: mk(
+            en ? 'Gentle' : 'Suave',
+            en ? 'In love, notice your feelings and speak with care.' : 'No amor, note seus sentimentos e fale com cuidado.',
+          ),
+          career: mk(
+            en ? 'Building' : 'Preparando',
+            en ? 'Career: clarify priorities before expanding.' : 'Carreira: esclareça prioridades antes de expandir.',
+          ),
+          wealth: mk(
+            en ? 'Cautious' : 'Cauteloso',
+            en ? 'In money, prefer defense over offense; small tests are fine.' : 'Em dinheiro, prefira defesa a ataque; testes pequenos estão ok.',
+          ),
+          summary: en
+            ? `${name} (${orient}) invites a grounded day — observe, then choose one small next step.`
+            : `${name} (${orient}) convida a um dia mais firme — observe e escolha um próximo passo pequeno.`,
+        },
+        llm: false,
+      }
+    : {
+        brief: node
+          ? `今日主牌「${node.cardName}」（${node.orientation}）指向${ctx.topicLabel}。${node.scenario}`
+          : '今日运势暂不可用。',
+        full: {
+          work: mk('平稳', node ? `工作方面，${node.advice[0]}` : '保持耐心。'),
+          love: mk('温和', node ? `感情方面，留意${node.keywords[0] ?? '内心'}带来的信号。` : '真诚表达。'),
+          career: mk('蓄势', node ? `事业层面，${node.advice[1] ?? node.scenario}` : '整理优先级。'),
+          wealth: mk('谨慎', '财运上宜守不宜攻，小额试探可以。'),
+          summary: node?.meaning ?? '',
+        },
+        llm: false,
+      };
 
   if (!isLlmConfigured() || !node) return fallback;
 
   const raw = await chatCompletion({
-    system: TAROT_READER_SYSTEM,
+    system: tarotReaderSystem(ctx.language),
     user: buildDailyFortunePrompt(ctx),
     maxTokens: 1400,
     temperature: 0.8,
@@ -432,24 +606,36 @@ export async function generateLiteralMeaningFromLayers(input: {
 }) {
   const { cardId, cardName, cardNameEn, orientation, language = 'zh-CN' } = input;
   const meaning = getLiteralMeaning(cardId, orientation);
-  if (!meaning) return { text: '牌面释义暂不可用。', literal: true as const, llm: false };
+  const unavailable =
+    language === 'en'
+      ? 'Card meaning is temporarily unavailable.'
+      : language === 'pt-BR'
+        ? 'O significado da carta está temporariamente indisponível.'
+        : '牌面释义暂不可用。';
+  if (!meaning) return { text: unavailable, literal: true as const, llm: false };
 
   if (language === 'zh-CN' || language === 'zh-TW') {
     return { text: sanitizeTarotReaderText(meaning), literal: true as const, llm: false };
   }
 
+  const stub =
+    language === 'en'
+      ? `${cardNameEn || cardName} (${orientationForAi(language, orientation)}): meaning translation unavailable; please retry shortly.`
+      : `${cardNameEn || cardName} (${orientationForAi(language, orientation)}): tradução indisponível; tente de novo em breve.`;
+
   if (!isLlmConfigured()) {
-    return { text: sanitizeTarotReaderText(meaning), literal: true as const, llm: false };
+    // Never leak Chinese literal text into en / pt-BR UI
+    return { text: stub, literal: true as const, llm: false };
   }
 
   const raw = await chatCompletion({
-    system: '你是塔罗牌义译者。只翻译给定牌义，不扩写、不个性化。',
+    system: `You are a tarot meaning translator. Translate only; do not expand or personalize.\n${aiLanguageReplyRule(language)}`,
     user: buildLiteralTranslatePrompt(meaning, cardName, cardNameEn, orientation, language),
     maxTokens: 400,
     temperature: 0.2,
     timeoutMs: 15000,
   });
-  if (!raw) return { text: sanitizeTarotReaderText(meaning), literal: true as const, llm: false };
+  if (!raw) return { text: stub, literal: true as const, llm: false };
   return { text: sanitizeTarotReaderText(raw), literal: true as const, llm: true };
 }
 

@@ -1,6 +1,10 @@
 import type { ReadingSyncPayload } from '../../../shared/reading-sync/sync';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
-const AUTH_URL = process.env.AUTH_URL || process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com';
+const AUTH_URL =
+  process.env.AUTH_URL ||
+  process.env.NEXT_PUBLIC_AUTH_URL ||
+  ORASAGE_URLS.authLogin.replace(/\/login$/, '');
 
 /** 服务端将占卜记录同步到用户中心（需请求携带 orasage_token） */
 export async function syncReadingFromServer(

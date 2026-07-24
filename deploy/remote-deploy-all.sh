@@ -14,6 +14,8 @@
 #   SKIP_CMS                                — 1 跳过 cms
 #   GCP_IAP_PROXY_COMMAND                   — GCP IAP 隧道（GitHub Actions 用）
 
+#   NGINX_SITE                              — orasage | oricosmos（默认 orasage）
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,6 +25,7 @@ source "$SCRIPT_DIR/lib/ssh-setup.sh"
 ORASAGE_REF="${ORASAGE_REF:-main}"
 FORTUNE_MODE="${FORTUNE_MODE:-native}"
 SKIP_CMS="${SKIP_CMS:-0}"
+NGINX_SITE="${NGINX_SITE:-orasage}"
 
 log() { echo "[deploy-all] $*"; }
 
@@ -40,9 +43,9 @@ SCP="scp $SSH_OPTS -P $SSH_PORT"
 log "上传 bootstrap 脚本..."
 $SCP "$SCRIPT_DIR/bootstrap-all-on-vps.sh" "${SSH_USER}@${SSH_HOST}:/tmp/bootstrap-all-on-vps.sh"
 
-log "在 VPS 上执行全量部署 (ref=$ORASAGE_REF, fortune=$FORTUNE_MODE)..."
+log "在 VPS 上执行全量部署 (ref=$ORASAGE_REF, fortune=$FORTUNE_MODE, nginx=$NGINX_SITE)..."
 $SSH "sudo ORASAGE_REF='$ORASAGE_REF' FORTUNE_MODE='$FORTUNE_MODE' SKIP_CMS='$SKIP_CMS' \
-  DEPLOY_DIR='/opt/orasage' bash /tmp/bootstrap-all-on-vps.sh"
+  NGINX_SITE='$NGINX_SITE' DEPLOY_DIR='/opt/orasage' bash /tmp/bootstrap-all-on-vps.sh"
 
 log "远程全量部署完成"
 log "验证: curl -sI https://orasage.com https://bazi.orasage.com https://admin.orasage.com"

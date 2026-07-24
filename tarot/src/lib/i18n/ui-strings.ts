@@ -846,6 +846,18 @@ export const donation = {
     pt: 'Falha na doação',
     es: 'Error en la donación',
   },
+  loginRequired: {
+    zh: '请先登录后再乐捐',
+    en: 'Please sign in before donating',
+    pt: 'Faça login antes de doar',
+    es: 'Inicia sesión antes de donar',
+  },
+  loginCta: {
+    zh: '去登录',
+    en: 'Sign in',
+    pt: 'Entrar',
+    es: 'Iniciar sesión',
+  },
 } as const satisfies Record<string, LangMap>;
 
 export const wish = {
@@ -1142,6 +1154,8 @@ export function useDonationCopy() {
       submitLoading: p(donation.submitLoading),
       submit: (amount: string) => formatTemplate(p(donation.submit), { amount }),
       error: p(donation.error),
+      loginRequired: p(donation.loginRequired),
+      loginCta: p(donation.loginCta),
     };
   }, [lang]);
 }

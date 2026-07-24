@@ -42,7 +42,11 @@ fi
 # ── 2. 环境变量 ──────────────────────────────────────────────
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
   log "警告: $DEPLOY_DIR/.env 不存在，从模板创建（请检查 JWT_SECRET）"
-  cp "$DEPLOY_DIR/deploy/.env.example" "$DEPLOY_DIR/.env"
+  if [ "${NGINX_SITE:-orasage}" = "oricosmos" ] && [ -f "$DEPLOY_DIR/deploy/.env.oricosmos.example" ]; then
+    cp "$DEPLOY_DIR/deploy/.env.oricosmos.example" "$DEPLOY_DIR/.env"
+  else
+    cp "$DEPLOY_DIR/deploy/.env.example" "$DEPLOY_DIR/.env"
+  fi
 fi
 
 # shellcheck disable=SC1091
@@ -53,6 +57,35 @@ if [ -z "${JWT_SECRET:-}" ] && [ -f "$DEPLOY_DIR/auth-service/.env" ]; then
   # shellcheck disable=SC1091
   source "$DEPLOY_DIR/auth-service/.env" 2>/dev/null || true
 fi
+
+ensure_root_env_kv() {
+  local key="$1" val="$2"
+  if grep -q "^${key}=" "$DEPLOY_DIR/.env" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${val}|" "$DEPLOY_DIR/.env"
+  else
+    echo "${key}=${val}" >> "$DEPLOY_DIR/.env"
+  fi
+}
+
+# NGINX_SITE=oricosmos → bake oricosmos.com into NEXT_PUBLIC_* / cookie domain
+NGINX_SITE="${NGINX_SITE:-orasage}"
+# shellcheck disable=SC1091
+source "$DEPLOY_DIR/deploy/lib/site-env.sh"
+apply_site_env
+
+# Persist apex URLs so systemd (auth/main/shop) and rebuilds stay on this site
+ensure_root_env_kv SITE_APEX "$SITE_APEX"
+ensure_root_env_kv NEXT_PUBLIC_SITE_APEX "$NEXT_PUBLIC_SITE_APEX"
+ensure_root_env_kv APP_URL "$APP_URL"
+ensure_root_env_kv AUTH_URL "$AUTH_URL"
+ensure_root_env_kv SHOP_URL "$SHOP_URL"
+ensure_root_env_kv ADMIN_URL "$ADMIN_URL"
+ensure_root_env_kv BAZI_URL "$BAZI_URL"
+ensure_root_env_kv ZIWEI_URL "$ZIWEI_URL"
+ensure_root_env_kv TAROT_URL "$TAROT_URL"
+ensure_root_env_kv CMS_PUBLIC_URL "$CMS_PUBLIC_URL"
+ensure_root_env_kv COOKIE_DOMAIN "$COOKIE_DOMAIN"
+ensure_root_env_kv JWT_COOKIE_DOMAIN "$JWT_COOKIE_DOMAIN"
 
 if [ -z "${JWT_SECRET:-}" ]; then
   log "错误: 缺少 JWT_SECRET。请在 $DEPLOY_DIR/.env 或 auth-service/.env 中配置（与 auth 服务共用同一值）"
@@ -69,20 +102,16 @@ done
 
 export JWT_SECRET
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL
+export ADMIN_URL
+export SITE_APEX
+export NEXT_PUBLIC_SITE_APEX
+export NEXT_PUBLIC_AUTH_URL
+export COOKIE_DOMAIN
+export JWT_COOKIE_DOMAIN
 
 # shop report-job 分发依赖各 App 内网 URL
-ensure_root_env_kv() {
-  local key="$1" val="$2"
-  if grep -q "^${key}=" "$DEPLOY_DIR/.env" 2>/dev/null; then
-    sed -i "s|^${key}=.*|${key}=${val}|" "$DEPLOY_DIR/.env"
-  else
-    echo "${key}=${val}" >> "$DEPLOY_DIR/.env"
-  fi
-}
 ensure_root_env_kv CMS_INTERNAL_URL "${CMS_INTERNAL_URL:-http://127.0.0.1:3120/cms}"
-ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.orasage.com/cms}"
 ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
 ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
@@ -94,7 +123,8 @@ AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:54
 if command -v psql >/dev/null 2>&1; then
   sudo -u postgres psql orasage_auth \
     -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || true
-  for mig in 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql; do
+  # Base schema first (users/products); deploy used to skip these and break login.
+  for mig in 0000_illegal_master_chief.sql 0001_user_center.sql 0002_add_shop_source.sql 0003_products.sql 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql 0037_destiny_slice_unlock.sql 0038_dedupe_bazi_digital_skus.sql 0039_delete_service_consult.sql 0040_delete_ziwei_products_diy_8mm.sql 0041_combo_element_crystal_role.sql 0042_usdt_wold_list_price.sql; do
     if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
       log "  应用 $mig ..."
       psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
@@ -105,6 +135,25 @@ if command -v psql >/dev/null 2>&1; then
 else
   log "psql 未找到，跳过迁移（请手动执行 auth-service/drizzle/*.sql）"
 fi
+
+# Sync remaining schema from Drizzle (safe if SQL already applied)
+log "drizzle-kit push auth schema..."
+(
+  cd "$DEPLOY_DIR/auth-service"
+  set -a
+  # shellcheck disable=SC1091
+  [ -f "$DEPLOY_DIR/.env" ] && source "$DEPLOY_DIR/.env"
+  [ -f .env ] && source .env
+  set +a
+  if [ -n "${DATABASE_URL:-}" ]; then
+    "$NPM_BIN" install --no-audit --no-fund >/dev/null
+    # Answer "No" to any truncate prompts (keep existing seed rows)
+    printf 'n\nn\nn\nn\nn\nn\nn\nn\nn\nn\n' | DATABASE_URL="$DATABASE_URL" npx drizzle-kit push --force \
+      || log "警告: drizzle-kit push 失败，请检查 DATABASE_URL / schema"
+  else
+    log "警告: 无 DATABASE_URL，跳过 drizzle-kit push"
+  fi
+)
 
 # ── 4. 部署 auth-service ─────────────────────────────────────
 log "构建 auth-service..."
@@ -130,8 +179,10 @@ log "安装 main 依赖..."
 cd "$DEPLOY_DIR/main"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 main..."
-export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+log "构建 main (SITE_APEX=$SITE_APEX)..."
+export NEXT_PUBLIC_APP_URL="$APP_URL"
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
 rm -rf .next
 "$NPM_BIN" run build
 
@@ -146,11 +197,13 @@ log "安装 admin 依赖..."
 cd "$DEPLOY_DIR/admin"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 admin..."
+log "构建 admin (SITE_APEX=$SITE_APEX)..."
 export JWT_SECRET="${JWT_SECRET}"
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL
+export ADMIN_URL
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
 "$NPM_BIN" run build
 
 log "配置 orasage-admin 服务..."
@@ -164,11 +217,23 @@ log "安装 shop 依赖..."
 cd "$DEPLOY_DIR/shop"
 NODE_ENV=development "$NPM_BIN" install
 
-log "构建 shop..."
+log "构建 shop (SITE_APEX=$SITE_APEX)..."
 export JWT_SECRET="${JWT_SECRET:-}"
 export AUTH_INTERNAL_URL="${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
-export SHOP_URL="${SHOP_URL:-https://shop.orasage.com}"
+export SHOP_URL
+export NEXT_PUBLIC_SITE_APEX="$SITE_APEX"
+export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
+export NEXT_PUBLIC_SHOP_URL="$SHOP_URL"
 "$NPM_BIN" run build
+
+# systemd unit runs as ubuntu; builds under je leave .next owned by je →
+# next/image cache mkdir EACCES and blank product photos.
+SHOP_RUN_USER="$(grep -E '^User=' "$DEPLOY_DIR/deploy/shop/orasage-shop.service" 2>/dev/null | cut -d= -f2 || true)"
+SHOP_RUN_USER="${SHOP_RUN_USER:-ubuntu}"
+if [ -d "$DEPLOY_DIR/shop/.next" ]; then
+  log "修正 shop .next 归属 → $SHOP_RUN_USER（next/image 缓存可写）..."
+  sudo chown -R "$SHOP_RUN_USER:$SHOP_RUN_USER" "$DEPLOY_DIR/shop/.next"
+fi
 
 # ── 8. systemd 服务 ──────────────────────────────────────────
 log "配置 orasage-shop 服务..."
@@ -178,7 +243,12 @@ sudo systemctl enable orasage-shop
 sudo systemctl restart orasage-shop
 
 # ── 9. 确保 Nginx 配置 ───────────────────────────────────────
-if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
+NGINX_SITE="${NGINX_SITE:-orasage}"
+if [ -f "$DEPLOY_DIR/deploy/lib/nginx-site.sh" ]; then
+  log "部署 Nginx 配置 (NGINX_SITE=$NGINX_SITE)..."
+  sudo DEPLOY_DIR="$DEPLOY_DIR" NGINX_SITE="$NGINX_SITE" \
+    bash -c 'source "$DEPLOY_DIR/deploy/lib/nginx-site.sh" && install_nginx_site'
+elif [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
   log "部署 Nginx 配置..."
   sudo cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" /etc/nginx/sites-available/orasage
   sudo ln -sf /etc/nginx/sites-available/orasage /etc/nginx/sites-enabled/orasage
@@ -193,7 +263,9 @@ curl -sf http://127.0.0.1:3101/health | head -c 200 && echo ""
 curl -sf http://127.0.0.1:3102/api/health && echo ""
 curl -sf http://127.0.0.1:3103 -o /dev/null -w "admin  → HTTP %{http_code}\n" || true
 
-for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com; do
+APEX="orasage.com"
+[ "$NGINX_SITE" = "oricosmos" ] && APEX="oricosmos.com"
+for domain in "$APEX" "auth.$APEX" "shop.$APEX" "admin.$APEX"; do
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" || echo "000")
   if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
     log "✅ ${domain} → HTTP $code"

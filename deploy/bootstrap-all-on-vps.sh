@@ -11,6 +11,7 @@
 #   FORTUNE_MODE  — native | proxy（默认 native；无 .env 时 bazi/tarot 自动降级 proxy）
 #   SKIP_CMS      — 设为 1 跳过 cms（默认部署）
 #   DEPLOY_DIR    — 默认 /opt/orasage
+#   NGINX_SITE    — orasage（生产）| oricosmos（并行环境，默认 orasage）
 
 set -euo pipefail
 
@@ -18,8 +19,14 @@ DEPLOY_DIR="${DEPLOY_DIR:-/opt/orasage}"
 ORASAGE_REF="${ORASAGE_REF:-main}"
 FORTUNE_MODE="${FORTUNE_MODE:-native}"
 REPO_URL="${REPO_URL:-https://github.com/abutang-droid/orasage.git}"
+NGINX_SITE="${NGINX_SITE:-orasage}"
 
 log() { echo "[$(date '+%H:%M:%S')] [all] $*"; }
+
+load_nginx_lib() {
+  # shellcheck source=deploy/lib/nginx-site.sh
+  source "$DEPLOY_DIR/deploy/lib/nginx-site.sh"
+}
 
 sync_repo() {
   log "同步仓库 (ref=$ORASAGE_REF)..."
@@ -42,12 +49,9 @@ sync_repo() {
 }
 
 ensure_nginx() {
-  if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
-    log "更新 Nginx 配置..."
-    sudo cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" /etc/nginx/sites-available/orasage
-    sudo ln -sf /etc/nginx/sites-available/orasage /etc/nginx/sites-enabled/orasage
-    sudo nginx -t && sudo systemctl reload nginx
-  fi
+  log "更新 Nginx 配置 (NGINX_SITE=$NGINX_SITE)..."
+  sudo DEPLOY_DIR="$DEPLOY_DIR" NGINX_SITE="$NGINX_SITE" \
+    bash -c 'source "$DEPLOY_DIR/deploy/lib/nginx-site.sh" && install_nginx_site'
 }
 
 deploy_cms() {
@@ -60,7 +64,8 @@ deploy_cms() {
     return 0
   fi
   log "部署 cms（含媒体同步）..."
-  sudo ORASAGE_REF="$ORASAGE_REF" DEPLOY_DIR="$DEPLOY_DIR" bash "$DEPLOY_DIR/deploy/cms/deploy-cms.sh"
+  sudo ORASAGE_REF="$ORASAGE_REF" DEPLOY_DIR="$DEPLOY_DIR" NGINX_SITE="$NGINX_SITE" \
+    bash "$DEPLOY_DIR/deploy/cms/deploy-cms.sh"
 }
 
 fortune_mode_for() {
@@ -84,8 +89,8 @@ verify_all() {
     code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://127.0.0.1:${port}/" 2>/dev/null || echo "000")
     log "  127.0.0.1:${port} (${name}) → HTTP ${code}"
   done
-  for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com \
-                bazi.orasage.com ziwei.orasage.com tarot.orasage.com cms.orasage.com; do
+  # shellcheck disable=SC2046
+  for domain in $(nginx_verify_domains); do
     code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" 2>/dev/null || echo "000")
     if [ "$code" = "200" ] || [ "$code" = "302" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
       log "  ✅ https://${domain} → HTTP ${code}"
@@ -96,18 +101,21 @@ verify_all() {
 }
 
 # ── main ──────────────────────────────────────────────────────
-log "=== OraSage 全量部署 (ref=$ORASAGE_REF) ==="
+log "=== OraSage 全量部署 (ref=$ORASAGE_REF, nginx=$NGINX_SITE) ==="
 
 sync_repo
+load_nginx_lib
 ensure_nginx
 
 log "部署 core apps (main + auth + shop + admin)..."
-ORASAGE_REF="$ORASAGE_REF" BRANCH="$ORASAGE_REF" bash "$DEPLOY_DIR/deploy/deploy-shop-on-vps.sh"
+ORASAGE_REF="$ORASAGE_REF" BRANCH="$ORASAGE_REF" NGINX_SITE="$NGINX_SITE" \
+  bash "$DEPLOY_DIR/deploy/deploy-shop-on-vps.sh"
 
 for app in bazi ziwei tarot; do
   mode="$(fortune_mode_for "$app")"
   log "部署 $app（模式: $mode）..."
-  sudo DEPLOY_MODE="$mode" ORASAGE_REF="$ORASAGE_REF" bash "$DEPLOY_DIR/deploy/$app/deploy-$app.sh"
+  sudo DEPLOY_MODE="$mode" ORASAGE_REF="$ORASAGE_REF" NGINX_SITE="$NGINX_SITE" \
+    DEPLOY_DIR="$DEPLOY_DIR" bash "$DEPLOY_DIR/deploy/$app/deploy-$app.sh"
 done
 
 deploy_cms

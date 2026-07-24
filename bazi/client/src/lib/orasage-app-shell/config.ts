@@ -25,15 +25,100 @@ export function appBrandLabel(appId: AppId, locale: string): string {
   return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
 }
 
-export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
-  authLogin: 'https://auth.orasage.com/login',
-  temple: 'https://tarot.orasage.com/temple',
-} as const;
+const KNOWN_APEXES = ['oricosmos.com', 'orasage.com'] as const;
+
+export function normalizeSiteApex(raw: string): string {
+  return raw
+    .replace(/^https?:\/\//, '')
+    .replace(/^\./, '')
+    .split('/')[0]
+    .trim()
+    .toLowerCase();
+}
+
+/** Derive apex from a hostname (tarot.oricosmos.com → oricosmos.com). */
+export function apexFromHostname(hostname: string): string | null {
+  const host = hostname.toLowerCase().split(':')[0].trim();
+  if (!host || host === 'localhost' || host === '127.0.0.1') return null;
+  for (const apex of KNOWN_APEXES) {
+    if (host === apex || host.endsWith(`.${apex}`)) return apex;
+  }
+  const parts = host.split('.').filter(Boolean);
+  if (parts.length >= 2) return parts.slice(-2).join('.');
+  return null;
+}
+
+/**
+ * Apex host for the current deployment (orasage.com | oricosmos.com).
+ * Priority: env → browser host → default orasage.com.
+ * Safe for SSR / first paint (matches baked NEXT_PUBLIC_*).
+ *
+ * Bottom nav and other client chrome should call {@link resolveClientSiteApex}
+ * after mount so a wrong env bake cannot keep oricosmos pages on orasage.com.
+ */
+export function getSiteApex(): string {
+  const raw =
+    (typeof process !== 'undefined' &&
+      (process.env.NEXT_PUBLIC_SITE_APEX ||
+        process.env.SITE_APEX ||
+        process.env.VITE_SITE_APEX)) ||
+    '';
+  if (raw) return normalizeSiteApex(raw);
+
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const fromHost = apexFromHostname(window.location.hostname);
+    if (fromHost) return fromHost;
+  }
+
+  return 'orasage.com';
+}
+
+/** Browser-only apex from the current hostname (ignores env bake). */
+export function resolveClientSiteApex(): string {
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const fromHost = apexFromHostname(window.location.hostname);
+    if (fromHost) return fromHost;
+  }
+  return getSiteApex();
+}
+
+export type OrasageUrls = {
+  main: string;
+  bazi: string;
+  ziwei: string;
+  tarot: string;
+  shop: string;
+  auth: string;
+  authLogin: string;
+  authCenter: string;
+  temple: string;
+};
+
+export function orasageUrlsFor(apex: string = getSiteApex()): OrasageUrls {
+  return {
+    main: `https://${apex}`,
+    bazi: `https://bazi.${apex}`,
+    ziwei: `https://ziwei.${apex}`,
+    tarot: `https://tarot.${apex}`,
+    shop: `https://shop.${apex}`,
+    auth: `https://auth.${apex}`,
+    authLogin: `https://auth.${apex}/login`,
+    authCenter: `https://auth.${apex}/center`,
+    temple: `https://tarot.${apex}/temple`,
+  };
+}
+
+/**
+ * Cross-app public URLs — always resolved via getSiteApex() (env or runtime host).
+ * Use property access at call sites (not module-level snapshots).
+ */
+export const ORASAGE_URLS: OrasageUrls = new Proxy({} as OrasageUrls, {
+  get(_target, prop: string | symbol) {
+    if (typeof prop !== 'string') return undefined;
+    const urls = orasageUrlsFor(getSiteApex());
+    return urls[prop as keyof OrasageUrls];
+  },
+});
 
 export function mainPortalUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}`;
@@ -88,8 +173,8 @@ export function isCurrentAppHome(appId: AppId, pathname: string): boolean {
   return pathname === home;
 }
 
-export function appHomeUrl(appId: AppId): string {
-  const base = ORASAGE_URLS[appId];
+export function appHomeUrl(appId: AppId, apex: string = getSiteApex()): string {
+  const base = orasageUrlsFor(apex)[appId];
   const path = APP_HOME_PATH[appId];
   return path === '/' ? base : `${base}${path}`;
 }
@@ -125,20 +210,6 @@ export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
   ];
 }
 
-/** 底栏第 2 键探索轮换项（八字 / 塔罗 / 紫微 / 道藏 / 名人） */
-export const BOTTOM_NAV_ROTATION = ['bazi', 'tarot', 'ziwei', 'daozang', 'famous'] as const;
-export type BottomNavRotationId = (typeof BOTTOM_NAV_ROTATION)[number];
-
-/** 固定底栏锚点页 — 与第 1/3/4/5 键功能重叠时需轮换第 2 键 */
-export type NavAnchor = 'portal-home' | 'temple' | 'shop' | 'profile';
-
-export const ANCHOR_ROTATION_SLOT: Record<NavAnchor, BottomNavRotationId> = {
-  'portal-home': 'bazi',
-  temple: 'ziwei',
-  shop: 'tarot',
-  profile: 'famous',
-};
-
 export function normalizePathname(pathname: string): string {
   return pathname.replace(/\/$/, '') || '/';
 }
@@ -155,66 +226,4 @@ export function isOnProfile(pathname: string): boolean {
 export function isOnTemple(pathname: string): boolean {
   const p = normalizePathname(pathname);
   return p === '/temple' || p.startsWith('/temple/');
-}
-
-export function detectNavAnchor(context: NavContext, pathname: string): NavAnchor | null {
-  if (context === 'portal') {
-    if (isOnPortalHome(pathname)) return 'portal-home';
-    if (isOnProfile(pathname)) return 'profile';
-    return null;
-  }
-  if (context === 'shop' && isCurrentAppHome('shop', pathname)) return 'shop';
-  if (isOnTemple(pathname)) return 'temple';
-  return null;
-}
-
-export function rotationExploreLink(
-  id: BottomNavRotationId,
-  locale: string,
-): { href: string; label: string } {
-  switch (id) {
-    case 'bazi':
-      return { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) };
-    case 'tarot':
-      return { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) };
-    case 'ziwei':
-      return { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) };
-    case 'daozang':
-      return { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) };
-    case 'famous':
-      return { href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) };
-  }
-}
-
-export type SecondNavSlot = {
-  href: string;
-  label: string;
-  active: boolean;
-  /** orasage = 门户品牌（玄璧图形，VI §6.3）；explore = 轮换探索项；app = 当前子应用品牌 */
-  kind: 'orasage' | 'explore' | 'app';
-};
-
-/** 底栏第 2 键：锚点页用探索轮换，否则为当前子应用品牌 */
-export function resolveSecondNavSlot(
-  context: NavContext,
-  pathname: string,
-  locale: string,
-): SecondNavSlot {
-  const anchor = detectNavAnchor(context, pathname);
-  if (anchor) {
-    const link = rotationExploreLink(ANCHOR_ROTATION_SLOT[anchor], locale);
-    return { href: link.href, label: link.label, active: false, kind: 'explore' };
-  }
-
-  if (context === 'portal') {
-    return { href: mainPortalUrl(locale), label: 'OraSage', active: false, kind: 'orasage' };
-  }
-
-  const appId = context;
-  return {
-    href: appHomeUrl(appId),
-    label: appBrandLabel(appId, locale),
-    active: isCurrentAppHome(appId, pathname),
-    kind: 'app',
-  };
 }

@@ -124,7 +124,8 @@ export default async function ProductsPage({
       <section className="panel">
         <h2>商城首页布局</h2>
         <p className="muted" style={{ marginBottom: '1rem' }}>
-          切换 shop.orasage.com 首页展示形态。经典目录保留全品类网格；水晶专题为五行主编排 + 标准装/礼盒装双规格。
+          切换 shop 首页展示形态。计价货币与 USDT↔WOLD 汇率请到{' '}
+          <Link href="/shop/pricing">商城 → 计价</Link> 统一配置。
         </p>
         <form action={saveShopLayoutAction} className="form-grid">
           <label className="full-width">

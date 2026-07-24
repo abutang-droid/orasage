@@ -1,4 +1,5 @@
-const TAROT_ORIGIN = process.env.TAROT_PUBLIC_URL || "https://tarot.orasage.com";
+import { siteUrls } from './site-urls.ts';
+const TAROT_ORIGIN = process.env.TAROT_PUBLIC_URL || process.env.TAROT_URL || siteUrls().tarot;
 
 type TarotPayload = {
   type?: string;

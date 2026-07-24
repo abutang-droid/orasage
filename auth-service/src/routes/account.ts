@@ -19,6 +19,16 @@ import {
   postWalletLedgerEntry,
   SUPPORTED_WALLET_CURRENCIES,
 } from "../lib/wallets.ts";
+import { getFxRates } from "../lib/shop-settings.ts";
+import {
+  formatOrderAmountDisplay,
+  normalizePayCurrency,
+  resolvePayAmountCents,
+  setRuntimeWoldPerUsdt,
+  type PayCurrency,
+} from "../../../shared/shop-locale/index.ts";
+import { resolvePayProvider } from "../../../shared/payments/pay-currency.ts";
+import { resolvePaymentMode } from "../../../shared/payments/mode.ts";
 
 export const accountRouter = Router();
 
@@ -159,7 +169,7 @@ accountRouter.get("/orders", async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(o.amountCents, o.currency),
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
@@ -329,7 +339,7 @@ accountRouter.get("/orders/:orderNo", async (req, res) => {
       sku: order.sku,
       amountCents: order.amountCents,
       currency: order.currency,
-      amountDisplay: `¥${(order.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(order.amountCents, order.currency),
       status: order.status,
       statusLabel: STATUS_LABELS[order.status] ?? order.status,
       appSource: order.appSource,
@@ -686,6 +696,7 @@ internalRouter.get("/readings/:readingId", async (req, res) => {
       title: row.title,
       summary: row.summary,
       reportUrl: row.reportUrl,
+      crystalSku: row.crystalSku,
       payloadJson: row.payloadJson,
     },
   });
@@ -740,7 +751,7 @@ internalRouter.post("/orders", async (req, res) => {
       title: body.title,
       sku: body.sku,
       amountCents: body.amountCents,
-      currency: body.currency ?? "CNY",
+      currency: body.currency ?? "USDT",
       status: body.status ?? "pending",
       appSource: body.appSource,
       shippingAddress: body.shippingAddress,
@@ -913,6 +924,122 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
       return;
     }
     console.error("[internal] order update error:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+const orderPaySchema = z.object({
+  userId: z.number().int().positive(),
+  currency: z.string().min(3).max(8),
+  provider: z.enum(["mock", "stripe", "wallet"]).optional(),
+});
+
+/**
+ * 按支付币种完成订单：
+ * - 订单金额以 USDT 分为准（创建时写入）
+ * - 选 WOLD 时按后台汇率换算并改写 currency/amountCents
+ * - mock：直接标记已付；wallet：扣对应钱包；stripe：仅 USDT（由 shop 侧建 session）
+ */
+internalRouter.post("/orders/:orderNo/pay", async (req, res) => {
+  try {
+    const orderNo = String(req.params.orderNo);
+    const body = orderPaySchema.parse(req.body);
+    const payCurrency = normalizePayCurrency(body.currency);
+    if (!payCurrency) {
+      res.status(400).json({ error: "支付币种须为 USDT 或 WOLD" });
+      return;
+    }
+
+    const [order] = await db.select().from(userOrders).where(eq(userOrders.orderNo, orderNo)).limit(1);
+    if (!order) {
+      res.status(404).json({ error: "订单不存在" });
+      return;
+    }
+    if (order.userId !== body.userId) {
+      res.status(403).json({ error: "无权操作该订单" });
+      return;
+    }
+    if (order.status !== "pending") {
+      res.status(409).json({ error: "订单状态不允许支付" });
+      return;
+    }
+
+    const fx = await getFxRates();
+    setRuntimeWoldPerUsdt(fx.woldPerUsdt);
+
+    // 订单创建时按 USDT；若历史订单是 CNY/其它，仍按 amountCents 视作 USDT 基数（近期商店已统一）
+    const baseUsdtCents = order.currency === "WOLD"
+      ? Math.max(1, Math.round(order.amountCents / fx.woldPerUsdt))
+      : order.amountCents;
+    const chargeCents = resolvePayAmountCents(baseUsdtCents, payCurrency, fx.woldPerUsdt);
+    const provider = resolvePayProvider({
+      payCurrency,
+      preferred: body.provider,
+    });
+
+    if (provider === "stripe" && payCurrency !== "USDT") {
+      res.status(400).json({ error: "Stripe 仅支持 USDT 支付，请改选 USDT 或使用模拟/钱包支付" });
+      return;
+    }
+
+    if (provider === "wallet") {
+      try {
+        await postWalletLedgerEntry({
+          userId: body.userId,
+          currency: payCurrency,
+          kind: "debit",
+          amountCents: -chargeCents,
+          referenceType: "order",
+          referenceId: orderNo,
+          note: `订单支付 ${orderNo}`,
+          idempotencyKey: `pay:${orderNo}:${payCurrency}`,
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "钱包扣款失败";
+        res.status(402).json({ error: msg });
+        return;
+      }
+    } else if (provider === "stripe") {
+      // Stripe Checkout Session 由 shop 创建；此处仅预留校验
+      res.status(400).json({
+        error: "请使用 Stripe 结账会话完成 USDT 支付",
+        provider: "stripe",
+        currency: payCurrency,
+        amountCents: chargeCents,
+      });
+      return;
+    }
+    // mock：直接标记已付（含 WOLD / USDT）
+
+    await db.update(userOrders).set({
+      status: "paid",
+      currency: payCurrency,
+      amountCents: chargeCents,
+    }).where(eq(userOrders.orderNo, orderNo));
+    await finalizeCouponOnPaid(orderNo);
+    notifyOrderEvent("paid", {
+      ...order,
+      status: "paid",
+      currency: payCurrency,
+      amountCents: chargeCents,
+    });
+
+    res.json({
+      success: true,
+      orderNo,
+      status: "paid",
+      currency: payCurrency as PayCurrency,
+      amountCents: chargeCents,
+      provider,
+      woldPerUsdt: fx.woldPerUsdt,
+      paymentMode: resolvePaymentMode(),
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[internal] order pay error:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

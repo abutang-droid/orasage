@@ -10,6 +10,7 @@ import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { buildLoginUrl } from '@/lib/login-url';
 import { profileUrlFromLang } from '@/lib/orasage-locale';
 import { useCardName } from '@/lib/i18n/context';
+import { aiLangBody } from '@/lib/i18n/ai-lang-body';
 import { POSITION_KEYS, useThreeCardCopy } from '@/lib/i18n/reading-copy';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
@@ -85,7 +86,7 @@ export function ThreeCardFlow() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ readingId: id, orderNo: orderNo ?? undefined }),
+      body: JSON.stringify({ readingId: id, orderNo: orderNo ?? undefined, ...aiLangBody(copy.lang) }),
     });
     const data = await res.json();
     if (res.status === 401) {
@@ -102,7 +103,7 @@ export function ThreeCardFlow() {
     setPaidTier(data.tier);
     setStep('full_report');
     setPendingOrderNo(null);
-  }, []);
+  }, [copy.fullFailed, copy.lang]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -155,6 +156,7 @@ export function ThreeCardFlow() {
         body: JSON.stringify({
           question: question.trim() || undefined,
           answers: [],
+          ...aiLangBody(copy.lang),
         }),
       });
       const data = await res.json();
@@ -187,7 +189,7 @@ export function ThreeCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ readingId }),
+        body: JSON.stringify({ readingId, ...aiLangBody(copy.lang) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || copy.briefFailed);
@@ -509,6 +511,11 @@ export function ThreeCardFlow() {
               sectionChain={copy.sectionChain}
               sectionThreshold={copy.sectionThreshold}
               positionLabel={copy.position}
+              nodeIndexLabel={copy.nodeIndex}
+              cardNames={sortedCards.map((c) => {
+                const meta = getCardById(c.cardId);
+                return meta ? cardNameFor(meta) : c.cardName;
+              })}
             />
           ) : (
             <>

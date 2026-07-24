@@ -14,6 +14,9 @@ type LabelSet = {
   energyShop: Record<string, string>;
   famous: Record<string, string>;
   daozang: Record<string, string>;
+  /** {requested} = unavailable language label; {active} = current UI language */
+  localeUnavailable: Record<string, string>;
+  localeUnavailableDismiss: Record<string, string>;
 };
 
 export const SHELL_LABELS: LabelSet = {
@@ -84,9 +87,9 @@ export const SHELL_LABELS: LabelSet = {
     'pt-BR': 'Zi Wei',
   },
   tarot: {
-    'zh-CN': '塔罗牌',
+    'zh-CN': '塔罗',
     en: 'Tarot',
-    'zh-TW': '塔羅牌',
+    'zh-TW': '塔羅',
     'pt-BR': 'Tarô',
   },
   energyShop: {
@@ -106,6 +109,18 @@ export const SHELL_LABELS: LabelSet = {
     en: 'Dao Canon',
     'zh-TW': '道藏',
     'pt-BR': 'Canon Taoista',
+  },
+  localeUnavailable: {
+    'zh-CN': '暂不支持「{requested}」，已为你显示{active}。',
+    en: '“{requested}” is not available yet. Showing {active}.',
+    'zh-TW': '暫不支援「{requested}」，已為你顯示{active}。',
+    'pt-BR': '“{requested}” ainda não está disponível. Exibindo {active}.',
+  },
+  localeUnavailableDismiss: {
+    'zh-CN': '知道了',
+    en: 'Dismiss',
+    'zh-TW': '知道了',
+    'pt-BR': 'OK',
   },
 };
 

@@ -35,7 +35,6 @@ export function applyLocaleChange(
 
   const url = new URL(window.location.href);
   const param = context === 'shop' ? 'locale' : 'lang';
-  if (locale === 'zh-CN') url.searchParams.delete(param);
-  else url.searchParams.set(param, locale);
+  url.searchParams.set(param, locale);
   window.location.assign(url.toString());
 }

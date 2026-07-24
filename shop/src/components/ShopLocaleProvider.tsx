@@ -10,7 +10,7 @@ import {
   SHOP_LOCALE_OVERRIDE_COOKIE,
   type ShopCurrency,
 } from '../../../shared/shop-locale/index';
-import { setLocaleCookie } from '@/lib/orasage-app-shell';
+import { cookieDomain, setLocaleCookie } from '@/lib/orasage-app-shell';
 
 type ShopLocaleContextValue = {
   locale: string;
@@ -29,6 +29,27 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match.split('=').slice(1).join('=')) : null;
 }
 
+function writeOverrideCookie(locale: string): void {
+  if (typeof document === 'undefined') return;
+  const domain = cookieDomain();
+  const domainPart = domain ? `; domain=${domain}` : '';
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(locale)}; path=/${domainPart}; max-age=31536000; SameSite=Lax${secure}`;
+}
+
+/** Build URL with `?locale=` in sync so refresh / share links don't snap back to an old query. */
+function shopLocaleUrl(locale: string): string {
+  const url = new URL(window.location.href);
+  url.searchParams.set('locale', locale);
+  return url.toString();
+}
+
+/** Soft URL sync (no navigation) — used on first-load cookie detection. */
+function syncShopLocaleUrl(locale: string): void {
+  if (typeof window === 'undefined') return;
+  window.history.replaceState({}, '', shopLocaleUrl(locale));
+}
+
 export function ShopLocaleProvider({ children }: { children: React.ReactNode }) {
   const intlLocale = useLocale();
   const router = useRouter();
@@ -43,8 +64,9 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const fromQuery = params.get('locale');
     if (fromQuery) {
       const normalized = detectShopLocale({ queryLocale: fromQuery });
-      document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+      writeOverrideCookie(normalized);
       setLocaleCookie(normalized);
+      if (normalized !== fromQuery) syncShopLocaleUrl(normalized);
       router.refresh();
       return;
     }
@@ -52,22 +74,24 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const override = readCookie(SHOP_LOCALE_OVERRIDE_COOKIE);
     const portal = readCookie(SHOP_LOCALE_COOKIE);
     const detected = detectShopLocale({
-      cookieLocale: override ?? portal,
+      cookieLocale: portal ?? override,
       acceptLanguage: navigator.language,
     });
     if (detected !== intlLocale) {
       setLocaleCookie(detected);
+      syncShopLocaleUrl(detected);
       router.refresh();
     }
   }, [intlLocale, router]);
 
   const applyLocale = useCallback((raw: string) => {
     const normalized = detectShopLocale({ queryLocale: raw });
-    document.cookie = `${SHOP_LOCALE_OVERRIDE_COOKIE}=${encodeURIComponent(normalized)}; path=/; max-age=31536000; SameSite=Lax`;
+    writeOverrideCookie(normalized);
     setLocaleCookie(normalized);
-    setLocaleState(normalized);
-    router.refresh();
-  }, [router]);
+    // Soft RSC refresh leaves NextIntlClientProvider / SSR product copy stale.
+    // Hard navigate so layout, messages, and catalog all remount with the new locale.
+    window.location.assign(shopLocaleUrl(normalized));
+  }, []);
 
   const value = useMemo(
     () => ({ locale, currency: currencyForLocale(locale), setLocale: applyLocale }),

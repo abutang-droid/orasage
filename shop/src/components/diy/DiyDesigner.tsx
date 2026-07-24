@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { DiyBead, DiyConfig } from '@/lib/diy';
 import { ELEMENT_TO_FEED_MATERIAL, ELEMENT_TO_MAIN_MATERIAL } from '@/lib/diy';
-import { formatShopPrice, resolvePriceCents, type ShopCurrency } from '@/lib/currency';
+import {
+  formatDualShopPrice,
+  resolveUsdtCents,
+  type ShopCurrency,
+} from '@/lib/currency';
 
 const DRAFT_KEY = 'orasage_diy_draft_v1';
 const RULER_MIN = 10;
@@ -13,14 +17,12 @@ const PX_HALF = 14;
 const PX_CM = 28;
 
 const EL_TABS = ['全部', '金', '木', '水', '火', '土', '配件'] as const;
-const SIZE_TABS = [0, 4, 6, 8, 10] as const;
+/** DIY 仅提供 8mm 规格 */
+const DIY_BEAD_MM = 8;
 
-/** 与主五行同属性的隔珠/隔片（八字推荐选配） */
-const ELEMENT_SPACER: Record<string, string> = {
-  金: 'silver-4', 木: 'sandal-4', 水: 'silver-4', 火: 'cinnabar-4', 土: 'gold-4',
-};
+/** 与主五行同属性的隔片（八字推荐选配；隔珠无 8mm 规格时跳过） */
 const ELEMENT_DISC: Record<string, string> = {
-  金: 'tibet-6', 木: 'ebony-6', 水: 'shell-6', 火: 'agated-6', 土: 'tibet-6',
+  金: 'tibet-8', 木: 'ebony-8', 水: 'tibet-8', 火: 'ebony-8', 土: 'tibet-8',
 };
 
 type DiyDesignerProps = {
@@ -52,7 +54,14 @@ function wristText(v: number): string {
   return Number.isInteger(s) ? String(s) : s.toFixed(1);
 }
 
-export function DiyDesigner({ beads, config, currency, initialMaterial, initialElement }: DiyDesignerProps) {
+export function DiyDesigner({
+  beads,
+  config,
+  currency: _settlementCurrency,
+  initialMaterial,
+  initialElement,
+}: DiyDesignerProps) {
+  void _settlementCurrency;
   const td = useTranslations('diy');
   const beadByCode = useMemo(() => new Map(beads.map((b) => [b.code, b])), [beads]);
 
@@ -60,7 +69,6 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
   const [wrist, setWrist] = useState(16);
   const [selIdx, setSelIdx] = useState(-1);
   const [elFilter, setElFilter] = useState<(typeof EL_TABS)[number]>('全部');
-  const [sizeFilter, setSizeFilter] = useState<number>(0);
   const [baziOpen, setBaziOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
@@ -86,9 +94,9 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
     () => design.reduce((sum, code) => {
       const bead = beadByCode.get(code);
       if (!bead) return sum;
-      return sum + resolvePriceCents({ priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd }, currency);
+      return sum + resolveUsdtCents({ priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd });
     }, 0),
-    [design, beadByCode, currency],
+    [design, beadByCode],
   );
   const crystalKinds = useMemo(() => {
     const set = new Set<string>();
@@ -174,21 +182,19 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
   }
 
   function prefillMaterial(material: string, wristCm: number) {
-    const main = `${material}-8`;
+    const main = `${material}-${DIY_BEAD_MM}`;
     if (!beadByCode.has(main)) return;
     setDesign(fillLoop(() => main, wristCm));
     setSelIdx(-1);
   }
 
   function applyElementRecommend(element: string, wristCm: number) {
-    const main = `${ELEMENT_TO_MAIN_MATERIAL[element] ?? 'clear'}-8`;
-    const feed = `${ELEMENT_TO_FEED_MATERIAL[element] ?? 'citrine'}-6`;
-    const spacer = ELEMENT_SPACER[element] ?? 'silver-4';
-    const disc = ELEMENT_DISC[element] ?? 'tibet-6';
+    const main = `${ELEMENT_TO_MAIN_MATERIAL[element] ?? 'clear'}-${DIY_BEAD_MM}`;
+    const feed = `${ELEMENT_TO_FEED_MATERIAL[element] ?? 'citrine'}-${DIY_BEAD_MM}`;
+    const disc = ELEMENT_DISC[element] ?? 'tibet-8';
     if (!beadByCode.has(main)) return;
     setDesign(fillLoop((i) => {
       if (i % 7 === 5 && beadByCode.has(disc)) return disc;
-      if (i % 5 === 4 && beadByCode.has(spacer)) return spacer;
       if (i % 4 === 3 && beadByCode.has(feed)) return feed;
       return main;
     }, wristCm));
@@ -197,17 +203,16 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
   }
 
   function shuffleInspiration() {
-    const crystals = [...new Set(beads.filter((b) => b.type === 'crystal').map((b) => b.material))];
+    const crystals = [...new Set(
+      beads.filter((b) => b.type === 'crystal' && b.diameterMm === DIY_BEAD_MM).map((b) => b.material),
+    )];
     if (!crystals.length) return;
     const pick = crystals.sort(() => Math.random() - 0.5).slice(0, 3);
-    const spacers = beads.filter((b) => b.type === 'spacer');
-    const discs = beads.filter((b) => b.type === 'disc');
-    const sp = spacers[Math.floor(Math.random() * spacers.length)]?.code;
+    const discs = beads.filter((b) => b.type === 'disc' && b.diameterMm === DIY_BEAD_MM);
     const dc = discs[Math.floor(Math.random() * discs.length)]?.code;
     setDesign(fillLoop((i) => {
       if (i % 6 === 2 && dc) return dc;
-      if (i % 4 === 3 && sp) return sp;
-      return `${pick[i % pick.length]}-8`;
+      return `${pick[i % pick.length]}-${DIY_BEAD_MM}`;
     }, wrist));
     setSelIdx(-1);
     showToast(td('toastRandom'));
@@ -412,15 +417,13 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
     return [...map.values()];
   }, [design, beadByCode]);
 
-  /* ── 目录 ─────────────────────────────── */
+  /* ── 目录（仅 8mm） ───────────────────── */
   const catalogList = useMemo(() => beads.filter((b) => {
-    const elOk = elFilter === '全部'
-      ? true
-      : elFilter === '配件'
-        ? b.type !== 'crystal'
-        : b.element === elFilter;
-    return elOk && (sizeFilter === 0 || b.diameterMm === sizeFilter);
-  }), [beads, elFilter, sizeFilter]);
+    if (b.diameterMm !== DIY_BEAD_MM) return false;
+    if (elFilter === '全部') return true;
+    if (elFilter === '配件') return b.type !== 'crystal';
+    return b.element === elFilter;
+  }), [beads, elFilter]);
 
   const selBead = selIdx >= 0 ? beadByCode.get(design[selIdx]) : undefined;
 
@@ -592,26 +595,15 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
               </button>
             ))}
           </div>
-          <div className="shop-diy-sizes">
-            {SIZE_TABS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`shop-diy-chip${sizeFilter === s ? ' is-on' : ''}`}
-                onClick={() => setSizeFilter(s)}
-              >
-                {s === 0 ? td('sizeAll') : td('sizeMm', { size: s })}
-              </button>
-            ))}
-          </div>
+          <p className="shop-diy-size-note">{td('sizeMm', { size: DIY_BEAD_MM })}</p>
           <div className="shop-diy-grid">
             {catalogList.map((bead) => {
               const c = beadColors(bead);
               const gradient = `radial-gradient(circle at 35% 30%, ${c.g0} 0%, ${c.g1} 55%, ${c.g2} 100%)`;
-              const displayCents = resolvePriceCents(
-                { priceCents: bead.priceCents, priceCentsUsd: bead.priceCentsUsd },
-                currency,
-              );
+              const displayCents = resolveUsdtCents({
+                priceCents: bead.priceCents,
+                priceCentsUsd: bead.priceCentsUsd,
+              });
               return (
                 <button type="button" key={bead.code} className="shop-diy-card" onClick={() => addBead(bead.code)}>
                   {bead.imageUrl ? (
@@ -624,7 +616,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                     />
                   )}
                   <div className="shop-diy-card-nm">{bead.name}</div>
-                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatShopPrice(displayCents, currency)}{td('perBead')}</div>
+                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatDualShopPrice(displayCents)}{td('perBead')}</div>
                   <div className="shop-diy-card-tags">
                     {bead.type !== 'crystal' ? <span className="shop-diy-card-type">{typeLabel(bead.type)}</span> : null}
                     {bead.element ? <span className="shop-diy-card-el">{td('tabElement', { el: bead.element })}</span> : null}
@@ -640,12 +632,12 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
       <div className="shop-diy-bar">
         <div className="shop-diy-bar-in">
           <div className="shop-diy-bar-price">
-            <div className="shop-diy-bar-amount">{formatShopPrice(totalDisplayCents, currency)}</div>
+            <div className="shop-diy-bar-amount">{formatDualShopPrice(totalDisplayCents)}</div>
             <div className="shop-diy-bar-note">
               {design.length === 0
                 ? td('startDesign')
                 : belowMin
-                  ? td('belowMin', { amount: formatShopPrice(config.minOrderCents, 'cny') })
+                  ? td('belowMin', { amount: formatDualShopPrice({ priceCents: config.minOrderCents }) })
                   : fit !== '合适'
                     ? td('fitAdjust', { fit: fitLabel(fit) || '—' })
                     : td('repriceNote')}

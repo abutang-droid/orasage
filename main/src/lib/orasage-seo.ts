@@ -2,12 +2,15 @@ import type { Metadata } from 'next';
 
 export const ORASAGE_SITE_NAME = 'OraSage';
 
+const SITE_APEX =
+  process.env.NEXT_PUBLIC_SITE_APEX || process.env.SITE_APEX || 'orasage.com';
+
 export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
+  main: `https://${SITE_APEX}`,
+  bazi: `https://bazi.${SITE_APEX}`,
+  ziwei: `https://ziwei.${SITE_APEX}`,
+  tarot: `https://tarot.${SITE_APEX}`,
+  shop: `https://shop.${SITE_APEX}`,
 } as const;
 
 /** UI keeps product brands; SEO titles end with | OraSage */

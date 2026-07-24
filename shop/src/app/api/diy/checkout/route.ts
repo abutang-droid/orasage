@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest) {
     if (!user) {
       return NextResponse.json({
         error: '请先登录',
-        loginUrl: `${process.env.AUTH_URL ?? 'https://auth.orasage.com'}/login?redirect=${encodeURIComponent(`${process.env.SHOP_URL ?? 'https://shop.orasage.com'}/diy`)}`,
+        loginUrl: `${ENV.authUrl}/login?redirect=${encodeURIComponent(`${ENV.shopUrl}/diy`)}`,
       }, { status: 401 });
     }
 

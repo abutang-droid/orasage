@@ -67,6 +67,7 @@ export interface AdminProduct {
   comboItems?: Array<{
     componentSku: string;
     quantity: number;
+    role?: 'fixed' | 'element_crystal';
     name: string;
     kind: string;
     category: string;
@@ -301,6 +302,7 @@ export type ShopHomeLayout = 'legacy' | 'crystal_v1';
 
 export interface ShopConfigResponse {
   homeLayout: ShopHomeLayout;
+  woldPerUsdt: number;
   layouts?: Array<{ id: ShopHomeLayout; label: string }>;
 }
 
@@ -308,10 +310,10 @@ export function getShopConfig() {
   return adminFetch<ShopConfigResponse>('/shop-config');
 }
 
-export function saveShopConfig(homeLayout: ShopHomeLayout) {
-  return adminFetch<{ homeLayout: ShopHomeLayout }>('/shop-config', {
+export function saveShopConfig(input: { homeLayout?: ShopHomeLayout; woldPerUsdt?: number }) {
+  return adminFetch<ShopConfigResponse>('/shop-config', {
     method: 'PUT',
-    body: JSON.stringify({ homeLayout }),
+    body: JSON.stringify(input),
   });
 }
 
