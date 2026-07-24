@@ -41,11 +41,19 @@ export type FixedBottomNavProps = {
   pathname?: string;
 };
 
-/** Append locale query so cross-subdomain hops keep language even if cookie is missing. */
+/** Append locale query so cross-subdomain hops keep language even if cookies race. */
 function withLocaleQuery(href: string, locale: string, param: 'lang' | 'locale'): string {
-  if (!locale || locale === 'zh-CN') return href;
-  const join = href.includes('?') ? '&' : '?';
-  return `${href}${join}${param}=${encodeURIComponent(locale)}`;
+  if (!locale) return href;
+  try {
+    const url = new URL(href, typeof window !== 'undefined' ? window.location.origin : 'https://orasage.com');
+    url.searchParams.set(param, locale);
+    // Preserve absolute vs relative form of the original href
+    if (/^https?:\/\//i.test(href)) return url.toString();
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    const join = href.includes('?') ? '&' : '?';
+    return `${href}${join}${param}=${encodeURIComponent(locale)}`;
+  }
 }
 
 function navUrls(locale: string, context: NavContext, apex: string) {

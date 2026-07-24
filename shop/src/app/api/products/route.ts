@@ -25,9 +25,10 @@ function mapProduct(p: Product, imageUrl?: string | null) {
 
 export async function GET(req: NextRequest) {
   const sku = req.nextUrl.searchParams.get('sku');
-  const cookie = req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value
-    ?? req.cookies.get(SHOP_LOCALE_COOKIE)?.value;
+  const cookie = req.cookies.get(SHOP_LOCALE_COOKIE)?.value
+    ?? req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
   const locale = detectShopLocale({
+    queryLocale: req.nextUrl.searchParams.get('locale') || req.nextUrl.searchParams.get('lang'),
     cookieLocale: cookie,
     acceptLanguage: req.headers.get('accept-language'),
   });

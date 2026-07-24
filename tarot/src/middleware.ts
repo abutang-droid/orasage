@@ -17,10 +17,13 @@ function siteApex(request: NextRequest): string {
 function resolvePortalLocale(request: NextRequest): string {
   return toCoreLocale(
     detectLocale({
-      queryLocale: request.nextUrl.searchParams.get("lang"),
+      queryLocale:
+        request.nextUrl.searchParams.get("lang") ||
+        request.nextUrl.searchParams.get("locale"),
+      // Prefer portal NEXT_LOCALE; shop override is fallback only.
       cookieLocale:
-        request.cookies.get(LOCALE_OVERRIDE_COOKIE)?.value ??
         request.cookies.get(LOCALE_COOKIE)?.value ??
+        request.cookies.get(LOCALE_OVERRIDE_COOKIE)?.value ??
         null,
       acceptLanguage: request.headers.get("accept-language"),
     }),

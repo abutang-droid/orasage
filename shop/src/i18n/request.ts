@@ -10,11 +10,11 @@ import {
 async function resolveShopLocale(): Promise<CoreLocale> {
   const jar = await cookies();
   const hdrs = await headers();
-  // Prefer cookies (incl. ones set by shop middleware from ?locale=).
-  const override = jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
+  // Prefer portal NEXT_LOCALE; shop override is fallback (kept in sync by setLocaleCookie).
   const portal = jar.get(SHOP_LOCALE_COOKIE)?.value;
+  const override = jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
   const locale = detectShopLocale({
-    cookieLocale: override ?? portal,
+    cookieLocale: portal ?? override,
     acceptLanguage: hdrs.get('accept-language'),
   });
   return (CORE_LOCALES as readonly string[]).includes(locale) ? (locale as CoreLocale) : 'zh-CN';

@@ -39,15 +39,14 @@ async function formatProductsWithCombos(
 
 function localeFromRequest(req: { query: Record<string, unknown>; headers: Record<string, string | string[] | undefined> }): string {
   const cookieHeader = typeof req.headers.cookie === "string" ? req.headers.cookie : "";
-  const cookieLocale = cookieHeader
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith("NEXT_LOCALE=") || part.startsWith("orasage_shop_locale="))
-    ?.split("=")[1];
+  const cookies = cookieHeader.split(";").map((part) => part.trim());
+  const read = (name: string) =>
+    cookies.find((part) => part.startsWith(`${name}=`))?.split("=").slice(1).join("=");
+  const raw = read("NEXT_LOCALE") ?? read("orasage_shop_locale");
   return resolveProductLocale({
     queryLocale: typeof req.query.locale === "string" ? req.query.locale : undefined,
     acceptLanguage: typeof req.headers["accept-language"] === "string" ? req.headers["accept-language"] : undefined,
-    cookieLocale: cookieLocale ? decodeURIComponent(cookieLocale) : undefined,
+    cookieLocale: raw ? decodeURIComponent(raw) : undefined,
   });
 }
 

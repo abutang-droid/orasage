@@ -40,8 +40,7 @@ function writeOverrideCookie(locale: string): void {
 /** Build URL with `?locale=` in sync so refresh / share links don't snap back to an old query. */
 function shopLocaleUrl(locale: string): string {
   const url = new URL(window.location.href);
-  if (locale === 'zh-CN') url.searchParams.delete('locale');
-  else url.searchParams.set('locale', locale);
+  url.searchParams.set('locale', locale);
   return url.toString();
 }
 
@@ -75,7 +74,7 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const override = readCookie(SHOP_LOCALE_OVERRIDE_COOKIE);
     const portal = readCookie(SHOP_LOCALE_COOKIE);
     const detected = detectShopLocale({
-      cookieLocale: override ?? portal,
+      cookieLocale: portal ?? override,
       acceptLanguage: navigator.language,
     });
     if (detected !== intlLocale) {

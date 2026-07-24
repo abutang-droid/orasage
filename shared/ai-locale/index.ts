@@ -32,10 +32,11 @@ export function readLocaleFromCookieHeader(cookieHeader: string | null | undefin
   const read = (name: string) =>
     cookies.find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
   try {
-    const override = read(LOCALE_OVERRIDE_COOKIE);
-    if (override) return decodeURIComponent(override);
+    // Prefer portal NEXT_LOCALE; shop override is fallback only.
     const base = read(LOCALE_COOKIE);
     if (base) return decodeURIComponent(base);
+    const override = read(LOCALE_OVERRIDE_COOKIE);
+    if (override) return decodeURIComponent(override);
   } catch {
     // ignore malformed cookie values
   }

@@ -16,7 +16,7 @@ export async function GET() {
     const jar = await cookies();
     const hdrs = await headers();
     const locale = detectShopLocale({
-      cookieLocale: jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_COOKIE)?.value,
+      cookieLocale: jar.get(SHOP_LOCALE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value,
       acceptLanguage: hdrs.get('accept-language'),
     });
     const [res, imageMap] = await Promise.all([

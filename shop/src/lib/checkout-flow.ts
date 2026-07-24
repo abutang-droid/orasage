@@ -95,8 +95,8 @@ export type StartCheckoutResult = {
 
 export function localeFromCheckoutRequest(req: NextRequest, explicit?: string | null): string {
   if (explicit) return detectShopLocale({ queryLocale: explicit });
-  const cookie = req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value
-    ?? req.cookies.get(SHOP_LOCALE_COOKIE)?.value;
+  const cookie = req.cookies.get(SHOP_LOCALE_COOKIE)?.value
+    ?? req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
   return detectShopLocale({
     cookieLocale: cookie,
     acceptLanguage: req.headers.get('accept-language'),
