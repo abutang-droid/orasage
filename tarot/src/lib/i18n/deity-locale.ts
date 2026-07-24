@@ -28,10 +28,11 @@ export function deityDisplayName(deity: NamedDeity, lang: Lang): string {
 /** Secondary line under the primary name — omit when identical. */
 export function deitySubtitle(deity: NamedDeity, lang: Lang): string | null {
   const primary = deityDisplayName(deity, lang);
+  // Non-Chinese UIs must not fall back to Chinese as the subtitle.
   const candidates =
     lang === 'zh'
       ? [deity.nameEN, deity.namePt, deity.nameEs]
-      : [deity.name, deity.nameEN, deity.namePt, deity.nameEs];
+      : [deity.nameEN, deity.namePt, deity.nameEs];
   for (const c of candidates) {
     const t = (c || '').trim();
     if (t && t !== primary) return t;
