@@ -802,6 +802,11 @@
   border-color: rgb(52 211 153 / 0.35);
 }
 
+/* 已抽取：仅展示启示文案，隐藏右侧装饰图标并占满整行 */
+.home-tile--daily.home-tile--done {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .home-tile-body {
   display: flex;
   flex-direction: column;

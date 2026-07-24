@@ -105,9 +105,11 @@ export function TarotHomeDailyInsight() {
           <ChevronRight size={16} strokeWidth={2} aria-hidden />
         </span>
       </div>
-      <div className="home-tile-art">
-        <DailyInsightGlyph />
-      </div>
+      {!completed ? (
+        <div className="home-tile-art" aria-hidden>
+          <DailyInsightGlyph />
+        </div>
+      ) : null}
     </Link>
   );
 }
