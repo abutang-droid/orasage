@@ -79,62 +79,60 @@ export function ProductCard({ product }: { product: Product }) {
   const href = `/product/${encodeURIComponent(product.sku)}`;
 
   return (
-    <Card variant="interactive" className="shop-product-card shop-product-card--row shadow-none">
-      <div className="shop-product-card-row">
-        <Link href={href} className="shop-product-card-media-link" tabIndex={-1} aria-hidden>
-          <ProductImage
-            sku={product.sku}
-            name={product.name}
-            category={product.category}
-            imageUrl={product.imageUrl}
-            className="shop-product-card-media"
-            sizes="120px"
-          />
+    <Card variant="interactive" className="shop-product-card shop-product-card--hero shadow-none">
+      <Link href={href} className="shop-product-card-media-link">
+        <ProductImage
+          sku={product.sku}
+          name={product.name}
+          category={product.category}
+          imageUrl={product.imageUrl}
+          className="shop-product-card-media"
+          sizes="(max-width: 640px) 92vw, 28rem"
+        />
+      </Link>
+
+      <div className="shop-product-card-body">
+        <Link href={href} className="shop-product-card-link">
+          <span className="shop-product-badge">
+            {badgeLabel || product.element || <Sparkles size={12} strokeWidth={1.8} aria-hidden />}
+          </span>
+          <CardTitle className="shop-product-name">
+            {product.name}
+          </CardTitle>
+          <CardDescription className="shop-product-desc line-clamp-2">
+            {product.desc}
+          </CardDescription>
         </Link>
 
-        <div className="shop-product-card-body">
-          <Link href={href} className="shop-product-card-link">
-            <span className="shop-product-badge">
-              {badgeLabel || product.element || <Sparkles size={12} strokeWidth={1.8} aria-hidden />}
-            </span>
-            <CardTitle className="shop-product-name text-base font-semibold leading-snug">
-              {product.name}
-            </CardTitle>
-            <CardDescription className="shop-product-desc line-clamp-2">
-              {product.desc}
-            </CardDescription>
-          </Link>
-
-          <div className="shop-product-card-meta">
-            <span className="shop-product-price">{displayPrice}</span>
-            <CardFooter className="shop-product-card-actions p-0">
-              <Button
-                type="button"
-                onClick={() => void handleBuy()}
-                disabled={loading}
-                loading={loading}
-                className="min-w-0 flex-1 px-2"
-              >
-                {loading ? t('buying') : t('buy')}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleAddToCart}
-                aria-label={added ? t('added') : t('addToCart')}
-                title={added ? t('added') : t('addToCart')}
-                className="h-control-md w-11 min-w-11 shrink-0 p-0"
-              >
-                {added ? (
-                  <Check size={18} strokeWidth={2} aria-hidden />
-                ) : (
-                  <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
-                )}
-              </Button>
-            </CardFooter>
-          </div>
-          {error ? <p className="shop-product-card-error">{error}</p> : null}
+        <div className="shop-product-card-meta">
+          <span className="shop-product-price">{displayPrice}</span>
+          <CardFooter className="shop-product-card-actions p-0">
+            <Button
+              type="button"
+              onClick={() => void handleBuy()}
+              disabled={loading}
+              loading={loading}
+              className="min-w-0 flex-1"
+            >
+              {loading ? t('buying') : t('buy')}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddToCart}
+              aria-label={added ? t('added') : t('addToCart')}
+              title={added ? t('added') : t('addToCart')}
+              className="h-control-md w-11 min-w-11 shrink-0 p-0"
+            >
+              {added ? (
+                <Check size={18} strokeWidth={2} aria-hidden />
+              ) : (
+                <ShoppingCart size={18} strokeWidth={1.8} aria-hidden />
+              )}
+            </Button>
+          </CardFooter>
         </div>
+        {error ? <p className="shop-product-card-error">{error}</p> : null}
       </div>
     </Card>
   );
