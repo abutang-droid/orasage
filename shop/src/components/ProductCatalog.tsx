@@ -41,8 +41,15 @@ function collectFilterTags(products: Product[]): ProductTag[] {
   });
 }
 
+function DiyPill({ label }: { label: string }) {
+  return (
+    <a href="/diy" className="shop-category-pill shop-category-pill--diy shop-collection-diy">
+      ✦ {label}
+    </a>
+  );
+}
+
 export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogProps) {
-  const t = useTranslations('categories');
   const tc = useTranslations('catalog');
   const { locale } = useShopLocale();
   const searchParams = useSearchParams();
@@ -73,7 +80,7 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
     return featuredSkus.map((sku) => bySku.get(sku)).filter((p): p is Product => Boolean(p));
   }, [products, featuredSkus, activeTag, legacyCategory]);
 
-  // 「全部」下精选区已展示的 SKU 不再出现在下方目录，避免同一商品渲染两次
+  // 未选标签时精选区已展示的 SKU 不再出现在下方目录，避免同一商品渲染两次
   const catalogGrid = useMemo(() => {
     if (featured.length === 0) return filtered;
     const featuredSet = new Set(featured.map((p) => p.sku));
@@ -91,37 +98,41 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
   }, [highlightSku, catalogGrid, featured]);
 
   const showAll = !activeTag && !legacyCategory;
+  const showFeatured = showAll && featured.length > 0;
+  const diyLabel = tc('diy');
 
   return (
     <>
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden">
-        <a
-          href={catalogHref({ locale, sku: highlightSku })}
-          data-active={showAll}
-          className="shop-category-pill"
-        >
-          {t('all')}
-        </a>
-        {filterTags.map((tag) => (
-          <a
-            key={tag.code}
-            href={catalogHref({ tag: tag.code, locale, sku: highlightSku })}
-            data-active={activeTag === tag.code}
-            className="shop-category-pill"
-          >
-            {tag.label}
-          </a>
-        ))}
-        <a href="/diy" className="shop-category-pill shop-category-pill--diy">
-          ✦ {tc('diy')}
-        </a>
-      </div>
+      {filterTags.length > 0 ? (
+        <div className="shop-category-row">
+          {filterTags.map((tag) => {
+            const selected = activeTag === tag.code;
+            return (
+              <a
+                key={tag.code}
+                href={
+                  selected
+                    ? catalogHref({ locale, sku: highlightSku })
+                    : catalogHref({ tag: tag.code, locale, sku: highlightSku })
+                }
+                data-active={selected}
+                className="shop-category-pill"
+              >
+                {tag.label}
+              </a>
+            );
+          })}
+        </div>
+      ) : null}
 
-      {showAll && featured.length > 0 && (
+      {showFeatured ? (
         <section className="shop-collection-section">
-          <div className="shop-collection-header">
-            <h2 className="shop-collection-title">{tc('featured')}</h2>
-            <p className="shop-collection-subtitle">{tc('featuredSubtitle')}</p>
+          <div className="shop-collection-header shop-collection-header--with-diy">
+            <div className="shop-collection-header-copy">
+              <h2 className="shop-collection-title">{tc('featured')}</h2>
+              <p className="shop-collection-subtitle">{tc('featuredSubtitle')}</p>
+            </div>
+            <DiyPill label={diyLabel} />
           </div>
           <div className="shop-collection-grid">
             {featured.map((product) => (
@@ -135,6 +146,10 @@ export function ProductCatalog({ products, featuredSkus = [] }: ProductCatalogPr
             ))}
           </div>
         </section>
+      ) : (
+        <div className="shop-collection-diy-bar">
+          <DiyPill label={diyLabel} />
+        </div>
       )}
 
       {catalogGrid.length > 0 ? (
