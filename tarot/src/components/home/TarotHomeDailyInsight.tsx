@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { getCardById } from '@/lib/tarot/cards';
 import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
+import { useCardName, useLang } from '@/lib/i18n/context';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
 import { DailyInsightGlyph } from '@/components/home/HomeTileGlyphs';
 import type { DailyFortuneRecordDto } from '@/lib/daily-fortune/types';
@@ -26,6 +27,8 @@ function formatCount(n: number): string {
 export function TarotHomeDailyInsight() {
   const router = useRouter();
   const home = useHomeCopy();
+  const { lang } = useLang();
+  const cardNameFor = useCardName();
   const [stats, setStats] = useState<StatsPayload | null>(null);
   const [latest, setLatest] = useState<DailyFortuneRecordDto | null>(null);
   const [remaining, setRemaining] = useState(1);
@@ -65,9 +68,10 @@ export function TarotHomeDailyInsight() {
   const completed = latest?.cardId != null && remaining <= 0;
   const cardMeta = latest?.cardId != null ? getCardById(latest.cardId) : null;
   const orientation = (latest?.orientation as '正位' | '逆位') ?? '正位';
-  const tone = getDailyTone(orientation, home.lang);
-  const attitude = cardMeta && latest?.cardName
-    ? getDailyAttitudeGuide(cardMeta.id, latest.cardName, orientation, cardMeta.suit)
+  const tone = getDailyTone(orientation, lang);
+  const localizedCardName = cardMeta ? cardNameFor(cardMeta) : '';
+  const attitude = cardMeta && localizedCardName
+    ? getDailyAttitudeGuide(cardMeta.id, localizedCardName, orientation, cardMeta.suit, lang)
     : '';
 
   return (

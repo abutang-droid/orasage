@@ -3,8 +3,10 @@ import { formatKnowledgeForPrompt } from '../rules/build-context';
 import {
   aiLanguageReplyRule,
   aiPromptLanguageLine,
+  isNonChineseAiLocale,
   type AiLocale,
 } from '../../../../../shared/ai-locale/index';
+import { cardNameForAi, orientationForAi, promptCardLine } from '../../i18n/card-locale';
 
 /** 第三层统一文风约束：消化知识库，禁止复述 */
 export const TAROT_GENERATION_STYLE = `生成要求（第三层）：
@@ -67,24 +69,25 @@ export function buildSingleFocusPrompt(ctx: ReadingContext): string {
 ${questionLine}
 问题主题：${ctx.topicLabel}（规则层分类，仅作内部参考）
 
-用户从牌堆抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+Drawn card: ${promptCardLine(node, ctx.language)}
 
 【内部知识节点 — 仅供推理，禁止原样输出】
 ${formatKnowledgeForPrompt(ctx)}
 
 定命切片 (Focus) 模块要求：
-1. tendency（核心倾向）：必须明确给出 Yes / No / 警惕 之一（英文界面可用 Yes / No / Caution）。
+1. tendency（核心倾向）：必须明确给出 Yes / No / Caution（非中文界面禁止中文枚举）。
 2. probability（能量概率）：给出具体百分比，格式如「85% Positive // 15% Standard」或「72% Forward // 28% Static」。
 3. deconstruction（现状解构）：用一句话点明单牌映射的当前最核心的现实状况，冷峻客观。
 4. threshold（破局阈值）：给出冷峻的行动建议，指出突破当前状态的触发点是什么。
 5. 禁止情感安慰；禁止复述用户问题原文；四字段合计不超过 150 字。
+6. 所有字段正文必须是目标语言；禁止中文解读。
 
 请返回 JSON（不要包含任何多余字段或开场白）：
 {
-  "tendency": "Yes|No|警惕",
+  "tendency": "Yes|No|Caution",
   "probability": "85% Positive // 15% Standard",
-  "deconstruction": "一句话现状解构",
-  "threshold": "破局触发点"
+  "deconstruction": "one-line deconstruction in target language",
+  "threshold": "action threshold in target language"
 }`;
 }
 
@@ -95,7 +98,7 @@ export function buildSingleGuidancePrompt(ctx: ReadingContext): string {
 用户已在心中默念自己的问题（具体内容不可知，禁止在输出中复述、引用或猜测用户问了什么）。
 问题主题：${ctx.topicLabel}（规则层分类，仅作内部参考）
 
-用户从牌堆抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+Drawn card: ${promptCardLine(node, ctx.language)}
 
 【内部知识节点 — 仅供推理，禁止原样输出】
 ${formatKnowledgeForPrompt(ctx)}
@@ -122,7 +125,7 @@ export function buildSingleVerdictPrompt(ctx: ReadingContext): string {
 用户明确问题：${ctx.question}
 问题主题：${ctx.topicLabel}（规则层分类）
 
-抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+Drawn card: ${promptCardLine(node, ctx.language)}
 
 【内部知识节点 — 仅供推理，禁止原样输出】
 ${formatKnowledgeForPrompt(ctx)}
@@ -153,19 +156,19 @@ export function buildSingleFullPrompt(ctx: ReadingContext): string {
 引导问答：
 ${ctx.answerSummary || '（无）'}
 
-抽到的牌：${node?.cardName ?? ''} · ${node?.orientation ?? ''}
+Drawn card: ${promptCardLine(node, ctx.language)}
 
 【内部知识节点 — 仅供推理，禁止原样输出】
 ${formatKnowledgeForPrompt(ctx)}
 
 ${TAROT_GENERATION_STYLE}
 
-请返回单牌阵详读 JSON：
+请返回单牌阵详读 JSON（字段正文必须为目标语言）：
 {
-  "cards": [{ "interpretation": "结合用户处境的解读 120-200字，直接回答问题", "mantra": "一句箴言 12字内" }],
-  "synthesis": "综合答案 150-250字，明确回应用户问题",
-  "suggestions": ["行动建议1", "行动建议2", "行动建议3"],
-  "affirmation": "肯定语 15-25字，第一人称"
+  "cards": [{ "interpretation": "interpretation in target language", "mantra": "short mantra" }],
+  "synthesis": "synthesis in target language",
+  "suggestions": ["suggestion 1", "suggestion 2", "suggestion 3"],
+  "affirmation": "first-person affirmation"
 }`;
 }
 
@@ -195,9 +198,37 @@ cards 数组长度必须等于 ${cardCount}。`;
 }
 
 export function buildThreeCardTrilogyPrompt(ctx: ReadingContext): string {
+  const nonZh = isNonChineseAiLocale(ctx.language);
   const nodes = ctx.nodes
-    .map((n, i) => `节点 ${String(i + 1).padStart(2, '0')} [${n.cardName} · ${n.orientation}]：${n.positionLabel}`)
+    .map((n, i) => {
+      const label = nonZh
+        ? `Node ${String(i + 1).padStart(2, '0')} [${promptCardLine(n, ctx.language)}]: ${n.positionLabel}`
+        : `节点 ${String(i + 1).padStart(2, '0')} [${n.cardName} · ${n.orientation}]：${n.positionLabel}`;
+      return label;
+    })
     .join('\n');
+
+  const example = nonZh
+    ? `{
+  "mode": "Past-Present-Future",
+  "nodes": [
+    { "position": "Past", "cardName": "${cardNameForAi(ctx.nodes[0] ?? { cardName: '', cardNameEn: '' }, ctx.language)}", "mapping": "one-line mapping" },
+    { "position": "Present", "cardName": "${cardNameForAi(ctx.nodes[1] ?? { cardName: '', cardNameEn: '' }, ctx.language)}", "mapping": "one-line mapping" },
+    { "position": "Future", "cardName": "${cardNameForAi(ctx.nodes[2] ?? { cardName: '', cardNameEn: '' }, ctx.language)}", "mapping": "one-line mapping" }
+  ],
+  "chainAnalysis": "chain analysis in target language",
+  "actionThreshold": "action threshold in target language"
+}`
+    : `{
+  "mode": "时序脉络 (Past-Present-Future)",
+  "nodes": [
+    { "position": "过去", "cardName": "牌名", "mapping": "一句话映射" },
+    { "position": "现在", "cardName": "牌名", "mapping": "一句话映射" },
+    { "position": "未来", "cardName": "牌名", "mapping": "一句话映射" }
+  ],
+  "chainAnalysis": "链路推演正文",
+  "actionThreshold": "破局阈值正文"
+}`;
 
   return `${aiPromptLanguageLine(ctx.language)}
 用户困惑：${ctx.question}
@@ -216,18 +247,10 @@ ${formatKnowledgeForPrompt(ctx)}
 3. chainAnalysis：1-2句话串联节点01→02→03的演变逻辑，指出能量卡点或收敛方向；禁止孤立解释单牌。
 4. actionThreshold：冷峻具体的破局策略。
 5. 拒绝情感安慰与玄学虚辞；使用工业/矢量/阈值/收敛等冷峻语言；整体不超过300字。
+6. nodes.cardName 必须使用目标语言牌名；字段正文禁止中文（中文界面除外）。
 
 请返回 JSON（不要包含任何多余字段或开场白）：
-{
-  "mode": "时序脉络 (Past-Present-Future)",
-  "nodes": [
-    { "position": "过去", "cardName": "牌名", "mapping": "一句话映射" },
-    { "position": "现在", "cardName": "牌名", "mapping": "一句话映射" },
-    { "position": "未来", "cardName": "牌名", "mapping": "一句话映射" }
-  ],
-  "chainAnalysis": "链路推演正文",
-  "actionThreshold": "破局阈值正文"
-}`;
+${example}`;
 }
 
 export function buildSpreadBriefPrompt(ctx: ReadingContext): string {
@@ -251,21 +274,22 @@ perCard 数组长度必须等于 ${cardCount}。`;
 
 export function buildDailyFortunePrompt(ctx: ReadingContext): string {
   const node = ctx.nodes[0];
-  return `${aiPromptLanguageLine(ctx.language)}
-用户：${ctx.nickname || '旅人'}
-今日主牌：${node?.cardName}（${node?.orientation}）
-关注主题：${ctx.topicLabel}
-
-引导问答：
-${ctx.answerSummary || '（无）'}
-
-【内部知识节点 — 仅供推理，禁止原样输出】
-${formatKnowledgeForPrompt(ctx)}
-
-${TAROT_GENERATION_STYLE}
-
-请生成每日运势 JSON：
-{
+  const nonZh = isNonChineseAiLocale(ctx.language);
+  const traveler = nonZh
+    ? (ctx.language === 'pt-BR' ? 'Viajante' : 'Traveler')
+    : '旅人';
+  const schema = nonZh
+    ? `{
+  "brief": "visitor brief 80-120 words in target language",
+  "full": {
+    "work": { "tag": "short tag", "text": "work dimension" },
+    "love": { "tag": "short tag", "text": "love dimension" },
+    "career": { "tag": "short tag", "text": "career dimension" },
+    "wealth": { "tag": "short tag", "text": "wealth dimension" },
+    "summary": "overall summary"
+  }
+}`
+    : `{
   "brief": "访客可见简报 80-120字",
   "full": {
     "work": { "tag": "2-4字标签", "text": "工作维度 60-100字" },
@@ -275,6 +299,21 @@ ${TAROT_GENERATION_STYLE}
     "summary": "综合总结 100-150字"
   }
 }`;
+  return `${aiPromptLanguageLine(ctx.language)}
+User: ${ctx.nickname || traveler}
+Today's card: ${promptCardLine(node, ctx.language)}
+Theme: ${ctx.topicLabel}
+
+Guided answers:
+${ctx.answerSummary || (nonZh ? '(none)' : '（无）')}
+
+【内部知识节点 — 仅供推理，禁止原样输出】
+${formatKnowledgeForPrompt(ctx)}
+
+${TAROT_GENERATION_STYLE}
+
+Generate daily fortune JSON. All user-facing strings MUST be in the target language (no Chinese for en/pt-BR):
+${schema}`;
 }
 
 export function buildLiteralTranslatePrompt(
@@ -285,11 +324,11 @@ export function buildLiteralTranslatePrompt(
   language: ReadingContext['language'],
 ): string {
   return `${aiPromptLanguageLine(language)}
-牌名：${cardName} / ${cardNameEn}
-牌位：${orientation}
+Card: ${cardNameEn || cardName} / ${cardName}
+Orientation: ${orientationForAi(language, orientation)}
 
-以下是一条韦特塔罗牌的标准字面释义（书义），请仅翻译为对应语言，不要添加个性化解读：
+Translate the following Rider-Waite literal meaning into the target language only. Do not add personalized reading:
 ${meaning}
 
-只输出翻译后的释义正文，不要引号、不要 JSON、不要标题。`;
+Output only the translated meaning body — no quotes, no JSON, no title.`;
 }

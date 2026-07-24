@@ -196,8 +196,14 @@ export function DailyFortuneFlow() {
   const cardMeta = card ? getCardById(card.id) : null;
   const orientation = card?.orientation ?? '正位';
   const tone = getDailyTone(orientation, copy.lang);
-  const attitude = cardMeta && card
-    ? getDailyAttitudeGuide(cardMeta.id, card.name, orientation, cardMeta.suit)
+  const attitude = cardMeta
+    ? getDailyAttitudeGuide(
+      cardMeta.id,
+      cardNameFor(cardMeta),
+      orientation,
+      cardMeta.suit,
+      copy.lang,
+    )
     : '';
 
   if (step === 'loading') {
@@ -265,6 +271,11 @@ export function DailyFortuneFlow() {
                   glowing
                   size="lg"
                   orientation={card.orientation}
+                  caption={
+                    flipped
+                      ? `${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`
+                      : null
+                  }
                 />
               </div>
             </>

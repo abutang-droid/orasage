@@ -276,6 +276,7 @@ const threeCard = {
   sectionArchitecture: { zh: '[ 架构定义 ]', en: '[ Architecture ]', pt: '[ Arquitetura ]', es: '[ Arquitectura ]' },
   modeLabel: { zh: '模式', en: 'Mode', pt: 'Modo', es: 'Modo' },
   sectionNodes: { zh: '[ 节点测绘 ]', en: '[ Node mapping ]', pt: '[ Mapeamento de nós ]', es: '[ Mapeo de nodos ]' },
+  nodeIndex: { zh: '节点 {n}', en: 'Node {n}', pt: 'Nó {n}', es: 'Nodo {n}' },
   sectionChain: { zh: '[ 链路推演 ]', en: '[ Chain inference ]', pt: '[ Inferência de cadeia ]', es: '[ Inferencia de cadena ]' },
   sectionThreshold: { zh: '[ 行动阈值 ]', en: '[ Action threshold ]', pt: '[ Limiar de ação ]', es: '[ Umbral de acción ]' },
   fullSynthesis: {
@@ -1066,6 +1067,7 @@ export function useThreeCardCopy() {
       sectionArchitecture: p(threeCard.sectionArchitecture),
       modeLabel: p(threeCard.modeLabel),
       sectionNodes: p(threeCard.sectionNodes),
+      nodeIndex: (n: number) => formatTemplate(p(threeCard.nodeIndex), { n: String(n).padStart(2, '0') }),
       sectionChain: p(threeCard.sectionChain),
       sectionThreshold: p(threeCard.sectionThreshold),
       fullSynthesis: p(threeCard.fullSynthesis),

@@ -10,6 +10,7 @@ import {
   isNonChineseAiLocale,
   type AiLocale,
 } from '../../../../../shared/ai-locale/index';
+import { cardNameForAi, orientationForAi } from '../../i18n/card-locale';
 import {
   buildDailyFortunePrompt,
   buildLiteralTranslatePrompt,
@@ -40,17 +41,18 @@ function fallbackFromNodes(
       const flow = upright(n)
         ? (en ? 'energy flows more freely' : 'a energia flui com mais facilidade')
         : (en ? 'a shift in perspective is needed' : 'é preciso mudar o olhar');
-      const name = n.cardNameEn || n.cardName;
+      const name = cardNameForAi(n, language);
+      const orient = orientationForAi(language, n.orientation);
       return {
         interpretation: en
-          ? `「${name}」${pos} (${n.orientation === '正位' ? 'upright' : 'reversed'}): ${n.scenario.replace(/。$/, '')}. Right now ${flow}.`
-          : `「${name}」${pos} (${n.orientation === '正位' ? 'direita' : 'invertida'}): ${n.scenario.replace(/。$/, '')}. Agora ${flow}.`,
+          ? `${name}${pos} (${orient}): right now ${flow}.`
+          : `${name}${pos} (${orient}): agora ${flow}.`,
         mantra: upright(n)
           ? (en ? 'Move with the current; do not force it.' : 'Siga o fluxo; não force.')
           : (en ? 'Change the angle — the answer often waits around the turn.' : 'Mude o ângulo — a resposta costuma estar na curva.'),
       };
     });
-    const names = nodes.map((n) => n.cardNameEn || n.cardName).join(en ? ', ' : ', ');
+    const names = nodes.map((n) => cardNameForAi(n, language)).join(', ');
     const synthesis =
       synthesisPrefix ??
       (nodes.length >= 3
@@ -133,21 +135,21 @@ function fallbackFocusFromNodes(nodes: ExtractedKnowledgeNode[], language: AiLoc
   const forward = node.orientation === '正位';
   const pct = forward ? 68 : 34;
   const inv = 100 - pct;
-  const name = isNonChineseAiLocale(language) ? (node.cardNameEn || node.cardName) : node.cardName;
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
   return {
     tendency: forward ? 'Yes' : (en || pt ? 'Caution' : '警惕'),
     probability: `${pct}% ${forward ? 'Forward' : 'Reverse'} // ${inv}% Standard`,
     deconstruction: en
-      ? `「${name}」 maps: ${node.scenario.replace(/。$/, '')}; system in ${forward ? 'forward convergence' : 'reverse drag'}.`
+      ? `${name} (${orient}): system in ${forward ? 'forward convergence' : 'reverse drag'}.`
       : pt
-        ? `「${name}」 mapeia: ${node.scenario.replace(/。$/, '')}; sistema em ${forward ? 'convergência' : 'arrasto reverso'}.`
+        ? `${name} (${orient}): sistema em ${forward ? 'convergência' : 'arrasto reverso'}.`
         : `「${node.cardName}」${node.orientation}映射：${node.scenario.replace(/。$/, '')}，系统处于${forward ? '正向收敛' : '逆向阻滞'}相位。`,
-    threshold: node.advice[0]
-      ?? (en
-        ? 'Set one trigger condition; only then take the next step.'
-        : pt
-          ? 'Defina um único gatilho; só então avance.'
-          : '设定单一触发条件，满足后再执行下一步，避免多变量并行。'),
+    threshold: en
+      ? 'Set one trigger condition; only then take the next step.'
+      : pt
+        ? 'Defina um único gatilho; só então avance.'
+        : (node.advice[0] ?? '设定单一触发条件，满足后再执行下一步，避免多变量并行。'),
     llm: false,
   };
 }
@@ -187,19 +189,42 @@ const guidanceSchema = z.object({
   insight: z.string().min(1),
 });
 
-function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: string) {
+function fallbackGuidanceFromNodes(
+  nodes: ExtractedKnowledgeNode[],
+  question: string,
+  language: AiLocale = 'zh-CN',
+) {
   const node = nodes[0];
+  const en = language === 'en';
+  const pt = language === 'pt-BR';
   if (!node) {
     return {
-      action: '先停下来，把两个选项各写下来，对比你真正害怕失去的是什么。',
-      insight: '牌面信息暂不可用，但犹豫本身说明你在认真对待这个选择。',
+      action: en
+        ? 'Pause. Write both options down and name what you fear losing.'
+        : pt
+          ? 'Pause. Escreva as duas opções e nomeie o que teme perder.'
+          : '先停下来，把两个选项各写下来，对比你真正害怕失去的是什么。',
+      insight: en
+        ? 'Card data is unavailable, but hesitation itself shows you take this choice seriously.'
+        : pt
+          ? 'Dados da carta indisponíveis, mas a hesitação mostra que você leva a escolha a sério.'
+          : '牌面信息暂不可用，但犹豫本身说明你在认真对待这个选择。',
       llm: false,
     };
   }
-  const advice = node.advice[0] ?? '给自己一点空间，不必今天就做决定。';
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
   return {
-    action: advice,
-    insight: `围绕「${question}」，「${node.cardName}」${node.orientation}提示：${node.scenario.replace(/。$/, '')}`,
+    action: en
+      ? 'Give yourself space — you do not need to decide today.'
+      : pt
+        ? 'Dê espaço a si — não precisa decidir hoje.'
+        : (node.advice[0] ?? '给自己一点空间，不必今天就做决定。'),
+    insight: en
+      ? `On “${question}”, ${name} (${orient}) invites a clearer next step without rushing.`
+      : pt
+        ? `Sobre “${question}”, ${name} (${orient}) convida a um próximo passo mais claro, sem pressa.`
+        : `围绕「${question}」，「${node.cardName}」${node.orientation}提示：${node.scenario.replace(/。$/, '')}`,
     llm: false,
   };
 }
@@ -207,7 +232,7 @@ function fallbackGuidanceFromNodes(nodes: ExtractedKnowledgeNode[], question: st
 /** @deprecated 旧版行动指引生成 */
 export async function generateDestinySliceLegacyGuidanceFromLayers(input: ReadingContextInput) {
   const ctx = buildReadingContext({ ...input, spreadType: 'single' });
-  const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question);
+  const fallback = fallbackGuidanceFromNodes(ctx.nodes, ctx.question, ctx.language);
 
   if (!isLlmConfigured() || ctx.nodes.length === 0) return fallback;
 
@@ -267,7 +292,8 @@ function fallbackVerdictFromNodes(
   }
   const positive = node.orientation === '正位';
   const verdict = positive ? ('lean_yes' as const) : ('lean_no' as const);
-  const name = isNonChineseAiLocale(language) ? (node.cardNameEn || node.cardName) : node.cardName;
+  const name = cardNameForAi(node, language);
+  const orient = orientationForAi(language, node.orientation);
   const headline = positive
     ? (en ? 'Leaning yes' : pt ? 'Inclina para sim' : '倾向于「是」')
     : (en ? 'Leaning no' : pt ? 'Inclina para não' : '倾向于「否」');
@@ -275,16 +301,15 @@ function fallbackVerdictFromNodes(
     verdict,
     headline,
     explanation: en
-      ? `On “${question}”, 「${name}」 points to ${node.scenario.replace(/。$/, '')}.`
+      ? `On “${question}”, ${name} (${orient}) suggests a clearer lean — read it against your real situation.`
       : pt
-        ? `Sobre “${question}”, 「${name}」 aponta para ${node.scenario.replace(/。$/, '')}.`
+        ? `Sobre “${question}”, ${name} (${orient}) sugere uma tendência — leve isso para a sua situação real.`
         : `围绕「${question}」，「${node.cardName}」${node.orientation}指向${node.scenario.replace(/。$/, '')}。${node.meaning}`,
-    guidance: node.advice[0]
-      ?? (en
-        ? 'Trust the first instinct, and leave room to observe.'
-        : pt
-          ? 'Confie no primeiro impulso e deixe espaço para observar.'
-          : '信任第一直觉，同时留一点余地观察变化。'),
+    guidance: en
+      ? 'Trust the first instinct, and leave room to observe.'
+      : pt
+        ? 'Confie no primeiro impulso e deixe espaço para observar.'
+        : (node.advice[0] ?? '信任第一直觉，同时留一点余地观察变化。'),
     llm: false,
   };
 }
@@ -507,20 +532,35 @@ export async function generateDailyFortuneFromLayers(input: ReadingContextInput)
   const mk = (tag: string, text: string) => ({ tag, text });
   const en = ctx.language === 'en';
   const pt = ctx.language === 'pt-BR';
-  const name = node ? (isNonChineseAiLocale(ctx.language) ? (node.cardNameEn || node.cardName) : node.cardName) : '';
+  const name = node ? cardNameForAi(node, ctx.language) : '';
+  const orient = node ? orientationForAi(ctx.language, node.orientation) : '';
   const fallback = isNonChineseAiLocale(ctx.language)
     ? {
         brief: node
           ? (en
-            ? `Today’s card 「${name}」 points to ${ctx.topicLabel}. ${node.scenario}`
-            : `A carta de hoje 「${name}」 aponta para ${ctx.topicLabel}. ${node.scenario}`)
+            ? `Today’s card ${name} (${orient}) speaks to ${ctx.topicLabel}. Move with intention and keep one clear focus.`
+            : `A carta de hoje ${name} (${orient}) fala de ${ctx.topicLabel}. Aja com intenção e mantenha um foco claro.`)
           : (en ? 'Daily fortune is unavailable right now.' : 'A fortuna diária não está disponível agora.'),
         full: {
-          work: mk(en ? 'Steady' : 'Estável', node ? (en ? `At work: ${node.advice[0]}` : `No trabalho: ${node.advice[0]}`) : (en ? 'Stay patient.' : 'Mantenha a paciência.')),
-          love: mk(en ? 'Gentle' : 'Suave', node ? (en ? `In love, notice signals around ${node.keywords[0] ?? 'the heart'}.` : `No amor, note sinais em torno de ${node.keywords[0] ?? 'o coração'}.`) : (en ? 'Speak sincerely.' : 'Fale com sinceridade.')),
-          career: mk(en ? 'Building' : 'Preparando', node ? (en ? `Career: ${node.advice[1] ?? node.scenario}` : `Carreira: ${node.advice[1] ?? node.scenario}`) : (en ? 'Sort your priorities.' : 'Organize prioridades.')),
-          wealth: mk(en ? 'Cautious' : 'Cauteloso', en ? 'In money, prefer defense over offense; small tests are fine.' : 'Em dinheiro, prefira defesa a ataque; testes pequenos estão ok.'),
-          summary: node?.scenario ?? '',
+          work: mk(
+            en ? 'Steady' : 'Estável',
+            en ? 'At work, keep a steady pace and finish one important task.' : 'No trabalho, mantenha ritmo estável e conclua uma tarefa importante.',
+          ),
+          love: mk(
+            en ? 'Gentle' : 'Suave',
+            en ? 'In love, notice your feelings and speak with care.' : 'No amor, note seus sentimentos e fale com cuidado.',
+          ),
+          career: mk(
+            en ? 'Building' : 'Preparando',
+            en ? 'Career: clarify priorities before expanding.' : 'Carreira: esclareça prioridades antes de expandir.',
+          ),
+          wealth: mk(
+            en ? 'Cautious' : 'Cauteloso',
+            en ? 'In money, prefer defense over offense; small tests are fine.' : 'Em dinheiro, prefira defesa a ataque; testes pequenos estão ok.',
+          ),
+          summary: en
+            ? `${name} (${orient}) invites a grounded day — observe, then choose one small next step.`
+            : `${name} (${orient}) convida a um dia mais firme — observe e escolha um próximo passo pequeno.`,
         },
         llm: false,
       }
@@ -580,8 +620,8 @@ export async function generateLiteralMeaningFromLayers(input: {
 
   const stub =
     language === 'en'
-      ? `${cardNameEn || cardName} (${orientation === '正位' ? 'upright' : 'reversed'}): meaning translation unavailable; please retry shortly.`
-      : `${cardNameEn || cardName} (${orientation === '正位' ? 'direita' : 'invertida'}): tradução indisponível; tente de novo em breve.`;
+      ? `${cardNameEn || cardName} (${orientationForAi(language, orientation)}): meaning translation unavailable; please retry shortly.`
+      : `${cardNameEn || cardName} (${orientationForAi(language, orientation)}): tradução indisponível; tente de novo em breve.`;
 
   if (!isLlmConfigured()) {
     // Never leak Chinese literal text into en / pt-BR UI

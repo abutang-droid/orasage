@@ -1,4 +1,8 @@
-import type { AiLocale } from '../../../../../shared/ai-locale/index';
+import {
+  isNonChineseAiLocale,
+  type AiLocale,
+} from '../../../../../shared/ai-locale/index';
+import { cardNameForAi, orientationForAi } from '../../i18n/card-locale';
 import { classifyReadingTopic } from './classify-topic';
 import { extractKnowledgeNodes, type CardSlotInput } from './extract-nodes';
 import { TOPIC_LABELS, type ReadingTopic } from './topics';
@@ -61,11 +65,26 @@ export function buildReadingContext(input: ReadingContextInput): ReadingContext 
 
 /** 供 AI 层消费的内部知识摘要（禁止原样输出给用户） */
 export function formatKnowledgeForPrompt(ctx: ReadingContext): string {
+  const nonZh = isNonChineseAiLocale(ctx.language);
   return ctx.nodes
     .map((n, i) => {
+      const name = cardNameForAi(n, ctx.language);
+      const orient = orientationForAi(ctx.language, n.orientation);
+      if (nonZh) {
+        const pos = n.positionLabel ? `${n.positionLabel}: ` : `Card ${i + 1}: `;
+        return [
+          `${pos}${name} (${orient}) · element ${n.element}`,
+          `  [Internal Chinese source — digest only, never copy verbatim]`,
+          `  Theme angle (zh): ${n.scenario}`,
+          `  Keywords (zh): ${n.keywords.join(', ')}`,
+          `  Book meaning (zh): ${n.meaning}`,
+          `  Advice seeds (zh): ${n.advice.join(' / ')}`,
+          `  Rewrite all of the above into ${ctx.language === 'pt-BR' ? 'Portuguese (Brazil)' : 'English'} for the user.`,
+        ].join('\n');
+      }
       const pos = n.positionLabel ? `${n.positionLabel}：` : `牌 ${i + 1}：`;
       return [
-        `${pos}${n.cardName}（${n.orientation}）· ${n.element}元素`,
+        `${pos}${name}（${orient}）· ${n.element}元素`,
         `  主题角度：${n.scenario}`,
         `  关键词：${n.keywords.join('、')}`,
         `  书义参考：${n.meaning}`,

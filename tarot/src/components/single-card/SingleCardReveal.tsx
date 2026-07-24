@@ -27,6 +27,7 @@ export function SingleCardReveal({ card, revealed, orientationLabel, hint }: Pro
             glowing={revealed}
             size="lg"
             orientation={card?.orientation ?? '正位'}
+            caption={null}
           />
         ) : (
           <div className="single-card-reveal-placeholder" aria-hidden />
