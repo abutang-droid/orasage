@@ -333,16 +333,16 @@ const threeCard = {
 const singleCard = {
   label: { zh: '定命切片', en: 'Destiny Slice', pt: 'Fatia do Destino', es: 'Fragmento del Destino' },
   title: {
-    zh: '定命切片 // FOCUS',
-    en: 'Destiny Slice // FOCUS',
-    pt: 'Fatia do Destino // FOCUS',
-    es: 'Fragmento del Destino // FOCUS',
+    zh: '定命切片',
+    en: 'Destiny Slice',
+    pt: 'Fatia do Destino',
+    es: 'Fragmento del Destino',
   },
   statusBadge: {
-    zh: '[ 状态：单点高能聚焦 // 非零即一判断 ]',
-    en: '[ Status: single-point focus // binary tendency ]',
-    pt: '[ Status: foco de ponto único // tendência binária ]',
-    es: '[ Estado: foco de punto único // tendencia binaria ]',
+    zh: '单点聚焦 · 倾向判断',
+    en: 'Single-point focus · tendency',
+    pt: 'Foco pontual · tendência',
+    es: 'Foco puntual · tendencia',
   },
   subtitle: {
     zh: '',
@@ -434,11 +434,14 @@ const singleCard = {
     pt: 'Falha ao gerar orientação',
     es: 'Error al generar guía',
   },
-  sectionTendency: { zh: '[ 倾向判定 ]', en: '[ Tendency ]', pt: '[ Tendência ]', es: '[ Tendencia ]' },
+  sectionTendency: { zh: '倾向判定', en: 'Tendency', pt: 'Tendência', es: 'Tendencia' },
   coreTendencyLabel: { zh: '核心倾向', en: 'Core tendency', pt: 'Tendência central', es: 'Tendencia central' },
   energyProbabilityLabel: { zh: '能量概率', en: 'Energy probability', pt: 'Probabilidade energética', es: 'Probabilidad energética' },
-  sectionDeconstruction: { zh: '[ 现状解构 ]', en: '[ Deconstruction ]', pt: '[ Desconstrução ]', es: '[ Deconstrucción ]' },
-  sectionThreshold: { zh: '[ 破局阈值 ]', en: '[ Threshold ]', pt: '[ Limiar ]', es: '[ Umbral ]' },
+  sectionDeconstruction: { zh: '现状解构', en: 'Deconstruction', pt: 'Desconstrução', es: 'Deconstrucción' },
+  sectionThreshold: { zh: '破局阈值', en: 'Threshold', pt: 'Limiar', es: 'Umbral' },
+  tendencyYes: { zh: 'Yes', en: 'Yes', pt: 'Sim', es: 'Sí' },
+  tendencyNo: { zh: 'No', en: 'No', pt: 'Não', es: 'No' },
+  tendencyCaution: { zh: '警惕', en: 'Caution', pt: 'Atenção', es: 'Precaución' },
   paywallTitle: {
     zh: '解锁数据切片',
     en: 'Unlock data slice',
@@ -1016,9 +1019,15 @@ export function useReadingCommon() {
       positionSublabel: (key: string) => positionSublabel(lang, key),
       orientation: (o: string) => orientationLabel(lang, o),
       nicknameGreeting: (nickname?: string | null) => {
-        if (!nickname || nickname === p(common.traveler)) return '';
-        if (lang === 'zh') return `${nickname}，`;
-        return `${nickname}, `;
+        if (!nickname?.trim()) return '';
+        const defaults = new Set(
+          Object.values(common.traveler).map((v) => v.trim()).filter(Boolean),
+        );
+        // DB guest nickname is always the Chinese default
+        defaults.add('旅人');
+        if (defaults.has(nickname.trim())) return '';
+        if (lang === 'zh') return `${nickname.trim()}，`;
+        return `${nickname.trim()}, `;
       },
     };
   }, [lang]);
@@ -1168,6 +1177,22 @@ export function useSingleCardCopy() {
       energyProbabilityLabel: p(singleCard.energyProbabilityLabel),
       sectionDeconstruction: p(singleCard.sectionDeconstruction),
       sectionThreshold: p(singleCard.sectionThreshold),
+      localizeTendency: (raw: string) => {
+        const t = raw.trim().toLowerCase();
+        if (t === 'yes' || t === 'sim' || t === 'sí' || t === 'si') return p(singleCard.tendencyYes);
+        if (t === 'no' || t === 'não' || t === 'nao') return p(singleCard.tendencyNo);
+        if (
+          t === 'caution'
+          || t === '警惕'
+          || t === 'atenção'
+          || t === 'atencao'
+          || t === 'precaución'
+          || t === 'precaucion'
+        ) {
+          return p(singleCard.tendencyCaution);
+        }
+        return raw;
+      },
       paywallTitle: p(singleCard.paywallTitle),
       paywallDesc: p(singleCard.paywallDesc),
       paywallMessage: p(singleCard.paywallMessage),
