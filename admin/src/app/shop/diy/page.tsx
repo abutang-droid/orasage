@@ -3,6 +3,7 @@ import { getDiyBeads, getDiyConfig, type AdminDiyBead } from '@/lib/api';
 import { saveDiyBeadAction, saveDiyConfigAction } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { AdminSubmitButton } from '@/components/AdminButton';
+import { DiyBeadI18nFields } from '@/components/DiyBeadI18nFields';
 
 const BEAD_TYPES = [
   { value: 'crystal', label: '水晶主珠' },
@@ -38,6 +39,7 @@ function BeadForm({ bead }: { bead?: AdminDiyBead }) {
       <label>排序<input name="sortOrder" type="number" defaultValue={bead?.sortOrder ?? 0} /></label>
       <label className="full-width">图片 URL<input name="imageUrl" defaultValue={bead?.imageUrl ?? ''} placeholder="留空使用渐变色占位（可粘贴 CMS 媒体库图片地址）" /></label>
       <label className="full-width">渐变色（g0,g1,g2,line）<input name="colors" defaultValue={bead?.colors ?? ''} placeholder="#ffffff,#e8e8ec,#c9c9d1,#d5d5db" /></label>
+      <DiyBeadI18nFields nameI18n={bead?.nameI18n} materialI18n={bead?.materialI18n} />
       <label className="checkbox-label"><input name="active" type="checkbox" defaultChecked={bead ? bead.active : true} /> 上架</label>
       <AdminSubmitButton>{bead ? '保存修改' : '添加珠子'}</AdminSubmitButton>
     </form>
@@ -93,8 +95,8 @@ export default async function BeadsPage({
       <header className="page-header">
         <h1>珠子配置（共振定制）</h1>
         <p className="muted">
-          DIY 手串设计器的珠子目录：水晶主珠 / 隔珠 / 隔片，每颗独立配置五行、材质、尺寸与价格。
-          保存后约 1 分钟内在 shop.orasage.com/diy 生效。
+          DIY 手串设计器的珠子目录：水晶主珠 / 隔珠 / 隔片，每颗独立配置五行、材质、尺寸、价格与多语言名称。
+          默认中文字段为基线；英文 / 葡语在「多语言」中填写。保存后约 1 分钟内在商店 DIY 页生效。
         </p>
       </header>
 

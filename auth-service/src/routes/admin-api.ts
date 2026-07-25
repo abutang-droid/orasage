@@ -756,11 +756,15 @@ adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
 
 /* ── 共振定制（DIY）珠子与配置 ─────────────────────── */
 
+const beadI18nMapSchema = z.record(z.string().min(1).max(200)).optional().nullable();
+
 const beadBodySchema = z.object({
   code: z.string().min(1).max(100),
   name: z.string().min(1).max(100),
+  nameI18n: beadI18nMapSchema,
   element: z.string().max(10).optional().nullable(),
   material: z.string().min(1).max(100),
+  materialI18n: beadI18nMapSchema,
   beadType: z.enum(["crystal", "spacer", "disc"]),
   diameterMm: z.number().positive().max(30),
   thicknessMm: z.number().positive().max(10).optional().nullable(),
@@ -777,7 +781,7 @@ const beadPatchSchema = beadBodySchema.partial().omit({ code: true });
 
 adminApiRouter.get("/diy/beads", P.diy, async (_req, res) => {
   const rows = await db.select().from(diyBeads).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
-  res.json({ beads: rows.map(formatBead) });
+  res.json({ beads: rows.map((row) => formatBead(row, { admin: true })) });
 });
 
 adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
@@ -793,8 +797,10 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
     const [row] = await db.insert(diyBeads).values({
       code: body.code,
       name: body.name,
+      nameI18n: body.nameI18n ?? null,
       element: body.element ?? null,
       material: body.material,
+      materialI18n: body.materialI18n ?? null,
       beadType: body.beadType,
       diameterMm: body.diameterMm,
       thicknessMm: body.beadType === "disc" ? (body.thicknessMm ?? null) : null,
@@ -806,7 +812,7 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
-    res.status(201).json({ bead: formatBead(row) });
+    res.status(201).json({ bead: formatBead(row, { admin: true }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -828,8 +834,10 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     }
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (body.name !== undefined) updates.name = body.name;
+    if (body.nameI18n !== undefined) updates.nameI18n = body.nameI18n;
     if (body.element !== undefined) updates.element = body.element;
     if (body.material !== undefined) updates.material = body.material;
+    if (body.materialI18n !== undefined) updates.materialI18n = body.materialI18n;
     if (body.beadType !== undefined) updates.beadType = body.beadType;
     if (body.diameterMm !== undefined) updates.diameterMm = body.diameterMm;
     if (body.thicknessMm !== undefined) updates.thicknessMm = body.thicknessMm;
@@ -850,7 +858,7 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
     const [row] = await db.update(diyBeads).set(updates).where(eq(diyBeads.code, code)).returning();
-    res.json({ bead: formatBead(row) });
+    res.json({ bead: formatBead(row, { admin: true }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });

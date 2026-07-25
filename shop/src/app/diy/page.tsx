@@ -20,12 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DiyPage({ searchParams }: PageProps) {
-  const [{ base, element }, locale, catalog, t] = await Promise.all([
+  const [{ base, element }, locale, t] = await Promise.all([
     searchParams,
     getServerShopLocale(),
-    fetchDiyCatalog(),
     getTranslations('diy'),
   ]);
+  const catalog = await fetchDiyCatalog(locale);
   const currency = currencyForLocale(locale);
 
   const initialMaterial = base ? PRODUCT_SKU_TO_BEAD_MATERIAL[base] : undefined;

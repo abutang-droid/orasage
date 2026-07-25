@@ -203,8 +203,11 @@ export function DiyDesigner({
   }
 
   function shuffleInspiration() {
+    // Use code prefix (e.g. clear / phantom), not Chinese material labels.
     const crystals = [...new Set(
-      beads.filter((b) => b.type === 'crystal' && b.diameterMm === DIY_BEAD_MM).map((b) => b.material),
+      beads
+        .filter((b) => b.type === 'crystal' && b.diameterMm === DIY_BEAD_MM)
+        .map((b) => b.code.replace(/-\d+$/, '')),
     )];
     if (!crystals.length) return;
     const pick = crystals.sort(() => Math.random() - 0.5).slice(0, 3);

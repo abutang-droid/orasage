@@ -1,9 +1,10 @@
 import { ENV } from './env';
 import { FALLBACK_DIY_CONFIG, type DiyCatalog } from './diy';
 
-export async function fetchDiyCatalog(): Promise<DiyCatalog> {
+export async function fetchDiyCatalog(locale?: string): Promise<DiyCatalog> {
   try {
-    const res = await fetch(`${ENV.authInternalUrl}/api/diy/catalog`, {
+    const qs = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    const res = await fetch(`${ENV.authInternalUrl}/api/diy/catalog${qs}`, {
       next: { revalidate: 60 },
     } as RequestInit);
     if (!res.ok) throw new Error(`diy catalog ${res.status}`);

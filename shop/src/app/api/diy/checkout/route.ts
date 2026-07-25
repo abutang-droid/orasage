@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { ENV } from '@/lib/env';
-import { createCheckoutOrder, mockCheckoutUrl } from '@/lib/checkout-flow';
+import { createCheckoutOrder, mockCheckoutUrl, localeFromCheckoutRequest } from '@/lib/checkout-flow';
 import { DIY_ORDER_SKU } from '@/lib/diy';
 import { encodeDiyOrderContext } from '../../../../../../shared/shop-diy/order-context';
 
 const diyCheckoutSchema = z.object({
   beads: z.array(z.string().min(1).max(100)).min(1).max(120),
   wristCm: z.number().min(10).max(25),
+  locale: z.string().max(20).optional(),
 });
 
 type QuoteResponse = {
@@ -43,10 +44,11 @@ export async function PUT(req: NextRequest) {
       }, { status: 401 });
     }
 
+    const locale = localeFromCheckoutRequest(req, body.locale);
     const quoteRes = await fetch(`${ENV.authInternalUrl}/internal/diy/quote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ beads: body.beads, wristCm: body.wristCm }),
+      body: JSON.stringify({ beads: body.beads, wristCm: body.wristCm, locale }),
     });
     const quote = await quoteRes.json() as QuoteResponse;
     if (!quoteRes.ok) {

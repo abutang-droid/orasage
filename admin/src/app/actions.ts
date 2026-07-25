@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveShopConfig, saveCrystalContent, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
+import { parseI18nMapFromForm } from '@/lib/product-i18n-form';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
 import { getAdminToken } from '@/lib/auth';
@@ -159,6 +160,8 @@ export async function saveDiyBeadAction(formData: FormData) {
   const sortOrder = Number(formData.get('sortOrder') ?? 0);
   const active = formData.get('active') === 'on';
   const isEdit = formData.get('isEdit') === '1';
+  const nameI18n = parseI18nMapFromForm(formData, 'name_i18n');
+  const materialI18n = parseI18nMapFromForm(formData, 'material_i18n');
 
   if (!code || !name || !material || diameterMm <= 0 || priceCents < 0 || priceCentsUsd == null) {
     throw new Error('请填写完整珠子信息');
@@ -167,8 +170,10 @@ export async function saveDiyBeadAction(formData: FormData) {
   const payload = {
     code,
     name,
+    nameI18n,
     element: element || null,
     material,
+    materialI18n,
     beadType,
     diameterMm,
     thicknessMm: beadType === 'disc' && thicknessRaw ? Number(thicknessRaw) : null,

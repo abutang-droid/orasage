@@ -11,7 +11,10 @@ export type DiyBead = {
   code: string;
   name: string;
   element: string | null;
+  /** Stable material key (Chinese baseline) for gradients / grouping */
   material: string;
+  /** Localized material label when provided by catalog API */
+  materialLabel?: string;
   type: DiyBeadType;
   diameterMm: number;
   thicknessMm: number | null;

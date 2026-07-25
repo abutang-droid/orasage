@@ -338,8 +338,13 @@ export const diyBeads = pgTable("diy_beads", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
+  /** { "zh-CN"|"en"|"pt-BR": string } — 展示名多语言 */
+  nameI18n: jsonb("name_i18n").$type<Record<string, string>>(),
   element: varchar("element", { length: 10 }),
+  /** 材质稳定键（中文基线，前端渐变/分组用，勿随语言改） */
   material: varchar("material", { length: 100 }).notNull(),
+  /** { "zh-CN"|"en"|"pt-BR": string } — 材质展示多语言 */
+  materialI18n: jsonb("material_i18n").$type<Record<string, string>>(),
   beadType: varchar("bead_type", { length: 20 }).notNull().default("crystal"),
   diameterMm: real("diameter_mm").notNull(),
   thicknessMm: real("thickness_mm"),

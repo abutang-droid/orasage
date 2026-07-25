@@ -481,8 +481,11 @@ export function saveProductLinks(sku: string, links: Array<{
 export interface AdminDiyBead {
   code: string;
   name: string;
+  nameI18n?: Record<string, string> | null;
   element?: string | null;
   material: string;
+  materialI18n?: Record<string, string> | null;
+  materialLabel?: string;
   type: 'crystal' | 'spacer' | 'disc';
   diameterMm: number;
   thicknessMm?: number | null;
