@@ -1,6 +1,7 @@
+import { isWorldPayEnabled } from '../world-minikit/config';
+
 export type AppCheckoutRequest = {
   sku: string;
-  /** 乐捐等可变价 SKU：quantity = 金额（分），单价 0.01 */
   quantity?: number;
   recommendationContext?: string;
   readingId?: string;
@@ -52,9 +53,7 @@ export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppChe
   return data as AppCheckoutResponse;
 }
 
-function shopCheckoutFallbackUrl(orderNo: string): string {
-  // Prefer browser hostname so oricosmos WebViews never fall back to orasage.com
-  // when checkoutUrl is missing from the API response.
+export function shopBaseUrl(): string {
   let apex = 'orasage.com';
   if (typeof window !== 'undefined' && window.location?.hostname) {
     const host = window.location.hostname.toLowerCase();
@@ -76,11 +75,31 @@ function shopCheckoutFallbackUrl(orderNo: string): string {
     else if (envApex.includes('orasage.com') || envApex === 'shop.orasage.com') apex = 'orasage.com';
     else if (envApex.startsWith('shop.')) apex = envApex.slice('shop.'.length);
   }
-  return `https://shop.${apex}/checkout?order=${encodeURIComponent(orderNo)}`;
+  if (typeof process !== 'undefined') {
+    const fromEnv = (process.env.NEXT_PUBLIC_SHOP_URL || process.env.SHOP_URL || '').replace(/\/$/, '');
+    if (fromEnv) return fromEnv;
+  }
+  return `https://shop.${apex}`;
 }
 
-/** 根据结账结果跳转 Stripe 或模拟支付页 */
-export function redirectAfterCheckout(result: AppCheckoutResponse) {
+function shopCheckoutFallbackUrl(orderNo: string): string {
+  return `${shopBaseUrl()}/checkout?order=${encodeURIComponent(orderNo)}`;
+}
+
+export function shouldCompleteWithWorldPay(result: AppCheckoutResponse): boolean {
+  if (result.provider === 'world' || result.provider === 'wld' || result.provider === 'minikit') {
+    return true;
+  }
+  return isWorldPayEnabled();
+}
+
+/**
+ * Default redirect (mock / Stripe). Tarot overrides with World MiniKit.pay.
+ */
+export async function redirectAfterCheckout(
+  result: AppCheckoutResponse,
+  _opts?: { successUrl?: string },
+): Promise<void> {
   if (result.checkoutUrl) {
     window.location.href = result.checkoutUrl;
     return;
@@ -94,4 +113,8 @@ export function redirectAfterCheckout(result: AppCheckoutResponse) {
 
 export function isMockCheckoutProvider(provider: string): boolean {
   return provider === 'mock' || provider === 'demo';
+}
+
+export function isWorldCheckoutProvider(provider: string): boolean {
+  return provider === 'world' || provider === 'wld' || provider === 'minikit';
 }

@@ -45,7 +45,7 @@ export function TempleDonation({ deityName }: TempleDonationProps) {
         successUrl: returnUrl,
         cancelUrl: returnUrl,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       if (isCheckoutAuthRequiredError(err)) {
         // Show a tappable login CTA (old UI was plain "请先登录" text) and jump immediately.

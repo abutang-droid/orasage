@@ -28,4 +28,9 @@ export const ENV = {
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? process.env.VITE_AI_API_KEY ?? "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
+  /** When true, email/password login & register are disabled; World SIWE only. */
+  worldAuthRequired:
+    (process.env.WORLD_AUTH_REQUIRED ?? "").trim().toLowerCase() === "true" ||
+    (process.env.WORLD_AUTH_REQUIRED ?? "") === "1",
+  worldAppId: process.env.WORLD_APP_ID ?? process.env.NEXT_PUBLIC_WORLD_APP_ID ?? "",
 };

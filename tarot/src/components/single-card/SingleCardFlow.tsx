@@ -289,7 +289,7 @@ export function SingleCardFlow() {
         successUrl,
         cancelUrl: `${window.location.origin}/single-card${cancelQs}`,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.checkoutFailed);
     } finally {

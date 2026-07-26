@@ -840,3 +840,60 @@ body {
   cursor: default;
   opacity: 0.85;
 }
+
+/* ── World Mini App auth gate ─────────────────────────────────── */
+.world-auth-gate {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem 6rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(184, 148, 63, 0.12), transparent),
+    var(--bg-page, #fafaf8);
+}
+.world-auth-gate-brand {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.world-auth-gate-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 5vw, 1.85rem);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.world-auth-gate-hint {
+  margin: 0.75rem 0 0;
+  max-width: 22rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.world-auth-gate-warn,
+.world-auth-gate-error {
+  margin: 1rem 0 0;
+  max-width: 22rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.world-auth-gate-warn { color: var(--text-muted); }
+.world-auth-gate-error { color: #b42318; }
+.world-auth-gate-cta {
+  margin-top: 1.5rem;
+  min-width: 12rem;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+.world-auth-gate-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

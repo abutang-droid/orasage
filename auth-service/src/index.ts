@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { ENV } from "./env.ts";
 import { authRouter } from "./routes/auth.ts";
+import { worldAuthRouter } from "./routes/world-auth.ts";
 import { healthRouter } from "./routes/health.ts";
 import { pagesRouter, internalOnly } from "./routes/pages.ts";
 import { internalRouter } from "./routes/account.ts";
@@ -32,6 +33,7 @@ app.use(cors({ origin: ENV.isProduction ? ENV.corsOrigins : true, credentials: t
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(pagesRouter);
 app.use("/auth", authRouter);
+app.use("/auth/world", worldAuthRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/cities", citiesRouter);
 app.use("/api/ziwei/chat", ziweiChatRouter);

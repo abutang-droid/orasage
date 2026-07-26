@@ -251,7 +251,7 @@ export function DailyFortuneFlow() {
         successUrl: `${returnUrl}${qs ? '&' : '?'}paid=1`,
         cancelUrl: returnUrl,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       if (isCheckoutAuthRequiredError(err)) {
         setError(copy.recommendLoginBeforeBuy);

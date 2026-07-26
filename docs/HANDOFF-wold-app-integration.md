@@ -18,9 +18,14 @@
 
 ## 0. 一句话结论
 
-WOLD 轨道已经是一套可独立运行的多子域 Web 平台（入口多为塔罗）。接入 WOLD App 的推荐方式是：
+WOLD 轨道已经是一套可独立运行的多子域 Web 平台（入口多为塔罗）。**正式接入 World Mini Apps** 的方式是：
 
-**App 内嵌 HTTPS WebView 打开 `https://tarot.oricosmos.com/…`（及同 apex 其它子域）**，共享 Cookie（`.oricosmos.com`），用深度链接进具体玩法；结账与登录走现有 hosted 页，不要另起一套 API。
+1. 在 [World Developer Portal](https://developer.world.org) 注册 Mini App，填入 `https://tarot.oricosmos.com`  
+2. 用户在 **World App** 内打开本站（WebView + MiniKit）  
+3. **登录 = `MiniKit.walletAuth`（SIWE）→ `orasage_token`**（邮箱登录在 `WORLD_AUTH_REQUIRED=true` 时关闭）  
+4. **支付 = `MiniKit.pay`（WLD）→ shop `/api/world/confirm` 验单后标记 paid**
+
+官方文档：[docs.world.org/mini-apps](https://docs.world.org/mini-apps) · wallet-auth · pay。
 
 不要把代码部署到旧 VPS，也不要在 App 里写死 `*.orasage.com`。
 
@@ -113,6 +118,31 @@ WOLD 轨道已经是一套可独立运行的多子域 Web 平台（入口多为�
 | 继续调用 `*.orasage.com` | 另一套库 / JWT / 用户，账密与订单不互通 |
 
 ---
+
+## 2b. World MiniKit 实现状态（2026-07-26）
+
+| 能力 | 状态 | 关键路径 |
+|------|------|----------|
+| MiniKit Provider | ✅ tarot layout | `tarot/src/components/world/WorldMiniKitProvider.tsx` |
+| 强制 World 登录门 | ✅ `WORLD_AUTH_REQUIRED` | `WorldAuthGate` + auth `/auth/world/*` |
+| SIWE → JWT | ✅ | `auth-service/src/routes/world-auth.ts`；用户字段 `wallet_address`（0046） |
+| 邮箱登录关闭 | ✅ flag 开时 | `auth-service` login/register 403 + 登录页 World CTA |
+| World 钱包支付 | ✅ `PAYMENT_MODE=world` | `MiniKit.pay` → `shop/src/app/api/world/{pay-intent,confirm}` |
+| 共享客户端 | ✅ | `shared/world-minikit/*`、`shared/shop-checkout/client.ts` |
+
+**上线前必须在 VM `.env` 填真实值：**
+
+```bash
+WORLD_AUTH_REQUIRED=true
+NEXT_PUBLIC_WORLD_AUTH_REQUIRED=true
+PAYMENT_MODE=world
+WORLD_APP_ID=app_…
+NEXT_PUBLIC_WORLD_APP_ID=app_…
+DEV_PORTAL_API_KEY=…          # 验支付用
+WORLD_PAYMENT_TO_ADDRESS=0x…  # 收款钱包
+```
+
+并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 
 ## 3. 认证与会话（接入核心）
 

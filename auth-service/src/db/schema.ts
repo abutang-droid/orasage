@@ -54,6 +54,8 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  /** World Mini App wallet (SIWE); lowercase 0x… */
+  walletAddress: varchar("wallet_address", { length: 42 }).unique(),
   displayId: varchar("display_id", { length: 9 }).unique(),
   nickname: varchar("nickname", { length: 100 }).notNull().default(""),
   avatarUrl: varchar("avatar_url", { length: 500 }),

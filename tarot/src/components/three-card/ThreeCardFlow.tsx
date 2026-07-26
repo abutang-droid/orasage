@@ -226,7 +226,7 @@ export function ThreeCardFlow() {
         successUrl,
         cancelUrl: `${window.location.origin}/reading?readingId=${encodeURIComponent(readingId)}`,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.checkoutFailed);
     } finally {

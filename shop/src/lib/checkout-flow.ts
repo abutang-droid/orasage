@@ -5,7 +5,7 @@ import { getProduct } from '@/lib/products';
 import { makeOrderNo, syncOrderToAuth } from '@/lib/orders';
 import { ENV } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
-import { paymentsUseStripe } from '@/lib/payment-mode';
+import { paymentsUseStripe, paymentsUseWorld } from '@/lib/payment-mode';
 import {
   currencyForLocale,
   detectShopLocale,
@@ -192,6 +192,18 @@ export async function createCheckoutOrder(
     : `${ENV.shopUrl}/success?order=${orderNo}`;
   const cancelUrl = input.cancelUrl ?? `${ENV.shopUrl}/?cancelled=1`;
 
+  if (paymentsUseWorld()) {
+    return {
+      orderNo,
+      checkoutUrl: null,
+      provider: 'world',
+      amountCents,
+      title: orderTitleBase,
+      needsShipping,
+      shippingMode: input.shippingMode,
+    };
+  }
+
   if (paymentsUseStripe() && !needsShipping) {
     const stripe = getStripe();
     if (stripe) {
@@ -323,6 +335,17 @@ export async function createCartCheckoutOrder(
     ? `${input.successUrl}${input.successUrl.includes('?') ? '&' : '?'}order=${encodeURIComponent(orderNo)}`
     : `${ENV.shopUrl}/success?order=${orderNo}`;
   const cancelUrl = input.cancelUrl ?? `${ENV.shopUrl}/cart`;
+
+  if (paymentsUseWorld()) {
+    return {
+      orderNo,
+      checkoutUrl: null,
+      provider: 'world',
+      amountCents,
+      title,
+      needsShipping,
+    };
+  }
 
   if (paymentsUseStripe() && !needsShipping) {
     const stripe = getStripe();

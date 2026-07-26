@@ -11,6 +11,7 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@worldcoin/minikit-js": "^2.0.3",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -20,6 +21,7 @@
     "jose": "^5.9.0",
     "pg": "^8.13.0",
     "stripe": "^17.7.0",
+    "viem": "^2.55.8",
     "zod": "^3.24.0"
   },
   "devDependencies": {

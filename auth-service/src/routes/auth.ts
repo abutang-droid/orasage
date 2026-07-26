@@ -13,8 +13,18 @@ import { getAuthUser, publicUser } from "../lib/auth-user.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
 import { liveChatRouter } from "./live-chat.ts";
+import { ENV } from "../env.ts";
 
 export const authRouter = Router();
+
+function rejectIfWorldAuthOnly(res: Response): boolean {
+  if (!ENV.worldAuthRequired) return false;
+  res.status(403).json({
+    error: "Please sign in with World App",
+    code: "world_auth_required",
+  });
+  return true;
+}
 
 const registerSchema = z.object({
   email: z.string().email().max(320),
@@ -46,6 +56,7 @@ const profileSchema = z.object({
 // ── POST /auth/register ──
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
+    if (rejectIfWorldAuthOnly(res)) return;
     const body = registerSchema.parse(req.body);
 
     // 检查邮箱是否已注册
@@ -86,6 +97,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
 // ── POST /auth/login ──
 authRouter.post("/login", async (req: Request, res: Response) => {
   try {
+    if (rejectIfWorldAuthOnly(res)) return;
     const body = loginSchema.parse(req.body);
 
     const [user] = await db.select().from(users).where(eq(users.email, body.email)).limit(1);

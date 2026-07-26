@@ -27,7 +27,7 @@ export default function CrystalDetailPage() {
         recommendationContext: `塔罗商城推荐：${crystal.name}`,
         successUrl: `${window.location.origin}/crystal/${sku}?paid=1`,
       })
-      redirectAfterCheckout(result)
+      await redirectAfterCheckout(result)
     } catch (err) {
       setError(err instanceof Error ? err.message : crystalCopy.checkoutError)
     } finally {

@@ -20,6 +20,7 @@ export function publicUser(user: typeof users.$inferSelect) {
     displayId: user.displayId,
     displayName: userDisplayName(user),
     email: user.email,
+    walletAddress: user.walletAddress ?? null,
     nickname: user.nickname,
     avatarUrl: user.avatarUrl,
     birthDate: user.birthDate,
