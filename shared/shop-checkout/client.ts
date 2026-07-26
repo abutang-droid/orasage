@@ -52,6 +52,33 @@ export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppChe
   return data as AppCheckoutResponse;
 }
 
+function shopCheckoutFallbackUrl(orderNo: string): string {
+  // Prefer browser hostname so oricosmos WebViews never fall back to orasage.com
+  // when checkoutUrl is missing from the API response.
+  let apex = 'orasage.com';
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'oricosmos.com' || host.endsWith('.oricosmos.com')) apex = 'oricosmos.com';
+    else if (host === 'orasage.com' || host.endsWith('.orasage.com')) apex = 'orasage.com';
+  } else if (typeof process !== 'undefined') {
+    const envApex = (
+      process.env.NEXT_PUBLIC_SITE_APEX ||
+      process.env.SITE_APEX ||
+      process.env.NEXT_PUBLIC_SHOP_URL ||
+      ''
+    )
+      .replace(/^https?:\/\//, '')
+      .replace(/^\./, '')
+      .split('/')[0]
+      .trim()
+      .toLowerCase();
+    if (envApex.includes('oricosmos.com')) apex = 'oricosmos.com';
+    else if (envApex.includes('orasage.com') || envApex === 'shop.orasage.com') apex = 'orasage.com';
+    else if (envApex.startsWith('shop.')) apex = envApex.slice('shop.'.length);
+  }
+  return `https://shop.${apex}/checkout?order=${encodeURIComponent(orderNo)}`;
+}
+
 /** 根据结账结果跳转 Stripe 或模拟支付页 */
 export function redirectAfterCheckout(result: AppCheckoutResponse) {
   if (result.checkoutUrl) {
@@ -59,7 +86,7 @@ export function redirectAfterCheckout(result: AppCheckoutResponse) {
     return;
   }
   if (result.orderNo) {
-    window.location.href = `https://shop.orasage.com/checkout?order=${encodeURIComponent(result.orderNo)}`;
+    window.location.href = shopCheckoutFallbackUrl(result.orderNo);
     return;
   }
   throw new Error('结账链接生成失败，请稍后重试');
