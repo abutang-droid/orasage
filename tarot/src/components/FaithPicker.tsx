@@ -42,10 +42,6 @@ function faithPrimaryName(faith: FaithOption, lang: Lang) {
   return lang === 'zh' ? faith.nameZh : faith.nameEn;
 }
 
-function faithSecondaryName(faith: FaithOption, lang: Lang) {
-  return lang === 'zh' ? faith.nameEn : faith.nameZh;
-}
-
 function FaithCard({
   faith,
   selected,
@@ -66,7 +62,6 @@ function FaithCard({
       <span className="faith-picker-card-emoji">{faith.emoji}</span>
       <span className="faith-picker-card-text">
         <span className="faith-picker-card-name">{faithPrimaryName(faith, lang)}</span>
-        <span className="faith-picker-card-en">{faithSecondaryName(faith, lang)}</span>
       </span>
       {selected ? <span className="faith-picker-card-check">✓</span> : null}
     </button>
