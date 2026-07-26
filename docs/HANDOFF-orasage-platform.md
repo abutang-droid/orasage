@@ -2,7 +2,8 @@
 
 > 写给下一任 Agent / 开发者。  
 > 最后更新：**2026-07-08**  
-> **最新会话交接（塔罗 i18n + ziwei @orasage/ui 全量 + 部署）：** [`HANDOFF-agent-2026-07-08.md`](./HANDOFF-agent-2026-07-08.md) ← **优先读这个**  
+> **WOLD / OriCosmos 接入外部 App（2026-07-26）：** [`HANDOFF-wold-app-integration.md`](./HANDOFF-wold-app-integration.md) ← **WOLD 轨道优先读这个**  
+> **最新会话交接（塔罗 i18n + ziwei @orasage/ui 全量 + 部署）：** [`HANDOFF-agent-2026-07-08.md`](./HANDOFF-agent-2026-07-08.md)  
 > **全站 UI 现状审查：** [`design-system/ui-status-2026-07.md`](./design-system/ui-status-2026-07.md)  
 > **塔罗区全量交接（P4–P7）：** [`HANDOFF-tarot.md`](./HANDOFF-tarot.md)  
 > **地理旅程 / 祈福改版（2026-07-06）：** [`HANDOFF-tarot-geo-temple-2026-07-06.md`](./HANDOFF-tarot-geo-temple-2026-07-06.md)  

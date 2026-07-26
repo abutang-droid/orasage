@@ -1,5 +1,7 @@
 # OriCosmos 并行环境部署
 
+> **接入 WOLD App 的完整交接：** [`docs/HANDOFF-wold-app-integration.md`](../../docs/HANDOFF-wold-app-integration.md)
+
 与 **orasage.com 生产（旧 VPS `34.75.40.67`）并存**。本环境：
 
 | 项 | 值 |
