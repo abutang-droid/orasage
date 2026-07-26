@@ -90,13 +90,15 @@ authRouter.post("/login", async (req: Request, res: Response) => {
 
     const [user] = await db.select().from(users).where(eq(users.email, body.email)).limit(1);
     if (!user) {
-      res.status(401).json({ error: "邮箱或密码错误" });
+      // Distinct code so the login UI can offer "register with this email"
+      // vs "wrong password" without forcing a full re-entry of the address.
+      res.status(401).json({ error: "邮箱未注册", code: "email_not_found" });
       return;
     }
 
     const valid = await bcrypt.compare(body.password, user.passwordHash);
     if (!valid) {
-      res.status(401).json({ error: "邮箱或密码错误" });
+      res.status(401).json({ error: "密码错误", code: "invalid_password" });
       return;
     }
 
