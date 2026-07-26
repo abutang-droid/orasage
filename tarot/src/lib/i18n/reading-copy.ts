@@ -97,16 +97,16 @@ const positionSublabels: Record<PositionKey, LangMap> = {
 const threeCard = {
   label: { zh: '脉络解构', en: 'Trilogy', pt: 'Trilogia', es: 'Trilogía' },
   title: {
-    zh: '脉络解构 // TRILOGY',
-    en: 'Trilogy // TRILOGY',
-    pt: 'Trilogia // TRILOGY',
-    es: 'Trilogía // TRILOGY',
+    zh: '脉络解构「状态：多维数据链条」',
+    en: 'Trilogy「Status: multi-dimensional chain」',
+    pt: 'Trilogia「Status: cadeia multidimensional」',
+    es: 'Trilogía「Estado: cadena multidimensional」',
   },
   statusBadge: {
-    zh: '[ 状态：多维数据链条 // 线性逻辑推演 ]',
-    en: '[ Status: multi-dimensional chain // linear inference ]',
-    pt: '[ Status: cadeia multidimensional // inferência linear ]',
-    es: '[ Estado: cadena multidimensional // inferencia lineal ]',
+    zh: '',
+    en: '',
+    pt: '',
+    es: '',
   },
   subtitle: {
     zh: '',

@@ -255,7 +255,7 @@ export function ThreeCardFlow() {
     <div className="three-card-page trilogy-page">
       <div className="page-header animate-fade-in-up">
         <h1>{copy.title}</h1>
-        <p className="trilogy-status">{copy.statusBadge}</p>
+        {copy.statusBadge ? <p className="trilogy-status">{copy.statusBadge}</p> : null}
         {session?.nickname ? (
           <p className="trilogy-greeting">{copy.nicknameGreeting(session.nickname)}</p>
         ) : null}
