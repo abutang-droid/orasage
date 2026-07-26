@@ -1,0 +1,56 @@
+/**
+ * 全站推荐商品 / 付费解锁主 CTA：实心深底 + 白字（与首页模块条、每日启示购买一致）。
+ * 用于购买、去看看、前往购买、解锁等跳转按钮，避免 outline / 透明链接触感弱。
+ */
+.os-solid-cta,
+.daily-fortune-recommend-buy-btn,
+.guest-login-wall-cta.os-solid-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: 12px;
+  border: 1px solid transparent !important;
+  background: #171717 !important;
+  color: #fff !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none !important;
+  box-shadow: 0 4px 14px rgb(23 23 23 / 0.22);
+  transition: background 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.os-solid-cta:hover:not(:disabled):not([aria-disabled='true']),
+.daily-fortune-recommend-buy-btn:hover:not(:disabled) {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+.os-solid-cta:disabled,
+.os-solid-cta[aria-disabled='true'],
+.os-solid-cta[data-loading='true'],
+.daily-fortune-recommend-buy-btn:disabled,
+.daily-fortune-recommend-buy-btn[data-loading='true'] {
+  background: #171717 !important;
+  color: #fff !important;
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.os-solid-cta.w-full,
+.os-solid-cta.os-solid-cta--block {
+  display: flex;
+  width: 100%;
+}
+
+/* 推荐卡脚部小号 CTA（价格旁） */
+.os-solid-cta.os-solid-cta--sm {
+  min-height: 36px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  box-shadow: 0 2px 10px rgb(23 23 23 / 0.18);
+}

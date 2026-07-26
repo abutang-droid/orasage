@@ -4,6 +4,7 @@
 @import '../../shared/design-tokens/orasage-tokens.css';
 @import '../../packages/tokens/src/tailwind-v4-bridge.css';
 @import '../../shared/shop-locale/os-price.css';
+@import '../../shared/design-tokens/os-solid-cta.css';
 @import '../ziwei-tailwind-v4-theme.css';
 @import './assets/orasage-ui.css';
 @import './ziwei-home.css';
@@ -943,10 +944,7 @@ a:hover { color: var(--gold-light); }
 }
 
 .ziwei-recommend-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold);
-  text-decoration: none;
+  flex-shrink: 0;
 }
 
 .ziwei-reset-btn {

@@ -105,7 +105,7 @@ export default function CrystalDetailPage() {
 
         <Button
           type="button"
-          className="w-full mb-3"
+          className="os-solid-cta os-solid-cta--block w-full mb-3"
           disabled={loading || !shopSku}
           onClick={() => void handleBuy()}
         >
@@ -114,7 +114,7 @@ export default function CrystalDetailPage() {
         {error && (
           <p style={{ color: 'var(--error, #c45b4a)', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>{error}</p>
         )}
-        <Button asChild variant="outline" className="w-full">
+        <Button asChild className="os-solid-cta os-solid-cta--block w-full">
           <Link href="/temple" className="flex w-full justify-center no-underline">
             <Church size={18} strokeWidth={1.75} aria-hidden />
             {crystalCopy.blessLink}

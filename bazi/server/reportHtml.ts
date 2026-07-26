@@ -203,7 +203,7 @@ body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC
 .os-price{color:#2563eb;font-weight:500;font-variant-numeric:tabular-nums}
 .os-price-amount{font-size:1em}.os-price-unit{font-size:calc(1em - 4px);margin-left:0.1em;opacity:0.85}
 .os-price-sep{margin:0 0.3em;opacity:0.5;font-weight:400}
-.product-rec-btn{display:inline-block;padding:0.55rem 1.25rem;border-radius:999px;background:var(--gold);color:#1a1528;text-decoration:none;font-size:0.85rem;font-weight:600;font-family:"Noto Sans SC",sans-serif}
+.product-rec-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0.55rem 1.25rem;border-radius:12px;background:#171717;color:#fff;text-decoration:none;font-size:0.875rem;font-weight:600;font-family:"Noto Sans SC",sans-serif;box-shadow:0 4px 14px rgba(23,23,23,0.22)}
 .footer{text-align:center;padding:2rem 1rem 0;font-size:0.7rem;color:var(--muted);font-family:"Noto Sans SC",sans-serif;line-height:1.8}
 .footer a{color:var(--gold);text-decoration:none}
 @media(max-width:640px){.wrap{padding:1rem 0.75rem 2rem}.section{padding:1.25rem 1rem}.hero h1{font-size:1.4rem}}

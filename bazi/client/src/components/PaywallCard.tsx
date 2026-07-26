@@ -213,25 +213,16 @@ export function PaywallCard({
       <button
         type="button"
         data-testid="bazi-paywall-unlock"
+        className="os-solid-cta os-solid-cta--block"
         disabled={!selectedPlan || payLoading}
         onClick={() => onPay()}
         style={{
           width: "100%",
           marginTop: "0.875rem",
-          borderRadius: 14,
-          padding: "0.875rem 1rem",
-          background: selectedPlan
-            ? `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`
-            : "rgba(184,148,63,0.2)",
-          color: "#ffffff",
-          fontFamily: SERIF_F,
-          fontSize: "0.9375rem",
-          fontWeight: 700,
           letterSpacing: "0.14em",
-          border: "none",
-          boxShadow: selectedPlan ? "0 4px 14px rgba(184,148,63,0.35)" : "none",
+          fontFamily: SERIF_F,
+          opacity: !selectedPlan || payLoading ? 0.72 : 1,
           cursor: selectedPlan && !payLoading ? "pointer" : "not-allowed",
-          opacity: payLoading ? 0.75 : 1,
         }}
       >
         {payLoading ? t("paywall.unlocking", "正在解锁…") : "解锁报告"}

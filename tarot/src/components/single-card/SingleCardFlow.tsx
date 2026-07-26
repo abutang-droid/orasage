@@ -126,7 +126,7 @@ function PaywallPanel({
       )}
       <Button
         type="button"
-        className="w-full mt-3"
+        className="os-solid-cta os-solid-cta--block w-full mt-3"
         disabled={checkoutSku !== null}
         onClick={onCheckout}
       >

@@ -45,7 +45,7 @@ export function ZiweiRecommendCard({ chart, sessionKey, dismissed, onDismiss }: 
           <span className="ziwei-recommend-price">
             <PriceDisplay value={product.priceDisplay} />
           </span>
-          <Button asChild variant="outline" size="sm" className="ziwei-recommend-link h-auto min-h-0 border-0 bg-transparent p-0 shadow-none">
+          <Button asChild size="sm" className="os-solid-cta os-solid-cta--sm ziwei-recommend-link">
             <a href={shopUrl} target="_blank" rel="noopener noreferrer">
               去看看
             </a>

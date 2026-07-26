@@ -379,12 +379,12 @@ export function ThreeCardFlow() {
             {!isLoggedIn ? (
               <a
                 href={loginHref}
-                className={cn(buttonVariants(), 'w-full block text-center no-underline')}
+                className={cn(buttonVariants(), 'os-solid-cta os-solid-cta--block w-full block text-center no-underline')}
               >
                 {copy.loginUnlock}
               </a>
             ) : (
-              <Button type="button" className="w-full" onClick={goToPaywall}>
+              <Button type="button" className="os-solid-cta os-solid-cta--block w-full" onClick={goToPaywall}>
                 {copy.viewPlans}
               </Button>
             )}
@@ -420,7 +420,7 @@ export function ThreeCardFlow() {
                 )}
                 <Button
                   type="button"
-                  className="w-full mt-3"
+                  className="os-solid-cta os-solid-cta--block w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(
@@ -449,8 +449,7 @@ export function ThreeCardFlow() {
                 )}
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full mt-3"
+                  className="os-solid-cta os-solid-cta--block w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(

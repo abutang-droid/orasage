@@ -453,7 +453,7 @@ export function DailyFortuneFlow() {
                 ) : null}
                 <Button
                   type="button"
-                  className="daily-fortune-recommend-buy-btn w-full"
+                  className="os-solid-cta os-solid-cta--block daily-fortune-recommend-buy-btn w-full"
                   disabled={buyLoading}
                   loading={buyLoading}
                   onClick={() => void handleRecommendBuy()}

@@ -39,7 +39,7 @@ export function GuestLoginWall({
         {hint ? <p className="guest-login-wall-hint">{hint}</p> : null}
         <a
           href={loginHref}
-          className={cn(buttonVariants(), 'guest-login-wall-cta w-full no-underline')}
+          className={cn(buttonVariants(), 'guest-login-wall-cta os-solid-cta os-solid-cta--block w-full no-underline')}
         >
           {ctaLabel ?? common.loginDefaultCta}
         </a>

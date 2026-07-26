@@ -56,8 +56,7 @@ export function BaziConfiguredProductRecommend({ chart }: { chart: BaziChartReco
           href={shopUrl}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
-          style={{ background: GOLD, color: '#1a1528' }}
+          className="os-solid-cta os-solid-cta--block mt-3"
         >
           前往购买
         </a>
