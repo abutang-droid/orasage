@@ -9,7 +9,7 @@ import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
 import { useTempleCopy } from "@/lib/i18n/ui-strings"
 import { useLang, useTarotLocale } from "@/lib/i18n/context"
-import { deityDisplayName, deityMatchesQuery, deitySubtitle } from "@/lib/i18n/deity-locale"
+import { deityDisplayName, deityMatchesQuery } from "@/lib/i18n/deity-locale"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import { FAITH_STORAGE_KEY, isSkippedFaith, SKIP_FAITH_ID } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
@@ -356,11 +356,6 @@ function TemplePageContent() {
                   <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: 2 }}>
                     {deityDisplayName(deity, lang)}
                   </div>
-                  {deitySubtitle(deity, lang) ? (
-                    <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
-                      {deitySubtitle(deity, lang)}
-                    </div>
-                  ) : null}
                 </div>
               </button>
             ))}
