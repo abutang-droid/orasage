@@ -51,7 +51,9 @@ export function buildReadingContext(input: ReadingContextInput): ReadingContext 
       : TOPIC_LABELS[classification.topic].zh;
 
   return {
-    question: question.trim() || (language === 'en' ? 'General guidance' : '当下指引'),
+    question:
+      question.trim() ||
+      (isNonChineseAiLocale(language) ? 'General guidance' : '当下指引'),
     topic: classification.topic,
     topicLabel,
     topicConfidence: classification.confidence,

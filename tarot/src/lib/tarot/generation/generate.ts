@@ -449,34 +449,68 @@ const trilogySchema = z.object({
   actionThreshold: z.string().min(1),
 });
 
+const HAN_RE = /[\u3400-\u9fff]/;
+
+function textHasHan(s: string): boolean {
+  return HAN_RE.test(s);
+}
+
+function trilogyHasHanLeak(payload: {
+  mode: string;
+  nodes: Array<{ position: string; cardName: string; mapping: string }>;
+  chainAnalysis: string;
+  actionThreshold: string;
+}): boolean {
+  if (textHasHan(payload.mode) || textHasHan(payload.chainAnalysis) || textHasHan(payload.actionThreshold)) {
+    return true;
+  }
+  return payload.nodes.some(
+    (n) => textHasHan(n.mapping) || textHasHan(n.position) || textHasHan(n.cardName),
+  );
+}
+
+function trilogyPositionKey(label: string | undefined, language: AiLocale): string {
+  if (!isNonChineseAiLocale(language)) return label ?? '';
+  if (label === '过去' || label === 'Past' || label === 'Passado') return 'Past';
+  if (label === '现在' || label === 'Present' || label === 'Presente') return 'Present';
+  if (label === '未来' || label === 'Future' || label === 'Futuro') return 'Future';
+  return label ?? '';
+}
+
 function fallbackTrilogyFromNodes(nodes: ExtractedKnowledgeNode[], language: AiLocale = 'zh-CN') {
   const en = language === 'en';
   const pt = language === 'pt-BR';
-  const trilogyNodes = nodes.map((n) => ({
-    position: n.positionLabel ?? (isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName),
-    cardName: isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName,
-    mapping: en
-      ? `${n.scenario.replace(/。$/, '')}; ${n.orientation === '正位' ? 'forward baseline' : 'reverse disturbance'}.`
+  const nonZh = isNonChineseAiLocale(language);
+  const trilogyNodes = nodes.map((n) => {
+    const name = nonZh ? (n.cardNameEn || n.cardName) : n.cardName;
+    const orient = orientationForAi(language, n.orientation);
+    const forward = n.orientation === '正位';
+    const mapping = en
+      ? `${name} (${orient}): ${forward ? 'forward baseline' : 'reverse disturbance'}; compress into one verifiable state.`
       : pt
-        ? `${n.scenario.replace(/。$/, '')}; ${n.orientation === '正位' ? 'linha de base' : 'perturbação reversa'}.`
-        : `${n.scenario.replace(/。$/, '')}，${n.orientation === '正位' ? '正向基线' : '逆向扰动'}。`,
-  }));
-  const names = nodes.map((n) => (isNonChineseAiLocale(language) ? (n.cardNameEn || n.cardName) : n.cardName)).join(' → ');
+        ? `${name} (${orient}): ${forward ? 'linha de base' : 'perturbação reversa'}; comprima em um estado verificável.`
+        : `${n.scenario.replace(/。$/, '')}，${forward ? '正向基线' : '逆向扰动'}。`;
+    return {
+      position: trilogyPositionKey(n.positionLabel, language) || (nonZh ? name : n.cardName),
+      cardName: name,
+      mapping,
+    };
+  });
+  const names = trilogyNodes.map((n) => n.cardName).join(' → ');
   const converging = nodes[2]?.orientation === '正位';
   return {
-    mode: en || pt ? 'Timeline (Past-Present-Future)' : '时序脉络 (Past-Present-Future)',
+    mode: nonZh ? 'Timeline (Past-Present-Future)' : '时序脉络 (Past-Present-Future)',
     nodes: trilogyNodes,
     chainAnalysis: en
       ? `Chain ${names}: past noise refracts through the present; future vector trends ${converging ? 'convergent' : 'divergent'}.`
       : pt
         ? `Cadeia ${names}: ruído do passado refrata no presente; vetor futuro tende a ${converging ? 'convergir' : 'divergir'}.`
         : `链路 ${names}：历史冗余经现在态折射，未来向量呈${converging ? '收敛' : '发散'}趋势。`,
-    actionThreshold: nodes[1]?.advice[0]
-      ?? (en
+    actionThreshold: nonZh
+      ? (en
         ? 'Set one trigger threshold; advance only after it is met.'
-        : pt
-          ? 'Defina um único limiar; só avance depois de atingido.'
-          : '设定单一触发阈值，满足后再推进下一节点。'),
+        : 'Defina um único limiar; só avance depois de atingido.')
+      : (nodes[1]?.advice[0] ?? '设定单一触发阈值，满足后再推进下一节点。'),
     llm: false,
   };
 }
@@ -500,10 +534,13 @@ export async function generateThreeCardTrilogyFromLayers(input: ReadingContextIn
   const validated = trilogySchema.safeParse(parsed);
   if (!validated.success) return fallback;
 
-  return {
+  const result = {
     mode: sanitizeTarotReaderText(validated.data.mode),
     nodes: validated.data.nodes.map((n) => ({
-      position: sanitizeTarotReaderText(n.position),
+      position: trilogyPositionKey(
+        sanitizeTarotReaderText(n.position),
+        ctx.language,
+      ) || sanitizeTarotReaderText(n.position),
       cardName: sanitizeTarotReaderText(n.cardName),
       mapping: sanitizeTarotReaderText(n.mapping),
     })),
@@ -511,6 +548,36 @@ export async function generateThreeCardTrilogyFromLayers(input: ReadingContextIn
     actionThreshold: sanitizeTarotReaderText(validated.data.actionThreshold),
     llm: true,
   };
+
+  // en/pt UI must never surface Chinese interpretive prose (LLM sometimes leaks).
+  if (isNonChineseAiLocale(ctx.language) && trilogyHasHanLeak(result)) {
+    return fallback;
+  }
+
+  return result;
+}
+
+/** True when a stored trilogy payload still contains Chinese narrative (locale mismatch / old cache). */
+export function threeCardTrilogyNeedsLocaleRegen(
+  report: {
+    mode?: string;
+    nodes?: Array<{ position?: string; cardName?: string; mapping?: string }>;
+    chainAnalysis?: string;
+    actionThreshold?: string;
+  } | null | undefined,
+  language: AiLocale,
+): boolean {
+  if (!isNonChineseAiLocale(language) || !report) return false;
+  return trilogyHasHanLeak({
+    mode: report.mode ?? '',
+    nodes: (report.nodes ?? []).map((n) => ({
+      position: n.position ?? '',
+      cardName: n.cardName ?? '',
+      mapping: n.mapping ?? '',
+    })),
+    chainAnalysis: report.chainAnalysis ?? '',
+    actionThreshold: report.actionThreshold ?? '',
+  });
 }
 
 // ─── Daily fortune ────────────────────────────────────────────

@@ -996,8 +996,45 @@ function formatTemplate(template: string, vars: Record<string, string>): string 
 }
 
 export function positionLabel(lang: Lang, key: string): string {
-  const map = positions[key as PositionKey];
+  const normalized =
+    key === 'Past' || key === 'Passado' || key === 'Pasado'
+      ? '过去'
+      : key === 'Present' || key === 'Presente'
+        ? '现在'
+        : key === 'Future' || key === 'Futuro'
+          ? '未来'
+          : key;
+  const map = positions[normalized as PositionKey];
   return map ? pick(map, lang) : key;
+}
+
+/** Localize known Trilogy mode labels; strip stray Han on non-zh UI. */
+export function trilogyModeLabel(lang: Lang, mode: string): string {
+  const m = mode.trim();
+  if (/时序脉络|Timeline\s*\(?\s*Past|Past-Present-Future|Linha do tempo/i.test(m)) {
+    return pick(
+      {
+        zh: '时序脉络 (Past-Present-Future)',
+        en: 'Timeline (Past-Present-Future)',
+        pt: 'Linha do tempo (Passado-Presente-Futuro)',
+        es: 'Línea temporal (Pasado-Presente-Futuro)',
+      },
+      lang,
+    );
+  }
+  if (lang !== 'zh' && /[\u3400-\u9fff]/.test(m)) {
+    const stripped = m.replace(/[\u3400-\u9fff]+/g, '').replace(/\s+/g, ' ').replace(/^[·\-\s(]+|[)·\-\s]+$/g, '').trim();
+    return stripped || pick(
+      {
+        zh: m,
+        en: 'Timeline (Past-Present-Future)',
+        pt: 'Linha do tempo (Passado-Presente-Futuro)',
+        es: 'Línea temporal (Pasado-Presente-Futuro)',
+      },
+      lang,
+    );
+  }
+  return m;
 }
 
 export function positionSublabel(lang: Lang, key: string): string {
@@ -1103,6 +1140,7 @@ export function useThreeCardCopy() {
       backBrief: p(threeCard.backBrief),
       sectionArchitecture: p(threeCard.sectionArchitecture),
       modeLabel: p(threeCard.modeLabel),
+      trilogyMode: (mode: string) => trilogyModeLabel(lang, mode),
       sectionNodes: p(threeCard.sectionNodes),
       nodeIndex: (n: number) => formatTemplate(p(threeCard.nodeIndex), { n: String(n).padStart(2, '0') }),
       sectionChain: p(threeCard.sectionChain),

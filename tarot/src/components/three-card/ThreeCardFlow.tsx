@@ -516,6 +516,7 @@ export function ThreeCardFlow() {
               sectionThreshold={copy.sectionThreshold}
               positionLabel={copy.position}
               nodeIndexLabel={copy.nodeIndex}
+              modeValue={copy.trilogyMode}
               cardNames={sortedCards.map((c) => {
                 const meta = getCardById(c.cardId);
                 return meta ? cardNameFor(meta) : c.cardName;

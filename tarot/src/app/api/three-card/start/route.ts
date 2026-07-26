@@ -5,6 +5,10 @@ import { canStartThreeCardBrief } from '@/lib/three-card-access';
 import { createThreeCardReading, drawThreeCards } from '@/lib/three-card/record';
 import type { ThreeCardAnswer } from '@/lib/three-card/types';
 import { normalizeQuestion } from '@/lib/reading-stable';
+import {
+  isNonChineseAiLocale,
+  resolveAiLocaleFromRequest,
+} from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   question: z.string().max(500).optional(),
@@ -19,6 +23,9 @@ const bodySchema = z.object({
     .max(8)
     .optional()
     .default([]),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -30,7 +37,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = bodySchema.parse(await req.json());
-    const question = normalizeQuestion(body.question) || '当下指引';
+    const language = resolveAiLocaleFromRequest(req, body);
+    const defaultQ = isNonChineseAiLocale(language) ? 'General guidance' : '当下指引';
+    const question = normalizeQuestion(body.question) || defaultQ;
     const answers = body.answers as ThreeCardAnswer[];
     const cards = drawThreeCards(question);
 

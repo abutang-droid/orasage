@@ -11,6 +11,8 @@ type Props = {
   sectionThreshold: string;
   positionLabel: (key: string) => string;
   nodeIndexLabel: (n: number) => string;
+  /** Localize / de-Chinese mode string for the current UI language */
+  modeValue?: (mode: string) => string;
   /** Localized card names aligned with trilogy.nodes order */
   cardNames?: string[];
 };
@@ -24,6 +26,7 @@ export function ThreeCardTrilogyResult({
   sectionThreshold,
   positionLabel,
   nodeIndexLabel,
+  modeValue = (m) => m,
   cardNames = [],
 }: Props) {
   return (
@@ -32,7 +35,7 @@ export function ThreeCardTrilogyResult({
         <h2 className="trilogy-result-heading">{sectionArchitecture}</h2>
         <p className="trilogy-result-line">
           <span className="trilogy-result-key">{modeLabel}</span>
-          <span className="trilogy-result-value">{trilogy.mode}</span>
+          <span className="trilogy-result-value">{modeValue(trilogy.mode)}</span>
         </p>
       </section>
 
