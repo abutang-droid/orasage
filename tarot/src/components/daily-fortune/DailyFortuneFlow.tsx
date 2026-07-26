@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
@@ -11,8 +11,10 @@ import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitud
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
 import { aiLangBody } from '@/lib/i18n/ai-lang-body';
+import { useCrystalCopy, type WuxingSku } from '@/lib/i18n/crystal-copy';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
 import { shopUrlForSku } from '@/lib/shop-products';
+import { recommendCrystal } from '@/lib/tarot/crystals';
 import type {
   DailyFortuneFullReport,
   DailyFortuneRecordDto,
@@ -51,6 +53,7 @@ function formatCount(n: number): string {
 
 export function DailyFortuneFlow() {
   const copy = useDailyFortuneCopy();
+  const crystalCopy = useCrystalCopy();
   const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
@@ -60,7 +63,7 @@ export function DailyFortuneFlow() {
   const [fullReport, setFullReport] = useState<DailyFortuneFullReport | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [flipped, setFlipped] = useState(false);
-  const [recommend, setRecommend] = useState<TarotBillingProduct | null>(null);
+  const [billingRecommend, setBillingRecommend] = useState<TarotBillingProduct | null>(null);
   const [error, setError] = useState('');
   const [drawLoading, setDrawLoading] = useState(false);
   const [alreadyDrewToday, setAlreadyDrewToday] = useState(false);
@@ -105,10 +108,10 @@ export function DailyFortuneFlow() {
       });
       if (res.ok) {
         const data = await res.json();
-        setRecommend(data.product ?? null);
+        setBillingRecommend(data.product ?? null);
       }
     } catch {
-      /* optional */
+      /* optional — card-element crystal fallback still renders */
     }
   };
 
@@ -194,6 +197,30 @@ export function DailyFortuneFlow() {
   };
 
   const cardMeta = card ? getCardById(card.id) : null;
+
+  /** Prefer card-element crystal; overlay localized price from billing when SKU matches. */
+  const crystalRecommend = useMemo(() => {
+    if (!card) return null;
+    const picked = recommendCrystal([card.element || cardMeta?.element || 'major']);
+    const wuxing = (picked.wuxing in { 木: 1, 火: 1, 土: 1, 金: 1, 水: 1 }
+      ? picked.wuxing
+      : '金') as WuxingSku;
+    const localized = crystalCopy.get(wuxing);
+    const billingMatch =
+      billingRecommend && billingRecommend.sku.startsWith('crystal-')
+        ? billingRecommend.sku === picked.shopSku
+          ? billingRecommend
+          : null
+        : null;
+    return {
+      sku: picked.shopSku,
+      name: billingMatch?.name || `${localized.name}${copy.lang === 'zh' ? '能量手串' : ' bracelet'}`,
+      desc: billingMatch?.desc || localized.desc,
+      priceDisplay: billingMatch?.priceDisplay || billingRecommend?.priceDisplay || '',
+      elementLabel: crystalCopy.wuxingLabel(localized.wuxingLabel),
+    };
+  }, [card, cardMeta?.element, crystalCopy, billingRecommend, copy.lang]);
+
   const orientation = card?.orientation ?? '正位';
   const tone = getDailyTone(orientation, copy.lang);
   const attitude = cardMeta
@@ -368,19 +395,26 @@ export function DailyFortuneFlow() {
             )}
           </div>
 
-          {recommend && (
+          {crystalRecommend ? (
             <div className="card daily-fortune-recommend">
               <h2 className="daily-fortune-section-title">{copy.recommendTitle}</h2>
-              <p className="daily-fortune-recommend-name">{recommend.name}</p>
-              <p className="daily-fortune-recommend-desc">{recommend.desc}</p>
-              <p className="daily-fortune-recommend-price">{recommend.priceDisplay}</p>
-              <Button asChild variant="outline" className="w-full mt-3">
-                <a href={shopUrlForSku(recommend.sku)} className="block text-center no-underline">
+              <p className="daily-fortune-recommend-lead">{copy.recommendLead}</p>
+              <p className="daily-fortune-recommend-element">{crystalRecommend.elementLabel}</p>
+              <p className="daily-fortune-recommend-name">{crystalRecommend.name}</p>
+              <p className="daily-fortune-recommend-desc">{crystalRecommend.desc}</p>
+              {crystalRecommend.priceDisplay ? (
+                <p className="daily-fortune-recommend-price">{crystalRecommend.priceDisplay}</p>
+              ) : null}
+              <Button asChild className="w-full mt-3">
+                <a
+                  href={shopUrlForSku(crystalRecommend.sku)}
+                  className="block text-center no-underline"
+                >
                   {copy.recommendCta}
                 </a>
               </Button>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 
