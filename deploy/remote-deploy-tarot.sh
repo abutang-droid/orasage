@@ -104,7 +104,7 @@ log "上传 tarot 部署脚本..."
 $SCP deploy/tarot/deploy-tarot.sh "${SSH_USER}@${SSH_HOST}:/tmp/deploy-tarot.sh"
 
 log "在 VPS 上执行部署（模式: $DEPLOY_MODE）..."
-$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' TAROT_UPSTREAM_URL='${TAROT_UPSTREAM_URL:-}' bash /tmp/deploy-tarot.sh"
+$SSH "sudo DEPLOY_MODE='$DEPLOY_MODE' ORASAGE_REF='$ORASAGE_REF' NGINX_SITE='${NGINX_SITE:-orasage}' TAROT_UPSTREAM_URL='${TAROT_UPSTREAM_URL:-}' bash /tmp/deploy-tarot.sh"
 
 log "远程部署完成"
 log "验证: curl -sI https://tarot.orasage.com"
