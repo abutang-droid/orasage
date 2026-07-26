@@ -139,7 +139,15 @@ export function FaithPicker({
     };
   }, [faiths]);
 
-  const customFaith = useMemo(() => getCustomFaithOption(faiths), [faiths]);
+  const customFaith = useMemo(() => {
+    const base = getCustomFaithOption(faiths);
+    // Always prefer UI locale copy — CMS/seed nameEn has been Chinese in the past.
+    return {
+      ...base,
+      nameZh: faithCopy.customOption,
+      nameEn: faithCopy.customOption,
+    };
+  }, [faiths, faithCopy.customOption]);
 
   const selectedFaith = pending ? getFaithById(pending, faiths) : null;
   const isOther = isCustomFaithId(pending);
