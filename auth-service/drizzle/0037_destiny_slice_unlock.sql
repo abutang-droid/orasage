@@ -12,12 +12,8 @@ VALUES (
   true,
   32
 )
-ON CONFLICT (sku) DO UPDATE SET
-  name = EXCLUDED.name,
-  description = EXCLUDED.description,
-  price_cents = EXCLUDED.price_cents,
-  price_cents_usd = EXCLUDED.price_cents_usd,
-  active = EXCLUDED.active;
+-- Seed only: never overwrite admin-edited prices on redeploy.
+ON CONFLICT (sku) DO NOTHING;
 
 INSERT INTO app_billing_slots (app_source, slot_key, sku, sort_order, active)
 SELECT 'tarot', 'singlecard.unlock', 'tarot-destiny-slice', 0, true

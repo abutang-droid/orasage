@@ -31,11 +31,5 @@ INSERT INTO "products" ("sku", "name", "description", "price_cents", "price_cent
 VALUES
   ('ziwei-chat-pack-10', '紫微问答加量包', '额外 10 次 Orasage 对话机会（账户内跨排盘累积）', 990, 138, 'service', false, true, 20),
   ('ziwei-chat-yearly', '紫微问答年卡', '365 天无限 Orasage 对话', 9900, 1375, 'service', false, true, 21)
-ON CONFLICT ("sku") DO UPDATE SET
-  "name" = EXCLUDED."name",
-  "description" = EXCLUDED."description",
-  "price_cents" = EXCLUDED."price_cents",
-  "price_cents_usd" = EXCLUDED."price_cents_usd",
-  "category" = EXCLUDED."category",
-  "requires_shipping" = EXCLUDED."requires_shipping",
-  "active" = EXCLUDED."active";
+-- Seed only: never overwrite admin-edited prices on redeploy.
+ON CONFLICT ("sku") DO NOTHING;
