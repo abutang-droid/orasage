@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { ChevronRight } from 'lucide-react';
 import { getCardById } from '@/lib/tarot/cards';
 import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
 import { useCardName, useLang } from '@/lib/i18n/context';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
 import { DailyInsightGlyph } from '@/components/home/HomeTileGlyphs';
+import { HomeTileCta } from '@/components/home/HomeTileCta';
 import type { DailyFortuneRecordDto } from '@/lib/daily-fortune/types';
 
 type StatsPayload = {
@@ -104,10 +104,11 @@ export function TarotHomeDailyInsight() {
           </div>
         )}
 
-        <span className="home-tile-cta home-tile-cta--primary">
-          <span>{completed ? home.dailyInsightViewAgain : home.dailyCta}</span>
-          <ChevronRight size={16} strokeWidth={2} aria-hidden />
-        </span>
+        <HomeTileCta
+          label={completed ? home.dailyInsightViewAgain : home.dailyCta}
+          variant="daily"
+          primary
+        />
       </div>
       {!completed ? (
         <div className="home-tile-art" aria-hidden>
