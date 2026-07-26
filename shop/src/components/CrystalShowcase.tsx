@@ -13,7 +13,6 @@ import {
   DEFAULT_CRYSTAL_CONTENT,
   type CrystalContentMap,
 } from '../../../shared/shop-crystal/content';
-import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 import { PriceDisplay } from './PriceDisplay';
