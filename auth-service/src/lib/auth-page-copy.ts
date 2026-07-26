@@ -17,6 +17,12 @@ export type AuthPageCopy = {
   nicknamePlaceholder: string;
   emailPlaceholder: string;
   passwordPlaceholder: string;
+  /** Shown when login email is not registered */
+  emailNotFoundTitle: string;
+  emailNotFoundLead: string;
+  emailNotFoundRegister: string;
+  emailNotFoundRetryPassword: string;
+  invalidPassword: string;
 };
 
 type CoreLocale = ReturnType<typeof toCoreLocale>;
@@ -39,24 +45,11 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: '可选，用于显示名称',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: '至少 6 位',
-  },
-  'zh-TW': {
-    loginTitle: '登入以繼續',
-    loginLead: '登入後可同步測試對象、占卜記錄與訂單',
-    loginBtn: '登入',
-    loginSwitch: '沒有帳號？',
-    loginSwitchLink: '立即註冊',
-    registerTitle: '建立帳號',
-    registerLead: '註冊後可同步命理測試與商城訂單',
-    registerBtn: '註冊',
-    registerSwitch: '已有帳號？',
-    registerSwitchLink: '去登入',
-    email: '電子郵件',
-    password: '密碼',
-    nickname: '暱稱',
-    nicknamePlaceholder: '選填，用於顯示名稱',
-    emailPlaceholder: 'name@example.com',
-    passwordPlaceholder: '至少 6 個字元',
+    emailNotFoundTitle: '这个邮箱还没有注册',
+    emailNotFoundLead: '请选择下一步：用该邮箱创建账号，或确认是否密码输入有误。',
+    emailNotFoundRegister: '用这个邮箱注册',
+    emailNotFoundRetryPassword: '密码输错了，重新输入',
+    invalidPassword: '密码错误，请重新输入',
   },
   en: {
     loginTitle: 'Sign in to continue',
@@ -75,6 +68,11 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: 'Optional display name',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: 'At least 6 characters',
+    emailNotFoundTitle: 'This email is not registered',
+    emailNotFoundLead: 'Choose what to do next: create an account with this email, or retry if the password was wrong.',
+    emailNotFoundRegister: 'Register with this email',
+    emailNotFoundRetryPassword: 'Wrong password — try again',
+    invalidPassword: 'Incorrect password. Please try again.',
   },
   'pt-BR': {
     loginTitle: 'Entrar para continuar',
@@ -93,6 +91,11 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: 'Nome de exibição opcional',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: 'Pelo menos 6 caracteres',
+    emailNotFoundTitle: 'Este e-mail não está cadastrado',
+    emailNotFoundLead: 'Escolha o próximo passo: criar conta com este e-mail, ou tentar de novo se a senha estiver errada.',
+    emailNotFoundRegister: 'Cadastrar com este e-mail',
+    emailNotFoundRetryPassword: 'Senha errada — tentar de novo',
+    invalidPassword: 'Senha incorreta. Tente novamente.',
   },
 };
 
@@ -109,7 +112,6 @@ export function authLoginLabel(locale: string): string {
 export function authRequestFailed(locale: string): string {
   const map: Record<CoreLocale, string> = {
     'zh-CN': '请求失败',
-    'zh-TW': '請求失敗',
     en: 'Request failed',
     'pt-BR': 'Falha na solicitação',
   };

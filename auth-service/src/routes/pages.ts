@@ -42,7 +42,12 @@ function loginCardHtml(locale: string, redirect: string): string {
           <p class="auth-card-lead">${c.loginLead}</p>
         </header>
         <div class="auth-card-body">
-          <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}">
+          <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}"
+            data-msg-invalid-password="${esc(c.invalidPassword)}"
+            data-msg-email-not-found-title="${esc(c.emailNotFoundTitle)}"
+            data-msg-email-not-found-lead="${esc(c.emailNotFoundLead)}"
+            data-label-register="${esc(c.emailNotFoundRegister)}"
+            data-label-retry-password="${esc(c.emailNotFoundRetryPassword)}">
             <div class="auth-field">
               <label class="auth-label" for="login-email">${c.email}</label>
               <input id="login-email" class="auth-input" type="email" name="email" required autocomplete="email" placeholder="${esc(c.emailPlaceholder)}">
@@ -52,18 +57,25 @@ function loginCardHtml(locale: string, redirect: string): string {
               <input id="login-password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="${esc(c.passwordPlaceholder)}">
             </div>
             <p id="form-error" class="auth-error" role="alert" hidden></p>
-            <button type="submit" class="auth-submit">${c.loginBtn}</button>
+            <div id="login-email-choice" class="auth-choice" hidden role="region" aria-live="polite">
+              <p class="auth-choice-title"></p>
+              <p class="auth-choice-lead"></p>
+              <button type="button" id="login-choice-register" class="auth-submit">${esc(c.emailNotFoundRegister)}</button>
+              <button type="button" id="login-choice-retry" class="auth-submit auth-submit--secondary">${esc(c.emailNotFoundRetryPassword)}</button>
+            </div>
+            <button type="submit" class="auth-submit" id="login-submit">${c.loginBtn}</button>
           </form>
           <footer class="auth-card-footer">
-            <p class="auth-switch">${c.loginSwitch}<a href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+            <p class="auth-switch">${c.loginSwitch}<a id="login-register-link" href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
           </footer>
         </div>
       </div>
     </main>`;
 }
 
-function registerCardHtml(locale: string, redirect: string): string {
+function registerCardHtml(locale: string, redirect: string, email = ''): string {
   const c = authPageCopy(locale);
+  const emailValue = email ? ` value="${esc(email)}"` : '';
   return `
     <main class="auth-page">
       <div class="auth-card">
@@ -75,7 +87,7 @@ function registerCardHtml(locale: string, redirect: string): string {
           <form id="register-form" class="auth-form" data-redirect="${esc(redirect)}">
             <div class="auth-field">
               <label class="auth-label" for="reg-email">${c.email}</label>
-              <input id="reg-email" class="auth-input" type="email" name="email" required autocomplete="email" placeholder="${esc(c.emailPlaceholder)}">
+              <input id="reg-email" class="auth-input" type="email" name="email" required autocomplete="email" placeholder="${esc(c.emailPlaceholder)}"${emailValue}>
             </div>
             <div class="auth-field">
               <label class="auth-label" for="reg-nickname">${c.nickname}</label>
@@ -96,6 +108,13 @@ function registerCardHtml(locale: string, redirect: string): string {
     </main>`;
 }
 
+function prefillEmail(raw: unknown): string {
+  if (typeof raw !== 'string') return '';
+  const email = raw.trim().slice(0, 320);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return '';
+  return email;
+}
+
 pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 
 pagesRouter.get("/login", (req, res) => {
@@ -112,8 +131,9 @@ pagesRouter.get("/register", (req, res) => {
   const redirectParamValue = redirectParam(req);
   const locale = resolveAuthPageLocale(req, redirectParamValue);
   const redirect = safeRedirect(redirectParamValue, locale);
+  const email = prefillEmail(req.query.email);
   const c = authPageCopy(locale);
-  res.send(authPageLayout(c.registerTitle, registerCardHtml(locale, redirect), locale));
+  res.send(authPageLayout(c.registerTitle, registerCardHtml(locale, redirect, email), locale));
 });
 
 pagesRouter.get("/center", async (req, res) => {
