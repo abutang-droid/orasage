@@ -130,6 +130,9 @@ export function DailyFortuneFlow() {
     const recordIdParam = params?.get('recordId') ?? null;
 
     const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
+    if (!res.ok) {
+      throw new Error(copy.loadFailed);
+    }
     const data = (await res.json()) as SessionPayload;
     setSession(data);
     setIsLoggedIn(data.isLoggedIn);
@@ -150,10 +153,14 @@ export function DailyFortuneFlow() {
       return;
     }
     setStep('start');
-  }, []);
+  }, [copy.loadFailed]);
 
   useEffect(() => {
-    void loadSession().catch(() => setError(copy.loadFailed));
+    void loadSession().catch(() => {
+      setError(copy.loadFailed);
+      // 避免注册回跳后 session 失败时永久卡在空白 loading
+      setStep((prev) => (prev === 'loading' ? 'start' : prev));
+    });
   }, [loadSession, copy.loadFailed]);
 
   const submitDraw = async () => {

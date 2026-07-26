@@ -12,14 +12,18 @@ function appUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.tarot;
 }
 
-/** 构建带回跳路径的统一登录 URL */
-export function buildLoginUrl(returnPath = '/'): string {
+/** 构建带回跳路径的统一登录 URL；origin 优先用当前页，避免 env 与线上域名不一致 */
+export function buildLoginUrl(returnPath = '/', origin?: string): string {
   const path = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
-  const target = `${appUrl().replace(/\/$/, '')}${path}`;
+  const base = (origin || appUrl()).replace(/\/$/, '');
+  const target = `${base}${path}`;
   return `${authUrl().replace(/\/$/, '')}/login?redirect=${encodeURIComponent(target)}`;
 }
 
 export function buildLoginUrlFromWindow(): string {
   if (typeof window === 'undefined') return buildLoginUrl('/');
-  return buildLoginUrl(`${window.location.pathname}${window.location.search}`);
+  return buildLoginUrl(
+    `${window.location.pathname}${window.location.search}`,
+    window.location.origin,
+  );
 }

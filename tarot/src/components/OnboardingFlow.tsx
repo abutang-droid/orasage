@@ -137,10 +137,19 @@ export function OnboardingFlow() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [lines, step]);
 
+  const safeReturnPath = () => {
+    if (typeof window === 'undefined') return '/';
+    const redirect = new URLSearchParams(window.location.search).get('redirect');
+    if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
+      return redirect;
+    }
+    return '/';
+  };
+
   useEffect(() => {
     if (userLoading) return;
     if (user?.onboardingCompleted) {
-      router.replace('/');
+      router.replace(safeReturnPath());
       return;
     }
 
@@ -258,7 +267,7 @@ export function OnboardingFlow() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((data as { error?: string }).error || copy.saveFailed);
-      window.location.href = '/';
+      window.location.href = safeReturnPath();
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.saveFailed);
       setSaving(false);

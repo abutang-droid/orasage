@@ -15,7 +15,12 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
     if (loading) return;
     if (BYPASS_PREFIXES.some((p) => pathname.startsWith(p))) return;
     if (user && user.onboardingCompleted !== true) {
-      router.replace('/onboarding');
+      const search = typeof window !== 'undefined' ? window.location.search : '';
+      const current = `${pathname}${search}`;
+      const q = current && current !== '/'
+        ? `?redirect=${encodeURIComponent(current)}`
+        : '';
+      router.replace(`/onboarding${q}`);
     }
   }, [loading, user, pathname, router]);
 

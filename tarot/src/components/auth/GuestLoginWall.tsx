@@ -3,9 +3,8 @@
 import type { ReactNode } from 'react';
 import { buttonVariants } from '@orasage/ui/button';
 import { cn } from '@orasage/ui';
-import { buildLoginUrlFromWindow } from '@/lib/login-url';
+import { buildLoginUrl, buildLoginUrlFromWindow } from '@/lib/login-url';
 import { useReadingCommon } from '@/lib/i18n/reading-copy';
-import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 type GuestLoginWallProps = {
   title?: string;
@@ -27,10 +26,9 @@ export function GuestLoginWall({
   children,
 }: GuestLoginWallProps) {
   const common = useReadingCommon();
+  const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
   const loginHref = returnPath
-    ? `${process.env.NEXT_PUBLIC_AUTH_URL || ORASAGE_URLS.authLogin.replace(/\/login$/, '')}/login?redirect=${encodeURIComponent(
-        `${process.env.NEXT_PUBLIC_APP_URL || ORASAGE_URLS.tarot}${returnPath.startsWith('/') ? returnPath : `/${returnPath}`}`,
-      )}`
+    ? buildLoginUrl(returnPath, origin)
     : buildLoginUrlFromWindow();
 
   return (
