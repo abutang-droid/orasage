@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { isWorldAuthRequired } from '@/lib/world-minikit';
+import { isWorldAuthRequired } from '../../../../../shared/world-minikit/config';
 
 /**
  * Whether the browser has a platform orasage_token (World SIWE session).
