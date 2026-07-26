@@ -712,10 +712,21 @@ export function GeoJourneyPicker({
               <p className="geo-journey-detect-sub">{detectedSuggestion.country.nameEn}</p>
               <p className="geo-journey-detect-question">{p(geo.detectQuestion)}</p>
               <div className="geo-journey-detect-actions">
-                <Button type="button" onClick={confirmDetectedCountry}>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="geo-journey-confirm-cta w-full"
+                  onClick={confirmDetectedCountry}
+                >
                   {p(geo.detectYes)}
                 </Button>
-                <Button type="button" variant="outline" onClick={rejectDetectedCountry}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={rejectDetectedCountry}
+                >
                   {p(geo.detectNo)}
                 </Button>
               </div>
@@ -865,7 +876,8 @@ export function GeoJourneyPicker({
             </div>
             <Button
               type="button"
-              className="geo-journey-faith-confirm-btn w-full"
+              size="lg"
+              className="geo-journey-faith-confirm-btn geo-journey-confirm-cta w-full"
               onClick={confirmCurrentStep}
             >
               {confirmLabel}
