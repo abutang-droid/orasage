@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
-import { cookieDomainFromHost, LOCALE_COOKIE } from '@orasage/i18n';
+import { cookieDomainFromHost, DEFAULT_LOCALE, LOCALE_COOKIE } from '@orasage/i18n';
 import { routing } from './i18n/navigation';
 import { ORASAGE_PATHNAME_HEADER, stripLocalePrefix } from './lib/portal-pathname';
 import { externalUrls } from './lib/urls';
@@ -52,7 +52,7 @@ function redirectExternal(
   request.nextUrl.searchParams.forEach((value, key) => {
     if (!url.searchParams.has(key)) url.searchParams.set(key, value);
   });
-  if (locale && locale !== 'zh-CN') {
+  if (locale && locale !== DEFAULT_LOCALE) {
     url.searchParams.set('lang', locale);
   }
   if (extra) {
@@ -84,7 +84,7 @@ function redirectDeprecatedLocale(request: NextRequest): NextResponse | null {
 function redirectTemple(request: NextRequest): NextResponse | null {
   const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
   if (normalized === '/temple') {
-    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? 'zh-CN';
+    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? DEFAULT_LOCALE;
     return redirectExternal(request, externalUrls.temple, locale);
   }
   const localeTemple = new RegExp(`^/(${PORTAL_LOCALES})/temple$`);
@@ -99,7 +99,7 @@ function redirectTemple(request: NextRequest): NextResponse | null {
 function redirectPortalHomeToTarot(request: NextRequest): NextResponse | null {
   const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
   if (normalized === '/') {
-    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? 'zh-CN';
+    const locale = request.cookies.get(LOCALE_COOKIE)?.value ?? DEFAULT_LOCALE;
     return redirectExternal(request, externalUrls.tarot, locale);
   }
   const localeHome = new RegExp(`^/(${PORTAL_LOCALES})$`);

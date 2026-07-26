@@ -1,6 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies, headers } from 'next/headers';
-import { CORE_LOCALES, type CoreLocale } from '@orasage/i18n';
+import { CORE_LOCALES, DEFAULT_LOCALE, type CoreLocale } from '@orasage/i18n';
 import {
   detectShopLocale,
   SHOP_LOCALE_COOKIE,
@@ -17,7 +17,7 @@ async function resolveShopLocale(): Promise<CoreLocale> {
     cookieLocale: portal ?? override,
     acceptLanguage: hdrs.get('accept-language'),
   });
-  return (CORE_LOCALES as readonly string[]).includes(locale) ? (locale as CoreLocale) : 'zh-CN';
+  return (CORE_LOCALES as readonly string[]).includes(locale) ? (locale as CoreLocale) : DEFAULT_LOCALE;
 }
 
 export default getRequestConfig(async () => {
@@ -26,7 +26,7 @@ export default getRequestConfig(async () => {
   try {
     messages = (await import(`../../messages/${locale}.json`)).default;
   } catch {
-    messages = (await import('../../messages/zh-CN.json')).default;
+    messages = (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default;
   }
   return { locale, messages };
 });
