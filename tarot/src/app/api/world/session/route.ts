@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { isWorldAuthRequired } from '../../../../../shared/world-minikit/config';
+
+function worldAuthRequired(): boolean {
+  const v = (process.env.WORLD_AUTH_REQUIRED || process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED || '')
+    .trim()
+    .toLowerCase();
+  return v === 'true' || v === '1' || v === 'yes';
+}
 
 /**
  * Whether the browser has a platform orasage_token (World SIWE session).
@@ -42,6 +48,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     loggedIn,
     sub,
-    worldAuthRequired: isWorldAuthRequired(),
+    worldAuthRequired: worldAuthRequired(),
   });
 }
