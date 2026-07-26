@@ -32,18 +32,36 @@ export interface Product {
   imageUrl?: string | null;
 }
 
-const ELEMENT_TAG_FALLBACK: Record<string, ProductTag> = {
-  木: { id: 1, code: 'element-wood', label: '木', groupCode: 'element' },
-  火: { id: 2, code: 'element-fire', label: '火', groupCode: 'element' },
-  土: { id: 3, code: 'element-earth', label: '土', groupCode: 'element' },
-  金: { id: 4, code: 'element-metal', label: '金', groupCode: 'element' },
-  水: { id: 5, code: 'element-water', label: '水', groupCode: 'element' },
+/** auth 不可用时的五行标签兜底（与 shared/product-units ELEMENT_VALUE_LABELS 对齐） */
+const ELEMENT_TAG_FALLBACK: Record<string, { meta: Omit<ProductTag, 'label'>; labels: Record<string, string> }> = {
+  木: {
+    meta: { id: 1, code: 'element-wood', groupCode: 'element' },
+    labels: { 'zh-CN': '木', 'zh-TW': '木', en: 'Wood', 'pt-BR': 'Madeira' },
+  },
+  火: {
+    meta: { id: 2, code: 'element-fire', groupCode: 'element' },
+    labels: { 'zh-CN': '火', 'zh-TW': '火', en: 'Fire', 'pt-BR': 'Fogo' },
+  },
+  土: {
+    meta: { id: 3, code: 'element-earth', groupCode: 'element' },
+    labels: { 'zh-CN': '土', 'zh-TW': '土', en: 'Earth', 'pt-BR': 'Terra' },
+  },
+  金: {
+    meta: { id: 4, code: 'element-metal', groupCode: 'element' },
+    labels: { 'zh-CN': '金', 'zh-TW': '金', en: 'Metal', 'pt-BR': 'Metal' },
+  },
+  水: {
+    meta: { id: 5, code: 'element-water', groupCode: 'element' },
+    labels: { 'zh-CN': '水', 'zh-TW': '水', en: 'Water', 'pt-BR': 'Água' },
+  },
 };
 
-function fallbackTagsForProduct(p: Pick<Product, 'element'>): ProductTag[] {
+function fallbackTagsForProduct(p: Pick<Product, 'element'>, locale = 'zh-CN'): ProductTag[] {
   if (!p.element) return [];
-  const tag = ELEMENT_TAG_FALLBACK[p.element];
-  return tag ? [tag] : [];
+  const entry = ELEMENT_TAG_FALLBACK[p.element];
+  if (!entry) return [];
+  const label = entry.labels[locale] ?? entry.labels.en ?? entry.labels['zh-CN'] ?? p.element;
+  return [{ ...entry.meta, label }];
 }
 
 /**
@@ -78,14 +96,20 @@ const BILLING_FALLBACK_RAW: Omit<Product, 'tags'>[] = [
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
 
-function withFallbackTags(list: Omit<Product, 'tags'>[]): Product[] {
-  return list.map((p) => ({ ...p, tags: fallbackTagsForProduct(p) }));
+function withFallbackTags(list: Omit<Product, 'tags'>[], locale = 'zh-CN'): Product[] {
+  return list.map((p) => ({ ...p, tags: fallbackTagsForProduct(p, locale) }));
 }
 
 /** @deprecated 名称保留兼容；仅含公开目录兜底，不含计费 SKU */
 export const FALLBACK_PRODUCTS: Product[] = withFallbackTags(CATALOG_FALLBACK_RAW);
 
-const BILLING_FALLBACK_PRODUCTS: Product[] = withFallbackTags(BILLING_FALLBACK_RAW);
+function billingFallbackProducts(locale = 'zh-CN'): Product[] {
+  return withFallbackTags(BILLING_FALLBACK_RAW, locale);
+}
+
+function catalogFallbackProducts(locale = 'zh-CN'): Product[] {
+  return withFallbackTags(CATALOG_FALLBACK_RAW, locale);
+}
 export const ELEMENT_TO_SKU: Record<string, string> = {
   木: 'crystal-wood',
   火: 'crystal-fire',
@@ -124,7 +148,7 @@ interface ApiProduct {
   requiresWristSize?: boolean;
 }
 
-function mapApiProduct(p: ApiProduct): Product {
+function mapApiProduct(p: ApiProduct, locale = 'zh-CN'): Product {
   const fulfillment = { category: p.category, sku: p.sku, requiresShipping: p.requiresShipping };
   const tags = (p.tags ?? []).filter((t) => t?.code);
   return {
@@ -144,7 +168,7 @@ function mapApiProduct(p: ApiProduct): Product {
     currency: p.currency,
     priceDisplay: p.priceDisplay,
     category: p.category,
-    tags: tags.length > 0 ? tags : fallbackTagsForProduct({ element: p.element ?? undefined }),
+    tags: tags.length > 0 ? tags : fallbackTagsForProduct({ element: p.element ?? undefined }, locale),
     requiresShipping: p.requiresShipping ?? inferRequiresShipping(fulfillment),
     requiresWristSize: p.requiresWristSize ?? inferRequiresWristSize(fulfillment),
   };
@@ -170,13 +194,13 @@ export async function fetchProducts(locale = 'zh-CN'): Promise<Product[]> {
     // 防御：目录只展示 public；即使上游误返回 app_only/unlisted 也不进列表
     cachedProducts = data.products
       .filter((p) => !p.visibility || p.visibility === 'public')
-      .map(mapApiProduct);
+      .map((p) => mapApiProduct(p, locale));
     cacheExpiry = Date.now() + CACHE_TTL_MS;
     cacheLocale = locale;
     return cachedProducts;
   } catch (err) {
     console.warn('[shop] fetchProducts fallback:', err);
-    return FALLBACK_PRODUCTS;
+    return catalogFallbackProducts(locale);
   }
 }
 
@@ -194,14 +218,14 @@ export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product
     );
     if (res.ok) {
       const data = await res.json() as { product?: ApiProduct };
-      if (data.product) return mapApiProduct(data.product);
+      if (data.product) return mapApiProduct(data.product, locale);
     }
   } catch (err) {
     console.warn('[shop] getProduct single fetch fallback:', err);
   }
   return (
-    BILLING_FALLBACK_PRODUCTS.find((p) => p.sku === sku)
-    ?? FALLBACK_PRODUCTS.find((p) => p.sku === sku)
+    billingFallbackProducts(locale).find((p) => p.sku === sku)
+    ?? catalogFallbackProducts(locale).find((p) => p.sku === sku)
     ?? null
   );
 }

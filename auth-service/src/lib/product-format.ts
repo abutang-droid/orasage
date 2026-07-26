@@ -125,10 +125,14 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
   const usdtCents = resolveUsdtCents(pricing);
   const woldCents = resolveWoldCents(usdtCents);
   const attrs = localizedAttributes(p, locale);
+  // Specs 五行值：优先商品标签（后台 labelI18n），否则 buildProductSpecRows 按 element 列翻译
+  const elementTagLabel = (options?.tags ?? []).find(
+    (t) => t.groupCode === "element" || t.code.startsWith("element-"),
+  )?.label?.trim();
   const specs: ProductSpecRow[] = buildProductSpecRows(
     {
       ...attrs,
-      element: p.element,
+      element: elementTagLabel || p.element,
       weightGrams: p.weightGrams,
       beadDiameterMm: p.beadDiameterMm,
       wristCmMin: p.wristCmMin,
