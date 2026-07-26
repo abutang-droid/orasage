@@ -111,6 +111,20 @@ export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBi
   }
 }
 
+export async function fetchAuthProductBySku(sku: string, locale = 'zh-CN') {
+  try {
+    const res = await fetch(
+      `${AUTH_INTERNAL}/api/products/${encodeURIComponent(sku)}?locale=${encodeURIComponent(locale)}`,
+      { cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    const data = await res.json() as { product?: Record<string, unknown> };
+    return mapProduct(data.product);
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchTarotDailyRecommendProduct(seed: string, locale = 'zh-CN') {
   try {
     const res = await fetch(
