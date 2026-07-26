@@ -402,6 +402,12 @@ export const faith = {
     pt: 'Mais tradições',
     es: 'Más tradiciones',
   },
+  customOption: {
+    zh: '不在列表中？自行填写',
+    en: 'Not in the list? Add your own',
+    pt: 'Não está na lista? Escreva o seu',
+    es: '¿No está en la lista? Añade el tuyo',
+  },
   customLead: {
     zh: '写下你的信仰或精神归属名称',
     en: 'Write your faith or spiritual path',
@@ -1056,6 +1062,7 @@ export function useFaithCopy() {
       reselect: p(faith.reselect),
       moreFaiths: p(faith.moreFaiths),
       moreFaithsTitle: p(faith.moreFaithsTitle),
+      customOption: p(faith.customOption),
       customLead: p(faith.customLead),
       customPlaceholder: p(faith.customPlaceholder),
       skip: p(faith.skip),

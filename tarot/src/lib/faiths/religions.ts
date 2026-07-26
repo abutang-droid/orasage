@@ -34,7 +34,14 @@ export const WORLD_FAITHS: FaithOption[] = [
   { id: 'afro_brazilian', nameZh: '非裔巴西宗教', nameEn: 'Afro-Brazilian Religions', emoji: '🌊', adherentsM: 2, rank: 19 },
   { id: 'tenrikyo', nameZh: '天理教', nameEn: 'Tenrikyo', emoji: '🌅', adherentsM: 2, rank: 20 },
   { id: 'none', nameZh: '无特定信仰', nameEn: 'No Specific Faith', emoji: '🌿', adherentsM: 0, rank: 98 },
-  { id: 'other', nameZh: '自定义', nameEn: '不在列表中？自行填写', emoji: '✍️', adherentsM: 0, rank: 99 },
+  {
+    id: 'other',
+    nameZh: '不在列表中？自行填写',
+    nameEn: 'Not in the list? Add your own',
+    emoji: '✍️',
+    adherentsM: 0,
+    rank: 99,
+  },
 ].sort((a, b) => a.rank - b.rank);
 
 export const CUSTOM_FAITH_ID = 'other';
@@ -59,8 +66,8 @@ export function getCustomFaithOption(list?: FaithOption[]): FaithOption {
   return (
     found ?? {
       id: CUSTOM_FAITH_ID,
-      nameZh: '自定义',
-      nameEn: '不在列表中？自行填写',
+      nameZh: '不在列表中？自行填写',
+      nameEn: 'Not in the list? Add your own',
       emoji: '✍️',
       adherentsM: 0,
       rank: 99,
