@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import {
   BlessingDomeGlyph,
   DestinySliceGlyph,
   TrilogyNetworkGlyph,
 } from '@/components/home/HomeTileGlyphs';
+import { HomeTileCta } from '@/components/home/HomeTileCta';
 
 type Badge = {
   key: string;
@@ -63,10 +63,7 @@ function TileInner({
         <h2 className="home-tile-title">{title}</h2>
         <p className="home-tile-desc">{desc}</p>
         {note ? <p className="home-tile-note">{note}</p> : null}
-        <span className={`home-tile-cta${featured ? ' home-tile-cta--primary' : ''}`}>
-          <span>{cta}</span>
-          <ChevronRight size={16} strokeWidth={2} aria-hidden />
-        </span>
+        <HomeTileCta label={cta} variant={variant} primary={featured} />
       </div>
       <div className="home-tile-art">
         <TileGlyph variant={variant} />
