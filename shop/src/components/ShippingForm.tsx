@@ -70,7 +70,11 @@ export function ShippingForm({
 
   useEffect(() => {
     let cancelled = false;
-    const primary = recipients[0]?.countryCode ?? 'CN';
+    const primary = recipients[0]?.countryCode?.trim();
+    if (!primary) {
+      setShippingFeeCents(null);
+      return;
+    }
     const recipientCount = couple ? 2 : 1;
     const qs = new URLSearchParams({
       country: primary,
@@ -90,10 +94,10 @@ export function ShippingForm({
     return () => { cancelled = true; };
   }, [recipients, couple]);
 
-  const displayFeeCents = shippingFeeCents ?? estimateShippingFeeCents(
-    recipients[0]?.countryCode ?? 'CN',
-    couple ? 2 : 1,
-  );
+  const primaryCountry = recipients[0]?.countryCode?.trim() ?? '';
+  const displayFeeCents = primaryCountry
+    ? (shippingFeeCents ?? estimateShippingFeeCents(primaryCountry, couple ? 2 : 1))
+    : null;
 
   function updateRecipient(index: number, field: keyof ShippingRecipient, value: string) {
     setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
@@ -162,13 +166,13 @@ export function ShippingForm({
         </fieldset>
       ) : null}
 
-      {displayFeeCents > 0 ? (
+      {displayFeeCents != null && displayFeeCents > 0 ? (
         <p className="shop-shipping-fee">
           {t('estimatedFee', { amount: (displayFeeCents / 100).toFixed(2) })}
         </p>
-      ) : (
+      ) : displayFeeCents === 0 ? (
         <p className="shop-shipping-fee shop-shipping-fee--free">{t('freeShipping')}</p>
-      )}
+      ) : null}
 
       {recipients.map((recipient, index) => (
         <fieldset key={index} className="shop-shipping-fieldset">
