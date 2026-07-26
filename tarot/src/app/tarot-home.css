@@ -1480,6 +1480,29 @@
   color: var(--text-primary, #171717);
 }
 
+/* Solid dark chrome so the buy CTA reads clearly on the warm recommend card. */
+.daily-fortune-recommend-buy-btn {
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #171717 !important;
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgb(23 23 23 / 0.22);
+}
+
+.daily-fortune-recommend-buy-btn:hover:not(:disabled) {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+.daily-fortune-recommend-buy-btn:disabled,
+.daily-fortune-recommend-buy-btn[data-loading='true'] {
+  background: #171717 !important;
+  color: #fff !important;
+  opacity: 0.72;
+}
+
 .daily-fortune-paywall {
   padding: 20px 16px;
   text-align: center;

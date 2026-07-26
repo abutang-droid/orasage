@@ -450,7 +450,7 @@ export function DailyFortuneFlow() {
                 ) : null}
                 <Button
                   type="button"
-                  className="w-full"
+                  className="daily-fortune-recommend-buy-btn w-full"
                   disabled={buyLoading}
                   loading={buyLoading}
                   onClick={() => void handleRecommendBuy()}
