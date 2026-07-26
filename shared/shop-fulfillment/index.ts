@@ -24,22 +24,19 @@ export function inferCoupleEligible(sku?: string | null): boolean {
   return Boolean(sku && sku.includes('couple'));
 }
 
-export const SHIPPING_COUNTRIES = [
-  { code: 'CN', label: '中国' },
-  { code: 'HK', label: '中国香港' },
-  { code: 'MO', label: '中国澳门' },
-  { code: 'TW', label: '中国台湾' },
-  { code: 'US', label: '美国' },
-  { code: 'CA', label: '加拿大' },
-  { code: 'GB', label: '英国' },
-  { code: 'AU', label: '澳大利亚' },
-  { code: 'SG', label: '新加坡' },
-  { code: 'MY', label: '马来西亚' },
-  { code: 'JP', label: '日本' },
-  { code: 'KR', label: '韩国' },
-  { code: 'DE', label: '德国' },
-  { code: 'FR', label: '法国' },
-] as const;
+export {
+  SHIPPING_CONTINENTS,
+  SHIPPING_COUNTRIES,
+  continentForCountry,
+  countriesForContinent,
+  findShippingCountry,
+  shippingContinentLabel,
+  shippingCountryLabel,
+  type ShippingContinentCode,
+  type ShippingCountry,
+} from './geo';
+
+import { SHIPPING_COUNTRIES } from './geo';
 
 export type ShippingRecipient = {
   name: string;
@@ -76,7 +73,7 @@ export function estimateShippingFeeCents(
 
 export function formatRecipientLine(r: ShippingRecipient): string {
   const country = r.countryCode && r.countryCode !== 'CN'
-    ? SHIPPING_COUNTRIES.find((c) => c.code === r.countryCode)?.label ?? r.countryCode
+    ? SHIPPING_COUNTRIES.find((c) => c.code === r.countryCode)?.labelZh ?? r.countryCode
     : '';
   const parts = [country, r.province, r.city, r.district, r.address, r.postalCode ? `邮编 ${r.postalCode}` : '']
     .filter(Boolean);

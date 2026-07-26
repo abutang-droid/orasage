@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import {
-  SHIPPING_COUNTRIES,
   estimateShippingFeeCents,
   type ShippingPayload,
   type ShippingRecipient,
 } from '../../../shared/shop-fulfillment/index';
 import { addressToRecipient, type UserAddress } from '@/lib/addresses';
+import { AddressLocationFields } from '@/components/AddressLocationFields';
 
 type Props = {
   orderNo: string;
@@ -22,7 +22,7 @@ type Props = {
 };
 
 function emptyRecipient(): ShippingRecipient {
-  return { name: '', phone: '', countryCode: 'CN', address: '', wristCm: '' };
+  return { name: '', phone: '', countryCode: '', address: '', wristCm: '' };
 }
 
 export function ShippingForm({
@@ -95,12 +95,12 @@ export function ShippingForm({
     couple ? 2 : 1,
   );
 
-  function countryLabel(code: string) {
-    return t(`countries.${code}` as 'countries.CN');
-  }
-
   function updateRecipient(index: number, field: keyof ShippingRecipient, value: string) {
     setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
+  }
+
+  function patchRecipient(index: number, patch: Partial<ShippingRecipient>) {
+    setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
   }
 
   function applySavedAddress(index: number, addressId: string) {
@@ -220,41 +220,16 @@ export function ShippingForm({
             />
           </label>
 
-          <label className="shop-shipping-label">
-            {t('country')}
-            <select
-              className="shop-shipping-input"
-              value={recipient.countryCode ?? 'CN'}
-              onChange={(e) => updateRecipient(index, 'countryCode', e.target.value)}
-              required
-            >
-              {SHIPPING_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{countryLabel(c.code)}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="shop-shipping-label">
-            {t('province')}
-            <input
-              type="text"
-              className="shop-shipping-input"
-              value={recipient.province ?? ''}
-              onChange={(e) => updateRecipient(index, 'province', e.target.value)}
-              autoComplete="address-level1"
-            />
-          </label>
-
-          <label className="shop-shipping-label">
-            {t('city')}
-            <input
-              type="text"
-              className="shop-shipping-input"
-              value={recipient.city ?? ''}
-              onChange={(e) => updateRecipient(index, 'city', e.target.value)}
-              autoComplete="address-level2"
-            />
-          </label>
+          <AddressLocationFields
+            value={{
+              countryCode: recipient.countryCode,
+              province: recipient.province,
+              city: recipient.city,
+              district: recipient.district,
+            }}
+            onChange={(patch) => patchRecipient(index, patch)}
+            required
+          />
 
           <label className="shop-shipping-label">
             {t('address')}
