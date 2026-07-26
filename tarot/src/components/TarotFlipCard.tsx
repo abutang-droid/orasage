@@ -46,16 +46,22 @@ export function TarotFlipCard({
   const framePad = Math.round(width * 0.03);
   const plaqueH = Math.round(width * 0.18);
   const cardH = Math.round(width * 1.48);
-  const totalH = cardH + framePad * 2 + (showCaption && captionText ? 0 : plaqueH);
+  const faceH = cardH + framePad * 2;
+  const hasCaption = Boolean(showCaption && captionText);
+  // Caption sits below the face in document flow — do not clamp outer height to
+  // face-only, or sibling labels (e.g. three-card position-sub) overlap it.
+  const outerStyle = hasCaption
+    ? { width: width + framePad * 2, minHeight: faceH }
+    : { width: width + framePad * 2, height: faceH + plaqueH };
 
   const inner = (
     <div
-      className={`tarot-flip-card${glowing ? ' tarot-flip-card--glow' : ''}`}
-      style={{ width: width + framePad * 2, height: totalH }}
+      className={`tarot-flip-card${glowing ? ' tarot-flip-card--glow' : ''}${hasCaption ? ' tarot-flip-card--with-caption' : ''}`}
+      style={outerStyle}
     >
       <div
         className={`tarot-flip-card-inner${flipped ? ' is-flipped' : ''}`}
-        style={{ height: cardH + framePad * 2 }}
+        style={{ height: faceH }}
       >
         <div className="tarot-flip-card-face tarot-flip-card-face--back">
           <CardFrame back width={width} glow={glowing} noPlaque />
@@ -69,7 +75,7 @@ export function TarotFlipCard({
           </div>
         </div>
       </div>
-      {showCaption && captionText ? (
+      {hasCaption ? (
         <p className="tarot-flip-card-caption">{captionText}</p>
       ) : null}
     </div>

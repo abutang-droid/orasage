@@ -782,6 +782,9 @@ body {
 .tarot-flip-card {
   position: relative;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .tarot-flip-card--glow {
   filter: drop-shadow(0 8px 24px rgba(201, 149, 74, 0.35));
@@ -789,6 +792,7 @@ body {
 .tarot-flip-card-inner {
   position: relative;
   width: 100%;
+  flex: 0 0 auto;
   transform-style: preserve-3d;
   transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -808,11 +812,20 @@ body {
   transform: rotate(180deg);
 }
 .tarot-flip-card-caption {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   margin: 8px 0 0;
+  padding: 0 2px;
   font-size: 11px;
   text-align: center;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .tarot-flip-card-btn {
   background: none;
