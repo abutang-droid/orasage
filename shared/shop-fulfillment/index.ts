@@ -36,6 +36,8 @@ export {
   type ShippingCountry,
 } from './geo';
 
+export { staticRegionsForCountry } from './region-fallback';
+
 import { SHIPPING_COUNTRIES } from './geo';
 
 export type ShippingRecipient = {

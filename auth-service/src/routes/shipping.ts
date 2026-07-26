@@ -10,6 +10,7 @@ import {
   type AiLocale,
 } from "../../../shared/ai-locale/index.ts";
 import { findShippingCountry } from "../../../shared/shop-fulfillment/geo.ts";
+import { staticRegionsForCountry } from "../../../shared/shop-fulfillment/region-fallback.ts";
 
 export const shippingRouter = Router();
 
@@ -123,13 +124,19 @@ shippingRouter.get("/regions", async (req, res) => {
   }
 
   if (!isLlmConfigured()) {
+    // Province→city still needs AI; country→province can use static fallbacks.
+    const staticItems = province?.trim()
+      ? []
+      : staticRegionsForCountry(country, aiLocale);
     res.json({
       country,
       province: province || null,
-      items: [],
-      source: "unavailable",
-      manual: true,
-      suggestion: "Region list unavailable — please enter manually",
+      items: staticItems,
+      source: staticItems.length ? "static" : "unavailable",
+      manual: staticItems.length === 0,
+      suggestion: staticItems.length
+        ? undefined
+        : "Region list unavailable — please enter manually",
     });
     return;
   }
@@ -178,26 +185,36 @@ Rules:
     const json = extractJsonObject(content);
     const items = normalizeNameList(json?.items ?? json?.regions ?? json?.cities);
     const found = json?.found !== false && items.length > 0;
-    const finalItems = found ? items : [];
+    let finalItems = found ? items : [];
+    let source: "ai" | "static" = "ai";
+    if (finalItems.length === 0 && !province?.trim()) {
+      finalItems = staticRegionsForCountry(country, aiLocale);
+      if (finalItems.length) source = "static";
+    }
     regionsCache.set(cacheKey, { at: Date.now(), items: finalItems });
     res.json({
       country,
       province: province || null,
       items: finalItems,
-      source: "ai",
+      source,
       level,
       manual: finalItems.length === 0,
       suggestion: typeof json?.suggestion === "string" ? json.suggestion : undefined,
     });
   } catch (err) {
     console.error("[shipping] regions:", err);
+    const staticItems = province?.trim()
+      ? []
+      : staticRegionsForCountry(country, aiLocale);
     res.json({
       country,
       province: province || null,
-      items: [],
-      source: "error",
-      manual: true,
-      suggestion: "Could not load regions — please enter manually",
+      items: staticItems,
+      source: staticItems.length ? "static" : "error",
+      manual: staticItems.length === 0,
+      suggestion: staticItems.length
+        ? undefined
+        : "Could not load regions — please enter manually",
     });
   }
 });
