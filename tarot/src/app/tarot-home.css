@@ -1426,20 +1426,42 @@
 }
 
 .daily-fortune-recommend {
-  padding: 16px;
+  padding: 18px 16px;
   margin-bottom: 16px;
+  border-color: rgb(var(--tarot-accent-rgb) / 0.28);
+  background:
+    radial-gradient(ellipse 70% 80% at 100% 0%, rgb(var(--tarot-accent-rgb) / 0.1), transparent 55%),
+    var(--bg-card);
+}
+
+.daily-fortune-recommend-lead {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.daily-fortune-recommend-element {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--tarot-accent-muted);
 }
 
 .daily-fortune-recommend-name {
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
   margin: 0 0 6px;
+  color: var(--text-primary);
 }
 
 .daily-fortune-recommend-desc {
   margin: 0 0 8px;
   font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .daily-fortune-recommend-price {
