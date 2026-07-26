@@ -137,6 +137,8 @@ deploy_native() {
   export NEXT_PUBLIC_SHOP_URL="${SHOP_URL:-https://shop.${SITE_APEX:-orasage.com}}"
   export NEXT_PUBLIC_CMS_URL="${CMS_PUBLIC_URL:-https://admin.${SITE_APEX:-orasage.com}/cms}"
 
+  # Wipe Next cache so shared packages/i18n (file:) changes are always picked up
+  rm -rf "$APP_DIR/.next"
   npm run build
 
   # Install unit with correct npm path when /usr/local/bin/npm is missing
