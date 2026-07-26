@@ -255,6 +255,25 @@
   width: 100%;
 }
 
+.geo-journey-confirm-cta {
+  min-height: 52px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%) !important;
+  color: #fff !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 10px 28px rgba(184, 148, 63, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+.geo-journey-confirm-cta:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 4px 14px rgba(184, 148, 63, 0.28) !important;
+}
+
 .geo-journey-footer {
   padding-top: 0;
 }

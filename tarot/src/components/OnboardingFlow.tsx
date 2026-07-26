@@ -328,11 +328,11 @@ export function OnboardingFlow() {
     );
   }
 
+  const isGeoStep = step === 'geo_journey';
+
   return (
     <div className="onboarding-page">
-      <div className="onboarding-layout">
-        <MantoHero alt={copy.mentorAlt} role={copy.mentorRole} />
-
+      <div className={`onboarding-layout${isGeoStep ? ' onboarding-layout--geo' : ''}`}>
         <div className="onboarding-stage">
           <div className="onboarding-chat">
             {lines.map((line, i) =>
@@ -353,7 +353,12 @@ export function OnboardingFlow() {
           <div className="onboarding-panel">
             {step === 'intro' && introDone && (
               <div className="onboarding-actions">
-                <Button type="button" className="w-full" onClick={goAfterIntro}>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="onboarding-confirm-btn w-full"
+                  onClick={goAfterIntro}
+                >
                   {copy.start}
                 </Button>
               </div>
@@ -376,7 +381,8 @@ export function OnboardingFlow() {
                 <div className="onboarding-actions">
                   <Button
                     type="button"
-                    className="w-full"
+                    size="lg"
+                    className="onboarding-confirm-btn w-full"
                     disabled={!draft.nickname.trim()}
                     onClick={onNicknameNext}
                   >
@@ -387,11 +393,22 @@ export function OnboardingFlow() {
             )}
 
             {step === 'prefill_confirm' && (
-              <div className="onboarding-actions">
-                <Button type="button" className="w-full" onClick={acceptPrefill}>
+              <div className="onboarding-actions onboarding-actions--stack">
+                <Button
+                  type="button"
+                  size="lg"
+                  className="onboarding-confirm-btn w-full"
+                  onClick={acceptPrefill}
+                >
                   {copy.confirmContinue}
                 </Button>
-                <Button type="button" variant="ghost" className="w-full" onClick={editPrefill}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="onboarding-secondary-btn w-full"
+                  onClick={editPrefill}
+                >
                   {copy.editPrefill}
                 </Button>
               </div>
@@ -409,7 +426,8 @@ export function OnboardingFlow() {
                 <div className="onboarding-actions">
                   <Button
                     type="button"
-                    className="w-full"
+                    size="lg"
+                    className="onboarding-confirm-btn w-full"
                     disabled={!draft.birthdate}
                     onClick={onBirthdayNext}
                   >
@@ -467,17 +485,19 @@ export function OnboardingFlow() {
 
             {step === 'saving' && (
               <div className="onboarding-actions">
-                <Button type="button" className="w-full" disabled>
+                <Button type="button" size="lg" className="onboarding-confirm-btn w-full" disabled>
                   {saving ? copy.savingBtn : copy.done}
                 </Button>
               </div>
             )}
 
             {error ? (
-              <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 10 }}>{error}</p>
+              <p className="onboarding-error">{error}</p>
             ) : null}
           </div>
         </div>
+
+        {!isGeoStep ? <MantoHero alt={copy.mentorAlt} role={copy.mentorRole} /> : null}
       </div>
     </div>
   );

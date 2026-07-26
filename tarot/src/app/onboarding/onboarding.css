@@ -10,51 +10,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
   min-height: 100dvh;
 }
 
-.onboarding-hero {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 12px;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(201, 168, 76, 0.18), transparent 70%),
-    linear-gradient(180deg, rgba(184, 148, 63, 0.08) 0%, transparent 100%);
-}
-
-.onboarding-hero-portrait {
-  width: min(220px, 58vw);
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: center top;
-  border-radius: 20px;
-  border: 2px solid rgba(184, 148, 63, 0.35);
-  box-shadow:
-    0 16px 48px rgba(42, 33, 24, 0.12),
-    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-}
-
-.onboarding-hero-caption {
-  margin-top: 12px;
-  text-align: center;
-}
-
-.onboarding-mentor-name {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.04em;
-}
-
-.onboarding-mentor-role {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
+.onboarding-layout--geo {
+  max-width: none;
 }
 
 .onboarding-stage {
@@ -62,7 +24,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 0 16px max(16px, env(safe-area-inset-bottom));
+  padding: 16px 16px 12px;
 }
 
 .onboarding-chat {
@@ -71,7 +33,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 8px 4px 16px;
+  padding: 4px 2px 16px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -129,84 +91,159 @@
 
 .onboarding-panel {
   flex-shrink: 0;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 1px solid rgba(184, 148, 63, 0.12);
 }
 
 .onboarding-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
 }
 
 .onboarding-option {
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
   background: #fff;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .onboarding-option.is-selected,
-.onboarding-option:hover {
+.onboarding-option:active {
   border-color: var(--gold);
-  background: rgba(184, 148, 63, 0.08);
+  background: rgba(184, 148, 63, 0.1);
   color: var(--gold);
 }
 
 .onboarding-actions {
   display: flex;
-  gap: 10px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 14px;
 }
 
-.onboarding-btn-primary {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
+.onboarding-actions--stack {
+  gap: 10px;
 }
 
-.onboarding-btn-primary:disabled {
-  opacity: 0.5;
-  cursor: wait;
+.onboarding-confirm-btn {
+  min-height: 52px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%) !important;
+  color: #fff !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 10px 28px rgba(184, 148, 63, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
 }
 
-.onboarding-btn-ghost {
-  padding: 12px 18px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 14px;
-  cursor: pointer;
+.onboarding-confirm-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 4px 14px rgba(184, 148, 63, 0.28) !important;
+}
+
+.onboarding-confirm-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none !important;
+}
+
+.onboarding-secondary-btn {
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
 }
 
 .onboarding-date,
 .onboarding-text-input {
   width: 100%;
-  max-width: 280px;
-  margin: 0 auto;
+  margin: 0;
   display: block;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  min-height: 56px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(184, 148, 63, 0.28);
   background: #fff;
-  font-size: 16px;
+  font-size: 18px;
+  line-height: 1.4;
   color: var(--text-primary);
+  box-shadow: 0 4px 16px rgba(42, 33, 24, 0.04);
 }
 
 .onboarding-text-input {
   text-align: center;
+}
+
+.onboarding-date:focus,
+.onboarding-text-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 3px rgba(184, 148, 63, 0.18),
+    0 4px 16px rgba(42, 33, 24, 0.04);
+}
+
+.onboarding-error {
+  text-align: center;
+  color: #b91c1c;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+/* Welcome portrait sits under the dialogue stack (mobile-first vertical). */
+.onboarding-hero {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px max(20px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 100%, rgba(201, 168, 76, 0.16), transparent 72%),
+    linear-gradient(0deg, rgba(184, 148, 63, 0.07) 0%, transparent 100%);
+  border-top: 1px solid rgba(184, 148, 63, 0.1);
+}
+
+.onboarding-hero-portrait {
+  width: min(148px, 42vw);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 18px;
+  border: 2px solid rgba(184, 148, 63, 0.35);
+  box-shadow:
+    0 12px 32px rgba(42, 33, 24, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+.onboarding-hero-caption {
+  text-align: center;
+}
+
+.onboarding-mentor-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.onboarding-mentor-role {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
 }
 
 .onboarding-prefill-card {
@@ -241,36 +278,22 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (min-width: 900px) {
-  .onboarding-layout {
-    flex-direction: row;
-    align-items: stretch;
-    max-width: 1080px;
-    margin: 0 auto;
-    min-height: 100dvh;
-  }
-
-  .onboarding-hero {
-    flex: 0 0 38%;
-    max-width: 400px;
-    padding: 32px 28px;
-    border-right: 1px solid rgba(184, 148, 63, 0.12);
-  }
-
-  .onboarding-hero-portrait {
-    width: 100%;
-    max-width: 320px;
-    aspect-ratio: 3 / 4;
+/* Keep the same vertical stack on wider screens — no left/right dialogue split. */
+@media (min-width: 640px) {
+  .onboarding-layout:not(.onboarding-layout--geo) {
+    max-width: 560px;
+    padding-top: 12px;
   }
 
   .onboarding-stage {
-    flex: 1;
-    min-width: 0;
-    max-width: 640px;
-    padding: 28px 32px 24px;
+    padding: 20px 24px 16px;
   }
 
-  .onboarding-faith-wrap:not(:has(.faith-picker--collapsed)) {
-    max-height: 50vh;
+  .onboarding-hero-portrait {
+    width: min(168px, 36vw);
+  }
+
+  .onboarding-mentor-name {
+    font-size: 18px;
   }
 }
