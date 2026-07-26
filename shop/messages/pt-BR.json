@@ -163,6 +163,8 @@
     "cityManualPlaceholder": "Digite a cidade",
     "address": "Endereço",
     "postalOptional": "CEP (opcional)",
+    "taxIdOptional": "CPF / ID fiscal (opcional)",
+    "taxIdPlaceholder": "CPF, CNPJ ou NIF",
     "wristCm": "Circunferência do pulso (cm)",
     "wristPlaceholder": "ex.: 16",
     "saveToBook": "Salvar no catálogo de endereços",

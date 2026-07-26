@@ -123,6 +123,8 @@ export const userAddresses = pgTable("user_addresses", {
   district: varchar("district", { length: 100 }),
   addressLine: varchar("address_line", { length: 500 }).notNull(),
   postalCode: varchar("postal_code", { length: 20 }),
+  /** Personal tax / VAT / CPF-style ID for customs or invoicing */
+  taxId: varchar("tax_id", { length: 64 }),
   wristCm: varchar("wrist_cm", { length: 20 }),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),

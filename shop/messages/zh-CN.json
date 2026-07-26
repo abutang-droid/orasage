@@ -163,6 +163,8 @@
     "cityManualPlaceholder": "请输入城市",
     "address": "详细地址",
     "postalOptional": "邮编（选填）",
+    "taxIdOptional": "个人税号（选填）",
+    "taxIdPlaceholder": "VAT / 税号 / CPF 等",
     "wristCm": "手腕周长（cm）",
     "wristPlaceholder": "例如 16",
     "saveToBook": "保存到地址簿",

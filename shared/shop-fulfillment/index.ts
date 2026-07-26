@@ -49,6 +49,8 @@ export type ShippingRecipient = {
   district?: string;
   address: string;
   postalCode?: string;
+  /** Personal tax / VAT / CPF-style ID */
+  taxId?: string;
   wristCm?: string;
 };
 
@@ -77,8 +79,15 @@ export function formatRecipientLine(r: ShippingRecipient): string {
   const country = r.countryCode && r.countryCode !== 'CN'
     ? SHIPPING_COUNTRIES.find((c) => c.code === r.countryCode)?.labelZh ?? r.countryCode
     : '';
-  const parts = [country, r.province, r.city, r.district, r.address, r.postalCode ? `邮编 ${r.postalCode}` : '']
-    .filter(Boolean);
+  const parts = [
+    country,
+    r.province,
+    r.city,
+    r.district,
+    r.address,
+    r.postalCode ? `邮编 ${r.postalCode}` : '',
+    r.taxId ? `税号 ${r.taxId}` : '',
+  ].filter(Boolean);
   return parts.join(' ');
 }
 

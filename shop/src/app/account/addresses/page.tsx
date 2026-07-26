@@ -23,6 +23,7 @@ function emptyForm(): ShippingRecipient & { label?: string } {
     city: '',
     address: '',
     postalCode: '',
+    taxId: '',
     wristCm: '',
   };
 }
@@ -68,6 +69,7 @@ export default function AddressBookPage() {
       city: addr.city ?? '',
       address: addr.addressLine,
       postalCode: addr.postalCode ?? '',
+      taxId: addr.taxId ?? '',
       wristCm: addr.wristCm ?? '',
     });
   }
@@ -85,6 +87,7 @@ export default function AddressBookPage() {
       city: form.city || null,
       addressLine: form.address,
       postalCode: form.postalCode || null,
+      taxId: form.taxId?.trim() || null,
       wristCm: form.wristCm || null,
       isDefault: addresses.length === 0,
     };
@@ -196,6 +199,16 @@ export default function AddressBookPage() {
         <label className="shop-shipping-label">
           {t('postal')}
           <input className="shop-shipping-input" value={form.postalCode ?? ''} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
+        </label>
+        <label className="shop-shipping-label">
+          {ts('taxIdOptional')}
+          <input
+            className="shop-shipping-input"
+            value={form.taxId ?? ''}
+            onChange={(e) => setForm({ ...form, taxId: e.target.value })}
+            placeholder={ts('taxIdPlaceholder')}
+            autoComplete="off"
+          />
         </label>
         {error ? <p className="shop-shipping-error">{error}</p> : null}
         <Button type="submit" className="shop-shipping-submit w-full" disabled={saving} loading={saving}>

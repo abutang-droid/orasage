@@ -258,6 +258,18 @@ export function ShippingForm({
             />
           </label>
 
+          <label className="shop-shipping-label">
+            {t('taxIdOptional')}
+            <input
+              type="text"
+              className="shop-shipping-input"
+              value={recipient.taxId ?? ''}
+              onChange={(e) => updateRecipient(index, 'taxId', e.target.value)}
+              placeholder={t('taxIdPlaceholder')}
+              autoComplete="off"
+            />
+          </label>
+
           {requireWrist ? (
             <label className="shop-shipping-label">
               {t('wristCm')}

@@ -20,6 +20,7 @@ const shippingSchema = z.object({
     district: z.string().max(100).optional(),
     address: z.string().max(500),
     postalCode: z.string().max(20).optional(),
+    taxId: z.string().max(64).optional(),
     wristCm: z.string().max(20).optional(),
   })).min(1).max(2),
   saveToAddressBook: z.boolean().optional(),
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
             district: recipient.district ?? null,
             addressLine: recipient.address,
             postalCode: recipient.postalCode ?? null,
+            taxId: recipient.taxId ?? null,
             wristCm: recipient.wristCm ?? null,
           }),
         });

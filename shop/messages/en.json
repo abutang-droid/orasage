@@ -163,6 +163,8 @@
     "cityManualPlaceholder": "Type city",
     "address": "Street address",
     "postalOptional": "Postal code (optional)",
+    "taxIdOptional": "Personal tax ID (optional)",
+    "taxIdPlaceholder": "VAT / tax / CPF number",
     "wristCm": "Wrist circumference (cm)",
     "wristPlaceholder": "e.g. 16",
     "saveToBook": "Save to address book",
