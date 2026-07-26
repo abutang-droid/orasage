@@ -19,6 +19,7 @@ import {
   redirectAfterCheckout,
   isCheckoutAuthRequiredError,
 } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import { recommendCrystal } from '@/lib/tarot/crystals';
 import type {
   DailyFortuneFullReport,
@@ -446,7 +447,9 @@ export function DailyFortuneFlow() {
               <p className="daily-fortune-recommend-desc">{crystalRecommend.desc}</p>
               <div className="daily-fortune-recommend-buy">
                 {crystalRecommend.priceDisplay ? (
-                  <p className="daily-fortune-recommend-price">{crystalRecommend.priceDisplay}</p>
+                  <p className="daily-fortune-recommend-price">
+                    <PriceDisplay value={crystalRecommend.priceDisplay} />
+                  </p>
                 ) : null}
                 <Button
                   type="button"

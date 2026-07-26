@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Product } from '@/lib/products';
 import { ProductImage } from '@/components/ProductImage';
-import { formatDualShopPrice } from '@/lib/currency';
+import { PriceDisplay } from './PriceDisplay';
 
 export async function RelatedProducts({ skus, title }: { skus: string[]; title?: string }) {
   if (!skus.length) return null;
@@ -44,11 +44,6 @@ function RelatedProductCard({
   product: Product;
   imageUrl: string | null;
 }) {
-  const displayPrice = formatDualShopPrice({
-    priceCents: product.priceCents,
-    priceCentsUsd: product.priceCentsUsd,
-  });
-
   return (
     <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-pdp-related-card">
       <ProductImage
@@ -59,7 +54,14 @@ function RelatedProductCard({
         className="shop-pdp-related-image"
       />
       <span className="shop-pdp-related-name">{product.name}</span>
-      <span className="shop-pdp-related-price">{displayPrice}</span>
+      <span className="shop-pdp-related-price">
+        <PriceDisplay
+          pricing={{
+            priceCents: product.priceCents,
+            priceCentsUsd: product.priceCentsUsd,
+          }}
+        />
+      </span>
     </Link>
   );
 }

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import '../../../shared/design-tokens/orasage-tokens.css';
 @import '../../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../../../shared/shop-locale/os-price.css';
 @import '../../tarot-tailwind-v4-theme.css';
 
 @source "../**/*.{ts,tsx}";

@@ -22,7 +22,7 @@ import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
-import { formatDualShopPrice } from '@/lib/currency';
+import { PriceDisplay } from '@/components/PriceDisplay';
 
 type PageProps = { params: Promise<{ sku: string }> };
 
@@ -61,10 +61,6 @@ export default async function ProductPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  const displayPrice = formatDualShopPrice({
-    priceCents: product.priceCents,
-    priceCentsUsd: product.priceCentsUsd,
-  });
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const subtitle = cmsPage?.subtitle?.trim();
   const rawContent = buildPdpContent(cmsPage?.sections ?? [], {
@@ -119,7 +115,14 @@ export default async function ProductPage({ params }: PageProps) {
             {subtitle ? (
               <p className="shop-pdp-english-subtitle">{subtitle}</p>
             ) : null}
-            <p className="shop-pdp-price">{displayPrice}</p>
+            <p className="shop-pdp-price">
+              <PriceDisplay
+                pricing={{
+                  priceCents: product.priceCents,
+                  priceCentsUsd: product.priceCentsUsd,
+                }}
+              />
+            </p>
             <ProductDetailActions product={product} />
             {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
             {!hasAccordion && product.desc ? (

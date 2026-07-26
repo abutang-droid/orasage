@@ -9,6 +9,7 @@ import {
   resolveUsdtCents,
   type ShopCurrency,
 } from '@/lib/currency';
+import { PriceDisplay } from '@/components/PriceDisplay';
 
 const DRAFT_KEY = 'orasage_diy_draft_v1';
 const RULER_MIN = 10;
@@ -619,7 +620,10 @@ export function DiyDesigner({
                     />
                   )}
                   <div className="shop-diy-card-nm">{bead.name}</div>
-                  <div className="shop-diy-card-meta">{sizeLabel(bead)} · {formatDualShopPrice(displayCents)}{td('perBead')}</div>
+                  <div className="shop-diy-card-meta">
+                    {sizeLabel(bead)} · <PriceDisplay pricing={displayCents} />
+                    {td('perBead')}
+                  </div>
                   <div className="shop-diy-card-tags">
                     {bead.type !== 'crystal' ? <span className="shop-diy-card-type">{typeLabel(bead.type)}</span> : null}
                     {bead.element ? <span className="shop-diy-card-el">{td('tabElement', { el: bead.element })}</span> : null}
@@ -635,7 +639,9 @@ export function DiyDesigner({
       <div className="shop-diy-bar">
         <div className="shop-diy-bar-in">
           <div className="shop-diy-bar-price">
-            <div className="shop-diy-bar-amount">{formatDualShopPrice(totalDisplayCents)}</div>
+            <div className="shop-diy-bar-amount">
+              <PriceDisplay pricing={totalDisplayCents} />
+            </div>
             <div className="shop-diy-bar-note">
               {design.length === 0
                 ? td('startDesign')

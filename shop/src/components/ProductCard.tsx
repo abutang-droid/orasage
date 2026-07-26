@@ -12,9 +12,9 @@ import {
   CardTitle,
 } from '@orasage/ui/card';
 import type { Product } from '@/lib/products';
-import { formatDualShopPrice } from '@/lib/currency';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
+import { PriceDisplay } from './PriceDisplay';
 
 export function ProductCard({ product }: { product: Product }) {
   const t = useTranslations('product');
@@ -22,11 +22,6 @@ export function ProductCard({ product }: { product: Product }) {
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
-
-  const displayPrice = formatDualShopPrice({
-    priceCents: product.priceCents,
-    priceCentsUsd: product.priceCentsUsd,
-  });
 
   async function handleBuy() {
     setLoading(true);
@@ -105,7 +100,14 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
 
         <div className="shop-product-card-meta">
-          <span className="shop-product-price">{displayPrice}</span>
+          <span className="shop-product-price">
+            <PriceDisplay
+              pricing={{
+                priceCents: product.priceCents,
+                priceCentsUsd: product.priceCentsUsd,
+              }}
+            />
+          </span>
           <CardFooter className="shop-product-card-actions p-0">
             <Button
               type="button"

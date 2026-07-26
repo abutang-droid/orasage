@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { startAppCheckout } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import {
   fetchZiweiChatProducts,
   type ZiweiChatProduct,
@@ -89,7 +90,9 @@ export function ZiweiChatPaywall({ readingId, quota, onPurchased }: Props) {
                 <strong>{plan.name}</strong>
                 <span>{plan.desc}</span>
               </div>
-              <em>{plan.priceDisplay}</em>
+              <em>
+                <PriceDisplay value={plan.priceDisplay} />
+              </em>
             </Button>
           ))}
         </div>

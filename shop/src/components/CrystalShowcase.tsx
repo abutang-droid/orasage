@@ -14,9 +14,9 @@ import {
   type CrystalContentMap,
 } from '../../../shared/shop-crystal/content';
 import type { Product } from '@/lib/products';
-import { formatDualShopPrice } from '@/lib/currency';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
+import { PriceDisplay } from './PriceDisplay';
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 type PackVariant = 'standard' | 'gift';
@@ -25,13 +25,6 @@ type CrystalShowcaseProps = {
   lineup: CrystalLineupItem[];
   content?: CrystalContentMap;
 };
-
-function resolveDisplayPrice(product: Product) {
-  return formatDualShopPrice({
-    priceCents: product.priceCents,
-    priceCentsUsd: product.priceCentsUsd,
-  });
-}
 
 export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const t = useTranslations('crystalShowcase');
@@ -212,7 +205,12 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               <span className="crystal-pack-name">{t('packStandard')}</span>
               <span className="crystal-pack-hint">{t('packStandardHint')}</span>
               <span className="crystal-pack-price">
-                {resolveDisplayPrice(active.standard)}
+                <PriceDisplay
+                  pricing={{
+                    priceCents: active.standard.priceCents,
+                    priceCentsUsd: active.standard.priceCentsUsd,
+                  }}
+                />
               </span>
             </button>
             <button
@@ -226,7 +224,16 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               <span className="crystal-pack-name">{t('packGift')}</span>
               <span className="crystal-pack-hint">{t('packGiftHint')}</span>
               <span className="crystal-pack-price">
-                {active.gift ? resolveDisplayPrice(active.gift) : '—'}
+                {active.gift ? (
+                  <PriceDisplay
+                    pricing={{
+                      priceCents: active.gift.priceCents,
+                      priceCentsUsd: active.gift.priceCentsUsd,
+                    }}
+                  />
+                ) : (
+                  '—'
+                )}
               </span>
             </button>
           </div>

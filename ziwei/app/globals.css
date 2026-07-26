@@ -3,6 +3,7 @@
 @import "tw-animate-css";
 @import '../../shared/design-tokens/orasage-tokens.css';
 @import '../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../../shared/shop-locale/os-price.css';
 @import '../ziwei-tailwind-v4-theme.css';
 @import './assets/orasage-ui.css';
 @import './ziwei-home.css';
@@ -885,9 +886,8 @@ a:hover { color: var(--gold-light); }
 
 .ziwei-chat-plan em {
   font-style: normal;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--gold);
+  font-weight: 500;
+  color: #2563eb;
 }
 
 .ziwei-recommend-card {
@@ -938,9 +938,8 @@ a:hover { color: var(--gold-light); }
 }
 
 .ziwei-recommend-price {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--gold);
+  font-weight: 500;
+  color: #2563eb;
 }
 
 .ziwei-recommend-link {

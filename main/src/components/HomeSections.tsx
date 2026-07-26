@@ -10,6 +10,7 @@ import { externalUrls } from '@/lib/urls';
 import type { HomeHeroContent } from '@/lib/cms-home-hero';
 import type { HomepageCatalog, ProductCategory } from '@/lib/shop-products';
 import { HomeHeroVideo } from '@/components/HomeHeroVideo';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import { cn } from '@/lib/utils';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
@@ -272,7 +273,9 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
               {item.desc}
             </p>
             {item.priceDisplay ? (
-              <p className="mt-auto pt-2 text-sm font-medium text-foreground">{item.priceDisplay}</p>
+              <p className="mt-auto pt-2 text-sm font-medium">
+                <PriceDisplay value={item.priceDisplay} />
+              </p>
             ) : null}
           </a>
         ))}

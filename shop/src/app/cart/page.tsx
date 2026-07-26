@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
-import { formatDualShopPrice, resolveUsdtCents } from '@/lib/currency';
+import { resolveUsdtCents } from '@/lib/currency';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import { ProductImage } from '@/components/ProductImage';
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
@@ -111,13 +112,6 @@ export default function CartPage() {
 
       <ul className="shop-cart-list">
         {lines.map(({ line, product }) => {
-          const displayPrice = product
-            ? formatDualShopPrice({
-              priceCents: product.priceCents,
-              priceCentsUsd: product.priceCentsUsd,
-            })
-            : '—';
-
           return (
             <li key={line.sku} className="shop-cart-item">
               <Link href={`/product/${encodeURIComponent(line.sku)}`} className="shop-cart-item-media">
@@ -137,7 +131,18 @@ export default function CartPage() {
                 <Link href={`/product/${encodeURIComponent(line.sku)}`} className="shop-cart-item-name">
                   {product?.name ?? line.sku}
                 </Link>
-                <p className="shop-cart-item-price">{displayPrice}</p>
+                <p className="shop-cart-item-price">
+                  {product ? (
+                    <PriceDisplay
+                      pricing={{
+                        priceCents: product.priceCents,
+                        priceCentsUsd: product.priceCentsUsd,
+                      }}
+                    />
+                  ) : (
+                    '—'
+                  )}
+                </p>
                 <div className="shop-cart-item-controls">
                   <label className="shop-cart-qty">
                     {t('quantity')}
@@ -166,7 +171,10 @@ export default function CartPage() {
 
       <div className="shop-cart-footer">
         <p className="shop-cart-total">
-          {t('total')} <strong>{formatDualShopPrice(totalCents)}</strong>
+          {t('total')}{' '}
+          <strong>
+            <PriceDisplay pricing={totalCents} />
+          </strong>
         </p>
         <p className="shop-cart-note">{t('note')}</p>
         {checkoutError ? <p className="mt-2 text-sm text-red-600">{checkoutError}</p> : null}

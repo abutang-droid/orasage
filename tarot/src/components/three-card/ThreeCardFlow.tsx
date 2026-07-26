@@ -14,6 +14,7 @@ import { aiLangBody } from '@/lib/i18n/ai-lang-body';
 import { POSITION_KEYS, useThreeCardCopy } from '@/lib/i18n/reading-copy';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import { ThreeCardTrilogyResult } from '@/components/three-card/ThreeCardTrilogyResult';
 import type {
@@ -410,7 +411,9 @@ export function ThreeCardFlow() {
                   <>
                     <p className="three-card-tier-name">{reportProduct.name}</p>
                     <p className="three-card-tier-desc">{reportProduct.desc}</p>
-                    <p className="three-card-tier-price">{reportProduct.priceDisplay}</p>
+                    <p className="three-card-tier-price">
+                      <PriceDisplay value={reportProduct.priceDisplay} />
+                    </p>
                   </>
                 ) : (
                   <p className="three-card-tier-desc">{copy.tier1Fallback}</p>
@@ -437,7 +440,9 @@ export function ThreeCardFlow() {
                   <>
                     <p className="three-card-tier-name">{bundleProduct.name}</p>
                     <p className="three-card-tier-desc">{bundleProduct.desc}</p>
-                    <p className="three-card-tier-price">{bundleProduct.priceDisplay}</p>
+                    <p className="three-card-tier-price">
+                      <PriceDisplay value={bundleProduct.priceDisplay} />
+                    </p>
                   </>
                 ) : (
                   <p className="three-card-tier-desc">{copy.tier2Fallback}</p>

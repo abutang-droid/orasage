@@ -8,6 +8,7 @@ import type { PlanType } from "@shared/types";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { fetchBaziPlanProducts, type PlanProductInfo } from "@/lib/plan-products";
+import { PriceDisplay } from "@/components/PriceDisplay";
 import {
   GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, SERIF_F, SANS_F,
 } from "@/theme";
@@ -194,13 +195,11 @@ export function PaywallCard({
 
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 <span style={{
-                  color: GOLD,
-                  fontFamily: SERIF_F,
-                  fontSize: "1.0625rem",
-                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  fontWeight: 500,
                   whiteSpace: "nowrap",
                 }}>
-                  {loading ? "…" : plan.priceDisplay}
+                  {loading ? "…" : <PriceDisplay value={plan.priceDisplay} />}
                 </span>
                 <p style={{ color: MUTED_CLR, fontSize: "0.625rem", marginTop: "0.125rem" }}>
                   {TIER_HINTS[index] ?? ""}

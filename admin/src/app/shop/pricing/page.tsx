@@ -44,7 +44,7 @@ export default async function ShopPricingPage({
           </div>
           <div>
             <dt className="muted">支付可选</dt>
-            <dd>USDT · WOLD</dd>
+            <dd>U / W（USDT / WOLD 缩写）</dd>
           </div>
         </dl>
       </section>

@@ -11,6 +11,7 @@ import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
 import { aiLangBody as langBody } from '@/lib/i18n/ai-lang-body';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
   DestinySliceFocusPayload,
@@ -116,7 +117,9 @@ function PaywallPanel({
         <>
           <p className="three-card-tier-name">{unlockProduct.name}</p>
           <p className="three-card-tier-desc">{unlockProduct.desc}</p>
-          <p className="three-card-tier-price">{unlockProduct.priceDisplay}</p>
+          <p className="three-card-tier-price">
+            <PriceDisplay value={unlockProduct.priceDisplay} />
+          </p>
         </>
       ) : (
         <p className="three-card-tier-desc">{copy.paywallFallback}</p>

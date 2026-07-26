@@ -4,6 +4,7 @@ import type { PlanType } from "@shared/types";
 import { PLAN_OPTIONS, COUPLE_PLAN_OPTIONS } from "@shared/types";
 import { useT } from "@/lib/i18n";
 import { usePriceFetcher } from "@/lib/priceFetcher";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 import {
   GOLD, GOLD_LIGHT, GOLD_DIM, GOLD_FAINT, GOLD_GHOST,
@@ -221,7 +222,9 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xl font-black" style={{ color: GOLD }}>{plan.priceLabel}</span>
+                    <span className="text-base font-medium">
+                      <PriceDisplay value={plan.priceLabel} />
+                    </span>
                   </div>
                 </div>
 

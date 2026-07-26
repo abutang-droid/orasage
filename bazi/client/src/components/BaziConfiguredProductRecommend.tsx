@@ -6,6 +6,7 @@ import {
   type BaziChartRecommendContext,
   type BaziRecommendProduct,
 } from '@/lib/shop-products';
+import { PriceDisplay } from '@/components/PriceDisplay';
 
 const GOLD = '#C4A04E';
 const HEADING_CLR = '#2E295B';
@@ -48,8 +49,8 @@ export function BaziConfiguredProductRecommend({ chart }: { chart: BaziChartReco
             {product.desc}
           </p>
         ) : null}
-        <p className="text-sm font-bold mt-2" style={{ color: GOLD }}>
-          {product.priceDisplay}
+        <p className="text-sm font-medium mt-2 product-rec-price">
+          <PriceDisplay value={product.priceDisplay} />
         </p>
         <a
           href={shopUrl}

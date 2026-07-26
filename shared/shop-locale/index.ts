@@ -118,25 +118,123 @@ export function resolvePayAmountCents(usdtCents: number, payCurrency: PayCurrenc
   return usdtCents;
 }
 
+/** 前台展示用缩写：USDT → U，WOLD → W */
+export const PRICE_UNIT_USDT = 'U' as const;
+export const PRICE_UNIT_WOLD = 'W' as const;
+
+export function formatPriceAmount(cents: number): string {
+  return (Math.max(0, cents) / 100).toFixed(2);
+}
+
 export function formatUsdtPrice(usdtCents: number): string {
-  return `${(usdtCents / 100).toFixed(2)} USDT`;
+  return `${formatPriceAmount(usdtCents)} ${PRICE_UNIT_USDT}`;
 }
 
 export function formatWoldPrice(woldCents: number): string {
-  return `${(woldCents / 100).toFixed(2)} WOLD`;
+  return `${formatPriceAmount(woldCents)} ${PRICE_UNIT_WOLD}`;
 }
 
 export function formatPayPrice(cents: number, payCurrency: PayCurrency): string {
   return payCurrency === 'WOLD' ? formatWoldPrice(cents) : formatUsdtPrice(cents);
 }
 
-/** 前台/后台主展示：USDT + WOLD */
-export function formatDualShopPrice(pricingOrUsdtCents: ProductPricing | number, rate = woldPerUsdt()): string {
+export type ParsedPricePart = {
+  amount: string;
+  unit: string;
+};
+
+export type DualPriceParts = {
+  usdtCents: number;
+  woldCents: number;
+  parts: ParsedPricePart[];
+  /** 纯文本：`39.90 U / 39.90 W` */
+  text: string;
+};
+
+/** 结构化双价，供 React / HTML 渲染（单位缩小、蓝色样式） */
+export function dualShopPriceParts(
+  pricingOrUsdtCents: ProductPricing | number,
+  rate = woldPerUsdt(),
+): DualPriceParts {
   const usdtCents =
     typeof pricingOrUsdtCents === 'number'
       ? pricingOrUsdtCents
       : resolveUsdtCents(pricingOrUsdtCents);
-  return `${formatUsdtPrice(usdtCents)} · ${formatWoldPrice(resolveWoldCents(usdtCents, rate))}`;
+  const woldCents = resolveWoldCents(usdtCents, rate);
+  const parts: ParsedPricePart[] = [
+    { amount: formatPriceAmount(usdtCents), unit: PRICE_UNIT_USDT },
+    { amount: formatPriceAmount(woldCents), unit: PRICE_UNIT_WOLD },
+  ];
+  return {
+    usdtCents,
+    woldCents,
+    parts,
+    text: `${parts[0].amount} ${parts[0].unit} / ${parts[1].amount} ${parts[1].unit}`,
+  };
+}
+
+/**
+ * 解析价格展示串（兼容旧 `USDT`/`WOLD` 与间隔符 `·`/`/`）。
+ * 例：`39.90 U / 39.90 W`、`39.90 USDT · 39.90 WOLD`
+ */
+export function parsePriceDisplay(text: string): ParsedPricePart[] | null {
+  const raw = text.trim();
+  if (!raw) return null;
+  const re = /(\d+(?:\.\d+)?)\s*(USDT|WOLD|USD|U|W)\b/gi;
+  const parts: ParsedPricePart[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) != null) {
+    const token = m[2].toUpperCase();
+    const unit =
+      token === 'W' || token === 'WOLD' ? PRICE_UNIT_WOLD
+        : token === 'U' || token === 'USDT' || token === 'USD' ? PRICE_UNIT_USDT
+          : token;
+    parts.push({ amount: m[1], unit });
+  }
+  return parts.length ? parts : null;
+}
+
+/** 服务端 HTML（报告邮件等）；需一并引入 os-price.css */
+export function formatDualShopPriceHtml(
+  pricingOrUsdtCents: ProductPricing | number,
+  rate = woldPerUsdt(),
+): string {
+  const { parts } = dualShopPriceParts(pricingOrUsdtCents, rate);
+  const inner = parts
+    .map(
+      (p, i) =>
+        `${i > 0 ? '<span class="os-price-sep">/</span>' : ''}` +
+        `<span class="os-price-part"><span class="os-price-amount">${p.amount}</span>` +
+        `<span class="os-price-unit">${p.unit}</span></span>`,
+    )
+    .join('');
+  return `<span class="os-price">${inner}</span>`;
+}
+
+/** 将已有展示串转为带样式的 HTML（兼容旧文案） */
+export function priceDisplayToHtml(text: string): string {
+  const parts = parsePriceDisplay(text);
+  if (!parts?.length) {
+    const safe = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<span class="os-price">${safe}</span>`;
+  }
+  const inner = parts
+    .map(
+      (p, i) =>
+        `${i > 0 ? '<span class="os-price-sep">/</span>' : ''}` +
+        `<span class="os-price-part"><span class="os-price-amount">${p.amount}</span>` +
+        `<span class="os-price-unit">${p.unit}</span></span>`,
+    )
+    .join('');
+  return `<span class="os-price">${inner}</span>`;
+}
+
+/** 前台/后台主展示：U + W（缩写；样式见 PriceDisplay / os-price.css） */
+export function formatDualShopPrice(pricingOrUsdtCents: ProductPricing | number, rate = woldPerUsdt()): string {
+  return dualShopPriceParts(pricingOrUsdtCents, rate).text;
 }
 
 export function formatShopPrice(cents: number, currency: ShopCurrency): string {
