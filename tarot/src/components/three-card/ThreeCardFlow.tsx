@@ -253,13 +253,13 @@ export function ThreeCardFlow() {
 
   return (
     <div className="three-card-page trilogy-page">
-      <div className="page-header animate-fade-in-up">
-        <h1>{copy.title}</h1>
+      <header className="trilogy-header animate-fade-in-up">
+        <h1 className="trilogy-title">{copy.title}</h1>
         {copy.statusBadge ? <p className="trilogy-status">{copy.statusBadge}</p> : null}
         {session?.nickname ? (
           <p className="trilogy-greeting">{copy.nicknameGreeting(session.nickname)}</p>
         ) : null}
-      </div>
+      </header>
 
       {step === 'intro' && (
         <div className="daily-fortune-panel card animate-fade-in-up delay-100">
