@@ -29,6 +29,25 @@ function worldAuthEndpoints(authBaseUrl?: string): { nonceUrl: string; siweUrl: 
   };
 }
 
+async function reportWorldClientError(payload: Record<string, unknown>) {
+  try {
+    await fetch('/api/world/client-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        href: typeof window !== 'undefined' ? window.location.href : null,
+        host: typeof window !== 'undefined' ? window.location.host : null,
+        appId: worldAppId() || null,
+        ts: new Date().toISOString(),
+      }),
+      keepalive: true,
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
 /**
  * Full World wallet login: nonce → MiniKit.walletAuth → auth-service SIWE verify + cookie.
  */
@@ -37,10 +56,16 @@ export async function signInWithWorldWallet(opts?: {
   authBaseUrl?: string;
 }): Promise<WorldSiweSession> {
   const appId = worldAppId();
-  if (appId) {
-    MiniKit.install(appId);
-  } else {
-    MiniKit.install();
+  const install = appId ? MiniKit.install(appId) : MiniKit.install();
+  if (!install.success) {
+    await reportWorldClientError({
+      stage: 'install',
+      errorCode: install.errorCode,
+      errorMessage: install.errorMessage,
+    });
+    throw new Error(
+      install.errorMessage || install.errorCode || 'WORLD_APP_REQUIRED',
+    );
   }
   if (!MiniKit.isInstalled()) {
     throw new Error('WORLD_APP_REQUIRED');
@@ -57,15 +82,32 @@ export async function signInWithWorldWallet(opts?: {
     throw new Error('Failed to get World login nonce');
   }
   const { nonce } = (await nonceRes.json()) as { nonce: string };
-  if (!nonce || nonce.length < 8) {
+  if (!nonce || nonce.length < 8 || !/^[a-zA-Z0-9]+$/.test(nonce)) {
     throw new Error('Invalid World login nonce');
   }
 
-  const statement = opts?.statement || 'Sign in to OriCosmos with your World wallet';
+  // MiniKit builds SIWE from window.location.href — strip query/hash so the URI
+  // matches the Developer Portal app URL (https://tarot.oricosmos.com).
+  const priorUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+      : '';
+  if (typeof window !== 'undefined') {
+    const clean = `${window.location.origin}${window.location.pathname || '/'}`;
+    if (window.location.href !== clean) {
+      window.history.replaceState({}, '', clean);
+    }
+  }
+
+  // Match official minikit-js demo / next-15-template walletAuth options.
+  const statement =
+    opts?.statement ||
+    `Authenticate (${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '') : nonce}).`;
   const input = {
     nonce,
     statement,
-    expirationTime: new Date(Date.now() + 1000 * 60 * 60),
+    expirationTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    notBefore: new Date(Date.now() - 24 * 60 * 60 * 1000),
     fallback: async () => {
       throw new Error('WORLD_APP_REQUIRED');
     },
@@ -75,14 +117,38 @@ export async function signInWithWorldWallet(opts?: {
   try {
     result = await MiniKit.walletAuth(input);
   } catch (err) {
+    if (typeof window !== 'undefined' && priorUrl) {
+      window.history.replaceState({}, '', priorUrl);
+    }
     const code =
       err && typeof err === 'object' && 'code' in err
         ? String((err as { code?: string }).code || '')
         : '';
+    const details =
+      err && typeof err === 'object' && 'details' in err
+        ? (err as { details?: unknown }).details
+        : undefined;
+    await reportWorldClientError({
+      stage: 'walletAuth',
+      code,
+      details,
+      message: err instanceof Error ? err.message : String(err),
+    });
     if (code === 'user_rejected') {
       throw new Error('Sign-in was cancelled');
     }
+    if (code === 'malformed_request') {
+      throw new Error('World rejected the login request (malformed_request)');
+    }
+    if (code === 'generic_error') {
+      throw new Error(
+        'World wallet login failed. Confirm Developer Portal App URL is https://tarot.oricosmos.com',
+      );
+    }
     throw err instanceof Error ? err : new Error('World walletAuth failed');
+  }
+  if (typeof window !== 'undefined' && priorUrl) {
+    window.history.replaceState({}, '', priorUrl);
   }
   if (result.executedWith === 'fallback') {
     throw new Error('WORLD_APP_REQUIRED');

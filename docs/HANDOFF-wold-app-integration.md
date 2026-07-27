@@ -144,8 +144,16 @@ WORLD_PAYMENT_TO_ADDRESS=0x7819e52eb0239cb00abd70bd631683a9a6942041
 ```
 
 VPS `/opt/orasage/.env` 已写入 App ID、RP ID、Dev Portal API Key、收款地址；`auth/world/status` 应返回 `worldAppId` 非空。  
-当前登录走 MiniKit `walletAuth`（SIWE），支付走 `MiniKit.pay`——**不依赖 RP ID**。RP ID 留给后续 World ID / IDKit 人机验证。  
-World 配置已齐：可在 World App 内测登录 + WLD 支付。
+当前登录走 MiniKit `walletAuth`（SIWE），支付走 `MiniKit.pay`——**不依赖 RP ID**。RP ID 留给后续 World ID / IDKit 人机验证。
+
+### Developer Portal 必查（World 原生「登录失败」时）
+
+若 nonce 成功但 World 弹窗直接「登录失败」、且服务端无 `/api/world/siwe`：
+
+1. **App URL** 必须是 `https://tarot.oricosmos.com`（不要带 path/query；不要写成 auth.*）
+2. **App ID** 与 VM `WORLD_APP_ID` 一致：`app_8001cef1f043f4b7bb48304053b946ac`
+3. 在 World App 内用该 Mini App 入口打开（标题可能仍显示门户里的名字，如 `test`）
+4. 客户端错误会打到 tarot 日志：`[world/client-log]`（`journalctl -u orasage-tarot`）
 
 并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 
