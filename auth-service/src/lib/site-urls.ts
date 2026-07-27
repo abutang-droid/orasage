@@ -34,3 +34,18 @@ export function allowedRedirectHosts(apex = siteApex()): string[] {
     `cms.${apex}`,
   ];
 }
+
+/** Admin console host — may use email/password even when WORLD_AUTH_REQUIRED. */
+export function isAdminHostname(hostname: string, apex = siteApex()): boolean {
+  const host = hostname.toLowerCase().split(":")[0];
+  return host === `admin.${apex}`;
+}
+
+/** True when login redirect targets the admin console (staff password login exception). */
+export function isAdminLoginRedirect(redirect: string, apex = siteApex()): boolean {
+  try {
+    return isAdminHostname(new URL(redirect).hostname, apex);
+  } catch {
+    return false;
+  }
+}

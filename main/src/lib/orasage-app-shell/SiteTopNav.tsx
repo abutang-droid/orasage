@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
+import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, getSiteBrandName, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
@@ -24,7 +24,7 @@ const TOP_NAV_ITEMS: NavItem[] = [
 
 export type SiteTopNavProps = {
   locale?: string;
-  /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / Manto） */
+  /** portal = 平台品牌（OraSage / Manto）；子应用 = 独立品牌（BaZi / ZiWei / Manto） */
   context?: NavContext;
   /** 导航右侧、登录芯片前的插槽（如 shop 购物车） */
   trailing?: ReactNode;
@@ -41,7 +41,7 @@ export function SiteTopNav({
   onLocaleChange,
 }: SiteTopNavProps) {
   const isPortal = context === 'portal';
-  const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
+  const brandLabel = isPortal ? getSiteBrandName() : appBrandLabel(context, locale);
   const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
 
   return (

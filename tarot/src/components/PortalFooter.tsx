@@ -1,7 +1,13 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { useT, useLang } from "@/lib/i18n/context"
-import { mainPortalUrl } from "@/lib/orasage-app-shell/config"
+import {
+  applySiteBrand,
+  getSiteApex,
+  mainPortalUrl,
+  resolveClientSiteApex,
+} from "@/lib/orasage-app-shell/config"
 import { localeFromLang } from "@/lib/orasage-locale"
 
 const FOOTER_COPY = {
@@ -31,11 +37,19 @@ export function PortalFooter() {
   const { lang } = useLang()
   const locale = localeFromLang(lang)
   const base = mainPortalUrl(locale)
+  const [apex, setApex] = useState(() => getSiteApex())
+  useEffect(() => {
+    setApex(resolveClientSiteApex())
+  }, [])
+  const copyright = useMemo(
+    () => applySiteBrand(t(FOOTER_COPY.copyright, FOOTER_COPY.copyright.zh), apex),
+    [t, apex],
+  )
 
   return (
     <footer className="orasage-portal-footer safe-bottom mt-auto">
       <div className="orasage-portal-footer-inner">
-        <p className="orasage-portal-footer-copy">{t(FOOTER_COPY.copyright, FOOTER_COPY.copyright.zh)}</p>
+        <p className="orasage-portal-footer-copy">{copyright}</p>
         <div className="orasage-portal-footer-links">
           <a href={`${base}/privacy`} className="orasage-portal-footer-link">
             {t(FOOTER_COPY.privacy, FOOTER_COPY.privacy.zh)}

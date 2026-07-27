@@ -21,6 +21,8 @@ export {
   isOnProfile,
   isOnTemple,
   getSiteApex,
+  getSiteBrandName,
+  applySiteBrand,
   resolveClientSiteApex,
   orasageUrlsFor,
   apexFromHostname,

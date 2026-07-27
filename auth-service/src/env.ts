@@ -28,7 +28,8 @@ export const ENV = {
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? process.env.VITE_AI_API_KEY ?? "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
-  /** When true, email/password login & register are disabled; World SIWE only. */
+  /** When true, consumer email/password login & register are disabled (World only).
+   * Staff (admin.*) may still use email/password login; self-register stays off. */
   worldAuthRequired:
     (process.env.WORLD_AUTH_REQUIRED ?? "").trim().toLowerCase() === "true" ||
     (process.env.WORLD_AUTH_REQUIRED ?? "") === "1",

@@ -3,7 +3,7 @@ import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
 import { authPageLayout } from "../lib/site-chrome-html.ts";
 import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
-import { allowedRedirectHosts, siteApex, siteUrls } from "../lib/site-urls.ts";
+import { allowedRedirectHosts, isAdminLoginRedirect, siteApex, siteUrls } from "../lib/site-urls.ts";
 import { ENV } from "../env.ts";
 
 export const pagesRouter = Router();
@@ -104,20 +104,60 @@ function redirectParam(req: Request): string | undefined {
   );
 }
 
-function loginCardHtml(locale: string, redirect: string): string {
+function loginCardHtml(
+  locale: string,
+  redirect: string,
+  opts: { allowRegister?: boolean } = {},
+): string {
   const c = authPageCopy(locale);
+  const allowRegister = opts.allowRegister !== false;
+  const footer = allowRegister
+    ? `<footer class="auth-card-footer">
+            <p class="auth-switch">${c.loginSwitch}<a id="login-register-link" href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+          </footer>`
+    : `<footer class="auth-card-footer">
+            <p class="auth-switch">${esc(
+              locale.startsWith("zh")
+                ? "运营后台账号由管理员开通，不开放自助注册。"
+                : locale.startsWith("pt")
+                  ? "Contas do admin são criadas pelo administrador. Sem auto-cadastro."
+                  : "Admin accounts are provisioned by an administrator. Self-registration is closed.",
+            )}</p>
+          </footer>`;
+  const emailChoice = allowRegister
+    ? `<div id="login-email-choice" class="auth-choice" hidden role="region" aria-live="polite">
+              <p class="auth-choice-title"></p>
+              <p class="auth-choice-lead"></p>
+              <button type="button" id="login-choice-register" class="auth-submit">${esc(c.emailNotFoundRegister)}</button>
+              <button type="button" id="login-choice-retry" class="auth-submit auth-submit--secondary">${esc(c.emailNotFoundRetryPassword)}</button>
+            </div>`
+    : "";
   return `
     <main class="auth-page">
       <div class="auth-card">
         <header class="auth-card-header">
           <h1 class="auth-card-title">${c.loginTitle}</h1>
-          <p class="auth-card-lead">${c.loginLead}</p>
+          <p class="auth-card-lead">${allowRegister ? c.loginLead : esc(
+            locale.startsWith("zh")
+              ? "使用运营账号邮箱与密码登录后台。"
+              : locale.startsWith("pt")
+                ? "Entre com o e-mail e a senha da conta operacional."
+                : "Sign in with your staff email and password.",
+          )}</p>
         </header>
         <div class="auth-card-body">
           <form id="login-form" class="auth-form" data-redirect="${esc(redirect)}"
+            data-allow-register="${allowRegister ? "1" : "0"}"
             data-msg-invalid-password="${esc(c.invalidPassword)}"
             data-msg-email-not-found-title="${esc(c.emailNotFoundTitle)}"
             data-msg-email-not-found-lead="${esc(c.emailNotFoundLead)}"
+            data-msg-email-not-found="${esc(
+              locale.startsWith("zh")
+                ? "该邮箱未注册或不是运营账号。"
+                : locale.startsWith("pt")
+                  ? "E-mail não cadastrado ou sem acesso operacional."
+                  : "Email is not registered or is not a staff account.",
+            )}"
             data-label-register="${esc(c.emailNotFoundRegister)}"
             data-label-retry-password="${esc(c.emailNotFoundRetryPassword)}">
             <div class="auth-field">
@@ -129,17 +169,10 @@ function loginCardHtml(locale: string, redirect: string): string {
               <input id="login-password" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="${esc(c.passwordPlaceholder)}">
             </div>
             <p id="form-error" class="auth-error" role="alert" hidden></p>
-            <div id="login-email-choice" class="auth-choice" hidden role="region" aria-live="polite">
-              <p class="auth-choice-title"></p>
-              <p class="auth-choice-lead"></p>
-              <button type="button" id="login-choice-register" class="auth-submit">${esc(c.emailNotFoundRegister)}</button>
-              <button type="button" id="login-choice-retry" class="auth-submit auth-submit--secondary">${esc(c.emailNotFoundRetryPassword)}</button>
-            </div>
+            ${emailChoice}
             <button type="submit" class="auth-submit" id="login-submit">${c.loginBtn}</button>
           </form>
-          <footer class="auth-card-footer">
-            <p class="auth-switch">${c.loginSwitch}<a id="login-register-link" href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
-          </footer>
+          ${footer}
         </div>
       </div>
     </main>`;
@@ -197,6 +230,18 @@ pagesRouter.get("/login", (req, res) => {
   const redirect = safeRedirect(redirectParamValue, locale);
   const c = authPageCopy(locale);
   if (ENV.worldAuthRequired) {
+    // Staff exception: admin console may use email/password from the public web.
+    // Self-registration stays closed.
+    if (isAdminLoginRedirect(redirect)) {
+      res.send(
+        authPageLayout(
+          c.loginTitle,
+          loginCardHtml(locale, redirect, { allowRegister: false }),
+          locale,
+        ),
+      );
+      return;
+    }
     // MiniKit.walletAuth must run on the registered Mini App origin (tarot),
     // not auth.*. World App rejects / fails walletAuth on the wrong host.
     const tarot = siteUrls().tarot.replace(/\/$/, "");
@@ -223,7 +268,36 @@ pagesRouter.get("/register", (req, res) => {
   const locale = resolveAuthPageLocale(req, redirectParamValue);
   const redirect = safeRedirect(redirectParamValue, locale);
   if (ENV.worldAuthRequired) {
-    res.redirect(`/login?redirect=${encodeURIComponent(redirect)}`);
+    const title =
+      locale.startsWith("zh") ? "暂不开放注册" : locale.startsWith("pt") ? "Cadastro fechado" : "Registration closed";
+    const lead = isAdminLoginRedirect(redirect)
+      ? locale.startsWith("zh")
+        ? "运营后台账号由管理员开通。请返回登录页使用已有账号。"
+        : locale.startsWith("pt")
+          ? "Contas do admin são criadas pelo administrador. Volte e entre com uma conta existente."
+          : "Admin accounts are provisioned by an administrator. Please return and sign in with an existing account."
+      : locale.startsWith("zh")
+        ? "本站仅支持 World App 登录，不开放邮箱自助注册。"
+        : locale.startsWith("pt")
+          ? "Este site exige World App. Cadastro por e-mail não está disponível."
+          : "This site requires World App sign-in. Email self-registration is closed.";
+    const back = locale.startsWith("zh") ? "返回登录" : locale.startsWith("pt") ? "Voltar ao login" : "Back to login";
+    const loginHref = isAdminLoginRedirect(redirect)
+      ? `/login?redirect=${encodeURIComponent(redirect)}`
+      : `/login?redirect=${encodeURIComponent(redirect)}`;
+    const body = `
+    <main class="auth-page">
+      <div class="auth-card">
+        <header class="auth-card-header">
+          <h1 class="auth-card-title">${esc(title)}</h1>
+          <p class="auth-card-lead">${esc(lead)}</p>
+        </header>
+        <div class="auth-card-body">
+          <a class="auth-submit" href="${esc(loginHref)}" style="display:inline-block;text-align:center;text-decoration:none">${esc(back)}</a>
+        </div>
+      </div>
+    </main>`;
+    res.send(authPageLayout(title, body, locale));
     return;
   }
   const email = prefillEmail(req.query.email);
