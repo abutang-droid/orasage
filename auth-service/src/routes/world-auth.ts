@@ -70,7 +70,9 @@ worldAuthRouter.post("/siwe", async (req: Request, res: Response) => {
   try {
     const body = siweBodySchema.parse(req.body);
     const cookieNonce = req.cookies?.[SIWE_COOKIE] as string | undefined;
-    if (!cookieNonce || cookieNonce !== body.nonce) {
+    // Prefer cookie match; if BFF/proxy dropped the cookie, still allow when the
+    // signed SIWE message embeds the same nonce (verified below).
+    if (cookieNonce && cookieNonce !== body.nonce) {
       res.status(400).json({ error: "Invalid or expired nonce", code: "invalid_nonce" });
       return;
     }

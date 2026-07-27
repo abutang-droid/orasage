@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 import {
-  isMiniKitInstalled,
   isWorldAuthRequired,
   signInWithWorldWallet,
 } from '@/lib/world-minikit';
@@ -15,6 +15,7 @@ type GateState = 'checking' | 'need_login' | 'ready';
  */
 export function WorldAuthGate({ children }: { children: ReactNode }) {
   const required = isWorldAuthRequired();
+  const { isInstalled } = useMiniKit();
   const [state, setState] = useState<GateState>(required ? 'checking' : 'ready');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -47,8 +48,10 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
       await signInWithWorldWallet({
         statement: 'Sign in to OriCosmos with your World wallet',
       });
-      const params = new URLSearchParams(window.location.search);
-      const after = params.get('redirect');
+      // Drop world_login so a reload does not re-trigger walletAuth.
+      const url = new URL(window.location.href);
+      url.searchParams.delete('world_login');
+      const after = url.searchParams.get('redirect');
       if (after) {
         try {
           const u = new URL(after, window.location.origin);
@@ -57,42 +60,49 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
             return;
           }
         } catch {
-          /* reload below */
+          /* fall through */
         }
       }
-      window.location.reload();
+      window.location.replace(`${url.pathname}${url.search}${url.hash}` || '/');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'World login failed';
-      setError(msg === 'WORLD_APP_REQUIRED'
-        ? 'Please open OriCosmos inside World App to sign in.'
-        : msg);
+      setError(
+        msg === 'WORLD_APP_REQUIRED'
+          ? 'Please open OriCosmos inside World App to sign in.'
+          : msg,
+      );
     } finally {
       setBusy(false);
     }
   }, []);
 
-  // Deep-link from auth.oricosmos.com/login → tarot/?world_login=1 (once)
+  // Auto-start when redirected with ?world_login=1, but only after MiniKit is ready.
   useEffect(() => {
     if (state !== 'need_login' || busy || autoStarted.current) return;
     if (typeof window === 'undefined') return;
+    if (isInstalled !== true) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('world_login') !== '1') return;
     autoStarted.current = true;
     void onSignIn();
-  }, [state, busy, onSignIn]);
+  }, [state, busy, onSignIn, isInstalled]);
 
   if (!required || state === 'ready') {
     return <>{children}</>;
   }
 
-  if (state === 'checking') {
+  if (state === 'checking' || isInstalled === undefined) {
     return (
       <div className="world-auth-gate">
         <p className="world-auth-gate-title">Connecting…</p>
-        <p className="world-auth-gate-hint">Checking World session</p>
+        <p className="world-auth-gate-hint">
+          {isInstalled === undefined ? 'Initializing World App…' : 'Checking World session'}
+        </p>
       </div>
     );
   }
+
+  const miniKitReady = isInstalled === true;
 
   return (
     <div className="world-auth-gate">
@@ -101,7 +111,7 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
       <p className="world-auth-gate-hint">
         This app requires your World App account. Payments use your World wallet (WLD).
       </p>
-      {!isMiniKitInstalled() ? (
+      {!miniKitReady ? (
         <p className="world-auth-gate-warn">
           MiniKit not detected. Open this URL inside World App to continue.
         </p>
@@ -110,7 +120,7 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
       <button
         type="button"
         className="world-auth-gate-cta os-solid-cta"
-        disabled={busy || !isMiniKitInstalled()}
+        disabled={busy || !miniKitReady}
         onClick={() => void onSignIn()}
       >
         {busy ? 'Waiting for World…' : 'Continue with World'}

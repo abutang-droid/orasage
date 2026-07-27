@@ -66,10 +66,23 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
     );
   }
 
-  const returnUrl = encodeURIComponent(
-    typeof window !== 'undefined' ? window.location.href : urls.main,
-  );
-  const loginUrl = `${urls.authLogin}?redirect=${returnUrl}`;
+  // World Mini App: stay on the current origin so MiniKit.walletAuth can run.
+  const worldRequired =
+    (typeof process !== 'undefined' &&
+      (process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED === 'true' ||
+        process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED === '1')) ||
+    false;
+  let loginUrl: string;
+  if (worldRequired && typeof window !== 'undefined') {
+    const u = new URL(window.location.href);
+    u.searchParams.set('world_login', '1');
+    loginUrl = u.toString();
+  } else {
+    const returnUrl = encodeURIComponent(
+      typeof window !== 'undefined' ? window.location.href : urls.main,
+    );
+    loginUrl = `${urls.authLogin}?redirect=${returnUrl}`;
+  }
 
   return (
     <a href={loginUrl} className="orasage-auth-chip">

@@ -9,6 +9,17 @@ function authInternalBase(): string {
   ).replace(/\/$/, '');
 }
 
+function cookieDomain(): string | undefined {
+  const raw =
+    process.env.COOKIE_DOMAIN ||
+    process.env.JWT_COOKIE_DOMAIN ||
+    process.env.NEXT_PUBLIC_SITE_APEX ||
+    process.env.SITE_APEX ||
+    '';
+  const apex = raw.replace(/^\./, '').trim();
+  return apex ? `.${apex}` : undefined;
+}
+
 /**
  * Same-origin proxy for World SIWE complete.
  * Forwards cookies both ways so world_siwe_nonce + orasage_token work.
@@ -38,6 +49,27 @@ export async function POST(req: NextRequest) {
         : [];
   for (const c of setCookies) {
     if (c) out.headers.append('Set-Cookie', c);
+  }
+
+  // Belt-and-suspenders: if upstream Set-Cookie was stripped, set orasage_token from JSON.
+  if (res.ok) {
+    try {
+      const data = JSON.parse(text) as { token?: string };
+      if (data.token) {
+        out.cookies.set({
+          name: process.env.PARENT_AUTH_COOKIE_NAME || 'orasage_token',
+          value: data.token,
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          path: '/',
+          domain: cookieDomain(),
+          maxAge: 30 * 24 * 60 * 60,
+        });
+      }
+    } catch {
+      /* ignore */
+    }
   }
   return out;
 }
