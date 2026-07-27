@@ -136,11 +136,13 @@ WOLD 轨道已经是一套可独立运行的多子域 Web 平台（入口多为�
 WORLD_AUTH_REQUIRED=true
 NEXT_PUBLIC_WORLD_AUTH_REQUIRED=true
 PAYMENT_MODE=world
-WORLD_APP_ID=app_…
-NEXT_PUBLIC_WORLD_APP_ID=app_…
+WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
+NEXT_PUBLIC_WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
 DEV_PORTAL_API_KEY=…          # 验支付用
 WORLD_PAYMENT_TO_ADDRESS=0x…  # 收款钱包
 ```
+
+VPS `/opt/orasage/.env` 已写入上述 App ID；`auth/world/status` 应返回 `worldAppId` 非空。收款地址与 Dev Portal API Key 仍需补齐后支付确认才可生产验签。
 
 并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 
