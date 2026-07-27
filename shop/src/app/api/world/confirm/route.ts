@@ -5,6 +5,10 @@ import { getOrderByNo } from '@/lib/orders';
 import { ENV } from '@/lib/env';
 import { dispatchReportJob } from '@/lib/reportJob';
 import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
+import {
+  fetchWorldMiniKitTransaction,
+  resolveDevPortalApiKey,
+} from '../../../../../shared/world-minikit/get-transaction';
 
 const bodySchema = z.object({
   orderNo: z.string().min(1),
@@ -18,7 +22,8 @@ const bodySchema = z.object({
 });
 
 /**
- * Verify MiniKit payment via World Developer API, then mark order paid.
+ * Verify MiniKit payment via Developer Portal Get Transaction, then mark order paid.
+ * Docs: GET https://developer.world.org/api/v2/minikit/transaction/{transaction_id}
  * POST /api/world/confirm
  */
 export async function POST(req: NextRequest) {
@@ -55,42 +60,66 @@ export async function POST(req: NextRequest) {
     }
 
     const appId = (process.env.WORLD_APP_ID || process.env.NEXT_PUBLIC_WORLD_APP_ID || '').trim();
-    const apiKeyRaw = (process.env.DEV_PORTAL_API_KEY || process.env.WORLD_DEV_PORTAL_API_KEY || '').trim();
-    // RP signing keys are 32-byte hex; Dev Portal API keys are not. Don't Bearer-auth with a private key.
-    const apiKey = /^0x?[0-9a-fA-F]{64}$/.test(apiKeyRaw) ? '' : apiKeyRaw;
+    const apiKey = resolveDevPortalApiKey();
+    const merchantTo = (
+      process.env.WORLD_PAYMENT_TO_ADDRESS ||
+      process.env.NEXT_PUBLIC_WORLD_PAYMENT_TO_ADDRESS ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
 
-    if (appId && apiKey) {
-      const verifyUrl =
-        `https://developer.worldcoin.org/api/v2/minikit/transaction/${encodeURIComponent(body.payload.transactionId)}` +
-        `?app_id=${encodeURIComponent(appId)}&type=payment`;
-      const verifyRes = await fetch(verifyUrl, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
-      const tx = await verifyRes.json().catch(() => ({}));
-      if (!verifyRes.ok) {
-        console.error('[world/confirm] verify failed', verifyRes.status, tx);
-        return NextResponse.json(
-          { error: 'World payment verification failed', detail: tx },
-          { status: 502 },
-        );
-      }
-      const status = String(tx.status || tx.transaction_status || '').toLowerCase();
-      const refOk =
-        !tx.reference ||
-        String(tx.reference) === body.orderNo ||
-        String(tx.reference) === body.payload.reference;
-      if (!refOk) {
-        return NextResponse.json({ error: 'Payment reference mismatch' }, { status: 400 });
-      }
-      // Accept mined / confirmed / success; reject failed explicitly.
-      if (status.includes('fail') || status === 'failed' || status === 'error') {
-        return NextResponse.json({ error: 'Payment not successful', status }, { status: 402 });
-      }
-    } else {
-      console.warn(
-        '[world/confirm] Valid DEV_PORTAL_API_KEY missing — trusting MiniKit payload (set a non-hex API key for cloud verify)',
+    if (!appId) {
+      return NextResponse.json({ error: 'WORLD_APP_ID missing' }, { status: 503 });
+    }
+
+    // Get Transaction accepts app_id query; Bearer API key is optional (OpenAPI security: []).
+    // Never send an RP signing key (0x + 64 hex) as Bearer.
+    const verified = await fetchWorldMiniKitTransaction({
+      transactionId: body.payload.transactionId,
+      appId,
+      apiKey: apiKey || undefined,
+      type: 'payment',
+      maxAttempts: 5,
+      delayMs: 1600,
+    });
+
+    if (!verified.ok) {
+      console.error('[world/confirm] Get Transaction failed', verified.status, verified.body);
+      return NextResponse.json(
+        { error: 'World payment verification failed', detail: verified.body },
+        { status: 502 },
       );
     }
+
+    const tx = verified.tx;
+    const status = String(tx.transaction_status || '').toLowerCase();
+    const refOk =
+      !tx.reference ||
+      String(tx.reference) === body.orderNo ||
+      String(tx.reference) === body.payload.reference;
+    if (!refOk) {
+      return NextResponse.json({ error: 'Payment reference mismatch' }, { status: 400 });
+    }
+
+    if (merchantTo && tx.to && String(tx.to).toLowerCase() !== merchantTo) {
+      return NextResponse.json(
+        { error: 'Payment recipient mismatch', expected: merchantTo, got: tx.to },
+        { status: 400 },
+      );
+    }
+
+    if (status === 'failed') {
+      return NextResponse.json({ error: 'Payment not successful', status }, { status: 402 });
+    }
+    if (status && status !== 'mined' && status !== 'pending') {
+      return NextResponse.json(
+        { error: 'Unexpected payment status', status },
+        { status: 402 },
+      );
+    }
+    // pending: user confirmed in World wallet; accept after short poll.
+    // mined: confirmed on-chain.
 
     const payRes = await fetch(
       `${ENV.authInternalUrl}/internal/orders/${encodeURIComponent(body.orderNo)}/pay`,
@@ -100,8 +129,8 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           userId: user.id,
           currency: 'WOLD',
+          // auth internal pay schema: mock | stripe | wallet
           provider: 'mock',
-          worldTransactionId: body.payload.transactionId,
         }),
       },
     );
@@ -139,6 +168,8 @@ export async function POST(req: NextRequest) {
       orderNo: body.orderNo,
       status: 'paid',
       transactionId: body.payload.transactionId,
+      transactionHash: tx.transaction_hash || null,
+      transactionStatus: tx.transaction_status || status || null,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {

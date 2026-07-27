@@ -10,3 +10,11 @@ export {
   worldIdAction,
   worldPaymentToAddress,
 } from './config';
+
+export {
+  fetchWorldMiniKitTransaction,
+  resolveDevPortalApiKey,
+  isLikelyRpSigningKey,
+  type WorldMiniKitTransaction,
+  type WorldMiniKitTransactionStatus,
+} from './get-transaction';

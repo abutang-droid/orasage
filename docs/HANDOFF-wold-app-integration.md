@@ -142,12 +142,13 @@ NEXT_PUBLIC_WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
 WORLD_RP_ID=rp_a034015870525413
 WORLD_ID_ACTION=manto-tarot
 WORLD_RP_SIGNING_KEY=0x…     # Developer Portal → World ID → RP signing key（必填）
-DEV_PORTAL_API_KEY=…          # 验支付用（已配置）
+DEV_PORTAL_API_KEY=…          # 可选：Get Transaction Bearer；勿把 RP signing key 填这里
 WORLD_PAYMENT_TO_ADDRESS=0x7819e52eb0239cb00abd70bd631683a9a6942041
 ```
 
-VPS `/opt/orasage/.env` 已写入 App ID、RP ID、收款地址；`auth/world/status` 应返回 `worldAppId` 非空，且配置 signing key 后 `worldIdkitReady: true`。  
-登录优先 IDKit（action `manto-tarot`）；支付仍走 `MiniKit.pay`。
+支付确认调用官方 **Get Transaction**：  
+`GET https://developer.world.org/api/v2/minikit/transaction/{transaction_id}?app_id=…&type=payment`  
+按 `transaction_status`（`pending` / `mined` / `failed`）决定是否落单。
 
 ### Developer Portal 必查（World 原生「登录失败」时）
 
