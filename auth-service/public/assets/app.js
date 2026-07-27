@@ -159,6 +159,16 @@ if (loginForm) {
       location.href = loginForm.dataset.redirect || "/center";
     } catch (ex) {
       if (ex.code === "email_not_found") {
+        if (loginForm.dataset.allowRegister === "0") {
+          if (errEl) {
+            errEl.textContent =
+              loginForm.dataset.msgEmailNotFound ||
+              ex.message ||
+              "Email is not registered";
+            errEl.hidden = false;
+          }
+          return;
+        }
         showEmailChoice(email);
         return;
       }

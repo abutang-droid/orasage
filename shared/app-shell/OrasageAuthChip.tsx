@@ -68,13 +68,17 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
   }
 
   // World Mini App: stay on the current origin so MiniKit.walletAuth can run.
+  // Admin console is the exception — staff use email/password on auth.*.
   const worldRequired =
     (typeof process !== 'undefined' &&
       (process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED === 'true' ||
         process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED === '1')) ||
     false;
+  const onAdminHost =
+    typeof window !== 'undefined' &&
+    /^admin\./i.test(window.location.hostname);
   let loginUrl: string;
-  if (worldRequired && typeof window !== 'undefined') {
+  if (worldRequired && !onAdminHost && typeof window !== 'undefined') {
     const u = new URL(window.location.href);
     u.searchParams.set('world_login', '1');
     loginUrl = u.toString();
