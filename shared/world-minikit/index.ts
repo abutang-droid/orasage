@@ -4,5 +4,6 @@ export {
   isWorldPayEnabled,
   worldAuthPublicUrl,
   worldAppId,
+  worldAppUrl,
   worldPaymentToAddress,
 } from './config';

@@ -66,6 +66,32 @@ export function worldAppId(_env?: NodeJS.ProcessEnv): string {
   ).trim();
 }
 
+/**
+ * Developer Portal "App URL" — used as SIWE URI/domain so World App does not
+ * reject login when the browser href has query/hash (e.g. `?lang=zh-CN`).
+ */
+export function worldAppUrl(_env?: NodeJS.ProcessEnv): string {
+  const configured = (
+    process.env.NEXT_PUBLIC_WORLD_APP_URL ||
+    process.env.WORLD_APP_URL ||
+    _env?.NEXT_PUBLIC_WORLD_APP_URL ||
+    _env?.WORLD_APP_URL ||
+    ''
+  ).trim();
+  if (configured) return configured.replace(/\/$/, '');
+  if (typeof window !== 'undefined') {
+    // Prefer the registered mini-app host (tarot), not auth/shop.
+    const host = window.location.hostname;
+    if (host === 'tarot.oricosmos.com' || host === 'tarot.orasage.com') {
+      return `https://${host}`;
+    }
+    if (host.endsWith('.oricosmos.com')) return 'https://tarot.oricosmos.com';
+    if (host.endsWith('.orasage.com')) return 'https://tarot.orasage.com';
+    return window.location.origin.replace(/\/$/, '');
+  }
+  return 'https://tarot.oricosmos.com';
+}
+
 export function worldPaymentToAddress(_env?: NodeJS.ProcessEnv): string {
   return (
     process.env.NEXT_PUBLIC_WORLD_PAYMENT_TO_ADDRESS ||

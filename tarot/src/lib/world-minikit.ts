@@ -3,6 +3,7 @@ export {
   isWorldPayEnabled,
   worldAuthPublicUrl,
   worldAppId,
+  worldAppUrl,
   worldPaymentToAddress,
 } from '../../../shared/world-minikit/index';
 
