@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   isMiniKitInstalled,
   isWorldAuthRequired,
@@ -18,6 +18,7 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GateState>(required ? 'checking' : 'ready');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const autoStarted = useRef(false);
 
   useEffect(() => {
     if (!required) {
@@ -43,13 +44,22 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
     setBusy(true);
     setError(null);
     try {
-      if (!isMiniKitInstalled()) {
-        setError('Please open OriCosmos inside World App to sign in.');
-        return;
-      }
       await signInWithWorldWallet({
         statement: 'Sign in to OriCosmos with your World wallet',
       });
+      const params = new URLSearchParams(window.location.search);
+      const after = params.get('redirect');
+      if (after) {
+        try {
+          const u = new URL(after, window.location.origin);
+          if (u.origin === window.location.origin) {
+            window.location.href = u.toString();
+            return;
+          }
+        } catch {
+          /* reload below */
+        }
+      }
       window.location.reload();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'World login failed';
@@ -60,6 +70,16 @@ export function WorldAuthGate({ children }: { children: ReactNode }) {
       setBusy(false);
     }
   }, []);
+
+  // Deep-link from auth.oricosmos.com/login → tarot/?world_login=1 (once)
+  useEffect(() => {
+    if (state !== 'need_login' || busy || autoStarted.current) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('world_login') !== '1') return;
+    autoStarted.current = true;
+    void onSignIn();
+  }, [state, busy, onSignIn]);
 
   if (!required || state === 'ready') {
     return <>{children}</>;

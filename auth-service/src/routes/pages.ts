@@ -197,7 +197,22 @@ pagesRouter.get("/login", (req, res) => {
   const redirect = safeRedirect(redirectParamValue, locale);
   const c = authPageCopy(locale);
   if (ENV.worldAuthRequired) {
-    res.send(authPageLayout(c.loginTitle, worldLoginCardHtml(locale, redirect), locale));
+    // MiniKit.walletAuth must run on the registered Mini App origin (tarot),
+    // not auth.*. World App rejects / fails walletAuth on the wrong host.
+    const tarot = siteUrls().tarot.replace(/\/$/, "");
+    let target = `${tarot}/?world_login=1`;
+    try {
+      const u = new URL(redirect);
+      if (u.hostname === new URL(tarot).hostname) {
+        u.searchParams.set("world_login", "1");
+        target = u.toString();
+      } else {
+        target = `${tarot}/?world_login=1&redirect=${encodeURIComponent(redirect)}`;
+      }
+    } catch {
+      target = `${tarot}/?world_login=1&redirect=${encodeURIComponent(redirect)}`;
+    }
+    res.redirect(302, target);
     return;
   }
   res.send(authPageLayout(c.loginTitle, loginCardHtml(locale, redirect), locale));

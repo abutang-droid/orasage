@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ENV } from "./env.ts";
+import { allowedRedirectHosts, siteApex } from "./lib/site-urls.ts";
 import { authRouter } from "./routes/auth.ts";
 import { worldAuthRouter } from "./routes/world-auth.ts";
 import { healthRouter } from "./routes/health.ts";
@@ -29,7 +30,28 @@ app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: ENV.isProduction ? ENV.corsOrigins : true, credentials: true }));
+
+/** Allow configured CORS_ORIGINS plus all site subdomains (tarot/shop/…). */
+function corsOriginList(): string[] {
+  const apex = siteApex();
+  const defaults = allowedRedirectHosts(apex).map((h) => `https://${h}`);
+  return [...new Set([...ENV.corsOrigins, ...defaults])];
+}
+
+app.use(
+  cors({
+    origin: ENV.isProduction
+      ? (origin, cb) => {
+          if (!origin) {
+            cb(null, true);
+            return;
+          }
+          cb(null, corsOriginList().includes(origin));
+        }
+      : true,
+    credentials: true,
+  }),
+);
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(pagesRouter);
 app.use("/auth", authRouter);

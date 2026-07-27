@@ -4,7 +4,7 @@ import type {
   MiniKitWalletAuthOptions,
   WalletAuthResult,
 } from '@worldcoin/minikit-js/commands';
-import { worldAuthPublicUrl } from '../../../shared/world-minikit/config';
+import { worldAppId, worldAuthPublicUrl } from '../../../shared/world-minikit/config';
 
 export type WorldSiweSession = {
   ok: true;
@@ -17,6 +17,18 @@ export type WorldSiweSession = {
   };
 };
 
+function worldAuthEndpoints(authBaseUrl?: string): { nonceUrl: string; siweUrl: string } {
+  // Prefer same-origin BFF on tarot (avoids CORS + keeps MiniKit on registered mini-app origin).
+  if (!authBaseUrl && typeof window !== 'undefined') {
+    return { nonceUrl: '/api/world/nonce', siweUrl: '/api/world/siwe' };
+  }
+  const authBase = (authBaseUrl || worldAuthPublicUrl()).replace(/\/$/, '');
+  return {
+    nonceUrl: `${authBase}/auth/world/nonce`,
+    siweUrl: `${authBase}/auth/world/siwe`,
+  };
+}
+
 /**
  * Full World wallet login: nonce → MiniKit.walletAuth → auth-service SIWE verify + cookie.
  */
@@ -24,11 +36,22 @@ export async function signInWithWorldWallet(opts?: {
   statement?: string;
   authBaseUrl?: string;
 }): Promise<WorldSiweSession> {
-  const authBase = (opts?.authBaseUrl || worldAuthPublicUrl()).replace(/\/$/, '');
+  const appId = worldAppId();
+  if (appId) {
+    MiniKit.install(appId);
+  } else {
+    MiniKit.install();
+  }
+  if (!MiniKit.isInstalled()) {
+    throw new Error('WORLD_APP_REQUIRED');
+  }
 
-  const nonceRes = await fetch(`${authBase}/auth/world/nonce`, {
+  const { nonceUrl, siweUrl } = worldAuthEndpoints(opts?.authBaseUrl);
+
+  const nonceRes = await fetch(nonceUrl, {
     method: 'GET',
     credentials: 'include',
+    cache: 'no-store',
   });
   if (!nonceRes.ok) {
     throw new Error('Failed to get World login nonce');
@@ -48,16 +71,37 @@ export async function signInWithWorldWallet(opts?: {
     },
   } satisfies MiniKitWalletAuthOptions;
 
-  const result: CommandResultByVia<WalletAuthResult> = await MiniKit.walletAuth(input);
+  let result: CommandResultByVia<WalletAuthResult>;
+  try {
+    result = await MiniKit.walletAuth(input);
+  } catch (err) {
+    const code =
+      err && typeof err === 'object' && 'code' in err
+        ? String((err as { code?: string }).code || '')
+        : '';
+    if (code === 'user_rejected') {
+      throw new Error('Sign-in was cancelled');
+    }
+    throw err instanceof Error ? err : new Error('World walletAuth failed');
+  }
   if (result.executedWith === 'fallback') {
     throw new Error('WORLD_APP_REQUIRED');
   }
 
   const payload = result.data as {
-    address: string;
-    message: string;
-    signature: string;
+    address?: string;
+    message?: string;
+    signature?: string;
+    status?: string;
+    error_code?: string;
   };
+  if (!payload?.address || !payload.message || !payload.signature) {
+    throw new Error(
+      payload?.error_code
+        ? `World walletAuth error: ${payload.error_code}`
+        : 'World walletAuth returned an incomplete payload',
+    );
+  }
 
   let username: string | undefined;
   let profilePictureUrl: string | undefined;
@@ -70,16 +114,31 @@ export async function signInWithWorldWallet(opts?: {
     profilePictureUrl = MiniKit.user?.profilePictureUrl;
   }
 
-  const completeRes = await fetch(`${authBase}/auth/world/siwe`, {
+  // Drop invalid avatar URLs so Zod on auth-service does not 400 the whole login.
+  let safeAvatar: string | null = null;
+  if (profilePictureUrl) {
+    try {
+      const u = new URL(profilePictureUrl);
+      if (u.protocol === 'http:' || u.protocol === 'https:') safeAvatar = profilePictureUrl;
+    } catch {
+      safeAvatar = null;
+    }
+  }
+
+  const completeRes = await fetch(siweUrl, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      payload,
+      payload: {
+        address: payload.address,
+        message: payload.message,
+        signature: payload.signature,
+      },
       nonce,
       statement,
       username,
-      profilePictureUrl: profilePictureUrl || null,
+      profilePictureUrl: safeAvatar,
     }),
   });
   const data = await completeRes.json().catch(() => ({}));

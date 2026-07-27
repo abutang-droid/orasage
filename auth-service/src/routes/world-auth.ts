@@ -57,7 +57,10 @@ const siweBodySchema = z.object({
   nonce: z.string().min(8),
   statement: z.string().optional(),
   username: z.string().max(100).optional(),
-  profilePictureUrl: z.string().url().max(500).optional().nullable(),
+  profilePictureUrl: z
+    .union([z.string().url().max(500), z.literal(""), z.null()])
+    .optional()
+    .nullable(),
 });
 
 /**

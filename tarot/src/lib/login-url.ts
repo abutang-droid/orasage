@@ -1,4 +1,5 @@
 import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
+import { isWorldAuthRequired } from '../../../shared/world-minikit/config';
 
 function authUrl(): string {
   return (
@@ -17,6 +18,16 @@ export function buildLoginUrl(returnPath = '/', origin?: string): string {
   const path = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
   const base = (origin || appUrl()).replace(/\/$/, '');
   const target = `${base}${path}`;
+  // World Mini App: keep login on the registered origin (tarot), not auth.*
+  if (isWorldAuthRequired()) {
+    try {
+      const u = new URL(target);
+      u.searchParams.set('world_login', '1');
+      return u.toString();
+    } catch {
+      return `${base}/?world_login=1`;
+    }
+  }
   return `${authUrl().replace(/\/$/, '')}/login?redirect=${encodeURIComponent(target)}`;
 }
 
