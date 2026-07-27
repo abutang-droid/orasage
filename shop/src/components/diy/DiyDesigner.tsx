@@ -10,6 +10,7 @@ import {
   type ShopCurrency,
 } from '@/lib/currency';
 import { PriceDisplay } from '@/components/PriceDisplay';
+import { applySiteBrand } from '@/lib/orasage-app-shell/config';
 
 const DRAFT_KEY = 'orasage_diy_draft_v1';
 const RULER_MIN = 10;
@@ -667,7 +668,7 @@ export function DiyDesigner({
       {baziOpen ? (
         <div className="shop-diy-modal-mask" onClick={(e) => { if (e.target === e.currentTarget) setBaziOpen(false); }}>
           <div className="shop-diy-modal">
-            <p className="shop-diy-modal-eyebrow">OraSage · Oracle + Sage</p>
+            <p className="shop-diy-modal-eyebrow">{applySiteBrand('OraSage')}</p>
             <h3 className="shop-diy-modal-title">{td('modalTitle')}</h3>
             <p className="shop-diy-modal-sub">
               {td('modalHint')}

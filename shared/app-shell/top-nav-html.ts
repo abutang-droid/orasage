@@ -1,9 +1,10 @@
-import { daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS } from './config';
+import { daozangUrl, famousUrl, getSiteBrandName, mainPortalUrl, ORASAGE_URLS } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 
 /** 静态页 PC 顶栏 HTML（auth-service 等无 React 环境） */
 export function topNavHtml(locale = 'zh-CN'): string {
   const main = mainPortalUrl(locale);
+  const brand = getSiteBrandName();
   const items = [
     { href: main, label: pickLabel(SHELL_LABELS.home, locale) },
     { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) },
@@ -21,7 +22,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
   return `
 <header class="orasage-site-topnav">
   <div class="orasage-site-topnav-inner">
-    <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
+    <a href="${main}" class="orasage-site-topnav-brand">${brand}</a>
     <nav class="orasage-site-topnav-menu" aria-label="Site navigation">
           ${links}
       <a href="${ORASAGE_URLS.authLogin}?redirect=${encodeURIComponent(main)}" class="orasage-auth-chip" id="orasage-topnav-login">${login}</a>

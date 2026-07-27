@@ -3,15 +3,19 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { ShopShell } from '@/components/ShopShell';
+import { applySiteBrand, getSiteBrandName } from '@/lib/orasage-app-shell/config';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
-const PAGE_TITLE = 'OraSage Energy Shop';
-const PAGE_DESCRIPTION = 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.';
+const brand = getSiteBrandName();
+const PAGE_TITLE = applySiteBrand('OraSage Energy Shop');
+const PAGE_DESCRIPTION = applySiteBrand(
+  'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
+);
 
 export const metadata: Metadata = buildOrasageMetadata({
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: ['OraSage', 'energy shop', 'crystal bracelet', 'divination report', '能量商城', '水晶手串'],
+  keywords: [brand, 'energy shop', 'crystal bracelet', 'divination report', '能量商城', '水晶手串'],
   metadataBase: new URL(ORASAGE_URLS.shop),
   canonical: '/',
   openGraph: {

@@ -23,6 +23,7 @@ import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { PriceDisplay } from '@/components/PriceDisplay';
+import { applySiteBrand } from '@/lib/orasage-app-shell/config';
 
 type PageProps = { params: Promise<{ sku: string }> };
 
@@ -35,8 +36,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     fetchCmsProductPage(sku, locale),
   ]);
   if (!product) return { title: t('notFound') };
-  const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`;
-  const description = cmsPage?.seoDescription?.trim() || product.desc;
+  const title = applySiteBrand(
+    cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`,
+  );
+  const description = applySiteBrand(cmsPage?.seoDescription?.trim() || product.desc);
   const ogImage = cmsPage?.heroImages[0]?.url;
   return {
     title,

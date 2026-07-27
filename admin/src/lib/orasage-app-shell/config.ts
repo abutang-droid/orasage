@@ -82,6 +82,18 @@ export function resolveClientSiteApex(): string {
   return getSiteApex();
 }
 
+/** Platform brand shown in chrome / SEO (oricosmos → Manto; orasage → OraSage). */
+export function getSiteBrandName(apex: string = getSiteApex()): string {
+  return apex === 'oricosmos.com' ? 'Manto' : 'OraSage';
+}
+
+/** Swap `OraSage` tokens in user-facing copy for the current site brand. */
+export function applySiteBrand(text: string, apex: string = getSiteApex()): string {
+  const brand = getSiteBrandName(apex);
+  if (brand === 'OraSage') return text;
+  return text.replace(/OraSage/g, brand);
+}
+
 export type OrasageUrls = {
   main: string;
   bazi: string;

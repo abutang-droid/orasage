@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ProductCategory } from '@/lib/products';
-import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
+import { applySiteBrand, ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 type ProductBrandClosureProps = {
   element?: string | null;
@@ -76,7 +76,7 @@ export async function ProductBrandClosure({
 
   return (
     <section className="shop-pdp-closure" aria-labelledby="shop-pdp-closure-title">
-      <p className="shop-pdp-closure-eyebrow">{t('eyebrow')}</p>
+      <p className="shop-pdp-closure-eyebrow">{applySiteBrand(t('eyebrow'))}</p>
       <h2 id="shop-pdp-closure-title" className="shop-pdp-closure-title">
         {title}
       </h2>

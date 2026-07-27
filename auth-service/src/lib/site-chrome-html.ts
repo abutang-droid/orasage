@@ -1,7 +1,7 @@
 import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
 import { bottomNavHtml } from './bottom-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
-import { siteUrls } from './site-urls.ts';
+import { siteApex, siteUrls } from './site-urls.ts';
 
 const LOCALES = EXTENDED_LOCALES;
 
@@ -13,6 +13,15 @@ const FOOTER_STRINGS: Record<string, FooterStrings> = {
   en: { login: 'Login', copyright: '© 2026 OraSage. All rights reserved.', privacy: 'Privacy', terms: 'Terms' },
   'pt-BR': { login: 'Entrar', copyright: '© 2026 OraSage. Todos os direitos reservados.', privacy: 'Privacidade', terms: 'Termos' },
 };
+
+function siteBrand(): string {
+  return siteApex() === 'oricosmos.com' ? 'Manto' : 'OraSage';
+}
+
+function withSiteBrand(text: string): string {
+  const brand = siteBrand();
+  return brand === 'OraSage' ? text : text.replace(/OraSage/g, brand);
+}
 
 const normalizeLocale = toCoreLocale;
 
@@ -34,7 +43,11 @@ function mainPortalUrl(locale: string): string {
 
 function authStrings(locale: string): FooterStrings {
   const key = normalizeLocale(locale);
-  return FOOTER_STRINGS[key] ?? FOOTER_STRINGS.en;
+  const base = FOOTER_STRINGS[key] ?? FOOTER_STRINGS.en;
+  return {
+    ...base,
+    copyright: withSiteBrand(base.copyright),
+  };
 }
 
 /** 顶栏 — 左品牌 + 右登录芯片（与子应用一致；宽屏同移动壳） */
@@ -43,10 +56,11 @@ export function mobileNavHtml(locale: string): string {
   const loginLabelText = authLoginLabel(locale);
   const profile = `${main}/profile`;
   const loginHref = `${siteUrls().auth}/login?redirect=${encodeURIComponent(main)}`;
+  const brand = siteBrand();
 
   return `
 <header class="orasage-site-mobile-bar orasage-auth-mobile-bar">
-  <a href="${siteUrls().tarot}" class="orasage-site-mobile-bar-brand">OraSage</a>
+  <a href="${siteUrls().tarot}" class="orasage-site-mobile-bar-brand">${brand}</a>
   <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${loginLabelText}</a>
 </header>`;
 }
@@ -69,13 +83,14 @@ export function footerHtml(locale: string): string {
 }
 
 export function authPageLayout(title: string, body: string, locale: string): string {
+  const brand = siteBrand();
   return `<!DOCTYPE html>
 <html lang="${locale}" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="theme-color" content="#fafaf8">
-  <title>${title} — OraSage</title>
+  <title>${title} — ${brand}</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" type="image/svg+xml" href="/assets/brand/icon.svg">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
