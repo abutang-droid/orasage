@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
     }
 
     const appId = (process.env.WORLD_APP_ID || process.env.NEXT_PUBLIC_WORLD_APP_ID || '').trim();
-    const apiKey = (process.env.DEV_PORTAL_API_KEY || process.env.WORLD_DEV_PORTAL_API_KEY || '').trim();
+    const apiKeyRaw = (process.env.DEV_PORTAL_API_KEY || process.env.WORLD_DEV_PORTAL_API_KEY || '').trim();
+    // RP signing keys are 32-byte hex; Dev Portal API keys are not. Don't Bearer-auth with a private key.
+    const apiKey = /^0x?[0-9a-fA-F]{64}$/.test(apiKeyRaw) ? '' : apiKeyRaw;
 
     if (appId && apiKey) {
       const verifyUrl =
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
       }
     } else {
       console.warn(
-        '[world/confirm] WORLD_APP_ID / DEV_PORTAL_API_KEY missing — trusting MiniKit payload (dev only)',
+        '[world/confirm] Valid DEV_PORTAL_API_KEY missing — trusting MiniKit payload (set a non-hex API key for cloud verify)',
       );
     }
 

@@ -13,7 +13,6 @@ export {
 import {
   redirectAfterCheckout as defaultRedirectAfterCheckout,
   shouldCompleteWithWorldPay,
-  shopBaseUrl,
   type AppCheckoutResponse,
 } from '../../../shared/shop-checkout/client';
 import { payWithWorldWallet } from './world-pay-client';
@@ -24,10 +23,10 @@ export async function redirectAfterCheckout(
   opts?: { successUrl?: string },
 ): Promise<void> {
   if (shouldCompleteWithWorldPay(result)) {
-    const shop = shopBaseUrl();
+    // Same-origin BFF — do not call shop.* from the browser (Safari CORS → "Load failed").
     const intentRes = await fetch(
-      `${shop}/api/world/pay-intent?order=${encodeURIComponent(result.orderNo)}`,
-      { credentials: 'include' },
+      `/api/world/pay-intent?order=${encodeURIComponent(result.orderNo)}`,
+      { credentials: 'include', cache: 'no-store' },
     );
     const intent = await intentRes.json().catch(() => ({}));
     if (!intentRes.ok) {
@@ -46,7 +45,7 @@ export async function redirectAfterCheckout(
         orderNo: result.orderNo,
         successUrl: intent.successUrl || opts?.successUrl || null,
       },
-      confirmUrl: `${shop}/api/world/confirm`,
+      confirmUrl: '/api/world/confirm',
     });
     const success =
       opts?.successUrl ||

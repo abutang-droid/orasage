@@ -158,6 +158,7 @@ VPS `/opt/orasage/.env` 已写入 App ID、RP ID、收款地址；`auth/world/st
 3. 在 World App 内用该 Mini App 入口打开（标题可能仍显示门户里的名字，如 `test`）
 4. 客户端错误会打到 tarot 日志：`[world/client-log]`（`journalctl -u orasage-tarot`）
 5. 登录 SIWE 的 `URI` **不再用** `window.location.href`（会带 `?lang=`），而是固定为门户 App URL（可用 `NEXT_PUBLIC_WORLD_APP_URL` 覆盖）。若仍 `malformed_request`，对照日志里的 `siwePreview` 与门户 App URL 是否字节级一致。
+6. **支付**走 tarot 同源 BFF：`/api/world/pay-intent` → MiniKit.pay → `/api/world/confirm`（不要让浏览器直连 `shop.*`，否则 Safari 会报 `Load failed` CORS）。
 
 并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 
