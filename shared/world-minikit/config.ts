@@ -101,3 +101,40 @@ export function worldPaymentToAddress(_env?: NodeJS.ProcessEnv): string {
     ''
   ).trim();
 }
+
+/** World ID relying party id (`rp_…`) for IDKit. */
+export function worldRpId(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_RP_ID ||
+    process.env.WORLD_RP_ID ||
+    _env?.NEXT_PUBLIC_WORLD_RP_ID ||
+    _env?.WORLD_RP_ID ||
+    ''
+  ).trim();
+}
+
+/** Developer Portal World ID action id (e.g. `manto-tarot`). */
+export function worldIdAction(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_ID_ACTION ||
+    process.env.WORLD_ID_ACTION ||
+    _env?.NEXT_PUBLIC_WORLD_ID_ACTION ||
+    _env?.WORLD_ID_ACTION ||
+    'manto-tarot'
+  ).trim();
+}
+
+/** Client-visible: IDKit gate button when app + rp + action are configured. */
+export function isWorldIdkitEnabled(_env?: NodeJS.ProcessEnv): boolean {
+  if (
+    envFlagTrue(process.env.NEXT_PUBLIC_WORLD_IDKIT_ENABLED) ||
+    envFlagTrue(process.env.WORLD_IDKIT_ENABLED) ||
+    (_env
+      ? envFlagTrue(_env.NEXT_PUBLIC_WORLD_IDKIT_ENABLED) || envFlagTrue(_env.WORLD_IDKIT_ENABLED)
+      : false)
+  ) {
+    return true;
+  }
+  // Default on when App ID + RP ID are present (signing key stays server-only).
+  return Boolean(worldAppId(_env) && worldRpId(_env) && worldIdAction(_env));
+}

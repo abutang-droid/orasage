@@ -893,6 +893,13 @@ body {
   border: none;
   cursor: pointer;
 }
+.world-auth-gate-cta-secondary {
+  margin-top: 0.75rem;
+  background: transparent;
+  color: var(--text-muted, #5c5c5c);
+  border: 1px solid color-mix(in srgb, var(--text-muted, #5c5c5c) 45%, transparent);
+  box-shadow: none;
+}
 .world-auth-gate-cta:disabled {
   opacity: 0.55;
   cursor: not-allowed;

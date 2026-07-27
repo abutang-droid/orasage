@@ -21,6 +21,7 @@ export function publicUser(user: typeof users.$inferSelect) {
     displayName: userDisplayName(user),
     email: user.email,
     walletAddress: user.walletAddress ?? null,
+    worldNullifier: user.worldNullifier ?? null,
     nickname: user.nickname,
     avatarUrl: user.avatarUrl,
     birthDate: user.birthDate,

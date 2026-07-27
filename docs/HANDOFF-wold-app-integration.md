@@ -22,7 +22,8 @@ WOLD 轨道已经是一套可独立运行的多子域 Web 平台（入口多为�
 
 1. 在 [World Developer Portal](https://developer.world.org) 注册 Mini App，填入 `https://tarot.oricosmos.com`  
 2. 用户在 **World App** 内打开本站（WebView + MiniKit）  
-3. **登录 = `MiniKit.walletAuth`（SIWE）→ `orasage_token`**（邮箱登录在 `WORLD_AUTH_REQUIRED=true` 时关闭）  
+3. **登录（优先）= World ID / IDKit** action `manto-tarot` → 云端 verify → `orasage_token`  
+   （备选仍保留 `MiniKit.walletAuth` SIWE；邮箱登录在 `WORLD_AUTH_REQUIRED=true` 时关闭）  
 4. **支付 = `MiniKit.pay`（WLD）→ shop `/api/world/confirm` 验单后标记 paid**
 
 官方文档：[docs.world.org/mini-apps](https://docs.world.org/mini-apps) · wallet-auth · pay。
@@ -138,13 +139,15 @@ NEXT_PUBLIC_WORLD_AUTH_REQUIRED=true
 PAYMENT_MODE=world
 WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
 NEXT_PUBLIC_WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
-WORLD_RP_ID=rp_a034015870525413   # World ID / IDKit（非 MiniKit 登录/支付必填）
+WORLD_RP_ID=rp_a034015870525413
+WORLD_ID_ACTION=manto-tarot
+WORLD_RP_SIGNING_KEY=0x…     # Developer Portal → World ID → RP signing key（必填）
 DEV_PORTAL_API_KEY=…          # 验支付用（已配置）
 WORLD_PAYMENT_TO_ADDRESS=0x7819e52eb0239cb00abd70bd631683a9a6942041
 ```
 
-VPS `/opt/orasage/.env` 已写入 App ID、RP ID、Dev Portal API Key、收款地址；`auth/world/status` 应返回 `worldAppId` 非空。  
-当前登录走 MiniKit `walletAuth`（SIWE），支付走 `MiniKit.pay`——**不依赖 RP ID**。RP ID 留给后续 World ID / IDKit 人机验证。
+VPS `/opt/orasage/.env` 已写入 App ID、RP ID、收款地址；`auth/world/status` 应返回 `worldAppId` 非空，且配置 signing key 后 `worldIdkitReady: true`。  
+登录优先 IDKit（action `manto-tarot`）；支付仍走 `MiniKit.pay`。
 
 ### Developer Portal 必查（World 原生「登录失败」时）
 

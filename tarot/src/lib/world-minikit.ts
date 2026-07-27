@@ -1,9 +1,12 @@
 export {
   isWorldAuthRequired,
   isWorldPayEnabled,
+  isWorldIdkitEnabled,
   worldAuthPublicUrl,
   worldAppId,
   worldAppUrl,
+  worldRpId,
+  worldIdAction,
   worldPaymentToAddress,
 } from '../../../shared/world-minikit/index';
 
