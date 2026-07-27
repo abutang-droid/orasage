@@ -155,6 +155,12 @@ deploy_native() {
 }
 
 ensure_nginx() {
+  if [ -f "$DEPLOY_DIR/deploy/lib/nginx-site.sh" ]; then
+    # shellcheck source=../lib/nginx-site.sh
+    source "$DEPLOY_DIR/deploy/lib/nginx-site.sh"
+    install_nginx_site
+    return
+  fi
   if [ -f "$DEPLOY_DIR/deploy/nginx/orasage.conf" ]; then
     cp "$DEPLOY_DIR/deploy/nginx/orasage.conf" /etc/nginx/sites-available/orasage
     ln -sf /etc/nginx/sites-available/orasage /etc/nginx/sites-enabled/orasage

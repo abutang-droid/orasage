@@ -6,7 +6,7 @@ import { AdminSubmitButton } from '@/components/AdminButton';
 
 type Props = { params: Promise<{ userId: string }> };
 
-const CURRENCIES = ['CNY', 'USD', 'BRL'] as const;
+const CURRENCIES = ['USDT', 'WOLD', 'USD', 'CNY', 'BRL'] as const;
 
 export default async function WalletDetailPage({ params }: Props) {
   const admin = await getStaffUser(['admin']);
@@ -59,14 +59,14 @@ export default async function WalletDetailPage({ params }: Props) {
           <input type="hidden" name="userId" value={userId} />
           <label className="muted">
             币种
-            <select name="currency" defaultValue="CNY" className="shipment-input">
+            <select name="currency" defaultValue="USDT" className="shipment-input">
               {CURRENCIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </label>
           <label className="muted">
-            调整金额（元，正数入账、负数扣减）
+            调整金额（所选币种主单位，正数入账、负数扣减）
             <input type="number" name="amountYuan" step="0.01" required className="shipment-input" placeholder="例如 10 或 -5" />
           </label>
           <input type="text" name="note" placeholder="备注（可选）" className="shipment-input" />

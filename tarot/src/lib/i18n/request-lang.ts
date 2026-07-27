@@ -22,8 +22,8 @@ export function resolveLangFromParts(options: {
   const cookieLocale =
     options.cookieLocale ??
     (options.cookieHeader
-      ? readCookie(options.cookieHeader, LOCALE_OVERRIDE_COOKIE) ??
-        readCookie(options.cookieHeader, LOCALE_COOKIE)
+      ? readCookie(options.cookieHeader, LOCALE_COOKIE) ??
+        readCookie(options.cookieHeader, LOCALE_OVERRIDE_COOKIE)
       : null);
   const locale = detectLocale({
     queryLocale: options.queryLocale,
@@ -35,7 +35,7 @@ export function resolveLangFromParts(options: {
 
 export function resolveRequestLang(req: NextRequest): Lang {
   return resolveLangFromParts({
-    queryLocale: req.nextUrl.searchParams.get('lang'),
+    queryLocale: req.nextUrl.searchParams.get('lang') || req.nextUrl.searchParams.get('locale'),
     cookieHeader: req.headers.get('cookie'),
     acceptLanguage: req.headers.get('accept-language'),
   });
@@ -44,10 +44,11 @@ export function resolveRequestLang(req: NextRequest): Lang {
 export async function resolveServerLang(): Promise<Lang> {
   const cookieStore = await cookies();
   const headerStore = await headers();
+  // Prefer portal NEXT_LOCALE; shop override is fallback only.
   return resolveLangFromParts({
     cookieLocale:
-      cookieStore.get(LOCALE_OVERRIDE_COOKIE)?.value ??
       cookieStore.get(LOCALE_COOKIE)?.value ??
+      cookieStore.get(LOCALE_OVERRIDE_COOKIE)?.value ??
       null,
     acceptLanguage: headerStore.get('accept-language'),
   });

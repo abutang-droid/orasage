@@ -8,6 +8,7 @@ import type { GeoDetectSource } from '@/lib/geo/detect-country';
 import { useCountrySuggestion, type CountrySuggestion } from '@/lib/geo/use-country-suggestion';
 import type { GeoCountry, GeoJourneySelection, GeoRegion } from '@/lib/geo/types';
 import { storeGeo } from '@/lib/geo/types';
+import { geoLocalizedName } from '@/lib/geo/locale';
 import {
   getMoreFaiths,
   getTopFaiths,
@@ -17,6 +18,7 @@ import {
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { useGeoCopy, geo, formatTemplate } from '@/lib/i18n/ui-strings';
 import { useLang } from '@/lib/i18n/context';
+import { deityDisplayName } from '@/lib/i18n/deity-locale';
 import './geo-journey.css';
 
 const JourneyVectorMap = dynamic(
@@ -406,18 +408,18 @@ export function GeoJourneyPicker({
   }, [step, countryCode, loadFaiths]);
 
   const regionName = useMemo(
-    () => regions.find((r) => r.code === continentCode)?.nameZh ?? '',
-    [regions, continentCode],
+    () => geoLocalizedName(regions.find((r) => r.code === continentCode), lang),
+    [regions, continentCode, lang],
   );
 
-  const countryName = useMemo(
-    () =>
-      countries.find((c) => c.code === countryCode)?.nameZh ??
-      allCountries.find((c) => c.code === countryCode)?.nameZh ??
-      suggestion?.country.nameZh ??
-      '',
-    [countries, countryCode, allCountries, suggestion?.country.nameZh],
-  );
+  const countryName = useMemo(() => {
+    const match =
+      countries.find((c) => c.code === countryCode) ??
+      allCountries.find((c) => c.code === countryCode) ??
+      suggestion?.country ??
+      null;
+    return geoLocalizedName(match, lang);
+  }, [countries, countryCode, allCountries, suggestion?.country, lang]);
 
   const showDetectConfirm = Boolean(detectedSuggestion) && !countryCode;
 
@@ -599,14 +601,12 @@ export function GeoJourneyPicker({
       : step === 'region' && pendingRegion
       ? {
           emoji: '🌍',
-          name: pendingRegionOption?.nameZh ?? pendingRegion,
-          sub: pendingRegionOption?.nameEn ?? '',
+          name: geoLocalizedName(pendingRegionOption, lang, pendingRegion),
         }
         : step === 'country' && pendingCountry
         ? {
             emoji: '📍',
-            name: pendingCountryOption?.nameZh ?? pendingCountry,
-            sub: pendingCountryOption?.nameEn ?? '',
+            name: geoLocalizedName(pendingCountryOption, lang, pendingCountry),
           }
         : null;
 
@@ -707,14 +707,26 @@ export function GeoJourneyPicker({
               <p className="geo-journey-detect-lead">
                 {formatTemplate(p(geo.detectLead), { source: sourceLabel[detectedSuggestion.source] })}
               </p>
-              <p className="geo-journey-detect-country">{detectedSuggestion.country.nameZh}</p>
-              <p className="geo-journey-detect-sub">{detectedSuggestion.country.nameEn}</p>
+              <p className="geo-journey-detect-country">
+                {geoLocalizedName(detectedSuggestion.country, lang)}
+              </p>
               <p className="geo-journey-detect-question">{p(geo.detectQuestion)}</p>
               <div className="geo-journey-detect-actions">
-                <Button type="button" onClick={confirmDetectedCountry}>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="geo-journey-confirm-cta w-full"
+                  onClick={confirmDetectedCountry}
+                >
                   {p(geo.detectYes)}
                 </Button>
-                <Button type="button" variant="outline" onClick={rejectDetectedCountry}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={rejectDetectedCountry}
+                >
                   {p(geo.detectNo)}
                 </Button>
               </div>
@@ -731,10 +743,7 @@ export function GeoJourneyPicker({
                     className={`geo-country-item${continentCode === r.code ? ' is-selected' : ''}`}
                     onClick={() => pickRegion(r.code)}
                   >
-                    <span>
-                      <span className="geo-country-item-name">{r.nameZh}</span>
-                      <span className="geo-country-item-en">{r.nameEn}</span>
-                    </span>
+                    <span className="geo-country-item-name">{geoLocalizedName(r, lang)}</span>
                   </button>
                 ))}
               </div>
@@ -762,10 +771,7 @@ export function GeoJourneyPicker({
                       className={`geo-country-item${countryCode === c.code ? ' is-selected' : ''}`}
                       onClick={() => pickCountry(c.code)}
                     >
-                      <span>
-                        <span className="geo-country-item-name">{c.nameZh}</span>
-                        <span className="geo-country-item-en">{c.nameEn}</span>
-                      </span>
+                      <span className="geo-country-item-name">{geoLocalizedName(c, lang)}</span>
                     </button>
                   ))}
                 </div>
@@ -822,10 +828,9 @@ export function GeoJourneyPicker({
                       onClick={() => onDeityPicked(deity.id)}
                     >
                       <span className="geo-journey-deity-avatar">
-                        <img src={deity.imageUrl} alt={deity.name} />
+                        <img src={deity.imageUrl} alt={deityDisplayName(deity, lang)} />
                       </span>
-                      <span className="geo-journey-deity-name">{deity.name}</span>
-                      <span className="geo-journey-deity-en">{deity.nameEN}</span>
+                      <span className="geo-journey-deity-name">{deityDisplayName(deity, lang)}</span>
                     </button>
                   ))}
                 </div>
@@ -857,12 +862,12 @@ export function GeoJourneyPicker({
               <span className="geo-journey-faith-confirm-emoji">{pendingConfirm.emoji}</span>
               <div>
                 <div className="geo-journey-faith-confirm-name">{pendingConfirm.name}</div>
-                <div className="geo-journey-faith-confirm-en">{pendingConfirm.sub}</div>
               </div>
             </div>
             <Button
               type="button"
-              className="geo-journey-faith-confirm-btn w-full"
+              size="lg"
+              className="geo-journey-faith-confirm-btn geo-journey-confirm-cta w-full"
               onClick={confirmCurrentStep}
             >
               {confirmLabel}
@@ -897,10 +902,7 @@ export function GeoJourneyPicker({
                     className={`geo-country-item${(pendingRegion ?? continentCode) === r.code ? ' is-selected' : ''}`}
                     onClick={() => pickRegion(r.code)}
                   >
-                    <span>
-                      <span className="geo-country-item-name">{r.nameZh}</span>
-                      <span className="geo-country-item-en">{r.nameEn}</span>
-                    </span>
+                    <span className="geo-country-item-name">{geoLocalizedName(r, lang)}</span>
                   </button>
                 ))}
               </div>
@@ -927,10 +929,7 @@ export function GeoJourneyPicker({
                         className={`geo-country-item${(pendingCountry ?? countryCode) === c.code ? ' is-selected' : ''}`}
                         onClick={() => pickCountry(c.code)}
                       >
-                        <span>
-                          <span className="geo-country-item-name">{c.nameZh}</span>
-                          <span className="geo-country-item-en">{c.nameEn}</span>
-                        </span>
+                        <span className="geo-country-item-name">{geoLocalizedName(c, lang)}</span>
                       </button>
                     ))}
                   </div>

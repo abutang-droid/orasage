@@ -1,0 +1,62 @@
+/**
+ * 全站价格展示：蓝色金额，单位缩写 U / W，单位比金额小 2 字号（4px）。
+ * 不放大、不用金色/粗黑突出双价。
+ */
+.os-price {
+  display: inline;
+  color: #2563eb;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.os-price-part {
+  display: inline;
+  white-space: nowrap;
+}
+
+.os-price-amount {
+  font-size: 1em;
+  font-weight: 500;
+}
+
+.os-price-unit {
+  font-size: calc(1em - 4px);
+  font-weight: 500;
+  margin-left: 0.1em;
+  opacity: 0.85;
+  vertical-align: baseline;
+}
+
+.os-price-sep {
+  margin: 0 0.3em;
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+/* 覆盖各 App 里曾把价格做成金色/黑色大字号的容器 */
+.shop-product-price,
+.shop-pdp-price,
+.shop-pdp-related-price,
+.shop-diy-bar-amount,
+.daily-fortune-recommend-price,
+.three-card-tier-price,
+.ziwei-recommend-price,
+.ziwei-chat-plan em,
+.product-rec-price {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.shop-product-price .os-price,
+.shop-pdp-price .os-price,
+.shop-pdp-related-price .os-price,
+.shop-diy-bar-amount .os-price,
+.daily-fortune-recommend-price .os-price,
+.three-card-tier-price .os-price,
+.ziwei-recommend-price .os-price,
+.ziwei-chat-plan em .os-price,
+.product-rec-price .os-price {
+  font-size: inherit;
+}

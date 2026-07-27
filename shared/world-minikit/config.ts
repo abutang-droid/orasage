@@ -1,0 +1,140 @@
+/** World Mini App feature flags (shared across tarot / shop / auth clients). */
+
+export function envFlagTrue(raw: string | undefined): boolean {
+  const v = (raw ?? '').trim().toLowerCase();
+  return v === 'true' || v === '1' || v === 'yes';
+}
+
+/**
+ * Force World SIWE login (email/password disabled server-side when set).
+ *
+ * IMPORTANT: read `process.env.NEXT_PUBLIC_*` as static member expressions so
+ * Next.js can inline them into the client bundle. Dynamic `env[key]` access
+ * leaves the flag undefined in the browser and silently disables the gate.
+ */
+export function isWorldAuthRequired(_env?: NodeJS.ProcessEnv): boolean {
+  return (
+    envFlagTrue(process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED) ||
+    envFlagTrue(process.env.WORLD_AUTH_REQUIRED) ||
+    (_env
+      ? envFlagTrue(_env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED) || envFlagTrue(_env.WORLD_AUTH_REQUIRED)
+      : false)
+  );
+}
+
+/** Prefer MiniKit.pay over mock/stripe when configured. */
+export function isWorldPayEnabled(_env?: NodeJS.ProcessEnv): boolean {
+  if (
+    envFlagTrue(process.env.NEXT_PUBLIC_WORLD_PAY_ENABLED) ||
+    envFlagTrue(process.env.WORLD_PAY_ENABLED) ||
+    (_env
+      ? envFlagTrue(_env.NEXT_PUBLIC_WORLD_PAY_ENABLED) || envFlagTrue(_env.WORLD_PAY_ENABLED)
+      : false)
+  ) {
+    return true;
+  }
+  const mode = (
+    process.env.NEXT_PUBLIC_PAYMENT_MODE ||
+    process.env.PAYMENT_MODE ||
+    _env?.PAYMENT_MODE ||
+    ''
+  )
+    .trim()
+    .toLowerCase();
+  return mode === 'world' || mode === 'wld' || mode === 'minikit';
+}
+
+export function worldAuthPublicUrl(_env?: NodeJS.ProcessEnv): string {
+  const auth =
+    process.env.NEXT_PUBLIC_AUTH_URL ||
+    process.env.AUTH_URL ||
+    _env?.NEXT_PUBLIC_AUTH_URL ||
+    _env?.AUTH_URL ||
+    (typeof window !== 'undefined' && window.location.hostname.endsWith('oricosmos.com')
+      ? 'https://auth.oricosmos.com'
+      : 'https://auth.orasage.com');
+  return auth.replace(/\/$/, '');
+}
+
+export function worldAppId(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_APP_ID ||
+    process.env.WORLD_APP_ID ||
+    _env?.NEXT_PUBLIC_WORLD_APP_ID ||
+    _env?.WORLD_APP_ID ||
+    ''
+  ).trim();
+}
+
+/**
+ * Developer Portal "App URL" — used as SIWE URI/domain so World App does not
+ * reject login when the browser href has query/hash (e.g. `?lang=zh-CN`).
+ */
+export function worldAppUrl(_env?: NodeJS.ProcessEnv): string {
+  const configured = (
+    process.env.NEXT_PUBLIC_WORLD_APP_URL ||
+    process.env.WORLD_APP_URL ||
+    _env?.NEXT_PUBLIC_WORLD_APP_URL ||
+    _env?.WORLD_APP_URL ||
+    ''
+  ).trim();
+  if (configured) return configured.replace(/\/$/, '');
+  if (typeof window !== 'undefined') {
+    // Prefer the registered mini-app host (tarot), not auth/shop.
+    const host = window.location.hostname;
+    if (host === 'tarot.oricosmos.com' || host === 'tarot.orasage.com') {
+      return `https://${host}`;
+    }
+    if (host.endsWith('.oricosmos.com')) return 'https://tarot.oricosmos.com';
+    if (host.endsWith('.orasage.com')) return 'https://tarot.orasage.com';
+    return window.location.origin.replace(/\/$/, '');
+  }
+  return 'https://tarot.oricosmos.com';
+}
+
+export function worldPaymentToAddress(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_PAYMENT_TO_ADDRESS ||
+    process.env.WORLD_PAYMENT_TO_ADDRESS ||
+    _env?.NEXT_PUBLIC_WORLD_PAYMENT_TO_ADDRESS ||
+    _env?.WORLD_PAYMENT_TO_ADDRESS ||
+    ''
+  ).trim();
+}
+
+/** World ID relying party id (`rp_…`) for IDKit. */
+export function worldRpId(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_RP_ID ||
+    process.env.WORLD_RP_ID ||
+    _env?.NEXT_PUBLIC_WORLD_RP_ID ||
+    _env?.WORLD_RP_ID ||
+    ''
+  ).trim();
+}
+
+/** Developer Portal World ID action id (e.g. `manto-tarot`). */
+export function worldIdAction(_env?: NodeJS.ProcessEnv): string {
+  return (
+    process.env.NEXT_PUBLIC_WORLD_ID_ACTION ||
+    process.env.WORLD_ID_ACTION ||
+    _env?.NEXT_PUBLIC_WORLD_ID_ACTION ||
+    _env?.WORLD_ID_ACTION ||
+    'manto-tarot'
+  ).trim();
+}
+
+/** Client-visible: IDKit gate button when app + rp + action are configured. */
+export function isWorldIdkitEnabled(_env?: NodeJS.ProcessEnv): boolean {
+  if (
+    envFlagTrue(process.env.NEXT_PUBLIC_WORLD_IDKIT_ENABLED) ||
+    envFlagTrue(process.env.WORLD_IDKIT_ENABLED) ||
+    (_env
+      ? envFlagTrue(_env.NEXT_PUBLIC_WORLD_IDKIT_ENABLED) || envFlagTrue(_env.WORLD_IDKIT_ENABLED)
+      : false)
+  ) {
+    return true;
+  }
+  // Default on when App ID + RP ID are present (signing key stays server-only).
+  return Boolean(worldAppId(_env) && worldRpId(_env) && worldIdAction(_env));
+}

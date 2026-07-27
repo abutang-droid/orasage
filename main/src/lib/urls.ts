@@ -1,17 +1,22 @@
+import { getSiteApex, orasageUrlsFor } from './orasage-app-shell/config';
+
+const urls = orasageUrlsFor(getSiteApex());
+const apex = getSiteApex();
+
 export const externalUrls = {
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  temple: 'https://tarot.orasage.com/temple',
-  shop: 'https://shop.orasage.com',
-  auth: 'https://auth.orasage.com/center',
-  authLogin: 'https://auth.orasage.com/login',
-  cms: 'https://admin.orasage.com/cms',
+  bazi: urls.bazi,
+  ziwei: urls.ziwei,
+  tarot: urls.tarot,
+  temple: urls.temple,
+  shop: urls.shop,
+  auth: `https://auth.${apex}/center`,
+  authLogin: urls.authLogin,
+  cms: `https://admin.${apex}/cms`,
 } as const;
 
 /** 祈福 / 功德深链 */
 export function tarotBlessingUrls(locale = 'zh-CN') {
-  const portalBase = `https://orasage.com/${locale}`;
+  const portalBase = `https://${apex}/${locale}`;
   return {
     merit: `${portalBase}/profile/merit`,
     temple: externalUrls.temple,

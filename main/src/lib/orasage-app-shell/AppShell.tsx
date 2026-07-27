@@ -4,11 +4,11 @@ import { ChevronLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { Button } from '@orasage/ui/button';
 import { appBrandLabel, appHomeUrl, shouldShowAppShellPageBack, type AppId } from './config';
-import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { FixedBottomNav } from './BottomNav';
 import { OrasageAuthChip } from './OrasageAuthChip';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { LocaleFallbackNotice } from './LocaleFallbackNotice';
 import './app-shell.css';
 
 export type LocaleOption = { code: string; label: string };
@@ -22,18 +22,19 @@ export type AppShellProps = {
   pathname?: string;
   showBottomNav?: boolean;
   showMobileBar?: boolean;
+  /** @deprecated PC 顶栏已下线；保留 prop 以免破坏调用方，始终不渲染 */
   showSiteTopNav?: boolean;
   immersive?: boolean;
   /** 子页顶栏返回；false 时由页面内流程自行处理（如 temple 多步向导） */
   showPageBack?: boolean;
   showLocaleSwitcher?: boolean;
   footer?: ReactNode;
-  /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
+  /** 顶栏右侧插槽（移动顶栏登录旁），如 shop 购物车 */
   headerExtra?: ReactNode;
   children: ReactNode;
 };
 
-/** 子应用外壳：PC 顶栏 + 移动顶栏品牌/登录 + 移动底栏 5 键 */
+/** 子应用外壳：移动顶栏品牌/登录 + 固定底栏 5 键（仅移动壳，宽屏同布局） */
 export function AppShell({
   appId,
   locale = 'zh-CN',
@@ -41,7 +42,6 @@ export function AppShell({
   pathname = '/',
   showBottomNav = true,
   showMobileBar = true,
-  showSiteTopNav = true,
   immersive = false,
   showPageBack = true,
   showLocaleSwitcher = true,
@@ -55,18 +55,8 @@ export function AppShell({
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
-      {showSiteTopNav && (
-        <SiteTopNav
-          locale={locale}
-          context={appId}
-          trailing={headerExtra}
-          showLocaleSwitcher={showLocaleSwitcher}
-          onLocaleChange={onLocaleChange}
-        />
-      )}
-
       {showMobileBar && (
-        <header className="orasage-site-mobile-bar lg:hidden">
+        <header className="orasage-site-mobile-bar">
           <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
             {brandLabel}
           </a>
@@ -80,9 +70,11 @@ export function AppShell({
         </header>
       )}
 
+      <LocaleFallbackNotice locale={locale} />
+
       <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
         {showBack && (
-          <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
+          <div className="orasage-page-toolbar orasage-page-toolbar--subpage">
             <Button
               type="button"
               variant="ghost"

@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
-import { detectShopLocale, SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../../shared/shop-locale/index';
+import {
+  detectShopLocale,
+  formatDualShopPrice,
+  SHOP_LOCALE_COOKIE,
+  SHOP_LOCALE_OVERRIDE_COOKIE,
+} from '../../../../../../shared/shop-locale/index';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
@@ -10,7 +16,7 @@ export async function GET() {
     const jar = await cookies();
     const hdrs = await headers();
     const locale = detectShopLocale({
-      cookieLocale: jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_COOKIE)?.value,
+      cookieLocale: jar.get(SHOP_LOCALE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value,
       acceptLanguage: hdrs.get('accept-language'),
     });
     const [res, imageMap] = await Promise.all([
@@ -39,10 +45,14 @@ export async function GET() {
       desc: p.desc,
       description: p.desc,
       priceCents: p.priceCents,
-      priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
+      priceCentsUsd: p.priceCentsUsd,
+      priceDisplay: formatDualShopPrice({
+        priceCents: p.priceCents,
+        priceCentsUsd: p.priceCentsUsd,
+      }),
       category: p.category,
       categoryLabel: categoryLabels[p.category],
-      shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,
+      shopUrl: `${ORASAGE_URLS.shop}?sku=${encodeURIComponent(p.sku)}`,
     }));
     const categorySet = new Set(products.map((p) => p.category));
     const categories = (['crystal', 'report', 'service'] as const)

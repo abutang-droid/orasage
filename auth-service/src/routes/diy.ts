@@ -1,20 +1,55 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { diyBeads, diyConfig, diyDesigns } from "../db/schema.ts";
+import { pickLocalized } from "../lib/product-i18n.ts";
+import { detectShopLocale } from "../../../shared/shop-locale/index.ts";
 
 export const diyRouter = Router();
 export const diyInternalRouter = Router();
 
 type BeadRow = typeof diyBeads.$inferSelect;
 
-export function formatBead(row: BeadRow) {
-  return {
+export type FormatBeadOptions = {
+  locale?: string;
+  /** Admin responses keep base Chinese fields + raw i18n maps */
+  admin?: boolean;
+};
+
+function localeFromDiyRequest(req: Request): string {
+  const cookieHeader = typeof req.headers.cookie === "string" ? req.headers.cookie : "";
+  const cookies = cookieHeader.split(";").map((part) => part.trim());
+  const read = (name: string) =>
+    cookies.find((part) => part.startsWith(`${name}=`))?.split("=").slice(1).join("=");
+  const raw = read("NEXT_LOCALE") ?? read("orasage_shop_locale");
+  const queryLocale =
+    typeof req.query.locale === "string"
+      ? req.query.locale
+      : typeof req.query.lang === "string"
+        ? req.query.lang
+        : undefined;
+  return detectShopLocale({
+    queryLocale,
+    cookieLocale: raw ? decodeURIComponent(raw) : undefined,
+    acceptLanguage:
+      typeof req.headers["accept-language"] === "string" ? req.headers["accept-language"] : undefined,
+  });
+}
+
+export function formatBead(row: BeadRow, opts?: FormatBeadOptions) {
+  const locale = opts?.locale ?? "zh-CN";
+  const name = opts?.admin ? row.name : pickLocalized(row.nameI18n, locale, row.name);
+  const materialLabel = pickLocalized(row.materialI18n, locale, row.material);
+
+  const base = {
     code: row.code,
-    name: row.name,
+    name,
     element: row.element,
+    /** Stable identity key (Chinese baseline) — used by designer gradients / grouping */
     material: row.material,
+    /** Localized material label for display */
+    materialLabel,
     type: row.beadType as "crystal" | "spacer" | "disc",
     diameterMm: row.diameterMm,
     thicknessMm: row.thicknessMm,
@@ -28,6 +63,16 @@ export function formatBead(row: BeadRow) {
     active: row.active,
     sortOrder: row.sortOrder,
   };
+
+  if (opts?.admin) {
+    return {
+      ...base,
+      name: row.name,
+      nameI18n: row.nameI18n ?? null,
+      materialI18n: row.materialI18n ?? null,
+    };
+  }
+  return base;
 }
 
 export async function getDiyConfigRow() {
@@ -52,13 +97,18 @@ export function formatDiyConfig(row: Awaited<ReturnType<typeof getDiyConfigRow>>
 }
 
 /** 公开目录：设计器初始化数据 */
-diyRouter.get("/catalog", async (_req, res) => {
+diyRouter.get("/catalog", async (req, res) => {
   try {
+    const locale = localeFromDiyRequest(req);
     const [rows, config] = await Promise.all([
       db.select().from(diyBeads).where(eq(diyBeads.active, true)).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id)),
       getDiyConfigRow(),
     ]);
-    res.json({ beads: rows.map(formatBead), config: formatDiyConfig(config) });
+    res.json({
+      beads: rows.map((row) => formatBead(row, { locale })),
+      config: formatDiyConfig(config),
+      locale,
+    });
   } catch (err) {
     console.error("[diy] catalog:", err);
     res.status(500).json({ error: "服务器内部错误" });
@@ -68,6 +118,7 @@ diyRouter.get("/catalog", async (_req, res) => {
 const quoteSchema = z.object({
   beads: z.array(z.string().min(1).max(100)).min(1).max(120),
   wristCm: z.number().min(10).max(25),
+  locale: z.string().max(20).optional(),
 });
 
 export type DiyQuoteResult = {
@@ -90,7 +141,11 @@ export type DiyQuoteResult = {
 };
 
 /** 服务端验价：按现价重算、校验库存与串长（防前端改价） */
-export async function computeDiyQuote(beadCodes: string[], wristCm: number): Promise<DiyQuoteResult> {
+export async function computeDiyQuote(
+  beadCodes: string[],
+  wristCm: number,
+  locale = "zh-CN",
+): Promise<DiyQuoteResult> {
   const config = await getDiyConfigRow();
   const uniqueCodes = [...new Set(beadCodes)];
   const rows = await db.select().from(diyBeads).where(inArray(diyBeads.code, uniqueCodes));
@@ -111,10 +166,13 @@ export async function computeDiyQuote(beadCodes: string[], wristCm: number): Pro
       throw new Error(`珠子不存在或已下架: ${code}`);
     }
     if (qty > bead.stock) {
-      throw new Error(`「${bead.name} ${bead.diameterMm}mm」库存不足（剩余 ${bead.stock} 颗）`);
+      const label = pickLocalized(bead.nameI18n, locale, bead.name);
+      throw new Error(`「${label} ${bead.diameterMm}mm」库存不足（剩余 ${bead.stock} 颗）`);
     }
-    const usd = bead.priceCentsUsd ?? Math.round(bead.priceCents / 7.2);
-    totalCents += bead.priceCents * qty;
+    const usd = bead.priceCentsUsd != null && bead.priceCentsUsd > 0
+      ? bead.priceCentsUsd
+      : bead.priceCents;
+    totalCents += usd * qty;
     totalCentsUsd += usd * qty;
     const len = bead.beadType === "disc" && bead.thicknessMm ? bead.thicknessMm : bead.diameterMm;
     lengthMm += len * qty;
@@ -128,34 +186,40 @@ export async function computeDiyQuote(beadCodes: string[], wristCm: number): Pro
   if (effectiveLengthMm > targetMm + config.fitToleranceMm) {
     throw new Error("串长超出所选手围，请移除部分珠子或调大手围");
   }
-  if (totalCents < config.minOrderCents) {
-    throw new Error(`定制手串最低金额为 ¥${(config.minOrderCents / 100).toFixed(0)}`);
+  if (totalCentsUsd < config.minOrderCents) {
+    throw new Error(`定制手串最低金额为 ${(config.minOrderCents / 100).toFixed(2)} USDT`);
   }
 
   const items = [...counts.entries()].map(([code, quantity]) => {
     const bead = byCode.get(code)!;
+    const unit = bead.priceCentsUsd != null && bead.priceCentsUsd > 0
+      ? bead.priceCentsUsd
+      : bead.priceCents;
     const sizeLabel = bead.beadType === "disc" && bead.thicknessMm
       ? `${bead.diameterMm}×${bead.thicknessMm}mm`
       : `${bead.diameterMm}mm`;
     return {
       code,
-      name: bead.name,
+      name: pickLocalized(bead.nameI18n, locale, bead.name),
       element: bead.element,
       material: bead.material,
       type: bead.beadType,
       sizeLabel,
-      priceCents: bead.priceCents,
+      priceCents: unit,
       quantity,
     };
   });
 
-  return { ok: true, totalCents, totalCentsUsd, lengthMm, effectiveLengthMm, targetMm, items };
+  return { ok: true, totalCents: totalCentsUsd, totalCentsUsd, lengthMm, effectiveLengthMm, targetMm, items };
 }
 
 diyInternalRouter.post("/quote", async (req, res) => {
   try {
     const body = quoteSchema.parse(req.body);
-    const quote = await computeDiyQuote(body.beads, body.wristCm);
+    const locale = body.locale
+      ? detectShopLocale({ queryLocale: body.locale })
+      : "zh-CN";
+    const quote = await computeDiyQuote(body.beads, body.wristCm, locale);
     res.json(quote);
   } catch (err) {
     if (err instanceof z.ZodError) {

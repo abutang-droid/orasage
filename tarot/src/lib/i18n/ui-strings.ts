@@ -402,6 +402,12 @@ export const faith = {
     pt: 'Mais tradições',
     es: 'Más tradiciones',
   },
+  customOption: {
+    zh: '不在列表中？自行填写',
+    en: 'Not in the list? Add your own',
+    pt: 'Não está na lista? Escreva o seu',
+    es: '¿No está en la lista? Añade el tuyo',
+  },
   customLead: {
     zh: '写下你的信仰或精神归属名称',
     en: 'Write your faith or spiritual path',
@@ -846,6 +852,18 @@ export const donation = {
     pt: 'Falha na doação',
     es: 'Error en la donación',
   },
+  loginRequired: {
+    zh: '请先登录后再乐捐',
+    en: 'Please sign in before donating',
+    pt: 'Faça login antes de doar',
+    es: 'Inicia sesión antes de donar',
+  },
+  loginCta: {
+    zh: '去登录',
+    en: 'Sign in',
+    pt: 'Entrar',
+    es: 'Iniciar sesión',
+  },
 } as const satisfies Record<string, LangMap>;
 
 export const wish = {
@@ -1044,6 +1062,7 @@ export function useFaithCopy() {
       reselect: p(faith.reselect),
       moreFaiths: p(faith.moreFaiths),
       moreFaithsTitle: p(faith.moreFaithsTitle),
+      customOption: p(faith.customOption),
       customLead: p(faith.customLead),
       customPlaceholder: p(faith.customPlaceholder),
       skip: p(faith.skip),
@@ -1142,6 +1161,8 @@ export function useDonationCopy() {
       submitLoading: p(donation.submitLoading),
       submit: (amount: string) => formatTemplate(p(donation.submit), { amount }),
       error: p(donation.error),
+      loginRequired: p(donation.loginRequired),
+      loginCta: p(donation.loginCta),
     };
   }, [lang]);
 }

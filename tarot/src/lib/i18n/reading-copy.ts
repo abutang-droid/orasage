@@ -97,16 +97,16 @@ const positionSublabels: Record<PositionKey, LangMap> = {
 const threeCard = {
   label: { zh: '脉络解构', en: 'Trilogy', pt: 'Trilogia', es: 'Trilogía' },
   title: {
-    zh: '脉络解构 // TRILOGY',
-    en: 'Trilogy // TRILOGY',
-    pt: 'Trilogia // TRILOGY',
-    es: 'Trilogía // TRILOGY',
+    zh: '脉络解构',
+    en: 'Trilogy',
+    pt: 'Trilogia',
+    es: 'Trilogía',
   },
   statusBadge: {
-    zh: '[ 状态：多维数据链条 // 线性逻辑推演 ]',
-    en: '[ Status: multi-dimensional chain // linear inference ]',
-    pt: '[ Status: cadeia multidimensional // inferência linear ]',
-    es: '[ Estado: cadena multidimensional // inferencia lineal ]',
+    zh: '「状态：多维数据链条」',
+    en: '「Status: multi-dimensional chain」',
+    pt: '「Status: cadeia multidimensional」',
+    es: '「Estado: cadena multidimensional」',
   },
   subtitle: {
     zh: '',
@@ -276,6 +276,7 @@ const threeCard = {
   sectionArchitecture: { zh: '[ 架构定义 ]', en: '[ Architecture ]', pt: '[ Arquitetura ]', es: '[ Arquitectura ]' },
   modeLabel: { zh: '模式', en: 'Mode', pt: 'Modo', es: 'Modo' },
   sectionNodes: { zh: '[ 节点测绘 ]', en: '[ Node mapping ]', pt: '[ Mapeamento de nós ]', es: '[ Mapeo de nodos ]' },
+  nodeIndex: { zh: '节点 {n}', en: 'Node {n}', pt: 'Nó {n}', es: 'Nodo {n}' },
   sectionChain: { zh: '[ 链路推演 ]', en: '[ Chain inference ]', pt: '[ Inferência de cadeia ]', es: '[ Inferencia de cadena ]' },
   sectionThreshold: { zh: '[ 行动阈值 ]', en: '[ Action threshold ]', pt: '[ Limiar de ação ]', es: '[ Umbral de acción ]' },
   fullSynthesis: {
@@ -332,16 +333,16 @@ const threeCard = {
 const singleCard = {
   label: { zh: '定命切片', en: 'Destiny Slice', pt: 'Fatia do Destino', es: 'Fragmento del Destino' },
   title: {
-    zh: '定命切片 // FOCUS',
-    en: 'Destiny Slice // FOCUS',
-    pt: 'Fatia do Destino // FOCUS',
-    es: 'Fragmento del Destino // FOCUS',
+    zh: '定命切片',
+    en: 'Destiny Slice',
+    pt: 'Fatia do Destino',
+    es: 'Fragmento del Destino',
   },
   statusBadge: {
-    zh: '[ 状态：单点高能聚焦 // 非零即一判断 ]',
-    en: '[ Status: single-point focus // binary tendency ]',
-    pt: '[ Status: foco de ponto único // tendência binária ]',
-    es: '[ Estado: foco de punto único // tendencia binaria ]',
+    zh: '单点聚焦 · 倾向判断',
+    en: 'Single-point focus · tendency',
+    pt: 'Foco pontual · tendência',
+    es: 'Foco puntual · tendencia',
   },
   subtitle: {
     zh: '',
@@ -433,11 +434,14 @@ const singleCard = {
     pt: 'Falha ao gerar orientação',
     es: 'Error al generar guía',
   },
-  sectionTendency: { zh: '[ 倾向判定 ]', en: '[ Tendency ]', pt: '[ Tendência ]', es: '[ Tendencia ]' },
+  sectionTendency: { zh: '倾向判定', en: 'Tendency', pt: 'Tendência', es: 'Tendencia' },
   coreTendencyLabel: { zh: '核心倾向', en: 'Core tendency', pt: 'Tendência central', es: 'Tendencia central' },
   energyProbabilityLabel: { zh: '能量概率', en: 'Energy probability', pt: 'Probabilidade energética', es: 'Probabilidad energética' },
-  sectionDeconstruction: { zh: '[ 现状解构 ]', en: '[ Deconstruction ]', pt: '[ Desconstrução ]', es: '[ Deconstrucción ]' },
-  sectionThreshold: { zh: '[ 破局阈值 ]', en: '[ Threshold ]', pt: '[ Limiar ]', es: '[ Umbral ]' },
+  sectionDeconstruction: { zh: '现状解构', en: 'Deconstruction', pt: 'Desconstrução', es: 'Deconstrucción' },
+  sectionThreshold: { zh: '破局阈值', en: 'Threshold', pt: 'Limiar', es: 'Umbral' },
+  tendencyYes: { zh: 'Yes', en: 'Yes', pt: 'Sim', es: 'Sí' },
+  tendencyNo: { zh: 'No', en: 'No', pt: 'Não', es: 'No' },
+  tendencyCaution: { zh: '警惕', en: 'Caution', pt: 'Atenção', es: 'Precaución' },
   paywallTitle: {
     zh: '解锁数据切片',
     en: 'Unlock data slice',
@@ -642,8 +646,36 @@ const dailyFortune = {
     pt: 'Entrar para relatório completo',
     es: 'Iniciar sesión para informe completo',
   },
-  recommendTitle: { zh: '今日推荐', en: "Today's pick", pt: 'Recomendação de hoje', es: 'Recomendación de hoy' },
-  recommendCta: { zh: '去看看 →', en: 'View →', pt: 'Ver →', es: 'Ver →' },
+  recommendTitle: {
+    zh: '水晶手串 · 增强能量场',
+    en: 'Crystal bracelet · strengthen your field',
+    pt: 'Pulseira de cristal · fortalecer o campo',
+    es: 'Pulsera de cristal · fortalecer tu campo',
+  },
+  recommendLead: {
+    zh: '根据今日启示的牌面能量，佩戴对应五行水晶手串，帮助稳固与增强你的能量场。',
+    en: 'Based on today’s card energy, wear the matching five-element crystal bracelet to steady and strengthen your field.',
+    pt: 'Com base na energia da carta de hoje, use a pulseira de cristal do elemento correspondente para estabilizar e fortalecer seu campo.',
+    es: 'Según la energía de la carta de hoy, usa la pulsera de cristal del elemento correspondiente para estabilizar y fortalecer tu campo.',
+  },
+  recommendCta: {
+    zh: '购买',
+    en: 'Buy',
+    pt: 'Comprar',
+    es: 'Comprar',
+  },
+  recommendBuying: {
+    zh: '处理中…',
+    en: 'Processing…',
+    pt: 'Processando…',
+    es: 'Procesando…',
+  },
+  recommendLoginBeforeBuy: {
+    zh: '请先登录后再购买',
+    en: 'Sign in to buy',
+    pt: 'Entre para comprar',
+    es: 'Inicia sesión para comprar',
+  },
   alreadyDrewToday: {
     zh: '你今天已经抽过每日运势了，以下是今日结果',
     en: 'You already drew your daily fortune today — here is your result',
@@ -727,10 +759,10 @@ const home = {
     es: 'Foco de punto único · desliza el mazo para fragmentos de tendencia',
   },
   singleCardCta: {
-    zh: '进入定命切片 →',
-    en: 'Enter Destiny Slice →',
-    pt: 'Entrar na Fatia do Destino →',
-    es: 'Entrar al Fragmento del Destino →',
+    zh: '进入定命切片',
+    en: 'Enter Destiny Slice',
+    pt: 'Entrar na Fatia do Destino',
+    es: 'Entrar al Fragmento del Destino',
   },
   singleCardUnlockBadge: {
     zh: '抽牌免费 · 解锁看切片',
@@ -783,16 +815,16 @@ const home = {
     es: 'Guía de acción',
   },
   dailyInsightViewAgain: {
-    zh: '查看今日启示 →',
-    en: "View today's insight →",
-    pt: 'Ver revelação de hoje →',
-    es: 'Ver revelación de hoy →',
+    zh: '查看今日启示',
+    en: "View today's insight",
+    pt: 'Ver revelação de hoje',
+    es: 'Ver revelación de hoy',
   },
   dailyCta: {
-    zh: '抽取今日启示 →',
-    en: "Draw today's insight →",
-    pt: 'Tirar revelação de hoje →',
-    es: 'Sacar revelación de hoy →',
+    zh: '抽取今日启示',
+    en: "Draw today's insight",
+    pt: 'Tirar revelação de hoje',
+    es: 'Sacar revelación de hoy',
   },
   threeCardNote: {
     zh: '深度报告与专属解读需登录后解锁',
@@ -801,10 +833,10 @@ const home = {
     es: 'Informe completo requiere inicio de sesión',
   },
   threeCardCta: {
-    zh: '开始三牌占卜 →',
-    en: 'Start three-card reading →',
-    pt: 'Iniciar leitura de três cartas →',
-    es: 'Iniciar lectura de tres cartas →',
+    zh: '开始三牌占卜',
+    en: 'Start three-card reading',
+    pt: 'Iniciar leitura de três cartas',
+    es: 'Iniciar lectura de tres cartas',
   },
   templeTitle: {
     zh: '祈福',
@@ -819,10 +851,10 @@ const home = {
     es: 'Toca la deidad para adorar hoy y gana una tirada extra de carta única.',
   },
   templeCta: {
-    zh: '前往祈福 →',
-    en: 'Go to blessing →',
-    pt: 'Ir à bênção →',
-    es: 'Ir a la bendición →',
+    zh: '前往祈福',
+    en: 'Go to blessing',
+    pt: 'Ir à bênção',
+    es: 'Ir a la bendición',
   },
   heroEyebrow: {
     zh: '塔罗占卜',
@@ -837,10 +869,10 @@ const home = {
     es: 'Saca una carta — mira cómo se desarrolla el día',
   },
   heroSubtitle: {
-    zh: '今日启示、单牌占卜与三牌占卜，从这里开始',
-    en: "Today's insight, single-card and three-card readings start here",
-    pt: 'Revelação de hoje, carta única e três cartas começam aqui',
-    es: 'Revelación de hoy, carta única y tres cartas empiezan aquí',
+    zh: '每日运势与三牌占卜，都在这里开始',
+    en: 'Daily fortune and three-card readings both start here',
+    pt: 'A fortuna diária e a leitura de três cartas começam aqui',
+    es: 'La fortuna diaria y la lectura de tres cartas empiezan aquí',
   },
 } as const satisfies Record<string, LangMap>;
 
@@ -964,8 +996,45 @@ function formatTemplate(template: string, vars: Record<string, string>): string 
 }
 
 export function positionLabel(lang: Lang, key: string): string {
-  const map = positions[key as PositionKey];
+  const normalized =
+    key === 'Past' || key === 'Passado' || key === 'Pasado'
+      ? '过去'
+      : key === 'Present' || key === 'Presente'
+        ? '现在'
+        : key === 'Future' || key === 'Futuro'
+          ? '未来'
+          : key;
+  const map = positions[normalized as PositionKey];
   return map ? pick(map, lang) : key;
+}
+
+/** Localize known Trilogy mode labels; strip stray Han on non-zh UI. */
+export function trilogyModeLabel(lang: Lang, mode: string): string {
+  const m = mode.trim();
+  if (/时序脉络|Timeline\s*\(?\s*Past|Past-Present-Future|Linha do tempo/i.test(m)) {
+    return pick(
+      {
+        zh: '时序脉络 (Past-Present-Future)',
+        en: 'Timeline (Past-Present-Future)',
+        pt: 'Linha do tempo (Passado-Presente-Futuro)',
+        es: 'Línea temporal (Pasado-Presente-Futuro)',
+      },
+      lang,
+    );
+  }
+  if (lang !== 'zh' && /[\u3400-\u9fff]/.test(m)) {
+    const stripped = m.replace(/[\u3400-\u9fff]+/g, '').replace(/\s+/g, ' ').replace(/^[·\-\s(]+|[)·\-\s]+$/g, '').trim();
+    return stripped || pick(
+      {
+        zh: m,
+        en: 'Timeline (Past-Present-Future)',
+        pt: 'Linha do tempo (Passado-Presente-Futuro)',
+        es: 'Línea temporal (Pasado-Presente-Futuro)',
+      },
+      lang,
+    );
+  }
+  return m;
 }
 
 export function positionSublabel(lang: Lang, key: string): string {
@@ -1015,9 +1084,15 @@ export function useReadingCommon() {
       positionSublabel: (key: string) => positionSublabel(lang, key),
       orientation: (o: string) => orientationLabel(lang, o),
       nicknameGreeting: (nickname?: string | null) => {
-        if (!nickname || nickname === p(common.traveler)) return '';
-        if (lang === 'zh') return `${nickname}，`;
-        return `${nickname}, `;
+        if (!nickname?.trim()) return '';
+        const defaults = new Set(
+          Object.values(common.traveler).map((v) => v.trim()).filter(Boolean),
+        );
+        // DB guest nickname is always the Chinese default
+        defaults.add('旅人');
+        if (defaults.has(nickname.trim())) return '';
+        if (lang === 'zh') return `${nickname.trim()}，`;
+        return `${nickname.trim()}, `;
       },
     };
   }, [lang]);
@@ -1065,7 +1140,9 @@ export function useThreeCardCopy() {
       backBrief: p(threeCard.backBrief),
       sectionArchitecture: p(threeCard.sectionArchitecture),
       modeLabel: p(threeCard.modeLabel),
+      trilogyMode: (mode: string) => trilogyModeLabel(lang, mode),
       sectionNodes: p(threeCard.sectionNodes),
+      nodeIndex: (n: number) => formatTemplate(p(threeCard.nodeIndex), { n: String(n).padStart(2, '0') }),
       sectionChain: p(threeCard.sectionChain),
       sectionThreshold: p(threeCard.sectionThreshold),
       fullSynthesis: p(threeCard.fullSynthesis),
@@ -1126,7 +1203,10 @@ export function useDailyFortuneCopy() {
       loginDimsHint: p(dailyFortune.loginDimsHint),
       loginDimsCta: p(dailyFortune.loginDimsCta),
       recommendTitle: p(dailyFortune.recommendTitle),
+      recommendLead: p(dailyFortune.recommendLead),
       recommendCta: p(dailyFortune.recommendCta),
+      recommendBuying: p(dailyFortune.recommendBuying),
+      recommendLoginBeforeBuy: p(dailyFortune.recommendLoginBeforeBuy),
       alreadyDrewToday: p(dailyFortune.alreadyDrewToday),
       exhaustedToday: p(dailyFortune.exhaustedToday),
       drawFailed: p(dailyFortune.drawFailed),
@@ -1166,6 +1246,22 @@ export function useSingleCardCopy() {
       energyProbabilityLabel: p(singleCard.energyProbabilityLabel),
       sectionDeconstruction: p(singleCard.sectionDeconstruction),
       sectionThreshold: p(singleCard.sectionThreshold),
+      localizeTendency: (raw: string) => {
+        const t = raw.trim().toLowerCase();
+        if (t === 'yes' || t === 'sim' || t === 'sí' || t === 'si') return p(singleCard.tendencyYes);
+        if (t === 'no' || t === 'não' || t === 'nao') return p(singleCard.tendencyNo);
+        if (
+          t === 'caution'
+          || t === '警惕'
+          || t === 'atenção'
+          || t === 'atencao'
+          || t === 'precaución'
+          || t === 'precaucion'
+        ) {
+          return p(singleCard.tendencyCaution);
+        }
+        return raw;
+      },
       paywallTitle: p(singleCard.paywallTitle),
       paywallDesc: p(singleCard.paywallDesc),
       paywallMessage: p(singleCard.paywallMessage),

@@ -178,12 +178,18 @@ export const appRouter = router({
           : buildDoubleBaziPrompt(input.resultData, input.lang);
 
         const langGuide = aiSystemLanguagePrefix(input.lang);
+        const systemRole =
+          input.lang === "en"
+            ? "You are OraSage, a Tie Kou Zhi Duan BaZi consultant. Follow the four-layer filter + verdict engine. Cite OraSage basis in conclusions. Be sharp and concrete. Current year is 2026; base yearly analysis on 2026, not earlier years."
+            : input.lang === "pt-BR"
+              ? "Você é OraSage, consultor BaZi da escola Tie Kou Zhi Duan. Siga o filtro de quatro camadas + motor de veredito. Cite a base OraSage nas conclusões. Seja direto. Ano atual é 2026; baseie a análise anual em 2026."
+              : "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。";
 
         const response = await invokeLLM({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
+              content: langGuide + systemRole,
             },
             { role: "user", content: prompt },
           ],
@@ -213,10 +219,16 @@ export const appRouter = router({
         const prompt = buildFreeInsightPrompt(input.resultData, input.lang);
 
         const langGuide = aiSystemLanguagePrefix(input.lang);
+        const freeSystem =
+          input.lang === "en"
+            ? "You are OraSage, a Tie Kou Zhi Duan BaZi consultant. Generate a short personalized reading from the chart data. Current year is 2026. Return JSON only, no markdown fences. All JSON string values must be English — no Chinese narrative."
+            : input.lang === "pt-BR"
+              ? "Você é OraSage, consultor BaZi Tie Kou Zhi Duan. Gere uma leitura curta e personalizada. Ano atual é 2026. Retorne apenas JSON, sem markdown. Todos os valores string do JSON devem estar em Português — sem narrativa em chinês."
+              : "你是铁口直断派的专业东方命理顾问。根据用户的实际排盘数据，生成个性化的简短命理解读。当前年份是 2026 年，所有分析以 2026 年为基准，不要提及 2025 年或更早的年份。只返回 JSON，不要 markdown 代码块。";
 
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: langGuide + "你是铁口直断派的专业东方命理顾问。根据用户的实际排盘数据，生成个性化的简短命理解读。当前年份是 2026 年，所有分析以 2026 年为基准，不要提及 2025 年或更早的年份。只返回 JSON，不要 markdown 代码块。" },
+            { role: "system", content: langGuide + freeSystem },
             { role: "user", content: prompt },
           ],
         });

@@ -10,7 +10,8 @@ export const BAZI_SINGLE_SKUS: Record<PlanType, string> = {
 };
 
 export const BAZI_COUPLE_SKUS: Record<PlanType, string> = {
-  basic: 'report-bazi-couple-basic',
+  // 合盘 basic 与单盘共用同一数字报告 SKU（已去掉重复的 report-bazi-couple-basic）
+  basic: 'report-bazi-basic',
   advanced: 'report-bazi-couple-advanced',
   premium: 'report-bazi-couple-premium',
 };
@@ -81,6 +82,8 @@ export function buildShopCheckoutUrl(params: {
   sku: string;
   returnUrl: string;
   readingId?: string;
+  /** 五行推荐水晶实际 SKU（组合商品变量子项履约） */
+  crystalSku?: string;
   planType: PlanType;
   mode: 'single' | 'couple';
   context?: string;
@@ -92,6 +95,7 @@ export function buildShopCheckoutUrl(params: {
     planType: params.planType,
   });
   if (params.readingId) qs.set('readingId', params.readingId);
+  if (params.crystalSku) qs.set('crystalSku', params.crystalSku);
   if (params.mode === 'couple') qs.set('shipping', 'couple');
   if (params.context) qs.set('context', params.context);
   return `${SHOP_URL}/checkout?${qs.toString()}`;

@@ -54,6 +54,10 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  /** World Mini App wallet (SIWE); lowercase 0x… */
+  walletAddress: varchar("wallet_address", { length: 42 }).unique(),
+  /** World ID nullifier for action-scoped uniqueness (IDKit). */
+  worldNullifier: varchar("world_nullifier", { length: 128 }).unique(),
   displayId: varchar("display_id", { length: 9 }).unique(),
   nickname: varchar("nickname", { length: 100 }).notNull().default(""),
   avatarUrl: varchar("avatar_url", { length: 500 }),
@@ -100,7 +104,7 @@ export const userOrders = pgTable("user_orders", {
   title: varchar("title", { length: 200 }).notNull(),
   sku: varchar("sku", { length: 100 }),
   amountCents: integer("amount_cents").notNull().default(0),
-  currency: varchar("currency", { length: 8 }).notNull().default("CNY"),
+  currency: varchar("currency", { length: 8 }).notNull().default("USDT"),
   status: orderStatusEnum("status").notNull().default("pending"),
   appSource: appSourceEnum("app_source"),
   shippingAddress: text("shipping_address"),
@@ -123,6 +127,8 @@ export const userAddresses = pgTable("user_addresses", {
   district: varchar("district", { length: 100 }),
   addressLine: varchar("address_line", { length: 500 }).notNull(),
   postalCode: varchar("postal_code", { length: 20 }),
+  /** Personal tax / VAT / CPF-style ID for customs or invoicing */
+  taxId: varchar("tax_id", { length: 64 }),
   wristCm: varchar("wrist_cm", { length: 20 }),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -223,6 +229,8 @@ export const productComboItems = pgTable("product_combo_items", {
   componentSku: varchar("component_sku", { length: 100 }).notNull(),
   quantity: integer("quantity").notNull().default(1),
   sortOrder: integer("sort_order").notNull().default(0),
+  /** fixed=固定子商品；element_crystal=按八字五行推荐的可变水晶（component_sku 为回退/参考价） */
+  role: varchar("role", { length: 30 }).notNull().default("fixed"),
 });
 
 /** 前台展示分类（Q3：可配置 + 多语言，替代原 product_category 枚举） */
@@ -336,8 +344,13 @@ export const diyBeads = pgTable("diy_beads", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
+  /** { "zh-CN"|"en"|"pt-BR": string } — 展示名多语言 */
+  nameI18n: jsonb("name_i18n").$type<Record<string, string>>(),
   element: varchar("element", { length: 10 }),
+  /** 材质稳定键（中文基线，前端渐变/分组用，勿随语言改） */
   material: varchar("material", { length: 100 }).notNull(),
+  /** { "zh-CN"|"en"|"pt-BR": string } — 材质展示多语言 */
+  materialI18n: jsonb("material_i18n").$type<Record<string, string>>(),
   beadType: varchar("bead_type", { length: 20 }).notNull().default("crystal"),
   diameterMm: real("diameter_mm").notNull(),
   thicknessMm: real("thickness_mm"),

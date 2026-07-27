@@ -1,6 +1,6 @@
 /** 商品物理量：数据库存公制，前台按 locale 格式化展示 */
 
-import { normalizeShopLocale } from '../shop-locale/index.ts';
+import { normalizeShopLocale } from '../shop-locale/index';
 
 export type ProductDimensions = {
   weightGrams?: number | null;
@@ -88,9 +88,31 @@ const SPEC_LABELS: Record<string, Record<string, string>> = {
   packaging: { 'zh-CN': '包装', 'zh-TW': '包裝', en: 'Packaging', 'pt-BR': 'Embalagem' },
 };
 
+/** products.element 存中文五行字；前台规格展示按 locale 翻译 */
+const ELEMENT_VALUE_LABELS: Record<string, Record<string, string>> = {
+  木: { 'zh-CN': '木', 'zh-TW': '木', en: 'Wood', 'pt-BR': 'Madeira' },
+  火: { 'zh-CN': '火', 'zh-TW': '火', en: 'Fire', 'pt-BR': 'Fogo' },
+  土: { 'zh-CN': '土', 'zh-TW': '土', en: 'Earth', 'pt-BR': 'Terra' },
+  金: { 'zh-CN': '金', 'zh-TW': '金', en: 'Metal', 'pt-BR': 'Metal' },
+  水: { 'zh-CN': '水', 'zh-TW': '水', en: 'Water', 'pt-BR': 'Água' },
+};
+
 function specLabel(key: keyof typeof SPEC_LABELS, locale: string): string {
   const norm = normalizeShopLocale(locale);
   return SPEC_LABELS[key][norm] ?? SPEC_LABELS[key].en ?? key;
+}
+
+/** Localize a Chinese element identity (木/火/土/金/水). Unknown values pass through. */
+export function localizeElementValue(
+  element: string | null | undefined,
+  locale: string,
+): string {
+  if (!element?.trim()) return '';
+  const raw = element.trim();
+  const labels = ELEMENT_VALUE_LABELS[raw];
+  if (!labels) return raw;
+  const norm = normalizeShopLocale(locale);
+  return labels[norm] ?? labels.en ?? labels['zh-CN'] ?? raw;
 }
 
 export type ProductSpecInput = ProductDimensions & {
@@ -111,7 +133,11 @@ export function buildProductSpecRows(input: ProductSpecInput, locale: string): P
     rows.push({ key: 'color', label: specLabel('color', locale), value: input.color.trim() });
   }
   if (input.element?.trim()) {
-    rows.push({ key: 'element', label: specLabel('element', locale), value: input.element.trim() });
+    rows.push({
+      key: 'element',
+      label: specLabel('element', locale),
+      value: localizeElementValue(input.element, locale),
+    });
   }
 
   const weight = formatWeightGrams(input.weightGrams, locale);

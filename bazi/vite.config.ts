@@ -154,8 +154,19 @@ const REPO_ROOT = path.resolve(import.meta.dirname, "..");
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
+const siteApex =
+  process.env.VITE_SITE_APEX ||
+  process.env.SITE_APEX ||
+  process.env.NEXT_PUBLIC_SITE_APEX ||
+  "orasage.com";
+
 export default defineConfig({
   plugins,
+  define: {
+    "process.env.NEXT_PUBLIC_SITE_APEX": JSON.stringify(siteApex),
+    "process.env.VITE_SITE_APEX": JSON.stringify(siteApex),
+    "process.env.SITE_APEX": JSON.stringify(siteApex),
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

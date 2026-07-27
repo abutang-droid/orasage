@@ -44,26 +44,34 @@ function mapDoc(doc: CmsBaziFeedDoc): BaziFeedItem | null {
   return { id: doc.id, kind, message };
 }
 
-export async function fetchBaziFeed(locale: string): Promise<BaziFeedItem[]> {
+async function fetchFeedDocs(locale: string): Promise<BaziFeedItem[]> {
   const params = new URLSearchParams({
     'where[enabled][equals]': 'true',
     'where[locale][equals]': locale,
     sort: 'sort',
     limit: '50',
   });
+  const res = await fetch(feedApiUrl(params.toString()), {
+    cache: 'no-store',
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as CmsListResponse;
+  // Hero 形响应（误代理）无 docs，视为失败
+  if (!data || !Array.isArray(data.docs)) return [];
+  return data.docs
+    .map(mapDoc)
+    .filter((item): item is BaziFeedItem => item !== null);
+}
 
+export async function fetchBaziFeed(locale: string): Promise<BaziFeedItem[]> {
   try {
-    const res = await fetch(feedApiUrl(params.toString()), {
-      cache: 'no-store',
-    });
-    if (!res.ok) {
-      return locale === 'zh-CN' ? FALLBACK_ZH : [];
-    }
-    const data = (await res.json()) as CmsListResponse;
-    const items = (data.docs ?? [])
-      .map(mapDoc)
-      .filter((item): item is BaziFeedItem => item !== null);
+    const items = await fetchFeedDocs(locale);
     if (items.length > 0) return items;
+    // CMS 目前多为 zh-CN 种子；其它语言回退中文，避免信息流空白
+    if (locale !== 'zh-CN') {
+      const zhItems = await fetchFeedDocs('zh-CN');
+      if (zhItems.length > 0) return zhItems;
+    }
     return locale === 'zh-CN' ? FALLBACK_ZH : [];
   } catch {
     return locale === 'zh-CN' ? FALLBACK_ZH : [];

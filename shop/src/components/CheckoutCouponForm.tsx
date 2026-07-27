@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { formatDualShopPrice, formatShopPrice } from '@/lib/currency';
 
 export type CouponState = {
   couponCode: string | null;
@@ -20,9 +21,9 @@ type Props = {
 };
 
 function formatMoney(cents: number, currency: string) {
-  const upper = currency?.toUpperCase() ?? 'CNY';
-  if (upper === 'USD') return `$${(cents / 100).toFixed(2)}`;
-  return `¥${(cents / 100).toFixed(2)}`;
+  const upper = currency?.toUpperCase() ?? 'USD';
+  if (upper === 'CNY') return formatShopPrice(cents, 'cny');
+  return formatDualShopPrice(cents);
 }
 
 export function CheckoutCouponForm({ orderNo, currency, initial, onUpdated, disabled }: Props) {

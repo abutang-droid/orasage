@@ -1,4 +1,7 @@
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com';
+const SITE_APEX =
+  process.env.NEXT_PUBLIC_SITE_APEX || process.env.SITE_APEX || 'orasage.com';
+const AUTH_URL =
+  process.env.NEXT_PUBLIC_AUTH_URL || `https://auth.${SITE_APEX}`;
 
 export type AuthUser = {
   id: number;
@@ -230,6 +233,6 @@ export async function fetchRecommendations(): Promise<UserRecommendation[]> {
 }
 
 export function profileLoginUrl(locale: string, path = '/profile'): string {
-  const returnUrl = encodeURIComponent(`https://orasage.com/${locale}${path}`);
+  const returnUrl = encodeURIComponent(`https://${SITE_APEX}/${locale}${path}`);
   return `${AUTH_URL}/login?redirect=${returnUrl}`;
 }

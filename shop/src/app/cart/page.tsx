@@ -7,18 +7,18 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
-import { useShopLocale } from '@/components/ShopLocaleProvider';
-import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { resolveUsdtCents } from '@/lib/currency';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import { ProductImage } from '@/components/ProductImage';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
-const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL ?? 'https://shop.orasage.com';
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL ?? 'https://auth.orasage.com';
+const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL ?? ORASAGE_URLS.shop;
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL ?? ORASAGE_URLS.auth;
 
 export default function CartPage() {
   const t = useTranslations('cart');
   const router = useRouter();
   const { cart, removeItem, setQuantity, clear } = useCart();
-  const { currency } = useShopLocale();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -49,11 +49,10 @@ export default function CartPage() {
 
   const totalCents = lines.reduce((sum, { line, product }) => {
     if (!product) return sum;
-    const cents = product.priceCentsResolved
-      ?? resolvePriceCents(
-        { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-        currency,
-      );
+    const cents = resolveUsdtCents({
+      priceCents: product.priceCents,
+      priceCentsUsd: product.priceCentsUsd,
+    });
     return sum + cents * line.quantity;
   }, 0);
 
@@ -113,15 +112,6 @@ export default function CartPage() {
 
       <ul className="shop-cart-list">
         {lines.map(({ line, product }) => {
-          const displayCents = product
-            ? (product.priceCentsResolved
-              ?? resolvePriceCents(
-                { priceCents: product.priceCents, priceCentsUsd: product.priceCentsUsd },
-                currency,
-              ))
-            : 0;
-          const displayPrice = product?.priceDisplay ?? formatShopPrice(displayCents, currency);
-
           return (
             <li key={line.sku} className="shop-cart-item">
               <Link href={`/product/${encodeURIComponent(line.sku)}`} className="shop-cart-item-media">
@@ -141,7 +131,18 @@ export default function CartPage() {
                 <Link href={`/product/${encodeURIComponent(line.sku)}`} className="shop-cart-item-name">
                   {product?.name ?? line.sku}
                 </Link>
-                <p className="shop-cart-item-price">{displayPrice}</p>
+                <p className="shop-cart-item-price">
+                  {product ? (
+                    <PriceDisplay
+                      pricing={{
+                        priceCents: product.priceCents,
+                        priceCentsUsd: product.priceCentsUsd,
+                      }}
+                    />
+                  ) : (
+                    '—'
+                  )}
+                </p>
                 <div className="shop-cart-item-controls">
                   <label className="shop-cart-qty">
                     {t('quantity')}
@@ -170,7 +171,10 @@ export default function CartPage() {
 
       <div className="shop-cart-footer">
         <p className="shop-cart-total">
-          {t('total')} <strong>{formatShopPrice(totalCents, currency)}</strong>
+          {t('total')}{' '}
+          <strong>
+            <PriceDisplay pricing={totalCents} />
+          </strong>
         </p>
         <p className="shop-cart-note">{t('note')}</p>
         {checkoutError ? <p className="mt-2 text-sm text-red-600">{checkoutError}</p> : null}

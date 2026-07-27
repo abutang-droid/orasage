@@ -11,6 +11,7 @@ import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCrystalContent, fetchShopHomeLayout } from '@/lib/shop-config';
 import { buildCrystalLineup } from '@/lib/crystal-lineup';
 import { isCrystalGiftSku } from '../../../shared/shop-crystal/index';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 async function loadFeaturedSkus(locale: string): Promise<string[]> {
   try {
@@ -65,7 +66,7 @@ export default async function ShopPage() {
 
       <p className="shop-footer-note">
         {th('footerNote')}{' '}
-        <a href="https://auth.orasage.com/center">{th('userCenter')}</a>
+        <a href={ORASAGE_URLS.authCenter}>{th('userCenter')}</a>
         {th('footerView') ? ` ${th('footerView')}` : ''}
       </p>
     </main>

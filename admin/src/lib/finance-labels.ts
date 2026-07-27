@@ -1,10 +1,11 @@
-export function formatMoney(cents: number, currency = 'cny'): string {
+export function formatMoney(cents: number, currency = 'USDT'): string {
   const upper = currency.toUpperCase();
   const amount = cents / 100;
-  if (upper === 'CNY' || upper === 'CNY'.toLowerCase()) {
-    return `¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }
-  return `${upper} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatted = amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (upper === 'WOLD') return `${formatted} WOLD`;
+  if (upper === 'USDT' || upper === 'USD') return `${formatted} USDT`;
+  if (upper === 'CNY') return `¥${formatted}`;
+  return `${formatted} ${upper}`;
 }
 
 export function formatDateTime(iso: string): string {

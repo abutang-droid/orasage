@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { GuestLoginWall } from '@/components/auth/GuestLoginWall';
 import { MantoThinking } from '@/components/MantoThinking';
@@ -10,8 +10,17 @@ import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitude-guide';
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
+import { aiLangBody } from '@/lib/i18n/ai-lang-body';
+import { useCrystalCopy, type WuxingSku } from '@/lib/i18n/crystal-copy';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
-import { shopUrlForSku } from '@/lib/shop-products';
+import { buildLoginUrlFromWindow } from '@/lib/login-url';
+import {
+  startAppCheckout,
+  redirectAfterCheckout,
+  isCheckoutAuthRequiredError,
+} from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
+import { recommendCrystal } from '@/lib/tarot/crystals';
 import type {
   DailyFortuneFullReport,
   DailyFortuneRecordDto,
@@ -50,6 +59,7 @@ function formatCount(n: number): string {
 
 export function DailyFortuneFlow() {
   const copy = useDailyFortuneCopy();
+  const crystalCopy = useCrystalCopy();
   const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
@@ -59,9 +69,10 @@ export function DailyFortuneFlow() {
   const [fullReport, setFullReport] = useState<DailyFortuneFullReport | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [flipped, setFlipped] = useState(false);
-  const [recommend, setRecommend] = useState<TarotBillingProduct | null>(null);
+  const [billingRecommend, setBillingRecommend] = useState<TarotBillingProduct | null>(null);
   const [error, setError] = useState('');
   const [drawLoading, setDrawLoading] = useState(false);
+  const [buyLoading, setBuyLoading] = useState(false);
   const [alreadyDrewToday, setAlreadyDrewToday] = useState(false);
   const [participantCount, setParticipantCount] = useState<number | null>(null);
 
@@ -81,6 +92,7 @@ export function DailyFortuneFlow() {
     setRecord(rec);
     setBrief(rec.briefText ?? '');
     setFullReport(loggedIn ? rec.fullReport : null);
+    let recommendSku: string | undefined;
     if (rec.cardId != null) {
       const meta = getCardById(rec.cardId);
       setCard({
@@ -92,22 +104,24 @@ export function DailyFortuneFlow() {
         element: meta?.element ?? '',
       });
       setFlipped(true);
+      recommendSku = recommendCrystal([meta?.element || 'major']).shopSku;
     }
-    void loadRecommend();
+    void loadRecommend(recommendSku);
   };
 
-  const loadRecommend = async () => {
+  const loadRecommend = async (sku?: string) => {
     try {
-      const res = await fetch('/api/tarot/daily-recommend', {
+      const qs = sku ? `?sku=${encodeURIComponent(sku)}` : '';
+      const res = await fetch(`/api/tarot/daily-recommend${qs}`, {
         credentials: 'include',
         cache: 'no-store',
       });
       if (res.ok) {
         const data = await res.json();
-        setRecommend(data.product ?? null);
+        setBillingRecommend(data.product ?? null);
       }
     } catch {
-      /* optional */
+      /* optional — card-element crystal fallback still renders */
     }
   };
 
@@ -117,6 +131,9 @@ export function DailyFortuneFlow() {
     const recordIdParam = params?.get('recordId') ?? null;
 
     const res = await fetch('/api/daily-fortune/session', { credentials: 'include', cache: 'no-store' });
+    if (!res.ok) {
+      throw new Error(copy.loadFailed);
+    }
     const data = (await res.json()) as SessionPayload;
     setSession(data);
     setIsLoggedIn(data.isLoggedIn);
@@ -137,10 +154,14 @@ export function DailyFortuneFlow() {
       return;
     }
     setStep('start');
-  }, []);
+  }, [copy.loadFailed]);
 
   useEffect(() => {
-    void loadSession().catch(() => setError(copy.loadFailed));
+    void loadSession().catch(() => {
+      setError(copy.loadFailed);
+      // 避免注册回跳后 session 失败时永久卡在空白 loading
+      setStep((prev) => (prev === 'loading' ? 'start' : prev));
+    });
   }, [loadSession, copy.loadFailed]);
 
   const submitDraw = async () => {
@@ -154,7 +175,7 @@ export function DailyFortuneFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: [] }),
+        body: JSON.stringify({ answers: [], ...aiLangBody(copy.lang) }),
       });
       const data = await res.json();
       if (res.status === 409 || data.alreadyDrewToday) {
@@ -180,10 +201,13 @@ export function DailyFortuneFlow() {
       setAlreadyDrewToday(Boolean(data.alreadyDrewToday));
       setDrawLoading(false);
       void loadStats();
+      const drawSku = data.card
+        ? recommendCrystal([data.card.element || 'major']).shopSku
+        : undefined;
       setTimeout(() => setFlipped(true), 500);
       setTimeout(() => {
         setStep('report');
-        void loadRecommend();
+        void loadRecommend(drawSku);
       }, 1400);
     } catch (err) {
       setDrawLoading(false);
@@ -193,10 +217,63 @@ export function DailyFortuneFlow() {
   };
 
   const cardMeta = card ? getCardById(card.id) : null;
+
+  /** Prefer card-element crystal; overlay name/price from product API when SKU matches. */
+  const crystalRecommend = useMemo(() => {
+    if (!card) return null;
+    const picked = recommendCrystal([card.element || cardMeta?.element || 'major']);
+    const wuxing = (picked.wuxing in { 木: 1, 火: 1, 土: 1, 金: 1, 水: 1 }
+      ? picked.wuxing
+      : '金') as WuxingSku;
+    const localized = crystalCopy.get(wuxing);
+    const productMatch =
+      billingRecommend && billingRecommend.sku === picked.shopSku ? billingRecommend : null;
+    return {
+      sku: picked.shopSku,
+      name: productMatch?.name || `${localized.name}${copy.lang === 'zh' ? '能量手串' : ' bracelet'}`,
+      desc: productMatch?.desc || localized.desc,
+      priceDisplay: productMatch?.priceDisplay || '',
+      elementLabel: crystalCopy.wuxingLabel(localized.wuxingLabel),
+    };
+  }, [card, cardMeta?.element, crystalCopy, billingRecommend, copy.lang]);
+
+  const handleRecommendBuy = async () => {
+    if (!crystalRecommend?.sku || buyLoading) return;
+    setBuyLoading(true);
+    setError('');
+    try {
+      const qs = record?.id ? `?recordId=${encodeURIComponent(record.id)}` : '';
+      const returnUrl = `${window.location.origin}/daily-fortune${qs}`;
+      const result = await startAppCheckout({
+        sku: crystalRecommend.sku,
+        recommendationContext: `每日启示推荐：${crystalRecommend.name}`,
+        readingId: record?.id,
+        successUrl: `${returnUrl}${qs ? '&' : '?'}paid=1`,
+        cancelUrl: returnUrl,
+      });
+      await redirectAfterCheckout(result);
+    } catch (err) {
+      if (isCheckoutAuthRequiredError(err)) {
+        setError(copy.recommendLoginBeforeBuy);
+        window.location.assign(buildLoginUrlFromWindow());
+        return;
+      }
+      setError(err instanceof Error ? err.message : copy.checkoutFailed);
+    } finally {
+      setBuyLoading(false);
+    }
+  };
+
   const orientation = card?.orientation ?? '正位';
   const tone = getDailyTone(orientation, copy.lang);
-  const attitude = cardMeta && card
-    ? getDailyAttitudeGuide(cardMeta.id, card.name, orientation, cardMeta.suit)
+  const attitude = cardMeta
+    ? getDailyAttitudeGuide(
+      cardMeta.id,
+      cardNameFor(cardMeta),
+      orientation,
+      cardMeta.suit,
+      copy.lang,
+    )
     : '';
 
   if (step === 'loading') {
@@ -264,6 +341,11 @@ export function DailyFortuneFlow() {
                   glowing
                   size="lg"
                   orientation={card.orientation}
+                  caption={
+                    flipped
+                      ? `${cardNameFor(cardMeta)} · ${copy.orientation(card.orientation)}`
+                      : null
+                  }
                 />
               </div>
             </>
@@ -356,19 +438,31 @@ export function DailyFortuneFlow() {
             )}
           </div>
 
-          {recommend && (
+          {crystalRecommend ? (
             <div className="card daily-fortune-recommend">
               <h2 className="daily-fortune-section-title">{copy.recommendTitle}</h2>
-              <p className="daily-fortune-recommend-name">{recommend.name}</p>
-              <p className="daily-fortune-recommend-desc">{recommend.desc}</p>
-              <p className="daily-fortune-recommend-price">{recommend.priceDisplay}</p>
-              <Button asChild variant="outline" className="w-full mt-3">
-                <a href={shopUrlForSku(recommend.sku)} className="block text-center no-underline">
-                  {copy.recommendCta}
-                </a>
-              </Button>
+              <p className="daily-fortune-recommend-lead">{copy.recommendLead}</p>
+              <p className="daily-fortune-recommend-element">{crystalRecommend.elementLabel}</p>
+              <p className="daily-fortune-recommend-name">{crystalRecommend.name}</p>
+              <p className="daily-fortune-recommend-desc">{crystalRecommend.desc}</p>
+              <div className="daily-fortune-recommend-buy">
+                {crystalRecommend.priceDisplay ? (
+                  <p className="daily-fortune-recommend-price">
+                    <PriceDisplay value={crystalRecommend.priceDisplay} />
+                  </p>
+                ) : null}
+                <Button
+                  type="button"
+                  className="os-solid-cta os-solid-cta--block daily-fortune-recommend-buy-btn w-full"
+                  disabled={buyLoading}
+                  loading={buyLoading}
+                  onClick={() => void handleRecommendBuy()}
+                >
+                  {buyLoading ? copy.recommendBuying : copy.recommendCta}
+                </Button>
+              </div>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 

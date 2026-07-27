@@ -146,10 +146,12 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       sessionStorage.setItem(PLAN_KEY, plan);
       const sku = baziSkusForMode(mode)[plan];
       sessionStorage.setItem('bazi:lastCheckoutSku', sku);
+      const crystalSku = sessionStorage.getItem('bazi:lastCrystalSku') || undefined;
       const checkoutUrl = buildShopCheckoutUrl({
         sku,
         returnUrl: returnBase,
         readingId,
+        crystalSku,
         planType: plan,
         mode,
         context: `八字${planNameMap[plan] || plan}报告`,

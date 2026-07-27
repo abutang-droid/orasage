@@ -44,6 +44,18 @@ export const Sanctuaries: CollectionConfig = {
       validate: (value: unknown) => requiredText(value, '请填写英文名'),
     },
     {
+      name: 'namePt',
+      label: '葡语名',
+      type: 'text',
+      admin: { description: '葡萄牙语（巴西）显示名；留空则用英文名' },
+    },
+    {
+      name: 'nameEs',
+      label: '西语名',
+      type: 'text',
+      admin: { description: '西班牙语显示名；留空则用英文名' },
+    },
+    {
       name: 'faiths',
       label: '关联宗教',
       type: 'relationship',

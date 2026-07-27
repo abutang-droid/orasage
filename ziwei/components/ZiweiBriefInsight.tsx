@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from '@orasage/ui/card';
+import { useLocale } from '@/lib/i18n';
+import { aiRequestLanguage } from '@/lib/ai-request-lang';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
 type Props = {
@@ -10,6 +12,7 @@ type Props = {
 };
 
 export function ZiweiBriefInsight({ chart, minorMode = false }: Props) {
+  const { locale } = useLocale();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,7 +26,7 @@ export function ZiweiBriefInsight({ chart, minorMode = false }: Props) {
         const res = await fetch('/api/insight/preview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chart, minorMode }),
+          body: JSON.stringify({ chart, minorMode, language: aiRequestLanguage(locale) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || '生成失败');
@@ -37,7 +40,7 @@ export function ZiweiBriefInsight({ chart, minorMode = false }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [chart, minorMode]);
+  }, [chart, minorMode, locale]);
 
   return (
     <Card asChild className="ziwei-brief-insight border-0 shadow-none">

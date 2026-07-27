@@ -8,9 +8,9 @@ import { setLocaleCookie } from '@/lib/orasage-app-shell/locale-cookie';
 import { updateProfile } from '@/lib/auth';
 
 /**
- * 门户顶栏全局语言切换器（12 语言）。
- * 全站唯一语言入口：写跨子域 NEXT_LOCALE cookie（DS §10），
- * 切换 next-intl 路径 locale，并（若已登录）同步 languagePreference。
+ * 门户顶栏全局语言切换器（phase 1：zh-CN / en / pt-BR）。
+ * 写跨子域 NEXT_LOCALE cookie（DS §10），切换 next-intl 路径 locale，
+ * 并（若已登录）同步 languagePreference。
  * 视觉复用 app-shell 语言下拉，与各子应用顶栏一致。
  */
 export function PortalLocaleSwitcher({ className = '' }: { className?: string }) {
@@ -34,8 +34,11 @@ export function PortalLocaleSwitcher({ className = '' }: { className?: string })
     setOpen(false);
     if (code === active) return;
     setLocaleCookie(code);
+    // Path-locale replace remounts the segment; follow with refresh so RSC
+    // payloads (CMS / nav) don't stay on the previous language.
     startTransition(() => {
       router.replace(pathname, { locale: code });
+      router.refresh();
     });
     // 已登录时同步偏好；游客请求 401 由 catch 吞掉
     void updateProfile({ languagePreference: code }).catch(() => undefined);

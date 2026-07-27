@@ -134,7 +134,7 @@ export function ShippingZonesEditor({ zones }: { zones: AdminShippingZone[] }) {
               />
             </label>
             <label>
-              基础运费（元）
+              基础运费（USDT）
               <input
                 type="number"
                 step="0.01"
@@ -182,7 +182,7 @@ export function ShippingZonesEditor({ zones }: { zones: AdminShippingZone[] }) {
               />
             </label>
             <label>
-              续重费（元/块）
+              续重费（USDT/块）
               <input
                 type="number"
                 step="0.01"

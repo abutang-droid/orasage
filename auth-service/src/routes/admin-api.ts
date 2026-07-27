@@ -6,7 +6,14 @@ import { contactMessages, homepageFeaturedProducts, products, userOrders, userRe
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
-import { getCrystalContent, getShopPublicConfig, setCrystalContent, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
+import {
+  getCrystalContent,
+  getShopPublicConfig,
+  setCrystalContent,
+  setFxRates,
+  setShopHomeLayout,
+  SHOP_HOME_LAYOUTS,
+} from "../lib/shop-settings.ts";
 import {
   listComboItems,
   resolveComboMeta,
@@ -14,6 +21,7 @@ import {
   setComboItems,
   syncComboDerivedFields,
 } from "../lib/product-combos.ts";
+import { formatOrderAmountDisplay } from "../../../shared/shop-locale/index.ts";
 import {
   deleteBillingSlotKey,
   listAllBillingSlots,
@@ -227,7 +235,10 @@ adminApiRouter.put("/homepage-products", P.products, async (req, res) => {
 });
 
 const shopLayoutSchema = z.object({
-  homeLayout: z.enum(SHOP_HOME_LAYOUTS),
+  homeLayout: z.enum(SHOP_HOME_LAYOUTS).optional(),
+  woldPerUsdt: z.number().positive().max(1_000_000).optional(),
+}).refine((b) => b.homeLayout !== undefined || b.woldPerUsdt !== undefined, {
+  message: "至少提供一个配置项",
 });
 
 adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
@@ -244,8 +255,14 @@ adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
 adminApiRouter.put("/shop-config", P.products, async (req, res) => {
   try {
     const body = shopLayoutSchema.parse(req.body);
-    const homeLayout = await setShopHomeLayout(body.homeLayout);
-    res.json({ homeLayout });
+    if (body.homeLayout !== undefined) {
+      await setShopHomeLayout(body.homeLayout);
+    }
+    if (body.woldPerUsdt !== undefined) {
+      await setFxRates({ woldPerUsdt: body.woldPerUsdt });
+    }
+    const config = await getShopPublicConfig();
+    res.json(config);
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -488,6 +505,7 @@ const comboItemsSchema = z.object({
   items: z.array(z.object({
     componentSku: z.string().min(1).max(100),
     quantity: z.number().int().min(1).max(99).optional(),
+    role: z.enum(["fixed", "element_crystal"]).optional(),
   })).max(20),
 });
 
@@ -542,6 +560,18 @@ adminApiRouter.put("/products/:sku/combo-items", P.products, async (req, res) =>
   }
 });
 
+/** 列价双列同写 USDT 分（price_cents / price_cents_usd 不再表示 CNY） */
+function usdtListPair(
+  priceCents?: number | null,
+  priceCentsUsd?: number | null,
+): { priceCents: number; priceCentsUsd: number } | null {
+  const usdt = (priceCentsUsd != null && priceCentsUsd >= 0)
+    ? priceCentsUsd
+    : (priceCents != null && priceCents >= 0 ? priceCents : null);
+  if (usdt == null) return null;
+  return { priceCents: usdt, priceCentsUsd: usdt };
+}
+
 adminApiRouter.post("/products", P.products, async (req, res) => {
   try {
     const body = productBodySchema.parse(req.body);
@@ -550,6 +580,9 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       res.status(409).json({ error: "SKU 已存在" });
       return;
     }
+    const listPrice = usdtListPair(body.priceCents, body.priceCentsUsd)
+      ?? { priceCents: body.priceCents, priceCentsUsd: body.priceCents };
+    const salePair = usdtListPair(body.salePriceCents ?? null, body.salePriceCentsUsd ?? null);
     const [row] = await db.insert(products).values({
       sku: body.sku,
       name: body.name,
@@ -569,8 +602,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       attachments: body.attachments ?? null,
       description: body.description,
       descriptionI18n: body.descriptionI18n ?? null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: listPrice.priceCents,
+      priceCentsUsd: listPrice.priceCentsUsd,
       category: body.category,
       kind: body.kind ?? "standard",
       comboUseComponentSum: body.kind === "combo" ? (body.comboUseComponentSum ?? true) : true,
@@ -581,8 +614,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       seoTitleI18n: body.seoTitleI18n ?? null,
       seoDescI18n: body.seoDescI18n ?? null,
       requiresShipping: body.requiresShipping ?? false,
-      salePriceCents: body.salePriceCents ?? null,
-      salePriceCentsUsd: body.salePriceCentsUsd ?? null,
+      salePriceCents: salePair?.priceCents ?? null,
+      salePriceCentsUsd: salePair?.priceCentsUsd ?? null,
       saleStartsAt: body.saleStartsAt ?? null,
       saleEndsAt: body.saleEndsAt ?? null,
       active: body.active ?? true,
@@ -647,12 +680,26 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
     if (body.seoDescI18n !== undefined) updates.seoDescI18n = body.seoDescI18n;
     if (body.description !== undefined) updates.description = body.description;
     if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const listPrice = usdtListPair(
+        body.priceCents ?? existing[0].priceCents,
+        body.priceCentsUsd !== undefined ? body.priceCentsUsd : existing[0].priceCentsUsd,
+      );
+      if (listPrice) {
+        updates.priceCents = listPrice.priceCents;
+        updates.priceCentsUsd = listPrice.priceCentsUsd;
+      }
+    }
     if (body.category !== undefined) updates.category = body.category;
     if (body.requiresShipping !== undefined) updates.requiresShipping = body.requiresShipping;
-    if (body.salePriceCents !== undefined) updates.salePriceCents = body.salePriceCents;
-    if (body.salePriceCentsUsd !== undefined) updates.salePriceCentsUsd = body.salePriceCentsUsd;
+    if (body.salePriceCents !== undefined || body.salePriceCentsUsd !== undefined) {
+      const salePair = usdtListPair(
+        body.salePriceCents !== undefined ? body.salePriceCents : existing[0].salePriceCents,
+        body.salePriceCentsUsd !== undefined ? body.salePriceCentsUsd : existing[0].salePriceCentsUsd,
+      );
+      updates.salePriceCents = salePair?.priceCents ?? null;
+      updates.salePriceCentsUsd = salePair?.priceCentsUsd ?? null;
+    }
     if (body.saleStartsAt !== undefined) updates.saleStartsAt = body.saleStartsAt;
     if (body.saleEndsAt !== undefined) updates.saleEndsAt = body.saleEndsAt;
     if (body.active !== undefined) updates.active = body.active;
@@ -709,11 +756,15 @@ adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
 
 /* ── 共振定制（DIY）珠子与配置 ─────────────────────── */
 
+const beadI18nMapSchema = z.record(z.string().min(1).max(200)).optional().nullable();
+
 const beadBodySchema = z.object({
   code: z.string().min(1).max(100),
   name: z.string().min(1).max(100),
+  nameI18n: beadI18nMapSchema,
   element: z.string().max(10).optional().nullable(),
   material: z.string().min(1).max(100),
+  materialI18n: beadI18nMapSchema,
   beadType: z.enum(["crystal", "spacer", "disc"]),
   diameterMm: z.number().positive().max(30),
   thicknessMm: z.number().positive().max(10).optional().nullable(),
@@ -730,7 +781,7 @@ const beadPatchSchema = beadBodySchema.partial().omit({ code: true });
 
 adminApiRouter.get("/diy/beads", P.diy, async (_req, res) => {
   const rows = await db.select().from(diyBeads).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
-  res.json({ beads: rows.map(formatBead) });
+  res.json({ beads: rows.map((row) => formatBead(row, { admin: true })) });
 });
 
 adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
@@ -741,23 +792,27 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       res.status(409).json({ error: "珠子编码已存在" });
       return;
     }
+    const listPrice = usdtListPair(body.priceCents, body.priceCentsUsd)
+      ?? { priceCents: body.priceCents, priceCentsUsd: body.priceCents };
     const [row] = await db.insert(diyBeads).values({
       code: body.code,
       name: body.name,
+      nameI18n: body.nameI18n ?? null,
       element: body.element ?? null,
       material: body.material,
+      materialI18n: body.materialI18n ?? null,
       beadType: body.beadType,
       diameterMm: body.diameterMm,
       thicknessMm: body.beadType === "disc" ? (body.thicknessMm ?? null) : null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: listPrice.priceCents,
+      priceCentsUsd: listPrice.priceCentsUsd,
       imageUrl: body.imageUrl ?? null,
       colors: body.colors ?? null,
       stock: body.stock ?? 999,
       active: body.active ?? true,
       sortOrder: body.sortOrder ?? 0,
     }).returning();
-    res.status(201).json({ bead: formatBead(row) });
+    res.status(201).json({ bead: formatBead(row, { admin: true }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -779,13 +834,23 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     }
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (body.name !== undefined) updates.name = body.name;
+    if (body.nameI18n !== undefined) updates.nameI18n = body.nameI18n;
     if (body.element !== undefined) updates.element = body.element;
     if (body.material !== undefined) updates.material = body.material;
+    if (body.materialI18n !== undefined) updates.materialI18n = body.materialI18n;
     if (body.beadType !== undefined) updates.beadType = body.beadType;
     if (body.diameterMm !== undefined) updates.diameterMm = body.diameterMm;
     if (body.thicknessMm !== undefined) updates.thicknessMm = body.thicknessMm;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const listPrice = usdtListPair(
+        body.priceCents ?? existing[0].priceCents,
+        body.priceCentsUsd !== undefined ? body.priceCentsUsd : existing[0].priceCentsUsd,
+      );
+      if (listPrice) {
+        updates.priceCents = listPrice.priceCents;
+        updates.priceCentsUsd = listPrice.priceCentsUsd;
+      }
+    }
     if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
     if (body.colors !== undefined) updates.colors = body.colors;
     if (body.stock !== undefined) updates.stock = body.stock;
@@ -793,7 +858,7 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder;
 
     const [row] = await db.update(diyBeads).set(updates).where(eq(diyBeads.code, code)).returning();
-    res.json({ bead: formatBead(row) });
+    res.json({ bead: formatBead(row, { admin: true }) });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
@@ -894,7 +959,7 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(o.amountCents, o.currency),
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,

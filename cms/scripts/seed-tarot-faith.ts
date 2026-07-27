@@ -60,6 +60,8 @@ async function main() {
       code: s.code,
       nameZh: s.nameZh,
       nameEn: s.nameEn,
+      namePt: s.namePt ?? s.nameEn,
+      nameEs: s.nameEs ?? s.nameEn,
       faiths: faithIds,
       tradition: s.tradition,
       region: s.region,

@@ -71,20 +71,34 @@ async function getParentBridgedUser(): Promise<JwtPayload | null> {
   if (!parentPayload) return null
 
   const externalId = `orasage:${parentPayload.sub}`
+  const localId = `orasage_${parentPayload.sub}`
+  const email = `${externalId}@orasage.local`
+
   const existing = await prisma.user.findUnique({ where: { externalId } })
   if (existing) {
     return { userId: existing.id, email: existing.email ?? "" }
   }
 
-  const created = await prisma.user.create({
-    data: {
-      id: `orasage_${parentPayload.sub}`,
-      externalId,
-      nickname: "旅人",
-      email: `${externalId}@orasage.local`,
-    },
-  })
-  return { userId: created.id, email: created.email ?? "" }
+  try {
+    const created = await prisma.user.create({
+      data: {
+        id: localId,
+        externalId,
+        nickname: "旅人",
+        email,
+      },
+    })
+    return { userId: created.id, email: created.email ?? "" }
+  } catch (err) {
+    // 注册回跳后 /api/auth/me 与业务 API 并行建档时会撞 id/externalId 唯一约束
+    const raced =
+      (await prisma.user.findUnique({ where: { externalId } })) ??
+      (await prisma.user.findUnique({ where: { id: localId } }))
+    if (raced) {
+      return { userId: raced.id, email: raced.email ?? "" }
+    }
+    throw err
+  }
 }
 
 export async function getAuthUser(): Promise<JwtPayload | null> {
@@ -94,7 +108,11 @@ export async function getAuthUser(): Promise<JwtPayload | null> {
   const guestUser = token ? await verifyToken(token) : null
 
   if (parentUser) {
-    await maybeMergeGuestSession(guestUser, parentUser)
+    try {
+      await maybeMergeGuestSession(guestUser, parentUser)
+    } catch (err) {
+      console.error("[auth] guest merge failed:", err)
+    }
     return parentUser
   }
 

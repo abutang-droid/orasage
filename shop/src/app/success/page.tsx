@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@orasage/ui/button';
+import { ORASAGE_URLS } from '@/lib/orasage-app-shell/config';
 
 export default async function SuccessPage({
   searchParams,
@@ -27,7 +28,7 @@ export default async function SuccessPage({
           </Button>
         ) : null}
         <Button asChild variant={order ? 'secondary' : 'default'} className="w-full">
-          <a href="https://auth.orasage.com/center">{t('myOrders')}</a>
+          <a href={ORASAGE_URLS.authCenter}>{t('myOrders')}</a>
         </Button>
         <Button asChild variant="secondary" className="w-full">
           <Link href="/">{t('continueShopping')}</Link>

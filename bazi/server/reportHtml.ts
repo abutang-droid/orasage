@@ -4,6 +4,7 @@
 
 import { extractSectionKeywords } from "../shared/section-keywords.ts";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
+import { priceDisplayToHtml } from "../../shared/shop-locale/index.ts";
 
 const CHAPTER_NUMERALS = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"];
 
@@ -134,7 +135,7 @@ function renderProductRecommendBlock(product: ReportProductRecommend): string {
   <p class="product-rec-label">能量好物推荐</p>
   <h3 class="product-rec-name">${escapeHtml(product.name)}</h3>
   <p class="product-rec-desc">${escapeHtml(product.desc)}</p>
-  <p class="product-rec-price">${escapeHtml(product.priceDisplay)}</p>
+  <p class="product-rec-price">${priceDisplayToHtml(product.priceDisplay)}</p>
   <a class="product-rec-btn" href="${escapeHtml(product.shopUrl)}" target="_blank" rel="noopener noreferrer">前往购买</a>
 </section>`;
 }
@@ -198,8 +199,11 @@ body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC
 .product-rec-label{font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;font-weight:700;margin-bottom:0.5rem;font-family:"Noto Sans SC",sans-serif}
 .product-rec-name{font-size:1.05rem;color:var(--ink);font-weight:700;margin-bottom:0.35rem}
 .product-rec-desc{font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6}
-.product-rec-price{font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:1rem}
-.product-rec-btn{display:inline-block;padding:0.55rem 1.25rem;border-radius:999px;background:var(--gold);color:#1a1528;text-decoration:none;font-size:0.85rem;font-weight:600;font-family:"Noto Sans SC",sans-serif}
+.product-rec-price{font-size:0.95rem;color:#2563eb;font-weight:500;margin-bottom:1rem}
+.os-price{color:#2563eb;font-weight:500;font-variant-numeric:tabular-nums}
+.os-price-amount{font-size:1em}.os-price-unit{font-size:calc(1em - 4px);margin-left:0.1em;opacity:0.85}
+.os-price-sep{margin:0 0.3em;opacity:0.5;font-weight:400}
+.product-rec-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0.55rem 1.25rem;border-radius:12px;background:#171717;color:#fff;text-decoration:none;font-size:0.875rem;font-weight:600;font-family:"Noto Sans SC",sans-serif;box-shadow:0 4px 14px rgba(23,23,23,0.22)}
 .footer{text-align:center;padding:2rem 1rem 0;font-size:0.7rem;color:var(--muted);font-family:"Noto Sans SC",sans-serif;line-height:1.8}
 .footer a{color:var(--gold);text-decoration:none}
 @media(max-width:640px){.wrap{padding:1rem 0.75rem 2rem}.section{padding:1.25rem 1rem}.hero h1{font-size:1.4rem}}

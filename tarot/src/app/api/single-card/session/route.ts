@@ -5,18 +5,20 @@ import { getSingleCardReading } from '@/lib/single-card/record';
 import { isDestinySliceUnlocked, tryUnlockFromOrder } from '@/lib/single-card-unlock';
 import { fetchTarotBillingConfig } from '@/lib/tarot-billing-config';
 import { prisma } from '@/lib/prisma';
+import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 export async function GET(req: NextRequest) {
   const ensured = await ensureAuthUser();
   const readingId = req.nextUrl.searchParams.get('readingId');
   const orderParam = req.nextUrl.searchParams.get('order');
+  const locale = resolveAiLocaleFromRequest(req);
 
   const user = await prisma.user.findUnique({
     where: { id: ensured.userId },
     select: { email: true, nickname: true },
   });
   const loggedIn = await isOrasageLoggedIn(user?.email);
-  const billing = await fetchTarotBillingConfig();
+  const billing = await fetchTarotBillingConfig(locale);
 
   let unlocked = await isDestinySliceUnlocked(ensured.userId);
   if (!unlocked && orderParam && loggedIn) {

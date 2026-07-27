@@ -1,9 +1,15 @@
 import type { products } from "../db/schema.ts";
+import { siteUrls } from "./site-urls.ts";
 import {
   currencyForLocale,
   detectShopLocale,
+  formatDualShopPrice,
   formatShopPrice,
+  formatUsdtPrice,
+  formatWoldPrice,
   resolvePriceCents,
+  resolveUsdtCents,
+  resolveWoldCents,
   type ShopCurrency,
 } from "../../../shared/shop-locale/index.ts";
 import { inferRequiresShipping, inferRequiresWristSize } from "../../../shared/shop-fulfillment/index.ts";
@@ -114,15 +120,19 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
   const effectivePriceUsd = listPrice.priceCentsUsd;
   const onSale = !comboMeta?.useComponentSum && isSaleActive(p);
   const originalPriceCents = onSale ? p.priceCents : undefined;
-  const resolvedCents = resolvePriceCents(
-    { priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd },
-    currency,
-  );
+  const pricing = { priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd };
+  const resolvedCents = resolvePriceCents(pricing, currency);
+  const usdtCents = resolveUsdtCents(pricing);
+  const woldCents = resolveWoldCents(usdtCents);
   const attrs = localizedAttributes(p, locale);
+  // Specs 五行值：优先商品标签（后台 labelI18n），否则 buildProductSpecRows 按 element 列翻译
+  const elementTagLabel = (options?.tags ?? []).find(
+    (t) => t.groupCode === "element" || t.code.startsWith("element-"),
+  )?.label?.trim();
   const specs: ProductSpecRow[] = buildProductSpecRows(
     {
       ...attrs,
-      element: p.element,
+      element: elementTagLabel || p.element,
       weightGrams: p.weightGrams,
       beadDiameterMm: p.beadDiameterMm,
       wristCmMin: p.wristCmMin,
@@ -153,12 +163,11 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     priceCentsUsd: effectivePriceUsd,
     currency,
     priceCentsResolved: resolvedCents,
-    priceDisplay: formatShopPrice(resolvedCents, currency),
+    priceDisplay: formatDualShopPrice(pricing),
+    priceDisplayUsdt: formatUsdtPrice(usdtCents),
+    priceDisplayWold: formatWoldPrice(woldCents),
     priceDisplayCny: formatShopPrice(effectivePriceCents, "cny"),
-    priceDisplayUsd: formatShopPrice(
-      resolvePriceCents({ priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd }, "usd"),
-      "usd",
-    ),
+    priceDisplayUsd: formatUsdtPrice(usdtCents),
     onSale,
     originalPriceCents: originalPriceCents ?? null,
     saleEndsAt: onSale ? p.saleEndsAt : null,
@@ -188,7 +197,7 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     }),
     active: p.active,
     sortOrder: p.sortOrder,
-    shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
+    shopUrl: `${siteUrls().shop}/product/${encodeURIComponent(p.sku)}`,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };

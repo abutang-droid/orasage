@@ -6,15 +6,20 @@ import { pickLabel, SHELL_LABELS } from './labels';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
 
-const TOP_NAV_ITEMS = [
-  { id: 'home' as const, href: (locale: string) => mainPortalUrl(locale), external: false },
-  { id: 'bazi' as const, href: ORASAGE_URLS.bazi, external: true },
-  { id: 'ziwei' as const, href: ORASAGE_URLS.ziwei, external: true },
-  { id: 'tarot' as const, href: ORASAGE_URLS.tarot, external: true },
-  { id: 'blessing' as const, href: ORASAGE_URLS.temple, external: true },
-  { id: 'shop' as const, href: ORASAGE_URLS.shop, external: true },
-  { id: 'famous' as const, href: (locale: string) => famousUrl(locale), external: false },
-  { id: 'daozang' as const, href: (locale: string) => daozangUrl(locale), external: false },
+type NavItem = {
+  id: 'home' | 'bazi' | 'ziwei' | 'tarot' | 'blessing' | 'shop' | 'famous' | 'daozang';
+  href: (locale: string) => string;
+};
+
+const TOP_NAV_ITEMS: NavItem[] = [
+  { id: 'home', href: (locale) => mainPortalUrl(locale) },
+  { id: 'bazi', href: () => ORASAGE_URLS.bazi },
+  { id: 'ziwei', href: () => ORASAGE_URLS.ziwei },
+  { id: 'tarot', href: () => ORASAGE_URLS.tarot },
+  { id: 'blessing', href: () => ORASAGE_URLS.temple },
+  { id: 'shop', href: () => ORASAGE_URLS.shop },
+  { id: 'famous', href: (locale) => famousUrl(locale) },
+  { id: 'daozang', href: (locale) => daozangUrl(locale) },
 ];
 
 export type SiteTopNavProps = {
@@ -27,7 +32,7 @@ export type SiteTopNavProps = {
   onLocaleChange?: (locale: string) => void;
 };
 
-/** PC 顶栏 — 左品牌 + 右导航，与页面同色（非浮层色块） */
+/** PC 顶栏 — 已下线（CSS 隐藏）；保留以免遗留引用崩掉 */
 export function SiteTopNav({
   locale = 'zh-CN',
   context = 'portal',
@@ -47,7 +52,7 @@ export function SiteTopNav({
         </a>
         <nav className="orasage-site-topnav-menu" aria-label="Site navigation">
           {TOP_NAV_ITEMS.map((item) => {
-            const href = typeof item.href === 'function' ? item.href(locale) : item.href;
+            const href = item.href(locale);
             const label = pickLabel(SHELL_LABELS[item.id], locale);
             return (
               <a key={item.id} href={href} className="orasage-site-topnav-link">

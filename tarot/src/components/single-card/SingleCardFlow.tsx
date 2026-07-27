@@ -8,8 +8,10 @@ import { MantoThinking } from '@/components/MantoThinking';
 import { DestinySliceDeck } from '@/components/single-card/DestinySliceDeck';
 import { DestinySliceFocusResult } from '@/components/single-card/DestinySliceFocusResult';
 import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
+import { aiLangBody as langBody } from '@/lib/i18n/ai-lang-body';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
   DestinySliceFocusPayload,
@@ -36,13 +38,6 @@ type SessionPayload = {
 
 type Step = 'loading' | 'intro' | 'drawing' | 'result';
 
-function langBody(lang: string) {
-  if (lang === 'en') return { language: 'en' };
-  if (lang === 'pt') return { language: 'pt-BR' };
-  if (lang === 'es') return { language: 'en' };
-  return { language: 'zh-CN' };
-}
-
 function normalizeFocus(
   brief: SingleCardBriefPayload | null,
 ): DestinySliceFocusPayload | null {
@@ -50,7 +45,7 @@ function normalizeFocus(
   if (isDestinySliceFocus(brief)) return brief;
   if (isDestinySliceGuidance(brief)) {
     return {
-      tendency: '警惕',
+      tendency: 'Caution',
       probability: '—',
       deconstruction: brief.insight,
       threshold: brief.action,
@@ -63,7 +58,7 @@ function normalizeFocus(
       no: 'No',
       lean_yes: 'Yes',
       lean_no: 'No',
-      unclear: '警惕',
+      unclear: 'Caution',
     } as const;
     return {
       tendency: tendencyMap[brief.verdict],
@@ -75,7 +70,7 @@ function normalizeFocus(
   }
   if ('text' in brief) {
     return {
-      tendency: '警惕',
+      tendency: 'Caution',
       probability: '—',
       deconstruction: brief.text,
       threshold: '—',
@@ -122,14 +117,16 @@ function PaywallPanel({
         <>
           <p className="three-card-tier-name">{unlockProduct.name}</p>
           <p className="three-card-tier-desc">{unlockProduct.desc}</p>
-          <p className="three-card-tier-price">{unlockProduct.priceDisplay}</p>
+          <p className="three-card-tier-price">
+            <PriceDisplay value={unlockProduct.priceDisplay} />
+          </p>
         </>
       ) : (
         <p className="three-card-tier-desc">{copy.paywallFallback}</p>
       )}
       <Button
         type="button"
-        className="w-full mt-3"
+        className="os-solid-cta os-solid-cta--block w-full mt-3"
         disabled={checkoutSku !== null}
         onClick={onCheckout}
       >
@@ -292,7 +289,7 @@ export function SingleCardFlow() {
         successUrl,
         cancelUrl: `${window.location.origin}/single-card${cancelQs}`,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.checkoutFailed);
     } finally {
@@ -318,13 +315,16 @@ export function SingleCardFlow() {
 
   return (
     <div className="three-card-page destiny-slice-page">
-      <div className="page-header animate-fade-in-up">
-        <h1>{copy.title}</h1>
+      <header className="destiny-slice-header animate-fade-in-up">
+        <h1 className="destiny-slice-title">{copy.title}</h1>
         <p className="destiny-slice-status">{copy.statusBadge}</p>
-        {session?.nickname ? (
-          <p className="destiny-slice-greeting">{copy.nicknameGreeting(session.nickname)}</p>
+        {step === 'intro' ? (
+          (() => {
+            const greeting = copy.nicknameGreeting(session?.nickname);
+            return greeting ? <p className="destiny-slice-greeting">{greeting}</p> : null;
+          })()
         ) : null}
-      </div>
+      </header>
 
       {step === 'intro' && (
         <div className="destiny-slice-intro animate-fade-in-up delay-200">
@@ -361,7 +361,7 @@ export function SingleCardFlow() {
       )}
 
       {step === 'drawing' && (
-        <div className="daily-fortune-draw card animate-fade-in-up">
+        <div className="destiny-slice-drawing card animate-fade-in-up">
           {drawLoading || !card ? (
             <MantoThinking message={copy.drawing} hint={copy.drawingHint} />
           ) : guidanceLoading ? (
@@ -380,11 +380,13 @@ export function SingleCardFlow() {
 
       {step === 'result' && card && (
         <div className="destiny-slice-result animate-fade-in-up">
-          <SingleCardReveal
-            card={card}
-            revealed
-            orientationLabel={copy.orientation}
-          />
+          <div className="destiny-slice-result-stage card">
+            <SingleCardReveal
+              card={card}
+              revealed
+              orientationLabel={copy.orientation}
+            />
+          </div>
 
           {showFocus && focus ? (
             <>
@@ -395,12 +397,13 @@ export function SingleCardFlow() {
                 sectionThreshold={copy.sectionThreshold}
                 coreTendencyLabel={copy.coreTendencyLabel}
                 energyProbabilityLabel={copy.energyProbabilityLabel}
+                localizeTendency={copy.localizeTendency}
               />
 
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full mt-3"
+                className="w-full mt-1"
                 onClick={() => {
                   setReadingId(null);
                   setCard(null);
@@ -439,7 +442,7 @@ export function SingleCardFlow() {
       )}
 
       {error && step !== 'result' ? (
-        <p style={{ textAlign: 'center', color: '#b91c1c', fontSize: 13, marginTop: 16 }}>{error}</p>
+        <p className="destiny-slice-error">{error}</p>
       ) : null}
 
       <Button asChild variant="ghost" className="daily-fortune-coming-back mt-5 orasage-subpage-back-local">

@@ -25,11 +25,14 @@ export function isLlmConfigured(): boolean {
   return Boolean(ENV.deepseekApiKey || ENV.forgeApiKey);
 }
 
-export async function invokeLLM(messages: Message[]): Promise<InvokeResult> {
+export async function invokeLLM(
+  messages: Message[],
+  options?: { maxTokens?: number },
+): Promise<InvokeResult> {
   const payload: Record<string, unknown> = {
     model: ENV.deepseekApiKey ? "deepseek-chat" : "gemini-2.5-flash",
     messages,
-    max_tokens: 1024,
+    max_tokens: options?.maxTokens ?? 1024,
     response_format: { type: "json_object" },
   };
 

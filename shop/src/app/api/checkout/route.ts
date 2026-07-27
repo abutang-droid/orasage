@@ -16,6 +16,7 @@ import {
   resolvePriceCents,
   type ShopCurrency,
 } from '@/lib/currency';
+import { ENV } from '@/lib/env';
 
 const checkoutSchema = startCheckoutBodySchema.extend({
   userId: z.number().int().positive(),
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
       cancelUrl: body.cancelUrl,
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
+      crystalSku: body.crystalSku,
       planType: body.planType,
       shippingMode: body.shippingMode,
       locale: body.locale,
@@ -124,7 +126,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json({
       error: '请先登录',
-      loginUrl: `${process.env.AUTH_URL ?? 'https://auth.orasage.com'}/login?redirect=${encodeURIComponent(`${process.env.SHOP_URL ?? 'https://shop.orasage.com'}/?sku=${sku}`)}`,
+      loginUrl: `${ENV.authUrl}/login?redirect=${encodeURIComponent(`${ENV.shopUrl}/?sku=${sku}`)}`,
     }, { status: 401 });
   } catch (err) {
     if (err instanceof z.ZodError) {

@@ -1,4 +1,4 @@
--- Stable reading results: input fingerprint + question cache
+-- Stable reading results: input fingerprint + question cache (idempotent)
 
 ALTER TABLE "DailyFortuneRecord" ADD COLUMN IF NOT EXISTS "inputHash" VARCHAR(32);
 
@@ -29,6 +29,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS "ReadingQuestionCache_userId_flowType_contextH
 CREATE INDEX IF NOT EXISTS "ReadingQuestionCache_userId_flowType_idx"
   ON "ReadingQuestionCache"("userId", "flowType");
 
-ALTER TABLE "ReadingQuestionCache"
-  ADD CONSTRAINT "ReadingQuestionCache_userId_fkey"
-  FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "ReadingQuestionCache"
+    ADD CONSTRAINT "ReadingQuestionCache_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;

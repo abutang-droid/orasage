@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
+import { getSiteApex, orasageUrlsFor, type OrasageUrls } from '@/lib/orasage-app-shell/config';
 
 export const ORASAGE_SITE_NAME = 'OraSage';
 
-export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
-} as const;
+/** Cross-app public URLs for the current deployment apex (build env / runtime). */
+export const ORASAGE_URLS: OrasageUrls = new Proxy({} as OrasageUrls, {
+  get(_target, prop: string | symbol) {
+    if (typeof prop !== 'string') return undefined;
+    const urls = orasageUrlsFor(getSiteApex());
+    return urls[prop as keyof OrasageUrls];
+  },
+});
 
 /** UI keeps product brands; SEO titles end with | OraSage */
 export function orasageTitle(pageTitle: string): string {

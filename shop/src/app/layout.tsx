@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale}>
       <body className="min-h-dvh bg-sage-bg text-sage-primary antialiased">
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider key={locale} locale={locale} messages={messages}>
           <ShopShell>{children}</ShopShell>
         </NextIntlClientProvider>
       </body>

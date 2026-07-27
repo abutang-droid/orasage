@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@orasage/ui/button';
 import { Card } from '@orasage/ui/card';
 import { Input } from '@orasage/ui/input';
+import { useLocale } from '@/lib/i18n';
+import { aiRequestLanguage } from '@/lib/ai-request-lang';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 
@@ -50,6 +52,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
 }
 
 export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
+  const { locale } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -90,7 +93,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
     try {
       // 修复：接口 /api/interpret 读取的是 `chartData` 字段，此前误传 `chart`，
       // 导致 AI 从未收到命盘数据，解读内容完全没有结合具体命盘。
-      const res = await fetch('/api/interpret', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chartData: chart, messages: apiMessages }) });
+      const res = await fetch('/api/interpret', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chartData: chart, messages: apiMessages, language: aiRequestLanguage(locale) }) });
       if (!res.ok) throw new Error('请求失败');
       if (!res.body) throw new Error('无响应流');
       const reader = res.body.getReader(); const decoder = new TextDecoder();

@@ -19,8 +19,42 @@ async function api(path, options = {}) {
     ...options,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || requestFailedMessage());
+  if (!res.ok) {
+    const err = new Error(data.error || requestFailedMessage());
+    err.code = data.code || "";
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
   return data;
+}
+
+const LOGIN_PENDING_KEY = "orasage:login-pending";
+
+function stashLoginPending(email, password) {
+  try {
+    sessionStorage.setItem(
+      LOGIN_PENDING_KEY,
+      JSON.stringify({ email: String(email || ""), password: String(password || ""), at: Date.now() }),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+function takeLoginPending() {
+  try {
+    const raw = sessionStorage.getItem(LOGIN_PENDING_KEY);
+    sessionStorage.removeItem(LOGIN_PENDING_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || typeof data.email !== "string") return null;
+    // Discard stale drafts (> 30 min)
+    if (data.at && Date.now() - data.at > 30 * 60 * 1000) return null;
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 async function hydrateAuthChips() {
@@ -62,20 +96,104 @@ hydrateAuthChips();
 
 const loginForm = qs("#login-form");
 if (loginForm) {
+  const errEl = qs("#form-error");
+  const choiceEl = qs("#login-email-choice");
+  const submitBtn = qs("#login-submit");
+  const emailInput = qs("#login-email");
+  const passwordInput = qs("#login-password");
+  const choiceTitle = choiceEl?.querySelector(".auth-choice-title");
+  const choiceLead = choiceEl?.querySelector(".auth-choice-lead");
+  const choiceRegisterBtn = qs("#login-choice-register");
+  const choiceRetryBtn = qs("#login-choice-retry");
+
+  function hideEmailChoice() {
+    if (!choiceEl) return;
+    choiceEl.hidden = true;
+    if (submitBtn) submitBtn.hidden = false;
+  }
+
+  function showEmailChoice(email) {
+    if (!choiceEl) return;
+    if (choiceTitle) choiceTitle.textContent = loginForm.dataset.msgEmailNotFoundTitle || "";
+    if (choiceLead) {
+      const lead = loginForm.dataset.msgEmailNotFoundLead || "";
+      choiceLead.textContent = email ? `${lead} (${email})` : lead;
+    }
+    choiceEl.hidden = false;
+    if (submitBtn) submitBtn.hidden = true;
+    if (errEl) errEl.hidden = true;
+  }
+
+  choiceRegisterBtn?.addEventListener("click", () => {
+    const email = String(emailInput?.value || "").trim();
+    const password = String(passwordInput?.value || "");
+    stashLoginPending(email, password);
+    const redirect = loginForm.dataset.redirect || "/center";
+    const params = new URLSearchParams({ redirect });
+    if (email) params.set("email", email);
+    location.href = `/register?${params.toString()}`;
+  });
+
+  choiceRetryBtn?.addEventListener("click", () => {
+    hideEmailChoice();
+    if (passwordInput) {
+      passwordInput.value = "";
+      passwordInput.focus();
+    }
+  });
+
+  emailInput?.addEventListener("input", hideEmailChoice);
+
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const err = qs("#form-error");
-    err.hidden = true;
+    hideEmailChoice();
+    if (errEl) errEl.hidden = true;
     const fd = new FormData(loginForm);
+    const email = String(fd.get("email") || "").trim();
+    const password = String(fd.get("password") || "");
     try {
-      await api("/auth/login", { method: "POST", body: JSON.stringify({ email: fd.get("email"), password: fd.get("password") }) });
+      await api("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
       location.href = loginForm.dataset.redirect || "/center";
-    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+    } catch (ex) {
+      if (ex.code === "email_not_found") {
+        showEmailChoice(email);
+        return;
+      }
+      if (errEl) {
+        errEl.textContent =
+          ex.code === "invalid_password"
+            ? loginForm.dataset.msgInvalidPassword || ex.message
+            : ex.message;
+        errEl.hidden = false;
+      }
+      if (ex.code === "invalid_password" && passwordInput) {
+        passwordInput.focus();
+        passwordInput.select();
+      }
+    }
   });
 }
 
 const registerForm = qs("#register-form");
 if (registerForm) {
+  const pending = takeLoginPending();
+  const regEmail = qs("#reg-email");
+  const regPassword = qs("#reg-password");
+  if (pending) {
+    if (regEmail && !regEmail.value && pending.email) regEmail.value = pending.email;
+    // Carry over the password they already typed on login so they only set nickname if desired.
+    if (regPassword && pending.password && pending.password.length >= 6) {
+      regPassword.value = pending.password;
+    }
+    if (regPassword) regPassword.focus();
+    else if (regEmail) regEmail.focus();
+  } else if (regEmail?.value) {
+    qs("#reg-password")?.focus();
+  }
+
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const err = qs("#form-error");
@@ -84,10 +202,17 @@ if (registerForm) {
     try {
       await api("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email: fd.get("email"), password: fd.get("password"), nickname: fd.get("nickname") || undefined }),
+        body: JSON.stringify({
+          email: fd.get("email"),
+          password: fd.get("password"),
+          nickname: fd.get("nickname") || undefined,
+        }),
       });
       location.href = registerForm.dataset.redirect || "/center";
-    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+    } catch (ex) {
+      err.textContent = ex.message;
+      err.hidden = false;
+    }
   });
 }
 

@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation"
-
-const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
+import { ORASAGE_URLS } from "@/lib/orasage-app-shell/config"
 
 /** 旧路径重定向至 main 门户设置 */
 export default function ProfileSettingsRedirect() {
-  redirect(MAIN_SETTINGS)
+  redirect(`${ORASAGE_URLS.main}/zh-CN/profile/settings`)
 }

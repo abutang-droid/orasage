@@ -49,20 +49,42 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
     year, month, day, hour,
   } = data as Record<string, unknown>;
 
-  const genderStr = gender === "male" ? "男" : "女";
+  const nonZh = lang === "en" || lang === "pt-BR";
+  const genderStr =
+    lang === "en" ? (gender === "male" ? "Male" : "Female")
+      : lang === "pt-BR" ? (gender === "male" ? "Masculino" : "Feminino")
+        : (gender === "male" ? "男" : "女");
+  const sep = nonZh ? ", " : "、";
   const wxObj = wuXing as Record<string, number> | undefined;
-  const wxStr = wxObj ? Object.entries(wxObj).map(([k, v]) => k + v).join("、") : "";
-  const favStr = Array.isArray(favorable) ? (favorable as string[]).join("、") : "";
-  const unfavStr = Array.isArray(unfavorable) ? (unfavorable as string[]).join("、") : "";
+  const wxStr = wxObj ? Object.entries(wxObj).map(([k, v]) => k + v).join(sep) : "";
+  const favStr = Array.isArray(favorable) ? (favorable as string[]).join(sep) : "";
+  const unfavStr = Array.isArray(unfavorable) ? (unfavorable as string[]).join(sep) : "";
   const pillars = [year, month, day, hour] as Array<{ gan: string; zhi: string; naYin?: string } | undefined>;
-  const pillarLabels = ["年柱", "月柱", "日柱", "时柱"];
-  const pillarStr = pillars.map((p, i) => p ? pillarLabels[i] + "：" + p.gan + p.zhi + "（" + (p.naYin ?? "") + "）" : "").filter(Boolean).join("，");
+  const pillarLabels = nonZh
+    ? ["Year", "Month", "Day", "Hour"]
+    : ["年柱", "月柱", "日柱", "时柱"];
+  const pillarStr = pillars.map((p, i) => {
+    if (!p) return "";
+    return nonZh
+      ? `${pillarLabels[i]}: ${p.gan}${p.zhi}${p.naYin ? ` (${p.naYin})` : ""}`
+      : pillarLabels[i] + "：" + p.gan + p.zhi + "（" + (p.naYin ?? "") + "）";
+  }).filter(Boolean).join(nonZh ? "; " : "，");
   const dyArr = Array.isArray(daYun) ? (daYun as Array<{ age: number; ganzhi: string; startYear: number }>) : [];
-  const dyStr = dyArr.slice(0, 6).map(d => d.age + "岁起 " + d.ganzhi + "（" + d.startYear + "年）").join("；");
+  const dyStr = dyArr.slice(0, 6).map((d) =>
+    nonZh
+      ? `from age ${d.age}: ${d.ganzhi} (${d.startYear})`
+      : d.age + "岁起 " + d.ganzhi + "（" + d.startYear + "年）",
+  ).join(nonZh ? "; " : "；");
   const ssObj = shensha as Record<string, string[]> | undefined;
-  const ssStr = ssObj ? Object.entries(ssObj).filter(([, v]) => v.length > 0).map(([k, v]) => k + "：" + v.join("、")).join("；") : "";
+  const ssStr = ssObj
+    ? Object.entries(ssObj).filter(([, v]) => v.length > 0).map(([k, v]) =>
+      nonZh ? `${k}: ${v.join(sep)}` : k + "：" + v.join("、"),
+    ).join(nonZh ? "; " : "；")
+    : "";
   const stObj = shiShen as Record<string, string> | undefined;
-  const stStr = stObj ? Object.entries(stObj).map(([k, v]) => k + "→" + v).join("、") : "";
+  const stStr = stObj
+    ? Object.entries(stObj).map(([k, v]) => k + "→" + v).join(sep)
+    : "";
 
   const birthNote = birthCity ? "，" + birthCity : "";
   const solarNote = trueSolarNote ? "（" + trueSolarNote + "）" : "";
@@ -98,16 +120,19 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
     "pt-BR": "## Estrutura do Relatório (7 capítulos, use ###)\n\n### 1. Visão Geral\nAnálise de 4 camadas: energia Day Master, tipo de Padrão, clima sazonal, conflitos do mapa.\n\n### 2. Caráter & Talentos\nPadrão + clima explica personalidade. Marque [Base: xxx].\n\n### 3. Carreira & Riqueza\nEstrela da Riqueza (fluxo de caixa), Oficial (pressão), Selo (plataforma).\n\n### 4. Relacionamentos\nPalácio do Cônjuge + Estrelas + Combinação/Conflito.\n\n### 5. Saúde & Energia\nDesequilíbrio WuXing + entropia sazonal.\n\n### 6. Previsão Anual\nConjunção Ano-Destino, Conflito Celeste/Terrestre + Deadlock.\n\n### 7. Dicas da Sorte\nDireções, cores, hábitos.\n\n---\nNota: Por OraSage. Apenas para referência.",
   };
 
+  const colon = nonZh ? ": " : "：";
   let r = pick(systemPrompt, lang, "zh-CN");
-  r += "## " + name + "（" + genderStr + "）" + pick(dataHeader, lang, "zh-CN") + "\n\n";
-  r += "- **" + pick(labels.birth, lang, "zh-CN") + "**：" + birthStr + birthNote + solarNote + "\n";
-  r += "- **" + pick(labels.pillars, lang, "zh-CN") + "**：" + pillarStr + "\n";
-  r += "- **" + pick(labels.riZhu, lang, "zh-CN") + "**：" + riZhu + "，日主" + strength + "\n";
-  r += "- **" + pick(labels.wuXing, lang, "zh-CN") + "**：" + wxStr + "\n";
-  r += "- **" + pick(labels.fav, lang, "zh-CN") + "**：" + favStr + "　**" + pick(labels.unfav, lang, "zh-CN") + "**：" + unfavStr + "\n";
-  r += "- **" + pick(labels.shiShen, lang, "zh-CN") + "**：" + stStr + "\n";
-  r += "- **" + pick(labels.shenSha, lang, "zh-CN") + "**：" + ssStr + "\n";
-  r += "- **" + pick(labels.daYun, lang, "zh-CN") + "**：" + dyStr + "\n\n";
+  r += "## " + name + (nonZh ? ` (${genderStr})` : "（" + genderStr + "）") + pick(dataHeader, lang, "zh-CN") + "\n\n";
+  r += "- **" + pick(labels.birth, lang, "zh-CN") + "**" + colon + birthStr + birthNote + solarNote + "\n";
+  r += "- **" + pick(labels.pillars, lang, "zh-CN") + "**" + colon + pillarStr + "\n";
+  r += "- **" + pick(labels.riZhu, lang, "zh-CN") + "**" + colon + riZhu
+    + (nonZh ? `, Day Master ${strength}` : "，日主" + strength) + "\n";
+  r += "- **" + pick(labels.wuXing, lang, "zh-CN") + "**" + colon + wxStr + "\n";
+  r += "- **" + pick(labels.fav, lang, "zh-CN") + "**" + colon + favStr
+    + (nonZh ? "  **" : "　**") + pick(labels.unfav, lang, "zh-CN") + "**" + colon + unfavStr + "\n";
+  r += "- **" + pick(labels.shiShen, lang, "zh-CN") + "**" + colon + stStr + "\n";
+  r += "- **" + pick(labels.shenSha, lang, "zh-CN") + "**" + colon + ssStr + "\n";
+  r += "- **" + pick(labels.daYun, lang, "zh-CN") + "**" + colon + dyStr + "\n\n";
   r += sections[lang] || sections["zh-CN"];
   return r;
 }
@@ -125,15 +150,102 @@ export function buildDoubleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 
   const p1 = person1;
   const p2 = person2;
+  const genderLabel = (g: unknown) => {
+    if (lang === "en") return g === "male" ? "Male" : "Female";
+    if (lang === "pt-BR") return g === "male" ? "Masculino" : "Feminino";
+    return g === "male" ? "男" : "女";
+  };
+  const wxLine = (wx: unknown) =>
+    wx
+      ? Object.entries(wx as Record<string, number>).map(([k, v]) => `${k}${v}`).join(lang === "en" || lang === "pt-BR" ? ", " : "、")
+      : "";
+  const favLine = (fav: unknown) =>
+    Array.isArray(fav) ? (fav as string[]).join(lang === "en" || lang === "pt-BR" ? ", " : "、") : "";
   const detailStr = (scoreDetails || [])
-    .map(d => `${d.label}（${d.score}分）：${d.detail}`)
+    .map((d) =>
+      lang === "en"
+        ? `${d.label} (${d.score}): ${d.detail}`
+        : lang === "pt-BR"
+          ? `${d.label} (${d.score}): ${d.detail}`
+          : `${d.label}（${d.score}分）：${d.detail}`,
+    )
     .join("\n- ");
+
+  if (lang === "en") {
+    return `Write the entire report in English. Do not write Chinese interpretive prose (romanized technical terms like Day Master / WuXing are OK).
+
+You are an Eastern metaphysics advisor blending traditional BaZi with modern psychology. Turn compatibility analysis into warm, insightful relationship guidance.
+
+## Synastry data
+
+**${p1.name} (${genderLabel(p1.gender)})**
+- Day pillar: ${p1.riZhu}; Day Master strength: ${p1.strength}
+- WuXing: ${wxLine(p1.wuXing)}
+- Favorable: ${favLine(p1.favorable)}
+
+**${p2.name} (${genderLabel(p2.gender)})**
+- Day pillar: ${p2.riZhu}; Day Master strength: ${p2.strength}
+- WuXing: ${wxLine(p2.wuXing)}
+- Favorable: ${favLine(p2.favorable)}
+
+**Total score**: ${score} (${rating})
+
+**Dimension scores**:
+- ${detailStr}
+
+## Report structure (use ### headings)
+
+### Overall bond
+### WuXing & energy exchange
+### Personality dynamics
+### Love & partnership outlook
+### Growth lessons
+### Practical advice (3 concrete tips)
+### One-line summary
+
+---
+Note: For reference only.`;
+  }
+
+  if (lang === "pt-BR") {
+    return `Escreva todo o relatório em Português (Brasil). Não escreva interpretação em chinês (termos técnicos romanizados como Day Master / WuXing são ok).
+
+Você é um consultor de metafísica oriental que une BaZi tradicional e psicologia moderna. Transforme a análise de compatibilidade em orientação calorosa e perspicaz.
+
+## Dados de synastry
+
+**${p1.name} (${genderLabel(p1.gender)})**
+- Pilar do dia: ${p1.riZhu}; força do Day Master: ${p1.strength}
+- WuXing: ${wxLine(p1.wuXing)}
+- Favorável: ${favLine(p1.favorable)}
+
+**${p2.name} (${genderLabel(p2.gender)})**
+- Pilar do dia: ${p2.riZhu}; força do Day Master: ${p2.strength}
+- WuXing: ${wxLine(p2.wuXing)}
+- Favorável: ${favLine(p2.favorable)}
+
+**Pontuação total**: ${score} (${rating})
+
+**Pontuações por dimensão**:
+- ${detailStr}
+
+## Estrutura (use ###)
+
+### Vínculo geral
+### WuXing e troca de energia
+### Dinâmica de personalidade
+### Amor e parceria
+### Lições de crescimento
+### Conselhos práticos (3 dicas)
+### Resumo em uma frase
+
+---
+Nota: Apenas para referência.`;
+  }
 
   const langLine: Record<string, string> = {
     "zh-CN": "请用简体中文撰写全文。",
     "zh-TW": "請用繁體中文撰寫全文。",
-    en: "Write the entire report in English.",
-    "pt-BR": "Escreva todo o relatório em Português (Brasil).",
   };
 
   return `${langLine[lang] ?? langLine["zh-CN"]}
@@ -144,15 +256,15 @@ export function buildDoubleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 
 ## 合盘数据
 
-**${p1.name}（${p1.gender === "male" ? "男" : "女"}）**
+**${p1.name}（${genderLabel(p1.gender)}）**
 - 日柱：${p1.riZhu}，日主强弱：${p1.strength}
-- 五行：${p1.wuXing ? Object.entries(p1.wuXing as Record<string, number>).map(([k, v]) => `${k}${v}`).join("、") : ""}
-- 喜用神：${Array.isArray(p1.favorable) ? (p1.favorable as string[]).join("、") : ""}
+- 五行：${wxLine(p1.wuXing)}
+- 喜用神：${favLine(p1.favorable)}
 
-**${p2.name}（${p2.gender === "male" ? "男" : "女"}）**
+**${p2.name}（${genderLabel(p2.gender)}）**
 - 日柱：${p2.riZhu}，日主强弱：${p2.strength}
-- 五行：${p2.wuXing ? Object.entries(p2.wuXing as Record<string, number>).map(([k, v]) => `${k}${v}`).join("、") : ""}
-- 喜用神：${Array.isArray(p2.favorable) ? (p2.favorable as string[]).join("、") : ""}
+- 五行：${wxLine(p2.wuXing)}
+- 喜用神：${favLine(p2.favorable)}
 
 **合盘总分**：${score}分（${rating}）
 
@@ -269,16 +381,35 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
 
   const desc = jsonDesc[lang] || jsonDesc["zh-CN"];
 
+  const genderOut =
+    lang === "en" ? (gender === "male" ? "Male" : "Female")
+      : lang === "pt-BR" ? (gender === "male" ? "Masculino" : "Feminino")
+        : genderStr;
+  const analysisLayers =
+    lang === "en"
+      ? `## Analysis layers\n\n### Layer A — Static matrix\nJudge base energy from Day Master strength and WuXing.\n\n### Layer B — Pattern\nJudge pattern type from month branch / exposed stems (wealth/officer/seal/output etc.) and success/fail.\n\n`
+      : lang === "pt-BR"
+        ? `## Camadas de análise\n\n### Layer A — Matriz estática\nAvalie a energia base pela força do Day Master e WuXing.\n\n### Layer B — Padrão\nAvalie o tipo de padrão pelo ramo do mês / hastes expostas e sucesso/falha.\n\n`
+        : `## 分析层级\n\n### Layer A — 静态矩阵\n根据日主强弱和五行分布，判断基础能量状态。\n\n### Layer B — 格局定型\n根据月令和透干情况，判断格局类型（财格/官格/印格/食伤格等）及成败。\n\n`;
+  const onlyJson =
+    lang === "en"
+      ? "Return JSON only. No other text. All string values must be English."
+      : lang === "pt-BR"
+        ? "Retorne apenas JSON. Sem outro texto. Todos os valores string devem estar em Português."
+        : "只返回 JSON，不要其他文字。";
+
   return (langHeaders[lang] || langHeaders["zh-CN"])
-    + `## ${name}（${genderStr}）的排盘\n\n`
+    + (lang === "en" || lang === "pt-BR"
+      ? `## ${name} (${genderOut})\n\n`
+      : `## ${name}（${genderOut}）的排盘\n\n`)
     + `- ${fields}：${birthStr}\n`
     + `- ${pz}：${pillarStr}\n`
-    + `- 日柱：${riZhu}\n`
+    + `- ${lang === "en" ? "Day pillar" : lang === "pt-BR" ? "Pilar do dia" : "日柱"}：${riZhu}\n`
     + `- ${st}：${strength}\n`
     + `- ${wx}：${wxStr}\n`
-    + `- 喜用神：${favStr}，忌神：${unfavStr}\n`
-    + `- 十神：${stStr}\n\n`
-    + `## 分析层级\n\n### Layer A — 静态矩阵\n根据日主强弱和五行分布，判断基础能量状态。\n\n### Layer B — 格局定型\n根据月令和透干情况，判断格局类型（财格/官格/印格/食伤格等）及成败。\n\n`
+    + `- ${lang === "en" ? "Favorable" : lang === "pt-BR" ? "Favorável" : "喜用神"}：${favStr}，${lang === "en" ? "Unfavorable" : lang === "pt-BR" ? "Desfavorável" : "忌神"}：${unfavStr}\n`
+    + `- ${lang === "en" ? "10 Spirits" : lang === "pt-BR" ? "10 Espíritos" : "十神"}：${stStr}\n\n`
+    + analysisLayers
     + `## 输出 JSON\n\n{\n`
     + `  "title": "${desc.title}",\n`
     + `  "matrix": "${desc.matrix}",\n`
@@ -286,5 +417,5 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
     + `  "personality": "${desc.personality}",\n`
     + `  "risk": "${desc.risk}",\n`
     + `  "lucky": "${desc.lucky}"\n`
-    + `}\n\n只返回 JSON，不要其他文字。`;
+    + `}\n\n${onlyJson}`;
 }

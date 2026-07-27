@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
+import { useLang } from '@/lib/i18n/context';
+import { deityDisplayName, deitySubtitle } from '@/lib/i18n/deity-locale';
 import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import type { WorshipFacing } from '@/lib/temple/facing';
 import { FacingIndicator } from './FacingIndicator';
@@ -9,7 +11,7 @@ import './temple.css';
 
 type WorshipDeity = Pick<
   Sanctuary,
-  'id' | 'name' | 'nameEN' | 'color' | 'imageUrl' | 'worshipFacing'
+  'id' | 'name' | 'nameEN' | 'namePt' | 'nameEs' | 'color' | 'imageUrl' | 'worshipFacing'
 >;
 
 function HaloRings({ stage, deityColor }: { stage: number; deityColor: string }) {
@@ -81,7 +83,10 @@ type WorshipScreenProps = {
 };
 
 export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps) {
+  const { lang } = useLang();
   const temple = useTempleCopy();
+  const primaryName = deityDisplayName(deity, lang);
+  const secondaryName = deitySubtitle(deity, lang);
   const [isPressed, setIsPressed] = useState(false);
   const [stage, setStage] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -186,18 +191,18 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
           }}
           role="button"
           tabIndex={0}
-          aria-label={temple.worshipAria(deity.name)}
+          aria-label={temple.worshipAria(primaryName)}
         >
           <div className="temple-deity-wrap">
             <HaloRings stage={isPressed ? stage : 0} deityColor={deity.color} />
             <Particles stage={isPressed ? stage : 0} />
             <div className="temple-deity-portrait">
-              <img src={deity.imageUrl} alt={deity.name} draggable={false} />
+              <img src={deity.imageUrl} alt={primaryName} draggable={false} />
             </div>
           </div>
 
-          <div className="temple-worship-name">{deity.name}</div>
-          <div className="temple-worship-name-en">{deity.nameEN}</div>
+          <div className="temple-worship-name">{primaryName}</div>
+          {secondaryName ? <div className="temple-worship-name-en">{secondaryName}</div> : null}
           <p className="temple-worship-hint">{hintText}</p>
 
           {isPressed && (
@@ -216,7 +221,7 @@ export function WorshipScreen({ deity, facing, onComplete }: WorshipScreenProps)
         </div>
 
         {showShortToast && (
-          <p className="temple-worship-toast">{temple.worshipToast(deity.name)}</p>
+          <p className="temple-worship-toast">{temple.worshipToast(primaryName)}</p>
         )}
       </div>
     </div>

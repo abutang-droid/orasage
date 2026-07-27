@@ -10,9 +10,11 @@ import { TarotFlipCard } from '@/components/TarotFlipCard';
 import { buildLoginUrl } from '@/lib/login-url';
 import { profileUrlFromLang } from '@/lib/orasage-locale';
 import { useCardName } from '@/lib/i18n/context';
+import { aiLangBody } from '@/lib/i18n/ai-lang-body';
 import { POSITION_KEYS, useThreeCardCopy } from '@/lib/i18n/reading-copy';
 import { getCardById } from '@/lib/tarot/cards';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import { ThreeCardTrilogyResult } from '@/components/three-card/ThreeCardTrilogyResult';
 import type {
@@ -85,7 +87,7 @@ export function ThreeCardFlow() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ readingId: id, orderNo: orderNo ?? undefined }),
+      body: JSON.stringify({ readingId: id, orderNo: orderNo ?? undefined, ...aiLangBody(copy.lang) }),
     });
     const data = await res.json();
     if (res.status === 401) {
@@ -102,7 +104,7 @@ export function ThreeCardFlow() {
     setPaidTier(data.tier);
     setStep('full_report');
     setPendingOrderNo(null);
-  }, []);
+  }, [copy.fullFailed, copy.lang]);
 
   const loadSession = useCallback(async () => {
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -155,6 +157,7 @@ export function ThreeCardFlow() {
         body: JSON.stringify({
           question: question.trim() || undefined,
           answers: [],
+          ...aiLangBody(copy.lang),
         }),
       });
       const data = await res.json();
@@ -187,7 +190,7 @@ export function ThreeCardFlow() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ readingId }),
+        body: JSON.stringify({ readingId, ...aiLangBody(copy.lang) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || copy.briefFailed);
@@ -223,7 +226,7 @@ export function ThreeCardFlow() {
         successUrl,
         cancelUrl: `${window.location.origin}/reading?readingId=${encodeURIComponent(readingId)}`,
       });
-      redirectAfterCheckout(result);
+      await redirectAfterCheckout(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.checkoutFailed);
     } finally {
@@ -250,13 +253,13 @@ export function ThreeCardFlow() {
 
   return (
     <div className="three-card-page trilogy-page">
-      <div className="page-header animate-fade-in-up">
-        <h1>{copy.title}</h1>
-        <p className="trilogy-status">{copy.statusBadge}</p>
+      <header className="trilogy-header animate-fade-in-up">
+        <h1 className="trilogy-title">{copy.title}</h1>
+        {copy.statusBadge ? <p className="trilogy-status">{copy.statusBadge}</p> : null}
         {session?.nickname ? (
           <p className="trilogy-greeting">{copy.nicknameGreeting(session.nickname)}</p>
         ) : null}
-      </div>
+      </header>
 
       {step === 'intro' && (
         <div className="daily-fortune-panel card animate-fade-in-up delay-100">
@@ -376,12 +379,12 @@ export function ThreeCardFlow() {
             {!isLoggedIn ? (
               <a
                 href={loginHref}
-                className={cn(buttonVariants(), 'w-full block text-center no-underline')}
+                className={cn(buttonVariants(), 'os-solid-cta os-solid-cta--block w-full block text-center no-underline')}
               >
                 {copy.loginUnlock}
               </a>
             ) : (
-              <Button type="button" className="w-full" onClick={goToPaywall}>
+              <Button type="button" className="os-solid-cta os-solid-cta--block w-full" onClick={goToPaywall}>
                 {copy.viewPlans}
               </Button>
             )}
@@ -408,14 +411,16 @@ export function ThreeCardFlow() {
                   <>
                     <p className="three-card-tier-name">{reportProduct.name}</p>
                     <p className="three-card-tier-desc">{reportProduct.desc}</p>
-                    <p className="three-card-tier-price">{reportProduct.priceDisplay}</p>
+                    <p className="three-card-tier-price">
+                      <PriceDisplay value={reportProduct.priceDisplay} />
+                    </p>
                   </>
                 ) : (
                   <p className="three-card-tier-desc">{copy.tier1Fallback}</p>
                 )}
                 <Button
                   type="button"
-                  className="w-full mt-3"
+                  className="os-solid-cta os-solid-cta--block w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(
@@ -435,15 +440,16 @@ export function ThreeCardFlow() {
                   <>
                     <p className="three-card-tier-name">{bundleProduct.name}</p>
                     <p className="three-card-tier-desc">{bundleProduct.desc}</p>
-                    <p className="three-card-tier-price">{bundleProduct.priceDisplay}</p>
+                    <p className="three-card-tier-price">
+                      <PriceDisplay value={bundleProduct.priceDisplay} />
+                    </p>
                   </>
                 ) : (
                   <p className="three-card-tier-desc">{copy.tier2Fallback}</p>
                 )}
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full mt-3"
+                  className="os-solid-cta os-solid-cta--block w-full mt-3"
                   disabled={checkoutSku !== null}
                   onClick={() =>
                     void handleCheckout(
@@ -509,6 +515,12 @@ export function ThreeCardFlow() {
               sectionChain={copy.sectionChain}
               sectionThreshold={copy.sectionThreshold}
               positionLabel={copy.position}
+              nodeIndexLabel={copy.nodeIndex}
+              modeValue={copy.trilogyMode}
+              cardNames={sortedCards.map((c) => {
+                const meta = getCardById(c.cardId);
+                return meta ? cardNameFor(meta) : c.cardName;
+              })}
             />
           ) : (
             <>

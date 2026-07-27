@@ -13,8 +13,18 @@ import { getAuthUser, publicUser } from "../lib/auth-user.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
 import { liveChatRouter } from "./live-chat.ts";
+import { ENV } from "../env.ts";
 
 export const authRouter = Router();
+
+function rejectIfWorldAuthOnly(res: Response): boolean {
+  if (!ENV.worldAuthRequired) return false;
+  res.status(403).json({
+    error: "Please sign in with World App",
+    code: "world_auth_required",
+  });
+  return true;
+}
 
 const registerSchema = z.object({
   email: z.string().email().max(320),
@@ -46,6 +56,7 @@ const profileSchema = z.object({
 // ── POST /auth/register ──
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
+    if (rejectIfWorldAuthOnly(res)) return;
     const body = registerSchema.parse(req.body);
 
     // 检查邮箱是否已注册
@@ -86,17 +97,20 @@ authRouter.post("/register", async (req: Request, res: Response) => {
 // ── POST /auth/login ──
 authRouter.post("/login", async (req: Request, res: Response) => {
   try {
+    if (rejectIfWorldAuthOnly(res)) return;
     const body = loginSchema.parse(req.body);
 
     const [user] = await db.select().from(users).where(eq(users.email, body.email)).limit(1);
     if (!user) {
-      res.status(401).json({ error: "邮箱或密码错误" });
+      // Distinct code so the login UI can offer "register with this email"
+      // vs "wrong password" without forcing a full re-entry of the address.
+      res.status(401).json({ error: "邮箱未注册", code: "email_not_found" });
       return;
     }
 
     const valid = await bcrypt.compare(body.password, user.passwordHash);
     if (!valid) {
-      res.status(401).json({ error: "邮箱或密码错误" });
+      res.status(401).json({ error: "密码错误", code: "invalid_password" });
       return;
     }
 

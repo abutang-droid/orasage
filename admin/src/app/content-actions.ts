@@ -218,8 +218,10 @@ export async function saveProductMediaAction(formData: FormData) {
       ),
     ]);
 
+    // Media panel is storefront-facing: publish on save so PDP carousel is visible.
+    // Copy/SEO draft workflow remains on the content editor (status field there).
     await upsertCmsProductPage(sku, locale, {
-      status: existing?.status ?? 'draft',
+      status: 'published',
       subtitle: existing?.subtitle ?? null,
       seoTitle: existing?.seoTitle ?? null,
       seoDescription: existing?.seoDescription ?? null,

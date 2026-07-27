@@ -5,13 +5,14 @@ import {
   type MappedHeroContent,
 } from '../../../shared/hero/map-cms-hero';
 import { resolveHeroWithFallback } from '../../../shared/hero/resolve-hero';
+import { getSiteApex } from './orasage-app-shell/config';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL ||
   process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
+  `https://admin.${getSiteApex()}/cms`;
 
 export type ShopHeroDisplayMode = HeroDisplayMode;
 export type ShopHomeHeroContent = MappedHeroContent;

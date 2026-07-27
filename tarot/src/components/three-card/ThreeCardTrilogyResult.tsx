@@ -10,6 +10,11 @@ type Props = {
   sectionChain: string;
   sectionThreshold: string;
   positionLabel: (key: string) => string;
+  nodeIndexLabel: (n: number) => string;
+  /** Localize / de-Chinese mode string for the current UI language */
+  modeValue?: (mode: string) => string;
+  /** Localized card names aligned with trilogy.nodes order */
+  cardNames?: string[];
 };
 
 export function ThreeCardTrilogyResult({
@@ -20,6 +25,9 @@ export function ThreeCardTrilogyResult({
   sectionChain,
   sectionThreshold,
   positionLabel,
+  nodeIndexLabel,
+  modeValue = (m) => m,
+  cardNames = [],
 }: Props) {
   return (
     <div className="trilogy-result card">
@@ -27,7 +35,7 @@ export function ThreeCardTrilogyResult({
         <h2 className="trilogy-result-heading">{sectionArchitecture}</h2>
         <p className="trilogy-result-line">
           <span className="trilogy-result-key">{modeLabel}</span>
-          <span className="trilogy-result-value">{trilogy.mode}</span>
+          <span className="trilogy-result-value">{modeValue(trilogy.mode)}</span>
         </p>
       </section>
 
@@ -37,10 +45,10 @@ export function ThreeCardTrilogyResult({
           {trilogy.nodes.map((node, i) => (
             <li key={`${node.position}-${i}`}>
               <span className="trilogy-result-node-index">
-                节点 {String(i + 1).padStart(2, '0')}
+                {nodeIndexLabel(i + 1)}
               </span>
               <span className="trilogy-result-node-card">
-                [{node.cardName}]
+                [{cardNames[i] || node.cardName}]
               </span>
               <span className="trilogy-result-node-pos">
                 {positionLabel(node.position)}

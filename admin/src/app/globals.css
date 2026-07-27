@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import '../../../shared/design-tokens/orasage-tokens.css';
 @import '../../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../../../shared/shop-locale/os-price.css';
 @import '../../../shared/admin-backend/admin-backend.css';
 @import '../lib/orasage-app-shell/app-shell.css';
 
@@ -790,7 +791,7 @@ details summary {
 
 .product-combo-row {
   display: grid;
-  grid-template-columns: 1fr 120px auto;
+  grid-template-columns: minmax(9rem, 0.9fr) minmax(12rem, 1.4fr) 100px auto;
   gap: 0.75rem;
   align-items: end;
 }

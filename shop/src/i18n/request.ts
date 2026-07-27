@@ -1,6 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies, headers } from 'next/headers';
-import { CORE_LOCALES, type CoreLocale } from '@orasage/i18n';
+import { CORE_LOCALES, DEFAULT_LOCALE, type CoreLocale } from '@orasage/i18n';
 import {
   detectShopLocale,
   SHOP_LOCALE_COOKIE,
@@ -10,13 +10,14 @@ import {
 async function resolveShopLocale(): Promise<CoreLocale> {
   const jar = await cookies();
   const hdrs = await headers();
-  const override = jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
+  // Prefer portal NEXT_LOCALE; shop override is fallback (kept in sync by setLocaleCookie).
   const portal = jar.get(SHOP_LOCALE_COOKIE)?.value;
+  const override = jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value;
   const locale = detectShopLocale({
-    cookieLocale: override ?? portal,
+    cookieLocale: portal ?? override,
     acceptLanguage: hdrs.get('accept-language'),
   });
-  return (CORE_LOCALES as readonly string[]).includes(locale) ? (locale as CoreLocale) : 'zh-CN';
+  return (CORE_LOCALES as readonly string[]).includes(locale) ? (locale as CoreLocale) : DEFAULT_LOCALE;
 }
 
 export default getRequestConfig(async () => {
@@ -25,7 +26,7 @@ export default getRequestConfig(async () => {
   try {
     messages = (await import(`../../messages/${locale}.json`)).default;
   } catch {
-    messages = (await import('../../messages/zh-CN.json')).default;
+    messages = (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default;
   }
   return { locale, messages };
 });

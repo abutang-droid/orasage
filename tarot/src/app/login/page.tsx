@@ -1,8 +1,16 @@
 import { redirect } from "next/navigation"
+import { ORASAGE_URLS } from "@/lib/orasage-app-shell/config"
 
 // 强制动态渲染：否则 Next 可能在构建期把跳转目标当静态内容预渲染，
 // 之后即便运行时环境变量变化也不会重新生效。
 export const dynamic = "force-dynamic"
+
+function worldAuthRequired(): boolean {
+  const v = (process.env.WORLD_AUTH_REQUIRED || process.env.NEXT_PUBLIC_WORLD_AUTH_REQUIRED || "")
+    .trim()
+    .toLowerCase()
+  return v === "true" || v === "1" || v === "yes"
+}
 
 function safeReturnUrl(candidate: string | undefined, appUrl: string): string {
   if (!candidate?.trim()) return appUrl
@@ -17,10 +25,8 @@ function safeReturnUrl(candidate: string | undefined, appUrl: string): string {
 }
 
 /**
- * tarot 自身不再维护独立的邮箱/密码登录表单 —— 统一跳转到
- * auth.orasage.com 登录，登录成功后通过共享的 orasage_token
- * cookie 桥接回本应用（见 src/lib/auth.ts 的 getParentBridgedUser）。
- * 支持 ?return= 或 ?redirect= 指定登录后回跳路径（须为同域）。
+ * When World auth is required, stay on tarot (registered Mini App origin)
+ * so MiniKit.walletAuth runs in-context. Otherwise bridge to auth-service.
  */
 export default async function LoginPage({
   searchParams,
@@ -28,13 +34,19 @@ export default async function LoginPage({
   searchParams: Promise<{ return?: string; redirect?: string }>
 }) {
   const params = await searchParams
-  const authUrl = process.env.AUTH_URL || process.env.NEXT_PUBLIC_AUTH_URL
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tarot.orasage.com"
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ORASAGE_URLS.tarot
   const returnTo = safeReturnUrl(params.return || params.redirect, appUrl)
 
-  if (authUrl) {
-    redirect(`${authUrl}/login?redirect=${encodeURIComponent(returnTo)}`)
+  if (worldAuthRequired()) {
+    const dest = new URL(returnTo, appUrl)
+    dest.searchParams.set("world_login", "1")
+    redirect(`${dest.pathname}${dest.search}`)
   }
 
-  redirect("/")
+  const authUrl =
+    process.env.AUTH_URL ||
+    process.env.NEXT_PUBLIC_AUTH_URL ||
+    ORASAGE_URLS.authLogin.replace(/\/login$/, "")
+
+  redirect(`${authUrl}/login?redirect=${encodeURIComponent(returnTo)}`)
 }

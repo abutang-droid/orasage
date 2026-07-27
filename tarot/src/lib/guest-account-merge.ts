@@ -81,8 +81,17 @@ export async function mergeGuestUserIntoTarget(guestUserId: string, targetUserId
       await tx.user.update({
         where: { id: targetUserId },
         data: {
+          nickname:
+            !target.nickname || target.nickname === '旅人'
+              ? guest.nickname || target.nickname
+              : target.nickname,
+          birthday: target.birthday ?? guest.birthday,
+          gender: target.gender ?? guest.gender,
+          occupation: target.occupation ?? guest.occupation,
           faith: target.faith ?? guest.faith,
           preferredDeity: target.preferredDeity ?? guest.preferredDeity,
+          countryCode: target.countryCode ?? guest.countryCode,
+          continentCode: target.continentCode ?? guest.continentCode,
           onboardingCompleted: target.onboardingCompleted || guest.onboardingCompleted,
           onboardingStep: target.onboardingCompleted ? target.onboardingStep : guest.onboardingStep,
         },
@@ -98,5 +107,10 @@ export async function maybeMergeGuestSession(
   if (!guestUser) return;
   if (guestUser.userId === targetUser.userId) return;
   if (!isGuestUserId(guestUser.userId, guestUser.email)) return;
-  await mergeGuestUserIntoTarget(guestUser.userId, targetUser.userId);
+  try {
+    await mergeGuestUserIntoTarget(guestUser.userId, targetUser.userId);
+  } catch (err) {
+    // 并行请求可能重复合并；第二次失败不应阻断登录态
+    console.error('[guest-merge] failed:', err);
+  }
 }

@@ -17,8 +17,8 @@ export {
 
 export { normalizeLocale, clampToActiveLocale } from './normalize';
 export { detectLocale, detectLocaleFromBrowser, type DetectLocaleOptions } from './detect';
-export { LOCALE_LABELS, localeLabel } from './labels';
-export { cookieDomain, setLocaleCookie } from './cookie';
+export { LOCALE_LABELS, FUTURE_LOCALE_LABELS, localeLabel } from './labels';
+export { cookieDomain, cookieDomainFromHost, setLocaleCookie } from './cookie';
 export {
   createTranslator,
   formatMessage,

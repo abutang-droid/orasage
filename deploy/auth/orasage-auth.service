@@ -9,8 +9,8 @@ WorkingDirectory=/opt/orasage/auth-service
 EnvironmentFile=/opt/orasage/.env
 Environment=NODE_ENV=production
 Environment=PORT=3101
-Environment=HOSTNAME=127.0.0.1
-ExecStart=/usr/local/bin/node dist/index.js
+Environment=HOST=127.0.0.1
+ExecStart=/usr/bin/env node dist/index.js
 Restart=always
 RestartSec=5
 

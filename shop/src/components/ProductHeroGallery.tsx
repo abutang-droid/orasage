@@ -2,6 +2,34 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { isCmsMediaUrl } from '@/lib/cms-media';
+
+function CmsAwareImage({
+  src,
+  alt,
+  sizes,
+  className,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  const unoptimized = isCmsMediaUrl(src) || src.startsWith('http://') || src.startsWith('https://');
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className={className}
+      priority={priority}
+      unoptimized={unoptimized}
+    />
+  );
+}
 
 type GallerySlide =
   | { kind: 'image'; url: string; alt: string }
@@ -61,10 +89,9 @@ export function ProductHeroGallery({
             controls
           />
         ) : (
-          <Image
+          <CmsAwareImage
             src={active.url}
             alt={active.alt || productName}
-            fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="shop-pdp-gallery-image"
             priority
@@ -87,14 +114,24 @@ export function ProductHeroGallery({
               {slide.kind === 'video' ? (
                 <>
                   {slide.poster ? (
-                    <Image src={slide.poster} alt="" fill sizes="80px" className="shop-pdp-gallery-thumb-img" />
+                    <CmsAwareImage
+                      src={slide.poster}
+                      alt=""
+                      sizes="80px"
+                      className="shop-pdp-gallery-thumb-img"
+                    />
                   ) : null}
                   <span className="shop-pdp-gallery-thumb-play" aria-hidden>
                     ▶
                   </span>
                 </>
               ) : (
-                <Image src={slide.url} alt="" fill sizes="80px" className="shop-pdp-gallery-thumb-img" />
+                <CmsAwareImage
+                  src={slide.url}
+                  alt=""
+                  sizes="80px"
+                  className="shop-pdp-gallery-thumb-img"
+                />
               )}
             </button>
           ))}

@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import '../../../shared/design-tokens/orasage-tokens.css';
 @import '../../../packages/tokens/src/tailwind-v4-bridge.css';
+@import '../../../shared/shop-locale/os-price.css';
+@import '../../../shared/design-tokens/os-solid-cta.css';
 @import '../../tarot-tailwind-v4-theme.css';
 
 @source "../**/*.{ts,tsx}";
@@ -780,6 +782,9 @@ body {
 .tarot-flip-card {
   position: relative;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .tarot-flip-card--glow {
   filter: drop-shadow(0 8px 24px rgba(201, 149, 74, 0.35));
@@ -787,6 +792,7 @@ body {
 .tarot-flip-card-inner {
   position: relative;
   width: 100%;
+  flex: 0 0 auto;
   transform-style: preserve-3d;
   transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -806,11 +812,20 @@ body {
   transform: rotate(180deg);
 }
 .tarot-flip-card-caption {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   margin: 8px 0 0;
+  padding: 0 2px;
   font-size: 11px;
   text-align: center;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .tarot-flip-card-btn {
   background: none;
@@ -824,4 +839,68 @@ body {
 .tarot-flip-card-btn:disabled {
   cursor: default;
   opacity: 0.85;
+}
+
+/* ── World Mini App auth gate ─────────────────────────────────── */
+.world-auth-gate {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem 6rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(184, 148, 63, 0.12), transparent),
+    var(--bg-page, #fafaf8);
+}
+.world-auth-gate-brand {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.world-auth-gate-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 5vw, 1.85rem);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.world-auth-gate-hint {
+  margin: 0.75rem 0 0;
+  max-width: 22rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.world-auth-gate-warn,
+.world-auth-gate-error {
+  margin: 1rem 0 0;
+  max-width: 22rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.world-auth-gate-warn { color: var(--text-muted); }
+.world-auth-gate-error { color: #b42318; }
+.world-auth-gate-cta {
+  margin-top: 1.5rem;
+  min-width: 12rem;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+.world-auth-gate-cta-secondary {
+  margin-top: 0.75rem;
+  background: transparent;
+  color: var(--text-muted, #5c5c5c);
+  border: 1px solid color-mix(in srgb, var(--text-muted, #5c5c5c) 45%, transparent);
+  box-shadow: none;
+}
+.world-auth-gate-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }

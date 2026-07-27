@@ -79,8 +79,8 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
                   <div className="flex flex-wrap gap-2">
                     <Button
                       type="button"
-                      variant="outline"
                       size="sm"
+                      className="os-solid-cta os-solid-cta--sm"
                       disabled={buyingId === r.id}
                       loading={buyingId === r.id}
                       onClick={async () => {
@@ -116,7 +116,7 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
                     >
                       {buyingId === r.id ? t('buying') : t('buyNow')}
                     </Button>
-                    <Button asChild variant="ghost" size="sm">
+                    <Button asChild size="sm" className="os-solid-cta os-solid-cta--sm">
                       <a href={`${externalUrls.shop}?sku=${encodeURIComponent(r.crystalSku)}`}>{t('viewShop')}</a>
                     </Button>
                   </div>

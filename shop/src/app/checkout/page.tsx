@@ -8,6 +8,15 @@ import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutCouponForm, type CouponState } from '@/components/CheckoutCouponForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
+import {
+  formatDualShopPrice,
+  formatPayPrice,
+  resolvePayAmountCents,
+  setRuntimeWoldPerUsdt,
+  type PayCurrency,
+  woldPerUsdt,
+} from '@/lib/currency';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
 
 type CheckoutOrder = {
@@ -63,6 +72,7 @@ function CheckoutContent() {
   const coupleFromUrl = searchParams.get('shipping') === 'couple';
   const [coupleShipping, setCoupleShipping] = useState(coupleFromUrl);
   const readingId = searchParams.get('readingId') ?? undefined;
+  const crystalSku = searchParams.get('crystalSku') ?? undefined;
   const planType = searchParams.get('planType') ?? undefined;
   const appSource = searchParams.get('appSource') ?? 'shop';
   const priceCentsParam = searchParams.get('priceCents');
@@ -86,6 +96,8 @@ function CheckoutContent() {
   const [payError, setPayError] = useState<string | null>(null);
   const [orderAppSource, setOrderAppSource] = useState<string | null>(null);
   const [couponPricing, setCouponPricing] = useState<CouponState | null>(null);
+  const [payCurrency, setPayCurrency] = useState<PayCurrency>('USDT');
+  const [fxRate, setFxRate] = useState(woldPerUsdt());
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
   const autoFlowOrderRef = useRef<string | null>(null);
@@ -93,6 +105,24 @@ function CheckoutContent() {
   useEffect(() => {
     setCoupleShipping(coupleFromUrl);
   }, [coupleFromUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch('/api/shop-config', { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        const rate = Number((data as { woldPerUsdt?: number }).woldPerUsdt);
+        if (!cancelled && Number.isFinite(rate) && rate > 0) {
+          setRuntimeWoldPerUsdt(rate);
+          setFxRate(rate);
+        }
+      } catch {
+        /* keep default */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const coupleEligible = inferCoupleEligible(order?.sku ?? sku);
 
@@ -127,7 +157,7 @@ function CheckoutContent() {
     setShippingDone(true);
   }, [coupleShipping]);
 
-  const completePayment = useCallback(async (targetOrderNo: string) => {
+  const completePayment = useCallback(async (targetOrderNo: string, currency: PayCurrency = 'USDT') => {
     if (payingRef.current) {
       throw new Error(t('payInProgress'));
     }
@@ -138,6 +168,8 @@ function CheckoutContent() {
       const res = await fetch(`/api/pay?order=${encodeURIComponent(targetOrderNo)}`, {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currency }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || t('payFailed'));
@@ -180,7 +212,8 @@ function CheckoutContent() {
       if (needsShipping && !alreadyShipped) {
         await submitMockShipping(targetOrderNo);
       }
-      await completePayment(targetOrderNo);
+      // 自动解锁默认 USDT；手动结账页可选 WOLD
+      await completePayment(targetOrderNo, 'USDT');
     } catch (err) {
       autoFlowOrderRef.current = null;
       payingRef.current = false;
@@ -245,8 +278,11 @@ function CheckoutContent() {
           if (!res.ok) throw new Error(data.error || t('loadProductFailed'));
           const product = data.product as ProductPreview & { priceDisplay?: string; priceCents?: number };
           if (cancelled) return;
-          const displayPrice = priceCents && Number.isFinite(priceCents)
-            ? `¥${(priceCents / 100).toFixed(2)}`
+          const displayPrice = (priceCents && Number.isFinite(priceCents)) || (priceCentsUsd && Number.isFinite(priceCentsUsd))
+            ? formatDualShopPrice({
+              priceCents: priceCents && Number.isFinite(priceCents) ? priceCents : 0,
+              priceCentsUsd: priceCentsUsd && Number.isFinite(priceCentsUsd) ? priceCentsUsd : null,
+            })
             : (product.priceDisplay ?? '');
           setProductPreview({
             sku: product.sku,
@@ -289,6 +325,7 @@ function CheckoutContent() {
           sku,
           appSource,
           readingId,
+          crystalSku,
           planType,
           shippingMode: coupleShipping ? 'couple' : 'single',
           successUrl: returnUrl ?? undefined,
@@ -309,6 +346,7 @@ function CheckoutContent() {
       if (appSource) params.set('appSource', appSource);
       if (planType) params.set('planType', planType);
       if (readingId) params.set('readingId', readingId);
+      if (crystalSku) params.set('crystalSku', crystalSku);
       if (coupleShipping) params.set('shipping', 'couple');
       router.replace(`/checkout?${params.toString()}`);
       return true;
@@ -406,7 +444,9 @@ function CheckoutContent() {
           <p className="text-xs text-sage-muted mb-1">{productPreview.sku}</p>
           <p className="font-semibold text-sage-primary">{productPreview.name}</p>
           <p className="mt-1 text-sm text-sage-muted">{productPreview.desc}</p>
-          <p className="mt-3 text-lg font-semibold text-sage-primary">{productPreview.priceDisplay}</p>
+          <p className="mt-3 text-base font-medium">
+            <PriceDisplay value={productPreview.priceDisplay} />
+          </p>
         </div>
 
         {guestStep === 'exists' ? (
@@ -473,10 +513,10 @@ function CheckoutContent() {
     );
   }
 
-  const effectiveAmountCents = couponPricing?.amountCents ?? order.amountCents;
-  const amountDisplay = order.currency?.toUpperCase() === 'USD'
-    ? `$${(effectiveAmountCents / 100).toFixed(2)}`
-    : `¥${(effectiveAmountCents / 100).toFixed(2)}`;
+  const effectiveUsdtCents = couponPricing?.amountCents ?? order.amountCents;
+  const payAmountCents = resolvePayAmountCents(effectiveUsdtCents, payCurrency, fxRate);
+  const amountDisplay = formatPayPrice(payAmountCents, payCurrency);
+  const dualHint = formatDualShopPrice(effectiveUsdtCents, fxRate);
 
   const couponEnabled = effectiveAppSource === 'shop' && !isReportDigitalCheckout;
 
@@ -486,7 +526,9 @@ function CheckoutContent() {
         <CheckoutStepper current="payment" requiresShipping={false} />
         <h1 className="font-serif text-2xl text-sage-primary">{t('unlockReport')}</h1>
         <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
-        <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
+        <p className="mt-1 text-base font-medium">
+          <PriceDisplay value={amountDisplay} />
+        </p>
         {payError ? (
           <>
             <p className="mt-4 text-sm text-red-600">{payError}</p>
@@ -560,18 +602,53 @@ function CheckoutContent() {
           disabled={!couponEnabled}
         />
       </div>
-      <p className="mt-3 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
+      <p className="mt-3 text-sm">
+        <PriceDisplay value={dualHint} />
+      </p>
+      <fieldset className="mt-4 w-full max-w-sm text-left">
+        <legend className="text-sm font-medium text-sage-primary">{t('payCurrencyLabel')}</legend>
+        <div className="mt-2 flex flex-col gap-2">
+          {(['USDT', 'WOLD'] as const).map((cur) => {
+            const cents = resolvePayAmountCents(effectiveUsdtCents, cur, fxRate);
+            return (
+              <label
+                key={cur}
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-sage-border px-3 py-2"
+                data-active={payCurrency === cur}
+              >
+                <span className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="payCurrency"
+                    value={cur}
+                    checked={payCurrency === cur}
+                    onChange={() => setPayCurrency(cur)}
+                  />
+                  {t('payWith', { currency: cur })}
+                </span>
+                <strong className="text-sm">
+                  <PriceDisplay value={formatPayPrice(cents, cur)} />
+                </strong>
+              </label>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-sage-muted">{t('fxHint', { rate: String(fxRate) })}</p>
+      </fieldset>
+      <p className="mt-3 text-base font-medium">
+        <PriceDisplay value={amountDisplay} />
+      </p>
       <p className="mt-3 text-sm text-sage-muted">{t('orderNo', { orderNo })}</p>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
       <Button
         type="button"
         disabled={flowPhase === 'paying'}
         loading={flowPhase === 'paying'}
-        onClick={() => void completePayment(orderNo)}
+        onClick={() => void completePayment(orderNo, payCurrency)}
         className="mt-8 px-8"
         data-testid="checkout-mock-pay"
       >
-        {flowPhase === 'paying' ? t('processing') : t('mockPay')}
+        {flowPhase === 'paying' ? t('processing') : t('payNow', { currency: payCurrency })}
       </Button>
     </main>
   );

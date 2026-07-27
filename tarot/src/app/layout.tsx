@@ -3,6 +3,8 @@ import "./globals.css"
 import AppShell from "@/components/AppShell"
 import { ReadingSyncBackfill } from "@/components/auth/ReadingSyncBackfill"
 import { HtmlLangSync } from "@/components/i18n/HtmlLangSync"
+import { WorldAuthGate } from "@/components/world/WorldAuthGate"
+import { WorldMiniKitProvider } from "@/components/world/WorldMiniKitProvider"
 import { LangProvider } from "@/lib/i18n/context"
 import { resolveServerLang } from "@/lib/i18n/request-lang"
 import { siteMetadataForLang } from "@/lib/i18n/site-metadata"
@@ -44,15 +46,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
-        <UserProvider>
-          <LangProvider initial={lang}>
-            <HtmlLangSync />
-            <ReadingSyncBackfill />
-            <AppShell>
-              {children}
-            </AppShell>
-          </LangProvider>
-        </UserProvider>
+        <WorldMiniKitProvider>
+          <UserProvider>
+            <LangProvider initial={lang}>
+              <HtmlLangSync />
+              <ReadingSyncBackfill />
+              <WorldAuthGate>
+                <AppShell>
+                  {children}
+                </AppShell>
+              </WorldAuthGate>
+            </LangProvider>
+          </UserProvider>
+        </WorldMiniKitProvider>
       </body>
     </html>
   )

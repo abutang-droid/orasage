@@ -35,24 +35,39 @@ export function cmsMediaUrlForReachability(
   return url;
 }
 
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = 5000,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal, redirect: 'follow' });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Payload / 部分反代对静态媒体的 HEAD 会返回 404，但 GET 正常。
+ * 每个探测请求使用独立超时，避免 HEAD 耗尽预算后 GET 被立即 abort。
+ */
 async function isUrlReachable(url: string): Promise<boolean> {
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
-    let res = await fetch(url, {
-      method: 'HEAD',
-      signal: controller.signal,
-      redirect: 'follow',
-    });
+    let res = await fetchWithTimeout(url, { method: 'HEAD' });
+    if (res.ok) return true;
     if (res.status === 405 || res.status === 501 || res.status === 404) {
-      res = await fetch(url, {
+      res = await fetchWithTimeout(url, {
         method: 'GET',
         headers: { Range: 'bytes=0-0' },
-        signal: controller.signal,
-        redirect: 'follow',
       });
+      if (res.ok) return true;
+      // 个别上游不认 Range，再试一次普通 GET
+      if (res.status === 416 || res.status === 400 || res.status === 404) {
+        res = await fetchWithTimeout(url, { method: 'GET' });
+      }
     }
-    clearTimeout(timer);
     return res.ok;
   } catch {
     return false;

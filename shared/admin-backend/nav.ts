@@ -77,6 +77,12 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/shop/categories'),
   },
   {
+    label: '计价',
+    href: '/shop/pricing',
+    permission: 'shop.products',
+    isActive: (p) => p.startsWith('/shop/pricing'),
+  },
+  {
     label: 'DIY 物料',
     href: '/shop/diy',
     permission: 'shop.diy',

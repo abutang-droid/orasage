@@ -44,27 +44,63 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
-function writeReportHtml(planType: string, reportContent: string): string {
-  const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const fileName = `${reportId}.html`;
+function writeReportHtmlForLocale(
+  planType: string,
+  reportContent: string,
+  locale: import('../../shared/ai-locale/index').AiLocale,
+): string {
   const reportsDir = path.join(process.cwd(), 'public', 'reports');
-  fs.mkdirSync(reportsDir, { recursive: true });
+  if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+  const fileName = `ziwei-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.html`;
 
-  const planLabelMap: Record<string, string> = {
+  const planLabelMapEn: Record<string, string> = {
+    basic: 'Deep reading',
+    advanced: 'Energy bracelet',
+    premium: 'Ultimate energy gift set',
+  };
+  const planLabelMapPt: Record<string, string> = {
+    basic: 'Leitura profunda',
+    advanced: 'Pulseira de energia',
+    premium: 'Kit de energia ultimate',
+  };
+  const planLabelMapZh: Record<string, string> = {
     basic: '深度解读',
     advanced: '能量手串',
     premium: '终极能量礼盒',
   };
-  const planLabel = planLabelMap[planType] || planType || '深度解读';
-  const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+  const planLabel =
+    (locale === 'en' ? planLabelMapEn : locale === 'pt-BR' ? planLabelMapPt : planLabelMapZh)[planType]
+    || planType
+    || (locale === 'en' ? 'Reading' : locale === 'pt-BR' ? 'Leitura' : '深度解读');
+  const dateLocale = locale === 'en' ? 'en-US' : locale === 'pt-BR' ? 'pt-BR' : 'zh-CN';
+  const dateStr = new Date().toLocaleDateString(dateLocale, { year: 'numeric', month: 'long', day: 'numeric' });
   const reportHtml = renderMarkdown(reportContent);
+  const htmlLang = locale === 'pt-BR' ? 'pt-BR' : locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-Hant' : 'zh-CN';
+  const title =
+    locale === 'en'
+      ? `${planLabel} - OraSage Zi Wei`
+      : locale === 'pt-BR'
+        ? `${planLabel} - OraSage Zi Wei`
+        : `${planLabel} - OraSage 紫微`;
+  const heading =
+    locale === 'en'
+      ? `Zi Wei · ${planLabel}`
+      : locale === 'pt-BR'
+        ? `Zi Wei · ${planLabel}`
+        : `紫微${planLabel}`;
+  const generated =
+    locale === 'en'
+      ? `Generated ${dateStr}`
+      : locale === 'pt-BR'
+        ? `Gerado em ${dateStr}`
+        : `生成于 ${dateStr}`;
 
   const staticHtml = `<!doctype html>
-<html lang="zh-CN">
+<html lang="${htmlLang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${planLabel} - OraSage 紫微</title>
+<title>${title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 body{font-family:"Noto Serif SC",serif;background:#FAFAF8;color:#3D3852;line-height:1.8;margin:0}
@@ -74,7 +110,7 @@ h1,h2,h3{color:#171717}
 </style>
 </head>
 <body>
-<div class="container"><div class="card"><h1>紫微${planLabel}</h1><p style="color:#7B7488;font-size:0.85rem">生成于 ${dateStr}</p><div>${reportHtml}</div></div></div>
+<div class="container"><div class="card"><h1>${heading}</h1><p style="color:#7B7488;font-size:0.85rem">${generated}</p><div>${reportHtml}</div></div></div>
 </body>
 </html>`;
 
@@ -103,9 +139,11 @@ export async function runReportJob(input: ReportJobInput) {
   const planType = input.planType || 'advanced';
   const locale = (payload.lang ?? 'zh-CN') as import('../../shared/ai-locale/index').AiLocale;
   const report = await generateZiweiReportContent(payload.type, payload as never, planType, locale);
-  const reportUrl = writeReportHtml(planType, report);
+  const reportUrl = writeReportHtmlForLocale(planType, report, locale);
+  const reportSuffix =
+    locale === 'en' ? 'Report' : locale === 'pt-BR' ? 'Relatório' : '报告';
 
-  await patchReading(input.readingId, { reportUrl, title: `${reading.title} · 报告` });
+  await patchReading(input.readingId, { reportUrl, title: `${reading.title} · ${reportSuffix}` });
   await patchOrderStatus(input.orderNo, 'completed');
 
   return { success: true, reportUrl };

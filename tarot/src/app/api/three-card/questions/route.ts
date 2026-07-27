@@ -7,6 +7,9 @@ import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/i
 
 const bodySchema = z.object({
   question: z.string().max(500).optional(),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {

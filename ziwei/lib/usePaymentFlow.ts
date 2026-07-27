@@ -55,12 +55,24 @@ export function usePaymentFlow(mode: 'single' | 'couple' = 'single') {
       window.alert('请登录后通过商城完成购买');
       return;
     }
+    const sku = planToReportSku(plan);
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || process.env.AUTH_URL || 'https://auth.orasage.com';
+    try {
+      const probe = await fetch(`${authUrl}/api/products/${encodeURIComponent(sku)}`, { cache: 'no-store' });
+      if (!probe.ok) {
+        window.alert('该报告方案暂未开放购买');
+        return;
+      }
+    } catch {
+      window.alert('暂时无法确认商品，请稍后重试');
+      return;
+    }
     const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
     const returnBase = `${window.location.origin}/chart?paid=1`;
     try {
       sessionStorage.setItem(PLAN_KEY, plan);
       const result = await startAppCheckout({
-        sku: planToReportSku(plan),
+        sku,
         planType: plan,
         readingId,
         recommendationContext: `紫微${plan}报告`,

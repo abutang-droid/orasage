@@ -7,11 +7,11 @@ mechanism** for all apps (platform roadmap §3, design system §10).
 
 ### `.` (core, framework-agnostic)
 
-- `CORE_LOCALES` / `EXTENDED_LOCALES` — T1 (4) and T2 (12) locale lists
+- `CORE_LOCALES` / `EXTENDED_LOCALES` — phase 1 live set (zh-CN / en / pt-BR); `FUTURE_LOCALES` reserved
+- `LOCALE_LABELS` / `FUTURE_LOCALE_LABELS` / `localeLabel()` — display names (incl. unavailable-language notices)
 - `normalizeLocale()` / `toCoreLocale()` — BCP 47 normalization + T1 mapping
 - `detectLocale()` / `detectLocaleFromBrowser()` — `?lang` → cookie → Accept-Language
 - `LOCALE_COOKIE` / `setLocaleCookie()` / `cookieDomain()` — cross-subdomain cookie contract
-- `LOCALE_LABELS` / `localeLabel()` — display names for language switchers
 - `createTranslator()` / `formatMessage()` — message runtime (`{param}` interpolation)
 - `localeFromTarotLang()` / `tarotLangFromLocale()` — tarot short-code bridge
 

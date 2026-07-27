@@ -39,9 +39,47 @@ export async function setShopHomeLayout(layout: ShopHomeLayout): Promise<ShopHom
   return layout;
 }
 
+const FX_RATES_KEY = "fx_rates";
+const DEFAULT_WOLD_PER_USDT = Number(process.env.WOLD_PER_USDT ?? "1") || 1;
+
+export type ShopFxRates = {
+  woldPerUsdt: number;
+};
+
+function parseWoldPerUsdt(raw: unknown): number {
+  if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) return raw;
+  if (typeof raw === "object" && raw && "woldPerUsdt" in raw) {
+    const n = Number((raw as { woldPerUsdt?: unknown }).woldPerUsdt);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return DEFAULT_WOLD_PER_USDT > 0 ? DEFAULT_WOLD_PER_USDT : 1;
+}
+
+export async function getFxRates(): Promise<ShopFxRates> {
+  const [row] = await db
+    .select()
+    .from(shopSettings)
+    .where(eq(shopSettings.key, FX_RATES_KEY))
+    .limit(1);
+  return { woldPerUsdt: parseWoldPerUsdt(row?.value) };
+}
+
+export async function setFxRates(input: { woldPerUsdt: number }): Promise<ShopFxRates> {
+  const woldPerUsdt = parseWoldPerUsdt(input.woldPerUsdt);
+  const value: ShopFxRates = { woldPerUsdt };
+  await db
+    .insert(shopSettings)
+    .values({ key: FX_RATES_KEY, value, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: shopSettings.key,
+      set: { value, updatedAt: new Date() },
+    });
+  return value;
+}
+
 export async function getShopPublicConfig() {
-  const homeLayout = await getShopHomeLayout();
-  return { homeLayout };
+  const [homeLayout, fx] = await Promise.all([getShopHomeLayout(), getFxRates()]);
+  return { homeLayout, woldPerUsdt: fx.woldPerUsdt };
 }
 
 /* ── 水晶专题素材内容（占位默认 + 运营覆盖）──────────────── */

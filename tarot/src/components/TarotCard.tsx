@@ -1,5 +1,8 @@
 "use client"
 
+import { useLang } from '@/lib/i18n/context'
+import { orientationLabel } from '@/lib/i18n/reading-copy'
+
 // ─── Rich SVG Illustrations for all 78 Tarot Cards ───────────
 // Each card has a detailed scene with figures, landscape, and symbols
 // ViewBox: 0 0 80 120 (portrait card proportions)
@@ -3203,11 +3206,13 @@ export function TarotCard({
   small = false,
   size = 'md', onClick, className = '',
 }: TarotCardProps) {
+  const { lang } = useLang()
   const resolvedSize = small ? 'sm' : size
   const { width, height } = sizeMap[resolvedSize]
   const resolvedSuit = suit || (arcana === 'major' ? 'major' : 'major')
   const accentColor = suitColorMap[resolvedSuit] || '#C9954A'
   const isReversed = orientation === '逆位'
+  const reversedMark = `▽ ${orientationLabel(lang, '逆位')}`
 
   // Look up card art by symbol field (e.g. 'fool', 'wands_ace')
   const cardArt = symbol ? CARD_ART[symbol as keyof typeof CARD_ART] : undefined
@@ -3299,7 +3304,7 @@ export function TarotCard({
             {/* Reversed indicator */}
             {isReversed && (
               <text x="40" y="10" textAnchor="middle" fill={accentColor} fontSize="4" opacity="0.6" fontFamily="serif">
-                ▽ 逆位
+                {reversedMark}
               </text>
             )}
           </svg>
@@ -3321,10 +3326,12 @@ export interface TarotCardStaticProps {
 }
 
 export function TarotCardStatic({ name, suit, arcana, symbol, orientation, size = 'md', showBack = false }: TarotCardStaticProps) {
+  const { lang } = useLang()
   const { width, height } = sizeMap[size]
   const resolvedSuit = suit || (arcana === 'major' ? 'major' : 'major')
   const accentColor = suitColorMap[resolvedSuit] || '#C9954A'
   const isReversed = orientation === '逆位'
+  const reversedMark = `▽ ${orientationLabel(lang, '逆位')}`
   const cardArt = symbol ? CARD_ART[symbol as keyof typeof CARD_ART] : undefined
 
   if (showBack) {
@@ -3371,7 +3378,7 @@ export function TarotCardStatic({ name, suit, arcana, symbol, orientation, size 
         {name}
       </text>
       {isReversed && (
-        <text x="40" y="10" textAnchor="middle" fill={accentColor} fontSize="4" opacity="0.6" fontFamily="serif">▽ 逆位</text>
+        <text x="40" y="10" textAnchor="middle" fill={accentColor} fontSize="4" opacity="0.6" fontFamily="serif">{reversedMark}</text>
       )}
     </svg>
   )

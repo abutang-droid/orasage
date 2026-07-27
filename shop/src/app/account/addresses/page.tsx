@@ -5,21 +5,25 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import {
-  SHIPPING_COUNTRIES,
+  findShippingCountry,
+  shippingCountryLabel,
   type ShippingRecipient,
 } from '../../../../../shared/shop-fulfillment/index';
 import type { UserAddress } from '@/lib/addresses';
+import { AddressLocationFields } from '@/components/AddressLocationFields';
+import { useLocale } from 'next-intl';
 
 function emptyForm(): ShippingRecipient & { label?: string } {
   return {
     label: '',
     name: '',
     phone: '',
-    countryCode: 'CN',
+    countryCode: '',
     province: '',
     city: '',
     address: '',
     postalCode: '',
+    taxId: '',
     wristCm: '',
   };
 }
@@ -27,6 +31,7 @@ function emptyForm(): ShippingRecipient & { label?: string } {
 export default function AddressBookPage() {
   const t = useTranslations('addresses');
   const ts = useTranslations('shipping');
+  const locale = useLocale();
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [form, setForm] = useState(emptyForm());
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -35,7 +40,8 @@ export default function AddressBookPage() {
   const [error, setError] = useState<string | null>(null);
 
   function countryLabel(code: string) {
-    return ts(`countries.${code}` as 'countries.CN');
+    const meta = findShippingCountry(code);
+    return meta ? shippingCountryLabel(meta, locale) : code;
   }
 
   async function loadAddresses() {
@@ -63,6 +69,7 @@ export default function AddressBookPage() {
       city: addr.city ?? '',
       address: addr.addressLine,
       postalCode: addr.postalCode ?? '',
+      taxId: addr.taxId ?? '',
       wristCm: addr.wristCm ?? '',
     });
   }
@@ -75,11 +82,12 @@ export default function AddressBookPage() {
       label: form.label || null,
       name: form.name,
       phone: form.phone,
-      countryCode: form.countryCode ?? 'CN',
+      countryCode: form.countryCode ?? '',
       province: form.province || null,
       city: form.city || null,
       addressLine: form.address,
       postalCode: form.postalCode || null,
+      taxId: form.taxId?.trim() || null,
       wristCm: form.wristCm || null,
       isDefault: addresses.length === 0,
     };
@@ -174,20 +182,16 @@ export default function AddressBookPage() {
           {ts('phone')}
           <input className="shop-shipping-input" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         </label>
-        <label className="shop-shipping-label">
-          {ts('country')}
-          <select className="shop-shipping-input" value={form.countryCode ?? 'CN'} onChange={(e) => setForm({ ...form, countryCode: e.target.value })}>
-            {SHIPPING_COUNTRIES.map((c) => <option key={c.code} value={c.code}>{countryLabel(c.code)}</option>)}
-          </select>
-        </label>
-        <label className="shop-shipping-label">
-          {ts('province')}
-          <input className="shop-shipping-input" value={form.province ?? ''} onChange={(e) => setForm({ ...form, province: e.target.value })} />
-        </label>
-        <label className="shop-shipping-label">
-          {ts('city')}
-          <input className="shop-shipping-input" value={form.city ?? ''} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-        </label>
+        <AddressLocationFields
+          value={{
+            countryCode: form.countryCode,
+            province: form.province,
+            city: form.city,
+            district: form.district,
+          }}
+          onChange={(patch) => setForm({ ...form, ...patch })}
+          required
+        />
         <label className="shop-shipping-label">
           {ts('address')}
           <textarea className="shop-shipping-textarea" required rows={3} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
@@ -195,6 +199,16 @@ export default function AddressBookPage() {
         <label className="shop-shipping-label">
           {t('postal')}
           <input className="shop-shipping-input" value={form.postalCode ?? ''} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
+        </label>
+        <label className="shop-shipping-label">
+          {ts('taxIdOptional')}
+          <input
+            className="shop-shipping-input"
+            value={form.taxId ?? ''}
+            onChange={(e) => setForm({ ...form, taxId: e.target.value })}
+            placeholder={ts('taxIdPlaceholder')}
+            autoComplete="off"
+          />
         </label>
         {error ? <p className="shop-shipping-error">{error}</p> : null}
         <Button type="submit" className="shop-shipping-submit w-full" disabled={saving} loading={saving}>

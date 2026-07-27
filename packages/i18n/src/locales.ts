@@ -25,7 +25,8 @@ export type ExtendedLocale = Phase1Locale;
 
 export type Locale = ExtendedLocale;
 
-export const DEFAULT_LOCALE: CoreLocale = 'zh-CN';
+/** First visit (no cookie / no ?lang=): English; users can switch anytime. */
+export const DEFAULT_LOCALE: CoreLocale = 'en';
 
 export const LOCALE_COOKIE = 'NEXT_LOCALE';
 export const LOCALE_OVERRIDE_COOKIE = 'orasage_shop_locale';

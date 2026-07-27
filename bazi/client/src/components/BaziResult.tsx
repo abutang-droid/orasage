@@ -1554,7 +1554,7 @@ function AIAnalysisPanel({
             </svg>
             <p style={{ color: "rgba(248,113,113,0.6)", fontSize: "0.78rem", letterSpacing: "0.1em" }}>{t('report.error')}</p>
             <button type="button"
-              onClick={() => analyzeMutation.mutate({ type, resultData })}
+              onClick={() => analyzeMutation.mutate({ type, lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData })}
               className="px-5 py-1.5 text-xs transition-all active:scale-95"
               style={{ border: `1px solid ${BORDER_CLR}`, color: G_DIM, fontFamily: SERIF, letterSpacing: "0.15em", background: G_GHOST }}>
               {t('report.retry')}

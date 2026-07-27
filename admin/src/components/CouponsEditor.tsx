@@ -122,7 +122,7 @@ export function CouponsEditor({ coupons }: { coupons: AdminCoupon[] }) {
               />
             </label>
             <label>
-              最低订单（元）
+              最低订单（USDT）
               <input
                 type="number"
                 step="0.01"

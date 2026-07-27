@@ -31,6 +31,9 @@ const bodySchema = z.object({
     .max(8)
     .optional()
     .default([]),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 function cardPayload(

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@orasage/ui/button';
 import { Card } from '@orasage/ui/card';
 import { fetchZiweiRecommendProduct, type RecommendProduct } from '@/lib/ziwei-chat-client';
+import { PriceDisplay } from '@/components/PriceDisplay';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 
 type Props = {
@@ -41,8 +42,10 @@ export function ZiweiRecommendCard({ chart, sessionKey, dismissed, onDismiss }: 
         <h3 className="ziwei-recommend-name">{product.name}</h3>
         <p className="ziwei-recommend-desc">{product.desc}</p>
         <div className="ziwei-recommend-foot">
-          <span className="ziwei-recommend-price">{product.priceDisplay}</span>
-          <Button asChild variant="outline" size="sm" className="ziwei-recommend-link h-auto min-h-0 border-0 bg-transparent p-0 shadow-none">
+          <span className="ziwei-recommend-price">
+            <PriceDisplay value={product.priceDisplay} />
+          </span>
+          <Button asChild size="sm" className="os-solid-cta os-solid-cta--sm ziwei-recommend-link">
             <a href={shopUrl} target="_blank" rel="noopener noreferrer">
               去看看
             </a>

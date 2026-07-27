@@ -12,11 +12,5 @@ VALUES (
   true,
   5
 )
-ON CONFLICT ("sku") DO UPDATE SET
-  "name" = EXCLUDED."name",
-  "description" = EXCLUDED."description",
-  "price_cents" = EXCLUDED."price_cents",
-  "price_cents_usd" = EXCLUDED."price_cents_usd",
-  "category" = EXCLUDED."category",
-  "requires_shipping" = EXCLUDED."requires_shipping",
-  "active" = EXCLUDED."active";
+-- Seed only: never overwrite admin-edited prices on redeploy.
+ON CONFLICT ("sku") DO NOTHING;

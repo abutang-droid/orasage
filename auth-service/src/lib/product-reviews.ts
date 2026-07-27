@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../db/index.ts";
-import { productReviews, users } from "../db/schema.ts";
+import { productReviews, userOrders, users } from "../db/schema.ts";
 
 export type ReviewStatus = typeof productReviews.$inferSelect["status"];
 
@@ -10,6 +10,96 @@ const STATUS_LABELS: Record<ReviewStatus, string> = {
   rejected: "已拒绝",
   featured: "精选",
 };
+
+/** 已付款及后续履约状态才可评价（含购物车订单内含该 SKU） */
+const REVIEW_ELIGIBLE_ORDER_STATUSES = ["paid", "shipped", "completed"] as const;
+
+export class ReviewPurchaseRequiredError extends Error {
+  constructor(message = "仅购买过该商品的用户可评价") {
+    super(message);
+    this.name = "ReviewPurchaseRequiredError";
+  }
+}
+
+function orderContainsSku(
+  order: { sku: string | null; recommendationContext: string | null },
+  sku: string,
+): boolean {
+  if (order.sku === sku) return true;
+  const raw = order.recommendationContext?.trim();
+  if (!raw) return false;
+  try {
+    const parsed = JSON.parse(raw) as {
+      type?: string;
+      items?: Array<{ sku?: string }>;
+    };
+    if (parsed.type === "shop_cart" && Array.isArray(parsed.items)) {
+      return parsed.items.some((item) => item?.sku === sku);
+    }
+  } catch {
+    /* ignore malformed context */
+  }
+  return false;
+}
+
+export async function findEligibleOrderForSku(userId: number, sku: string) {
+  const rows = await db
+    .select({
+      orderNo: userOrders.orderNo,
+      sku: userOrders.sku,
+      recommendationContext: userOrders.recommendationContext,
+      status: userOrders.status,
+      createdAt: userOrders.createdAt,
+    })
+    .from(userOrders)
+    .where(
+      and(
+        eq(userOrders.userId, userId),
+        inArray(userOrders.status, [...REVIEW_ELIGIBLE_ORDER_STATUSES]),
+      ),
+    )
+    .orderBy(desc(userOrders.createdAt))
+    .limit(100);
+
+  for (const row of rows) {
+    if (orderContainsSku(row, sku)) return row;
+  }
+  return null;
+}
+
+export type ReviewEligibility =
+  | { authenticated: false; canReview: false; reason: "login_required"; orderNo: null }
+  | { authenticated: true; canReview: false; reason: "purchase_required"; orderNo: null }
+  | { authenticated: true; canReview: true; reason: "ok"; orderNo: string };
+
+export async function getReviewEligibility(
+  userId: number | null,
+  sku: string,
+): Promise<ReviewEligibility> {
+  if (!userId) {
+    return {
+      authenticated: false,
+      canReview: false,
+      reason: "login_required",
+      orderNo: null,
+    };
+  }
+  const order = await findEligibleOrderForSku(userId, sku);
+  if (!order) {
+    return {
+      authenticated: true,
+      canReview: false,
+      reason: "purchase_required",
+      orderNo: null,
+    };
+  }
+  return {
+    authenticated: true,
+    canReview: true,
+    reason: "ok",
+    orderNo: order.orderNo,
+  };
+}
 
 export async function listReviewsForAdmin(filters?: {
   status?: string;
@@ -87,12 +177,44 @@ export async function createProductReview(input: {
   rating: number;
   body: string;
 }) {
+  const eligible = await findEligibleOrderForSku(input.userId, input.sku);
+  if (!eligible) {
+    throw new ReviewPurchaseRequiredError();
+  }
+
+  let orderNo = eligible.orderNo;
+  const claimedNo = input.orderNo?.trim();
+  if (claimedNo && claimedNo !== eligible.orderNo) {
+    const [claimed] = await db
+      .select({
+        orderNo: userOrders.orderNo,
+        sku: userOrders.sku,
+        recommendationContext: userOrders.recommendationContext,
+        status: userOrders.status,
+        userId: userOrders.userId,
+      })
+      .from(userOrders)
+      .where(eq(userOrders.orderNo, claimedNo))
+      .limit(1);
+    const statusOk = claimed
+      && (REVIEW_ELIGIBLE_ORDER_STATUSES as readonly string[]).includes(claimed.status);
+    if (
+      !claimed
+      || claimed.userId !== input.userId
+      || !statusOk
+      || !orderContainsSku(claimed, input.sku)
+    ) {
+      throw new ReviewPurchaseRequiredError("订单与商品不匹配，无法评价");
+    }
+    orderNo = claimed.orderNo;
+  }
+
   const [row] = await db
     .insert(productReviews)
     .values({
       userId: input.userId,
       sku: input.sku,
-      orderNo: input.orderNo ?? null,
+      orderNo,
       rating: input.rating,
       body: input.body,
       status: "pending",

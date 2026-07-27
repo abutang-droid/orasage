@@ -8,11 +8,16 @@ import { maybeSyncThreeCardReading } from '@/lib/three-card/sync';
 import type { ThreeCardAnswer } from '@/lib/three-card/types';
 import { resolveThreeCardReportAccess } from '@/lib/three-card-access';
 import { prisma } from '@/lib/prisma';
+import { threeCardTrilogyNeedsLocaleRegen } from '@/lib/tarot/generation/generate';
+import { isThreeCardTrilogy } from '@/lib/three-card/trilogy-types';
 import { resolveAiLocaleFromRequest } from '../../../../../../shared/ai-locale/index';
 
 const bodySchema = z.object({
   readingId: z.string().uuid(),
   orderNo: z.string().optional(),
+  language: z.string().optional(),
+  locale: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -37,7 +42,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '记录不存在' }, { status: 404 });
     }
 
-    if (record.fullReport && record.paidTier) {
+    const cachedNeedsRegen =
+      !!record.fullReport &&
+      !!record.paidTier &&
+      isThreeCardTrilogy(record.fullReport) &&
+      threeCardTrilogyNeedsLocaleRegen(record.fullReport, language);
+
+    if (record.fullReport && record.paidTier && !cachedNeedsRegen) {
       const synced = await maybeSyncThreeCardReading(
         req.headers.get('cookie'),
         ensured.userId,

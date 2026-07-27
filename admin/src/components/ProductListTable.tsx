@@ -46,7 +46,7 @@ function escapeCsv(value: string | number | boolean | null | undefined): string 
 
 function downloadCsv(filename: string, rows: ProductRowData[]) {
   const header = [
-    'sku', 'name', 'category', 'kind', 'visibility', 'stock', 'price_cny', 'price_usd', 'active', 'tags',
+    'sku', 'name', 'category', 'kind', 'visibility', 'stock', 'price_usdt', 'active', 'tags',
   ];
   const lines = rows.map((p) => [
     p.sku,
@@ -55,7 +55,6 @@ function downloadCsv(filename: string, rows: ProductRowData[]) {
     p.kind,
     p.visibility,
     p.stock ?? '',
-    p.priceCents / 100,
     p.priceCentsUsd != null ? p.priceCentsUsd / 100 : '',
     p.active ? '1' : '0',
     (p.tags ?? []).map((t) => t.label).join('|'),
@@ -218,8 +217,7 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
               <th>形态</th>
               <th>可见性</th>
               <th>库存</th>
-              <th>价格 CNY</th>
-              <th>价格 USD</th>
+              <th>USDT</th>
               <th>状态</th>
               <th>详情页</th>
               <th>操作</th>
@@ -271,8 +269,11 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
                         ? <span className="badge off">{p.stock}</span>
                         : p.stock}
                   </td>
-                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
-                  <td>{p.priceDisplayUsd ?? '—'}</td>
+                  <td>
+                    {p.priceCentsUsd != null
+                      ? (p.priceCentsUsd / 100).toFixed(2)
+                      : (p.priceDisplayUsd ?? p.priceDisplay ?? '—')}
+                  </td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td><ProductCmsLinks sku={p.sku} pageStatus={p.pageStatus} /></td>
                   <td>

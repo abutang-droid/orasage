@@ -11,7 +11,7 @@ export function Footer() {
   const t = useTranslations('footer');
 
   return (
-    <footer className="safe-bottom mt-auto hidden pb-0 lg:block">
+    <footer className="safe-bottom mt-auto hidden pb-0">
       <div className="safe-x mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-8 sm:flex-row sm:justify-between sm:px-6">
         <p className="text-center text-xs text-muted-foreground sm:text-start sm:text-sm">
           {t('copyright')}

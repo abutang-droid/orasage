@@ -7,10 +7,10 @@ type ProfileShellProps = {
   className?: string;
 };
 
-/** 「我的」模块内容容器 — 子页固定返回 Hub，顶栏由全站 Header 承担 */
+/** 「我的」模块内容容器 — 全端强制手机列宽（28rem），与八字/紫微/商店对齐 */
 export function ProfileShell({ children, className }: ProfileShellProps) {
   return (
-    <div className={cn('portal-subpage mx-auto w-full max-w-3xl px-5 py-8 sm:px-6 sm:py-10', className)}>
+    <div className={cn('portal-subpage mx-auto w-full max-w-md px-5 py-8', className)}>
       <ProfileBackToolbar />
       {children}
     </div>

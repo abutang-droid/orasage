@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { buttonVariants } from '@orasage/ui/button';
 import { cn } from '@orasage/ui';
-import { buildLoginUrlFromWindow } from '@/lib/login-url';
+import { buildLoginUrl, buildLoginUrlFromWindow } from '@/lib/login-url';
 import { useReadingCommon } from '@/lib/i18n/reading-copy';
 
 type GuestLoginWallProps = {
@@ -26,10 +26,9 @@ export function GuestLoginWall({
   children,
 }: GuestLoginWallProps) {
   const common = useReadingCommon();
+  const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
   const loginHref = returnPath
-    ? `${process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.orasage.com'}/login?redirect=${encodeURIComponent(
-        `${process.env.NEXT_PUBLIC_APP_URL || 'https://tarot.orasage.com'}${returnPath.startsWith('/') ? returnPath : `/${returnPath}`}`,
-      )}`
+    ? buildLoginUrl(returnPath, origin)
     : buildLoginUrlFromWindow();
 
   return (
@@ -40,7 +39,7 @@ export function GuestLoginWall({
         {hint ? <p className="guest-login-wall-hint">{hint}</p> : null}
         <a
           href={loginHref}
-          className={cn(buttonVariants(), 'guest-login-wall-cta w-full no-underline')}
+          className={cn(buttonVariants(), 'guest-login-wall-cta os-solid-cta os-solid-cta--block w-full no-underline')}
         >
           {ctaLabel ?? common.loginDefaultCta}
         </a>
