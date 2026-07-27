@@ -18,3 +18,11 @@ export {
   type WorldMiniKitTransaction,
   type WorldMiniKitTransactionStatus,
 } from './get-transaction';
+
+export {
+  sendWorldNotification,
+  notifyWorldPaymentComplete,
+  buildWorldMiniAppPath,
+  type SendWorldNotificationInput,
+  type SendWorldNotificationResult,
+} from './send-notification';

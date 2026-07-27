@@ -160,6 +160,7 @@ WORLD_PAYMENT_TO_ADDRESS=0x7819e52eb0239cb00abd70bd631683a9a6942041
 4. 客户端错误会打到 tarot 日志：`[world/client-log]`（`journalctl -u orasage-tarot`）
 5. 登录 SIWE 的 `URI` **不再用** `window.location.href`（会带 `?lang=`），而是固定为门户 App URL（可用 `NEXT_PUBLIC_WORLD_APP_URL` 覆盖）。若仍 `malformed_request`，对照日志里的 `siwePreview` 与门户 App URL 是否字节级一致。
 6. **支付**走 tarot 同源 BFF：`/api/world/pay-intent` → MiniKit.pay → `/api/world/confirm`（不要让浏览器直连 `shop.*`，否则 Safari 会报 `Load failed` CORS）。
+7. **支付成功通知**：`confirm` 调用 `POST https://developer.world.org/api/v2/minikit/send-notification`（需 `DEV_PORTAL_API_KEY` Bearer；用户须已授权 notifications）。收款钱包地址优先用 Get Transaction 的 `from` / MiniKit pay payload `from`。
 
 并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 

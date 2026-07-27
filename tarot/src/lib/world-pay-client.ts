@@ -2,6 +2,7 @@ import { MiniKit } from '@worldcoin/minikit-js';
 import {
   Tokens,
   tokenToDecimals,
+  Permission,
   type CommandResultByVia,
   type MiniKitPayOptions,
   type PayResult,
@@ -45,6 +46,16 @@ export async function payWithWorldWallet(input: {
   }
   if (!MiniKit.isInstalled()) {
     throw new Error('WORLD_APP_REQUIRED');
+  }
+
+  // Best-effort: enable World App notifications so post-pay push can deliver.
+  try {
+    await MiniKit.requestPermission({
+      permission: Permission.Notifications,
+      fallback: async () => undefined,
+    });
+  } catch {
+    /* user may deny; payment continues */
   }
 
   const payInput = {

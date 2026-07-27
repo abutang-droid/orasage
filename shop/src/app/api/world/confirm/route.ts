@@ -9,6 +9,7 @@ import {
   fetchWorldMiniKitTransaction,
   resolveDevPortalApiKey,
 } from '../../../../../../shared/world-minikit/get-transaction';
+import { notifyWorldPaymentComplete } from '../../../../../../shared/world-minikit/send-notification';
 
 const bodySchema = z.object({
   orderNo: z.string().min(1),
@@ -163,6 +164,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // World App push — best effort; needs DEV_PORTAL_API_KEY + user opted in.
+    const payerWallet = (tx.from || body.payload.from || '').trim();
+    void notifyWorldPaymentComplete({
+      walletAddress: payerWallet,
+      orderNo: body.orderNo,
+      path: paidOrder?.appSource === 'tarot' ? '/' : '/orders/' + body.orderNo,
+      title: 'Payment complete',
+      message: undefined,
+    }).catch((err) => {
+      console.error('[world/confirm] notification', err);
+    });
+
     return NextResponse.json({
       ok: true,
       orderNo: body.orderNo,
@@ -170,6 +183,7 @@ export async function POST(req: NextRequest) {
       transactionId: body.payload.transactionId,
       transactionHash: tx.transaction_hash || null,
       transactionStatus: tx.transaction_status || status || null,
+      notifiedWallet: payerWallet || null,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
