@@ -140,12 +140,12 @@ WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
 NEXT_PUBLIC_WORLD_APP_ID=app_8001cef1f043f4b7bb48304053b946ac
 WORLD_RP_ID=rp_a034015870525413   # World ID / IDKit（非 MiniKit 登录/支付必填）
 DEV_PORTAL_API_KEY=…          # 验支付用（已配置）
-WORLD_PAYMENT_TO_ADDRESS=0x…  # 收款钱包（仍缺）
+WORLD_PAYMENT_TO_ADDRESS=0x7819e52eb0239cb00abd70bd631683a9a6942041
 ```
 
-VPS `/opt/orasage/.env` 已写入 App ID、RP ID、Dev Portal API Key；`auth/world/status` 应返回 `worldAppId` 非空。  
+VPS `/opt/orasage/.env` 已写入 App ID、RP ID、Dev Portal API Key、收款地址；`auth/world/status` 应返回 `worldAppId` 非空。  
 当前登录走 MiniKit `walletAuth`（SIWE），支付走 `MiniKit.pay`——**不依赖 RP ID**。RP ID 留给后续 World ID / IDKit 人机验证。  
-**仍缺收款地址** `WORLD_PAYMENT_TO_ADDRESS` 才能发起真实 WLD 支付。
+World 配置已齐：可在 World App 内测登录 + WLD 支付。
 
 并执行迁移 `0046_world_wallet_address.sql`（已加入 `deploy-shop-on-vps.sh` 列表）。
 
