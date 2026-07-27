@@ -45,11 +45,12 @@ function worldLoginCardHtml(locale: string, redirect: string): string {
       const btn = document.getElementById('world-login-btn');
       const errEl = document.getElementById('world-login-error');
       const redirect = btn?.dataset.redirect || '/';
+      const appId = ${JSON.stringify(ENV.worldAppId || '')};
       btn?.addEventListener('click', async () => {
         errEl.hidden = true;
         btn.disabled = true;
         try {
-          MiniKit.install();
+          MiniKit.install(appId || undefined);
           if (!MiniKit.isInstalled()) throw new Error('Open this page inside World App');
           const nonceRes = await fetch('/auth/world/nonce', { credentials: 'include' });
           const { nonce } = await nonceRes.json();
