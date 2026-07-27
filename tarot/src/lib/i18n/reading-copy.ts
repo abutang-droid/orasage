@@ -455,10 +455,10 @@ const singleCard = {
     es: 'Tu carta está sacada. Paga una vez para desbloquear permanentemente los fragmentos de tendencia.',
   },
   paywallMessage: {
-    zh: '查看数据切片需登录 orasage 账号后购买，解锁后永久可用。',
-    en: 'Viewing the data slice requires an orasage account. Unlock once, use forever.',
-    pt: 'Ver a fatia exige conta orasage. Desbloqueie uma vez, use para sempre.',
-    es: 'Ver el fragmento requiere cuenta orasage. Desbloquea una vez, usa para siempre.',
+    zh: '查看数据切片需登录 Manto 账号后购买，解锁后永久可用。',
+    en: 'Viewing the data slice requires a Manto account. Unlock once, use forever.',
+    pt: 'Ver a fatia exige conta Manto. Desbloqueie uma vez, use para sempre.',
+    es: 'Ver el fragmento requiere cuenta Manto. Desbloquea una vez, usa para siempre.',
   },
   paywallHint: {
     zh: '抽牌免费；登录后可付费解锁查看切片',
@@ -635,10 +635,10 @@ const dailyFortune = {
     es: 'Inicia sesión para ver amor, carrera, riqueza y sincronizar en tu perfil.',
   },
   loginDimsHint: {
-    zh: '访客仍可查看今日简报；登录后记录会出现在 auth.orasage.com 的占卜历史中。',
-    en: 'Guests still see today’s brief; signed-in readings appear in your history at auth.orasage.com.',
-    pt: 'Visitantes veem o resumo; com login, o registro aparece em auth.orasage.com.',
-    es: 'Los visitantes ven el resumen; con sesión, el registro aparece en auth.orasage.com.',
+    zh: '访客仍可查看今日简报；登录后记录会出现在你的占卜历史中。',
+    en: 'Guests still see today’s brief; signed-in readings appear in your reading history.',
+    pt: 'Visitantes veem o resumo; com login, o registro aparece no histórico de leituras.',
+    es: 'Los visitantes ven el resumen; con sesión, el registro aparece en tu historial.',
   },
   loginDimsCta: {
     zh: '登录查看完整报告',

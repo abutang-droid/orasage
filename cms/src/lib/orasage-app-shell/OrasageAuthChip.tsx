@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import {
+  applySiteBrand,
   getSiteApex,
   orasageUrlsFor,
   resolveClientSiteApex,
@@ -59,7 +60,7 @@ export function OrasageAuthChip({ locale = 'zh-CN' }: { locale?: string }) {
       <a
         href={profileHref}
         className="orasage-auth-chip orasage-auth-chip--signed-in"
-        title={`${pickLabel(SHELL_LABELS.signedIn, locale)} · ${user.email}`}
+        title={`${applySiteBrand(pickLabel(SHELL_LABELS.signedIn, locale), apex)} · ${user.email}`}
       >
         {user.displayName}
       </a>

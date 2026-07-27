@@ -6,6 +6,7 @@ import { fetchDiyCatalog } from '@/lib/diy-server';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { currencyForLocale } from '@/lib/currency';
 import { DiyDesigner } from '@/components/diy/DiyDesigner';
+import { applySiteBrand } from '@/lib/orasage-app-shell/config';
 
 type PageProps = {
   searchParams: Promise<{ base?: string; element?: string }>;
@@ -14,8 +15,8 @@ type PageProps = {
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('diy');
   return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
+    title: applySiteBrand(t('metaTitle')),
+    description: applySiteBrand(t('metaDescription')),
   };
 }
 
@@ -39,7 +40,7 @@ export default async function DiyPage({ searchParams }: PageProps) {
         </Link>
 
         <header className="shop-diy-header">
-          <p className="shop-diy-eyebrow">OraSage Energy Shop</p>
+          <p className="shop-diy-eyebrow">{applySiteBrand('OraSage Energy Shop')}</p>
           <h1 className="shop-diy-title">{t('title')}</h1>
           <p className="shop-diy-sub">{t('subtitle')}</p>
         </header>

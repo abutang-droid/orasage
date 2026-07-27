@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
-import { getSiteApex, orasageUrlsFor, type OrasageUrls } from '@/lib/orasage-app-shell/config';
-
-export const ORASAGE_SITE_NAME = 'OraSage';
+import {
+  applySiteBrand,
+  getSiteApex,
+  getSiteBrandName,
+  orasageUrlsFor,
+  type OrasageUrls,
+} from '@/lib/orasage-app-shell/config';
 
 /** Cross-app public URLs for the current deployment apex (build env / runtime). */
 export const ORASAGE_URLS: OrasageUrls = new Proxy({} as OrasageUrls, {
@@ -12,12 +16,38 @@ export const ORASAGE_URLS: OrasageUrls = new Proxy({} as OrasageUrls, {
   },
 });
 
-/** UI keeps product brands; SEO titles end with | OraSage */
-export function orasageTitle(pageTitle: string): string {
-  if (/OraSage/i.test(pageTitle)) return pageTitle;
-  return `${pageTitle} | OraSage`;
+export function getSiteName(): string {
+  return getSiteBrandName();
 }
 
+/** @deprecated Use getSiteName() — value depends on SITE_APEX. */
+export const ORASAGE_SITE_NAME = 'OraSage';
+
+/** UI keeps product brands; SEO titles end with | {site brand}. */
+export function orasageTitle(pageTitle: string): string {
+  const brand = getSiteBrandName();
+  const titled = applySiteBrand(pageTitle);
+  if (titled.toLowerCase().includes(brand.toLowerCase())) return titled;
+  return `${titled} | ${brand}`;
+}
+
+export function defaultKeywords(): string[] {
+  const brand = getSiteBrandName();
+  return [
+    brand,
+    '命理',
+    '八字',
+    '紫微斗数',
+    '塔罗',
+    '能量水晶',
+    'divination',
+    'BaZi',
+    'Zi Wei',
+    'tarot',
+  ];
+}
+
+/** @deprecated Prefer defaultKeywords() */
 export const ORASAGE_DEFAULT_KEYWORDS = [
   'OraSage',
   '命理',
@@ -41,9 +71,9 @@ export function orasageOpenGraph(opts: {
   image?: string;
 }) {
   return {
-    siteName: ORASAGE_SITE_NAME,
+    siteName: getSiteBrandName(),
     title: orasageTitle(opts.title),
-    description: opts.description,
+    description: applySiteBrand(opts.description),
     type: opts.type ?? 'website',
     ...(opts.url ? { url: opts.url } : {}),
     ...(opts.locale ? { locale: opts.locale } : {}),
@@ -55,7 +85,7 @@ export function orasageTwitter(title: string, description: string, image?: strin
   return {
     card: 'summary_large_image' as const,
     title: orasageTitle(title),
-    description,
+    description: applySiteBrand(description),
     ...(image ? { images: [image] } : {}),
   };
 }
@@ -71,13 +101,18 @@ export function buildOrasageMetadata(opts: {
   /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
   ogImage?: string;
 }): Metadata {
-  const keywords = opts.keywords
-    ? (Array.isArray(opts.keywords) ? opts.keywords : opts.keywords.split(',').map((k) => k.trim()))
-    : [...ORASAGE_DEFAULT_KEYWORDS];
+  const brand = getSiteBrandName();
+  const keywords = (
+    opts.keywords
+      ? Array.isArray(opts.keywords)
+        ? opts.keywords
+        : opts.keywords.split(',').map((k) => k.trim())
+      : defaultKeywords()
+  ).map((k) => applySiteBrand(k === 'OraSage' ? brand : k));
 
   return {
     title: orasageTitle(opts.title),
-    description: opts.description,
+    description: applySiteBrand(opts.description),
     keywords,
     ...(opts.metadataBase ? { metadataBase: opts.metadataBase } : {}),
     ...(opts.canonical ? { alternates: { canonical: opts.canonical } } : {}),
