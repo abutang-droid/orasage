@@ -8,7 +8,7 @@ import { notifyTarotOfferMerit } from '@/lib/tarot-merit';
 import {
   fetchWorldMiniKitTransaction,
   resolveDevPortalApiKey,
-} from '../../../../../shared/world-minikit/get-transaction';
+} from '../../../../../../shared/world-minikit/get-transaction';
 
 const bodySchema = z.object({
   orderNo: z.string().min(1),
