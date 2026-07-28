@@ -1,3 +1,5 @@
+import { legalLocaleChain } from '../../../shared/legal/index';
+
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
@@ -254,8 +256,6 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
   const data: CmsListResponse = await res.json();
   return data.docs[0] ?? null;
 }
-
-import { legalLocaleChain } from '../../../shared/legal/index';
 
 /** 法律协议语言回退链（re-export） */
 export { legalLocaleChain };
