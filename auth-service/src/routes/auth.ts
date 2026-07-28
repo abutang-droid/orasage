@@ -13,6 +13,7 @@ import { getAuthUser, publicUser } from "../lib/auth-user.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { accountRouter } from "./account.ts";
 import { liveChatRouter } from "./live-chat.ts";
+import { LEGAL_AGREEMENT_VERSION_DEFAULT } from "../../../shared/legal/index.ts";
 
 export const authRouter = Router();
 
@@ -20,6 +21,9 @@ const registerSchema = z.object({
   email: z.string().email().max(320),
   password: z.string().min(6).max(128),
   nickname: z.string().max(100).optional(),
+  /** 必须勾选服务协议（含隐私政策链接） */
+  acceptServiceAgreement: z.literal(true),
+  agreementVersion: z.string().max(32).optional(),
 });
 
 const loginSchema = z.object({
@@ -29,7 +33,21 @@ const loginSchema = z.object({
 
 const checkoutEmailSchema = z.object({
   email: z.string().email().max(320),
+  /** 结账静默注册同样要求同意服务协议 */
+  acceptServiceAgreement: z.literal(true).optional(),
+  agreementVersion: z.string().max(32).optional(),
 });
+
+function consentFields(version?: string) {
+  const v = (version?.trim() || LEGAL_AGREEMENT_VERSION_DEFAULT).slice(0, 32);
+  const at = new Date();
+  return {
+    serviceAgreementVersion: v,
+    serviceAgreementAcceptedAt: at,
+    privacyAgreementVersion: v,
+    privacyAgreementAcceptedAt: at,
+  };
+}
 
 const profileSchema = z.object({
   nickname: z.string().max(100).optional(),
@@ -62,6 +80,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
       passwordHash,
       displayId,
       nickname: body.nickname || body.email.split("@")[0],
+      ...consentFields(body.agreementVersion),
     }).returning();
 
     const token = await signTokenForUser(user);
@@ -75,7 +94,11 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
+      const needsConsent = err.errors.some((e) => e.path.includes("acceptServiceAgreement"));
+      res.status(400).json({
+        error: needsConsent ? "请先同意服务协议与隐私政策" : "参数错误",
+        details: err.errors,
+      });
       return;
     }
     console.error("[auth] register error:", err);
@@ -153,6 +176,11 @@ authRouter.post("/checkout-register", async (req: Request, res: Response) => {
       return;
     }
 
+    if (body.acceptServiceAgreement !== true) {
+      res.status(400).json({ error: "请先同意服务协议与隐私政策" });
+      return;
+    }
+
     const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10);
     const displayId = await generateUniqueDisplayId();
     const [user] = await db.insert(users).values({
@@ -160,6 +188,7 @@ authRouter.post("/checkout-register", async (req: Request, res: Response) => {
       passwordHash,
       displayId,
       nickname: body.email.split("@")[0],
+      ...consentFields(body.agreementVersion),
     }).returning();
 
     const token = await signTokenForUser(user);

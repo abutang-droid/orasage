@@ -136,7 +136,13 @@ export const CMS_NAV_ITEMS: AdminNavItem[] = [
     label: '页面',
     href: '/cms/admin/collections/pages',
     permission: 'content.cms.pages',
-    isActive: (p) => p.includes('/collections/pages'),
+    isActive: (p) => p.includes('/collections/pages') && !p.includes('legal-agreements'),
+  },
+  {
+    label: '法律协议',
+    href: '/cms/admin/collections/legal-agreements',
+    permission: 'content.cms.pages',
+    isActive: (p) => p.includes('/collections/legal-agreements'),
   },
   {
     label: '媒体库',

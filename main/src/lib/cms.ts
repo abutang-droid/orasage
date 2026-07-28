@@ -42,6 +42,25 @@ type CmsListResponse = {
   hasPrevPage: boolean;
 };
 
+export type LegalAgreementKind = 'privacy' | 'service' | 'product';
+
+export type CmsLegalAgreement = {
+  id: number;
+  kind: LegalAgreementKind;
+  locale: string;
+  status: 'draft' | 'published';
+  version: string;
+  title: string;
+  summary?: string | null;
+  bodyHtml: string;
+  updatedAt?: string;
+};
+
+type CmsLegalListResponse = {
+  docs: CmsLegalAgreement[];
+  hasNextPage?: boolean;
+};
+
 const localeMap: Record<string, string> = {
   'zh-CN': 'zh-CN',
   'zh-TW': 'zh-TW',
@@ -234,6 +253,57 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
   if (!res.ok) return null;
   const data: CmsListResponse = await res.json();
   return data.docs[0] ?? null;
+}
+
+/** 法律协议语言回退链 */
+export function legalLocaleChain(locale: string): string[] {
+  if (!locale || locale === 'zh-CN') return ['zh-CN'];
+  if (locale === 'zh-TW' || locale === 'zh-HK') return ['zh-TW', 'zh-CN'];
+  return [locale, 'zh-CN'];
+}
+
+/**
+ * 按协议类型 + 语言拉取已发布正文（缺语言回退 zh-CN）。
+ * 兼容旧 Pages：`legal/privacy` / `legal/terms`。
+ */
+export async function fetchLegalAgreement(
+  kind: LegalAgreementKind,
+  locale: string,
+): Promise<CmsLegalAgreement | null> {
+  for (const loc of legalLocaleChain(locale)) {
+    const params = new URLSearchParams();
+    params.set('where[and][0][kind][equals]', kind);
+    params.set('where[and][1][locale][equals]', loc);
+    params.set('where[and][2][status][equals]', 'published');
+    params.set('limit', '1');
+    params.set('depth', '0');
+    const res = await fetch(`${CMS_INTERNAL_URL}/api/legal-agreements?${params}`, {
+      next: { revalidate: 120 },
+    });
+    if (!res.ok) continue;
+    const data: CmsLegalListResponse = await res.json();
+    const doc = data.docs[0];
+    if (doc?.bodyHtml?.trim()) return doc;
+  }
+
+  // 旧 WordPress 迁移页回退（仅隐私 / 服务条款）
+  if (kind === 'privacy' || kind === 'service') {
+    const legacySlug = kind === 'privacy' ? 'legal/privacy' : 'legal/terms';
+    const page = await fetchCmsPageBySlug(legacySlug);
+    if (page?.appSource === 'main' && page.legacyHtml?.trim()) {
+      return {
+        id: page.id,
+        kind,
+        locale: page.locale || 'zh-CN',
+        status: 'published',
+        version: 'legacy',
+        title: page.title,
+        bodyHtml: page.legacyHtml,
+        updatedAt: page.updatedAt,
+      };
+    }
+  }
+  return null;
 }
 
 /** 名人案例语言回退链：繁体界面回退 zh-HK，再回退 zh-CN；其余语言回退 zh-CN */

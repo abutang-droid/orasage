@@ -23,6 +23,7 @@ export function cmsWriteAccess(required: CmsCollectionPermission): Access {
 
 export const CMS_COLLECTION_ACCESS = {
   pages: 'content.cms.pages',
+  'legal-agreements': 'content.cms.pages',
   media: 'content.cms.media',
   'shop-product-pages': 'content.cms.shop',
   'shop-product-media': 'content.cms.shop',

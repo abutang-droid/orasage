@@ -81,10 +81,21 @@ if (registerForm) {
     const err = qs("#form-error");
     err.hidden = true;
     const fd = new FormData(registerForm);
+    const accepted = fd.get("acceptServiceAgreement") === "1";
+    if (!accepted) {
+      err.textContent = err.dataset.consentRequired || "请先同意服务协议与隐私政策";
+      err.hidden = false;
+      return;
+    }
     try {
       await api("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email: fd.get("email"), password: fd.get("password"), nickname: fd.get("nickname") || undefined }),
+        body: JSON.stringify({
+          email: fd.get("email"),
+          password: fd.get("password"),
+          nickname: fd.get("nickname") || undefined,
+          acceptServiceAgreement: true,
+        }),
       });
       location.href = registerForm.dataset.redirect || "/center";
     } catch (ex) { err.textContent = ex.message; err.hidden = false; }

@@ -12,6 +12,7 @@ const LEGAL_LINKS = [
   { href: '/profile/contact', labelKey: 'contact' },
   { href: '/profile/privacy', labelKey: 'privacy' },
   { href: '/profile/terms', labelKey: 'terms' },
+  { href: '/profile/product-agreement', labelKey: 'product' },
 ] as const;
 
 const SIGNED_IN_LINKS = [{ href: '/profile/tickets', labelKey: 'tickets' }] as const;

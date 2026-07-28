@@ -4,6 +4,8 @@ import { forwardSetCookies, proxyAuthCheckout } from '@/lib/checkout-flow';
 
 const emailSchema = z.object({
   email: z.string().email().max(320),
+  acceptServiceAgreement: z.literal(true).optional(),
+  agreementVersion: z.string().max(32).optional(),
 });
 
 /** 结账页邮箱识别：新用户静默注册，已注册返回 exists */

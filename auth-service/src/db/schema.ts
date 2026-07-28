@@ -74,6 +74,12 @@ export const users = pgTable("users", {
   staffDisabled: boolean("staff_disabled").notNull().default(false),
   /** 7a：运营备注名，如「巴西站运营」 */
   staffLabel: varchar("staff_label", { length: 100 }),
+  /** 注册时同意的服务协议版本与时间 */
+  serviceAgreementVersion: varchar("service_agreement_version", { length: 32 }),
+  serviceAgreementAcceptedAt: timestamp("service_agreement_accepted_at"),
+  /** 注册时同意的隐私政策版本与时间 */
+  privacyAgreementVersion: varchar("privacy_agreement_version", { length: 32 }),
+  privacyAgreementAcceptedAt: timestamp("privacy_agreement_accepted_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),
