@@ -255,6 +255,27 @@
       "media": "Media",
       "review": "Review",
       "article": "Article"
+    },
+    "reviews": {
+      "title": "Customer reviews",
+      "featured": "Featured",
+      "empty": "No public reviews yet.",
+      "eyebrow": "Verified buyers",
+      "composeTitle": "Share your experience",
+      "composeHint": "Only customers who purchased this item can review. Reviews appear after moderation.",
+      "checking": "Checking review eligibility…",
+      "loginRequired": "Sign in to leave a review if you have purchased this item.",
+      "loginCta": "Sign in to review",
+      "purchaseRequired": "Reviews are limited to customers who purchased this item.",
+      "eligibilityError": "Could not verify eligibility. Please try again later.",
+      "ratingLabel": "Rating",
+      "starLabel": "{n} stars",
+      "bodyLabel": "Your review",
+      "bodyPlaceholder": "Tell us how it feels to wear or use…",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "submitSuccess": "Review submitted. It will appear after approval.",
+      "submitFailed": "Could not submit review"
     }
   }
 }

@@ -255,6 +255,27 @@
       "media": "Mídia",
       "review": "Análise",
       "article": "Artigo"
+    },
+    "reviews": {
+      "title": "Avaliações",
+      "featured": "Destaque",
+      "empty": "Ainda não há avaliações públicas.",
+      "eyebrow": "Compradores",
+      "composeTitle": "Compartilhe sua experiência",
+      "composeHint": "Somente quem comprou este item pode avaliar. As avaliações aparecem após moderação.",
+      "checking": "Verificando elegibilidade…",
+      "loginRequired": "Entre para avaliar se você comprou este item.",
+      "loginCta": "Entrar para avaliar",
+      "purchaseRequired": "Avaliações restritas a quem comprou este item.",
+      "eligibilityError": "Não foi possível verificar a elegibilidade. Tente mais tarde.",
+      "ratingLabel": "Nota",
+      "starLabel": "{n} estrelas",
+      "bodyLabel": "Sua avaliação",
+      "bodyPlaceholder": "Conte como foi usar ou vestir…",
+      "submit": "Enviar avaliação",
+      "submitting": "Enviando…",
+      "submitSuccess": "Avaliação enviada. Ela aparecerá após aprovação.",
+      "submitFailed": "Falha ao enviar"
     }
   }
 }

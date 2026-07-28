@@ -255,6 +255,27 @@
       "media": "媒體",
       "review": "測評",
       "article": "文章"
+    },
+    "reviews": {
+      "title": "用戶評價",
+      "featured": "精選",
+      "empty": "暫無公開評價。",
+      "eyebrow": "購買用戶",
+      "composeTitle": "寫下你的感受",
+      "composeHint": "僅已購買本商品的用戶可評價；提交後經審核展示。",
+      "checking": "正在確認評價資格…",
+      "loginRequired": "登入後，已購買用戶可留下評價。",
+      "loginCta": "登入後評價",
+      "purchaseRequired": "僅限已購買本商品的用戶評價。",
+      "eligibilityError": "暫時無法確認評價資格，請稍後重試。",
+      "ratingLabel": "評分",
+      "starLabel": "{n} 星",
+      "bodyLabel": "評價內容",
+      "bodyPlaceholder": "分享佩戴或使用體驗…",
+      "submit": "提交評價",
+      "submitting": "提交中…",
+      "submitSuccess": "評價已提交，審核通過後將展示",
+      "submitFailed": "提交失敗"
     }
   }
 }

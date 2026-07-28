@@ -255,6 +255,27 @@
       "media": "媒体",
       "review": "测评",
       "article": "文章"
+    },
+    "reviews": {
+      "title": "用户评价",
+      "featured": "精选",
+      "empty": "暂无公开评价。",
+      "eyebrow": "购买用户",
+      "composeTitle": "写下你的感受",
+      "composeHint": "仅已购买本商品的用户可评价；提交后经审核展示。",
+      "checking": "正在确认评价资格…",
+      "loginRequired": "登录后，已购买用户可留下评价。",
+      "loginCta": "登录后评价",
+      "purchaseRequired": "仅限已购买本商品的用户评价。",
+      "eligibilityError": "暂时无法确认评价资格，请稍后重试。",
+      "ratingLabel": "评分",
+      "starLabel": "{n} 星",
+      "bodyLabel": "评价内容",
+      "bodyPlaceholder": "分享佩戴或使用体验…",
+      "submit": "提交评价",
+      "submitting": "提交中…",
+      "submitSuccess": "评价已提交，审核通过后将展示",
+      "submitFailed": "提交失败"
     }
   }
 }
