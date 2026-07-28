@@ -16,10 +16,10 @@
 
 **测试门禁 P0**
 
-- [ ] 文档链接可互相跳转；AGENT-RULES 含 Admin 专节
-- [ ] `node scripts/admin-changelog-append.mjs --dry-run …` 正常
-- [ ] `admin`：`npm run build`（或 `npx tsc --noEmit`）通过
-- [ ] 登录后台可见「更新日志」，首条为规范落地说明，且含 `rulesImpact`
+- [x] 文档链接可互相跳转；AGENT-RULES 含 Admin 专节
+- [x] `node scripts/admin-changelog-append.mjs --dry-run …` 正常
+- [x] `admin`：`npm run build` 通过（含 `/changelog` 路由）
+- [x] 首条 changelog 已写入且含 `rulesImpact`（上线后登录侧栏可见「更新日志」）
 
 ---
 
