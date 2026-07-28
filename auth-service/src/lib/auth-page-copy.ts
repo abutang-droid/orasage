@@ -23,12 +23,20 @@ export type AuthPageCopy = {
   consentRequired: string;
 };
 
-type CoreLocale = ReturnType<typeof toCoreLocale>;
+/** auth 页文案语言：含繁体（toCoreLocale 会把 zh-* 收成 zh-CN） */
+type AuthLocale = 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
 
-function consentHtmlFor(locale: CoreLocale): string {
+function normalizeAuthLocale(locale: string): AuthLocale {
+  if (locale === 'zh-TW' || locale === 'zh-HK') return 'zh-TW';
+  const core = toCoreLocale(locale);
+  if (core === 'zh-CN' || core === 'en' || core === 'pt-BR') return core;
+  return 'en';
+}
+
+function consentHtmlFor(locale: AuthLocale): string {
   const serviceHref = mainLegalUrl('service', locale);
   const privacyHref = mainLegalUrl('privacy', locale);
-  const map: Record<CoreLocale, string> = {
+  const map: Record<AuthLocale, string> = {
     'zh-CN': `我已阅读并同意 <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">服务协议</a> 与 <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">隐私政策</a>`,
     'zh-TW': `我已閱讀並同意 <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">服務協議</a> 與 <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">隱私政策</a>`,
     en: `I have read and agree to the <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">Privacy Policy</a>`,
@@ -37,7 +45,7 @@ function consentHtmlFor(locale: CoreLocale): string {
   return map[locale];
 }
 
-const COPY: Record<CoreLocale, Omit<AuthPageCopy, 'consentHtml'>> = {
+const COPY: Record<AuthLocale, Omit<AuthPageCopy, 'consentHtml'>> = {
   'zh-CN': {
     loginTitle: '登录以继续',
     loginLead: '登录后可同步测试对象、占卜记录与订单',
@@ -116,10 +124,8 @@ const COPY: Record<CoreLocale, Omit<AuthPageCopy, 'consentHtml'>> = {
   },
 };
 
-const normalizeLocale = toCoreLocale;
-
 export function authPageCopy(locale: string): AuthPageCopy {
-  const core = normalizeLocale(locale);
+  const core = normalizeAuthLocale(locale);
   return {
     ...COPY[core],
     consentHtml: consentHtmlFor(core),
@@ -127,15 +133,15 @@ export function authPageCopy(locale: string): AuthPageCopy {
 }
 
 export function authLoginLabel(locale: string): string {
-  return COPY[normalizeLocale(locale)].loginBtn;
+  return COPY[normalizeAuthLocale(locale)].loginBtn;
 }
 
 export function authRequestFailed(locale: string): string {
-  const map: Record<CoreLocale, string> = {
+  const map: Record<AuthLocale, string> = {
     'zh-CN': '请求失败',
     'zh-TW': '請求失敗',
     en: 'Request failed',
     'pt-BR': 'Falha na solicitação',
   };
-  return map[normalizeLocale(locale)];
+  return map[normalizeAuthLocale(locale)];
 }
