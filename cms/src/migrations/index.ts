@@ -28,6 +28,7 @@ import * as migration_20260708_150000_daozang_volume from './20260708_150000_dao
 import * as migration_20260709_120000_shop_pdp_locales from './20260709_120000_shop_pdp_locales';
 import * as migration_20260710_100000_users_staff_permissions from './20260710_100000_users_staff_permissions';
 import * as migration_20260728_120000_legal_agreements from './20260728_120000_legal_agreements';
+import * as migration_20260728_121000_legal_agreements_locked_docs_rels from './20260728_121000_legal_agreements_locked_docs_rels';
 
 export const migrations = [
   {
@@ -179,5 +180,10 @@ export const migrations = [
     up: migration_20260728_120000_legal_agreements.up,
     down: migration_20260728_120000_legal_agreements.down,
     name: '20260728_120000_legal_agreements',
+  },
+  {
+    up: migration_20260728_121000_legal_agreements_locked_docs_rels.up,
+    down: migration_20260728_121000_legal_agreements_locked_docs_rels.down,
+    name: '20260728_121000_legal_agreements_locked_docs_rels',
   },
 ];
