@@ -108,9 +108,23 @@ async function insertMessage(input: {
   return row;
 }
 
-function buildTelegramForwardText(conversationId: number, user: Pick<User, "email" | "nickname">, body: string) {
-  const label = user.nickname?.trim() || user.email;
-  return [`💬 IM #${conversationId}`, `${label}`, "", body.slice(0, 1500)].join("\n");
+function buildTelegramForwardText(
+  conversationId: number,
+  user: Pick<User, "id" | "email" | "nickname" | "displayId">,
+  body: string,
+) {
+  const name = user.nickname?.trim() || "未设昵称";
+  const uid = user.displayId ? `#${user.displayId}` : `uid:${user.id}`;
+  const adminUrl = `https://admin.orasage.com/im?id=${conversationId}`;
+  return [
+    `💬 客户消息 · 会话 #${conversationId}`,
+    `${name} · ${uid}`,
+    user.email,
+    `后台：${adminUrl}`,
+    "↩️ 直接「回复」本条即可回写该客户（勿发新消息）",
+    "",
+    body.slice(0, 1500),
+  ].join("\n");
 }
 
 export async function sendUserChatMessage(user: User, body: string) {
