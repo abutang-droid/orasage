@@ -12,7 +12,18 @@ export type AdminNavItem = {
   isActive?: (pathname: string) => boolean;
 };
 
-export const OPS_NAV_ITEMS: AdminNavItem[] = [
+export type AdminNavGroup = {
+  id: string;
+  title: string;
+  items: AdminNavItem[];
+  /** 仅这些角色可见整组（再叠加 item 级权限） */
+  roles?: readonly StaffRole[];
+  /** 超管侧栏折叠「内部 CMS」 */
+  collapsibleAdminOnly?: boolean;
+};
+
+/** 平台 */
+export const PLATFORM_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '概览',
     href: '/',
@@ -20,60 +31,36 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p === '/' || p === '',
   },
   {
-    label: '数据统计',
-    href: '/analytics',
-    isActive: (p) => p.startsWith('/analytics'),
-  },
-  {
-    label: '资金对账',
-    href: '/finance',
+    label: '合作方',
+    href: '/partners',
     roles: ['admin'],
-    isActive: (p) => p.startsWith('/finance'),
+    isActive: (p) => p.startsWith('/partners'),
   },
   {
-    label: '留言',
-    href: '/messages',
-    permission: 'ops.messages',
-    isActive: (p) => p.startsWith('/messages'),
-  },
-  {
-    label: '在线客服',
-    href: '/im',
-    roles: ['admin', 'shop_ops'],
-    isActive: (p) => p.startsWith('/im'),
-  },
-  {
-    label: '子账号',
+    label: '子账号与权限',
     href: '/staff',
     permission: 'staff.manage',
     isActive: (p) => p.startsWith('/staff'),
+  },
+  {
+    label: '集成状态',
+    href: '/integrations',
+    isActive: (p) => p.startsWith('/integrations'),
   },
   {
     label: '更新日志',
     href: '/changelog',
     isActive: (p) => p.startsWith('/changelog'),
   },
-  {
-    label: '用户钱包',
-    href: '/wallets',
-    roles: ['admin'],
-    isActive: (p) => p.startsWith('/wallets'),
-  },
 ];
 
-/** 商城组（R1：独立商城） */
+/** 商城 */
 export const SHOP_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '商品',
-    href: '/products',
+    href: '/shop/products',
     permission: 'shop.products',
-    isActive: (p) => p.startsWith('/products'),
-  },
-  {
-    label: '标签',
-    href: '/shop/tags',
-    permission: 'shop.products',
-    isActive: (p) => p.startsWith('/shop/tags'),
+    isActive: (p) => p.startsWith('/shop/products') || p.startsWith('/products'),
   },
   {
     label: '分类',
@@ -82,13 +69,19 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/shop/categories'),
   },
   {
+    label: '标签',
+    href: '/shop/tags',
+    permission: 'shop.products',
+    isActive: (p) => p.startsWith('/shop/tags'),
+  },
+  {
     label: 'DIY 物料',
     href: '/shop/diy',
     permission: 'shop.diy',
     isActive: (p) => p.startsWith('/shop/diy') || p.startsWith('/beads'),
   },
   {
-    label: '订单',
+    label: '订单与履约',
     href: '/shop/orders',
     permission: 'shop.orders',
     isActive: (p) => p.startsWith('/shop/orders') || p.startsWith('/orders'),
@@ -100,26 +93,26 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/shop/shipping'),
   },
   {
-    label: '评价管理',
-    href: '/shop/reviews',
-    permission: 'shop.reviews',
-    isActive: (p) => p.startsWith('/shop/reviews'),
-  },
-  {
     label: '促销',
     href: '/shop/promotions',
     permission: 'shop.promotions',
     isActive: (p) => p.startsWith('/shop/promotions'),
   },
   {
-    label: '水晶专题',
-    href: '/shop/crystal-home',
+    label: '评价审核',
+    href: '/shop/reviews',
+    permission: 'shop.reviews',
+    isActive: (p) => p.startsWith('/shop/reviews'),
+  },
+  {
+    label: '店铺展示',
+    href: '/shop/storefront',
     permission: 'shop.products',
-    isActive: (p) => p.startsWith('/shop/crystal-home'),
+    isActive: (p) => p.startsWith('/shop/storefront') || p.startsWith('/shop/crystal-home'),
   },
 ];
 
-/** 应用计费组（R6：app 调用参数 → 商城 SKU） */
+/** 应用计费 */
 export const BILLING_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '计费槽位',
@@ -129,86 +122,199 @@ export const BILLING_NAV_ITEMS: AdminNavItem[] = [
   },
 ];
 
-/** CMS 管理路径（经 admin.orasage.com/cms 反代，href 用浏览器完整路径） */
-export const CMS_NAV_ITEMS: AdminNavItem[] = [
+/**
+ * 内容（Phase A：自研路径，内部仍桥接到 Payload；
+ * 第三方将来只走自研 UI，不暴露 /cms/admin）
+ */
+export const CONTENT_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '页面与文章',
+    href: '/content/pages',
+    permission: 'content.cms.pages',
+    isActive: (p) => p.startsWith('/content/pages'),
+  },
+  {
+    label: '媒体库',
+    href: '/content/media',
+    permission: 'content.cms.media',
+    isActive: (p) => p.startsWith('/content/media'),
+  },
+  {
+    label: '商品内容',
+    href: '/content/products',
+    permission: 'content.cms.shop',
+    isActive: (p) => p.startsWith('/content/products'),
+  },
+  {
+    label: '各站 Hero',
+    href: '/content/heroes',
+    permission: 'content.cms.heroes',
+    isActive: (p) => p.startsWith('/content/heroes'),
+  },
+  {
+    label: '信息流',
+    href: '/content/feeds',
+    permission: 'content.cms.feed',
+    isActive: (p) => p.startsWith('/content/feeds'),
+  },
+  {
+    label: '信仰与圣地',
+    href: '/content/faith',
+    permission: 'content.cms.faith',
+    isActive: (p) => p.startsWith('/content/faith'),
+  },
+];
+
+/** 合规 */
+export const LEGAL_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '协议管理',
+    href: '/legal/agreements',
+    permission: 'content.cms.pages',
+    isActive: (p) => p.startsWith('/legal'),
+  },
+];
+
+/** 应用 Config Pack 入口（Phase A：全体员工可见概览壳；细权在 Phase B） */
+export const APPS_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '八字',
+    href: '/apps/bazi',
+    isActive: (p) => p.startsWith('/apps/bazi'),
+  },
+  {
+    label: '紫微',
+    href: '/apps/ziwei',
+    isActive: (p) => p.startsWith('/apps/ziwei'),
+  },
+  {
+    label: '塔罗',
+    href: '/apps/tarot',
+    isActive: (p) => p.startsWith('/apps/tarot'),
+  },
+];
+
+/** 客服 */
+export const OPS_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '留言',
+    href: '/ops/messages',
+    permission: 'ops.messages',
+    isActive: (p) => p.startsWith('/ops/messages') || p.startsWith('/messages'),
+  },
+  {
+    label: '在线客服',
+    href: '/ops/im',
+    roles: ['admin', 'shop_ops'],
+    isActive: (p) => p.startsWith('/ops/im') || p.startsWith('/im'),
+  },
+];
+
+/** 数据 */
+export const ANALYTICS_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '数据统计',
+    href: '/analytics',
+    isActive: (p) => p.startsWith('/analytics'),
+  },
+];
+
+/** 资金（仅平台超管） */
+export const FINANCE_NAV_ITEMS: AdminNavItem[] = [
+  {
+    label: '资金对账',
+    href: '/finance',
+    roles: ['admin'],
+    isActive: (p) => p.startsWith('/finance'),
+  },
+  {
+    label: '用户钱包',
+    href: '/wallets',
+    roles: ['admin'],
+    isActive: (p) => p.startsWith('/wallets'),
+  },
+];
+
+/** 超管折叠：直接 Payload（非交付面） */
+export const INTERNAL_CMS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: 'CMS 概览',
     href: '/cms/admin',
-    permission: 'content.cms',
-    isActive: (p) => p === '/admin' || p === '/admin/',
+    roles: ['admin'],
+    isActive: (p) => p === '/admin' || p === '/admin/' || p === '/cms/admin',
   },
   {
     label: '页面',
     href: '/cms/admin/collections/pages',
-    permission: 'content.cms.pages',
+    roles: ['admin'],
     isActive: (p) => p.includes('/collections/pages'),
   },
   {
     label: '媒体库',
     href: '/cms/admin/collections/media',
-    permission: 'content.cms.media',
+    roles: ['admin'],
     isActive: (p) => p.includes('/collections/media'),
   },
   {
     label: '商品精选评价',
     href: '/cms/admin/collections/shop-product-testimonials',
-    permission: 'content.cms.shop',
+    roles: ['admin'],
     isActive: (p) => p.includes('/collections/shop-product-testimonials'),
   },
   {
     label: '门户 Hero',
     href: '/cms/admin/globals/home-hero',
-    permission: 'content.cms.heroes',
+    roles: ['admin'],
     isActive: (p) => p.includes('/globals/home-hero'),
   },
   {
     label: '商城 Hero',
     href: '/cms/admin/globals/shop-home-hero',
-    permission: 'content.cms.heroes',
+    roles: ['admin'],
     isActive: (p) => p.includes('/globals/shop-home-hero'),
   },
   {
-    label: '八字 Hero',
+    label: '八字 / 紫微 / 塔罗 Hero',
     href: '/cms/admin/globals/bazi-home-hero',
-    permission: 'content.cms.heroes',
-    isActive: (p) => p.includes('/globals/bazi-home-hero'),
-  },
-  {
-    label: '紫微 Hero',
-    href: '/cms/admin/globals/ziwei-home-hero',
-    permission: 'content.cms.heroes',
-    isActive: (p) => p.includes('/globals/ziwei-home-hero'),
-  },
-  {
-    label: '塔罗 Hero',
-    href: '/cms/admin/globals/tarot-home-hero',
-    permission: 'content.cms.heroes',
-    isActive: (p) => p.includes('/globals/tarot-home-hero'),
-  },
-  {
-    label: '八字信息流',
-    href: '/cms/admin/collections/bazi-feed',
-    permission: 'content.cms.feed',
-    isActive: (p) => p.includes('/collections/bazi-feed'),
-  },
-  {
-    label: '紫微信息流',
-    href: '/cms/admin/collections/ziwei-feed',
-    permission: 'content.cms.feed',
-    isActive: (p) => p.includes('/collections/ziwei-feed'),
-  },
-  {
-    label: '宗教 / 圣地',
-    href: '/cms/admin/collections/faiths',
-    permission: 'content.cms.faith',
+    roles: ['admin'],
     isActive: (p) =>
-      p.includes('/collections/faiths') ||
-      p.includes('/collections/sanctuaries') ||
-      p.includes('/collections/geo-regions') ||
-      p.includes('/collections/geo-countries') ||
-      p.includes('/collections/country-faiths'),
+      p.includes('/globals/bazi-home-hero')
+      || p.includes('/globals/ziwei-home-hero')
+      || p.includes('/globals/tarot-home-hero'),
+  },
+  {
+    label: '信息流 / 信仰',
+    href: '/cms/admin/collections/bazi-feed',
+    roles: ['admin'],
+    isActive: (p) =>
+      p.includes('/collections/bazi-feed')
+      || p.includes('/collections/ziwei-feed')
+      || p.includes('/collections/faiths')
+      || p.includes('/collections/sanctuaries'),
   },
 ];
+
+export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
+  { id: 'platform', title: '平台', items: PLATFORM_NAV_ITEMS },
+  { id: 'shop', title: '商城', items: SHOP_NAV_ITEMS },
+  { id: 'billing', title: '应用计费', items: BILLING_NAV_ITEMS },
+  { id: 'content', title: '内容', items: CONTENT_NAV_ITEMS },
+  { id: 'legal', title: '合规', items: LEGAL_NAV_ITEMS },
+  { id: 'apps', title: '应用', items: APPS_NAV_ITEMS },
+  { id: 'ops', title: '客服', items: OPS_NAV_ITEMS },
+  { id: 'analytics', title: '数据', items: ANALYTICS_NAV_ITEMS },
+  { id: 'finance', title: '资金', items: FINANCE_NAV_ITEMS, roles: ['admin'] },
+  {
+    id: 'internal-cms',
+    title: '内部 CMS',
+    items: INTERNAL_CMS_NAV_ITEMS,
+    roles: ['admin'],
+    collapsibleAdminOnly: true,
+  },
+];
+
+/** @deprecated 使用 ADMIN_NAV_GROUPS；保留导出以免旧 import 断裂 */
+export const CMS_NAV_ITEMS = INTERNAL_CMS_NAV_ITEMS;
 
 export function navItemActive(item: AdminNavItem, pathname: string): boolean {
   if (item.isActive) return item.isActive(pathname);
@@ -221,9 +327,37 @@ export function canAccessNavItem(
   item: AdminNavItem,
 ): boolean {
   if (item.permission) {
-    return hasStaffPermission(permissions, item.permission);
+    // content.cms 隐含子权限
+    if (hasStaffPermission(permissions, item.permission)) return true;
+    return false;
   }
   return canAccessNav(role, item.roles);
+}
+
+export function filterNavItems(
+  items: readonly AdminNavItem[],
+  permissions: ReadonlySet<AnyStaffPermission>,
+  role: StaffRole,
+): AdminNavItem[] {
+  return items.filter((item) => canAccessNavItem(permissions, role, item));
+}
+
+export function filterNavGroups(
+  groups: readonly AdminNavGroup[],
+  permissions: ReadonlySet<AnyStaffPermission>,
+  role: StaffRole,
+): AdminNavGroup[] {
+  return groups
+    .filter((group) => {
+      if (group.roles && role !== 'admin' && !group.roles.includes(role)) return false;
+      if (group.collapsibleAdminOnly && role !== 'admin') return false;
+      return true;
+    })
+    .map((group) => ({
+      ...group,
+      items: filterNavItems(group.items, permissions, role),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 export { canAccessNav } from '../staff-roles/index';

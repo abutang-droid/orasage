@@ -11,9 +11,9 @@ import { getAdminToken } from '@/lib/auth';
 export async function saveProductAction(formData: FormData) {
   const payload = parseProductFormPayload(formData);
   const isEdit = formData.get('isEdit') === '1';
-  const listPath = '/products';
+  const listPath = '/shop/products';
   const editPath = payload.sku
-    ? `/products/${encodeURIComponent(payload.sku)}/edit`
+    ? `/shop/products/${encodeURIComponent(payload.sku)}`
     : listPath;
   const returnPath = isEdit ? editPath : listPath;
 
@@ -65,9 +65,9 @@ export async function saveProductAction(formData: FormData) {
     }
   }
 
-  revalidatePath('/products');
+  revalidatePath('/shop/products');
   if (payload.sku) {
-    revalidatePath(`/products/${encodeURIComponent(payload.sku)}/edit`);
+    revalidatePath(`/shop/products/${encodeURIComponent(payload.sku)}`);
   }
   revalidatePath('/');
 
@@ -80,21 +80,21 @@ export async function saveProductAction(formData: FormData) {
 export async function deleteProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   if (!sku) {
-    redirect('/products?save_err=' + encodeURIComponent('缺少 SKU'));
+    redirect('/shop/products?save_err=' + encodeURIComponent('缺少 SKU'));
   }
   if (formData.get('confirm') !== 'on') {
-    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent('请勾选确认后再下架')}`);
+    redirect(`${`/shop/products/${encodeURIComponent(sku)}`}?save_err=${encodeURIComponent('请勾选确认后再下架')}`);
   }
 
   try {
     await deleteProduct(sku);
   } catch (err) {
     const message = err instanceof Error ? err.message : '下架失败';
-    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent(message)}`);
+    redirect(`${`/shop/products/${encodeURIComponent(sku)}`}?save_err=${encodeURIComponent(message)}`);
   }
 
-  revalidatePath('/products');
-  redirect('/products?deleted=' + encodeURIComponent(sku));
+  revalidatePath('/shop/products');
+  redirect('/shop/products?deleted=' + encodeURIComponent(sku));
 }
 
 /** 批量上/下架（仅 active 字段） */
@@ -103,7 +103,7 @@ export async function batchSetProductsActiveAction(formData: FormData) {
   const active = formData.get('active') === '1';
   const skus = skusRaw.split(',').map((s) => s.trim()).filter(Boolean);
   if (skus.length === 0) {
-    redirect('/products?save_err=' + encodeURIComponent('请先勾选商品'));
+    redirect('/shop/products?save_err=' + encodeURIComponent('请先勾选商品'));
   }
 
   let errorMsg: string | null = null;
@@ -113,9 +113,9 @@ export async function batchSetProductsActiveAction(formData: FormData) {
     errorMsg = err instanceof Error ? err.message : '批量更新失败';
   }
 
-  revalidatePath('/products');
+  revalidatePath('/shop/products');
   if (errorMsg) {
-    redirect('/products?save_err=' + encodeURIComponent(errorMsg));
+    redirect('/shop/products?save_err=' + encodeURIComponent(errorMsg));
   }
   redirect(`/products?batch_ok=${active ? 'active' : 'inactive'}&count=${skus.length}`);
 }
@@ -217,7 +217,7 @@ export async function updateContactMessageAction(formData: FormData) {
   const adminReply = String(formData.get('adminReply') ?? '').trim();
   if (!Number.isInteger(id) || id <= 0 || !status) throw new Error('参数不完整');
   await updateContactMessage(id, { status, adminNote, adminReply });
-  revalidatePath('/messages');
+  revalidatePath('/ops/messages');
 }
 
 export async function createShipmentAction(formData: FormData) {
@@ -271,13 +271,15 @@ export async function saveHomepageProductsAction(formData: FormData) {
     if (sku) skus.push(sku);
   }
   await saveHomepageProducts(skus);
-  revalidatePath('/products');
+  revalidatePath('/shop/storefront');
+  revalidatePath('/shop/products');
 }
 
 export async function saveShopLayoutAction(formData: FormData) {
   const homeLayout = String(formData.get('homeLayout') ?? 'legacy') as 'legacy' | 'crystal_v1';
   await saveShopConfig(homeLayout);
-  revalidatePath('/products');
+  revalidatePath('/shop/storefront');
+  revalidatePath('/shop/products');
 }
 
 const CRYSTAL_CONTENT_SKUS = [
@@ -323,10 +325,10 @@ export async function saveCrystalContentAction(formData: FormData) {
     await saveCrystalContent(content);
   } catch (err) {
     const message = err instanceof Error ? err.message : '保存失败';
-    redirect(`/shop/crystal-home?save_err=${encodeURIComponent(message)}`);
+    redirect(`/shop/storefront?save_err=${encodeURIComponent(message)}`);
   }
-  revalidatePath('/shop/crystal-home');
-  redirect('/shop/crystal-home?saved=1');
+  revalidatePath('/shop/storefront');
+  redirect('/shop/storefront?saved=1');
 }
 
 /* ── 应用计费槽位（R6）────────────────────────────── */
@@ -431,7 +433,7 @@ export async function saveCategoryAction(formData: FormData) {
     active,
   });
   revalidatePath('/shop/categories');
-  revalidatePath('/products');
+  revalidatePath('/shop/products');
   redirect('/shop/categories?saved=ok');
 }
 
@@ -462,6 +464,6 @@ export async function saveProductLinksAction(formData: FormData) {
     });
   }
   await saveProductLinks(sku, links);
-  revalidatePath(`/products/${encodeURIComponent(sku)}/edit`);
-  redirect(`/products/${encodeURIComponent(sku)}/edit?links=ok`);
+  revalidatePath(`/shop/products/${encodeURIComponent(sku)}`);
+  redirect(`/shop/products/${encodeURIComponent(sku)}?links=ok`);
 }

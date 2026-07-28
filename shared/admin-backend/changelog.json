@@ -2,11 +2,44 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-28-phase-a-后台信息架构重组与路由别名",
+      "date": "2026-07-28",
+      "title": "Phase A：后台信息架构重组与路由别名",
+      "summary": "侧栏按 Config Pack 模块重组；商品/客服/店铺展示等迁至新路径并保留旧 URL redirect；新增 integrations/partners/apps 与 content 桥接页；超管折叠内部 CMS，主 IA 不再对非超管暴露 Payload 链。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing",
+        "content",
+        "legal",
+        "ops",
+        "analytics"
+      ],
+      "phase": "A",
+      "rulesImpact": {
+        "added": [
+          "后台主导航按模块分组（平台/商城/计费/内容/合规/应用/客服/数据/资金）；店铺展示归属 shop.storefront（/shop/storefront）"
+        ],
+        "changed": [
+          "Payload 直链仅超管折叠「内部 CMS」可见；内容运营走 /content/* 桥接（Phase C 前）"
+        ],
+        "removed": [
+          "侧栏一级分组「运营」杂糅入口（概览/资金/客服等已拆到对应模块）"
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md",
+        "docs/products/admin-config-pack.md"
+      ]
+    },
+    {
       "id": "2026-07-28-admin-config-pack-spec",
       "date": "2026-07-28",
       "title": "Admin 配置包规范落地与更新日志",
       "summary": "将模块化配置后台（Config Pack）、多租户 partnerId=orasage、分步改造路线图写入产品文档与 Agent 规则；后台新增「更新日志」页，后续每次后台相关交付须自动追加条目。Phase 0 完成；IA/权限重构尚未开始。",
-      "modules": ["platform"],
+      "modules": [
+        "platform"
+      ],
       "phase": "P0",
       "rulesImpact": {
         "added": [

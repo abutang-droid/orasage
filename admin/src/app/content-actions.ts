@@ -38,11 +38,11 @@ async function shopProductCmsToken(): Promise<string> {
 }
 
 function contentPath(sku: string, locale: string): string {
-  return `/products/${encodeURIComponent(sku)}/content?locale=${encodeURIComponent(locale)}`;
+  return `/content/products/${encodeURIComponent(sku)}?locale=${encodeURIComponent(locale)}`;
 }
 
 function editPath(sku: string): string {
-  return `/products/${encodeURIComponent(sku)}/edit`;
+  return `/shop/products/${encodeURIComponent(sku)}`;
 }
 
 async function parseHeroImagesFromForm(
@@ -174,7 +174,7 @@ export async function saveProductPageContentAction(formData: FormData) {
     errorMsg = err instanceof Error ? err.message : '保存失败';
   }
 
-  revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+  revalidatePath(`/content/products/${encodeURIComponent(sku)}`);
   if (errorMsg) {
     redirect(`${contentPath(sku, locale)}&err=${encodeURIComponent(errorMsg)}`);
   }
@@ -233,7 +233,7 @@ export async function saveProductMediaAction(formData: FormData) {
   }
 
   revalidatePath(editPath(sku));
-  revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+  revalidatePath(`/content/products/${encodeURIComponent(sku)}`);
   if (errorMsg) {
     redirect(`${editPath(sku)}?media_err=${encodeURIComponent(errorMsg)}`);
   }
@@ -244,7 +244,7 @@ export async function saveProductMediaAction(formData: FormData) {
 export async function saveCatalogImageAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   if (!sku) {
-    redirect('/products?save_err=' + encodeURIComponent('缺少 SKU'));
+    redirect('/shop/products?save_err=' + encodeURIComponent('缺少 SKU'));
   }
 
   const file = formData.get('image');
@@ -268,7 +268,7 @@ export async function saveCatalogImageAction(formData: FormData) {
   }
 
   revalidatePath(editPath(sku));
-  revalidatePath('/products');
+  revalidatePath('/shop/products');
   if (errorMsg) {
     redirect(`${editPath(sku)}?media_err=${encodeURIComponent(errorMsg)}`);
   }
@@ -303,7 +303,7 @@ export async function saveTestimonialAction(formData: FormData) {
     errorMsg = err instanceof Error ? err.message : '保存失败';
   }
 
-  revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+  revalidatePath(`/content/products/${encodeURIComponent(sku)}`);
   if (errorMsg) {
     redirect(`${contentPath(sku, locale)}&err=${encodeURIComponent(errorMsg)}`);
   }
@@ -319,6 +319,6 @@ export async function deleteTestimonialAction(formData: FormData) {
   const token = await staffCmsToken();
 
   await deleteCmsTestimonial(id, token);
-  revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+  revalidatePath(`/content/products/${encodeURIComponent(sku)}`);
   redirect(`${contentPath(sku, locale)}&saved=ok`);
 }

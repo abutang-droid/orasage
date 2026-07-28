@@ -21,7 +21,7 @@ export default async function AdminHome() {
     <div className="admin-page">
       <header className="page-header">
         <h1>后台首页</h1>
-        <p className="muted">左侧导航可在「运营」与「内容」之间切换；无需重复登录。</p>
+        <p className="muted">左侧按模块分组（平台 / 商城 / 内容 / 应用…）；无需重复登录。</p>
       </header>
 
       <section className="entry-grid">
@@ -30,15 +30,20 @@ export default async function AdminHome() {
           <p>用户、订单、测算与埋点趋势看板</p>
           <span className="entry-cta">进入统计 →</span>
         </Link>
-        <Link href="/products" className="entry-card">
-          <h2>运营管理</h2>
-          <p>商品目录、订单履约、用户与测算统计</p>
-          <span className="entry-cta">进入商品管理 →</span>
+        <Link href="/shop/products" className="entry-card">
+          <h2>商城</h2>
+          <p>商品目录、订单履约、店铺展示</p>
+          <span className="entry-cta">进入商城 →</span>
         </Link>
-        <Link href="/cms/admin" className="entry-card">
-          <h2>内容管理</h2>
-          <p>全站 Hero、页面、媒体库与各 App 信息流（商品主图在「商品管理」中编辑）</p>
-          <span className="entry-cta">进入 CMS →</span>
+        <Link href="/content/pages" className="entry-card">
+          <h2>内容</h2>
+          <p>页面、Hero、媒体与商品内容（自研入口；内部可桥接 CMS）</p>
+          <span className="entry-cta">进入内容 →</span>
+        </Link>
+        <Link href="/changelog" className="entry-card">
+          <h2>更新日志</h2>
+          <p>后台与配置规范相关交付记录</p>
+          <span className="entry-cta">查看日志 →</span>
         </Link>
       </section>
 

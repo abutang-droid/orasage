@@ -19,7 +19,7 @@ export function ProductCmsLinks({
       >
         详情：{productPageStatusLabel(pageStatus)}
       </span>
-      <Link href={`/products/${encodeURIComponent(sku)}/content`} className="admin-cms-link">
+      <Link href={`/content/products/${encodeURIComponent(sku)}`} className="admin-cms-link">
         编辑详情与评价
       </Link>
       <a

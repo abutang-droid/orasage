@@ -143,7 +143,7 @@ export function ProductMediaPanel({
             <p className="muted">详情区块、SEO、精选评价与其它 3 种语言</p>
           </header>
           <ProductCmsLinks sku={sku} pageStatus={pageStatus} />
-          <Link href={`/products/${encodeURIComponent(sku)}/content`} className="admin-cms-link">
+          <Link href={`/content/products/${encodeURIComponent(sku)}`} className="admin-cms-link">
             打开详情内容编辑器 →
           </Link>
         </section>

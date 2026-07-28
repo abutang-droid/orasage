@@ -276,7 +276,7 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td><ProductCmsLinks sku={p.sku} pageStatus={p.pageStatus} /></td>
                   <td>
-                    <Link href={`/products/${encodeURIComponent(p.sku)}/edit`} className="btn-text">
+                    <Link href={`/shop/products/${encodeURIComponent(p.sku)}`} className="btn-text">
                       编辑
                     </Link>
                   </td>

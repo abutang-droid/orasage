@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import { getBillingSlots, getProducts, type AdminBillingSlot, type AdminProduct } from '@/lib/api';
 import { saveBillingSlotAction, deleteBillingSlotAction } from '@/app/actions';
@@ -112,11 +113,12 @@ function SlotEditor({
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ saved?: string; err?: string }>;
+  searchParams?: Promise<{ saved?: string; err?: string; app?: string }>;
 }) {
   const admin = await getAdminUser();
   if (!admin || !staffCan(admin, 'billing.slots')) redirect(loginUrl());
   const sp = (await searchParams) ?? {};
+  const appFilter = sp.app?.trim().toLowerCase() || '';
 
   let slots: AdminBillingSlot[] = [];
   let products: AdminProduct[] = [];
@@ -133,6 +135,7 @@ export default async function BillingPage({
 
   const byApp = new Map<string, Map<string, AdminBillingSlot[]>>();
   for (const slot of slots) {
+    if (appFilter && slot.appSource !== appFilter) continue;
     const appMap = byApp.get(slot.appSource) ?? new Map<string, AdminBillingSlot[]>();
     byApp.set(slot.appSource, appMap);
     const list = appMap.get(slot.slotKey) ?? [];
@@ -146,6 +149,12 @@ export default async function BillingPage({
         <h1>应用计费槽位</h1>
         <p className="muted">
           紫微/八字/塔罗付费与推荐统一走计费槽位：App 传 <code>app + key</code>，返回后台配置的商品（前台商城目录不展示 <code>app_only</code> 商品）。同一槽位多行 SKU = 按 seed 轮换。
+          {appFilter ? (
+            <>
+              {' '}当前过滤：<code>{appFilter}</code>（
+              <Link href="/billing">清除</Link>）
+            </>
+          ) : null}
         </p>
       </header>
 

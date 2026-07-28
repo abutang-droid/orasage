@@ -29,6 +29,32 @@
   margin-bottom: 0.5rem;
 }
 
+.admin-backend-nav-group + .admin-backend-nav-group {
+  margin-top: 1.25rem;
+}
+
+.admin-backend-sidebar-title--button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.admin-backend-sidebar-title--button:hover {
+  color: var(--orasage-foreground, #171717);
+}
+
+.admin-backend-nav-group-body {
+  display: flex;
+  flex-direction: column;
+}
+
 .admin-backend-sidebar-title + .admin-backend-sidebar-title {
   margin-top: 1.25rem;
 }

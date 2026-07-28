@@ -1,6 +1,6 @@
 # Admin 配置后台规范（Config Pack）
 
-> **状态**：已评审定稿（2026-07-28）  
+> **状态**：已评审定稿（2026-07-28）· **Phase A（IA/路由）已落地**  
 > **适用范围**：`admin.orasage.com`、相关 auth-service Admin API、内容控制面、合作方 Module API 规划  
 > **配套**：实施路线图见 [`docs/plans/admin-config-pack-roadmap.md`](../plans/admin-config-pack-roadmap.md)  
 > **Agent**：改后台前必读本文 + [`docs/AGENT-RULES.md`](../AGENT-RULES.md)「Admin 配置包」专节

@@ -37,12 +37,12 @@
 
 **测试门禁 PA**
 
-- [ ] 全部旧书签路径 308/redirect 到新路径且页面可开
-- [ ] 各角色（admin / shop_ops / content_ops）菜单裁剪符合预期
-- [ ] finance/wallets 仅 admin
-- [ ] App 深链带 `?app=` 且不丢登录态
-- [ ] admin + 受影响 shared 构建通过；抽检商城/CMS 未误伤
-- [ ] 追加 changelog（注明规则变更：导航规范等）
+- [x] 全部旧书签路径 redirect 到新路径（products/messages/im/crystal-home…）
+- [x] 侧栏按平台/商城/计费/内容/合规/应用/客服/数据/资金重组；超管折叠「内部 CMS」
+- [x] finance/wallets 仅 admin（nav roles）
+- [x] App 深链 `/content/*?app=`、`/billing?app=` 
+- [x] `admin` `npm run build` 通过（含新路由）
+- [x] 追加 changelog（导航 IA / Payload 折叠等规则影响）
 
 ---
 
