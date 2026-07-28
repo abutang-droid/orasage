@@ -255,12 +255,10 @@ export async function fetchCmsPageBySlug(slug: string): Promise<CmsPage | null> 
   return data.docs[0] ?? null;
 }
 
-/** 法律协议语言回退链 */
-export function legalLocaleChain(locale: string): string[] {
-  if (!locale || locale === 'zh-CN') return ['zh-CN'];
-  if (locale === 'zh-TW' || locale === 'zh-HK') return ['zh-TW', 'zh-CN'];
-  return [locale, 'zh-CN'];
-}
+import { legalLocaleChain } from '../../../shared/legal/index';
+
+/** 法律协议语言回退链（re-export） */
+export { legalLocaleChain };
 
 /**
  * 按协议类型 + 语言拉取已发布正文（缺语言回退 zh-CN）。
