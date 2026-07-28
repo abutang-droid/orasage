@@ -51,3 +51,37 @@
 
 - **未经明确批准**，不要改动全局布局或增删产品功能。
 - 大规模 UI 变更前先与任务方确认范围与例外。
+
+## Admin 配置包（Config Pack）— 后台改动必读
+
+> 产品规范：[`docs/products/admin-config-pack.md`](products/admin-config-pack.md)  
+> 分步改造：[`docs/plans/admin-config-pack-roadmap.md`](plans/admin-config-pack-roadmap.md)
+
+**凡改动 `admin/`、`shared/admin-backend/`、`shared/staff-permissions/`、auth-service `/api/admin/*`、或后台信息架构 / 权限 / 多租户相关行为，必须先读配置包规范，再动手。**
+
+1. **先归类再实现**  
+   - 选定模块：`platform` / `shop` / `billing` / `content` / `legal` / `app.{id}` / `ops` / `analytics` / `finance`。  
+   - 选定配置层：L1 业务 / L2 策略 / L3 密钥（L3 默认只读状态，不进普通表单）。  
+   - `shop.storefront`（布局、首页商品、水晶文案）**不得**归入 content；PDP 长文/精选评价归 content。  
+   - 第三方**不得**被引导或授权进入 Payload Admin。
+
+2. **分步与测试门禁**  
+   - 按路线图 Phase/Step 实施，**禁止**把未排期的大范围 IA/权限重构塞进无关 PR。  
+   - **每完成一个 Step/Phase，先完成该节「全量测试门禁」，再开始下一步。**
+
+3. **更新日志（强制）**  
+   - 数据源：`shared/admin-backend/changelog.json`；后台页：`/changelog`。  
+   - 每次交付后台相关更新，必须追加一条：  
+     `node scripts/admin-changelog-append.mjs --title "…" --summary "…" --modules shop,platform …`  
+   - 详见脚本 `--help`。
+
+4. **全局规则增减必须公示**  
+   - 若本次改动增加、修改或删除了本文件、配置包规范中的不变量、权限枚举或租户隔离规则：  
+     - changelog 条目的 `rulesImpact.added|changed|removed` **必须**写明；  
+     - PR 描述中复述规则变更；  
+     - 同步更新 `docs/products/admin-config-pack.md`（及路线图若阶段变化）。  
+   - 无规则变更时：`rulesImpact` 三数组可为空，并在 summary 写明「无全局规则变更」。
+
+5. **多租户**  
+   - 新配置表与 Admin/Module API 从第一天带 `partnerId`；平台自营 slug 固定为 `orasage`。  
+   - `finance` / wallets 永不进入合作方权限或 Module API。

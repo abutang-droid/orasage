@@ -49,6 +49,11 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/staff'),
   },
   {
+    label: '更新日志',
+    href: '/changelog',
+    isActive: (p) => p.startsWith('/changelog'),
+  },
+  {
     label: '用户钱包',
     href: '/wallets',
     roles: ['admin'],

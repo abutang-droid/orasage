@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "2026-07-28-admin-config-pack-spec",
+      "date": "2026-07-28",
+      "title": "Admin 配置包规范落地与更新日志",
+      "summary": "将模块化配置后台（Config Pack）、多租户 partnerId=orasage、分步改造路线图写入产品文档与 Agent 规则；后台新增「更新日志」页，后续每次后台相关交付须自动追加条目。Phase 0 完成；IA/权限重构尚未开始。",
+      "modules": ["platform"],
+      "phase": "P0",
+      "rulesImpact": {
+        "added": [
+          "docs/AGENT-RULES.md：新增「Admin 配置包」专节（归类、分步测试门禁、changelog 强制、rulesImpact、partnerId/finance 不变量）",
+          "docs/products/admin-config-pack.md：配置后台产品规范定稿",
+          "docs/plans/admin-config-pack-roadmap.md：P0–E 分步大纲与测试门禁",
+          "AGENTS.md：后台改动前必读配置包与 changelog 流程"
+        ],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/admin-config-pack.md",
+        "docs/plans/admin-config-pack-roadmap.md",
+        "docs/AGENT-RULES.md"
+      ]
+    }
+  ]
+}

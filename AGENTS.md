@@ -1,6 +1,7 @@
 # AGENTS.md
 
-> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含 **最高宪法：关联分支穿透与影响评估**、「全站」范围定义与导航规范）。
+> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含 **最高宪法：关联分支穿透与影响评估**、「全站」范围定义与导航规范、**Admin 配置包**）。  
+> **后台（admin）改动**：先读 [`docs/products/admin-config-pack.md`](docs/products/admin-config-pack.md) 归类模块，再按 [`docs/plans/admin-config-pack-roadmap.md`](docs/plans/admin-config-pack-roadmap.md) 分步实施；交付时追加 [`/changelog`](admin/src/app/changelog) 更新日志（`scripts/admin-changelog-append.mjs`）。全局规则增减须写入 changelog 的 `rulesImpact`。
 
 ## Cursor Cloud specific instructions
 
