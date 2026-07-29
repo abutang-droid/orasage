@@ -1,4 +1,4 @@
-import { getStaffUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import { getChatConversations } from '@/lib/api';
 import { redirect } from 'next/navigation';
 import { ImConversationPanel } from '@/components/ImConversationPanel';
@@ -8,8 +8,8 @@ export default async function ImPage({
 }: {
   searchParams?: Promise<{ id?: string }>;
 }) {
-  const admin = await getStaffUser(['admin', 'shop_ops']);
-  if (!admin) redirect(loginUrl());
+  const admin = await getAdminUser();
+  if (!admin || !staffCan(admin, 'ops.im')) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};
   const selectedId = Number(sp.id) || undefined;

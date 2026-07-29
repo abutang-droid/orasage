@@ -8,9 +8,8 @@ export default async function ContentProductsIndexPage() {
   const admin = await getAdminUser();
   if (!admin) redirect(loginUrl());
   if (
-    !staffCan(admin, 'content.cms.shop')
-    && !staffCan(admin, 'shop.products')
-    && !staffCan(admin, 'content.cms')
+    !staffCan(admin, 'content.product')
+    && !staffCan(admin, 'shop.catalog')
     && admin.role !== 'admin'
   ) {
     redirect('/');

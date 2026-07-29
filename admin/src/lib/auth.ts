@@ -84,7 +84,7 @@ export async function getShopStaff(): Promise<StaffUser | null> {
 /** 子账号管理 */
 export async function getStaffManager(): Promise<StaffUser | null> {
   const user = await getAdminUser();
-  if (!user || !staffCan(user, 'staff.manage')) return null;
+  if (!user || !staffCan(user, 'platform.staff')) return null;
   return user;
 }
 

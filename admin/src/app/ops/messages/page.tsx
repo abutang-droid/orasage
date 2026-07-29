@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import Link from 'next/link';
 import { getContactMessages } from '@/lib/api';
 import { updateContactMessageAction } from '@/app/actions';
@@ -23,7 +23,7 @@ type Props = { searchParams: Promise<{ status?: string; category?: string }> };
 
 export default async function MessagesPage({ searchParams }: Props) {
   const admin = await getAdminUser();
-  if (!admin) redirect(loginUrl());
+  if (!admin || !staffCan(admin, 'ops.tickets')) redirect(loginUrl());
 
   const { status, category } = await searchParams;
   const activeStatus = STATUSES.some((s) => s.value === status) ? status : undefined;

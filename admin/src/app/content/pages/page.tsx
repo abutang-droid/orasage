@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 export default async function ContentPagesBridge() {
   const user = await getAdminUser();
   if (!user) redirect(loginUrl());
-  if (!staffCan(user, 'content.cms.pages') && !staffCan(user, 'content.cms') && user.role !== 'admin') {
+  if (!staffCan(user, 'content.pages') && user.role !== 'admin') {
     redirect('/');
   }
   return (

@@ -2,6 +2,37 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-phase-b-权限枚举对齐与-api-页面门闩",
+      "date": "2026-07-29",
+      "title": "Phase B：权限枚举对齐与 API/页面门闩",
+      "summary": "落地 Config Pack canonical 权限名与旧名别名；角色默认含 analytics/im/apps/storefront 等；auth-service 与 admin 页面统一门闩；子账号可授模块扩展且 sanitize，finance 永不授出；CMS 写权限改用 content.*。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing",
+        "content",
+        "legal",
+        "ops",
+        "analytics"
+      ],
+      "phase": "B",
+      "rulesImpact": {
+        "added": [
+          "canonical 权限枚举（platform.*/ops.tickets/ops.im/analytics.read/shop.catalog|storefront/content.*/legal.agreements/app.*）；LEGACY_PERMISSION_ALIASES；PARTNER_ASSIGNABLE_PERMISSIONS；ASSIGNABLE_EXTRA 扩展"
+        ],
+        "changed": [
+          "staff.manage→platform.staff；ops.messages→ops.tickets；shop.products→catalog+storefront；content.cms.*→content.*；analytics/im/integrations API 必须权限门闩"
+        ],
+        "removed": [
+          "无权限门闩即可访问 analytics/chat/notifications（仅 requireStaff）的旧行为"
+        ]
+      },
+      "links": [
+        "docs/products/admin-config-pack.md",
+        "shared/staff-permissions/index.ts"
+      ]
+    },
+    {
       "id": "2026-07-28-phase-a-后台信息架构重组与路由别名",
       "date": "2026-07-28",
       "title": "Phase A：后台信息架构重组与路由别名",

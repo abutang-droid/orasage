@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 export default async function LegalAgreementsPage() {
   const user = await getAdminUser();
   if (!user) redirect(loginUrl());
-  if (!staffCan(user, 'content.cms.pages') && !staffCan(user, 'content.cms') && user.role !== 'admin') {
+  if (!staffCan(user, 'legal.agreements') && user.role !== 'admin') {
     redirect('/');
   }
 

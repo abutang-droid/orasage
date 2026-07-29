@@ -76,7 +76,7 @@ export const requireShopOps = requireRoles("admin", "shop_ops");
 export const requireSuperAdmin = requireRoles("admin");
 
 /** 子账号管理 */
-export const requireStaffManage = requirePermission("staff.manage");
+export const requireStaffManage = requirePermission("platform.staff");
 
 /** 在 requireStaff 之后校验权限点（避免重复鉴权） */
 export function assertPermission(...required: AnyStaffPermission[]) {

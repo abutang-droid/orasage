@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getShopStaff, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import {
   getCrystalContent,
   getHomepageProducts,
@@ -26,8 +26,8 @@ export default async function ShopStorefrontPage({
 }: {
   searchParams?: Promise<{ saved?: string; save_err?: string }>;
 }) {
-  const admin = await getShopStaff();
-  if (!admin) redirect(loginUrl());
+  const admin = await getAdminUser();
+  if (!admin || !staffCan(admin, 'shop.storefront')) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};
 

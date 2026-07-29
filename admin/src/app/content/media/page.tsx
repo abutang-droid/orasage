@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 export default async function ContentMediaBridge() {
   const user = await getAdminUser();
   if (!user) redirect(loginUrl());
-  if (!staffCan(user, 'content.cms.media') && !staffCan(user, 'content.cms') && user.role !== 'admin') {
+  if (!staffCan(user, 'content.media') && user.role !== 'admin') {
     redirect('/');
   }
   return (

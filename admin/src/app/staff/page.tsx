@@ -21,7 +21,8 @@ export default async function StaffPage() {
       <header className="page-header">
         <h1>子账号管理</h1>
         <p className="muted">
-          创建商城运营 / 内容运营子账号；可额外授予计费槽位或子账号管理权限。权限变更后需重新登录生效。
+          创建商城运营 / 内容运营子账号；可额外授予模块权限（见下方勾选）。
+          <strong>资金（finance/wallets）永不授出</strong>，仅超管角色可见。权限变更后需重新登录生效。
         </p>
       </header>
 

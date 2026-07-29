@@ -33,18 +33,20 @@ export const PLATFORM_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '合作方',
     href: '/partners',
+    permission: 'platform.partners',
     roles: ['admin'],
     isActive: (p) => p.startsWith('/partners'),
   },
   {
     label: '子账号与权限',
     href: '/staff',
-    permission: 'staff.manage',
+    permission: 'platform.staff',
     isActive: (p) => p.startsWith('/staff'),
   },
   {
     label: '集成状态',
     href: '/integrations',
+    permission: 'platform.integrations.read',
     isActive: (p) => p.startsWith('/integrations'),
   },
   {
@@ -59,19 +61,19 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '商品',
     href: '/shop/products',
-    permission: 'shop.products',
+    permission: 'shop.catalog',
     isActive: (p) => p.startsWith('/shop/products') || p.startsWith('/products'),
   },
   {
     label: '分类',
     href: '/shop/categories',
-    permission: 'shop.products',
+    permission: 'shop.catalog',
     isActive: (p) => p.startsWith('/shop/categories'),
   },
   {
     label: '标签',
     href: '/shop/tags',
-    permission: 'shop.products',
+    permission: 'shop.catalog',
     isActive: (p) => p.startsWith('/shop/tags'),
   },
   {
@@ -107,7 +109,7 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '店铺展示',
     href: '/shop/storefront',
-    permission: 'shop.products',
+    permission: 'shop.storefront',
     isActive: (p) => p.startsWith('/shop/storefront') || p.startsWith('/shop/crystal-home'),
   },
 ];
@@ -130,37 +132,37 @@ export const CONTENT_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '页面与文章',
     href: '/content/pages',
-    permission: 'content.cms.pages',
+    permission: 'content.pages',
     isActive: (p) => p.startsWith('/content/pages'),
   },
   {
     label: '媒体库',
     href: '/content/media',
-    permission: 'content.cms.media',
+    permission: 'content.media',
     isActive: (p) => p.startsWith('/content/media'),
   },
   {
     label: '商品内容',
     href: '/content/products',
-    permission: 'content.cms.shop',
+    permission: 'content.product',
     isActive: (p) => p.startsWith('/content/products'),
   },
   {
     label: '各站 Hero',
     href: '/content/heroes',
-    permission: 'content.cms.heroes',
+    permission: 'content.heroes',
     isActive: (p) => p.startsWith('/content/heroes'),
   },
   {
     label: '信息流',
     href: '/content/feeds',
-    permission: 'content.cms.feed',
+    permission: 'content.feed',
     isActive: (p) => p.startsWith('/content/feeds'),
   },
   {
     label: '信仰与圣地',
     href: '/content/faith',
-    permission: 'content.cms.faith',
+    permission: 'content.faith',
     isActive: (p) => p.startsWith('/content/faith'),
   },
 ];
@@ -170,7 +172,7 @@ export const LEGAL_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '协议管理',
     href: '/legal/agreements',
-    permission: 'content.cms.pages',
+    permission: 'legal.agreements',
     isActive: (p) => p.startsWith('/legal'),
   },
 ];
@@ -180,16 +182,19 @@ export const APPS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '八字',
     href: '/apps/bazi',
+    permission: 'app.bazi',
     isActive: (p) => p.startsWith('/apps/bazi'),
   },
   {
     label: '紫微',
     href: '/apps/ziwei',
+    permission: 'app.ziwei',
     isActive: (p) => p.startsWith('/apps/ziwei'),
   },
   {
     label: '塔罗',
     href: '/apps/tarot',
+    permission: 'app.tarot',
     isActive: (p) => p.startsWith('/apps/tarot'),
   },
 ];
@@ -199,13 +204,13 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '留言',
     href: '/ops/messages',
-    permission: 'ops.messages',
+    permission: 'ops.tickets',
     isActive: (p) => p.startsWith('/ops/messages') || p.startsWith('/messages'),
   },
   {
     label: '在线客服',
     href: '/ops/im',
-    roles: ['admin', 'shop_ops'],
+    permission: 'ops.im',
     isActive: (p) => p.startsWith('/ops/im') || p.startsWith('/im'),
   },
 ];
@@ -215,6 +220,7 @@ export const ANALYTICS_NAV_ITEMS: AdminNavItem[] = [
   {
     label: '数据统计',
     href: '/analytics',
+    permission: 'analytics.read',
     isActive: (p) => p.startsWith('/analytics'),
   },
 ];

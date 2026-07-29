@@ -1,6 +1,6 @@
 # Admin 配置后台规范（Config Pack）
 
-> **状态**：已评审定稿（2026-07-28）· **Phase A（IA/路由）已落地**  
+> **状态**：已评审定稿（2026-07-28）· Phase A（IA/路由）+ **Phase B（权限）已落地**  
 > **适用范围**：`admin.orasage.com`、相关 auth-service Admin API、内容控制面、合作方 Module API 规划  
 > **配套**：实施路线图见 [`docs/plans/admin-config-pack-roadmap.md`](../plans/admin-config-pack-roadmap.md)  
 > **Agent**：改后台前必读本文 + [`docs/AGENT-RULES.md`](../AGENT-RULES.md)「Admin 配置包」专节
@@ -120,32 +120,31 @@ finance / wallets：无合作方 API、不进合作方权限枚举
 
 ---
 
-## 7. 权限枚举（目标态）
+## 7. 权限枚举（Phase B 已落地）
+
+实现：`shared/staff-permissions/index.ts`（含旧名别名与角色默认）。
 
 ```text
-platform.partners
-platform.staff
-platform.integrations.read
-
-shop.catalog | shop.diy | shop.orders | shop.shipping
-shop.promotions | shop.reviews | shop.storefront
-
+platform.partners | platform.staff | platform.integrations.read
+ops.overview | ops.tickets | ops.im | analytics.read
+shop.catalog | shop.storefront | shop.orders | shop.diy | shop.shipping | shop.promotions | shop.reviews
 billing.slots
-
-content.pages | content.media | content.product
-content.heroes | content.feed | content.faith
-
+content.pages | content.media | content.product | content.heroes | content.feed | content.faith
 legal.agreements
-
-app.bazi | app.ziwei | app.tarot   # + app.{id}
-
-ops.tickets | ops.im
-analytics.read
-
-# finance.* — 仅平台角色门闩，不授出给合作方
+app.bazi | app.ziwei | app.tarot
 ```
 
-合作方有效权限 = `partner_modules` ∩ 上表授予。
+| 旧名（JWT/grant 仍兼容） | Canonical |
+|--------------------------|-----------|
+| `shop.products` | `shop.catalog` + `shop.storefront` |
+| `ops.messages` | `ops.tickets` |
+| `staff.manage` | `platform.staff` |
+| `content.cms.*` | `content.*`（`shop`→`product`） |
+| `content.cms` | 全部 `content.*` |
+
+- **finance / wallets**：仅超管角色，永不进入 `ASSIGNABLE_EXTRA_PERMISSIONS` / `PARTNER_ASSIGNABLE_PERMISSIONS`。
+- 合作方有效权限（Phase D）= `partner_modules` ∩ `PARTNER_ASSIGNABLE_PERMISSIONS`。
+- 冒烟：`npx tsx scripts/test-staff-permissions.mjs`。
 
 ---
 

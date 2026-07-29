@@ -95,14 +95,20 @@ adminApiRouter.use(requireStaff);
 
 const P = {
   overview: assertPermission("ops.overview"),
-  messages: assertPermission("ops.messages"),
-  products: assertPermission("shop.products"),
+  messages: assertPermission("ops.tickets"),
+  catalog: assertPermission("shop.catalog"),
+  /** @deprecated alias — same as catalog */
+  products: assertPermission("shop.catalog"),
+  storefront: assertPermission("shop.storefront"),
   orders: assertPermission("shop.orders"),
   diy: assertPermission("shop.diy"),
   shipping: assertPermission("shop.shipping"),
   promotions: assertPermission("shop.promotions"),
   reviews: assertPermission("shop.reviews"),
   billing: assertPermission("billing.slots"),
+  analytics: assertPermission("analytics.read"),
+  im: assertPermission("ops.im"),
+  integrations: assertPermission("platform.integrations.read"),
 };
 
 const APP_LABELS: Record<string, string> = {
@@ -150,13 +156,13 @@ adminApiRouter.get("/stats", P.overview, async (_req, res) => {
   });
 });
 
-adminApiRouter.get("/analytics/summary", async (req, res) => {
+adminApiRouter.get("/analytics/summary", P.analytics, async (req, res) => {
   const days = Number(req.query.days ?? 7);
   const summary = await getAnalyticsSummary(Number.isFinite(days) ? days : 7);
   res.json(summary);
 });
 
-adminApiRouter.get("/analytics/events", async (req, res) => {
+adminApiRouter.get("/analytics/events", P.analytics, async (req, res) => {
   const app = typeof req.query.app === "string" && isAnalyticsApp(req.query.app)
     ? (req.query.app as AnalyticsApp)
     : undefined;
@@ -170,7 +176,7 @@ adminApiRouter.get("/analytics/events", async (req, res) => {
   res.json({ events });
 });
 
-adminApiRouter.get("/dashboard", async (req, res) => {
+adminApiRouter.get("/dashboard", P.analytics, async (req, res) => {
   const days = Number(req.query.days ?? 7);
   const dashboard = await getAdminDashboard(Number.isFinite(days) ? days : 7);
   res.json(dashboard);
@@ -198,7 +204,7 @@ const homepageSkusSchema = z.object({
   skus: z.array(z.string().min(1).max(100)).max(6),
 });
 
-adminApiRouter.get("/homepage-products", P.products, async (_req, res) => {
+adminApiRouter.get("/homepage-products", P.storefront, async (_req, res) => {
   const [skus, catalog] = await Promise.all([
     listHomepageFeaturedSkus(),
     resolveHomepageProducts(),
@@ -206,7 +212,7 @@ adminApiRouter.get("/homepage-products", P.products, async (_req, res) => {
   res.json({ skus, ...catalog });
 });
 
-adminApiRouter.put("/homepage-products", P.products, async (req, res) => {
+adminApiRouter.put("/homepage-products", P.storefront, async (req, res) => {
   try {
     const body = homepageSkusSchema.parse(req.body);
     await setHomepageFeaturedSkus(body.skus);
@@ -230,7 +236,7 @@ const shopLayoutSchema = z.object({
   homeLayout: z.enum(SHOP_HOME_LAYOUTS),
 });
 
-adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
+adminApiRouter.get("/shop-config", P.storefront, async (_req, res) => {
   const config = await getShopPublicConfig();
   res.json({
     ...config,
@@ -241,7 +247,7 @@ adminApiRouter.get("/shop-config", P.products, async (_req, res) => {
   });
 });
 
-adminApiRouter.put("/shop-config", P.products, async (req, res) => {
+adminApiRouter.put("/shop-config", P.storefront, async (req, res) => {
   try {
     const body = shopLayoutSchema.parse(req.body);
     const homeLayout = await setShopHomeLayout(body.homeLayout);
@@ -273,12 +279,12 @@ const crystalContentSchema = z.object({
   content: z.record(z.string(), crystalEntrySchema),
 });
 
-adminApiRouter.get("/crystal-content", P.products, async (_req, res) => {
+adminApiRouter.get("/crystal-content", P.storefront, async (_req, res) => {
   const content = await getCrystalContent();
   res.json({ content });
 });
 
-adminApiRouter.put("/crystal-content", P.products, async (req, res) => {
+adminApiRouter.put("/crystal-content", P.storefront, async (req, res) => {
   try {
     const body = crystalContentSchema.parse(req.body);
     const content = await setCrystalContent(body.content);
@@ -922,14 +928,14 @@ const CONTACT_CATEGORY_LABELS: Record<string, string> = {
 };
 
 /** 消息中枢通道状态（不暴露密钥） */
-adminApiRouter.get("/notifications/status", async (_req, res) => {
+adminApiRouter.get("/notifications/status", P.integrations, async (_req, res) => {
   const channels = getHubChannelStatus();
   const events = (process.env.ORDER_NOTIFY_EVENTS ?? "created,paid").split(",").map((s) => s.trim()).filter(Boolean);
   res.json({ channels, orderNotifyEvents: events });
 });
 
 /** 发送测试通知到已配置的 Telegram / 运营邮箱 */
-adminApiRouter.post("/notifications/test", async (_req, res) => {
+adminApiRouter.post("/notifications/test", P.integrations, async (_req, res) => {
   const text = [
     "🔔 OraSage 消息中枢测试",
     `时间：${new Date().toISOString()}`,
@@ -940,7 +946,7 @@ adminApiRouter.post("/notifications/test", async (_req, res) => {
 });
 
 /** 留言工单角标：since 之后新建且状态为 new 的条数 */
-adminApiRouter.get("/contact-messages/new-count", async (req, res) => {
+adminApiRouter.get("/contact-messages/new-count", P.messages, async (req, res) => {
   const sinceRaw = typeof req.query.since === "string" ? req.query.since : "";
   let since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   if (sinceRaw) {
@@ -1280,18 +1286,18 @@ adminApiRouter.put("/coupons", P.promotions, async (req, res) => {
 
 /* ── 在线 IM（#8）──────────────────────────────────────── */
 
-adminApiRouter.get("/chat/unread-count", async (_req, res) => {
+adminApiRouter.get("/chat/unread-count", P.im, async (_req, res) => {
   const count = await getUnreadImCountForOps();
   res.json({ count });
 });
 
-adminApiRouter.get("/chat/conversations", async (req, res) => {
+adminApiRouter.get("/chat/conversations", P.im, async (req, res) => {
   const status = typeof req.query.status === "string" ? req.query.status : undefined;
   const conversations = await listChatConversationsForAdmin(status);
   res.json({ conversations });
 });
 
-adminApiRouter.get("/chat/conversations/:id/messages", async (req, res) => {
+adminApiRouter.get("/chat/conversations/:id/messages", P.im, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     res.status(400).json({ error: "参数错误" });
@@ -1302,7 +1308,7 @@ adminApiRouter.get("/chat/conversations/:id/messages", async (req, res) => {
   res.json({ messages });
 });
 
-adminApiRouter.post("/chat/conversations/:id/messages", async (req, res) => {
+adminApiRouter.post("/chat/conversations/:id/messages", P.im, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     res.status(400).json({ error: "参数错误" });
@@ -1322,7 +1328,7 @@ adminApiRouter.post("/chat/conversations/:id/messages", async (req, res) => {
   }
 });
 
-adminApiRouter.post("/chat/conversations/:id/close", async (req, res) => {
+adminApiRouter.post("/chat/conversations/:id/close", P.im, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     res.status(400).json({ error: "参数错误" });

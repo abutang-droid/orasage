@@ -10,7 +10,7 @@ export default async function ContentFeedsBridge({
 }) {
   const user = await getAdminUser();
   if (!user) redirect(loginUrl());
-  if (!staffCan(user, 'content.cms.feed') && !staffCan(user, 'content.cms') && user.role !== 'admin') {
+  if (!staffCan(user, 'content.feed') && user.role !== 'admin') {
     redirect('/');
   }
   const sp = (await searchParams) ?? {};

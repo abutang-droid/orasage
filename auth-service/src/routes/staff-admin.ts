@@ -14,9 +14,28 @@ import { effectivePermissionsArray } from "../lib/staff-permissions.ts";
 import {
   ASSIGNABLE_EXTRA_PERMISSIONS,
   CREATABLE_STAFF_ROLES,
+  PARTNER_ASSIGNABLE_PERMISSIONS,
+  PLATFORM_ONLY_PERMISSIONS,
+  expandPermission,
+  isKnownPermission,
+  permissionLabel,
   STAFF_PERMISSION_LABELS,
-  type StaffPermission,
 } from "../../../shared/staff-permissions/index.ts";
+
+const ASSIGNABLE_SET = new Set<string>(ASSIGNABLE_EXTRA_PERMISSIONS);
+
+/** 只保留可额外授予的 canonical 权限；拒绝 finance / platform.partners 等 */
+function sanitizeAssignableGrants(raw?: string[] | null): string[] {
+  const out = new Set<string>();
+  for (const g of raw ?? []) {
+    if (!isKnownPermission(g)) continue;
+    const expanded = expandPermission(g);
+    if (expanded.length > 0 && expanded.every((e) => ASSIGNABLE_SET.has(e))) {
+      for (const e of expanded) out.add(e);
+    }
+  }
+  return [...out];
+}
 import {
   ALL_STAFF_ROLES,
   STAFF_ROLE_LABELS,
@@ -25,7 +44,7 @@ import {
 
 export const staffAdminRouter = Router();
 staffAdminRouter.use(requireStaff);
-staffAdminRouter.use(assertPermission("staff.manage"));
+staffAdminRouter.use(assertPermission("platform.staff"));
 
 function formatStaffRow(user: typeof users.$inferSelect) {
   return {
@@ -53,8 +72,18 @@ staffAdminRouter.get("/meta", async (_req, res) => {
     permissionLabels: STAFF_PERMISSION_LABELS,
     assignableExtras: ASSIGNABLE_EXTRA_PERMISSIONS.map((p) => ({
       value: p,
-      label: STAFF_PERMISSION_LABELS[p],
+      label: permissionLabel(p),
     })),
+    /** 合作方模板可用权限（不含 finance / platform.partners） */
+    partnerAssignable: PARTNER_ASSIGNABLE_PERMISSIONS.map((p) => ({
+      value: p,
+      label: permissionLabel(p),
+    })),
+    platformOnly: PLATFORM_ONLY_PERMISSIONS.map((p) => ({
+      value: p,
+      label: permissionLabel(p),
+    })),
+    note: "资金（finance/wallets）仅超管角色，永不进入子账号或合作方授权枚举。",
   });
 });
 
@@ -94,8 +123,8 @@ staffAdminRouter.post("/", async (req, res) => {
       nickname: body.nickname || body.email.split("@")[0],
       role: body.role,
       staffLabel: body.staffLabel || null,
-      staffGrants: body.staffGrants ?? [],
-      staffRevokes: body.staffRevokes ?? [],
+      staffGrants: sanitizeAssignableGrants(body.staffGrants),
+      staffRevokes: sanitizeAssignableGrants(body.staffRevokes),
     }).returning();
     res.status(201).json({ staff: formatStaffRow(row) });
   } catch (err) {
@@ -145,8 +174,8 @@ staffAdminRouter.patch("/:id", async (req, res) => {
     if (body.role !== undefined) updates.role = body.role;
     if (body.staffLabel !== undefined) updates.staffLabel = body.staffLabel;
     if (body.staffDisabled !== undefined) updates.staffDisabled = body.staffDisabled;
-    if (body.staffGrants !== undefined) updates.staffGrants = body.staffGrants;
-    if (body.staffRevokes !== undefined) updates.staffRevokes = body.staffRevokes;
+    if (body.staffGrants !== undefined) updates.staffGrants = sanitizeAssignableGrants(body.staffGrants);
+    if (body.staffRevokes !== undefined) updates.staffRevokes = sanitizeAssignableGrants(body.staffRevokes);
     if (body.password) updates.passwordHash = await bcrypt.hash(body.password, 10);
     const [row] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
     res.json({ staff: formatStaffRow(row) });

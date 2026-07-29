@@ -1,4 +1,4 @@
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import { getAnalyticsEvents, getDashboard } from '@/lib/api';
 import { redirect } from 'next/navigation';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -16,7 +16,7 @@ export default async function AnalyticsPage({
   searchParams?: Promise<{ days?: string }>;
 }) {
   const admin = await getAdminUser();
-  if (!admin) redirect(loginUrl());
+  if (!admin || !staffCan(admin, 'analytics.read')) redirect(loginUrl());
 
   const sp = (await searchParams) ?? {};
   const days = resolveDays(sp.days);

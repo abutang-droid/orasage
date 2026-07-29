@@ -10,7 +10,7 @@ export default async function ContentHeroesBridge({
 }) {
   const user = await getAdminUser();
   if (!user) redirect(loginUrl());
-  if (!staffCan(user, 'content.cms.heroes') && !staffCan(user, 'content.cms') && user.role !== 'admin') {
+  if (!staffCan(user, 'content.heroes') && user.role !== 'admin') {
     redirect('/');
   }
   const sp = (await searchParams) ?? {};

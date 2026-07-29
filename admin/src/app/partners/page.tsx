@@ -1,4 +1,4 @@
-import { getStaffUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 const PARTNERS = [
@@ -11,8 +11,8 @@ const PARTNERS = [
 ] as const;
 
 export default async function PartnersPage() {
-  const user = await getStaffUser(['admin']);
-  if (!user) redirect(loginUrl());
+  const user = await getAdminUser();
+  if (!user || !staffCan(user, 'platform.partners')) redirect(loginUrl());
 
   return (
     <div className="admin-page">

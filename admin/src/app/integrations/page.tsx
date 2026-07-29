@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 import { getNotificationStatus } from '@/lib/api';
 import { NotificationStatusPanel } from '@/components/NotificationStatusPanel';
 import { redirect } from 'next/navigation';
 
 export default async function IntegrationsPage() {
   const admin = await getAdminUser();
-  if (!admin) redirect(loginUrl());
+  if (!admin || !staffCan(admin, 'platform.integrations.read')) redirect(loginUrl());
 
   let notifyStatus: Awaited<ReturnType<typeof getNotificationStatus>> | null = null;
   try {

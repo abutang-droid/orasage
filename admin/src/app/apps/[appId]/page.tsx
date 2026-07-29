@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { getAdminUser, loginUrl } from '@/lib/auth';
+import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
 
 const APP_PACKS: Record<
   string,
   {
     title: string;
+    permission: 'app.bazi' | 'app.ziwei' | 'app.tarot';
     summary: string;
     links: Array<{ label: string; href: string; note?: string }>;
   }
 > = {
   bazi: {
     title: '八字',
+    permission: 'app.bazi',
     summary: 'Config Pack：app.bazi。展示走 content，计费走 billing；本页仅概览与深链。',
     links: [
       { label: 'Hero', href: '/content/heroes?app=bazi' },
@@ -21,6 +23,7 @@ const APP_PACKS: Record<
   },
   ziwei: {
     title: '紫微',
+    permission: 'app.ziwei',
     summary: 'Config Pack：app.ziwei。',
     links: [
       { label: 'Hero', href: '/content/heroes?app=ziwei' },
@@ -30,6 +33,7 @@ const APP_PACKS: Record<
   },
   tarot: {
     title: '塔罗',
+    permission: 'app.tarot',
     summary: 'Config Pack：app.tarot。',
     links: [
       { label: 'Hero', href: '/content/heroes?app=tarot' },
@@ -49,6 +53,7 @@ export default async function AppPackOverviewPage({ params }: Props) {
   const appId = decodeURIComponent(raw).toLowerCase();
   const pack = APP_PACKS[appId];
   if (!pack) notFound();
+  if (!staffCan(user, pack.permission)) redirect(loginUrl());
 
   return (
     <div className="admin-page">

@@ -57,9 +57,11 @@
 
 **测试门禁 PB**
 
-- [ ] 权限矩阵用例：有权/无权 API 403 与菜单一致
-- [ ] 旧 grant 迁移或兼容映射单测/手测清单
-- [ ] changelog + `rulesImpact`（权限枚举变更）
+- [x] `npx tsx scripts/test-staff-permissions.mjs` 矩阵通过（含旧名别名）
+- [x] auth-service / admin `npm run build` 通过
+- [x] analytics / im / integrations / storefront API 与页面门闩对齐新权限
+- [x] 子账号 extras 扩大且 sanitize；finance 永不授出；meta 含 partnerAssignable
+- [x] changelog + `rulesImpact`（权限枚举变更）
 
 ---
 
