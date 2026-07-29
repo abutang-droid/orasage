@@ -18,7 +18,7 @@ export const HERO_VIDEO_UPLOAD_SPEC = [
   '· 格式：MP4（H.264，推荐）或 WebM',
   '· 比例：16:9 横屏',
   '· 尺寸：建议 1920×1080 或 1280×720',
-  '· 体积：≤ 15 MB',
+  '· 体积：≤ 20 MB',
   '· 播放：前台静音循环、约 30% 透明度作背景',
 ].join('\n');
 
@@ -28,7 +28,7 @@ export const HERO_VIDEO_URL_SPEC =
 export const MEDIA_LIBRARY_SPEC = [
   '【媒体库通用规范】',
   '· 图片：WebP / JPG / PNG，单张建议 ≤ 2 MB',
-  '· 视频：MP4 / WebM，单条建议 ≤ 15 MB',
+  '· 视频：MP4 / WebM，单条建议 ≤ 20 MB',
   '· 替代文字（alt）必填，用于无障碍与 SEO',
   '· 上传后可在各 Hero / 圣地等字段中引用',
 ].join('\n');
