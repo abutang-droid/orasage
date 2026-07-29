@@ -35,3 +35,8 @@ CREATE TABLE IF NOT EXISTS "config_audit_logs" (
 
 CREATE INDEX IF NOT EXISTS "config_audit_logs_partner_idx"
   ON "config_audit_logs" ("partner_id", "created_at" DESC);
+
+GRANT ALL ON TABLE "partner_api_keys" TO orasage;
+GRANT ALL ON TABLE "config_audit_logs" TO orasage;
+GRANT USAGE, SELECT ON SEQUENCE "partner_api_keys_id_seq" TO orasage;
+GRANT USAGE, SELECT ON SEQUENCE "config_audit_logs_id_seq" TO orasage;
