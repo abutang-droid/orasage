@@ -14,6 +14,7 @@ type ProductHeroGalleryProps = {
   videoUrl?: string | null;
 };
 
+/** 无视频最多 5 图；有主图视频时 = 视频首帧 + 最多 4 图 */
 const MAX_SLIDES = 5;
 
 export function ProductHeroGallery({
@@ -29,14 +30,23 @@ export function ProductHeroGallery({
         ? [{ url: fallbackUrl, alt: productName }]
         : [];
 
-  const maxImages = videoUrl ? MAX_SLIDES - 1 : MAX_SLIDES;
-  const slides: GallerySlide[] = baseImages
+  const hasVideo = Boolean(videoUrl?.trim());
+  const maxImages = hasVideo ? MAX_SLIDES - 1 : MAX_SLIDES;
+  const imageSlides: GallerySlide[] = baseImages
     .slice(0, maxImages)
     .map((img) => ({ kind: 'image' as const, url: img.url, alt: img.alt }));
 
-  if (videoUrl) {
-    slides.push({ kind: 'video', url: videoUrl, poster: baseImages[0]?.url });
-  }
+  // 主图视频占 Hero 首帧（详情页打开即播），图片跟在后面
+  const slides: GallerySlide[] = hasVideo
+    ? [
+        {
+          kind: 'video',
+          url: videoUrl!.trim(),
+          poster: baseImages[0]?.url,
+        },
+        ...imageSlides,
+      ]
+    : imageSlides;
 
   const [index, setIndex] = useState(0);
   const active = slides[index] ?? slides[0];
@@ -47,7 +57,7 @@ export function ProductHeroGallery({
 
   return (
     <div className="shop-pdp-gallery">
-      <div className="shop-pdp-gallery-stage">
+      <div className={`shop-pdp-gallery-stage${active.kind === 'video' ? ' is-video' : ''}`}>
         {active.kind === 'video' ? (
           <video
             key={active.url}
@@ -73,22 +83,26 @@ export function ProductHeroGallery({
       </div>
 
       {slides.length > 1 ? (
-        <div className="shop-pdp-gallery-thumbs" role="tablist" aria-label="商品图片">
+        <div className="shop-pdp-gallery-thumbs" role="tablist" aria-label="商品主图">
           {slides.map((slide, i) => (
             <button
-              key={`${slide.url}-${i}`}
+              key={`${slide.kind}-${slide.url}-${i}`}
               type="button"
               role="tab"
               aria-selected={i === index}
-              aria-label={slide.kind === 'video' ? '商品视频' : `第 ${i + 1} 张图片`}
-              className={`shop-pdp-gallery-thumb${i === index ? ' is-active' : ''}`}
+              aria-label={slide.kind === 'video' ? '主图视频' : `第 ${i + 1} 张`}
+              className={`shop-pdp-gallery-thumb${i === index ? ' is-active' : ''}${
+                slide.kind === 'video' ? ' is-video' : ''
+              }`}
               onClick={() => setIndex(i)}
             >
               {slide.kind === 'video' ? (
                 <>
                   {slide.poster ? (
                     <Image src={slide.poster} alt="" fill sizes="80px" className="shop-pdp-gallery-thumb-img" />
-                  ) : null}
+                  ) : (
+                    <span className="shop-pdp-gallery-thumb-video-fallback" aria-hidden />
+                  )}
                   <span className="shop-pdp-gallery-thumb-play" aria-hidden>
                     ▶
                   </span>

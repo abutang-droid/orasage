@@ -92,7 +92,8 @@ export const ShopProductPage: CollectionConfig = {
       type: 'text',
       label: '主图视频 URL',
       admin: {
-        description: '可选。占用一个主图位（最多 4 图 + 1 视频），建议 1:1 或 16:9 MP4',
+        description:
+          '可选。详情页顶部轮播【首帧】自动播放（最多 4 图 + 1 视频）。建议 1:1 或 16:9 MP4，≤20MB。与「场景视频」不同：场景视频在购买区下方独立展示。',
       },
     },
     {
@@ -100,7 +101,8 @@ export const ShopProductPage: CollectionConfig = {
       type: 'text',
       label: '场景视频 URL',
       admin: {
-        description: '可选。展示在详情内容区的场景视频，建议 16:9 MP4',
+        description:
+          '可选。购买区下方「佩戴场景」区块，建议 16:9 MP4。勿与主图视频重复同一文件（除非刻意）。',
       },
     },
     {
@@ -109,7 +111,8 @@ export const ShopProductPage: CollectionConfig = {
       type: 'array',
       minRows: 0,
       admin: {
-        description: '建议 1:1 或 4:5，首张为详情页默认主图。列表缩略图仍使用「商品主图」。',
+        description:
+          '详情页顶部轮播图。有主图视频时最多 4 张（视频占首帧）；无视频时最多 5 张。首张图同时作为视频 poster。列表缩略图仍用「商品主图」。',
       },
       fields: [
         {
