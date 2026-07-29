@@ -156,13 +156,13 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             <ProductVideoUploadField
               name="galleryVideo"
               label="主图视频"
-              description="详情页顶部主图区域的视频"
+              description="详情页顶部主图区域；短片 ≤ 15 MB，建议 720p H.264"
               currentUrl={doc?.galleryVideoUrl}
             />
             <ProductVideoUploadField
               name="sceneVideo"
               label="场景视频"
-              description="商品使用场景展示视频"
+              description="购买区下方；短片 ≤ 15 MB；前台进视口后再加载"
               currentUrl={doc?.sceneVideoUrl}
             />
           </div>

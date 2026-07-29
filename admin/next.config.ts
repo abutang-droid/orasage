@@ -3,6 +3,12 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   transpilePackages: ['@orasage/ui', '@orasage/tokens', '@orasage/i18n'],
+  /** 商品短片经 Server Action 上传，需大于默认 1MB（短片规范 ≤15MB） */
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '25mb',
+    },
+  },
   async redirects() {
     return [
       { source: '/orders', destination: '/shop/orders', permanent: true },
