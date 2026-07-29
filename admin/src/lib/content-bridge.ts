@@ -1,4 +1,4 @@
-/** Phase A：内容自研路径 → Payload 桥接（Phase C 替换为自研编辑器） */
+/** 内部 CMS（Payload）逃生路径 — 仅超管「内部 CMS」导航使用；自研 /content/* 不再桥接 */
 
 export type ContentAppId = 'main' | 'shop' | 'bazi' | 'ziwei' | 'tarot';
 

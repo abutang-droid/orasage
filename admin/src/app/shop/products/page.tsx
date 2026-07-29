@@ -67,9 +67,13 @@ export default async function ProductsPage({
       <header className="page-header">
         <h1>商品管理</h1>
         <p className="muted">
-          交易目录：属性、标签、可见性、库存。店铺首页布局与水晶文案见
-          <Link href="/shop/storefront">「店铺展示」</Link>；PDP 长内容见
-          <Link href="/content/products">「商品内容」</Link>；计费见
+          交易入口（shop.catalog）：属性、标签、可见性、库存。店铺首页布局与水晶文案见
+          <Link href="/shop/storefront">「店铺展示」</Link>
+          ；PDP 长文与运营精选评价见
+          <Link href="/content/products">「商品内容」</Link>
+          ；买家 UGC 审核见
+          <Link href="/shop/reviews">「评价管理」</Link>
+          ；计费见
           <Link href="/billing">「应用计费」</Link>。
         </p>
       </header>

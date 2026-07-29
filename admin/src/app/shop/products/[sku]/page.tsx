@@ -100,7 +100,12 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
         </p>
         <h1>编辑商品 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{product.sku}</code> · 属性/价格在下方表单；媒体资源独立保存。
+          SKU <code>{product.sku}</code> · 本页为交易入口：属性、价格、库存、可见性与目录媒体。
+          PDP 长文 / 运营精选评价见{' '}
+          <Link href={`/content/products/${encodeURIComponent(product.sku)}`}>
+            商品内容
+          </Link>
+          。
         </p>
       </header>
 

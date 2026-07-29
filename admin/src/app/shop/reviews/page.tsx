@@ -1,4 +1,5 @@
-import { getShopStaff, loginUrl } from '@/lib/auth';
+import Link from 'next/link';
+import { getShopStaff, loginUrl, staffCan } from '@/lib/auth';
 import { getProductReviews } from '@/lib/api';
 import { redirect } from 'next/navigation';
 import { ProductReviewsTable } from '@/components/ProductReviewsTable';
@@ -10,6 +11,7 @@ export default async function ShopReviewsPage({
 }) {
   const staff = await getShopStaff();
   if (!staff) redirect(loginUrl());
+  if (!staffCan(staff, 'shop.reviews')) redirect('/');
 
   const sp = (await searchParams) ?? {};
   let reviews: Awaited<ReturnType<typeof getProductReviews>>['reviews'] = [];
@@ -27,7 +29,9 @@ export default async function ShopReviewsPage({
       <header className="page-header">
         <h1>评价管理</h1>
         <p className="muted">
-          用户 UGC 评价审核。CMS「商品精选评价」为运营层内容，与此列表独立维护。
+          买家 UGC 审核（shop.reviews）。运营精选评价在{' '}
+          <Link href="/content/products">商品内容</Link>
+          （content.product）维护，两套入口、权限与数据源均独立。
         </p>
       </header>
 

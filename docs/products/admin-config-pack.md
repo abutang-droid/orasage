@@ -118,6 +118,8 @@ finance / wallets：无合作方 API、不进合作方权限枚举
 
 旧 `/cms/admin…` 主导航对合作方移除；平台超管可保留折叠「内部 CMS」。
 
+**Phase C**：`/content/*` 为自研控制面（仍写 CMS DB）；Payload Admin UI（`Users.access.admin`）仅 `staffRole === admin`。
+
 ---
 
 ## 7. 权限枚举（Phase B 已落地）

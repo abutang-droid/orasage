@@ -125,8 +125,8 @@ export const BILLING_NAV_ITEMS: AdminNavItem[] = [
 ];
 
 /**
- * 内容（Phase A：自研路径，内部仍桥接到 Payload；
- * 第三方将来只走自研 UI，不暴露 /cms/admin）
+ * 内容（Phase C：自研 /content/* 读写 CMS；
+ * 第三方与非超管不暴露 /cms/admin）
  */
 export const CONTENT_NAV_ITEMS: AdminNavItem[] = [
   {

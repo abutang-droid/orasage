@@ -87,14 +87,16 @@ export default async function ProductContentPage({ params, searchParams }: PageP
     <div className="admin-page">
       <header className="page-header">
         <p className="muted">
-          <Link href="/shop/products">← 商品列表</Link>
+          <Link href="/content/products">← 商品内容</Link>
           {' · '}
-          <Link href={`/shop/products/${encodeURIComponent(sku)}`}>基础信息编辑</Link>
+          <Link href={`/shop/products/${encodeURIComponent(sku)}`}>交易字段编辑</Link>
+          {' · '}
+          <Link href="/shop/reviews">UGC 评价审核</Link>
         </p>
         <h1>详情内容 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{sku}</code> · 每个语言独立一份文档，前台缺失语言自动回退简体。
-          发布后约 30 秒内商城生效。
+          SKU <code>{sku}</code> · 内容侧（PDP / 精选评价），与商城交易编辑分离。
+          每个语言独立一份文档，前台缺失语言自动回退简体；发布后约 30 秒内商城生效。
           <a
             href={`https://shop.orasage.com/product/${encodeURIComponent(sku)}`}
             target="_blank"
@@ -180,7 +182,12 @@ export default async function ProductContentPage({ params, searchParams }: PageP
       </section>
 
       <section className="panel">
-        <h2>精选评价（{locale} · {testimonials.length} 条）</h2>
+        <h2>运营精选评价（{locale} · {testimonials.length} 条）</h2>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>
+          此处为 CMS 运营精选（content.product），展示在 PDP 精选区。
+          真实买家 UGC 审核请走 <Link href="/shop/reviews">商城 · 评价管理</Link>
+          （shop.reviews），两套数据互不覆盖。
+        </p>
         <div className="table-wrap" style={{ marginBottom: '1rem' }}>
           <table className="data-table">
             <thead>

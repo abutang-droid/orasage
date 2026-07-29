@@ -19,7 +19,7 @@ export function ContentBridgePage({
       </header>
       <section className="panel">
         <p className="muted" style={{ marginBottom: '1rem' }}>
-          Phase A：内容控制面仍桥接到内部 CMS。Phase C 将替换为自研表单；第三方永不直接进入 Payload。
+          内部逃生舱：仅平台超管应使用 Payload。日常内容请走自研 /content/*。
         </p>
         {href ? (
           <p>

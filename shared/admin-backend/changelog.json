@@ -2,6 +2,32 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-phase-c-内容自研控制面",
+      "date": "2026-07-29",
+      "title": "Phase C：内容自研控制面",
+      "summary": "自研 /content/* 编辑 Hero、页面、信息流、信仰、媒体与商品内容；交易/内容与 UGC/精选评价入口拆清；Payload Admin 仅超管（staffRole）可进。",
+      "modules": [
+        "content",
+        "shop",
+        "platform"
+      ],
+      "phase": "C",
+      "rulesImpact": {
+        "added": [
+          "Payload Users.access.admin 仅 staffRole===admin；SSO 同步 staffRole"
+        ],
+        "changed": [
+          "内容日常入口强制自研 /content/*；第三方/非超管不得使用 /cms/admin"
+        ],
+        "removed": [
+          ""
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
       "id": "2026-07-29-phase-b-权限枚举对齐与-api-页面门闩",
       "date": "2026-07-29",
       "title": "Phase B：权限枚举对齐与 API/页面门闩",

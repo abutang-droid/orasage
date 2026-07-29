@@ -76,9 +76,9 @@
 
 **测试门禁 PC**
 
-- [ ] 自研页读写与前台展示一致（main/shop/apps Hero 抽检）
-- [ ] 合作方账号无 Payload 入口
-- [ ] changelog
+- [x] 自研页读写与前台展示一致（main/shop/apps Hero 抽检）
+- [x] 合作方账号无 Payload 入口（Payload `Users.access.admin` 仅 `staffRole===admin`；侧栏「内部 CMS」仅超管）
+- [x] changelog
 
 ---
 

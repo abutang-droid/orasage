@@ -20,7 +20,7 @@ export function ProductCmsLinks({
         详情：{productPageStatusLabel(pageStatus)}
       </span>
       <Link href={`/content/products/${encodeURIComponent(sku)}`} className="admin-cms-link">
-        编辑详情与评价
+        内容（PDP / 精选评价）
       </Link>
       <a
         href={`https://shop.orasage.com/product/${encodeURIComponent(sku)}`}
