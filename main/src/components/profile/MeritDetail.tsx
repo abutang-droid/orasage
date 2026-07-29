@@ -5,7 +5,7 @@ import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { BlessingMeritDetail, MeritDetailRules, MeritRuleRow } from '@/lib/tarot-merit';
-import { externalUrls } from '@/lib/urls';
+import { externalUrlsForLocale } from '@/lib/urls';
 import { BlessingPrefsCard } from './BlessingPrefsCard';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
@@ -125,7 +125,7 @@ export function MeritDetail() {
       <div className="space-y-4 text-center">
         <p className="text-sm text-muted-foreground">{t('notLinked')}</p>
         <a
-          href={externalUrls.temple}
+          href={externalUrlsForLocale(locale).temple}
           className="inline-flex min-h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
         >
           {t('goTemple')}
@@ -286,7 +286,7 @@ export function MeritDetail() {
         {recent.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {t('recentEmpty')}{' '}
-            <a href={externalUrls.temple} className="text-primary underline underline-offset-2">
+            <a href={externalUrlsForLocale(locale).temple} className="text-primary underline underline-offset-2">
               {t('goTemple')}
             </a>
           </p>

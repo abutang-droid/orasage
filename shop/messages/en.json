@@ -256,5 +256,14 @@
       "review": "Review",
       "article": "Article"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "meta": {
+    "title": "OraSage Energy Shop",
+    "description": "Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage."
   }
 }

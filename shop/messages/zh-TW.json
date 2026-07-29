@@ -256,5 +256,14 @@
       "review": "測評",
       "article": "文章"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. 保留所有權利。",
+    "privacy": "隱私政策",
+    "terms": "服務條款"
+  },
+  "meta": {
+    "title": "OraSage 能量商城",
+    "description": "水晶手串、數字命理報告與能量諮詢 — OraSage 精選。"
   }
 }

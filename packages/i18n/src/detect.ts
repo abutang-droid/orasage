@@ -24,10 +24,18 @@ export function detectLocale(options?: DetectLocaleOptions): string {
 export function detectLocaleFromBrowser(): string {
   if (typeof window === 'undefined') return normalizeLocale(null);
   const params = new URLSearchParams(window.location.search);
-  const queryLang = params.get('lang');
+  // Fortune apps use ?lang=; shop uses ?locale= — accept either.
+  const queryLang = params.get('lang') ?? params.get('locale');
   const cookies = document.cookie.split(';').map((c) => c.trim());
-  const readCookie = (name: string) =>
-    cookies.find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
+  const readCookie = (name: string) => {
+    const raw = cookies.find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
+    if (!raw) return null;
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  };
   return detectLocale({
     queryLocale: queryLang,
     cookieLocale: readCookie(LOCALE_OVERRIDE_COOKIE) ?? readCookie(LOCALE_COOKIE),

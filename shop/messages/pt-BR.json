@@ -256,5 +256,14 @@
       "review": "Análise",
       "article": "Artigo"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. Todos os direitos reservados.",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço"
+  },
+  "meta": {
+    "title": "Loja de Energia OraSage",
+    "description": "Pulseiras de cristal, relatórios de adivinhação e consultas de energia — seleção OraSage."
   }
 }

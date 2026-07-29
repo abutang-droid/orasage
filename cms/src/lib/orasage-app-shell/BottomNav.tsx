@@ -2,9 +2,10 @@
 
 import { Flame, Home, LayoutGrid, ShoppingCart, User } from 'lucide-react';
 import {
-  ORASAGE_URLS,
   mainPortalUrl,
   profileUrl,
+  shopUrl,
+  templeUrl,
   isCurrentAppHome,
   isOnPortalHome,
   isOnProfile,
@@ -85,12 +86,12 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
           <span className="orasage-app-nav-brand">{slot2.label}</span>
         </a>
 
-        <a href={ORASAGE_URLS.temple} className="orasage-app-nav-item" data-active={onTemple ? 'true' : 'false'}>
+        <a href={templeUrl(locale)} className="orasage-app-nav-item" data-active={onTemple ? 'true' : 'false'}>
           <NavIcon name="blessing" active={onTemple} />
           <span>{pickLabel(SHELL_LABELS.blessing, locale)}</span>
         </a>
 
-        <a href={ORASAGE_URLS.shop} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>
+        <a href={shopUrl(locale)} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>
           <NavIcon name="shop" active={onShop} />
           <span>{pickLabel(SHELL_LABELS.shop, locale)}</span>
         </a>

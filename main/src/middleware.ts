@@ -34,15 +34,20 @@ function redirectDeprecatedLocale(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(url, 308);
 }
 
-/** 祈福在 tarot 子域，主站 /temple 与 /{locale}/temple 统一跳转 */
+/** 祈福在 tarot 子域，主站 /temple 与 /{locale}/temple 统一跳转（保留语言） */
 function redirectTemple(request: NextRequest): NextResponse | null {
   const normalized = request.nextUrl.pathname.replace(/\/$/, '') || '/';
   if (normalized === '/temple') {
-    return NextResponse.redirect(externalUrls.temple, 308);
+    const url = new URL(externalUrls.temple);
+    url.searchParams.set('lang', 'zh-CN');
+    return NextResponse.redirect(url, 308);
   }
   const localeTemple = new RegExp(`^/(${PORTAL_LOCALES})/temple$`);
-  if (localeTemple.test(normalized)) {
-    return NextResponse.redirect(externalUrls.temple, 308);
+  const match = normalized.match(localeTemple);
+  if (match) {
+    const url = new URL(externalUrls.temple);
+    url.searchParams.set('lang', match[1]);
+    return NextResponse.redirect(url, 308);
   }
   return null;
 }

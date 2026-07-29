@@ -35,6 +35,22 @@ export const ORASAGE_URLS = {
   temple: 'https://tarot.orasage.com/temple',
 } as const;
 
+/** Append locale query so cross-subdomain hops keep UI language when cookie is missing/stale. */
+export function withLocaleQuery(
+  url: string,
+  locale: string,
+  param: 'lang' | 'locale' = 'lang',
+): string {
+  try {
+    const u = new URL(url);
+    u.searchParams.set(param, locale);
+    return u.toString();
+  } catch {
+    const join = url.includes('?') ? '&' : '?';
+    return `${url}${join}${param}=${encodeURIComponent(locale)}`;
+  }
+}
+
 export function mainPortalUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}`;
 }
@@ -49,6 +65,16 @@ export function famousUrl(locale = 'zh-CN'): string {
 
 export function daozangUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/daozang`;
+}
+
+/** Tarot temple (祈福) with ?lang= */
+export function templeUrl(locale = 'zh-CN'): string {
+  return withLocaleQuery(ORASAGE_URLS.temple, locale, 'lang');
+}
+
+/** Shop home with ?locale= */
+export function shopUrl(locale = 'zh-CN'): string {
+  return withLocaleQuery(ORASAGE_URLS.shop, locale, 'locale');
 }
 
 export const APP_HOME_PATH: Record<AppId, string> = {
@@ -88,10 +114,11 @@ export function isCurrentAppHome(appId: AppId, pathname: string): boolean {
   return pathname === home;
 }
 
-export function appHomeUrl(appId: AppId): string {
+export function appHomeUrl(appId: AppId, locale = 'zh-CN'): string {
   const base = ORASAGE_URLS[appId];
   const path = APP_HOME_PATH[appId];
-  return path === '/' ? base : `${base}${path}`;
+  const href = path === '/' ? base : `${base}${path}`;
+  return withLocaleQuery(href, locale, appId === 'shop' ? 'locale' : 'lang');
 }
 
 export type ExploreItem = {
@@ -104,23 +131,43 @@ export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
   return [
     {
       id: 'bazi',
-      href: ORASAGE_URLS.bazi,
-      labels: { 'zh-CN': '八字揭秘', en: 'BaZi Insights', 'zh-TW': '八字揭秘' },
+      href: appHomeUrl('bazi', locale),
+      labels: {
+        'zh-CN': '八字揭秘',
+        en: 'BaZi Insights',
+        'zh-TW': '八字揭秘',
+        'pt-BR': 'BaZi',
+      },
     },
     {
       id: 'ziwei',
-      href: ORASAGE_URLS.ziwei,
-      labels: { 'zh-CN': '紫微斗数', en: 'ZiWei Dou Shu', 'zh-TW': '紫微斗數' },
+      href: appHomeUrl('ziwei', locale),
+      labels: {
+        'zh-CN': '紫微斗数',
+        en: 'ZiWei Dou Shu',
+        'zh-TW': '紫微斗數',
+        'pt-BR': 'Zi Wei',
+      },
     },
     {
       id: 'famous',
       href: famousUrl(locale),
-      labels: { 'zh-CN': '名人案例', en: 'Famous Cases', 'zh-TW': '名人案例' },
+      labels: {
+        'zh-CN': '名人案例',
+        en: 'Famous Cases',
+        'zh-TW': '名人案例',
+        'pt-BR': 'Casos Famosos',
+      },
     },
     {
       id: 'daozang',
       href: daozangUrl(locale),
-      labels: { 'zh-CN': '道藏库', en: 'Dao Canon', 'zh-TW': '道藏庫' },
+      labels: {
+        'zh-CN': '道藏库',
+        en: 'Dao Canon',
+        'zh-TW': '道藏庫',
+        'pt-BR': 'Canon Taoista',
+      },
     },
   ];
 }
@@ -174,11 +221,11 @@ export function rotationExploreLink(
 ): { href: string; label: string } {
   switch (id) {
     case 'bazi':
-      return { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) };
+      return { href: appHomeUrl('bazi', locale), label: pickLabel(SHELL_LABELS.bazi, locale) };
     case 'tarot':
-      return { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) };
+      return { href: appHomeUrl('tarot', locale), label: pickLabel(SHELL_LABELS.tarot, locale) };
     case 'ziwei':
-      return { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) };
+      return { href: appHomeUrl('ziwei', locale), label: pickLabel(SHELL_LABELS.ziwei, locale) };
     case 'daozang':
       return { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) };
     case 'famous':
@@ -212,7 +259,7 @@ export function resolveSecondNavSlot(
 
   const appId = context;
   return {
-    href: appHomeUrl(appId),
+    href: appHomeUrl(appId, locale),
     label: appBrandLabel(appId, locale),
     active: isCurrentAppHome(appId, pathname),
     kind: 'app',

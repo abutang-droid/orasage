@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { externalUrls } from '@/lib/urls';
+import { externalUrlsForLocale } from '@/lib/urls';
 import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
 import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
 
@@ -10,17 +10,18 @@ import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
 export function Header() {
   const tNav = useTranslations('nav');
   const locale = useLocale();
+  const external = externalUrlsForLocale(locale);
 
   const navItems: Array<
     | { href: '/' | '/famous' | '/daozang'; label: string }
     | { href: string; label: string; external: true }
   > = [
     { href: '/', label: tNav('home') },
-    { href: externalUrls.bazi, label: tNav('bazi'), external: true },
-    { href: externalUrls.ziwei, label: tNav('ziwei'), external: true },
-    { href: externalUrls.tarot, label: tNav('tarot'), external: true },
-    { href: externalUrls.temple, label: tNav('blessing'), external: true },
-    { href: externalUrls.shop, label: tNav('shop'), external: true },
+    { href: external.bazi, label: tNav('bazi'), external: true },
+    { href: external.ziwei, label: tNav('ziwei'), external: true },
+    { href: external.tarot, label: tNav('tarot'), external: true },
+    { href: external.temple, label: tNav('blessing'), external: true },
+    { href: external.shop, label: tNav('shop'), external: true },
     { href: '/famous', label: tNav('famous') },
     { href: '/daozang', label: tNav('daozang') },
   ];

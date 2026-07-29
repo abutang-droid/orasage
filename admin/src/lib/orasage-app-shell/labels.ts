@@ -14,6 +14,9 @@ type LabelSet = {
   energyShop: Record<string, string>;
   famous: Record<string, string>;
   daozang: Record<string, string>;
+  privacy: Record<string, string>;
+  terms: Record<string, string>;
+  copyright: Record<string, string>;
 };
 
 export const SHELL_LABELS: LabelSet = {
@@ -106,6 +109,24 @@ export const SHELL_LABELS: LabelSet = {
     en: 'Dao Canon',
     'zh-TW': '道藏',
     'pt-BR': 'Canon Taoista',
+  },
+  privacy: {
+    'zh-CN': '隐私政策',
+    en: 'Privacy Policy',
+    'zh-TW': '隱私政策',
+    'pt-BR': 'Política de Privacidade',
+  },
+  terms: {
+    'zh-CN': '服务条款',
+    en: 'Terms of Service',
+    'zh-TW': '服務條款',
+    'pt-BR': 'Termos de Serviço',
+  },
+  copyright: {
+    'zh-CN': '© 2026 OraSage. 保留所有权利。',
+    en: '© 2026 OraSage. All rights reserved.',
+    'zh-TW': '© 2026 OraSage. 保留所有權利。',
+    'pt-BR': '© 2026 OraSage. Todos os direitos reservados.',
   },
 };
 
