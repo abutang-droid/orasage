@@ -60,13 +60,33 @@ export default async function PartnersPage() {
   return (
     <div className="admin-page">
       <header className="page-header">
-        <h1>合作方</h1>
-        <p className="muted">
-          多租户：平台自营 slug 固定为 <code>{platformSlug}</code>。
-          当前会话 partner：<code>{currentPartnerId}</code>。
-          超管可用 API 查询参数 <code>?partner=</code> 切换作用域。
-          对外 Module API 基址：<code>{ENV.authUrl}</code>。
-        </p>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: '1rem',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div>
+            <h1 style={{ marginBottom: '0.35rem' }}>合作方</h1>
+            <p className="muted" style={{ margin: 0 }}>
+              多租户：平台自营 slug 固定为 <code>{platformSlug}</code>。
+              当前会话 partner：<code>{currentPartnerId}</code>。
+              对外 Module API：<code>{ENV.authUrl}</code>。
+            </p>
+          </div>
+          {isSuperAdmin ? (
+            <a
+              href="#create-partner"
+              className="admin-submit-btn admin-submit-btn--primary admin-submit-btn--sm"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+            >
+              新建合作方 / 创建 slug
+            </a>
+          ) : null}
+        </div>
       </header>
       <PartnersManagePanel
         partners={partners}

@@ -2,6 +2,22 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-合作方页-置顶新建-slug-入口",
+      "date": "2026-07-29",
+      "title": "合作方页：置顶新建 slug 入口",
+      "summary": "将「新建合作方（创建 slug）」表单置顶并加页头按钮与字段标签；API 说明改为折叠，避免挡住开户入口。无全局规则变更。",
+      "modules": [
+        "platform"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [],
+        "changed": [],
+        "removed": []
+      },
+      "links": []
+    },
+    {
       "id": "2026-07-29-合作方页-module-api-开户与调用说明",
       "date": "2026-07-29",
       "title": "合作方页：Module API 开户与调用说明",
