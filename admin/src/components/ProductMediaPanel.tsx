@@ -164,13 +164,13 @@ export function ProductMediaPanel({
           <ProductVideoUploadField
             name="galleryVideo"
             label="主图视频"
-            description="详情页顶部主图区域的视频"
+            description="详情页顶部主图区域的视频（MP4/WebM/MOV，≤ 20 MB）"
             currentUrl={galleryVideoUrl}
           />
           <ProductVideoUploadField
             name="sceneVideo"
             label="场景视频"
-            description="商品使用场景展示视频"
+            description="商品使用场景展示视频（MP4/WebM/MOV，≤ 20 MB）"
             currentUrl={sceneVideoUrl}
           />
         </div>

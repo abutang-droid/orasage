@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+/** 与 nginx / Next Server Action 上限对齐（略留余量给表单其它字段） */
+export const MAX_PRODUCT_VIDEO_BYTES = 20 * 1024 * 1024;
+
 type ProductVideoUploadFieldProps = {
   /** form field prefix, e.g. galleryVideo → galleryVideoFile / galleryVideoUrl / galleryVideoClear */
   name: string;
@@ -20,6 +23,7 @@ export function ProductVideoUploadField({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [cleared, setCleared] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -33,6 +37,17 @@ export function ProductVideoUploadField({
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_PRODUCT_VIDEO_BYTES) {
+      setSizeError(`视频超过 20 MB（当前 ${(file.size / (1024 * 1024)).toFixed(1)} MB），请压缩后再上传`);
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setFileName(null);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+    setSizeError(null);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -43,6 +58,7 @@ export function ProductVideoUploadField({
 
   const onClearChange = (checked: boolean) => {
     setCleared(checked);
+    setSizeError(null);
     if (checked) {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -76,10 +92,14 @@ export function ProductVideoUploadField({
         )}
       </button>
 
-      {fileName ? (
+      {sizeError ? (
+        <p style={{ color: 'var(--destructive, #c00)', margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
+          {sizeError}
+        </p>
+      ) : fileName ? (
         <p className="product-media-pending">待保存：{fileName}</p>
       ) : (
-        <p className="product-media-hint muted">支持 MP4 / WebM / MOV</p>
+        <p className="product-media-hint muted">支持 MP4 / WebM / MOV，单文件 ≤ 20 MB</p>
       )}
 
       <input
