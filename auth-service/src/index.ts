@@ -12,6 +12,7 @@ import { productsRouter } from "./routes/products.ts";
 import { adminApiRouter } from "./routes/admin-api.ts";
 import { staffAdminRouter } from "./routes/staff-admin.ts";
 import { partnersAdminRouter } from "./routes/partners-admin.ts";
+import { moduleApiV1Router } from "./routes/module-api-v1.ts";
 import { citiesRouter } from "./routes/cities.ts";
 import { ziweiChatRouter, ziweiChatInternalRouter } from "./routes/ziwei-chat.ts";
 import { billingRouter } from "./routes/billing.ts";
@@ -46,6 +47,8 @@ app.use("/api/telegram/webhook", telegramWebhookRouter);
 app.use("/api/admin", adminApiRouter);
 app.use("/api/admin/staff", staffAdminRouter);
 app.use("/api/admin/partners", partnersAdminRouter);
+/** Phase E：合作方 Module API（API Key，非员工 Cookie） */
+app.use("/v1/partners", moduleApiV1Router);
 app.use("/internal", internalOnly, internalRouter);
 app.use("/internal/ziwei/chat", internalOnly, ziweiChatInternalRouter);
 app.use("/internal/diy", internalOnly, diyInternalRouter);

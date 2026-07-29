@@ -111,8 +111,8 @@
 
 **测试门禁 PE**
 
-- [ ] 契约测试 + 越权否定用例
-- [ ] 文档与 changelog；规则若新增 API 纪律则写 `rulesImpact`
+- [x] 契约测试 + 越权否定用例（`npx tsx scripts/test-module-api-v1.mjs`；HTTP 否定用例需 `AUTH_URL`+`MODULE_API_KEY`+`MODULE_API_PARTNER`）
+- [x] 文档与 changelog；规则若新增 API 纪律则写 `rulesImpact`
 
 ---
 

@@ -633,6 +633,38 @@ export const partnerModules = pgTable(
   (t) => [unique("partner_modules_partner_module_uidx").on(t.partnerId, t.moduleKey)],
 );
 
+/** Phase E：Module API keys（明文仅创建时返回一次） */
+export const partnerApiKeys = pgTable("partner_api_keys", {
+  id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull(),
+  name: varchar("name", { length: 120 }).notNull().default("default"),
+  keyPrefix: varchar("key_prefix", { length: 24 }).notNull(),
+  keyHash: varchar("key_hash", { length: 64 }).notNull().unique(),
+  scopes: jsonb("scopes").$type<string[]>().notNull().default([]),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  lastUsedAt: timestamp("last_used_at"),
+  expiresAt: timestamp("expires_at"),
+  createdBy: integer("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at"),
+});
+
+/** Phase E：配置变更审计 */
+export const configAuditLogs = pgTable("config_audit_logs", {
+  id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull(),
+  actorType: varchar("actor_type", { length: 20 }).notNull(),
+  actorId: varchar("actor_id", { length: 120 }),
+  moduleKey: varchar("module_key", { length: 64 }),
+  action: varchar("action", { length: 64 }).notNull(),
+  resourceType: varchar("resource_type", { length: 64 }),
+  resourceId: varchar("resource_id", { length: 120 }),
+  before: jsonb("before"),
+  after: jsonb("after"),
+  requestId: varchar("request_id", { length: 64 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 
 export {

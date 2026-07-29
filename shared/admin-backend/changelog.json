@@ -2,6 +2,29 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-phase-e-module-api-v1-交付模板与配置审计",
+      "date": "2026-07-29",
+      "title": "Phase E：Module API v1、交付模板与配置审计",
+      "summary": "冻结 /v1/partners/{slug} 契约；partner_api_keys + config_audit_logs；交付模板 shop-only/tarot-only/full-apps；/partners 超管可签发 Key 与查看审计。无日历排期变更。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [
+          "Module API：API Key 鉴权；路径 partnerSlug 必须与 Key 的 partner_id 一致；有效 scope=Key∩partner_modules；禁止 finance/wallets/module:platform；配置写必须落 config_audit_logs；与商城 Partner 下单 API 分离"
+        ],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/module-api-v1.md",
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
       "id": "2026-07-29-phase-d-partnerid-multi-tenant",
       "date": "2026-07-29",
       "title": "Phase D partnerId multi-tenant",

@@ -88,3 +88,10 @@
    - 合作方有效权限 = 角色权限 ∩ `partner_modules` ∩ `PARTNER_ASSIGNABLE_PERMISSIONS`。  
    - `finance` / wallets 永不进入合作方权限或 Module API。  
    - L3 密钥状态仅对平台租户暴露真实探测结果。
+
+6. **Module API（Phase E）**  
+   - 契约见 [`docs/products/module-api-v1.md`](products/module-api-v1.md)；前缀 `/v1/partners/{partnerSlug}`。  
+   - 鉴权用 API Key（非员工 Cookie）；路径 `partnerSlug` **必须**与 Key 绑定的 `partner_id` 一致。  
+   - 有效 scope = Key scopes ∩ 已启用 `partner_modules`；禁止授出 finance / wallets / `module:platform`。  
+   - 配置写操作必须写入 `config_audit_logs`；不得绕过审计新增写接口。  
+   - Module API ≠ 商城 Partner 下单 API（platform-roadmap V2），勿混用。

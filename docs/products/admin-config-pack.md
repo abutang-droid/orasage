@@ -1,8 +1,8 @@
 # Admin 配置后台规范（Config Pack）
 
-> **状态**：已评审定稿（2026-07-28）· Phase A–C 已落地 · **Phase D（partnerId 隔离）已落地**  
-> **适用范围**：`admin.orasage.com`、相关 auth-service Admin API、内容控制面、合作方 Module API 规划  
-> **配套**：实施路线图见 [`docs/plans/admin-config-pack-roadmap.md`](../plans/admin-config-pack-roadmap.md)  
+> **状态**：已评审定稿（2026-07-28）· Phase A–D 已落地 · **Phase E（Module API v1 + 交付模板 + 审计）已落地**  
+> **适用范围**：`admin.orasage.com`、相关 auth-service Admin API、内容控制面、合作方 Module API  
+> **配套**：实施路线图见 [`docs/plans/admin-config-pack-roadmap.md`](../plans/admin-config-pack-roadmap.md) · Module API 契约 [`module-api-v1.md`](./module-api-v1.md)  
 > **Agent**：改后台前必读本文 + [`docs/AGENT-RULES.md`](../AGENT-RULES.md)「Admin 配置包」专节
 
 ---
@@ -100,6 +100,17 @@ finance / wallets：无合作方 API、不进合作方权限枚举
 | Admin API | 列表/写操作按 `scopedPartnerId` 过滤；超管可用 `?partner=` |
 | 有效权限 | 非 orasage 非超管 = 角色权限 ∩ 启用模块 ∩ `PARTNER_ASSIGNABLE` |
 | L3 集成 | 仅平台租户返回真实通道状态；合作方恒为未配置 |
+
+**Phase E 实现要点**
+
+| 项 | 说明 |
+|----|------|
+| 契约 | [`module-api-v1.md`](./module-api-v1.md)：`/v1/partners/{partnerSlug}/…`，Bearer / `X-Api-Key` |
+| Key | 表 `partner_api_keys`；明文仅创建时返回；scopes ∩ `partner_modules` |
+| 模板 | `shop-only` / `tarot-only` / `full-apps`（`shared/partners` · `DELIVERY_TEMPLATES`） |
+| 审计 | 表 `config_audit_logs`；Admin 与 Module API 写配置均落库 |
+| 禁止 | finance / wallets / L3 / Payload；路径 slug 必须与 Key 的 `partner_id` 一致 |
+| Admin UI | `/partners`：超管可套模板、签发/吊销 Key、查看审计 |
 
 ---
 
