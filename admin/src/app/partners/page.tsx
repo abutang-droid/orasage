@@ -8,6 +8,7 @@ import {
   type AdminPartnerApiKey,
 } from '@/lib/api';
 import { getAdminUser, loginUrl, staffCan } from '@/lib/auth';
+import { ENV } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
 export default async function PartnersPage() {
@@ -63,8 +64,8 @@ export default async function PartnersPage() {
         <p className="muted">
           多租户：平台自营 slug 固定为 <code>{platformSlug}</code>。
           当前会话 partner：<code>{currentPartnerId}</code>。
-          超管可用 API 查询参数 <code>?partner=</code> 切换作用域；
-          Module API（Phase E）见契约文档。
+          超管可用 API 查询参数 <code>?partner=</code> 切换作用域。
+          对外 Module API 基址：<code>{ENV.authUrl}</code>。
         </p>
       </header>
       <PartnersManagePanel
@@ -74,6 +75,7 @@ export default async function PartnersPage() {
         keysBySlug={keysBySlug}
         auditsBySlug={auditsBySlug}
         isSuperAdmin={isSuperAdmin}
+        moduleApiBaseUrl={ENV.authUrl}
       />
     </div>
   );

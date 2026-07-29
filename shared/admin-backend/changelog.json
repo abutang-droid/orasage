@@ -2,6 +2,24 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-合作方页-module-api-开户与调用说明",
+      "date": "2026-07-29",
+      "title": "合作方页：Module API 开户与调用说明",
+      "summary": "在 /partners「创建/更新合作方」栏内嵌对外 Module API 开户步骤、基址/路径表、鉴权与禁止项、对接最小信息包；无全局规则变更。",
+      "modules": [
+        "platform"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/module-api-v1.md"
+      ]
+    },
+    {
       "id": "2026-07-29-phase-e-module-api-v1-交付模板与配置审计",
       "date": "2026-07-29",
       "title": "Phase E：Module API v1、交付模板与配置审计",

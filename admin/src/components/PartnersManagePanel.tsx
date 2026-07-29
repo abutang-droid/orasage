@@ -7,6 +7,7 @@ import {
   revokePartnerApiKeyAction,
   upsertPartnerAction,
 } from '@/app/partners-actions';
+import { PartnerModuleApiGuide } from '@/components/PartnerModuleApiGuide';
 import { AdminSubmitButton } from '@/components/AdminButton';
 import type {
   AdminConfigAuditLog,
@@ -23,6 +24,7 @@ export function PartnersManagePanel({
   keysBySlug,
   auditsBySlug,
   isSuperAdmin,
+  moduleApiBaseUrl,
 }: {
   partners: AdminPartner[];
   platformSlug: string;
@@ -30,6 +32,7 @@ export function PartnersManagePanel({
   keysBySlug: Record<string, AdminPartnerApiKey[]>;
   auditsBySlug: Record<string, AdminConfigAuditLog[]>;
   isSuperAdmin: boolean;
+  moduleApiBaseUrl: string;
 }) {
   const [selected, setSelected] = useState(partners[0]?.slug ?? '');
   const [rawKey, setRawKey] = useState<string | null>(null);
@@ -116,10 +119,12 @@ export function PartnersManagePanel({
         <>
           <section className="panel">
             <h2 style={{ fontSize: '1rem', marginTop: 0 }}>创建 / 更新合作方</h2>
+            <PartnerModuleApiGuide
+              baseUrl={moduleApiBaseUrl}
+              exampleSlug={partner?.slug && partner.slug !== platformSlug ? partner.slug : 'acme-shop'}
+            />
             <p className="muted" style={{ marginTop: 0 }}>
-              可选交付模板（shop-only / tarot-only / full-apps）展开为{' '}
-              <code>partner_modules</code>。Module API 契约见{' '}
-              <code>docs/products/module-api-v1.md</code>。
+              保存后可在列表「管理」中签发 API Key、调整模块模板并查看审计。
             </p>
             <form
               action={(fd) =>
@@ -185,8 +190,10 @@ export function PartnersManagePanel({
               <section className="panel">
                 <h2 style={{ fontSize: '1rem', marginTop: 0 }}>Module API Keys</h2>
                 <p className="muted" style={{ marginTop: 0 }}>
-                  明文 Key 仅创建时显示一次。调用基址{' '}
-                  <code>/v1/partners/{'{partnerSlug}'}</code>。
+                  明文 Key 仅创建时显示一次。调用示例：
+                  <code style={{ display: 'block', marginTop: 4, wordBreak: 'break-all' }}>
+                    {`${moduleApiBaseUrl.replace(/\/$/, '')}/v1/partners/${partner.slug}/modules`}
+                  </code>
                 </p>
                 {rawKey ? (
                   <div
