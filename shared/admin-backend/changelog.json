@@ -2,6 +2,31 @@
   "version": 1,
   "entries": [
     {
+      "id": "2026-07-29-phase-d-partnerid-multi-tenant",
+      "date": "2026-07-29",
+      "title": "Phase D partnerId multi-tenant",
+      "summary": "partners/partner_modules/staff binding; config tables partner_id=orasage; Admin API tenant scope; integrations filtered by partner; seed demo-partner.",
+      "modules": [
+        "platform",
+        "shop"
+      ],
+      "phase": "D",
+      "rulesImpact": {
+        "added": [
+          "Admin API must filter by partnerId; partner perms = role intersect modules intersect PARTNER_ASSIGNABLE; L3 status real only for platform tenant"
+        ],
+        "changed": [
+          "Multi-tenant invariants now backed by tables and API scope"
+        ],
+        "removed": [
+          ""
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
       "id": "2026-07-29-phase-c-内容自研控制面",
       "date": "2026-07-29",
       "title": "Phase C：内容自研控制面",

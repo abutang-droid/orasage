@@ -1,6 +1,6 @@
 # Admin 配置后台规范（Config Pack）
 
-> **状态**：已评审定稿（2026-07-28）· Phase A（IA/路由）+ **Phase B（权限）已落地**  
+> **状态**：已评审定稿（2026-07-28）· Phase A–C 已落地 · **Phase D（partnerId 隔离）已落地**  
 > **适用范围**：`admin.orasage.com`、相关 auth-service Admin API、内容控制面、合作方 Module API 规划  
 > **配套**：实施路线图见 [`docs/plans/admin-config-pack-roadmap.md`](../plans/admin-config-pack-roadmap.md)  
 > **Agent**：改后台前必读本文 + [`docs/AGENT-RULES.md`](../AGENT-RULES.md)「Admin 配置包」专节
@@ -90,6 +90,16 @@ finance / wallets：无合作方 API、不进合作方权限枚举
 ```
 
 第一期 UI：同域账号隔离。数据与 API 契约仍带 `partnerId`。
+
+**Phase D 实现要点**
+
+| 项 | 说明 |
+|----|------|
+| 表 | `partners` / `partner_modules`；员工 `users.partner_id`；配置表 `partner_id` 默认 `orasage` |
+| 种子 | `orasage`（全模块）+ `demo-partner`（缩略模块，隔离测试） |
+| Admin API | 列表/写操作按 `scopedPartnerId` 过滤；超管可用 `?partner=` |
+| 有效权限 | 非 orasage 非超管 = 角色权限 ∩ 启用模块 ∩ `PARTNER_ASSIGNABLE` |
+| L3 集成 | 仅平台租户返回真实通道状态；合作方恒为未配置 |
 
 ---
 

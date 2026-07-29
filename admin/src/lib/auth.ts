@@ -17,6 +17,8 @@ export interface StaffUser {
   id: number;
   role: StaffRole;
   permissions: AnyStaffPermission[];
+  partnerId?: string;
+  partnerModules?: string[];
 }
 
 /** @deprecated 使用 StaffUser */
@@ -44,12 +46,20 @@ async function readStaffFromCookie(): Promise<{ id: number; role: StaffRole } | 
 async function hydrateStaffSession(base: { id: number; role: StaffRole }): Promise<StaffUser | null> {
   try {
     const data = await adminFetch<{
-      user: { id: number; role: StaffRole; permissions: AnyStaffPermission[] };
+      user: {
+        id: number;
+        role: StaffRole;
+        permissions: AnyStaffPermission[];
+        partnerId?: string;
+        partnerModules?: string[];
+      };
     }>('/me');
     return {
       id: data.user.id,
       role: data.user.role,
       permissions: data.user.permissions ?? [],
+      partnerId: data.user.partnerId,
+      partnerModules: data.user.partnerModules,
     };
   } catch {
     return null;

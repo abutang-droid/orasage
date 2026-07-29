@@ -3,7 +3,8 @@ import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
-import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
+import { requireStaff, assertPermission, requireSuperAdmin, type AdminRequest } from "../lib/admin-auth.ts";
+import { PLATFORM_PARTNER_SLUG, scopedPartnerId } from "../lib/partner-scope.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
 import { getCrystalContent, getShopPublicConfig, setCrystalContent, setShopHomeLayout, SHOP_HOME_LAYOUTS } from "../lib/shop-settings.ts";
@@ -127,7 +128,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 adminApiRouter.get("/me", async (req, res) => {
-  const ctx = req as import("../lib/admin-auth.ts").AdminRequest;
+  const ctx = req as AdminRequest;
   res.json({
     user: {
       id: ctx.adminUser.id,
@@ -135,17 +136,20 @@ adminApiRouter.get("/me", async (req, res) => {
       nickname: ctx.adminUser.nickname,
       role: ctx.adminUser.role,
       staffLabel: ctx.adminUser.staffLabel,
+      partnerId: ctx.partnerId,
+      partnerModules: ctx.partnerModules,
       permissions: [...ctx.staffPermissions],
+      isPlatformAdmin: ctx.adminUser.role === "admin",
     },
   });
 });
 
-adminApiRouter.get("/stats", P.overview, async (_req, res) => {
+adminApiRouter.get("/stats", P.overview, async (req, res) => {
   const [[userCount], [orderCount], [readingCount], [productCount]] = await Promise.all([
     db.select({ value: count() }).from(users),
     db.select({ value: count() }).from(userOrders),
     db.select({ value: count() }).from(userReadings),
-    db.select({ value: count() }).from(products).where(eq(products.active, true)),
+    db.select({ value: count() }).from(products).where(and(eq(products.active, true), eq(products.partnerId, scopedPartnerId(req)))),
   ]);
 
   res.json({
@@ -182,8 +186,9 @@ adminApiRouter.get("/dashboard", P.analytics, async (req, res) => {
   res.json(dashboard);
 });
 
-adminApiRouter.get("/products", P.products, async (_req, res) => {
-  const rows = await db.select().from(products).orderBy(products.sortOrder, products.id);
+adminApiRouter.get("/products", P.products, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
+  const rows = await db.select().from(products).where(eq(products.partnerId, partnerId)).orderBy(products.sortOrder, products.id);
   const [categoryLabels, tagMap, comboMetaMap] = await Promise.all([
     getCategoryLabelMap(),
     tagsForProducts(rows.map((r) => r.id)),
@@ -204,19 +209,21 @@ const homepageSkusSchema = z.object({
   skus: z.array(z.string().min(1).max(100)).max(6),
 });
 
-adminApiRouter.get("/homepage-products", P.storefront, async (_req, res) => {
+adminApiRouter.get("/homepage-products", P.storefront, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
   const [skus, catalog] = await Promise.all([
-    listHomepageFeaturedSkus(),
-    resolveHomepageProducts(),
+    listHomepageFeaturedSkus(partnerId),
+    resolveHomepageProducts("zh-CN", partnerId),
   ]);
   res.json({ skus, ...catalog });
 });
 
 adminApiRouter.put("/homepage-products", P.storefront, async (req, res) => {
   try {
+    const partnerId = scopedPartnerId(req);
     const body = homepageSkusSchema.parse(req.body);
-    await setHomepageFeaturedSkus(body.skus);
-    const catalog = await resolveHomepageProducts();
+    await setHomepageFeaturedSkus(body.skus, partnerId);
+    const catalog = await resolveHomepageProducts("zh-CN", partnerId);
     res.json({ skus: body.skus, ...catalog });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -236,8 +243,8 @@ const shopLayoutSchema = z.object({
   homeLayout: z.enum(SHOP_HOME_LAYOUTS),
 });
 
-adminApiRouter.get("/shop-config", P.storefront, async (_req, res) => {
-  const config = await getShopPublicConfig();
+adminApiRouter.get("/shop-config", P.storefront, async (req, res) => {
+  const config = await getShopPublicConfig(scopedPartnerId(req));
   res.json({
     ...config,
     layouts: SHOP_HOME_LAYOUTS.map((id) => ({
@@ -250,7 +257,7 @@ adminApiRouter.get("/shop-config", P.storefront, async (_req, res) => {
 adminApiRouter.put("/shop-config", P.storefront, async (req, res) => {
   try {
     const body = shopLayoutSchema.parse(req.body);
-    const homeLayout = await setShopHomeLayout(body.homeLayout);
+    const homeLayout = await setShopHomeLayout(body.homeLayout, scopedPartnerId(req));
     res.json({ homeLayout });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -279,15 +286,15 @@ const crystalContentSchema = z.object({
   content: z.record(z.string(), crystalEntrySchema),
 });
 
-adminApiRouter.get("/crystal-content", P.storefront, async (_req, res) => {
-  const content = await getCrystalContent();
+adminApiRouter.get("/crystal-content", P.storefront, async (req, res) => {
+  const content = await getCrystalContent(scopedPartnerId(req));
   res.json({ content });
 });
 
 adminApiRouter.put("/crystal-content", P.storefront, async (req, res) => {
   try {
     const body = crystalContentSchema.parse(req.body);
-    const content = await setCrystalContent(body.content);
+    const content = await setCrystalContent(body.content, scopedPartnerId(req));
     res.json({ content });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -550,6 +557,7 @@ adminApiRouter.put("/products/:sku/combo-items", P.products, async (req, res) =>
 
 adminApiRouter.post("/products", P.products, async (req, res) => {
   try {
+    const partnerId = scopedPartnerId(req);
     const body = productBodySchema.parse(req.body);
     const dup = await db.select().from(products).where(eq(products.sku, body.sku)).limit(1);
     if (dup.length > 0) {
@@ -557,6 +565,7 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       return;
     }
     const [row] = await db.insert(products).values({
+      partnerId,
       sku: body.sku,
       name: body.name,
       nameI18n: body.nameI18n ?? null,
@@ -620,8 +629,9 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
 adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
+    const partnerId = scopedPartnerId(req);
     const body = productPatchSchema.parse(req.body);
-    const existing = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    const existing = await db.select().from(products).where(and(eq(products.sku, sku), eq(products.partnerId, partnerId))).limit(1);
     if (existing.length === 0) {
       res.status(404).json({ error: "商品不存在" });
       return;
@@ -694,7 +704,8 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
 adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
-    const [existing] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+    const partnerId = scopedPartnerId(req);
+    const [existing] = await db.select().from(products).where(and(eq(products.sku, sku), eq(products.partnerId, partnerId))).limit(1);
     if (!existing) {
       res.status(404).json({ error: "商品不存在" });
       return;
@@ -703,8 +714,8 @@ adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
     await db
       .update(products)
       .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
-      .where(eq(products.sku, sku));
-    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+      .where(and(eq(products.sku, sku), eq(products.partnerId, partnerId)));
+    await db.delete(homepageFeaturedProducts).where(and(eq(homepageFeaturedProducts.sku, sku), eq(homepageFeaturedProducts.partnerId, partnerId)));
 
     res.json({ success: true, sku, active: false });
   } catch (err) {
@@ -734,20 +745,23 @@ const beadBodySchema = z.object({
 
 const beadPatchSchema = beadBodySchema.partial().omit({ code: true });
 
-adminApiRouter.get("/diy/beads", P.diy, async (_req, res) => {
-  const rows = await db.select().from(diyBeads).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
+adminApiRouter.get("/diy/beads", P.diy, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
+  const rows = await db.select().from(diyBeads).where(eq(diyBeads.partnerId, partnerId)).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id));
   res.json({ beads: rows.map(formatBead) });
 });
 
 adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
   try {
+    const partnerId = scopedPartnerId(req);
     const body = beadBodySchema.parse(req.body);
-    const dup = await db.select().from(diyBeads).where(eq(diyBeads.code, body.code)).limit(1);
+    const dup = await db.select().from(diyBeads).where(and(eq(diyBeads.code, body.code), eq(diyBeads.partnerId, partnerId))).limit(1);
     if (dup.length > 0) {
       res.status(409).json({ error: "珠子编码已存在" });
       return;
     }
     const [row] = await db.insert(diyBeads).values({
+      partnerId,
       code: body.code,
       name: body.name,
       element: body.element ?? null,
@@ -817,19 +831,35 @@ const diyConfigSchema = z.object({
   wristEaseMm: z.number().min(0).max(30),
 });
 
-adminApiRouter.get("/diy/config", P.diy, async (_req, res) => {
-  const row = await getDiyConfigRow();
+adminApiRouter.get("/diy/config", P.diy, async (req, res) => {
+  const row = await getDiyConfigRow(scopedPartnerId(req));
   res.json({ config: formatDiyConfig(row) });
 });
 
 adminApiRouter.put("/diy/config", P.diy, async (req, res) => {
   try {
+    const partnerId = scopedPartnerId(req);
     const body = diyConfigSchema.parse(req.body);
-    await db.insert(diyConfig).values({ id: 1, ...body }).onConflictDoUpdate({
-      target: diyConfig.id,
-      set: { ...body, updatedAt: new Date() },
-    });
-    const row = await getDiyConfigRow();
+    const [existing] = await db
+      .select()
+      .from(diyConfig)
+      .where(eq(diyConfig.partnerId, partnerId))
+      .limit(1);
+    if (existing) {
+      await db
+        .update(diyConfig)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(diyConfig.partnerId, partnerId));
+    } else {
+      const [maxRow] = await db.select({ value: count() }).from(diyConfig);
+      const nextId = Math.max(1, Number(maxRow?.value ?? 0) + 1);
+      await db.insert(diyConfig).values({
+        id: partnerId === PLATFORM_PARTNER_SLUG ? 1 : nextId + 10,
+        partnerId,
+        ...body,
+      });
+    }
+    const row = await getDiyConfigRow(partnerId);
     res.json({ config: formatDiyConfig(row) });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -849,21 +879,23 @@ adminApiRouter.get("/orders/new-count", P.orders, async (req, res) => {
     const parsed = new Date(sinceRaw);
     if (!Number.isNaN(parsed.getTime())) since = parsed;
   }
+  const partnerId = scopedPartnerId(req);
   const [row] = await db
     .select({ value: count() })
     .from(userOrders)
-    .where(gt(userOrders.createdAt, since));
+    .where(and(gt(userOrders.createdAt, since), eq(userOrders.partnerId, partnerId)));
   res.json({ count: row?.value ?? 0, since: since.toISOString() });
 });
 
 adminApiRouter.get("/orders", P.orders, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
   const limit = Math.min(Number(req.query.limit) || 50, 200);
   const offset = Math.max(0, Number(req.query.offset) || 0);
   const statusFilter = String(req.query.status ?? "");
   const appFilter = String(req.query.app ?? "");
   const q = String(req.query.q ?? "").trim();
 
-  const conditions = [];
+  const conditions = [eq(userOrders.partnerId, partnerId)];
   if (statusFilter && statusFilter in STATUS_LABELS) {
     conditions.push(eq(userOrders.status, statusFilter as typeof userOrders.status.enumValues[number]));
   }
@@ -871,15 +903,14 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
     conditions.push(eq(userOrders.appSource, appFilter as typeof userOrders.appSource.enumValues[number]));
   }
   if (q) {
-    conditions.push(
-      or(
-        ilike(userOrders.orderNo, `%${q}%`),
-        ilike(userOrders.sku, `%${q}%`),
-        ilike(userOrders.title, `%${q}%`),
-      ),
+    const qClause = or(
+      ilike(userOrders.orderNo, `%${q}%`),
+      ilike(userOrders.sku, `%${q}%`),
+      ilike(userOrders.title, `%${q}%`),
     );
+    if (qClause) conditions.push(qClause);
   }
-  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  const where = and(...conditions);
 
   const [totalRow] = await db.select({ value: count() }).from(userOrders).where(where);
   const rows = await db
@@ -928,10 +959,28 @@ const CONTACT_CATEGORY_LABELS: Record<string, string> = {
 };
 
 /** 消息中枢通道状态（不暴露密钥） */
-adminApiRouter.get("/notifications/status", P.integrations, async (_req, res) => {
-  const channels = getHubChannelStatus();
-  const events = (process.env.ORDER_NOTIFY_EVENTS ?? "created,paid").split(",").map((s) => s.trim()).filter(Boolean);
-  res.json({ channels, orderNotifyEvents: events });
+adminApiRouter.get("/notifications/status", P.integrations, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
+  const isPlatform = partnerId === PLATFORM_PARTNER_SLUG;
+  // L3 通道仅平台 orasage 可读真实状态；合作方只看占位「未对本租户配置」
+  const channels = isPlatform
+    ? getHubChannelStatus()
+    : {
+        telegram: { configured: false, chatCount: 0 },
+        email: { configured: false, recipientCount: 0 },
+      };
+  const events = isPlatform
+    ? (process.env.ORDER_NOTIFY_EVENTS ?? "created,paid").split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  res.json({
+    partnerId,
+    platformScoped: isPlatform,
+    channels,
+    orderNotifyEvents: events,
+    note: isPlatform
+      ? "平台租户：展示全局 L3 通道配置状态（无明文）"
+      : "合作方租户：L3 密钥不共享；通道状态恒为未配置",
+  });
 });
 
 /** 发送测试通知到已配置的 Telegram / 运营邮箱 */
@@ -953,18 +1002,24 @@ adminApiRouter.get("/contact-messages/new-count", P.messages, async (req, res) =
     const parsed = new Date(sinceRaw);
     if (!Number.isNaN(parsed.getTime())) since = parsed;
   }
+  const partnerId = scopedPartnerId(req);
   const [row] = await db
     .select({ value: count() })
     .from(contactMessages)
-    .where(and(eq(contactMessages.status, "new"), gt(contactMessages.createdAt, since)));
+    .where(and(
+      eq(contactMessages.status, "new"),
+      gt(contactMessages.createdAt, since),
+      eq(contactMessages.partnerId, partnerId),
+    ));
   res.json({ count: row?.value ?? 0, since: since.toISOString() });
 });
 
 adminApiRouter.get("/contact-messages", P.messages, async (req, res) => {
+  const partnerId = scopedPartnerId(req);
   const limit = Math.min(Number(req.query.limit) || 100, 200);
   const statusFilter = String(req.query.status ?? "");
   const categoryFilter = String(req.query.category ?? "");
-  const conditions = [];
+  const conditions = [eq(contactMessages.partnerId, partnerId)];
   if (statusFilter && statusFilter in CONTACT_STATUS_LABELS) {
     conditions.push(eq(contactMessages.status, statusFilter as "new" | "processing" | "resolved"));
   }
@@ -1170,15 +1225,15 @@ const shippingZoneSchema = z.object({
   active: z.boolean().default(true),
 });
 
-adminApiRouter.get("/shipping/zones", P.shipping, async (_req, res) => {
-  const zones = await listShippingZones();
+adminApiRouter.get("/shipping/zones", P.shipping, async (req, res) => {
+  const zones = await listShippingZones(false, scopedPartnerId(req));
   res.json({ zones: zones.map(formatShippingZone) });
 });
 
 adminApiRouter.put("/shipping/zones", P.shipping, async (req, res) => {
   try {
     const body = z.object({ zones: z.array(shippingZoneSchema) }).parse(req.body);
-    const saved = await replaceShippingZones(body.zones as ShippingZoneInput[]);
+    const saved = await replaceShippingZones(body.zones as ShippingZoneInput[], scopedPartnerId(req));
     res.json({ zones: saved.map(formatShippingZone) });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -1198,7 +1253,7 @@ adminApiRouter.get("/reviews", P.reviews, async (req, res) => {
     const sku = typeof req.query.sku === "string" ? req.query.sku : undefined;
     const limit = Number(req.query.limit) || 50;
     const offset = Number(req.query.offset) || 0;
-    const reviews = await listReviewsForAdmin({ status, sku, limit, offset });
+    const reviews = await listReviewsForAdmin({ status, sku, limit, offset, partnerId: scopedPartnerId(req) });
     res.json({ reviews });
   } catch (err) {
     console.error("[admin] reviews:", err);

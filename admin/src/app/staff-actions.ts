@@ -12,6 +12,7 @@ export async function createStaffAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const nickname = String(formData.get('nickname') ?? '').trim();
   const staffLabel = String(formData.get('staffLabel') ?? '').trim();
+  const partnerId = String(formData.get('partnerId') ?? 'orasage').trim() || 'orasage';
   const role = String(formData.get('role') ?? 'shop_ops') as 'shop_ops' | 'content_ops';
   const extraGrants = formData.getAll('extraGrant').map(String);
 
@@ -23,6 +24,7 @@ export async function createStaffAction(formData: FormData) {
     nickname: nickname || undefined,
     role,
     staffLabel: staffLabel || undefined,
+    partnerId,
     staffGrants: extraGrants,
   });
   revalidatePath('/staff');
@@ -35,6 +37,7 @@ export async function updateStaffAction(formData: FormData) {
   const id = Number(formData.get('id') ?? 0);
   const role = String(formData.get('role') ?? '') as 'shop_ops' | 'content_ops';
   const staffLabel = String(formData.get('staffLabel') ?? '').trim();
+  const partnerId = String(formData.get('partnerId') ?? 'orasage').trim() || 'orasage';
   const password = String(formData.get('password') ?? '');
   const staffDisabled = formData.get('staffDisabled') === '1';
   const extraGrants = formData.getAll('extraGrant').map(String);
@@ -44,6 +47,7 @@ export async function updateStaffAction(formData: FormData) {
   await updateStaffAccount(id, {
     role,
     staffLabel: staffLabel || null,
+    partnerId,
     staffDisabled,
     staffGrants: extraGrants,
     password: password || undefined,

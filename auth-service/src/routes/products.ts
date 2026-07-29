@@ -3,6 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { products } from "../db/schema.ts";
+import { PLATFORM_PARTNER_SLUG } from "../lib/partner-scope.ts";
 import { formatProduct, resolveProductLocale } from "../lib/product-format.ts";
 import { resolveHomepageProducts } from "../lib/homepage-products.ts";
 import { getCrystalContent, getShopPublicConfig } from "../lib/shop-settings.ts";
@@ -60,7 +61,7 @@ productsRouter.get("/", async (req, res) => {
   const tag = typeof req.query.tag === "string" ? req.query.tag.trim() : undefined;
   const includeAll = req.query.all === "1";
 
-  const conditions = [];
+  const conditions = [eq(products.partnerId, PLATFORM_PARTNER_SLUG)];
   if (!includeAll) {
     conditions.push(eq(products.active, true));
     conditions.push(eq(products.visibility, "public"));
@@ -149,7 +150,11 @@ productsRouter.get("/crystal-content", async (_req, res) => {
 productsRouter.get("/:sku", async (req, res) => {
   const locale = localeFromRequest(req);
   const sku = String(req.params.sku);
-  const [row] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
+  const [row] = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.sku, sku), eq(products.partnerId, PLATFORM_PARTNER_SLUG)))
+    .limit(1);
   if (!row || (!row.active && req.query.all !== "1")) {
     res.status(404).json({ error: "商品不存在" });
     return;

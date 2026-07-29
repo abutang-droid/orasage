@@ -13,10 +13,18 @@ import {
   effectivePermissionsForUser,
   userIsActiveStaff,
 } from "./staff-permissions.ts";
+import {
+  PLATFORM_PARTNER_SLUG,
+  scopePermissionsForStaff,
+} from "./partner-scope.ts";
 
 export type AdminRequest = Request & {
   adminUser: NonNullable<Awaited<ReturnType<typeof getAuthUser>>>;
   staffPermissions: Set<AnyStaffPermission>;
+  /** 员工绑定的合作方 slug（超管默认 orasage） */
+  partnerId: string;
+  /** 该合作方已启用模块 */
+  partnerModules: string[];
 };
 
 async function loadAdminContext(
@@ -37,10 +45,13 @@ async function loadAdminContext(
     res.status(403).json({ error: "运营账号已停用" });
     return null;
   }
-  const staffPermissions = effectivePermissionsForUser(user);
+  const basePerms = effectivePermissionsForUser(user);
+  const scoped = await scopePermissionsForStaff(user, basePerms);
   const ctx = req as AdminRequest;
   ctx.adminUser = user;
-  ctx.staffPermissions = staffPermissions;
+  ctx.staffPermissions = scoped.permissions;
+  ctx.partnerId = scoped.partnerId || PLATFORM_PARTNER_SLUG;
+  ctx.partnerModules = scoped.modules;
   return ctx;
 }
 

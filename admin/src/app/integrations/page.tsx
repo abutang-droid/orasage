@@ -15,15 +15,23 @@ export default async function IntegrationsPage() {
     console.error('[admin/integrations]', err);
   }
 
+  const partnerId = notifyStatus?.partnerId ?? admin.partnerId ?? 'orasage';
+  const platformScoped = notifyStatus?.platformScoped ?? partnerId === 'orasage';
+
   return (
     <div className="admin-page">
       <header className="page-header">
         <h1>集成状态</h1>
         <p className="muted">
-          L3 密钥与通道仅展示「是否已配置」，不在后台编辑明文。partner 作用域：
-          <code>orasage</code>（单租户）。支付模式 / Stripe / AI Key 等亦属 L3，后续可扩展只读探测。
+          L3 密钥与通道仅展示「是否已配置」，不在后台编辑明文。当前 partner：
+          <code>{partnerId}</code>
+          {platformScoped ? '（平台租户 · 可读全局通道状态）' : '（合作方 · L3 不共享，状态恒为未配置）'}。
         </p>
       </header>
+
+      {notifyStatus?.note ? (
+        <p className="muted panel-notice">{notifyStatus.note}</p>
+      ) : null}
 
       {notifyStatus ? (
         <NotificationStatusPanel

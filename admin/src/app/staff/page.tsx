@@ -33,6 +33,7 @@ export default async function StaffPage() {
           <input type="password" name="password" placeholder="初始密码（≥8 位）" required minLength={8} className="shipment-input" />
           <input type="text" name="nickname" placeholder="显示名（可选）" className="shipment-input" />
           <input type="text" name="staffLabel" placeholder="备注，如「巴西站运营」" className="shipment-input" />
+          <input type="text" name="partnerId" placeholder="partner slug（默认 orasage）" defaultValue="orasage" className="shipment-input" />
           <select name="role" defaultValue="shop_ops" className="shipment-input">
             {meta?.roles.map((r) => (
               <option key={r.value} value={r.value}>{r.label}</option>
@@ -57,6 +58,7 @@ export default async function StaffPage() {
                 <th>ID</th>
                 <th>邮箱 / 备注</th>
                 <th>角色</th>
+                <th>partner</th>
                 <th>状态</th>
                 <th>有效权限</th>
                 <th>管理</th>
@@ -64,7 +66,7 @@ export default async function StaffPage() {
             </thead>
             <tbody>
               {staff.length === 0 ? (
-                <tr><td colSpan={6} className="muted">暂无子账号</td></tr>
+                <tr><td colSpan={7} className="muted">暂无子账号</td></tr>
               ) : staff.map((s) => (
                 <tr key={s.id}>
                   <td>{s.id}</td>
@@ -73,6 +75,7 @@ export default async function StaffPage() {
                     {s.staffLabel ? <div className="muted">{s.staffLabel}</div> : null}
                   </td>
                   <td>{s.roleLabel}</td>
+                  <td><code>{s.partnerId ?? 'orasage'}</code></td>
                   <td>{s.staffDisabled ? <span className="badge">已停用</span> : <span className="badge">正常</span>}</td>
                   <td className="muted" style={{ maxWidth: '16rem', fontSize: '0.8rem' }}>
                     {s.permissions.slice(0, 6).join(' · ')}
@@ -94,6 +97,7 @@ export default async function StaffPage() {
                           停用账号
                         </label>
                         <input type="text" name="staffLabel" placeholder="备注" defaultValue={s.staffLabel ?? ''} className="shipment-input" />
+                        <input type="text" name="partnerId" placeholder="partner" defaultValue={s.partnerId ?? 'orasage'} className="shipment-input" />
                         <input type="password" name="password" placeholder="重置密码（留空不改）" className="shipment-input" />
                         {meta?.assignableExtras.map((p) => (
                           <label key={p.value} className="muted" style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>

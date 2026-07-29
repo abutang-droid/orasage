@@ -209,12 +209,29 @@ export function getNewContactMessagesCount(since?: string) {
 
 export function getNotificationStatus() {
   return adminFetch<{
+    partnerId: string;
+    platformScoped: boolean;
+    note?: string;
     channels: {
       telegram: { configured: boolean; chatCount: number };
       email: { configured: boolean; recipientCount: number };
     };
     orderNotifyEvents: string[];
   }>('/notifications/status');
+}
+
+export function listPartners() {
+  return adminFetch<{
+    partners: Array<{
+      id: number;
+      slug: string;
+      name: string;
+      status: string;
+      modules: string[];
+    }>;
+    platformSlug: string;
+    currentPartnerId: string;
+  }>('/partners');
 }
 
 export function sendNotificationTest() {
@@ -832,6 +849,7 @@ export interface AdminStaffAccount {
   role: 'admin' | 'shop_ops' | 'content_ops';
   roleLabel: string;
   staffLabel: string | null;
+  partnerId: string;
   staffDisabled: boolean;
   staffGrants: string[];
   staffRevokes: string[];
@@ -858,6 +876,7 @@ export function createStaffAccount(body: {
   nickname?: string;
   role: 'shop_ops' | 'content_ops';
   staffLabel?: string;
+  partnerId?: string;
   staffGrants?: string[];
   staffRevokes?: string[];
 }) {
@@ -873,6 +892,7 @@ export function updateStaffAccount(
     nickname?: string;
     role?: 'shop_ops' | 'content_ops';
     staffLabel?: string | null;
+    partnerId?: string | null;
     staffDisabled?: boolean;
     staffGrants?: string[];
     staffRevokes?: string[];

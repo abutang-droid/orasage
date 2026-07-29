@@ -54,6 +54,7 @@ function formatStaffRow(user: typeof users.$inferSelect) {
     role: user.role,
     roleLabel: STAFF_ROLE_LABELS[user.role as StaffRole] ?? user.role,
     staffLabel: user.staffLabel,
+    partnerId: user.partnerId ?? "orasage",
     staffDisabled: user.staffDisabled,
     staffGrants: user.staffGrants,
     staffRevokes: user.staffRevokes,
@@ -102,6 +103,7 @@ const createStaffSchema = z.object({
   nickname: z.string().max(100).optional(),
   role: z.enum(["shop_ops", "content_ops"]),
   staffLabel: z.string().max(100).optional(),
+  partnerId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,62}$/).optional(),
   staffGrants: z.array(z.string()).optional(),
   staffRevokes: z.array(z.string()).optional(),
 });
@@ -123,6 +125,7 @@ staffAdminRouter.post("/", async (req, res) => {
       nickname: body.nickname || body.email.split("@")[0],
       role: body.role,
       staffLabel: body.staffLabel || null,
+      partnerId: body.partnerId || "orasage",
       staffGrants: sanitizeAssignableGrants(body.staffGrants),
       staffRevokes: sanitizeAssignableGrants(body.staffRevokes),
     }).returning();
@@ -141,6 +144,7 @@ const patchStaffSchema = z.object({
   nickname: z.string().max(100).optional(),
   role: z.enum(["shop_ops", "content_ops"]).optional(),
   staffLabel: z.string().max(100).nullable().optional(),
+  partnerId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,62}$/).nullable().optional(),
   staffDisabled: z.boolean().optional(),
   staffGrants: z.array(z.string()).optional(),
   staffRevokes: z.array(z.string()).optional(),
@@ -154,7 +158,7 @@ staffAdminRouter.patch("/:id", async (req, res) => {
       res.status(400).json({ error: "参数错误" });
       return;
     }
-    const ctx = req as AdminRequest;
+    const ctx = req as unknown as AdminRequest;
     if (id === ctx.adminUser.id) {
       res.status(400).json({ error: "不能修改自己的角色或停用状态" });
       return;
@@ -173,6 +177,7 @@ staffAdminRouter.patch("/:id", async (req, res) => {
     if (body.nickname !== undefined) updates.nickname = body.nickname;
     if (body.role !== undefined) updates.role = body.role;
     if (body.staffLabel !== undefined) updates.staffLabel = body.staffLabel;
+    if (body.partnerId !== undefined) updates.partnerId = body.partnerId || "orasage";
     if (body.staffDisabled !== undefined) updates.staffDisabled = body.staffDisabled;
     if (body.staffGrants !== undefined) updates.staffGrants = sanitizeAssignableGrants(body.staffGrants);
     if (body.staffRevokes !== undefined) updates.staffRevokes = sanitizeAssignableGrants(body.staffRevokes);

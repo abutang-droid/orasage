@@ -84,4 +84,7 @@
 
 5. **多租户**  
    - 新配置表与 Admin/Module API 从第一天带 `partnerId`；平台自营 slug 固定为 `orasage`。  
-   - `finance` / wallets 永不进入合作方权限或 Module API。
+   - Admin API 读写必须按当前员工 `partnerId`（或超管 `?partner=`）过滤；禁止跨租户默读。  
+   - 合作方有效权限 = 角色权限 ∩ `partner_modules` ∩ `PARTNER_ASSIGNABLE_PERMISSIONS`。  
+   - `finance` / wallets 永不进入合作方权限或 Module API。  
+   - L3 密钥状态仅对平台租户暴露真实探测结果。

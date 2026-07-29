@@ -93,10 +93,10 @@
 
 **测试门禁 PD**
 
-- [ ] 双账号不同 partner（可用第二测试 partner）数据互不可见
-- [ ] 平台超管可查看 orasage
-- [ ] 迁移脚本可重复执行；构建与核心下单/登录回归
-- [ ] changelog + 规则说明（多租户不变量）
+- [x] 双账号不同 partner（可用第二测试 partner）数据互不可见（Admin API `partner_id` 作用域 + demo-partner 种子）
+- [x] 平台超管可查看 orasage（`?partner=` 切换；`platform.partners` 列表）
+- [x] 迁移脚本可重复执行；构建与核心下单/登录回归
+- [x] changelog + 规则说明（多租户不变量）
 
 ---
 
