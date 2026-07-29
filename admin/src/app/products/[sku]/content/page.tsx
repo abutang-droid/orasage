@@ -25,7 +25,7 @@ const LOCALES = [
   { code: 'pt-BR', label: 'Português' },
 ] as const;
 
-const HERO_ROWS = 6;
+const HERO_ROWS = 5;
 
 function docSections(doc: CmsProductPageDoc | null): EditorSection[] {
   return (doc?.sections ?? []).map((s) => ({
@@ -155,19 +155,21 @@ export default async function ProductContentPage({ params, searchParams }: PageP
           <div className="product-media-video-fields" style={{ marginBottom: '1rem' }}>
             <ProductVideoUploadField
               name="galleryVideo"
-              label="主图视频"
-              description="详情页顶部主图区域的视频"
+              label="主图视频（Hero 首帧）"
+              description="详情页顶部轮播首帧自动播放；MP4/WebM/MOV，≤ 20 MB"
               currentUrl={doc?.galleryVideoUrl}
             />
             <ProductVideoUploadField
               name="sceneVideo"
-              label="场景视频"
-              description="商品使用场景展示视频"
+              label="场景视频（购买区下方）"
+              description="独立「佩戴场景」区块，建议 16:9；勿与主图视频用同一文件"
               currentUrl={doc?.sceneVideoUrl}
             />
           </div>
 
-          <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>
+          <h3 className="product-content-subhead">
+            详情轮播图（有主图视频时前台最多 4 张；无视频时首张为默认主图）
+          </h3>
           <ProductHeroGalleryEditor rows={heroRows} />
 
           <h3 className="product-content-subhead">详情区块（按顺序渲染在购买区下方）</h3>

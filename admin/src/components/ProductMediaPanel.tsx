@@ -71,7 +71,10 @@ export function ProductMediaPanel({
         </div>
         <div className={`product-media-stat${heroCount > 0 ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">详情轮播</span>
-          <strong>{heroCount} / 6 张</strong>
+          <strong>
+            {heroCount} / 5 张
+            {galleryVideoUrl?.trim() ? '（有视频前台≤4图）' : ''}
+          </strong>
         </div>
         <div className={`product-media-stat${videoCount > 0 ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">视频</span>
@@ -155,27 +158,40 @@ export function ProductMediaPanel({
 
         <header className="product-media-card-head">
           <h3>详情轮播与视频（{locale}）</h3>
-          <p className="muted">
-            详情页顶部图库 + 视频。轮播 <strong>{heroCount}</strong> / 6 张，视频 <strong>{videoCount}</strong> 个。
+          <p className="muted" style={{ marginBottom: '0.5rem' }}>
+            轮播图 <strong>{heroCount}</strong> / 5 张
+            {galleryVideoUrl?.trim() ? '（有主图视频时前台取前 4 张）' : ''}
+            ，视频位 <strong>{videoCount}</strong> / 2。
           </p>
+          <ul className="muted" style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem' }}>
+            <li>
+              <strong>主图视频</strong>：详情页顶部 Hero 轮播<strong>首帧</strong>自动播放
+            </li>
+            <li>
+              <strong>轮播图</strong>：跟在主图视频之后；无视频时首张为默认主图
+            </li>
+            <li>
+              <strong>场景视频</strong>：购买区下方独立「佩戴场景」区块，勿与主图视频用同一文件
+            </li>
+          </ul>
         </header>
 
         <div className="product-media-video-fields">
           <ProductVideoUploadField
             name="galleryVideo"
-            label="主图视频"
-            description="详情页顶部主图区域的视频"
+            label="主图视频（Hero 首帧）"
+            description="详情页打开即播；MP4/WebM/MOV，≤ 20 MB。建议 1:1 或 16:9。"
             currentUrl={galleryVideoUrl}
           />
           <ProductVideoUploadField
             name="sceneVideo"
-            label="场景视频"
-            description="商品使用场景展示视频"
+            label="场景视频（购买区下方）"
+            description="独立内容区块，建议 16:9；MP4/WebM/MOV，≤ 20 MB。"
             currentUrl={sceneVideoUrl}
           />
         </div>
 
-        <h4 className="product-content-subhead">轮播图片</h4>
+        <h4 className="product-content-subhead">轮播图片（有主图视频时前台最多 4 张）</h4>
         <ProductHeroGalleryEditor rows={heroRows} />
 
         <div className="product-media-save-bar">

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const HERO_MAX = 6;
+const HERO_MAX = 5;
 
 export type HeroImageRow = {
   mediaId?: number;
