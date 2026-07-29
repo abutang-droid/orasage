@@ -477,7 +477,7 @@
 }
 
 .shop-pdp-manifest-zh {
-  margin: 1.5rem 0 0;
+  margin: 0;
   font-family: var(--os-font-serif-zh, 'Noto Serif SC', serif);
   font-size: 1.0625rem;
   line-height: 2;
