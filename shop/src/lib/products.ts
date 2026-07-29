@@ -2,6 +2,14 @@ import { inferRequiresShipping, inferRequiresWristSize } from '../../../shared/s
 
 export type ProductCategory = 'crystal' | 'report' | 'service';
 
+/** 商品标签（含五行等）；API 有则用于多语言展示 */
+export type ProductTag = {
+  id: number;
+  code: string;
+  label: string;
+  groupCode: string;
+};
+
 export interface Product {
   sku: string;
   name: string;
@@ -19,9 +27,42 @@ export interface Product {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  tags?: ProductTag[];
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
   imageUrl?: string | null;
+}
+
+/** auth 不可用时的五行标签兜底（与 shared/product-units ELEMENT_VALUE_LABELS 对齐） */
+const ELEMENT_TAG_FALLBACK: Record<string, { meta: Omit<ProductTag, 'label'>; labels: Record<string, string> }> = {
+  木: {
+    meta: { id: 1, code: 'element-wood', groupCode: 'element' },
+    labels: { 'zh-CN': '木', 'zh-TW': '木', en: 'Wood', 'pt-BR': 'Madeira' },
+  },
+  火: {
+    meta: { id: 2, code: 'element-fire', groupCode: 'element' },
+    labels: { 'zh-CN': '火', 'zh-TW': '火', en: 'Fire', 'pt-BR': 'Fogo' },
+  },
+  土: {
+    meta: { id: 3, code: 'element-earth', groupCode: 'element' },
+    labels: { 'zh-CN': '土', 'zh-TW': '土', en: 'Earth', 'pt-BR': 'Terra' },
+  },
+  金: {
+    meta: { id: 4, code: 'element-metal', groupCode: 'element' },
+    labels: { 'zh-CN': '金', 'zh-TW': '金', en: 'Metal', 'pt-BR': 'Metal' },
+  },
+  水: {
+    meta: { id: 5, code: 'element-water', groupCode: 'element' },
+    labels: { 'zh-CN': '水', 'zh-TW': '水', en: 'Water', 'pt-BR': 'Água' },
+  },
+};
+
+function fallbackTagsForProduct(p: Pick<Product, 'element'>, locale = 'zh-CN'): ProductTag[] {
+  if (!p.element) return [];
+  const entry = ELEMENT_TAG_FALLBACK[p.element];
+  if (!entry) return [];
+  const label = entry.labels[locale] ?? entry.labels.en ?? entry.labels['zh-CN'] ?? p.element;
+  return [{ ...entry.meta, label }];
 }
 
 /** 静态兜底（auth-service 不可用时） */
@@ -87,12 +128,14 @@ interface ApiProduct {
   currency?: 'cny' | 'usd';
   priceDisplay?: string;
   category: ProductCategory;
+  tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
   requiresShipping?: boolean;
   requiresWristSize?: boolean;
 }
 
-function mapApiProduct(p: ApiProduct): Product {
+function mapApiProduct(p: ApiProduct, locale = 'zh-CN'): Product {
   const fulfillment = { category: p.category, sku: p.sku, requiresShipping: p.requiresShipping };
+  const tags = (p.tags ?? []).filter((t) => t?.code);
   return {
     sku: p.sku,
     name: p.name,
@@ -110,6 +153,7 @@ function mapApiProduct(p: ApiProduct): Product {
     currency: p.currency,
     priceDisplay: p.priceDisplay,
     category: p.category,
+    tags: tags.length > 0 ? tags : fallbackTagsForProduct({ element: p.element ?? undefined }, locale),
     requiresShipping: p.requiresShipping ?? inferRequiresShipping(fulfillment),
     requiresWristSize: p.requiresWristSize ?? inferRequiresWristSize(fulfillment),
   };
@@ -132,13 +176,16 @@ export async function fetchProducts(locale = 'zh-CN'): Promise<Product[]> {
     } as RequestInit);
     if (!res.ok) throw new Error(`products API ${res.status}`);
     const data = await res.json() as { products: ApiProduct[] };
-    cachedProducts = data.products.map(mapApiProduct);
+    cachedProducts = data.products.map((p) => mapApiProduct(p, locale));
     cacheExpiry = Date.now() + CACHE_TTL_MS;
     cacheLocale = locale;
     return cachedProducts;
   } catch (err) {
     console.warn('[shop] fetchProducts fallback:', err);
-    return FALLBACK_PRODUCTS;
+    return FALLBACK_PRODUCTS.map((p) => ({
+      ...p,
+      tags: fallbackTagsForProduct(p, locale),
+    }));
   }
 }
 
@@ -156,12 +203,15 @@ export async function getProduct(sku: string, locale = 'zh-CN'): Promise<Product
     );
     if (res.ok) {
       const data = await res.json() as { product?: ApiProduct };
-      if (data.product) return mapApiProduct(data.product);
+      if (data.product) return mapApiProduct(data.product, locale);
     }
   } catch (err) {
     console.warn('[shop] getProduct single fetch fallback:', err);
   }
-  return FALLBACK_PRODUCTS.find((p) => p.sku === sku) ?? null;
+  const fallback = FALLBACK_PRODUCTS.find((p) => p.sku === sku);
+  return fallback
+    ? { ...fallback, tags: fallbackTagsForProduct(fallback, locale) }
+    : null;
 }
 
 export async function getProductByElement(element: string, locale = 'zh-CN'): Promise<Product | null> {
