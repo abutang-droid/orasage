@@ -209,12 +209,119 @@ export function getNewContactMessagesCount(since?: string) {
 
 export function getNotificationStatus() {
   return adminFetch<{
+    partnerId: string;
+    platformScoped: boolean;
+    note?: string;
     channels: {
       telegram: { configured: boolean; chatCount: number };
       email: { configured: boolean; recipientCount: number };
     };
     orderNotifyEvents: string[];
   }>('/notifications/status');
+}
+
+export type AdminPartner = {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;
+  modules: string[];
+};
+
+export type AdminPartnerApiKey = {
+  id: number;
+  partnerId: string;
+  name: string;
+  keyPrefix: string;
+  scopes: string[];
+  status: string;
+  lastUsedAt: string | null;
+  createdAt: string;
+  revokedAt: string | null;
+};
+
+export type AdminConfigAuditLog = {
+  id: number;
+  partnerId: string;
+  actorType: string;
+  actorId: string | null;
+  moduleKey: string | null;
+  action: string;
+  resourceType: string | null;
+  resourceId: string | null;
+  before: unknown;
+  after: unknown;
+  createdAt: string;
+};
+
+export function listPartners() {
+  return adminFetch<{
+    partners: AdminPartner[];
+    platformSlug: string;
+    currentPartnerId: string;
+  }>('/partners');
+}
+
+export function listPartnerTemplates() {
+  return adminFetch<{
+    templates: Array<{ id: string; modules: string[] }>;
+  }>('/partners/meta/templates');
+}
+
+export function upsertPartner(body: {
+  slug: string;
+  name: string;
+  status?: string;
+  modules?: string[];
+  template?: string;
+}) {
+  return adminFetch<{ partner: AdminPartner }>('/partners', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function updatePartnerModules(
+  slug: string,
+  body: { modules?: string[]; template?: string },
+) {
+  return adminFetch<{ slug: string; modules: string[] }>(
+    `/partners/${encodeURIComponent(slug)}/modules`,
+    { method: 'PUT', body: JSON.stringify(body) },
+  );
+}
+
+export function listPartnerApiKeys(slug: string) {
+  return adminFetch<{ keys: AdminPartnerApiKey[] }>(
+    `/partners/${encodeURIComponent(slug)}/api-keys`,
+  );
+}
+
+export function createPartnerApiKey(
+  slug: string,
+  body?: { name?: string; scopes?: string[] },
+) {
+  return adminFetch<{
+    key: AdminPartnerApiKey;
+    raw: string;
+    note: string;
+  }>(`/partners/${encodeURIComponent(slug)}/api-keys`, {
+    method: 'POST',
+    body: JSON.stringify(body ?? {}),
+  });
+}
+
+export function revokePartnerApiKey(slug: string, id: number) {
+  return adminFetch<{ key: AdminPartnerApiKey }>(
+    `/partners/${encodeURIComponent(slug)}/api-keys/${id}/revoke`,
+    { method: 'POST' },
+  );
+}
+
+export function listPartnerAuditLogs(slug: string, limit = 40) {
+  return adminFetch<{ logs: AdminConfigAuditLog[] }>(
+    `/partners/${encodeURIComponent(slug)}/audit-logs?limit=${limit}`,
+  );
 }
 
 export function sendNotificationTest() {
@@ -832,6 +939,7 @@ export interface AdminStaffAccount {
   role: 'admin' | 'shop_ops' | 'content_ops';
   roleLabel: string;
   staffLabel: string | null;
+  partnerId: string;
   staffDisabled: boolean;
   staffGrants: string[];
   staffRevokes: string[];
@@ -858,6 +966,7 @@ export function createStaffAccount(body: {
   nickname?: string;
   role: 'shop_ops' | 'content_ops';
   staffLabel?: string;
+  partnerId?: string;
   staffGrants?: string[];
   staffRevokes?: string[];
 }) {
@@ -873,6 +982,7 @@ export function updateStaffAccount(
     nickname?: string;
     role?: 'shop_ops' | 'content_ops';
     staffLabel?: string | null;
+    partnerId?: string | null;
     staffDisabled?: boolean;
     staffGrants?: string[];
     staffRevokes?: string[];

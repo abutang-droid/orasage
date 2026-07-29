@@ -219,3 +219,342 @@ export async function deleteCmsTestimonial(id: number, token: string): Promise<v
     throw new Error(`删除评价失败 (${res.status}): ${err.slice(0, 200)}`);
   }
 }
+
+/* ── 各站 Hero Globals ──────────────────────────────── */
+
+export const HERO_APP_SLUGS = {
+  main: 'home-hero',
+  shop: 'shop-home-hero',
+  bazi: 'bazi-home-hero',
+  ziwei: 'ziwei-home-hero',
+  tarot: 'tarot-home-hero',
+} as const;
+
+export type HeroAppId = keyof typeof HERO_APP_SLUGS;
+
+export const HERO_APP_LABELS: Record<HeroAppId, string> = {
+  main: '门户',
+  shop: '商城',
+  bazi: '八字',
+  ziwei: '紫微',
+  tarot: '塔罗',
+};
+
+export type CmsHeroGlobal = {
+  id?: number;
+  enabled?: boolean | null;
+  eyebrow?: string | null;
+  headline?: string | null;
+  subtitle?: string | null;
+  displayMode?: 'text' | 'image' | 'video' | null;
+  heroImage?: number | { id: number; url?: string | null } | null;
+  heroVideo?: number | { id: number; url?: string | null } | null;
+  videoExternalUrl?: string | null;
+  videoAutoplay?: boolean | null;
+  bodyText?: string | null;
+};
+
+export function isHeroAppId(value: string | null | undefined): value is HeroAppId {
+  return Boolean(value && value in HERO_APP_SLUGS);
+}
+
+export async function getCmsHeroGlobal(
+  app: HeroAppId,
+  token: string,
+): Promise<CmsHeroGlobal | null> {
+  const slug = HERO_APP_SLUGS[app];
+  const res = await cmsRequest(`/api/globals/${slug}?depth=1`, token);
+  if (!res.ok) return null;
+  return (await res.json()) as CmsHeroGlobal;
+}
+
+export type HeroGlobalInput = {
+  enabled: boolean;
+  eyebrow?: string | null;
+  headline?: string | null;
+  subtitle?: string | null;
+  displayMode: 'text' | 'image' | 'video';
+  heroImage?: number | null;
+  heroVideo?: number | null;
+  videoExternalUrl?: string | null;
+  videoAutoplay: boolean;
+  bodyText?: string | null;
+};
+
+export async function updateCmsHeroGlobal(
+  app: HeroAppId,
+  input: HeroGlobalInput,
+  token: string,
+): Promise<void> {
+  const slug = HERO_APP_SLUGS[app];
+  const res = await cmsRequest(`/api/globals/${slug}`, token, {
+    method: 'POST',
+    json: input,
+  });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`保存 Hero 失败 (${res.status}): ${err.slice(0, 300)}`);
+  }
+}
+
+/* ── 信息流 ─────────────────────────────────────────── */
+
+export type FeedCollectionSlug = 'bazi-feed' | 'ziwei-feed';
+
+export type CmsFeedDoc = {
+  id: number;
+  kind: 'order' | 'review';
+  message: string;
+  locale?: string | null;
+  sort?: number | null;
+  enabled?: boolean | null;
+};
+
+export async function listCmsFeedItems(
+  collection: FeedCollectionSlug,
+  token: string,
+): Promise<CmsFeedDoc[]> {
+  const params = new URLSearchParams({ sort: 'sort', limit: '200', depth: '0' });
+  const res = await cmsRequest(`/api/${collection}?${params}`, token);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { docs?: CmsFeedDoc[] };
+  return data.docs ?? [];
+}
+
+export type FeedItemInput = {
+  kind: 'order' | 'review';
+  message: string;
+  locale: string;
+  sort: number;
+  enabled: boolean;
+};
+
+export async function upsertCmsFeedItem(
+  collection: FeedCollectionSlug,
+  input: FeedItemInput,
+  token: string,
+  id?: number,
+): Promise<void> {
+  const res = id
+    ? await cmsRequest(`/api/${collection}/${id}`, token, { method: 'PATCH', json: input })
+    : await cmsRequest(`/api/${collection}`, token, { method: 'POST', json: input });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`保存信息流失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+}
+
+export async function deleteCmsFeedItem(
+  collection: FeedCollectionSlug,
+  id: number,
+  token: string,
+): Promise<void> {
+  const res = await cmsRequest(`/api/${collection}/${id}`, token, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`删除信息流失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+}
+
+/* ── 信仰 taxonomy ──────────────────────────────────── */
+
+export type CmsFaithDoc = {
+  id: number;
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  emoji?: string | null;
+  rank?: number | null;
+  adherentsM?: number | null;
+  worshipFacing?: 'none' | 'qibla' | 'east' | 'jerusalem' | null;
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  facingBearing?: number | null;
+  wpStatus?: 'publish' | 'draft' | null;
+};
+
+export async function listCmsFaiths(token: string): Promise<CmsFaithDoc[]> {
+  const params = new URLSearchParams({ sort: 'rank', limit: '200', depth: '0' });
+  const res = await cmsRequest(`/api/faiths?${params}`, token);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { docs?: CmsFaithDoc[] };
+  return data.docs ?? [];
+}
+
+export async function getCmsFaith(id: number, token: string): Promise<CmsFaithDoc | null> {
+  const res = await cmsRequest(`/api/faiths/${id}?depth=0`, token);
+  if (!res.ok) return null;
+  return (await res.json()) as CmsFaithDoc;
+}
+
+export type FaithInput = {
+  code: string;
+  nameZh: string;
+  nameEn: string;
+  emoji?: string | null;
+  rank: number;
+  adherentsM?: number | null;
+  worshipFacing: 'none' | 'qibla' | 'east' | 'jerusalem';
+  facingLabelZh?: string | null;
+  facingLabelEn?: string | null;
+  facingBearing?: number | null;
+  wpStatus: 'publish' | 'draft';
+};
+
+export async function upsertCmsFaith(
+  input: FaithInput,
+  token: string,
+  id?: number,
+): Promise<number> {
+  const res = id
+    ? await cmsRequest(`/api/faiths/${id}`, token, { method: 'PATCH', json: input })
+    : await cmsRequest('/api/faiths', token, { method: 'POST', json: input });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`保存信仰失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+  const data = (await res.json()) as { doc?: { id: number }; id?: number };
+  return data.doc?.id ?? data.id ?? id ?? 0;
+}
+
+export async function deleteCmsFaith(id: number, token: string): Promise<void> {
+  const res = await cmsRequest(`/api/faiths/${id}`, token, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`删除信仰失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+}
+
+/* ── 内容页面（元数据 + legacyHtml）─────────────────── */
+
+export type CmsPageDoc = {
+  id: number;
+  title: string;
+  slug: string;
+  appSource?: string | null;
+  wpStatus?: 'publish' | 'draft' | null;
+  daozangCategory?: string | null;
+  sortWeight?: number | null;
+  daozangVolume?: string | null;
+  excerpt?: string | null;
+  legacyHtml?: string | null;
+  updatedAt?: string;
+};
+
+export async function listCmsPages(
+  token: string,
+  opts?: { appSource?: string; limit?: number },
+): Promise<CmsPageDoc[]> {
+  const params = new URLSearchParams({
+    sort: '-updatedAt',
+    limit: String(opts?.limit ?? 100),
+    depth: '0',
+  });
+  if (opts?.appSource) {
+    params.set('where[appSource][equals]', opts.appSource);
+  }
+  const res = await cmsRequest(`/api/pages?${params}`, token);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { docs?: CmsPageDoc[] };
+  return data.docs ?? [];
+}
+
+export async function getCmsPage(id: number, token: string): Promise<CmsPageDoc | null> {
+  const res = await cmsRequest(`/api/pages/${id}?depth=0`, token);
+  if (!res.ok) return null;
+  return (await res.json()) as CmsPageDoc;
+}
+
+export type PageMetaInput = {
+  title: string;
+  slug: string;
+  appSource: string;
+  wpStatus: 'publish' | 'draft';
+  daozangCategory?: string | null;
+  sortWeight?: number | null;
+  daozangVolume?: string | null;
+  excerpt?: string | null;
+  legacyHtml?: string | null;
+};
+
+export async function upsertCmsPage(
+  input: PageMetaInput,
+  token: string,
+  id?: number,
+): Promise<number> {
+  const res = id
+    ? await cmsRequest(`/api/pages/${id}`, token, { method: 'PATCH', json: input })
+    : await cmsRequest('/api/pages', token, { method: 'POST', json: input });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`保存页面失败 (${res.status}): ${err.slice(0, 300)}`);
+  }
+  const data = (await res.json()) as { doc?: { id: number }; id?: number };
+  return data.doc?.id ?? data.id ?? id ?? 0;
+}
+
+export async function deleteCmsPage(id: number, token: string): Promise<void> {
+  const res = await cmsRequest(`/api/pages/${id}`, token, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`删除页面失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+}
+
+/* ── 媒体库 ─────────────────────────────────────────── */
+
+export type CmsMediaDoc = {
+  id: number;
+  alt?: string | null;
+  url?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  updatedAt?: string;
+};
+
+export async function listCmsMedia(
+  token: string,
+  opts?: { limit?: number; page?: number },
+): Promise<{ docs: CmsMediaDoc[]; totalDocs: number; totalPages: number; page: number }> {
+  const page = opts?.page ?? 1;
+  const params = new URLSearchParams({
+    sort: '-updatedAt',
+    limit: String(opts?.limit ?? 48),
+    page: String(page),
+    depth: '0',
+  });
+  const res = await cmsRequest(`/api/media?${params}`, token);
+  if (!res.ok) {
+    return { docs: [], totalDocs: 0, totalPages: 0, page };
+  }
+  const data = (await res.json()) as {
+    docs?: CmsMediaDoc[];
+    totalDocs?: number;
+    totalPages?: number;
+    page?: number;
+  };
+  return {
+    docs: data.docs ?? [],
+    totalDocs: data.totalDocs ?? 0,
+    totalPages: data.totalPages ?? 0,
+    page: data.page ?? page,
+  };
+}
+
+export async function updateCmsMediaAlt(
+  id: number,
+  alt: string,
+  token: string,
+): Promise<void> {
+  const res = await cmsRequest(`/api/media/${id}`, token, {
+    method: 'PATCH',
+    json: { alt },
+  });
+  if (!res.ok) {
+    const err = await res.text().catch(() => '');
+    throw new Error(`更新媒体失败 (${res.status}): ${err.slice(0, 200)}`);
+  }
+}

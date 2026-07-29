@@ -1,7 +1,8 @@
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { shippingZones } from '../db/schema.ts';
 import { estimateShippingFeeCents as estimateHardcoded } from '../../../shared/shop-fulfillment/index.ts';
+import { PLATFORM_PARTNER_SLUG } from './partner-scope.ts';
 
 export type ShippingZoneRow = typeof shippingZones.$inferSelect;
 
@@ -19,10 +20,14 @@ export type ShippingZoneInput = {
   active: boolean;
 };
 
-export async function listShippingZones(activeOnly = false): Promise<ShippingZoneRow[]> {
+export async function listShippingZones(
+  activeOnly = false,
+  partnerId: string = PLATFORM_PARTNER_SLUG,
+): Promise<ShippingZoneRow[]> {
   const rows = await db
     .select()
     .from(shippingZones)
+    .where(eq(shippingZones.partnerId, partnerId))
     .orderBy(asc(shippingZones.sortOrder), asc(shippingZones.id));
   return activeOnly ? rows.filter((z) => z.active) : rows;
 }
@@ -62,8 +67,9 @@ export async function estimateShippingFeeFromDb(
   countryCode: string,
   recipientCount = 1,
   weightGrams?: number | null,
+  partnerId: string = PLATFORM_PARTNER_SLUG,
 ): Promise<number> {
-  const zones = await listShippingZones(true);
+  const zones = await listShippingZones(true, partnerId);
   if (zones.length === 0) {
     return estimateHardcoded(countryCode, recipientCount, weightGrams);
   }
@@ -72,13 +78,17 @@ export async function estimateShippingFeeFromDb(
   return computeFeeFromZone(zone, recipientCount, weightGrams);
 }
 
-export async function replaceShippingZones(inputs: ShippingZoneInput[]): Promise<ShippingZoneRow[]> {
-  await db.delete(shippingZones);
+export async function replaceShippingZones(
+  inputs: ShippingZoneInput[],
+  partnerId: string = PLATFORM_PARTNER_SLUG,
+): Promise<ShippingZoneRow[]> {
+  await db.delete(shippingZones).where(eq(shippingZones.partnerId, partnerId));
   if (inputs.length === 0) return [];
   const inserted = await db
     .insert(shippingZones)
     .values(
       inputs.map((z) => ({
+        partnerId,
         code: z.code,
         labelI18n: z.labelI18n,
         countryCodes: z.countryCodes,

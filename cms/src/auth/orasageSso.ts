@@ -32,7 +32,7 @@ import {
 
 export async function verifyOrasageAdminToken(
   token: string,
-): Promise<{ orasageUserId: number; staffPermissions: string[] } | null> {
+): Promise<{ orasageUserId: number; staffRole: StaffRole; staffPermissions: string[] } | null> {
   const secret = jwtSecretKey();
   if (!secret) return null;
 
@@ -46,14 +46,15 @@ export async function verifyOrasageAdminToken(
     const orasageUserId = Number(sub);
     if (!Number.isFinite(orasageUserId)) return null;
 
+    const staffRole = role as StaffRole;
     const fromJwt = typeof permsRaw === 'string'
       ? permsRaw.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
     const staffPermissions = fromJwt.length > 0
       ? fromJwt
-      : permissionsToArray(resolveStaffPermissions({ role: role as StaffRole }));
+      : permissionsToArray(resolveStaffPermissions({ role: staffRole }));
 
-    return { orasageUserId, staffPermissions };
+    return { orasageUserId, staffRole, staffPermissions };
   } catch {
     return null;
   }
@@ -64,8 +65,13 @@ export async function resolveOrasagePayloadUser(
   payload: Payload,
   orasageUserId: number,
   staffPermissions: string[] = [],
+  staffRole: StaffRole | null = null,
 ): Promise<Record<string, unknown> | null> {
   const email = orasageAdminEmail(orasageUserId);
+  const syncData = {
+    staffPermissions,
+    ...(staffRole ? { staffRole } : {}),
+  };
 
   const byOrasageId = await payload.find({
     collection: 'users',
@@ -79,7 +85,7 @@ export async function resolveOrasagePayloadUser(
     const updated = await payload.update({
       collection: 'users',
       id: doc.id as string | number,
-      data: { staffPermissions } as never,
+      data: syncData as never,
       overrideAccess: true,
     });
     return updated as unknown as Record<string, unknown>;
@@ -99,7 +105,7 @@ export async function resolveOrasagePayloadUser(
       id: doc.id as string | number,
       data: {
         ...(doc.orasageUserId == null ? { orasageUserId } : {}),
-        staffPermissions,
+        ...syncData,
       } as never,
       overrideAccess: true,
     });
@@ -112,7 +118,7 @@ export async function resolveOrasagePayloadUser(
       data: {
         email,
         orasageUserId,
-        staffPermissions,
+        ...syncData,
       } as never,
       overrideAccess: true,
     });
@@ -129,7 +135,16 @@ export async function resolveUserFromOrasageToken(
   if (!token) return null;
   const verified = await verifyOrasageAdminToken(token);
   if (!verified) return null;
-  const doc = await resolveOrasagePayloadUser(payload, verified.orasageUserId, verified.staffPermissions);
+  const doc = await resolveOrasagePayloadUser(
+    payload,
+    verified.orasageUserId,
+    verified.staffPermissions,
+    verified.staffRole,
+  );
   if (!doc) return null;
-  return { ...doc, staffPermissions: verified.staffPermissions };
+  return {
+    ...doc,
+    staffPermissions: verified.staffPermissions,
+    staffRole: verified.staffRole,
+  };
 }

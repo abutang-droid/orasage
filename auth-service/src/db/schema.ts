@@ -10,6 +10,8 @@ import {
   real,
   jsonb,
   bigint,
+  primaryKey,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin", "shop_ops", "content_ops"]);
@@ -74,6 +76,8 @@ export const users = pgTable("users", {
   staffDisabled: boolean("staff_disabled").notNull().default(false),
   /** 7a：运营备注名，如「巴西站运营」 */
   staffLabel: varchar("staff_label", { length: 100 }),
+  /** Phase D：员工所属合作方 slug；终端用户为 null */
+  partnerId: varchar("partner_id", { length: 64 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),
@@ -108,6 +112,7 @@ export const userOrders = pgTable("user_orders", {
   readingId: varchar("reading_id", { length: 100 }),
   couponCode: varchar("coupon_code", { length: 50 }),
   subtotalCents: integer("subtotal_cents"),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -171,6 +176,7 @@ export const savedProfiles = pgTable("saved_profiles", {
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   sku: varchar("sku", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 200 }).notNull(),
   nameI18n: jsonb("name_i18n").$type<Record<string, string>>(),
@@ -228,6 +234,7 @@ export const productComboItems = pgTable("product_combo_items", {
 /** 前台展示分类（Q3：可配置 + 多语言，替代原 product_category 枚举） */
 export const productCategories = pgTable("product_categories", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   code: varchar("code", { length: 50 }).notNull().unique(),
   labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
@@ -238,6 +245,7 @@ export const productCategories = pgTable("product_categories", {
 /** 标签分组（五行/功效/材质/场景…） */
 export const productTagGroups = pgTable("product_tag_groups", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   code: varchar("code", { length: 50 }).notNull().unique(),
   labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
@@ -246,6 +254,7 @@ export const productTagGroups = pgTable("product_tag_groups", {
 
 export const productTags = pgTable("product_tags", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   groupId: integer("group_id").notNull(),
   code: varchar("code", { length: 50 }).notNull().unique(),
   labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull(),
@@ -279,6 +288,7 @@ export const productLinks = pgTable("product_links", {
 /** 应用计费槽位（R6：app + slotKey → SKU；统一取代三张旧配置表） */
 export const appBillingSlots = pgTable("app_billing_slots", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   appSource: varchar("app_source", { length: 20 }).notNull(),
   slotKey: varchar("slot_key", { length: 100 }).notNull(),
   sku: varchar("sku", { length: 100 }).notNull(),
@@ -291,17 +301,23 @@ export const appBillingSlots = pgTable("app_billing_slots", {
 
 export const homepageFeaturedProducts = pgTable("homepage_featured_products", {
   id: serial("id").primaryKey(),
-  sku: varchar("sku", { length: 100 }).notNull().unique(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
+  sku: varchar("sku", { length: 100 }).notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-/** 商城站点配置（首页布局等，key-value） */
-export const shopSettings = pgTable("shop_settings", {
-  key: varchar("key", { length: 64 }).primaryKey(),
-  value: jsonb("value").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+/** 商城站点配置（首页布局等，key-value；按 partner 隔离） */
+export const shopSettings = pgTable(
+  "shop_settings",
+  {
+    partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
+    key: varchar("key", { length: 64 }).notNull(),
+    value: jsonb("value").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.partnerId, t.key] })],
+);
 
 /** 账户级紫微问答额度（加量包余额 + 年卡到期） */
 export const ziweiChatAccounts = pgTable("ziwei_chat_accounts", {
@@ -334,6 +350,7 @@ export const userRecommendations = pgTable("user_recommendations", {
 /** 共振定制：珠子目录（水晶主珠 / 隔珠 / 隔片，逐颗计价） */
 export const diyBeads = pgTable("diy_beads", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   code: varchar("code", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
   element: varchar("element", { length: 10 }),
@@ -371,6 +388,7 @@ export const diyDesigns = pgTable("diy_designs", {
 /** 共振定制：全局配置（单行） */
 export const diyConfig = pgTable("diy_config", {
   id: integer("id").primaryKey().default(1),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   /** 绳结/弹力余量修正（加在珠长总和上） */
   lengthCorrectionMm: real("length_correction_mm").notNull().default(3),
   minOrderCents: integer("min_order_cents").notNull().default(9900),
@@ -382,6 +400,7 @@ export const diyConfig = pgTable("diy_config", {
 /** 用户联系留言 / 工单（main 门户「联系我们」表单 → admin 运营后台处理） */
 export const contactMessages = pgTable("contact_messages", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   /** 提交时已登录则记录用户 id；游客留言为 null */
   userId: integer("user_id"),
   name: varchar("name", { length: 100 }).notNull(),
@@ -405,6 +424,7 @@ export const contactMessages = pgTable("contact_messages", {
 /** UGC 商品评价（Phase D；CMS 精选评价为运营层，与此并存） */
 export const productReviews = pgTable("product_reviews", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   userId: integer("user_id").notNull(),
   sku: varchar("sku", { length: 100 }).notNull(),
   orderNo: varchar("order_no", { length: 64 }),
@@ -418,6 +438,7 @@ export const productReviews = pgTable("product_reviews", {
 /** 促销券 */
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   code: varchar("code", { length: 50 }).notNull().unique(),
   labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull().default({}),
   discountType: varchar("discount_type", { length: 20 }).notNull().default("percent"),
@@ -435,6 +456,7 @@ export const coupons = pgTable("coupons", {
 /** 运费区域模板（Phase C） */
 export const shippingZones = pgTable("shipping_zones", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   code: varchar("code", { length: 50 }).notNull().unique(),
   labelI18n: jsonb("label_i18n").$type<Record<string, string>>().notNull().default({}),
   countryCodes: jsonb("country_codes").$type<string[]>().notNull().default([]),
@@ -453,6 +475,7 @@ export const shippingZones = pgTable("shipping_zones", {
 /** 行为统计事件（#10） */
 export const analyticsEvents = pgTable("analytics_events", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   app: varchar("app", { length: 20 }).notNull(),
   eventName: varchar("event_name", { length: 100 }).notNull(),
   userId: integer("user_id"),
@@ -529,6 +552,7 @@ export const stripePayouts = pgTable("stripe_payouts", {
 /** 在线 IM 会话（#8） */
 export const chatConversations = pgTable("chat_conversations", {
   id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull().default("orasage"),
   userId: integer("user_id").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("open"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -582,6 +606,62 @@ export const walletLedgerEntries = pgTable("wallet_ledger_entries", {
   /** 运营手动调整时记录 admin 用户 id */
   createdBy: integer("created_by"),
   idempotencyKey: varchar("idempotency_key", { length: 120 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+/** Phase D：合作方租户 */
+export const partners = pgTable("partners", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 64 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** Phase D：合作方已开通模块 */
+export const partnerModules = pgTable(
+  "partner_modules",
+  {
+    id: serial("id").primaryKey(),
+    partnerId: varchar("partner_id", { length: 64 }).notNull(),
+    moduleKey: varchar("module_key", { length: 64 }).notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [unique("partner_modules_partner_module_uidx").on(t.partnerId, t.moduleKey)],
+);
+
+/** Phase E：Module API keys（明文仅创建时返回一次） */
+export const partnerApiKeys = pgTable("partner_api_keys", {
+  id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull(),
+  name: varchar("name", { length: 120 }).notNull().default("default"),
+  keyPrefix: varchar("key_prefix", { length: 24 }).notNull(),
+  keyHash: varchar("key_hash", { length: 64 }).notNull().unique(),
+  scopes: jsonb("scopes").$type<string[]>().notNull().default([]),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  lastUsedAt: timestamp("last_used_at"),
+  expiresAt: timestamp("expires_at"),
+  createdBy: integer("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at"),
+});
+
+/** Phase E：配置变更审计 */
+export const configAuditLogs = pgTable("config_audit_logs", {
+  id: serial("id").primaryKey(),
+  partnerId: varchar("partner_id", { length: 64 }).notNull(),
+  actorType: varchar("actor_type", { length: 20 }).notNull(),
+  actorId: varchar("actor_id", { length: 120 }),
+  moduleKey: varchar("module_key", { length: 64 }),
+  action: varchar("action", { length: 64 }).notNull(),
+  resourceType: varchar("resource_type", { length: 64 }),
+  resourceId: varchar("resource_id", { length: 120 }),
+  before: jsonb("before"),
+  after: jsonb("after"),
+  requestId: varchar("request_id", { length: 64 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "2026-07-29-合作方页-置顶新建-slug-入口",
+      "date": "2026-07-29",
+      "title": "合作方页：置顶新建 slug 入口",
+      "summary": "将「新建合作方（创建 slug）」表单置顶并加页头按钮与字段标签；API 说明改为折叠，避免挡住开户入口。无全局规则变更。",
+      "modules": [
+        "platform"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [],
+        "changed": [],
+        "removed": []
+      },
+      "links": []
+    },
+    {
+      "id": "2026-07-29-合作方页-module-api-开户与调用说明",
+      "date": "2026-07-29",
+      "title": "合作方页：Module API 开户与调用说明",
+      "summary": "在 /partners「创建/更新合作方」栏内嵌对外 Module API 开户步骤、基址/路径表、鉴权与禁止项、对接最小信息包；无全局规则变更。",
+      "modules": [
+        "platform"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/module-api-v1.md"
+      ]
+    },
+    {
+      "id": "2026-07-29-phase-e-module-api-v1-交付模板与配置审计",
+      "date": "2026-07-29",
+      "title": "Phase E：Module API v1、交付模板与配置审计",
+      "summary": "冻结 /v1/partners/{slug} 契约；partner_api_keys + config_audit_logs；交付模板 shop-only/tarot-only/full-apps；/partners 超管可签发 Key 与查看审计。无日历排期变更。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing"
+      ],
+      "phase": "E",
+      "rulesImpact": {
+        "added": [
+          "Module API：API Key 鉴权；路径 partnerSlug 必须与 Key 的 partner_id 一致；有效 scope=Key∩partner_modules；禁止 finance/wallets/module:platform；配置写必须落 config_audit_logs；与商城 Partner 下单 API 分离"
+        ],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/module-api-v1.md",
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
+      "id": "2026-07-29-phase-d-partnerid-multi-tenant",
+      "date": "2026-07-29",
+      "title": "Phase D partnerId multi-tenant",
+      "summary": "partners/partner_modules/staff binding; config tables partner_id=orasage; Admin API tenant scope; integrations filtered by partner; seed demo-partner.",
+      "modules": [
+        "platform",
+        "shop"
+      ],
+      "phase": "D",
+      "rulesImpact": {
+        "added": [
+          "Admin API must filter by partnerId; partner perms = role intersect modules intersect PARTNER_ASSIGNABLE; L3 status real only for platform tenant"
+        ],
+        "changed": [
+          "Multi-tenant invariants now backed by tables and API scope"
+        ],
+        "removed": [
+          ""
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
+      "id": "2026-07-29-phase-c-内容自研控制面",
+      "date": "2026-07-29",
+      "title": "Phase C：内容自研控制面",
+      "summary": "自研 /content/* 编辑 Hero、页面、信息流、信仰、媒体与商品内容；交易/内容与 UGC/精选评价入口拆清；Payload Admin 仅超管（staffRole）可进。",
+      "modules": [
+        "content",
+        "shop",
+        "platform"
+      ],
+      "phase": "C",
+      "rulesImpact": {
+        "added": [
+          "Payload Users.access.admin 仅 staffRole===admin；SSO 同步 staffRole"
+        ],
+        "changed": [
+          "内容日常入口强制自研 /content/*；第三方/非超管不得使用 /cms/admin"
+        ],
+        "removed": [
+          ""
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md"
+      ]
+    },
+    {
+      "id": "2026-07-29-phase-b-权限枚举对齐与-api-页面门闩",
+      "date": "2026-07-29",
+      "title": "Phase B：权限枚举对齐与 API/页面门闩",
+      "summary": "落地 Config Pack canonical 权限名与旧名别名；角色默认含 analytics/im/apps/storefront 等；auth-service 与 admin 页面统一门闩；子账号可授模块扩展且 sanitize，finance 永不授出；CMS 写权限改用 content.*。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing",
+        "content",
+        "legal",
+        "ops",
+        "analytics"
+      ],
+      "phase": "B",
+      "rulesImpact": {
+        "added": [
+          "canonical 权限枚举（platform.*/ops.tickets/ops.im/analytics.read/shop.catalog|storefront/content.*/legal.agreements/app.*）；LEGACY_PERMISSION_ALIASES；PARTNER_ASSIGNABLE_PERMISSIONS；ASSIGNABLE_EXTRA 扩展"
+        ],
+        "changed": [
+          "staff.manage→platform.staff；ops.messages→ops.tickets；shop.products→catalog+storefront；content.cms.*→content.*；analytics/im/integrations API 必须权限门闩"
+        ],
+        "removed": [
+          "无权限门闩即可访问 analytics/chat/notifications（仅 requireStaff）的旧行为"
+        ]
+      },
+      "links": [
+        "docs/products/admin-config-pack.md",
+        "shared/staff-permissions/index.ts"
+      ]
+    },
+    {
+      "id": "2026-07-28-phase-a-后台信息架构重组与路由别名",
+      "date": "2026-07-28",
+      "title": "Phase A：后台信息架构重组与路由别名",
+      "summary": "侧栏按 Config Pack 模块重组；商品/客服/店铺展示等迁至新路径并保留旧 URL redirect；新增 integrations/partners/apps 与 content 桥接页；超管折叠内部 CMS，主 IA 不再对非超管暴露 Payload 链。",
+      "modules": [
+        "platform",
+        "shop",
+        "billing",
+        "content",
+        "legal",
+        "ops",
+        "analytics"
+      ],
+      "phase": "A",
+      "rulesImpact": {
+        "added": [
+          "后台主导航按模块分组（平台/商城/计费/内容/合规/应用/客服/数据/资金）；店铺展示归属 shop.storefront（/shop/storefront）"
+        ],
+        "changed": [
+          "Payload 直链仅超管折叠「内部 CMS」可见；内容运营走 /content/* 桥接（Phase C 前）"
+        ],
+        "removed": [
+          "侧栏一级分组「运营」杂糅入口（概览/资金/客服等已拆到对应模块）"
+        ]
+      },
+      "links": [
+        "docs/plans/admin-config-pack-roadmap.md",
+        "docs/products/admin-config-pack.md"
+      ]
+    },
+    {
+      "id": "2026-07-28-admin-config-pack-spec",
+      "date": "2026-07-28",
+      "title": "Admin 配置包规范落地与更新日志",
+      "summary": "将模块化配置后台（Config Pack）、多租户 partnerId=orasage、分步改造路线图写入产品文档与 Agent 规则；后台新增「更新日志」页，后续每次后台相关交付须自动追加条目。Phase 0 完成；IA/权限重构尚未开始。",
+      "modules": [
+        "platform"
+      ],
+      "phase": "P0",
+      "rulesImpact": {
+        "added": [
+          "docs/AGENT-RULES.md：新增「Admin 配置包」专节（归类、分步测试门禁、changelog 强制、rulesImpact、partnerId/finance 不变量）",
+          "docs/products/admin-config-pack.md：配置后台产品规范定稿",
+          "docs/plans/admin-config-pack-roadmap.md：P0–E 分步大纲与测试门禁",
+          "AGENTS.md：后台改动前必读配置包与 changelog 流程"
+        ],
+        "changed": [],
+        "removed": []
+      },
+      "links": [
+        "docs/products/admin-config-pack.md",
+        "docs/plans/admin-config-pack-roadmap.md",
+        "docs/AGENT-RULES.md"
+      ]
+    }
+  ]
+}

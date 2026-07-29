@@ -3,6 +3,19 @@ import type { CollectionConfig } from 'payload';
 import { orasageAuthStrategy } from '../auth/orasageStrategy';
 import { orasageAdminEmail } from '../auth/orasageSso';
 
+type CmsUser = {
+  staffRole?: string | null;
+};
+
+/**
+ * Payload Admin UI 仅平台超管可进。
+ * 内容运营 / 合作方员工通过 admin.orasage.com 自研 /content/* 写 CMS API，不进 /cms/admin。
+ */
+function canAccessPayloadAdmin({ req }: { req: { user?: unknown } }): boolean {
+  const role = (req.user as CmsUser | undefined)?.staffRole;
+  return role === 'admin';
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: {
@@ -23,7 +36,7 @@ export const Users: CollectionConfig = {
     description: '由 orasage 统一登录自动同步，无需单独设置 CMS 密码',
   },
   access: {
-    admin: () => true,
+    admin: canAccessPayloadAdmin,
   },
   fields: [
     {
@@ -44,6 +57,14 @@ export const Users: CollectionConfig = {
       admin: {
         readOnly: true,
         description: 'auth-service 用户 ID，SSO 自动写入',
+      },
+    },
+    {
+      name: 'staffRole',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'SSO 同步的运营角色（admin / shop_ops / content_ops）',
       },
     },
     {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import { diyBeads, diyConfig, diyDesigns } from "../db/schema.ts";
@@ -30,10 +30,15 @@ export function formatBead(row: BeadRow) {
   };
 }
 
-export async function getDiyConfigRow() {
-  const [row] = await db.select().from(diyConfig).where(eq(diyConfig.id, 1)).limit(1);
+export async function getDiyConfigRow(partnerId = "orasage") {
+  const [row] = await db
+    .select()
+    .from(diyConfig)
+    .where(eq(diyConfig.partnerId, partnerId))
+    .limit(1);
   return row ?? {
     id: 1,
+    partnerId,
     lengthCorrectionMm: 3,
     minOrderCents: 9900,
     fitToleranceMm: 8,
@@ -55,7 +60,7 @@ export function formatDiyConfig(row: Awaited<ReturnType<typeof getDiyConfigRow>>
 diyRouter.get("/catalog", async (_req, res) => {
   try {
     const [rows, config] = await Promise.all([
-      db.select().from(diyBeads).where(eq(diyBeads.active, true)).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id)),
+      db.select().from(diyBeads).where(and(eq(diyBeads.active, true), eq(diyBeads.partnerId, "orasage"))).orderBy(asc(diyBeads.sortOrder), asc(diyBeads.id)),
       getDiyConfigRow(),
     ]);
     res.json({ beads: rows.map(formatBead), config: formatDiyConfig(config) });

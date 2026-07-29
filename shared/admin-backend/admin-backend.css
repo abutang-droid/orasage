@@ -29,6 +29,32 @@
   margin-bottom: 0.5rem;
 }
 
+.admin-backend-nav-group + .admin-backend-nav-group {
+  margin-top: 1.25rem;
+}
+
+.admin-backend-sidebar-title--button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.admin-backend-sidebar-title--button:hover {
+  color: var(--orasage-foreground, #171717);
+}
+
+.admin-backend-nav-group-body {
+  display: flex;
+  flex-direction: column;
+}
+
 .admin-backend-sidebar-title + .admin-backend-sidebar-title {
   margin-top: 1.25rem;
 }
@@ -259,4 +285,90 @@
 
 .orasage-portal-footer-link:hover {
   color: var(--orasage-gold, #b8943f);
+}
+
+/* ── Admin changelog ── */
+.admin-changelog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.admin-changelog-item {
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--orasage-border, #e7e5e4);
+}
+
+.admin-changelog-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.admin-changelog-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.admin-changelog-phase,
+.admin-changelog-modules {
+  letter-spacing: 0.04em;
+}
+
+.admin-changelog-title {
+  margin: 0.5rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.admin-changelog-summary {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.admin-changelog-rules {
+  margin-top: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--orasage-muted-bg, #fafaf9);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.admin-changelog-rules h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.admin-changelog-rules ul {
+  margin: 0.25rem 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.admin-changelog-rules ul:last-child {
+  margin-bottom: 0;
+}
+
+.admin-changelog-no-rules {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.admin-changelog-links {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.75rem;
+  color: var(--orasage-secondary, #6b7280);
 }

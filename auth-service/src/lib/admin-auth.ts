@@ -13,10 +13,18 @@ import {
   effectivePermissionsForUser,
   userIsActiveStaff,
 } from "./staff-permissions.ts";
+import {
+  PLATFORM_PARTNER_SLUG,
+  scopePermissionsForStaff,
+} from "./partner-scope.ts";
 
 export type AdminRequest = Request & {
   adminUser: NonNullable<Awaited<ReturnType<typeof getAuthUser>>>;
   staffPermissions: Set<AnyStaffPermission>;
+  /** 员工绑定的合作方 slug（超管默认 orasage） */
+  partnerId: string;
+  /** 该合作方已启用模块 */
+  partnerModules: string[];
 };
 
 async function loadAdminContext(
@@ -37,10 +45,13 @@ async function loadAdminContext(
     res.status(403).json({ error: "运营账号已停用" });
     return null;
   }
-  const staffPermissions = effectivePermissionsForUser(user);
+  const basePerms = effectivePermissionsForUser(user);
+  const scoped = await scopePermissionsForStaff(user, basePerms);
   const ctx = req as AdminRequest;
   ctx.adminUser = user;
-  ctx.staffPermissions = staffPermissions;
+  ctx.staffPermissions = scoped.permissions;
+  ctx.partnerId = scoped.partnerId || PLATFORM_PARTNER_SLUG;
+  ctx.partnerModules = scoped.modules;
   return ctx;
 }
 
@@ -76,7 +87,7 @@ export const requireShopOps = requireRoles("admin", "shop_ops");
 export const requireSuperAdmin = requireRoles("admin");
 
 /** 子账号管理 */
-export const requireStaffManage = requirePermission("staff.manage");
+export const requireStaffManage = requirePermission("platform.staff");
 
 /** 在 requireStaff 之后校验权限点（避免重复鉴权） */
 export function assertPermission(...required: AnyStaffPermission[]) {

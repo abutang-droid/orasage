@@ -16,10 +16,11 @@ export type CategoryRow = typeof productCategories.$inferSelect;
 let categoryCache: { rows: CategoryRow[]; expiry: number } | null = null;
 const CACHE_MS = 60_000;
 
-export async function listCategories(): Promise<CategoryRow[]> {
+export async function listCategories(partnerId = "orasage"): Promise<CategoryRow[]> {
   return db
     .select()
     .from(productCategories)
+    .where(eq(productCategories.partnerId, partnerId))
     .orderBy(asc(productCategories.sortOrder), asc(productCategories.id));
 }
 
@@ -39,10 +40,12 @@ export async function upsertCategory(input: {
   labelI18n: Record<string, string>;
   sortOrder?: number;
   active?: boolean;
+  partnerId?: string;
 }): Promise<CategoryRow> {
   const [row] = await db
     .insert(productCategories)
     .values({
+      partnerId: input.partnerId ?? "orasage",
       code: input.code,
       labelI18n: input.labelI18n,
       sortOrder: input.sortOrder ?? 0,

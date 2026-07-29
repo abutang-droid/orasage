@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { coupons } from "../db/schema.ts";
+import { PLATFORM_PARTNER_SLUG } from "./partner-scope.ts";
 
 export type CouponRow = typeof coupons.$inferSelect;
 
@@ -22,8 +23,12 @@ export function formatCoupon(c: CouponRow) {
   };
 }
 
-export async function listCoupons() {
-  const rows = await db.select().from(coupons).orderBy(coupons.code);
+export async function listCoupons(partnerId: string = PLATFORM_PARTNER_SLUG) {
+  const rows = await db
+    .select()
+    .from(coupons)
+    .where(eq(coupons.partnerId, partnerId))
+    .orderBy(coupons.code);
   return rows.map(formatCoupon);
 }
 
@@ -39,13 +44,17 @@ export type CouponInput = {
   active?: boolean;
 };
 
-export async function replaceCoupons(inputs: CouponInput[]): Promise<CouponRow[]> {
-  await db.delete(coupons);
+export async function replaceCoupons(
+  inputs: CouponInput[],
+  partnerId: string = PLATFORM_PARTNER_SLUG,
+): Promise<CouponRow[]> {
+  await db.delete(coupons).where(eq(coupons.partnerId, partnerId));
   if (inputs.length === 0) return [];
   return db
     .insert(coupons)
     .values(
       inputs.map((c) => ({
+        partnerId,
         code: c.code.toUpperCase(),
         labelI18n: c.labelI18n,
         discountType: c.discountType,
@@ -61,10 +70,17 @@ export async function replaceCoupons(inputs: CouponInput[]): Promise<CouponRow[]
     .returning();
 }
 
-export async function findCouponByCode(code: string): Promise<CouponRow | null> {
+export async function findCouponByCode(
+  code: string,
+  partnerId: string = PLATFORM_PARTNER_SLUG,
+): Promise<CouponRow | null> {
   const normalized = code.trim().toUpperCase();
   if (!normalized) return null;
-  const [row] = await db.select().from(coupons).where(eq(coupons.code, normalized)).limit(1);
+  const [row] = await db
+    .select()
+    .from(coupons)
+    .where(and(eq(coupons.code, normalized), eq(coupons.partnerId, partnerId)))
+    .limit(1);
   return row ?? null;
 }
 

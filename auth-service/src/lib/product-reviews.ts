@@ -14,12 +14,16 @@ const STATUS_LABELS: Record<ReviewStatus, string> = {
 export async function listReviewsForAdmin(filters?: {
   status?: string;
   sku?: string;
+  partnerId?: string;
   limit?: number;
   offset?: number;
 }) {
   const limit = Math.min(filters?.limit ?? 50, 200);
   const offset = Math.max(0, filters?.offset ?? 0);
   const conditions = [];
+  if (filters?.partnerId) {
+    conditions.push(eq(productReviews.partnerId, filters.partnerId));
+  }
   if (filters?.status && filters.status in STATUS_LABELS) {
     conditions.push(eq(productReviews.status, filters.status as ReviewStatus));
   }
