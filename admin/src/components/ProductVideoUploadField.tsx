@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+/** 短片软上限（与 nginx 25m 上传上限对齐，运营规范） */
+export const MAX_PRODUCT_VIDEO_BYTES = 15 * 1024 * 1024;
+
 type ProductVideoUploadFieldProps = {
   /** form field prefix, e.g. galleryVideo → galleryVideoFile / galleryVideoUrl / galleryVideoClear */
   name: string;
@@ -20,6 +23,7 @@ export function ProductVideoUploadField({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [cleared, setCleared] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -33,6 +37,19 @@ export function ProductVideoUploadField({
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_PRODUCT_VIDEO_BYTES) {
+      setSizeError(
+        `短片请压缩到 ≤ 15 MB（当前 ${(file.size / (1024 * 1024)).toFixed(1)} MB）。建议 720p H.264。`,
+      );
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setFileName(null);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+    setSizeError(null);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -43,6 +60,7 @@ export function ProductVideoUploadField({
 
   const onClearChange = (checked: boolean) => {
     setCleared(checked);
+    setSizeError(null);
     if (checked) {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -67,7 +85,7 @@ export function ProductVideoUploadField({
         onClick={() => inputRef.current?.click()}
       >
         {displayUrl ? (
-          <video src={displayUrl} controls className="product-video-player" />
+          <video src={displayUrl} controls preload="metadata" className="product-video-player" />
         ) : (
           <div className="product-video-empty">
             <span className="hero-image-upload-icon">+</span>
@@ -76,10 +94,14 @@ export function ProductVideoUploadField({
         )}
       </button>
 
-      {fileName ? (
+      {sizeError ? (
+        <p style={{ color: 'var(--destructive, #c00)', margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
+          {sizeError}
+        </p>
+      ) : fileName ? (
         <p className="product-media-pending">待保存：{fileName}</p>
       ) : (
-        <p className="product-media-hint muted">支持 MP4 / WebM / MOV</p>
+        <p className="product-media-hint muted">支持 MP4 / WebM / MOV，短片 ≤ 15 MB（建议 720p）</p>
       )}
 
       <input

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type GallerySlide =
   | { kind: 'image'; url: string; alt: string }
@@ -39,7 +39,25 @@ export function ProductHeroGallery({
   }
 
   const [index, setIndex] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const active = slides[index] ?? slides[0];
+  const videoActive = active?.kind === 'video';
+
+  // 仅当前滑到视频时挂载 src，避免一进页就拉完整 MP4
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !videoActive || active.kind !== 'video') return;
+    if (el.getAttribute('src') !== active.url) {
+      el.src = active.url;
+      el.load();
+    }
+    void el.play().catch(() => {
+      /* 自动播放被拦截时保留 controls */
+    });
+    return () => {
+      el.pause();
+    };
+  }, [videoActive, active]);
 
   if (!active) {
     return <div className="shop-pdp-gallery-placeholder" aria-hidden />;
@@ -47,18 +65,18 @@ export function ProductHeroGallery({
 
   return (
     <div className="shop-pdp-gallery">
-      <div className="shop-pdp-gallery-stage">
-        {active.kind === 'video' ? (
+      <div className={`shop-pdp-gallery-stage${videoActive ? ' is-video' : ''}`}>
+        {videoActive ? (
           <video
+            ref={videoRef}
             key={active.url}
             className="shop-pdp-gallery-video"
-            src={active.url}
             poster={active.poster}
-            autoPlay
             muted
             loop
             playsInline
             controls
+            preload="metadata"
           />
         ) : (
           <Image
@@ -76,19 +94,23 @@ export function ProductHeroGallery({
         <div className="shop-pdp-gallery-thumbs" role="tablist" aria-label="商品图片">
           {slides.map((slide, i) => (
             <button
-              key={`${slide.url}-${i}`}
+              key={`${slide.kind}-${slide.url}-${i}`}
               type="button"
               role="tab"
               aria-selected={i === index}
               aria-label={slide.kind === 'video' ? '商品视频' : `第 ${i + 1} 张图片`}
-              className={`shop-pdp-gallery-thumb${i === index ? ' is-active' : ''}`}
+              className={`shop-pdp-gallery-thumb${i === index ? ' is-active' : ''}${
+                slide.kind === 'video' ? ' is-video' : ''
+              }`}
               onClick={() => setIndex(i)}
             >
               {slide.kind === 'video' ? (
                 <>
                   {slide.poster ? (
                     <Image src={slide.poster} alt="" fill sizes="80px" className="shop-pdp-gallery-thumb-img" />
-                  ) : null}
+                  ) : (
+                    <span className="shop-pdp-gallery-thumb-video-fallback" aria-hidden />
+                  )}
                   <span className="shop-pdp-gallery-thumb-play" aria-hidden>
                     ▶
                   </span>

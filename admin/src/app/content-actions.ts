@@ -17,6 +17,8 @@ import type { EditorSection } from '@/components/PdpSectionsEditor';
 
 const LOCALES = new Set(['zh-CN', 'en', 'pt-BR']);
 const HERO_ROWS = 6;
+/** 短片软上限（本地媒体路线运营规范） */
+const MAX_PRODUCT_VIDEO_BYTES = 15 * 1024 * 1024;
 
 async function staffCmsToken(): Promise<string> {
   if (!(await getStaffUser(['admin', 'shop_ops', 'content_ops']))) {
@@ -87,6 +89,11 @@ async function parseVideoUrlFromForm(
 
   const file = formData.get(`${prefix}File`);
   if (file instanceof File && file.size > 0) {
+    if (file.size > MAX_PRODUCT_VIDEO_BYTES) {
+      throw new Error(
+        `短片请压缩到 ≤ 15 MB（当前 ${(file.size / (1024 * 1024)).toFixed(1)} MB）`,
+      );
+    }
     const uploaded = await uploadCmsMediaFile(file, alt, token);
     return uploaded.publicUrl;
   }

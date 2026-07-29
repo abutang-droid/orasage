@@ -567,6 +567,10 @@
   background: var(--os-color-mono-bg, #fafaf8);
 }
 
+.shop-pdp-gallery-stage.is-video {
+  background: #111;
+}
+
 .shop-pdp-gallery-image {
   object-fit: cover;
 }
@@ -576,7 +580,13 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+.shop-pdp-gallery-thumb-video-fallback {
+  position: absolute;
+  inset: 0;
+  background: #1c1917;
 }
 
 .shop-pdp-gallery-thumbs {
