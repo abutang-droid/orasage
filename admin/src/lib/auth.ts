@@ -56,12 +56,24 @@ async function hydrateStaffSession(base: { id: number; role: StaffRole }): Promi
   }
 }
 
-/** 校验运营员工；从 auth-service 拉取有效权限集 */
-export async function getStaffUser(allowed: readonly StaffRole[] = ALL_STAFF_ROLES): Promise<StaffUser | null> {
+/** Cookie JWT 角色校验（不依赖 /me）；供 CMS 代理写等需高可用的路径 */
+export async function getStaffBase(
+  allowed: readonly StaffRole[] = ALL_STAFF_ROLES,
+): Promise<{ id: number; role: StaffRole } | null> {
   const base = await readStaffFromCookie();
   if (!base) return null;
   if (base.role !== 'admin' && !allowed.includes(base.role)) return null;
-  return hydrateStaffSession(base);
+  return base;
+}
+
+/** 校验运营员工；从 auth-service 拉取有效权限集 */
+export async function getStaffUser(allowed: readonly StaffRole[] = ALL_STAFF_ROLES): Promise<StaffUser | null> {
+  const base = await getStaffBase(allowed);
+  if (!base) return null;
+  const hydrated = await hydrateStaffSession(base);
+  // /me 短暂失败时，仍允许用 JWT 角色继续（permissions 暂空，细粒度权限页面自行再拦）
+  if (hydrated) return hydrated;
+  return { id: base.id, role: base.role, permissions: [] };
 }
 
 export function staffCan(user: StaffUser, permission: AnyStaffPermission): boolean {

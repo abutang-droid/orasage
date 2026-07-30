@@ -22,21 +22,12 @@ async function cmsRequest(
   return fetch(`${CMS_INTERNAL_URL}${path}`, { ...init, headers, body, cache: 'no-store' });
 }
 
-/** 上传媒体并关联 SKU 主图（创建或更新 shop-product-images） */
-export async function upsertProductImage(sku: string, file: File, token: string): Promise<void> {
-  const mediaForm = new FormData();
-  mediaForm.append('file', file);
-  mediaForm.append('alt', sku);
-
-  const mediaRes = await cmsRequest('/api/media', token, { method: 'POST', body: mediaForm });
-  if (!mediaRes.ok) {
-    const err = await mediaRes.text().catch(() => '');
-    throw new Error(`媒体上传失败 (${mediaRes.status}): ${err.slice(0, 200)}`);
-  }
-  const mediaJson = (await mediaRes.json()) as { doc?: { id: number }; id?: number };
-  const mediaId = mediaJson.doc?.id ?? mediaJson.id;
-  if (!mediaId) throw new Error('媒体上传成功但未返回 ID');
-
+/** 将已上传的 media id 关联为 SKU 列表主图 */
+export async function upsertProductImageByMediaId(
+  sku: string,
+  mediaId: number,
+  token: string,
+): Promise<void> {
   const findRes = await cmsRequest(
     `/api/shop-product-images?where[sku][equals]=${encodeURIComponent(sku)}&limit=1`,
     token,
@@ -66,4 +57,22 @@ export async function upsertProductImage(sku: string, file: File, token: string)
       throw new Error(`创建商品主图失败 (${postRes.status}): ${err.slice(0, 200)}`);
     }
   }
+}
+
+/** 上传媒体并关联 SKU 主图（创建或更新 shop-product-images） */
+export async function upsertProductImage(sku: string, file: File, token: string): Promise<void> {
+  const mediaForm = new FormData();
+  mediaForm.append('file', file);
+  mediaForm.append('alt', sku);
+
+  const mediaRes = await cmsRequest('/api/media', token, { method: 'POST', body: mediaForm });
+  if (!mediaRes.ok) {
+    const err = await mediaRes.text().catch(() => '');
+    throw new Error(`媒体上传失败 (${mediaRes.status}): ${err.slice(0, 200)}`);
+  }
+  const mediaJson = (await mediaRes.json()) as { doc?: { id: number }; id?: number };
+  const mediaId = mediaJson.doc?.id ?? mediaJson.id;
+  if (!mediaId) throw new Error('媒体上传成功但未返回 ID');
+
+  await upsertProductImageByMediaId(sku, mediaId, token);
 }

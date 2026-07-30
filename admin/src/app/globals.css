@@ -1180,8 +1180,17 @@ details summary {
   font-size: 0.85rem;
 }
 
+/* Visually hidden (not display:none) so programmatic .click() works reliably */
 .product-media-file-input {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .product-media-card-actions {
@@ -1286,6 +1295,56 @@ details summary {
 
 .product-catalog-image-preview--clickable:hover {
   border-color: var(--orasage-gold, #b8943f);
+}
+
+.product-catalog-image-preview--clickable:disabled {
+  cursor: wait;
+  opacity: 0.85;
+}
+
+.product-media-progress {
+  margin: 0.35rem 0 0.5rem;
+}
+
+.product-media-progress-label {
+  margin: 0 0 0.3rem;
+  font-size: 0.78rem;
+  color: var(--orasage-secondary, #6b7280);
+}
+
+.product-media-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--orasage-border, #e7e5e4);
+  overflow: hidden;
+}
+
+.product-media-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--orasage-gold, #b8943f);
+  transition: width 0.15s ease-out;
+}
+
+.product-media-progress-pct {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  color: var(--orasage-secondary, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.product-media-upload-status {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.product-media-upload-status--ok {
+  color: #15803d;
+}
+
+.product-media-upload-status--error {
+  color: #b91c1c;
 }
 
 .product-video-upload {
