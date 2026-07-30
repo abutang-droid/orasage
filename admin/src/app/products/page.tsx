@@ -19,7 +19,9 @@ export default async function ProductsPage({
     sku?: string;
     save_err?: string;
     deleted?: string;
+    delete_mode?: string;
     batch_ok?: string;
+    batch_deleted?: string;
     count?: string;
   }>;
 }) {
@@ -96,7 +98,14 @@ export default async function ProductsPage({
 
       {sp.deleted ? (
         <p className="muted panel-notice">
-          商品 <code>{decodeURIComponent(sp.deleted)}</code> 已下架。
+          商品 <code>{decodeURIComponent(sp.deleted)}</code>{' '}
+          {sp.delete_mode === 'hard' ? '已永久删除。' : '已删除（下架）。'}
+        </p>
+      ) : null}
+
+      {sp.batch_deleted ? (
+        <p className="muted panel-notice">
+          已批量{sp.delete_mode === 'hard' ? '永久删除' : '删除（下架）'} {sp.batch_deleted} 个商品。
         </p>
       ) : null}
 

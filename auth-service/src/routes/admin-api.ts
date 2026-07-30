@@ -2,7 +2,18 @@ import { Router } from "express";
 import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
+import {
+  appBillingSlots,
+  contactMessages,
+  homepageFeaturedProducts,
+  productComboItems,
+  productLinks,
+  productTagLinks,
+  products,
+  userOrders,
+  userReadings,
+  users,
+} from "../db/schema.ts";
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
@@ -708,19 +719,69 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
 adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
+    const hard =
+      req.query.hard === "1" ||
+      req.query.hard === "true" ||
+      (req.body && typeof req.body === "object" && (req.body as { hard?: unknown }).hard === true);
+
     const [existing] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
     if (!existing) {
       res.status(404).json({ error: "商品不存在" });
       return;
     }
 
-    await db
-      .update(products)
-      .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
-      .where(eq(products.sku, sku));
-    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+    // Soft delete: hide from catalog / billing resolve, keep row for history.
+    if (!hard) {
+      await db
+        .update(products)
+        .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
+        .where(eq(products.sku, sku));
+      await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+      res.json({ success: true, sku, active: false, mode: "soft" });
+      return;
+    }
 
-    res.json({ success: true, sku, active: false });
+    // Hard delete guards: never remove SKUs still wired to billing or other combos.
+    const [billingHit] = await db
+      .select({ id: appBillingSlots.id })
+      .from(appBillingSlots)
+      .where(eq(appBillingSlots.sku, sku))
+      .limit(1);
+    if (billingHit) {
+      res.status(409).json({ error: "该 SKU 仍被应用计费槽位引用，请先从「应用计费」移除后再永久删除" });
+      return;
+    }
+
+    const [usedAsComponent] = await db
+      .select({ id: productComboItems.id })
+      .from(productComboItems)
+      .where(eq(productComboItems.componentSku, sku))
+      .limit(1);
+    if (usedAsComponent) {
+      res.status(409).json({ error: "该 SKU 仍是其它组合商品的子件，请先调整组合后再永久删除" });
+      return;
+    }
+
+    const [orderHit] = await db
+      .select({ id: userOrders.id })
+      .from(userOrders)
+      .where(eq(userOrders.sku, sku))
+      .limit(1);
+    if (orderHit) {
+      res.status(409).json({
+        error: "该 SKU 已有历史订单，仅可下架不可永久删除（保留订单追溯）",
+      });
+      return;
+    }
+
+    // Cascade catalog links for this SKU, then remove the product row.
+    await db.delete(productComboItems).where(eq(productComboItems.comboSku, sku));
+    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+    await db.delete(productLinks).where(eq(productLinks.sku, sku));
+    await db.delete(productTagLinks).where(eq(productTagLinks.productId, existing.id));
+    await db.delete(products).where(eq(products.sku, sku));
+
+    res.json({ success: true, sku, mode: "hard" });
   } catch (err) {
     console.error("[admin] delete product:", err);
     res.status(500).json({ error: "服务器内部错误" });

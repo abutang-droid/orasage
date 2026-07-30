@@ -92,6 +92,19 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
     }))
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 
+  const billingRefs = billingSlots.filter((s) => s.sku === sku);
+  const usedAsComboComponent = products.some((p) =>
+    (p.comboItems ?? []).some((c) => c.componentSku === sku),
+  );
+  let hardDeleteBlockedReason: string | null = null;
+  if (billingRefs.length > 0) {
+    hardDeleteBlockedReason = `仍被 ${billingRefs.length} 个计费槽位引用，请先到「应用计费」解除。`;
+  } else if (usedAsComboComponent) {
+    hardDeleteBlockedReason = '仍是其它组合商品的子件，请先调整组合。';
+  }
+  // 历史订单由 API 在永久删除时再校验；有引用则前端直接禁用。
+  const canHardDelete = !hardDeleteBlockedReason;
+
   return (
     <div className="admin-page">
       <header className="page-header">
@@ -163,8 +176,14 @@ export default async function ProductEditPage({ params, searchParams }: PageProp
       </section>
 
       <section className="panel panel--danger">
-        <h2>下架商品</h2>
-        <ProductDeletePanel sku={product.sku} name={product.name} active={product.active} />
+        <h2>删除商品</h2>
+        <ProductDeletePanel
+          sku={product.sku}
+          name={product.name}
+          active={product.active}
+          canHardDelete={canHardDelete}
+          hardDeleteBlockedReason={hardDeleteBlockedReason}
+        />
       </section>
     </div>
   );

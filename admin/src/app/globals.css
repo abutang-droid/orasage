@@ -55,6 +55,27 @@ a {
   font-size: 0.9rem;
 }
 
+.btn-text--danger {
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.35);
+}
+
+.btn-text--danger:hover {
+  background: rgba(185, 28, 28, 0.06);
+}
+
+.product-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.product-row-delete-form {
+  display: inline;
+  margin: 0;
+}
+
 .muted {
   color: var(--orasage-secondary, #6b7280);
   font-size: 0.9rem;
@@ -1537,6 +1558,17 @@ details summary {
 
 .product-delete-confirm {
   flex: 1 1 100%;
+}
+
+.product-delete-divider {
+  border: 0;
+  border-top: 1px solid var(--orasage-border, #e7e5e4);
+  margin: 0.25rem 0;
+}
+
+.product-delete-blocked {
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 900px) {

@@ -79,22 +79,68 @@ export async function saveProductAction(formData: FormData) {
 
 export async function deleteProductAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
+  const hard = formData.get('mode') === 'hard';
+  const fromList = formData.get('from') === 'list';
+  const editPath = `/products/${encodeURIComponent(sku)}/edit`;
   if (!sku) {
     redirect('/products?save_err=' + encodeURIComponent('缺少 SKU'));
   }
   if (formData.get('confirm') !== 'on') {
-    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent('请勾选确认后再下架')}`);
+    redirect(
+      fromList
+        ? '/products?save_err=' + encodeURIComponent('请确认后再删除')
+        : `${editPath}?save_err=${encodeURIComponent('请勾选确认后再删除')}`,
+    );
   }
 
   try {
-    await deleteProduct(sku);
+    await deleteProduct(sku, { hard });
   } catch (err) {
-    const message = err instanceof Error ? err.message : '下架失败';
-    redirect(`${`/products/${encodeURIComponent(sku)}/edit`}?save_err=${encodeURIComponent(message)}`);
+    const message = err instanceof Error ? err.message : '删除失败';
+    redirect(
+      fromList
+        ? '/products?save_err=' + encodeURIComponent(message)
+        : `${editPath}?save_err=${encodeURIComponent(message)}`,
+    );
   }
 
   revalidatePath('/products');
-  redirect('/products?deleted=' + encodeURIComponent(sku));
+  revalidatePath(editPath);
+  redirect(
+    `/products?deleted=${encodeURIComponent(sku)}&delete_mode=${hard ? 'hard' : 'soft'}`,
+  );
+}
+
+/** 批量删除（默认下架；勾选永久删除时逐个 hard，失败的跳过并汇总） */
+export async function batchDeleteProductsAction(formData: FormData) {
+  const skusRaw = String(formData.get('skus') ?? '').trim();
+  const hard = formData.get('mode') === 'hard';
+  const skus = skusRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  if (skus.length === 0) {
+    redirect('/products?save_err=' + encodeURIComponent('请先勾选商品'));
+  }
+
+  const errors: string[] = [];
+  let ok = 0;
+  for (const sku of skus) {
+    try {
+      await deleteProduct(sku, { hard });
+      ok += 1;
+    } catch (err) {
+      errors.push(`${sku}: ${err instanceof Error ? err.message : '失败'}`);
+    }
+  }
+
+  revalidatePath('/products');
+  if (ok === 0 && errors.length > 0) {
+    redirect('/products?save_err=' + encodeURIComponent(errors.slice(0, 3).join('；')));
+  }
+  const qs = new URLSearchParams({
+    batch_deleted: String(ok),
+    delete_mode: hard ? 'hard' : 'soft',
+  });
+  if (errors.length) qs.set('save_err', `部分失败：${errors.slice(0, 3).join('；')}`);
+  redirect(`/products?${qs.toString()}`);
 }
 
 /** 批量上/下架（仅 active 字段） */
