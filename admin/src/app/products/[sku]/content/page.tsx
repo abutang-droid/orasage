@@ -152,23 +152,30 @@ export default async function ProductContentPage({ params, searchParams }: PageP
           </div>
 
           <h3 className="product-content-subhead">详情视频</h3>
+          <p className="muted product-media-hint" style={{ marginBottom: '0.75rem' }}>
+            选择视频或轮播图后会显示上传进度并立即保存；下方「保存详情页」仍用于 SEO、区块文案，以及轮播排序/删除/改 alt。
+          </p>
           <div className="product-media-video-fields" style={{ marginBottom: '1rem' }}>
             <ProductVideoUploadField
               name="galleryVideo"
               label="主图视频"
               description="详情页顶部主图区域的视频"
               currentUrl={doc?.galleryVideoUrl}
+              sku={sku}
+              locale={locale}
             />
             <ProductVideoUploadField
               name="sceneVideo"
               label="场景视频"
               description="商品使用场景展示视频"
               currentUrl={doc?.sceneVideoUrl}
+              sku={sku}
+              locale={locale}
             />
           </div>
 
           <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>
-          <ProductHeroGalleryEditor rows={heroRows} />
+          <ProductHeroGalleryEditor rows={heroRows} sku={sku} locale={locale} />
 
           <h3 className="product-content-subhead">详情区块（按顺序渲染在购买区下方）</h3>
           <PdpSectionsEditor initial={docSections(doc)} />
