@@ -253,6 +253,68 @@
       "media": "Media",
       "review": "Review",
       "article": "Article"
+    },
+    "sceneEyebrow": "In Scene",
+    "sceneAria": "{name} in scene",
+    "closureEyebrow": "OraSage · Oracle + Sage",
+    "closure": {
+      "crystal": {
+        "title": "See your map. Carry your clarity.",
+        "sub": "Reading reveals the map. Crystal carries the clarity.",
+        "body": "A reading helps you see your energy map; a crystal lets you carry that clarity with you.",
+        "bodyWithElement": "A reading helps you see your energy map; a crystal lets you carry that clarity with you. If your report points to balancing the “{element}” element, this piece is a classic remedy choice.",
+        "cta": "Start a BaZi reading",
+        "href": "https://bazi.orasage.com",
+        "note": "Get your personal crystal recommendation"
+      },
+      "reportBazi": {
+        "title": "Read your chart. Carry your remedy.",
+        "sub": "See the map first, then choose how to balance.",
+        "body": "A BaZi report outlines your energy map. Pair it with a Five-Element crystal or a gift set to bring insight into daily life.",
+        "cta": "Open BaZi",
+        "href": "https://bazi.orasage.com",
+        "note": "Unlock the full report in the app"
+      },
+      "reportZiwei": {
+        "title": "Read your stars. Walk with intention.",
+        "sub": "Understand the chart, then take the next step.",
+        "body": "A Zi Wei report maps the twelve palaces of life. Go deeper with OraSage chat, or pair a crystal bracelet to keep balance close at hand.",
+        "cta": "Open Zi Wei",
+        "href": "https://ziwei.orasage.com",
+        "note": "View the full chart reading in the app"
+      },
+      "reportTarot": {
+        "title": "See the pattern. Choose your step.",
+        "sub": "Awareness first, then action.",
+        "body": "Tarot is not prophecy — it is a doorway to awareness. The cards light the present; the next step stays yours. Daily draws and deep reports work well together.",
+        "cta": "Open Tarot",
+        "href": "https://tarot.orasage.com",
+        "note": "Draw and read inside the app"
+      },
+      "temple": {
+        "title": "Blessing is connection.",
+        "sub": "Every offering links you to a larger kindness.",
+        "body": "Each blessing is a connection to something larger. Your gift helps keep the OraSage temple experience available for everyone.",
+        "cta": "Explore OraSage",
+        "href": "https://orasage.com",
+        "note": "Thank you for your voluntary support"
+      },
+      "ziweiChat": {
+        "title": "Ask deeper. Understand more.",
+        "sub": "The follow-up questions often unlock understanding.",
+        "body": "After the chart is cast, the questions you ask next are often where understanding grows. OraSage chat moves you from seeing to knowing.",
+        "cta": "Open Zi Wei",
+        "href": "https://ziwei.orasage.com",
+        "note": "Credits are added to your account automatically"
+      },
+      "default": {
+        "title": "Clarity first. Action follows.",
+        "sub": "Sometimes you need a listener more than another report.",
+        "body": "Sometimes what you need is not another report, but someone who will listen carefully and help you sort things through. A 30-minute consult focuses on your real question right now.",
+        "cta": "Learn about OraSage",
+        "href": "https://orasage.com",
+        "note": "An advisor will contact you to confirm the time"
+      }
     }
   }
 }

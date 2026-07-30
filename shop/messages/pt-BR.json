@@ -253,6 +253,68 @@
       "media": "Mídia",
       "review": "Análise",
       "article": "Artigo"
+    },
+    "sceneEyebrow": "Em cena",
+    "sceneAria": "{name} em cena",
+    "closureEyebrow": "OraSage · Oracle + Sage",
+    "closure": {
+      "crystal": {
+        "title": "Veja o mapa. Carregue a clareza.",
+        "sub": "A leitura revela o mapa. O cristal carrega a clareza.",
+        "body": "A leitura ajuda você a ver seu mapa de energia; o cristal permite carregar essa clareza no dia a dia.",
+        "bodyWithElement": "A leitura ajuda você a ver seu mapa de energia; o cristal permite carregar essa clareza no dia a dia. Se o relatório aponta equilíbrio no elemento “{element}”, esta peça é uma escolha clássica de remédio.",
+        "cta": "Começar leitura BaZi",
+        "href": "https://bazi.orasage.com",
+        "note": "Receba sua recomendação de cristal"
+      },
+      "reportBazi": {
+        "title": "Leia o mapa. Carregue o remédio.",
+        "sub": "Primeiro veja o mapa; depois escolha o equilíbrio.",
+        "body": "O relatório BaZi desenha o contorno do seu mapa energético. Combine com um cristal dos Cinco Elementos ou um kit presente para levar o insight ao cotidiano.",
+        "cta": "Abrir BaZi",
+        "href": "https://bazi.orasage.com",
+        "note": "Desbloqueie o relatório completo no app"
+      },
+      "reportZiwei": {
+        "title": "Leia as estrelas. Ande com intenção.",
+        "sub": "Entenda o mapa e dê o próximo passo.",
+        "body": "O relatório Zi Wei mapeia os doze palácios da vida. Aprofunde com o chat OraSage ou combine uma pulseira de cristal para manter o equilíbrio por perto.",
+        "cta": "Abrir Zi Wei",
+        "href": "https://ziwei.orasage.com",
+        "note": "Veja a leitura completa no app"
+      },
+      "reportTarot": {
+        "title": "Veja o padrão. Escolha o passo.",
+        "sub": "Primeiro a consciência, depois a ação.",
+        "body": "O tarô não é profecia — é uma porta para a consciência. As cartas iluminam o presente; o próximo passo continua sendo seu. Tiragens diárias e relatórios profundos combinam bem.",
+        "cta": "Abrir Tarô",
+        "href": "https://tarot.orasage.com",
+        "note": "Tire cartas e leia no app"
+      },
+      "temple": {
+        "title": "Bênção é conexão.",
+        "sub": "Cada oferta liga você a uma bondade maior.",
+        "body": "Cada bênção é uma conexão com algo maior. Sua doação ajuda a manter a experiência do templo OraSage disponível para todos.",
+        "cta": "Explorar OraSage",
+        "href": "https://orasage.com",
+        "note": "Obrigado pelo apoio voluntário"
+      },
+      "ziweiChat": {
+        "title": "Pergunte mais fundo. Entenda mais.",
+        "sub": "As perguntas seguintes costumam destravar a compreensão.",
+        "body": "Depois do mapa, as perguntas que você faz em seguida são onde a compreensão cresce. O chat OraSage leva você de ver a compreender.",
+        "cta": "Abrir Zi Wei",
+        "href": "https://ziwei.orasage.com",
+        "note": "Os créditos entram na sua conta automaticamente"
+      },
+      "default": {
+        "title": "Clareza primeiro. Ação depois.",
+        "sub": "Às vezes você precisa de alguém que ouça, não de outro relatório.",
+        "body": "Às vezes o que você precisa não é outro relatório, mas alguém que ouça com atenção e ajude a organizar as coisas. Uma consulta de 30 minutos foca na sua pergunta real agora.",
+        "cta": "Conhecer o OraSage",
+        "href": "https://orasage.com",
+        "note": "Um consultor entrará em contato para confirmar o horário"
+      }
     }
   }
 }
