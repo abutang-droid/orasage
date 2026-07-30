@@ -133,7 +133,7 @@
     "recipientCount": "配送人数",
     "singleAddress": "仅 1 人地址",
     "coupleAddresses": "2 人各一地址",
-    "estimatedFee": "预估运费：¥{amount}",
+    "estimatedFee": "预估运费：${amount}",
     "freeShipping": "运费：免邮",
     "personFirst": "第一位",
     "personSecond": "第二位",
@@ -141,34 +141,32 @@
     "manualEntry": "手动填写",
     "name": "收货人姓名",
     "phone": "联系电话",
+    "continent": "大洲",
+    "selectContinent": "请选择大洲",
     "country": "国家/地区",
+    "selectCountry": "请选择国家/地区",
     "province": "省 / 州",
+    "selectProvince": "请选择省 / 州",
     "city": "城市",
+    "selectCity": "请选择城市",
+    "loadingRegions": "正在载入省州数据…",
+    "loadingCities": "正在载入城市数据…",
+    "regionsLoadFailed": "未能载入地区数据，请手动输入",
+    "enterManually": "手动输入",
+    "useList": "从列表选择",
+    "provinceManualPlaceholder": "请输入省 / 州",
+    "cityManualPlaceholder": "请输入城市",
     "address": "详细地址",
     "postalOptional": "邮编（选填）",
+    "taxIdOptional": "纳税人识别号（选填）",
+    "taxIdPlaceholder": "VAT / 税号 / CPF 等",
     "wristCm": "手腕周长（cm）",
     "wristPlaceholder": "例如 16",
     "saveToBook": "保存到地址簿",
     "saving": "保存中…",
     "submit": "确认收货信息",
     "manageAddresses": "管理地址簿",
-    "saveFailed": "保存失败",
-    "countries": {
-      "CN": "中国",
-      "HK": "中国香港",
-      "MO": "中国澳门",
-      "TW": "中国台湾",
-      "US": "美国",
-      "CA": "加拿大",
-      "GB": "英国",
-      "AU": "澳大利亚",
-      "SG": "新加坡",
-      "MY": "马来西亚",
-      "JP": "日本",
-      "KR": "韩国",
-      "DE": "德国",
-      "FR": "法国"
-    }
+    "saveFailed": "保存失败"
   },
   "addresses": {
     "title": "地址簿",
@@ -255,6 +253,91 @@
       "media": "媒体",
       "review": "测评",
       "article": "文章"
+    },
+    "sceneEyebrow": "佩戴场景",
+    "sceneAria": "{name} 佩戴场景",
+    "voicesTitle": "佩戴者的声音",
+    "starsAria": "{rating} 星",
+    "reviews": {
+      "title": "用户评价",
+      "featured": "精选",
+      "empty": "暂无公开评价。",
+      "eyebrow": "购买用户",
+      "composeTitle": "写下你的感受",
+      "composeHint": "仅已购买本商品的用户可评价；提交后经审核展示。",
+      "checking": "正在确认评价资格…",
+      "loginRequired": "登录后，已购买用户可留下评价。",
+      "loginCta": "登录后评价",
+      "purchaseRequired": "仅限已购买本商品的用户评价。",
+      "eligibilityError": "暂时无法确认评价资格，请稍后重试。",
+      "ratingLabel": "评分",
+      "starLabel": "{n} 星",
+      "bodyLabel": "评价内容",
+      "bodyPlaceholder": "分享佩戴或使用体验…",
+      "submit": "提交评价",
+      "submitting": "提交中…",
+      "submitSuccess": "评价已提交，审核通过后将展示",
+      "submitFailed": "提交失败"
+    },
+    "closureEyebrow": "OraSage",
+    "closure": {
+      "crystal": {
+        "title": "看见，然后携带",
+        "sub": "看见你的能量地图，携带这份清醒。",
+        "body": "命理解读让你「看见」自己的能量地图，水晶让你「携带」这份清醒。",
+        "bodyWithElement": "命理解读让你「看见」自己的能量地图，水晶让你「携带」这份清醒。若你的报告提示五行「{element}」需调和，这款水晶正是命理师常见的补能之选。",
+        "cta": "先做八字解读",
+        "href": "https://bazi.orasage.com",
+        "note": "获取你的专属水晶推荐"
+      },
+      "reportBazi": {
+        "title": "读懂命盘，再携带能量",
+        "sub": "先看见地图，再选择补能。",
+        "body": "八字报告帮你看见能量地图的轮廓；若需要进一步补能，可搭配五行水晶或升级礼盒版，让洞察落在日常。",
+        "cta": "前往八字解读",
+        "href": "https://bazi.orasage.com",
+        "note": "在 App 内解锁完整报告"
+      },
+      "reportZiwei": {
+        "title": "读懂星盘，再迈出一步",
+        "sub": "读懂星象，带着意图前行。",
+        "body": "紫微报告描绘十二宫的人生面向；读懂之后，用 OraSage 对话深入追问，或搭配能量手串让平衡触手可及。",
+        "cta": "前往紫微斗数",
+        "href": "https://ziwei.orasage.com",
+        "note": "在 App 内查看完整命盘解读"
+      },
+      "reportTarot": {
+        "title": "看见当下，再选择行动",
+        "sub": "看见模式，选择下一步。",
+        "body": "塔罗解读不是预言，而是觉察的入口；牌面照亮当下，行动仍在你手中。每日运势与深度报告可组合使用。",
+        "cta": "前往塔罗",
+        "href": "https://tarot.orasage.com",
+        "note": "在 App 内抽取与查看解读"
+      },
+      "temple": {
+        "title": "祈福即连接",
+        "sub": "祝福即是连接。",
+        "body": "每一次祈福都是与更大善意的连接；乐捐支持 OraSage 祈福体系持续运营，让这份体验长久可用。",
+        "cta": "探索 OraSage",
+        "href": "https://orasage.com",
+        "note": "感谢你的自愿支持"
+      },
+      "ziweiChat": {
+        "title": "对话即成长",
+        "sub": "问得更深，懂得更多。",
+        "body": "排盘之后的追问，往往是理解的关键。OraSage 对话让命盘从「看见」走向「懂得」。",
+        "cta": "前往紫微斗数",
+        "href": "https://ziwei.orasage.com",
+        "note": "额度自动充值到账户"
+      },
+      "default": {
+        "title": "理清困惑，迈出下一步",
+        "sub": "先求清醒，再谈行动。",
+        "body": "有时你需要的不是另一份报告，而是一个愿意认真听、能帮你理清的人。30 分钟咨询，聚焦你此刻最真实的问题。",
+        "cta": "了解 OraSage 命理体系",
+        "href": "https://orasage.com",
+        "note": "付款后顾问将联系确认时段"
+      }
     }
   }
 }

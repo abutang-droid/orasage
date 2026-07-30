@@ -1,9 +1,30 @@
 import { Router } from "express";
 import { z } from "zod";
 import { getAuthUser } from "../lib/auth-user.ts";
-import { createProductReview, listApprovedReviewsForSku } from "../lib/product-reviews.ts";
+import {
+  createProductReview,
+  getReviewEligibility,
+  listApprovedReviewsForSku,
+  ReviewNotPurchasedError,
+} from "../lib/product-reviews.ts";
 
 export const reviewsRouter = Router();
+
+reviewsRouter.get("/products/:sku/eligibility", async (req, res) => {
+  try {
+    const sku = String(req.params.sku);
+    const user = await getAuthUser(req);
+    const eligibility = await getReviewEligibility(user?.id ?? null, sku);
+    if (eligibility.eligible) {
+      res.json({ eligible: true, orderNo: eligibility.orderNo });
+      return;
+    }
+    res.json({ eligible: false, reason: eligibility.reason });
+  } catch (err) {
+    console.error("[reviews] eligibility:", err);
+    res.status(500).json({ error: "检查评价资格失败" });
+  }
+});
 
 reviewsRouter.get("/products/:sku", async (req, res) => {
   try {
@@ -27,7 +48,7 @@ reviewsRouter.post("/", async (req, res) => {
   try {
     const user = await getAuthUser(req);
     if (!user) {
-      res.status(401).json({ error: "请先登录" });
+      res.status(401).json({ error: "请先登录", reason: "unauthenticated" });
       return;
     }
     const body = submitSchema.parse(req.body);
@@ -47,6 +68,10 @@ reviewsRouter.post("/", async (req, res) => {
       },
     });
   } catch (err) {
+    if (err instanceof ReviewNotPurchasedError) {
+      res.status(403).json({ error: err.message, reason: "not_purchased" });
+      return;
+    }
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "参数错误", details: err.errors });
       return;

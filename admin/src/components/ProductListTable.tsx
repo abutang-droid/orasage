@@ -3,10 +3,11 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { AdminProduct } from '@/lib/api';
-import { batchSetProductsActiveAction } from '@/app/actions';
+import { batchDeleteProductsAction, batchSetProductsActiveAction } from '@/app/actions';
 import { AdminSubmitButton } from './AdminButton';
 import { ProductImageCell } from './ProductImageCell';
 import { ProductCmsLinks } from './ProductCmsLinks';
+import { ProductRowDeleteButton } from './ProductRowDeleteButton';
 
 const KIND_LABELS: Record<string, string> = {
   standard: '实体',
@@ -46,7 +47,7 @@ function escapeCsv(value: string | number | boolean | null | undefined): string 
 
 function downloadCsv(filename: string, rows: ProductRowData[]) {
   const header = [
-    'sku', 'name', 'category', 'kind', 'visibility', 'stock', 'price_cny', 'price_usd', 'active', 'tags',
+    'sku', 'name', 'category', 'kind', 'visibility', 'stock', 'price_usd', 'active', 'tags',
   ];
   const lines = rows.map((p) => [
     p.sku,
@@ -55,8 +56,7 @@ function downloadCsv(filename: string, rows: ProductRowData[]) {
     p.kind,
     p.visibility,
     p.stock ?? '',
-    p.priceCents / 100,
-    p.priceCentsUsd != null ? p.priceCentsUsd / 100 : '',
+    (p.priceCentsUsd ?? p.priceCents) / 100,
     p.active ? '1' : '0',
     (p.tags ?? []).map((t) => t.label).join('|'),
   ].map(escapeCsv).join(','));
@@ -188,6 +188,25 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
             批量下架
           </AdminSubmitButton>
         </form>
+        <form
+          action={batchDeleteProductsAction}
+          className="product-list-batch-form"
+          onSubmit={(e) => {
+            if (
+              !window.confirm(
+                `确定删除（下架）已选 ${selectedInView.length} 个商品？\n可从「已下架」筛选中找回；永久删除请进编辑页。`,
+              )
+            ) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <input type="hidden" name="skus" value={selectedInView.join(',')} />
+          <input type="hidden" name="mode" value="soft" />
+          <AdminSubmitButton size="sm" variant="destructive" disabled={selectedInView.length === 0}>
+            批量删除 ({selectedInView.length})
+          </AdminSubmitButton>
+        </form>
         <button
           type="button"
           className="btn-secondary btn-secondary--sm"
@@ -218,7 +237,6 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
               <th>形态</th>
               <th>可见性</th>
               <th>库存</th>
-              <th>价格 CNY</th>
               <th>价格 USD</th>
               <th>状态</th>
               <th>详情页</th>
@@ -271,14 +289,14 @@ export function ProductListTable({ products }: { products: ProductRowData[] }) {
                         ? <span className="badge off">{p.stock}</span>
                         : p.stock}
                   </td>
-                  <td>{p.priceDisplayCny ?? p.priceDisplay}</td>
-                  <td>{p.priceDisplayUsd ?? '—'}</td>
+                  <td>{p.priceDisplayUsd ?? p.priceDisplay ?? '—'}</td>
                   <td>{p.active ? <span className="badge ok">上架</span> : <span className="badge off">下架</span>}</td>
                   <td><ProductCmsLinks sku={p.sku} pageStatus={p.pageStatus} /></td>
-                  <td>
+                  <td className="product-list-actions">
                     <Link href={`/products/${encodeURIComponent(p.sku)}/edit`} className="btn-text">
                       编辑
                     </Link>
+                    <ProductRowDeleteButton sku={p.sku} name={p.name} />
                   </td>
                 </tr>
               );

@@ -168,10 +168,12 @@ export function updateProduct(sku: string, body: Record<string, unknown>) {
   });
 }
 
-export function deleteProduct(sku: string) {
-  return adminFetch<{ success: boolean; sku: string }>(`/products/${encodeURIComponent(sku)}`, {
-    method: 'DELETE',
-  });
+export function deleteProduct(sku: string, opts?: { hard?: boolean }) {
+  const qs = opts?.hard ? '?hard=1' : '';
+  return adminFetch<{ success: boolean; sku: string; mode?: string }>(
+    `/products/${encodeURIComponent(sku)}${qs}`,
+    { method: 'DELETE' },
+  );
 }
 
 export interface AdminContactMessage {

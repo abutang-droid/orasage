@@ -89,17 +89,15 @@ export function buildComboMeta(
   const items: ResolvedComboItem[] = [];
   let componentSumCents = 0;
   let componentSumUsdCents = 0;
-  let hasUsd = true;
 
   for (const row of itemRows) {
     const component = componentBySku.get(row.componentSku);
     if (!component) continue;
     const qty = Math.max(1, row.quantity);
     const fulfillment = resolveItemFulfillment(component);
-    const usd = component.priceCentsUsd;
-    if (usd == null) hasUsd = false;
-    componentSumCents += component.priceCents * qty;
-    if (usd != null) componentSumUsdCents += usd * qty;
+    const usd = component.priceCentsUsd ?? component.priceCents;
+    componentSumCents += usd * qty;
+    componentSumUsdCents += usd * qty;
 
     items.push({
       componentSku: row.componentSku,
@@ -108,8 +106,8 @@ export function buildComboMeta(
       name: pickLocalized(component.nameI18n, locale, component.name),
       kind: component.kind,
       category: component.category,
-      priceCents: component.priceCents,
-      priceCentsUsd: component.priceCentsUsd ?? null,
+      priceCents: usd,
+      priceCentsUsd: usd,
       requiresShipping: fulfillment.requiresShipping,
       requiresWristSize: fulfillment.requiresWristSize,
     });
@@ -120,7 +118,7 @@ export function buildComboMeta(
   return {
     items,
     componentSumCents,
-    componentSumUsdCents: hasUsd ? componentSumUsdCents : null,
+    componentSumUsdCents,
     useComponentSum: combo.comboUseComponentSum,
     requiresShipping: items.some((i) => i.requiresShipping),
     requiresWristSize: items.some((i) => i.requiresWristSize),
@@ -234,10 +232,9 @@ export async function syncComboDerivedFields(comboSku: string) {
   };
 
   if (combo.comboUseComponentSum) {
-    updates.priceCents = meta.componentSumCents;
-    if (meta.componentSumUsdCents != null) {
-      updates.priceCentsUsd = meta.componentSumUsdCents;
-    }
+    const usd = meta.componentSumUsdCents ?? meta.componentSumCents;
+    updates.priceCents = usd;
+    updates.priceCentsUsd = usd;
   }
 
   await db.update(products).set(updates).where(eq(products.sku, comboSku));

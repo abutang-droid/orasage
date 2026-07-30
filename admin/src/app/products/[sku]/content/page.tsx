@@ -10,6 +10,7 @@ import {
 } from '@/lib/cms-content-api';
 import {
   saveProductPageContentAction,
+  copyZhContentToLocaleAction,
   saveTestimonialAction,
   deleteTestimonialAction,
 } from '@/app/content-actions';
@@ -93,8 +94,8 @@ export default async function ProductContentPage({ params, searchParams }: PageP
         </p>
         <h1>详情内容 · {product.name}</h1>
         <p className="muted">
-          SKU <code>{sku}</code> · 每个语言独立一份文档，前台缺失语言自动回退简体。
-          发布后约 30 秒内商城生效。
+          SKU <code>{sku}</code> · 每种语言各存一份独立文档；切换语言标签会重新加载该语言内容，保存只写入当前语言。
+          前台若当前语言未发布则回退简体。发布后约 30 秒内商城生效。
           <a
             href={`https://shop.orasage.com/product/${encodeURIComponent(sku)}`}
             target="_blank"
@@ -112,20 +113,37 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             key={l.code}
             href={`/products/${encodeURIComponent(sku)}/content?locale=${l.code}`}
             className={`product-edit-tab${l.code === locale ? ' is-active' : ''}`}
+            scroll={false}
           >
             {l.label}
           </Link>
         ))}
       </nav>
 
-      {sp.saved === 'ok' ? <p className="muted panel-notice">已保存。</p> : null}
+      {sp.saved === 'ok' ? <p className="muted panel-notice">已保存（仅 {locale}）。</p> : null}
+      {sp.saved === 'copied' ? (
+        <p className="muted panel-notice">已从简体复制到 {locale}（草稿），请翻译后发布。</p>
+      ) : null}
       {sp.err ? (
-        <p className="muted panel-notice panel-notice--error">保存失败：{decodeURIComponent(sp.err)}</p>
+        <p className="muted panel-notice panel-notice--error">操作失败：{decodeURIComponent(sp.err)}</p>
       ) : null}
 
-      <section className="panel">
+      <section className="panel" key={`page-${sku}-${locale}`}>
         <h2>详情页（{locale}）{doc ? '' : ' · 尚未创建，保存后生成'}</h2>
-        <form action={saveProductPageContentAction} encType="multipart/form-data">
+        {locale !== 'zh-CN' ? (
+          <form action={copyZhContentToLocaleAction} className="product-edit-actions" style={{ marginBottom: '1rem' }}>
+            <input type="hidden" name="sku" value={sku} />
+            <input type="hidden" name="locale" value={locale} />
+            <AdminSubmitButton variant="ghost">
+              用简体内容填入当前语言（草稿，会覆盖本语言已有文案）
+            </AdminSubmitButton>
+          </form>
+        ) : null}
+        <form
+          key={`form-${sku}-${locale}`}
+          action={saveProductPageContentAction}
+          encType="multipart/form-data"
+        >
           <input type="hidden" name="sku" value={sku} />
           <input type="hidden" name="locale" value={locale} />
 
@@ -139,47 +157,75 @@ export default async function ProductContentPage({ params, searchParams }: PageP
             </label>
             <label>
               副标题 / 一句话卖点
-              <input name="subtitle" defaultValue={doc?.subtitle ?? ''} />
+              <input name="subtitle" defaultValue={doc?.subtitle ?? ''} key={`subtitle-${locale}`} />
             </label>
             <label>
               SEO 标题
-              <input name="seoTitle" defaultValue={doc?.seoTitle ?? ''} placeholder="留空用商品名" />
+              <input
+                name="seoTitle"
+                defaultValue={doc?.seoTitle ?? ''}
+                placeholder="留空用商品名"
+                key={`seoTitle-${locale}`}
+              />
             </label>
             <label className="full-width">
               SEO 描述
-              <textarea name="seoDescription" rows={2} defaultValue={doc?.seoDescription ?? ''} />
+              <textarea
+                name="seoDescription"
+                rows={2}
+                defaultValue={doc?.seoDescription ?? ''}
+                key={`seoDescription-${locale}`}
+              />
             </label>
           </div>
 
           <h3 className="product-content-subhead">详情视频</h3>
+          <p className="muted product-media-hint" style={{ marginBottom: '0.75rem' }}>
+            选择视频或轮播图后会显示上传进度并立即保存到当前语言；下方「保存详情页」仍用于 SEO、区块文案，以及轮播排序/删除/改 alt。
+          </p>
           <div className="product-media-video-fields" style={{ marginBottom: '1rem' }}>
             <ProductVideoUploadField
+              key={`gallery-${sku}-${locale}`}
               name="galleryVideo"
               label="主图视频"
               description="详情页顶部主图区域的视频"
               currentUrl={doc?.galleryVideoUrl}
+              sku={sku}
+              locale={locale}
             />
             <ProductVideoUploadField
+              key={`scene-${sku}-${locale}`}
               name="sceneVideo"
               label="场景视频"
               description="商品使用场景展示视频"
               currentUrl={doc?.sceneVideoUrl}
+              sku={sku}
+              locale={locale}
             />
           </div>
 
           <h3 className="product-content-subhead">详情轮播图（建议 1:1 或 4:5，首张为默认主图）</h3>
-          <ProductHeroGalleryEditor rows={heroRows} />
+          <ProductHeroGalleryEditor
+            key={`hero-${sku}-${locale}`}
+            rows={heroRows}
+            sku={sku}
+            locale={locale}
+          />
 
           <h3 className="product-content-subhead">详情区块（按顺序渲染在购买区下方）</h3>
-          <PdpSectionsEditor initial={docSections(doc)} />
+          <PdpSectionsEditor
+            key={`sections-${sku}-${locale}`}
+            resetKey={`${sku}-${locale}`}
+            initial={docSections(doc)}
+          />
 
           <div className="product-edit-actions">
-            <AdminSubmitButton>保存详情页（{locale}）</AdminSubmitButton>
+            <AdminSubmitButton>保存详情页（仅 {locale}）</AdminSubmitButton>
           </div>
         </form>
       </section>
 
-      <section className="panel">
+      <section className="panel" key={`testimonials-${sku}-${locale}`}>
         <h2>精选评价（{locale} · {testimonials.length} 条）</h2>
         <div className="table-wrap" style={{ marginBottom: '1rem' }}>
           <table className="data-table">

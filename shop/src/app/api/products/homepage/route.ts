@@ -39,7 +39,7 @@ export async function GET() {
       desc: p.desc,
       description: p.desc,
       priceCents: p.priceCents,
-      priceDisplay: `¥${(p.priceCents / 100).toFixed(2)}`,
+      priceDisplay: p.priceDisplay ?? `$${((p.priceCentsUsd ?? p.priceCents) / 100).toFixed(2)}`,
       category: p.category,
       categoryLabel: categoryLabels[p.category],
       shopUrl: `https://shop.orasage.com?sku=${encodeURIComponent(p.sku)}`,

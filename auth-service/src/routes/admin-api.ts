@@ -2,7 +2,18 @@ import { Router } from "express";
 import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
-import { contactMessages, homepageFeaturedProducts, products, userOrders, userReadings, users } from "../db/schema.ts";
+import {
+  appBillingSlots,
+  contactMessages,
+  homepageFeaturedProducts,
+  productComboItems,
+  productLinks,
+  productTagLinks,
+  products,
+  userOrders,
+  userReadings,
+  users,
+} from "../db/schema.ts";
 import { requireStaff, assertPermission, requireSuperAdmin } from "../lib/admin-auth.ts";
 import { formatAdminProduct } from "../lib/product-format.ts";
 import { listHomepageFeaturedSkus, resolveHomepageProducts, setHomepageFeaturedSkus } from "../lib/homepage-products.ts";
@@ -321,7 +332,15 @@ adminApiRouter.get("/billing-slots", P.billing, async (_req, res) => {
 adminApiRouter.put("/billing-slots", P.billing, async (req, res) => {
   try {
     const body = billingSlotPutSchema.parse(req.body);
-    const rows = await setBillingSlotEntries(body.app, body.key, body.entries);
+    const entries = body.entries.map((e) => {
+      const usd = e.priceOverrideUsdCents ?? e.priceOverrideCents ?? null;
+      return {
+        ...e,
+        priceOverrideCents: usd,
+        priceOverrideUsdCents: usd,
+      };
+    });
+    const rows = await setBillingSlotEntries(body.app, body.key, entries);
     res.json({ app: body.app, key: body.key, rows });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -550,6 +569,10 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       res.status(409).json({ error: "SKU 已存在" });
       return;
     }
+    // USD-only catalog: prefer USD cents and mirror into both columns.
+    const listUsd = body.priceCentsUsd ?? body.priceCents;
+    const saleUsd =
+      body.salePriceCentsUsd ?? body.salePriceCents ?? null;
     const [row] = await db.insert(products).values({
       sku: body.sku,
       name: body.name,
@@ -569,8 +592,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       attachments: body.attachments ?? null,
       description: body.description,
       descriptionI18n: body.descriptionI18n ?? null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: listUsd,
+      priceCentsUsd: listUsd,
       category: body.category,
       kind: body.kind ?? "standard",
       comboUseComponentSum: body.kind === "combo" ? (body.comboUseComponentSum ?? true) : true,
@@ -581,8 +604,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       seoTitleI18n: body.seoTitleI18n ?? null,
       seoDescI18n: body.seoDescI18n ?? null,
       requiresShipping: body.requiresShipping ?? false,
-      salePriceCents: body.salePriceCents ?? null,
-      salePriceCentsUsd: body.salePriceCentsUsd ?? null,
+      salePriceCents: saleUsd,
+      salePriceCentsUsd: saleUsd,
       saleStartsAt: body.saleStartsAt ?? null,
       saleEndsAt: body.saleEndsAt ?? null,
       active: body.active ?? true,
@@ -647,12 +670,20 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
     if (body.seoDescI18n !== undefined) updates.seoDescI18n = body.seoDescI18n;
     if (body.description !== undefined) updates.description = body.description;
     if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const listUsd = body.priceCentsUsd ?? body.priceCents;
+      if (listUsd !== undefined) {
+        updates.priceCents = listUsd;
+        updates.priceCentsUsd = listUsd;
+      }
+    }
     if (body.category !== undefined) updates.category = body.category;
     if (body.requiresShipping !== undefined) updates.requiresShipping = body.requiresShipping;
-    if (body.salePriceCents !== undefined) updates.salePriceCents = body.salePriceCents;
-    if (body.salePriceCentsUsd !== undefined) updates.salePriceCentsUsd = body.salePriceCentsUsd;
+    if (body.salePriceCents !== undefined || body.salePriceCentsUsd !== undefined) {
+      const saleUsd = body.salePriceCentsUsd ?? body.salePriceCents ?? null;
+      updates.salePriceCents = saleUsd;
+      updates.salePriceCentsUsd = saleUsd;
+    }
     if (body.saleStartsAt !== undefined) updates.saleStartsAt = body.saleStartsAt;
     if (body.saleEndsAt !== undefined) updates.saleEndsAt = body.saleEndsAt;
     if (body.active !== undefined) updates.active = body.active;
@@ -688,19 +719,69 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
 adminApiRouter.delete("/products/:sku", P.products, async (req, res) => {
   try {
     const sku = String(req.params.sku);
+    const hard =
+      req.query.hard === "1" ||
+      req.query.hard === "true" ||
+      (req.body && typeof req.body === "object" && (req.body as { hard?: unknown }).hard === true);
+
     const [existing] = await db.select().from(products).where(eq(products.sku, sku)).limit(1);
     if (!existing) {
       res.status(404).json({ error: "商品不存在" });
       return;
     }
 
-    await db
-      .update(products)
-      .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
-      .where(eq(products.sku, sku));
-    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+    // Soft delete: hide from catalog / billing resolve, keep row for history.
+    if (!hard) {
+      await db
+        .update(products)
+        .set({ active: false, visibility: "unlisted", updatedAt: new Date() })
+        .where(eq(products.sku, sku));
+      await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+      res.json({ success: true, sku, active: false, mode: "soft" });
+      return;
+    }
 
-    res.json({ success: true, sku, active: false });
+    // Hard delete guards: never remove SKUs still wired to billing or other combos.
+    const [billingHit] = await db
+      .select({ id: appBillingSlots.id })
+      .from(appBillingSlots)
+      .where(eq(appBillingSlots.sku, sku))
+      .limit(1);
+    if (billingHit) {
+      res.status(409).json({ error: "该 SKU 仍被应用计费槽位引用，请先从「应用计费」移除后再永久删除" });
+      return;
+    }
+
+    const [usedAsComponent] = await db
+      .select({ id: productComboItems.id })
+      .from(productComboItems)
+      .where(eq(productComboItems.componentSku, sku))
+      .limit(1);
+    if (usedAsComponent) {
+      res.status(409).json({ error: "该 SKU 仍是其它组合商品的子件，请先调整组合后再永久删除" });
+      return;
+    }
+
+    const [orderHit] = await db
+      .select({ id: userOrders.id })
+      .from(userOrders)
+      .where(eq(userOrders.sku, sku))
+      .limit(1);
+    if (orderHit) {
+      res.status(409).json({
+        error: "该 SKU 已有历史订单，仅可下架不可永久删除（保留订单追溯）",
+      });
+      return;
+    }
+
+    // Cascade catalog links for this SKU, then remove the product row.
+    await db.delete(productComboItems).where(eq(productComboItems.comboSku, sku));
+    await db.delete(homepageFeaturedProducts).where(eq(homepageFeaturedProducts.sku, sku));
+    await db.delete(productLinks).where(eq(productLinks.sku, sku));
+    await db.delete(productTagLinks).where(eq(productTagLinks.productId, existing.id));
+    await db.delete(products).where(eq(products.sku, sku));
+
+    res.json({ success: true, sku, mode: "hard" });
   } catch (err) {
     console.error("[admin] delete product:", err);
     res.status(500).json({ error: "服务器内部错误" });
@@ -741,6 +822,7 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       res.status(409).json({ error: "珠子编码已存在" });
       return;
     }
+    const beadUsd = body.priceCentsUsd ?? body.priceCents;
     const [row] = await db.insert(diyBeads).values({
       code: body.code,
       name: body.name,
@@ -749,8 +831,8 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       beadType: body.beadType,
       diameterMm: body.diameterMm,
       thicknessMm: body.beadType === "disc" ? (body.thicknessMm ?? null) : null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: beadUsd,
+      priceCentsUsd: beadUsd,
       imageUrl: body.imageUrl ?? null,
       colors: body.colors ?? null,
       stock: body.stock ?? 999,
@@ -784,8 +866,13 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     if (body.beadType !== undefined) updates.beadType = body.beadType;
     if (body.diameterMm !== undefined) updates.diameterMm = body.diameterMm;
     if (body.thicknessMm !== undefined) updates.thicknessMm = body.thicknessMm;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const beadUsd = body.priceCentsUsd ?? body.priceCents;
+      if (beadUsd !== undefined) {
+        updates.priceCents = beadUsd;
+        updates.priceCentsUsd = beadUsd;
+      }
+    }
     if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
     if (body.colors !== undefined) updates.colors = body.colors;
     if (body.stock !== undefined) updates.stock = body.stock;
@@ -894,7 +981,9 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: (o.currency || "USD").toUpperCase() === "CNY"
+        ? `¥${(o.amountCents / 100).toFixed(2)}`
+        : `$${(o.amountCents / 100).toFixed(2)}`,
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,

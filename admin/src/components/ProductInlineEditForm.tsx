@@ -50,19 +50,13 @@ export function ProductInlineEditForm({
         ))}
       </select>
       <input
-        name="priceYuan"
-        type="number"
-        step="0.01"
-        defaultValue={(product.priceCents / 100).toFixed(2)}
-        required
-      />
-      <input
         name="priceUsd"
         type="number"
         step="0.01"
-        defaultValue={product.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''}
+        defaultValue={((product.priceCentsUsd ?? product.priceCents) / 100).toFixed(2)}
         placeholder="USD"
         required
+        aria-label="价格 USD"
       />
       <input name="sortOrder" type="number" defaultValue={product.sortOrder} />
       <label>

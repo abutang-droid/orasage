@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { saveCatalogImageAction } from '@/app/content-actions';
+import { useRouter } from 'next/navigation';
+import { persistCatalogImageByMediaIdAction } from '@/app/content-actions';
+import { formatBytes, uploadMediaWithProgress } from '@/lib/client-media-upload';
+import type { ProductPageStatus } from '@/lib/cms-product-pages';
 import { AdminSubmitButton } from './AdminButton';
 import { ProductCmsLinks } from './ProductCmsLinks';
 import { ProductHeroGalleryEditor, type HeroImageRow } from './ProductHeroGalleryEditor';
 import { ProductVideoUploadField } from './ProductVideoUploadField';
-import type { ProductPageStatus } from '@/lib/cms-product-pages';
+import { UploadProgressBar } from './UploadProgressBar';
 
 type ProductMediaPanelProps = {
   sku: string;
@@ -34,44 +37,101 @@ export function ProductMediaPanel({
   sceneVideoUrl,
   saveMediaAction,
 }: ProductMediaPanelProps) {
+  const router = useRouter();
   const catalogInputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const [catalogPreview, setCatalogPreview] = useState<string | null>(null);
+  const [catalogSavedUrl, setCatalogSavedUrl] = useState<string | null>(catalogImageUrl?.trim() || null);
   const [catalogFileName, setCatalogFileName] = useState<string | null>(null);
-  const heroCount = heroRows.length;
-  const videoCount = countVideos(galleryVideoUrl, sceneVideoUrl);
-  const displayCatalogUrl = catalogPreview ?? catalogImageUrl ?? null;
+  const [catalogPercent, setCatalogPercent] = useState(0);
+  const [catalogPhase, setCatalogPhase] = useState<'idle' | 'uploading' | 'saving' | 'done' | 'error'>('idle');
+  const [catalogStatusMsg, setCatalogStatusMsg] = useState<string | null>(null);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [liveHeroCount, setLiveHeroCount] = useState(heroRows.length);
 
+  const videoCount = countVideos(galleryVideoUrl, sceneVideoUrl);
+  const displayCatalogUrl = catalogPreview ?? catalogSavedUrl ?? null;
+
+  useEffect(() => {
+    setCatalogSavedUrl(catalogImageUrl?.trim() || null);
+  }, [catalogImageUrl]);
+
+  useEffect(() => {
+    setLiveHeroCount(heroRows.length);
+  }, [heroRows]);
+
+  // Revoke object URLs when preview changes; abort in-flight upload only on unmount.
   useEffect(() => {
     return () => {
       if (catalogPreview) URL.revokeObjectURL(catalogPreview);
     };
   }, [catalogPreview]);
 
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
   const onCatalogFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      setCatalogFileName(null);
-      return;
-    }
+    if (!file) return;
+
     setCatalogPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
     setCatalogFileName(file.name);
-  };
+    setCatalogError(null);
+    setCatalogStatusMsg(null);
 
-  const catalogSaveReady = Boolean(catalogFileName);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setCatalogPhase('uploading');
+    setCatalogPercent(0);
+
+    void (async () => {
+      try {
+        const uploaded = await uploadMediaWithProgress(
+          file,
+          `${sku} catalog`,
+          (p) => setCatalogPercent(p.percent),
+          controller.signal,
+        );
+        setCatalogPhase('saving');
+        setCatalogStatusMsg('正在写入列表主图…');
+        const result = await persistCatalogImageByMediaIdAction({
+          sku,
+          mediaId: uploaded.id,
+          publicUrl: uploaded.publicUrl,
+        });
+        if (!result.ok) throw new Error(result.error);
+        setCatalogSavedUrl(uploaded.publicUrl);
+        setCatalogPhase('done');
+        setCatalogStatusMsg(`已保存 · ${file.name}（${formatBytes(file.size)}）`);
+        setCatalogPercent(100);
+        if (catalogInputRef.current) catalogInputRef.current.value = '';
+        router.refresh();
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setCatalogPhase('error');
+        setCatalogError(err instanceof Error ? err.message : '上传失败');
+        setCatalogStatusMsg(null);
+      }
+    })();
+  };
 
   return (
     <div className="product-media-panel">
       <div className="product-media-stats">
-        <div className={`product-media-stat${catalogImageUrl ? ' is-ok' : ''}`}>
+        <div className={`product-media-stat${catalogSavedUrl ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">列表主图</span>
-          <strong>{catalogImageUrl ? '已上传' : '未上传'}</strong>
+          <strong>{catalogSavedUrl ? '已上传' : '未上传'}</strong>
         </div>
-        <div className={`product-media-stat${heroCount > 0 ? ' is-ok' : ''}`}>
+        <div className={`product-media-stat${liveHeroCount > 0 ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">详情轮播</span>
-          <strong>{heroCount} / 6 张</strong>
+          <strong>{liveHeroCount} / 6 张</strong>
         </div>
         <div className={`product-media-stat${videoCount > 0 ? ' is-ok' : ''}`}>
           <span className="product-media-stat-label">视频</span>
@@ -79,9 +139,15 @@ export function ProductMediaPanel({
         </div>
         <div className="product-media-stat">
           <span className="product-media-stat-label">详情页</span>
-          <strong>{pageStatus === 'published' ? '已发布' : pageStatus === 'draft' ? '草稿' : '未创建'}</strong>
+          <strong>
+            {pageStatus === 'published' ? '已发布' : pageStatus === 'draft' ? '草稿' : '未创建'}
+          </strong>
         </div>
       </div>
+
+      <p className="product-media-hint muted" style={{ margin: 0 }}>
+        选择视频或图片后会显示上传进度，并<strong>立即保存到 CMS</strong>，不必等整页点保存。下方「保存轮播与视频」仅用于调整轮播顺序、删除项或改替代文字。
+      </p>
 
       <div className="product-media-grid">
         <section className="product-media-card">
@@ -89,12 +155,12 @@ export function ProductMediaPanel({
             <h3>列表主图</h3>
             <p className="muted">商城分类、购物车、订单列表等卡片（建议 1:1 或 4:5）</p>
           </header>
-          <form action={saveCatalogImageAction} encType="multipart/form-data" className="product-catalog-image-form">
-            <input type="hidden" name="sku" value={sku} />
+          <div className="product-catalog-image-form">
             <button
               type="button"
               className="product-catalog-image-preview product-catalog-image-preview--clickable"
               onClick={() => catalogInputRef.current?.click()}
+              disabled={catalogPhase === 'uploading' || catalogPhase === 'saving'}
             >
               {displayCatalogUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -106,35 +172,46 @@ export function ProductMediaPanel({
                 </div>
               )}
             </button>
-            {catalogFileName ? (
-              <p className="product-media-pending">待保存：{catalogFileName}</p>
+            {catalogPhase === 'uploading' || catalogPhase === 'saving' ? (
+              <UploadProgressBar
+                percent={catalogPhase === 'saving' ? 100 : catalogPercent}
+                label={
+                  catalogPhase === 'saving'
+                    ? '上传完成，正在保存…'
+                    : `上传中… ${catalogFileName ?? ''}`
+                }
+              />
+            ) : null}
+            {catalogPhase === 'done' && catalogStatusMsg ? (
+              <UploadProgressBar percent={100} success={catalogStatusMsg} />
+            ) : null}
+            {catalogPhase === 'error' && catalogError ? (
+              <UploadProgressBar percent={catalogPercent} error={catalogError} />
+            ) : null}
+            {catalogPhase === 'idle' ? (
+              <p className="product-media-hint muted">选择后立即上传并保存 · JPG / PNG / WebP / GIF</p>
             ) : null}
             <input
               ref={catalogInputRef}
               type="file"
-              name="image"
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="product-media-file-input"
               onChange={onCatalogFileChange}
             />
             <div className="product-media-card-actions">
               <p className="product-media-card-actions-hint muted">
-                {catalogSaveReady
-                  ? '已选择新图片，请点击保存。'
-                  : '选择图片后需点击「保存列表主图」。'}
+                选择图片后立即上传并写入商品主图，无需再点保存。
               </p>
               <button
                 type="button"
                 className="btn-secondary"
                 onClick={() => catalogInputRef.current?.click()}
+                disabled={catalogPhase === 'uploading' || catalogPhase === 'saving'}
               >
                 {displayCatalogUrl ? '更换图片' : '选择图片'}
               </button>
-              <AdminSubmitButton size="sm" disabled={!catalogSaveReady}>
-                保存列表主图
-              </AdminSubmitButton>
             </div>
-          </form>
+          </div>
         </section>
 
         <section className="product-media-card product-media-card--links">
@@ -156,7 +233,8 @@ export function ProductMediaPanel({
         <header className="product-media-card-head">
           <h3>详情轮播与视频（{locale}）</h3>
           <p className="muted">
-            详情页顶部图库 + 视频。轮播 <strong>{heroCount}</strong> / 6 张，视频 <strong>{videoCount}</strong> 个。
+            详情页顶部图库 + 视频。轮播 <strong>{liveHeroCount}</strong> / 6 张，视频{' '}
+            <strong>{videoCount}</strong> 个。
           </p>
         </header>
 
@@ -166,21 +244,30 @@ export function ProductMediaPanel({
             label="主图视频"
             description="详情页顶部主图区域的视频"
             currentUrl={galleryVideoUrl}
+            sku={sku}
+            locale={locale}
           />
           <ProductVideoUploadField
             name="sceneVideo"
             label="场景视频"
             description="商品使用场景展示视频"
             currentUrl={sceneVideoUrl}
+            sku={sku}
+            locale={locale}
           />
         </div>
 
         <h4 className="product-content-subhead">轮播图片</h4>
-        <ProductHeroGalleryEditor rows={heroRows} />
+        <ProductHeroGalleryEditor
+          rows={heroRows}
+          sku={sku}
+          locale={locale}
+          onHeroCountChange={setLiveHeroCount}
+        />
 
         <div className="product-media-save-bar">
           <p className="product-media-card-actions-hint muted">
-            轮播图、主图视频与场景视频修改后，需单独保存（与上方商品信息保存互不影响）。
+            新视频/新图已在选择时立即保存。此处「保存」用于轮播排序、删除项与改替代文字。
           </p>
           <AdminSubmitButton>保存轮播与视频</AdminSubmitButton>
         </div>

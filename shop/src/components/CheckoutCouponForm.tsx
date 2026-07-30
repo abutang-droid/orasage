@@ -20,9 +20,9 @@ type Props = {
 };
 
 function formatMoney(cents: number, currency: string) {
-  const upper = currency?.toUpperCase() ?? 'CNY';
-  if (upper === 'USD') return `$${(cents / 100).toFixed(2)}`;
-  return `¥${(cents / 100).toFixed(2)}`;
+  const upper = currency?.toUpperCase() ?? 'USD';
+  if (upper === 'CNY' || upper === 'RMB') return `¥${(cents / 100).toFixed(2)}`;
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
 export function CheckoutCouponForm({ orderNo, currency, initial, onUpdated, disabled }: Props) {

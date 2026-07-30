@@ -154,11 +154,9 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     currency,
     priceCentsResolved: resolvedCents,
     priceDisplay: formatShopPrice(resolvedCents, currency),
-    priceDisplayCny: formatShopPrice(effectivePriceCents, "cny"),
-    priceDisplayUsd: formatShopPrice(
-      resolvePriceCents({ priceCents: effectivePriceCents, priceCentsUsd: effectivePriceUsd }, "usd"),
-      "usd",
-    ),
+    // Legacy field: sitewide USD-only — same as priceDisplayUsd.
+    priceDisplayCny: formatShopPrice(resolvedCents, "usd"),
+    priceDisplayUsd: formatShopPrice(resolvedCents, "usd"),
     onSale,
     originalPriceCents: originalPriceCents ?? null,
     saleEndsAt: onSale ? p.saleEndsAt : null,

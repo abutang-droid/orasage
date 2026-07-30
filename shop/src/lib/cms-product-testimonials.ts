@@ -25,9 +25,9 @@ async function fetchTestimonialsForLocale(
 ): Promise<ProductTestimonial[]> {
   try {
     const params = new URLSearchParams({
-      'where[sku][equals]': sku,
-      'where[locale][equals]': locale,
-      'where[enabled][equals]': 'true',
+      'where[and][0][sku][equals]': sku,
+      'where[and][1][locale][equals]': locale,
+      'where[and][2][enabled][equals]': 'true',
       sort: 'sort',
       limit: '20',
       depth: '1',

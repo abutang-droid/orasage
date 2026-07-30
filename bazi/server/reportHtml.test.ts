@@ -83,12 +83,12 @@ describe("renderMarkdown", () => {
       productRecommend: {
         name: "绿幽灵手串",
         desc: "补木",
-        priceDisplay: "¥88.00",
+        priceDisplay: "$88.00",
         shopUrl: "https://shop.orasage.com/checkout?sku=crystal-wood",
       },
     });
     expect(html).toContain("绿幽灵手串");
-    expect(html).toContain("¥88.00");
+    expect(html).toContain("$88.00");
     expect((html.match(/class="product-rec"/g) || []).length).toBe(1);
   });
 });

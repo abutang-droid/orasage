@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type EditorSection = {
   type: 'richText' | 'specList' | 'guide' | 'quote' | 'faq' | 'relatedSkus';
@@ -38,8 +38,19 @@ function emptySection(type: EditorSection['type']): EditorSection {
 }
 
 /** PDP 区块编辑器：状态序列化到 hidden input，随外层表单提交（Q2-b） */
-export function PdpSectionsEditor({ initial }: { initial: EditorSection[] }) {
+export function PdpSectionsEditor({
+  initial,
+  resetKey,
+}: {
+  initial: EditorSection[];
+  /** Change with sku/locale so soft-nav between language tabs resets state */
+  resetKey?: string;
+}) {
   const [sections, setSections] = useState<EditorSection[]>(initial);
+
+  useEffect(() => {
+    setSections(initial);
+  }, [resetKey]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: remount data when locale/sku changes
 
   const update = (index: number, patch: Partial<EditorSection>) => {
     setSections((prev) => prev.map((s, i) => (i === index ? { ...s, ...patch } : s)));

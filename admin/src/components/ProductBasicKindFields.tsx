@@ -45,18 +45,6 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
         </select>
       </label>
       <label>
-        价格 CNY（元）{kind === 'combo' ? '（组合优惠价）' : ''}
-        <input
-          name="priceYuan"
-          type="number"
-          step="0.01"
-          min="0"
-          required
-          defaultValue={product ? (product.priceCents / 100).toFixed(2) : ''}
-          placeholder="128"
-        />
-      </label>
-      <label>
         价格 USD{kind === 'combo' ? '（组合优惠价）' : ''}
         <input
           name="priceUsd"
@@ -65,22 +53,11 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
           min="0"
           required
           defaultValue={
-            product?.priceCentsUsd ? (product.priceCentsUsd / 100).toFixed(2) : ''
+            product
+              ? ((product.priceCentsUsd ?? product.priceCents) / 100).toFixed(2)
+              : ''
           }
           placeholder="17.99"
-        />
-      </label>
-      <label>
-        促销价 CNY（元，可选）
-        <input
-          name="salePriceYuan"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={
-            product?.salePriceCents != null ? (product.salePriceCents / 100).toFixed(2) : ''
-          }
-          placeholder="限时价"
         />
       </label>
       <label>
@@ -91,8 +68,13 @@ export function ProductBasicKindFields({ product, catalog }: ProductBasicKindFie
           step="0.01"
           min="0"
           defaultValue={
-            product?.salePriceCentsUsd != null ? (product.salePriceCentsUsd / 100).toFixed(2) : ''
+            product?.salePriceCentsUsd != null
+              ? (product.salePriceCentsUsd / 100).toFixed(2)
+              : product?.salePriceCents != null
+                ? (product.salePriceCents / 100).toFixed(2)
+                : ''
           }
+          placeholder="限时价"
         />
       </label>
       <label>

@@ -13,8 +13,8 @@ type ProductComboEditorProps = {
   catalog: AdminProduct[];
 };
 
-function formatYuan(cents: number) {
-  return (cents / 100).toFixed(2);
+function formatUsd(cents: number) {
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
 export function ProductComboEditor({ product, catalog }: ProductComboEditorProps) {
@@ -37,24 +37,12 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
     return items.reduce((sum, item) => {
       const found = componentOptions.find((p) => p.sku === item.componentSku);
       if (!found) return sum;
-      return sum + found.priceCents * Math.max(1, item.quantity);
+      const unit = found.priceCentsUsd ?? found.priceCents;
+      return sum + unit * Math.max(1, item.quantity);
     }, 0);
   }, [items, componentOptions]);
 
-  const componentSumUsdCents = useMemo(() => {
-    let sum = 0;
-    let complete = true;
-    for (const item of items) {
-      const found = componentOptions.find((p) => p.sku === item.componentSku);
-      if (!found) continue;
-      if (found.priceCentsUsd == null) {
-        complete = false;
-        break;
-      }
-      sum += found.priceCentsUsd * Math.max(1, item.quantity);
-    }
-    return complete ? sum : null;
-  }, [items, componentOptions]);
+  const componentSumUsdCents = useMemo(() => componentSumCents, [componentSumCents]);
 
   const requiresShipping = useMemo(() => {
     return items.some((item) => {
@@ -98,7 +86,7 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
                 <option value="">选择 SKU…</option>
                 {componentOptions.map((p) => (
                   <option key={p.sku} value={p.sku}>
-                    {p.sku} · {p.name}（{p.kind === 'standard' ? '实体' : p.kind === 'digital' ? '数字' : '服务'} · ¥{formatYuan(p.priceCents)}）
+                    {p.sku} · {p.name}（{p.kind === 'standard' ? '实体' : p.kind === 'digital' ? '数字' : '服务'} · {formatUsd(p.priceCentsUsd ?? p.priceCents)}）
                   </option>
                 ))}
               </select>
@@ -126,10 +114,7 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
 
       <div className="product-combo-summary">
         <p>
-          子商品合计：<strong>¥{formatYuan(componentSumCents)}</strong>
-          {componentSumUsdCents != null ? (
-            <span className="muted"> / ${formatYuan(componentSumUsdCents)}</span>
-          ) : null}
+          子商品合计：<strong>{formatUsd(componentSumCents)}</strong>
         </p>
         <label className="checkbox-label">
           <input
@@ -141,8 +126,7 @@ export function ProductComboEditor({ product, catalog }: ProductComboEditorProps
         </label>
         {!useComponentSum && product ? (
           <p className="muted">
-            当前组合优惠价：¥{formatYuan(product.priceCents)}
-            {product.priceCentsUsd ? ` / $${formatYuan(product.priceCentsUsd)}` : ''}
+            当前组合优惠价：{formatUsd(product.priceCentsUsd ?? product.priceCents)}
           </p>
         ) : null}
         <p className={requiresShipping ? 'product-combo-ship-yes' : 'muted'}>

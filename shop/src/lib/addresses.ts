@@ -11,6 +11,7 @@ export type UserAddress = {
   district?: string | null;
   addressLine: string;
   postalCode?: string | null;
+  taxId?: string | null;
   wristCm?: string | null;
   isDefault: boolean;
 };
@@ -25,6 +26,7 @@ export function addressToRecipient(addr: UserAddress): ShippingRecipient {
     district: addr.district ?? undefined,
     address: addr.addressLine,
     postalCode: addr.postalCode ?? undefined,
+    taxId: addr.taxId ?? undefined,
     wristCm: addr.wristCm ?? undefined,
   };
 }

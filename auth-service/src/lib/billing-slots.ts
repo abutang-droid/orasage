@@ -40,11 +40,9 @@ function applyOverride<T extends ReturnType<typeof formatProduct>>(
     priceCentsUsd,
     priceCentsResolved: resolvedCents,
     priceDisplay: formatShopPrice(resolvedCents, currency),
-    priceDisplayCny: formatShopPrice(priceCents, "cny"),
-    priceDisplayUsd: formatShopPrice(
-      resolvePriceCents({ priceCents, priceCentsUsd }, "usd"),
-      "usd",
-    ),
+    // Legacy alias — sitewide USD-only.
+    priceDisplayCny: formatShopPrice(resolvedCents, "usd"),
+    priceDisplayUsd: formatShopPrice(resolvedCents, "usd"),
     recommendPriceOverride: true,
   };
 }
@@ -182,15 +180,20 @@ export async function setBillingSlotEntries(
 
   const values = entries
     .filter((e) => e.sku.trim())
-    .map((e, index) => ({
-      appSource: app,
-      slotKey: key,
-      sku: e.sku.trim(),
-      priceOverrideCents: e.priceOverrideCents ?? null,
-      priceOverrideUsdCents: e.priceOverrideUsdCents ?? null,
-      sortOrder: index,
-      active: e.active ?? true,
-    }));
+    .map((e, index) => {
+      // USD-only overrides: prefer USD column and mirror into both.
+      const usd =
+        e.priceOverrideUsdCents ?? e.priceOverrideCents ?? null;
+      return {
+        appSource: app,
+        slotKey: key,
+        sku: e.sku.trim(),
+        priceOverrideCents: usd,
+        priceOverrideUsdCents: usd,
+        sortOrder: index,
+        active: e.active ?? true,
+      };
+    });
   if (values.length > 0) {
     await db.insert(appBillingSlots).values(values);
   }
