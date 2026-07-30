@@ -2,9 +2,9 @@
 
 import { Alert, AlertDescription, Button, Card, CardContent } from '@orasage/ui';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { fetchRecommendations, type UserRecommendation } from '@/lib/auth';
-import { externalUrls } from '@/lib/urls';
+import { externalUrlsForLocale } from '@/lib/urls';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
 
 const CRYSTAL_LABELS: Record<string, string> = {
@@ -25,6 +25,8 @@ function formatDate(iso: string): string {
 
 export function RecommendationsList({ compact = false }: { compact?: boolean }) {
   const t = useTranslations('profile.recommendations');
+  const locale = useLocale();
+  const urls = externalUrlsForLocale(locale);
   const [items, setItems] = useState<UserRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,13 +101,13 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
                           });
                           const data = await res.json().catch(() => ({}));
                           if (res.status === 401) {
-                            window.location.href = `${externalUrls.authLogin}?redirect=${encodeURIComponent(window.location.href)}`;
+                            window.location.href = `${urls.authLogin}&redirect=${encodeURIComponent(window.location.href)}`;
                             return;
                           }
                           if (!res.ok) throw new Error(data.error || '结账失败');
                           if (data.checkoutUrl) window.location.href = data.checkoutUrl;
                           else if (data.orderNo) {
-                            window.location.href = `${externalUrls.shop}/checkout?order=${encodeURIComponent(data.orderNo)}`;
+                            window.location.href = `${urls.shop.replace(/\?.*$/, '')}/checkout?order=${encodeURIComponent(data.orderNo)}&locale=${encodeURIComponent(locale)}`;
                           }
                         } catch {
                           setError(t('buyError'));
@@ -117,7 +119,7 @@ export function RecommendationsList({ compact = false }: { compact?: boolean }) 
                       {buyingId === r.id ? t('buying') : t('buyNow')}
                     </Button>
                     <Button asChild variant="ghost" size="sm">
-                      <a href={`${externalUrls.shop}?sku=${encodeURIComponent(r.crystalSku)}`}>{t('viewShop')}</a>
+                      <a href={`${urls.shop}${urls.shop.includes('?') ? '&' : '?'}sku=${encodeURIComponent(r.crystalSku)}`}>{t('viewShop')}</a>
                     </Button>
                   </div>
                 </div>

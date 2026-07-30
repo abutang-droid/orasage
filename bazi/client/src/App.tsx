@@ -25,9 +25,21 @@ function Router() {
   );
 }
 
+const SITE_TITLE: Record<string, string> = {
+  "zh-CN": "八字排盘 · AI命理解读 | OraSage",
+  en: "BaZi Chart · AI Destiny Reading | OraSage",
+  "pt-BR": "Mapa BaZi · Leitura de Destino com IA | OraSage",
+  "zh-TW": "八字排盤 · AI命理解讀 | OraSage",
+};
+
 function AppBody() {
   const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.title = SITE_TITLE[locale] ?? SITE_TITLE.en;
+  }, [locale]);
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {

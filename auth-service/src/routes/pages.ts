@@ -62,7 +62,7 @@ function loginCardHtml(locale: string, redirect: string): string {
             <button type="submit" class="auth-submit">${c.loginBtn}</button>
           </form>
           <footer class="auth-card-footer">
-            <p class="auth-switch">${c.loginSwitch}<a href="/register?redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
+            <p class="auth-switch">${c.loginSwitch}<a href="/register?lang=${encodeURIComponent(locale)}&redirect=${encodeURIComponent(redirect)}">${c.loginSwitchLink}</a></p>
           </footer>
         </div>
       </div>
@@ -96,7 +96,7 @@ function registerCardHtml(locale: string, redirect: string): string {
             <button type="submit" class="auth-submit">${c.registerBtn}</button>
           </form>
           <footer class="auth-card-footer">
-            <p class="auth-switch">${c.registerSwitch}<a href="/login?redirect=${encodeURIComponent(redirect)}">${c.registerSwitchLink}</a></p>
+            <p class="auth-switch">${c.registerSwitch}<a href="/login?lang=${encodeURIComponent(locale)}&redirect=${encodeURIComponent(redirect)}">${c.registerSwitchLink}</a></p>
           </footer>
         </div>
       </div>
@@ -128,7 +128,7 @@ pagesRouter.get("/center", async (req, res) => {
   const locale = resolveAuthPageLocale(req);
   const target = `https://orasage.com/${locale}/profile`;
   if (!user) {
-    res.redirect(`/login?redirect=${encodeURIComponent(target)}`);
+    res.redirect(`/login?lang=${encodeURIComponent(locale)}&redirect=${encodeURIComponent(target)}`);
     return;
   }
   res.redirect(target);

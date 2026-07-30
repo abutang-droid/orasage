@@ -1,23 +1,25 @@
 {
   "meta": {
-    "title": "OraSage — Destiny & Energy",
-    "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
+    "title": "OraSage — Destino e Energia",
+    "description": "BaZi, Zi Wei, Tarô — Explore o destino, equilibre a energia",
+    "keywords": "OraSage, adivinhação, BaZi, Zi Wei, tarô, energia de cristal, astrologia oriental"
   },
   "nav": {
     "home": "Início",
     "bazi": "BaZi",
-    "ziwei": "ZiWei",
-    "tarot": "Tarot",
+    "ziwei": "Zi Wei",
+    "tarot": "Tarô",
     "blessing": "Bênção",
-    "famous": "Famous Cases",
-    "daozang": "Dao Canon",
-    "login": "Sign In",
+    "famous": "Casos Famosos",
+    "daozang": "Canon Taoista",
+    "login": "Entrar",
+    "back": "Voltar",
     "shop": "Loja"
   },
   "hero": {
-    "title": "Explore Destiny, Balance Energy",
-    "subtitle": "BaZi · Zi Wei · Tarot — Eastern wisdom meets modern technology",
-    "cta": "Start Exploring"
+    "title": "Explore o destino, equilibre a energia",
+    "subtitle": "BaZi · Zi Wei · Tarô — sabedoria oriental com tecnologia moderna",
+    "cta": "Começar a explorar"
   },
   "tools": {
     "title": "Divination Tools",
@@ -35,17 +37,17 @@
     }
   },
   "sections": {
-    "famous": "Famous Cases",
-    "famousDesc": "Insights from historical figures",
-    "daozang": "Dao Canon",
+    "famous": "Casos Famosos",
+    "famousDesc": "Insights de figuras históricas",
+    "daozang": "Canon Taoista",
     "daozangDesc": "Biblioteca das Cinco Artes",
     "comingSoon": "Coming soon",
     "moduleTitle": "Featured reading"
   },
   "footer": {
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "© 2026 OraSage. All rights reserved."
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "copyright": "© 2026 OraSage. Todos os direitos reservados."
   },
   "about": {
     "title": "About OraSage",
