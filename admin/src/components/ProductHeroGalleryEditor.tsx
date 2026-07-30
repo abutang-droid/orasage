@@ -54,12 +54,18 @@ function HeroNewSlot({
   const immediate = Boolean(sku);
   const router = useRouter();
 
+  // Revoke object URLs when preview changes; abort in-flight upload only on unmount.
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
-      abortRef.current?.abort();
     };
   }, [preview]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
