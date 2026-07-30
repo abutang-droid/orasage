@@ -11,7 +11,7 @@ function mapProduct(p: Product, imageUrl?: string | null) {
     element: p.element,
     desc: p.desc,
     priceCents: p.priceCents,
-    priceDisplay: p.priceDisplay ?? `¥${(p.priceCents / 100).toFixed(2)}`,
+    priceDisplay: p.priceDisplay ?? `$${((p.priceCentsUsd ?? p.priceCents) / 100).toFixed(2)}`,
     category: p.category,
     requiresShipping: p.requiresShipping,
     imageUrl: imageUrl ?? null,

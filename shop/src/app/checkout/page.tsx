@@ -246,7 +246,7 @@ function CheckoutContent() {
           const product = data.product as ProductPreview & { priceDisplay?: string; priceCents?: number };
           if (cancelled) return;
           const displayPrice = priceCents && Number.isFinite(priceCents)
-            ? `¥${(priceCents / 100).toFixed(2)}`
+            ? `$${(priceCents / 100).toFixed(2)}`
             : (product.priceDisplay ?? '');
           setProductPreview({
             sku: product.sku,
@@ -474,9 +474,9 @@ function CheckoutContent() {
   }
 
   const effectiveAmountCents = couponPricing?.amountCents ?? order.amountCents;
-  const amountDisplay = order.currency?.toUpperCase() === 'USD'
-    ? `$${(effectiveAmountCents / 100).toFixed(2)}`
-    : `¥${(effectiveAmountCents / 100).toFixed(2)}`;
+  const amountDisplay = order.currency?.toUpperCase() === 'CNY'
+    ? `¥${(effectiveAmountCents / 100).toFixed(2)}`
+    : `$${(effectiveAmountCents / 100).toFixed(2)}`;
 
   const couponEnabled = effectiveAppSource === 'shop' && !isReportDigitalCheckout;
 

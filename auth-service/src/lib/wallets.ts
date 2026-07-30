@@ -87,7 +87,7 @@ export async function listWalletsForUser(userId: number) {
     .where(eq(userWallets.userId, userId))
     .orderBy(userWallets.currency);
   if (rows.length > 0) return rows.map(formatWalletRow);
-  const defaultWallet = await getOrCreateWallet(userId, "CNY");
+  const defaultWallet = await getOrCreateWallet(userId, "USD");
   return [formatWalletRow(defaultWallet)];
 }
 

@@ -1,4 +1,7 @@
-/** Shop locale ↔ currency — shared by shop, auth-service, admin */
+/** Shop locale ↔ currency — shared by shop, auth-service, admin.
+ *
+ * Sitewide billing is USD-only. Locale still drives copy; list price is always USD.
+ */
 
 import {
   detectLocale as detectLocaleBase,
@@ -7,6 +10,7 @@ import {
   normalizeLocale,
 } from '../../packages/i18n/src';
 
+/** Kept for type compatibility; storefront billing always resolves to `usd`. */
 export type ShopCurrency = 'cny' | 'usd';
 
 export const SHOP_LOCALE_COOKIE = LOCALE_COOKIE;
@@ -22,11 +26,8 @@ export function detectShopLocale(options?: {
   return detectLocaleBase(options);
 }
 
-const CNY_LOCALES = new Set(['zh-cn', 'zh-tw', 'zh']);
-
-export function currencyForLocale(locale: string): ShopCurrency {
-  const norm = normalizeShopLocale(locale).toLowerCase();
-  if (CNY_LOCALES.has(norm) || norm.startsWith('zh-')) return 'cny';
+/** Catalog / checkout always charge in USD (ignore locale). */
+export function currencyForLocale(_locale?: string): ShopCurrency {
   return 'usd';
 }
 
@@ -39,15 +40,20 @@ export type ProductPricing = {
   priceCentsUsd?: number | null;
 };
 
-const CNY_TO_USD_RATE = Number(process.env.CNY_TO_USD_RATE ?? '7.2');
-
-export function resolvePriceCents(pricing: ProductPricing, currency: ShopCurrency): number {
-  if (currency === 'cny') return pricing.priceCents;
+/**
+ * Resolve list/charge amount in cents.
+ * Prefer `priceCentsUsd`; fall back to `priceCents` treated as USD cents (mirrored writes).
+ */
+export function resolvePriceCents(pricing: ProductPricing, _currency: ShopCurrency = 'usd'): number {
   if (pricing.priceCentsUsd != null && pricing.priceCentsUsd > 0) return pricing.priceCentsUsd;
-  return Math.max(50, Math.round(pricing.priceCents / CNY_TO_USD_RATE));
+  return Math.max(0, pricing.priceCents);
 }
 
-export function formatShopPrice(cents: number, currency: ShopCurrency): string {
-  if (currency === 'cny') return `¥${(cents / 100).toFixed(2)}`;
+export function formatShopPrice(cents: number, _currency: ShopCurrency = 'usd'): string {
   return `$${(cents / 100).toFixed(2)}`;
+}
+
+/** Order / Stripe currency code (uppercase). */
+export function orderCurrencyCode(_locale?: string): 'USD' {
+  return 'USD';
 }

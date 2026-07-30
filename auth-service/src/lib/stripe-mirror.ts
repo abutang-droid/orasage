@@ -58,7 +58,7 @@ async function upsertCharge(charge: Stripe.Charge): Promise<void> {
     orderNo,
     amountCents: charge.amount,
     amountRefundedCents: charge.amount_refunded ?? 0,
-    currency: (charge.currency ?? "cny").toLowerCase(),
+    currency: (charge.currency ?? "usd").toLowerCase(),
     status: charge.status,
     paid: charge.paid,
     customerEmail: charge.billing_details?.email ?? charge.receipt_email ?? null,
@@ -97,7 +97,7 @@ async function upsertRefund(refund: Stripe.Refund, chargeOrderNo?: string | null
     chargeStripeId: chargeId,
     orderNo,
     amountCents: refund.amount ?? 0,
-    currency: (refund.currency ?? "cny").toLowerCase(),
+    currency: (refund.currency ?? "usd").toLowerCase(),
     status: refund.status ?? "succeeded",
     reason: refund.reason ?? null,
     stripeCreatedAt: stripeTs(refund.created),
@@ -125,7 +125,7 @@ async function upsertPayout(payout: Stripe.Payout): Promise<void> {
   const row = {
     stripeId: payout.id,
     amountCents: payout.amount,
-    currency: (payout.currency ?? "cny").toLowerCase(),
+    currency: (payout.currency ?? "usd").toLowerCase(),
     status: payout.status,
     arrivalDate: payout.arrival_date
       ? new Date(payout.arrival_date * 1000).toISOString().slice(0, 10)
@@ -228,7 +228,7 @@ async function captureBalance(syncRunId: number, stripe: Stripe): Promise<void> 
   if (rows.length === 0) {
     await db.insert(stripeBalanceSnapshots).values({
       syncRunId,
-      currency: "cny",
+      currency: "usd",
       availableCents: 0,
       pendingCents: 0,
       capturedAt: new Date(),

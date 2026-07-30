@@ -645,7 +645,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
               {design.length === 0
                 ? td('startDesign')
                 : belowMin
-                  ? td('belowMin', { amount: formatShopPrice(config.minOrderCents, 'cny') })
+                  ? td('belowMin', { amount: formatShopPrice(config.minOrderCents, 'usd') })
                   : fit !== '合适'
                     ? td('fitAdjust', { fit: fitLabel(fit) || '—' })
                     : td('repriceNote')}

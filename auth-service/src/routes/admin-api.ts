@@ -321,7 +321,15 @@ adminApiRouter.get("/billing-slots", P.billing, async (_req, res) => {
 adminApiRouter.put("/billing-slots", P.billing, async (req, res) => {
   try {
     const body = billingSlotPutSchema.parse(req.body);
-    const rows = await setBillingSlotEntries(body.app, body.key, body.entries);
+    const entries = body.entries.map((e) => {
+      const usd = e.priceOverrideUsdCents ?? e.priceOverrideCents ?? null;
+      return {
+        ...e,
+        priceOverrideCents: usd,
+        priceOverrideUsdCents: usd,
+      };
+    });
+    const rows = await setBillingSlotEntries(body.app, body.key, entries);
     res.json({ app: body.app, key: body.key, rows });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -550,6 +558,10 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       res.status(409).json({ error: "SKU 已存在" });
       return;
     }
+    // USD-only catalog: prefer USD cents and mirror into both columns.
+    const listUsd = body.priceCentsUsd ?? body.priceCents;
+    const saleUsd =
+      body.salePriceCentsUsd ?? body.salePriceCents ?? null;
     const [row] = await db.insert(products).values({
       sku: body.sku,
       name: body.name,
@@ -569,8 +581,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       attachments: body.attachments ?? null,
       description: body.description,
       descriptionI18n: body.descriptionI18n ?? null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: listUsd,
+      priceCentsUsd: listUsd,
       category: body.category,
       kind: body.kind ?? "standard",
       comboUseComponentSum: body.kind === "combo" ? (body.comboUseComponentSum ?? true) : true,
@@ -581,8 +593,8 @@ adminApiRouter.post("/products", P.products, async (req, res) => {
       seoTitleI18n: body.seoTitleI18n ?? null,
       seoDescI18n: body.seoDescI18n ?? null,
       requiresShipping: body.requiresShipping ?? false,
-      salePriceCents: body.salePriceCents ?? null,
-      salePriceCentsUsd: body.salePriceCentsUsd ?? null,
+      salePriceCents: saleUsd,
+      salePriceCentsUsd: saleUsd,
       saleStartsAt: body.saleStartsAt ?? null,
       saleEndsAt: body.saleEndsAt ?? null,
       active: body.active ?? true,
@@ -647,12 +659,20 @@ adminApiRouter.patch("/products/:sku", P.products, async (req, res) => {
     if (body.seoDescI18n !== undefined) updates.seoDescI18n = body.seoDescI18n;
     if (body.description !== undefined) updates.description = body.description;
     if (body.descriptionI18n !== undefined) updates.descriptionI18n = body.descriptionI18n;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const listUsd = body.priceCentsUsd ?? body.priceCents;
+      if (listUsd !== undefined) {
+        updates.priceCents = listUsd;
+        updates.priceCentsUsd = listUsd;
+      }
+    }
     if (body.category !== undefined) updates.category = body.category;
     if (body.requiresShipping !== undefined) updates.requiresShipping = body.requiresShipping;
-    if (body.salePriceCents !== undefined) updates.salePriceCents = body.salePriceCents;
-    if (body.salePriceCentsUsd !== undefined) updates.salePriceCentsUsd = body.salePriceCentsUsd;
+    if (body.salePriceCents !== undefined || body.salePriceCentsUsd !== undefined) {
+      const saleUsd = body.salePriceCentsUsd ?? body.salePriceCents ?? null;
+      updates.salePriceCents = saleUsd;
+      updates.salePriceCentsUsd = saleUsd;
+    }
     if (body.saleStartsAt !== undefined) updates.saleStartsAt = body.saleStartsAt;
     if (body.saleEndsAt !== undefined) updates.saleEndsAt = body.saleEndsAt;
     if (body.active !== undefined) updates.active = body.active;
@@ -741,6 +761,7 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       res.status(409).json({ error: "珠子编码已存在" });
       return;
     }
+    const beadUsd = body.priceCentsUsd ?? body.priceCents;
     const [row] = await db.insert(diyBeads).values({
       code: body.code,
       name: body.name,
@@ -749,8 +770,8 @@ adminApiRouter.post("/diy/beads", P.diy, async (req, res) => {
       beadType: body.beadType,
       diameterMm: body.diameterMm,
       thicknessMm: body.beadType === "disc" ? (body.thicknessMm ?? null) : null,
-      priceCents: body.priceCents,
-      priceCentsUsd: body.priceCentsUsd ?? null,
+      priceCents: beadUsd,
+      priceCentsUsd: beadUsd,
       imageUrl: body.imageUrl ?? null,
       colors: body.colors ?? null,
       stock: body.stock ?? 999,
@@ -784,8 +805,13 @@ adminApiRouter.patch("/diy/beads/:code", P.diy, async (req, res) => {
     if (body.beadType !== undefined) updates.beadType = body.beadType;
     if (body.diameterMm !== undefined) updates.diameterMm = body.diameterMm;
     if (body.thicknessMm !== undefined) updates.thicknessMm = body.thicknessMm;
-    if (body.priceCents !== undefined) updates.priceCents = body.priceCents;
-    if (body.priceCentsUsd !== undefined) updates.priceCentsUsd = body.priceCentsUsd;
+    if (body.priceCents !== undefined || body.priceCentsUsd !== undefined) {
+      const beadUsd = body.priceCentsUsd ?? body.priceCents;
+      if (beadUsd !== undefined) {
+        updates.priceCents = beadUsd;
+        updates.priceCentsUsd = beadUsd;
+      }
+    }
     if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
     if (body.colors !== undefined) updates.colors = body.colors;
     if (body.stock !== undefined) updates.stock = body.stock;
@@ -894,7 +920,9 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: (o.currency || "USD").toUpperCase() === "CNY"
+        ? `¥${(o.amountCents / 100).toFixed(2)}`
+        : `$${(o.amountCents / 100).toFixed(2)}`,
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,

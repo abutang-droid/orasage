@@ -37,6 +37,13 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "已取消",
 };
 
+function formatOrderAmountDisplay(amountCents: number, currency?: string | null): string {
+  const code = (currency || "USD").toUpperCase();
+  const amount = (amountCents / 100).toFixed(2);
+  if (code === "CNY" || code === "RMB") return `¥${amount}`;
+  return `$${amount}`;
+}
+
 async function requireUser(req: Request, res: Response) {
   const user = await getAuthUser(req);
   if (!user) {
@@ -159,7 +166,7 @@ accountRouter.get("/orders", async (req, res) => {
       sku: o.sku,
       amountCents: o.amountCents,
       currency: o.currency,
-      amountDisplay: `¥${(o.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(o.amountCents, o.currency),
       status: o.status,
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
@@ -329,7 +336,7 @@ accountRouter.get("/orders/:orderNo", async (req, res) => {
       sku: order.sku,
       amountCents: order.amountCents,
       currency: order.currency,
-      amountDisplay: `¥${(order.amountCents / 100).toFixed(2)}`,
+      amountDisplay: formatOrderAmountDisplay(order.amountCents, order.currency),
       status: order.status,
       statusLabel: STATUS_LABELS[order.status] ?? order.status,
       appSource: order.appSource,
@@ -740,7 +747,7 @@ internalRouter.post("/orders", async (req, res) => {
       title: body.title,
       sku: body.sku,
       amountCents: body.amountCents,
-      currency: body.currency ?? "CNY",
+      currency: (body.currency ?? "USD").toUpperCase() === "CNY" ? "USD" : (body.currency ?? "USD").toUpperCase(),
       status: body.status ?? "pending",
       appSource: body.appSource,
       shippingAddress: body.shippingAddress,
