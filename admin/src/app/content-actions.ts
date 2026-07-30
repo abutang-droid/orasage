@@ -6,13 +6,15 @@ import { getAdminToken, getStaffUser } from '@/lib/auth';
 import {
   deleteCmsTestimonial,
   getCmsProductPageDoc,
+  normalizeHeroImages,
+  patchCmsProductPageMedia,
   upsertCmsProductPage,
   upsertCmsTestimonial,
   uploadCmsMedia,
   uploadCmsMediaFile,
   type CmsSectionRow,
 } from '@/lib/cms-content-api';
-import { upsertProductImage } from '@/lib/cms-api';
+import { upsertProductImage, upsertProductImageByMediaId } from '@/lib/cms-api';
 import type { EditorSection } from '@/components/PdpSectionsEditor';
 
 const LOCALES = new Set(['zh-CN', 'en', 'pt-BR']);
@@ -62,14 +64,21 @@ async function parseHeroImagesFromForm(
     });
   }
   for (let i = 0; i < HERO_ROWS; i += 1) {
+    const alt = String(formData.get(`hero_new_alt_${i}`) ?? '').trim();
+    const sort = Number(formData.get(`hero_new_sort_${i}`) ?? 100 + i);
+    // Prefer already-uploaded media id (immediate upload); else upload file on save.
+    const preId = Number(formData.get(`hero_new_media_id_${i}`) ?? 0);
+    if (Number.isFinite(preId) && preId > 0) {
+      heroImages.push({ image: preId, alt: alt || null, sort });
+      continue;
+    }
     const file = formData.get(`hero_new_${i}`);
     if (!(file instanceof File) || file.size === 0) continue;
-    const alt = String(formData.get(`hero_new_alt_${i}`) ?? '').trim();
     const mediaId = await uploadCmsMedia(file, alt || `${sku} 详情图`, token);
     heroImages.push({
       image: mediaId,
       alt: alt || null,
-      sort: Number(formData.get(`hero_new_sort_${i}`) ?? 100 + i),
+      sort,
     });
   }
   return heroImages.sort((a, b) => a.sort - b.sort);
@@ -238,6 +247,103 @@ export async function saveProductMediaAction(formData: FormData) {
     redirect(`${editPath(sku)}?media_err=${encodeURIComponent(errorMsg)}`);
   }
   redirect(`${editPath(sku)}?media_ok=1`);
+}
+
+export type MediaPersistResult =
+  | { ok: true; publicUrl?: string | null; mediaId?: number; heroRows?: Array<{ mediaId: number; url?: string | null; alt?: string; sort?: number }> }
+  | { ok: false; error: string };
+
+/** Immediate save: video URL after client upload (or clear). */
+export async function persistProductVideoAction(input: {
+  sku: string;
+  locale: string;
+  field: 'galleryVideo' | 'sceneVideo';
+  url: string | null;
+}): Promise<MediaPersistResult> {
+  const sku = input.sku.trim();
+  const locale = input.locale.trim();
+  if (!sku || !LOCALES.has(locale)) return { ok: false, error: '缺少 SKU 或语言无效' };
+  try {
+    // content_ops may edit PDP content page media; shop_ops edits product media tab.
+    const token = await staffCmsToken();
+    const patch =
+      input.field === 'galleryVideo'
+        ? { galleryVideoUrl: input.url }
+        : { sceneVideoUrl: input.url };
+    await patchCmsProductPageMedia(sku, locale, patch, token);
+    revalidatePath(editPath(sku));
+    revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+    return { ok: true, publicUrl: input.url };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : '保存失败' };
+  }
+}
+
+/** Immediate save: append one hero image after client upload. */
+export async function persistHeroImageAppendAction(input: {
+  sku: string;
+  locale: string;
+  mediaId: number;
+  alt?: string;
+}): Promise<MediaPersistResult> {
+  const sku = input.sku.trim();
+  const locale = input.locale.trim();
+  if (!sku || !LOCALES.has(locale)) return { ok: false, error: '缺少 SKU 或语言无效' };
+  if (!Number.isFinite(input.mediaId) || input.mediaId <= 0) {
+    return { ok: false, error: '无效媒体 ID' };
+  }
+  try {
+    const token = await staffCmsToken();
+    const existing = await getCmsProductPageDoc(sku, locale, token);
+    const heroes = normalizeHeroImages(existing?.heroImages);
+    if (heroes.length >= HERO_ROWS) {
+      return { ok: false, error: `轮播图最多 ${HERO_ROWS} 张` };
+    }
+    const nextSort = heroes.length > 0 ? Math.max(...heroes.map((h) => h.sort)) + 1 : 0;
+    heroes.push({
+      image: input.mediaId,
+      alt: input.alt?.trim() || null,
+      sort: nextSort,
+    });
+    const saved = await patchCmsProductPageMedia(sku, locale, { heroImages: heroes }, token);
+    revalidatePath(editPath(sku));
+    revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+    const heroRows = (saved.heroImages ?? []).map((row, i) => {
+      const id = typeof row.image === 'number' ? row.image : row.image?.id;
+      const url = typeof row.image === 'object' && row.image ? row.image.url : null;
+      return {
+        mediaId: id ?? 0,
+        url: url ?? null,
+        alt: row.alt ?? undefined,
+        sort: typeof row.sort === 'number' ? row.sort : i,
+      };
+    }).filter((r) => r.mediaId > 0);
+    return { ok: true, mediaId: input.mediaId, heroRows };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : '保存失败' };
+  }
+}
+
+/** Immediate save: catalog image by already-uploaded media id. */
+export async function persistCatalogImageByMediaIdAction(input: {
+  sku: string;
+  mediaId: number;
+  publicUrl?: string | null;
+}): Promise<MediaPersistResult> {
+  const sku = input.sku.trim();
+  if (!sku) return { ok: false, error: '缺少 SKU' };
+  if (!Number.isFinite(input.mediaId) || input.mediaId <= 0) {
+    return { ok: false, error: '无效媒体 ID' };
+  }
+  try {
+    const token = await shopProductCmsToken();
+    await upsertProductImageByMediaId(sku, input.mediaId, token);
+    revalidatePath(editPath(sku));
+    revalidatePath('/products');
+    return { ok: true, mediaId: input.mediaId, publicUrl: input.publicUrl ?? null };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : '保存失败' };
+  }
 }
 
 /** 商品编辑页：仅上传列表主图 */

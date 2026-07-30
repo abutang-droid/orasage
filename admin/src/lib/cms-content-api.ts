@@ -110,6 +110,66 @@ export async function upsertCmsProductPage(
   }
 }
 
+function heroImageId(row: CmsHeroImageRow): number | null {
+  if (typeof row.image === 'number') return row.image;
+  if (row.image && typeof row.image === 'object' && typeof row.image.id === 'number') {
+    return row.image.id;
+  }
+  return null;
+}
+
+export function normalizeHeroImages(
+  rows: CmsHeroImageRow[] | null | undefined,
+): Array<{ image: number; alt?: string | null; sort: number }> {
+  if (!rows?.length) return [];
+  const out: Array<{ image: number; alt?: string | null; sort: number }> = [];
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const id = heroImageId(row);
+    if (!id) continue;
+    out.push({
+      image: id,
+      alt: row.alt ?? null,
+      sort: typeof row.sort === 'number' ? row.sort : i,
+    });
+  }
+  return out.sort((a, b) => a.sort - b.sort);
+}
+
+/** Patch media fields on a product page while preserving SEO/sections. */
+export async function patchCmsProductPageMedia(
+  sku: string,
+  locale: string,
+  patch: {
+    galleryVideoUrl?: string | null;
+    sceneVideoUrl?: string | null;
+    heroImages?: Array<{ image: number; alt?: string | null; sort: number }>;
+  },
+  token: string,
+): Promise<CmsProductPageDoc> {
+  const existing = await getCmsProductPageDoc(sku, locale, token);
+  const input: ProductPageInput = {
+    status: existing?.status ?? 'draft',
+    subtitle: existing?.subtitle ?? null,
+    seoTitle: existing?.seoTitle ?? null,
+    seoDescription: existing?.seoDescription ?? null,
+    galleryVideoUrl:
+      patch.galleryVideoUrl !== undefined
+        ? patch.galleryVideoUrl
+        : (existing?.galleryVideoUrl ?? null),
+    sceneVideoUrl:
+      patch.sceneVideoUrl !== undefined
+        ? patch.sceneVideoUrl
+        : (existing?.sceneVideoUrl ?? null),
+    heroImages: patch.heroImages ?? normalizeHeroImages(existing?.heroImages),
+    sections: (existing?.sections ?? []) as CmsSectionRow[],
+  };
+  await upsertCmsProductPage(sku, locale, input, token);
+  const saved = await getCmsProductPageDoc(sku, locale, token);
+  if (!saved) throw new Error('保存成功但无法读取详情页');
+  return saved;
+}
+
 /** 上传媒体，返回 media id */
 export async function uploadCmsMedia(file: File, alt: string, token: string): Promise<number> {
   const uploaded = await uploadCmsMediaFile(file, alt, token);
