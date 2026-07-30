@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminToken, getStaffUser } from '@/lib/auth';
+import { getAdminToken, getStaffBase } from '@/lib/auth';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
 
 /** Client upload proxy → CMS /api/media (supports XHR progress on the browser → admin hop). */
 export async function POST(req: NextRequest) {
-  const staff = await getStaffUser(['admin', 'shop_ops', 'content_ops']);
+  // Cookie JWT role is enough here; don't fail uploads when /me is briefly unavailable.
+  const staff = await getStaffBase(['admin', 'shop_ops', 'content_ops']);
   if (!staff) {
     return NextResponse.json({ error: '未登录或无权限' }, { status: 401 });
   }

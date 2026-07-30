@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getAdminToken, getStaffUser } from '@/lib/auth';
+import { getAdminToken, getStaffBase, loginUrl } from '@/lib/auth';
 import {
   deleteCmsTestimonial,
   getCmsProductPageDoc,
@@ -21,7 +21,8 @@ const LOCALES = new Set(['zh-CN', 'en', 'pt-BR']);
 const HERO_ROWS = 6;
 
 async function staffCmsToken(): Promise<string> {
-  if (!(await getStaffUser(['admin', 'shop_ops', 'content_ops']))) {
+  // Use cookie JWT role only — avoid /me outages turning saves into Application error.
+  if (!(await getStaffBase(['admin', 'shop_ops', 'content_ops']))) {
     throw new Error('未登录或无权限');
   }
   const token = await getAdminToken();
@@ -31,12 +32,21 @@ async function staffCmsToken(): Promise<string> {
 
 /** 商城运营编辑商品媒体/主图（需 CMS 商城+媒体写权限） */
 async function shopProductCmsToken(): Promise<string> {
-  if (!(await getStaffUser(['admin', 'shop_ops']))) {
+  if (!(await getStaffBase(['admin', 'shop_ops']))) {
     throw new Error('未登录或无权限');
   }
   const token = await getAdminToken();
   if (!token) throw new Error('未登录或无权限');
   return token;
+}
+
+/** Form actions: never throw auth errors (Next shows opaque Application error). */
+async function staffCmsTokenOrLogin(): Promise<string> {
+  try {
+    return await staffCmsToken();
+  } catch {
+    redirect(loginUrl());
+  }
 }
 
 function contentPath(sku: string, locale: string): string {
@@ -144,9 +154,11 @@ function parseSections(raw: string): CmsSectionRow[] {
 export async function saveProductPageContentAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   const locale = String(formData.get('locale') ?? '').trim();
-  if (!sku || !LOCALES.has(locale)) throw new Error('缺少 SKU 或语言无效');
+  if (!sku || !LOCALES.has(locale)) {
+    redirect('/products?save_err=' + encodeURIComponent('缺少 SKU 或语言无效'));
+  }
 
-  const token = await staffCmsToken();
+  const token = await staffCmsTokenOrLogin();
 
   let errorMsg: string | null = null;
   try {
@@ -384,9 +396,11 @@ export async function saveCatalogImageAction(formData: FormData) {
 export async function saveTestimonialAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   const locale = String(formData.get('locale') ?? '').trim();
-  if (!sku || !LOCALES.has(locale)) throw new Error('缺少 SKU 或语言无效');
+  if (!sku || !LOCALES.has(locale)) {
+    redirect(loginUrl());
+  }
 
-  const token = await staffCmsToken();
+  const token = await staffCmsTokenOrLogin();
 
   const idRaw = Number(formData.get('id') ?? 0);
   const author = String(formData.get('author') ?? '').trim();
@@ -394,7 +408,9 @@ export async function saveTestimonialAction(formData: FormData) {
   const rating = Math.min(5, Math.max(1, Number(formData.get('rating') ?? 5)));
   const sort = Number(formData.get('sort') ?? 0);
   const enabled = formData.get('enabled') === 'on';
-  if (!author || !body) throw new Error('请填写展示名与评价正文');
+  if (!author || !body) {
+    redirect(`${contentPath(sku, locale)}&err=${encodeURIComponent('请填写展示名与评价正文')}`);
+  }
 
   let errorMsg: string | null = null;
   try {
@@ -420,11 +436,18 @@ export async function deleteTestimonialAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
   const locale = String(formData.get('locale') ?? '').trim();
   const id = Number(formData.get('id') ?? 0);
-  if (!sku || !id) throw new Error('参数不完整');
+  if (!sku || !id) {
+    redirect(loginUrl());
+  }
 
-  const token = await staffCmsToken();
+  const token = await staffCmsTokenOrLogin();
 
-  await deleteCmsTestimonial(id, token);
+  try {
+    await deleteCmsTestimonial(id, token);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : '删除失败';
+    redirect(`${contentPath(sku, locale)}&err=${encodeURIComponent(msg)}`);
+  }
   revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
   redirect(`${contentPath(sku, locale)}&saved=ok`);
 }
