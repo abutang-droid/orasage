@@ -232,10 +232,9 @@ export async function syncComboDerivedFields(comboSku: string) {
   };
 
   if (combo.comboUseComponentSum) {
-    updates.priceCents = meta.componentSumCents;
-    if (meta.componentSumUsdCents != null) {
-      updates.priceCentsUsd = meta.componentSumUsdCents;
-    }
+    const usd = meta.componentSumUsdCents ?? meta.componentSumCents;
+    updates.priceCents = usd;
+    updates.priceCentsUsd = usd;
   }
 
   await db.update(products).set(updates).where(eq(products.sku, comboSku));
