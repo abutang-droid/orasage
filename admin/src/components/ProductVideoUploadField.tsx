@@ -48,12 +48,19 @@ export function ProductVideoUploadField({
     setError(null);
   }, [currentUrl]);
 
+  // Revoke object URLs when preview changes; abort in-flight upload only on unmount.
+  // (Abort must NOT run on previewUrl change — that fires right after select and kills the upload.)
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      abortRef.current?.abort();
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const displayUrl = cleared ? null : (previewUrl ?? savedUrl ?? null);
   const hasExisting = Boolean(savedUrl);

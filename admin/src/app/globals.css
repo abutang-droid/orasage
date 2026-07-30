@@ -1180,8 +1180,17 @@ details summary {
   font-size: 0.85rem;
 }
 
+/* Visually hidden (not display:none) so programmatic .click() works reliably */
 .product-media-file-input {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .product-media-card-actions {

@@ -60,12 +60,18 @@ export function ProductMediaPanel({
     setLiveHeroCount(heroRows.length);
   }, [heroRows]);
 
+  // Revoke object URLs when preview changes; abort in-flight upload only on unmount.
   useEffect(() => {
     return () => {
       if (catalogPreview) URL.revokeObjectURL(catalogPreview);
-      abortRef.current?.abort();
     };
   }, [catalogPreview]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const onCatalogFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -47,10 +47,23 @@ export function uploadMediaWithProgress(
 
     xhr.onload = () => {
       signal?.removeEventListener('abort', onAbort);
-      const data = xhr.response as { id?: number; publicUrl?: string; error?: string } | null;
+      let data: { id?: number; publicUrl?: string; error?: string } | null = null;
+      if (typeof xhr.response === 'object' && xhr.response) {
+        data = xhr.response as { id?: number; publicUrl?: string; error?: string };
+      } else if (typeof xhr.responseText === 'string' && xhr.responseText) {
+        try {
+          data = JSON.parse(xhr.responseText) as { id?: number; publicUrl?: string; error?: string };
+        } catch {
+          data = null;
+        }
+      }
       if (xhr.status >= 200 && xhr.status < 300 && data?.id && data.publicUrl) {
         onProgress?.({ percent: 100, loaded: file.size, total: file.size });
         resolve({ id: data.id, publicUrl: data.publicUrl });
+        return;
+      }
+      if (xhr.status === 413) {
+        reject(new Error('文件过大（超过服务器限制），请压缩后重试'));
         return;
       }
       reject(new Error(data?.error || `上传失败 (${xhr.status})`));
