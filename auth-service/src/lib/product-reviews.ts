@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
+import { parseCartOrderContext } from "../../../shared/shop-cart/cart-order.ts";
 import { db } from "../db/index.ts";
-import { productReviews, users } from "../db/schema.ts";
+import { productReviews, userOrders, users } from "../db/schema.ts";
 
 export type ReviewStatus = typeof productReviews.$inferSelect["status"];
 
@@ -10,6 +11,72 @@ const STATUS_LABELS: Record<ReviewStatus, string> = {
   rejected: "已拒绝",
   featured: "精选",
 };
+
+/** 视为已购的订单状态（与支付镜像 / 仪表盘一致） */
+const PAID_ORDER_STATUSES = ["paid", "shipped", "completed"] as const;
+
+export type ReviewEligibility =
+  | { eligible: true; orderNo: string }
+  | { eligible: false; reason: "unauthenticated" | "not_purchased" };
+
+/**
+ * 用户是否已购买过该 SKU（单品订单或购物车合并订单中的行项目）。
+ */
+export async function findPurchasedOrderForSku(userId: number, sku: string) {
+  const target = sku.trim();
+  if (!target) return null;
+
+  const [direct] = await db
+    .select({
+      orderNo: userOrders.orderNo,
+      sku: userOrders.sku,
+      recommendationContext: userOrders.recommendationContext,
+    })
+    .from(userOrders)
+    .where(
+      and(
+        eq(userOrders.userId, userId),
+        eq(userOrders.sku, target),
+        inArray(userOrders.status, [...PAID_ORDER_STATUSES]),
+      ),
+    )
+    .orderBy(desc(userOrders.createdAt))
+    .limit(1);
+  if (direct) return direct;
+
+  const cartish = await db
+    .select({
+      orderNo: userOrders.orderNo,
+      sku: userOrders.sku,
+      recommendationContext: userOrders.recommendationContext,
+    })
+    .from(userOrders)
+    .where(
+      and(
+        eq(userOrders.userId, userId),
+        inArray(userOrders.status, [...PAID_ORDER_STATUSES]),
+      ),
+    )
+    .orderBy(desc(userOrders.createdAt))
+    .limit(80);
+
+  for (const order of cartish) {
+    if (order.sku === target) return order;
+    const cart = parseCartOrderContext(order.recommendationContext);
+    if (cart?.items.some((line) => line.sku === target)) return order;
+  }
+  return null;
+}
+
+export async function getReviewEligibility(
+  userId: number | null,
+  sku: string,
+): Promise<ReviewEligibility> {
+  if (userId == null) return { eligible: false, reason: "unauthenticated" };
+  const order = await findPurchasedOrderForSku(userId, sku);
+  if (!order) return { eligible: false, reason: "not_purchased" };
+  return { eligible: true, orderNo: order.orderNo };
+}
 
 export async function listReviewsForAdmin(filters?: {
   status?: string;
@@ -80,6 +147,13 @@ export async function listApprovedReviewsForSku(sku: string, limit = 20) {
   }));
 }
 
+export class ReviewNotPurchasedError extends Error {
+  constructor() {
+    super("仅已购买该商品的用户可评价");
+    this.name = "ReviewNotPurchasedError";
+  }
+}
+
 export async function createProductReview(input: {
   userId: number;
   sku: string;
@@ -87,12 +161,20 @@ export async function createProductReview(input: {
   rating: number;
   body: string;
 }) {
+  const purchased = await findPurchasedOrderForSku(input.userId, input.sku);
+  if (!purchased) throw new ReviewNotPurchasedError();
+
+  // 仅接受与已购订单一致的 orderNo，防止伪造关联
+  const requested = input.orderNo?.trim();
+  const orderNo =
+    requested && requested === purchased.orderNo ? requested : purchased.orderNo;
+
   const [row] = await db
     .insert(productReviews)
     .values({
       userId: input.userId,
       sku: input.sku,
-      orderNo: input.orderNo ?? null,
+      orderNo,
       rating: input.rating,
       body: input.body,
       status: "pending",
