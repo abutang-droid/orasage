@@ -124,9 +124,9 @@ function mapDoc(doc: CmsPageDoc): CmsProductPage | null {
 async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProductPage | null> {
   try {
     const params = new URLSearchParams({
-      'where[sku][equals]': sku,
-      'where[locale][equals]': locale,
-      'where[status][equals]': 'published',
+      'where[and][0][sku][equals]': sku,
+      'where[and][1][locale][equals]': locale,
+      'where[and][2][status][equals]': 'published',
       limit: '1',
       depth: '2',
     });
@@ -136,7 +136,7 @@ async function fetchPageForLocale(sku: string, locale: string): Promise<CmsProdu
     if (!res.ok) return null;
     const data = (await res.json()) as { docs?: CmsPageDoc[] };
     const doc = data.docs?.[0];
-    if (!doc) return null;
+    if (!doc || doc.sku !== sku || (doc.locale ?? 'zh-CN') !== locale) return null;
     return mapDoc(doc);
   } catch {
     return null;

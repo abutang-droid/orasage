@@ -63,16 +63,20 @@ export async function getCmsProductPageDoc(
   locale: string,
   token: string,
 ): Promise<CmsProductPageDoc | null> {
+  // Explicit AND — sibling where keys can be ambiguous across Payload versions.
   const params = new URLSearchParams({
-    'where[sku][equals]': sku,
-    'where[locale][equals]': locale,
+    'where[and][0][sku][equals]': sku,
+    'where[and][1][locale][equals]': locale,
     limit: '1',
     depth: '2',
   });
   const res = await cmsRequest(`/api/shop-product-pages?${params}`, token);
   if (!res.ok) return null;
   const data = (await res.json()) as { docs?: CmsProductPageDoc[] };
-  return data.docs?.[0] ?? null;
+  const doc = data.docs?.[0] ?? null;
+  if (!doc) return null;
+  if (doc.sku !== sku || doc.locale !== locale) return null;
+  return doc;
 }
 
 export type ProductPageInput = {
@@ -229,8 +233,8 @@ export async function listCmsTestimonials(
   token: string,
 ): Promise<CmsTestimonialDoc[]> {
   const params = new URLSearchParams({
-    'where[sku][equals]': sku,
-    'where[locale][equals]': locale,
+    'where[and][0][sku][equals]': sku,
+    'where[and][1][locale][equals]': locale,
     sort: 'sort',
     limit: '50',
     depth: '0',
@@ -238,7 +242,7 @@ export async function listCmsTestimonials(
   const res = await cmsRequest(`/api/shop-product-testimonials?${params}`, token);
   if (!res.ok) return [];
   const data = (await res.json()) as { docs?: CmsTestimonialDoc[] };
-  return data.docs ?? [];
+  return (data.docs ?? []).filter((t) => t.sku === sku && t.locale === locale);
 }
 
 export type TestimonialInput = {

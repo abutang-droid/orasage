@@ -202,6 +202,55 @@ export async function saveProductPageContentAction(formData: FormData) {
   redirect(`${contentPath(sku, locale)}&saved=ok`);
 }
 
+/**
+ * Copy zh-CN PDP fields into another locale as draft (media URLs shared; text for translation).
+ * Overwrites the target locale document content.
+ */
+export async function copyZhContentToLocaleAction(formData: FormData) {
+  const sku = String(formData.get('sku') ?? '').trim();
+  const locale = String(formData.get('locale') ?? '').trim();
+  if (!sku || !LOCALES.has(locale) || locale === 'zh-CN') {
+    redirect('/products?save_err=' + encodeURIComponent('目标语言无效'));
+  }
+
+  const token = await staffCmsTokenOrLogin();
+
+  let errorMsg: string | null = null;
+  try {
+    const source = await getCmsProductPageDoc(sku, 'zh-CN', token);
+    if (!source) {
+      throw new Error('简体详情页尚不存在，请先编辑并保存简体');
+    }
+    await upsertCmsProductPage(sku, locale, {
+      status: 'draft',
+      subtitle: source.subtitle ?? null,
+      seoTitle: source.seoTitle ?? null,
+      seoDescription: source.seoDescription ?? null,
+      galleryVideoUrl: source.galleryVideoUrl ?? null,
+      sceneVideoUrl: source.sceneVideoUrl ?? null,
+      heroImages: normalizeHeroImages(source.heroImages),
+      sections: (source.sections ?? []).map((s) => ({
+        type: s.type,
+        title: s.title ?? null,
+        body: s.body ?? null,
+        quote: s.quote ?? null,
+        attribution: s.attribution ?? null,
+        specItems: s.specItems ?? null,
+        faqItems: s.faqItems ?? null,
+        relatedSkus: s.relatedSkus ?? null,
+      })),
+    }, token);
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : '复制失败';
+  }
+
+  revalidatePath(`/products/${encodeURIComponent(sku)}/content`);
+  if (errorMsg) {
+    redirect(`${contentPath(sku, locale)}&err=${encodeURIComponent(errorMsg)}`);
+  }
+  redirect(`${contentPath(sku, locale)}&saved=copied`);
+}
+
 /** 商品编辑页：仅保存轮播图 + 视频（保留已有详情区块与 SEO） */
 export async function saveProductMediaAction(formData: FormData) {
   const sku = String(formData.get('sku') ?? '').trim();
