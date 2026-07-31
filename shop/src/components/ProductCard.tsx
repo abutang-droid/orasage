@@ -19,13 +19,29 @@ import { localizeFiveElement } from '@/lib/pdp-i18n';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 
-function productDisplayTags(product: Product, locale: string): string[] {
-  const fromApi = (product.tags ?? [])
+function productBadgeAndTags(product: Product, locale: string): {
+  badgeLabel: string | null;
+  chipLabels: string[];
+} {
+  const tags = product.tags ?? [];
+  const elementTag = tags.find((t) => t.groupCode === 'element' && t.label?.trim());
+  const badgeLabel =
+    elementTag?.label?.trim()
+    || localizeFiveElement(product.element, locale)
+    || null;
+
+  // Chips below the title: non-element tags only (avoid duplicating the badge).
+  const chipLabels = tags
+    .filter((t) => t.groupCode !== 'element')
     .map((t) => t.label?.trim())
     .filter((label): label is string => Boolean(label));
-  if (fromApi.length > 0) return fromApi;
-  const element = localizeFiveElement(product.element, locale);
-  return element ? [element] : [];
+
+  // If there is no element badge but other tags exist, keep the first chip as badge.
+  if (!badgeLabel && chipLabels.length > 0) {
+    return { badgeLabel: chipLabels[0], chipLabels: chipLabels.slice(1) };
+  }
+
+  return { badgeLabel, chipLabels };
 }
 
 export function ProductCard({ product }: { product: Product }) {
@@ -42,8 +58,7 @@ export function ProductCard({ product }: { product: Product }) {
       currency,
     );
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
-  const tags = productDisplayTags(product, locale);
-  const badgeLabel = tags[0];
+  const { badgeLabel, chipLabels } = productBadgeAndTags(product, locale);
 
   async function handleBuy() {
     setLoading(true);
@@ -101,9 +116,9 @@ export function ProductCard({ product }: { product: Product }) {
         <CardTitle className="shop-product-name text-base font-semibold leading-snug">
           {product.name}
         </CardTitle>
-        {tags.length > 0 ? (
+        {chipLabels.length > 0 ? (
           <div className="shop-product-tags" aria-label={t('tagsLabel')}>
-            {tags.map((label) => (
+            {chipLabels.map((label) => (
               <span key={label} className="shop-product-tag">
                 {label}
               </span>
