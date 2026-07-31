@@ -28,8 +28,18 @@ const DICTIONARIES: Record<Locale, Record<string, string>> = {
   'pt-BR': ptBR,
 };
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  return <I18nProvider dictionaries={DICTIONARIES}>{children}</I18nProvider>;
+export function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale?: string;
+}) {
+  return (
+    <I18nProvider dictionaries={DICTIONARIES} initialLocale={initialLocale}>
+      {children}
+    </I18nProvider>
+  );
 }
 
 export function useLocale() {
