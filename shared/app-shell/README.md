@@ -33,6 +33,7 @@ CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断�
 
 见 [`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../../docs/design-system/OraSage-Design-System-v1.1-Revised.md) §7。
 
-- 子应用使用 `PortalFooter` + `.orasage-portal-footer*`（`app-shell.css`）
+- 子应用使用共享 `PortalFooter`（`shared/app-shell/PortalFooter.tsx`）+ `.orasage-portal-footer*`（`app-shell.css`）
+- 文案来自 `SHELL_LABELS.copyright|privacy|terms`，**必须传入与顶栏相同的 `locale`**（勿单独依赖可能滞后的 i18n provider）
 - 仅展示版权 / 隐私政策 / 用户协议，**禁止**展示登录用户名或邮箱
 - 法律链接统一指向主站 `/{locale}/privacy` 与 `/{locale}/terms`

@@ -17,24 +17,11 @@ import { OrdersNavBadge } from '@/components/OrdersNavBadge';
 import { MessagesNavBadge } from '@/components/MessagesNavBadge';
 import { ImNavBadge } from '@/components/ImNavBadge';
 
-const MAIN_BASE = 'https://orasage.com/zh-CN';
+import { PortalFooter } from '@/lib/orasage-app-shell';
 
 function BackendFooter() {
-  return (
-    <footer className="orasage-portal-footer safe-bottom mt-auto">
-      <div className="orasage-portal-footer-inner">
-        <p className="orasage-portal-footer-copy">© 2026 OraSage. 保留所有权利。</p>
-        <div className="orasage-portal-footer-links">
-          <a href={`${MAIN_BASE}/privacy`} className="orasage-portal-footer-link">
-            隐私政策
-          </a>
-          <a href={`${MAIN_BASE}/terms`} className="orasage-portal-footer-link">
-            服务条款
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
+  // Admin ops UI is Chinese-first; legal links still go to localized main portal paths.
+  return <PortalFooter locale="zh-CN" />;
 }
 
 export type AdminBackendShellProps = {

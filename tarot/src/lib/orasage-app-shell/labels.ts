@@ -14,6 +14,10 @@ type LabelSet = {
   energyShop: Record<string, string>;
   famous: Record<string, string>;
   daozang: Record<string, string>;
+  /** PC portal footer */
+  copyright: Record<string, string>;
+  privacy: Record<string, string>;
+  terms: Record<string, string>;
 };
 
 export const SHELL_LABELS: LabelSet = {
@@ -107,8 +111,29 @@ export const SHELL_LABELS: LabelSet = {
     'zh-TW': '道藏',
     'pt-BR': 'Canon Taoista',
   },
+  copyright: {
+    'zh-CN': '© 2026 OraSage. 保留所有权利。',
+    en: '© 2026 OraSage. All rights reserved.',
+    'zh-TW': '© 2026 OraSage. 保留所有權利。',
+    'pt-BR': '© 2026 OraSage. Todos os direitos reservados.',
+  },
+  privacy: {
+    'zh-CN': '隐私政策',
+    en: 'Privacy Policy',
+    'zh-TW': '隱私政策',
+    'pt-BR': 'Política de Privacidade',
+  },
+  terms: {
+    'zh-CN': '服务条款',
+    en: 'Terms of Service',
+    'zh-TW': '服務條款',
+    'pt-BR': 'Termos de Serviço',
+  },
 };
 
 export function pickLabel(map: Record<string, string>, locale: string, fallback?: string): string {
-  return map[locale] ?? map['zh-CN'] ?? map.en ?? fallback ?? '';
+  if (map[locale]) return map[locale];
+  // Non-zh locales must not silently fall back to Chinese shell copy.
+  if (locale.startsWith('zh')) return map['zh-CN'] ?? map.en ?? fallback ?? '';
+  return map.en ?? map['zh-CN'] ?? fallback ?? '';
 }

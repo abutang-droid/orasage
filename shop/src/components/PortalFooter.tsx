@@ -1,28 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { mainPortalUrl } from '@/lib/orasage-app-shell/config';
+import { PortalFooter as ShellPortalFooter } from '@/lib/orasage-app-shell';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 
-/** PC 页脚 — 版权 / 隐私 / 服务条款（仅桌面显示，见 app-shell.css） */
+/** PC 页脚 — 与顶栏共用 shell locale，避免切语言后 next-intl 未刷新时仍显示中文 */
 export function PortalFooter() {
   const { locale } = useShopLocale();
-  const t = useTranslations('footer');
-  const base = mainPortalUrl(locale);
-
-  return (
-    <footer className="orasage-portal-footer safe-bottom mt-auto">
-      <div className="orasage-portal-footer-inner">
-        <p className="orasage-portal-footer-copy">{t('copyright')}</p>
-        <div className="orasage-portal-footer-links">
-          <a href={`${base}/privacy`} className="orasage-portal-footer-link">
-            {t('privacy')}
-          </a>
-          <a href={`${base}/terms`} className="orasage-portal-footer-link">
-            {t('terms')}
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
+  return <ShellPortalFooter locale={locale} />;
 }

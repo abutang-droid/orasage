@@ -10,25 +10,10 @@ import {
   SHOP_NAV_ITEMS,
   type AdminNavItem,
 } from '@/lib/admin-backend/nav';
-
-const MAIN_BASE = 'https://orasage.com/zh-CN';
+import { PortalFooter } from '@/lib/orasage-app-shell';
 
 function BackendFooter() {
-  return (
-    <footer className="orasage-portal-footer safe-bottom mt-auto">
-      <div className="orasage-portal-footer-inner">
-        <p className="orasage-portal-footer-copy">© 2026 OraSage. 保留所有权利。</p>
-        <div className="orasage-portal-footer-links">
-          <a href={`${MAIN_BASE}/privacy`} className="orasage-portal-footer-link">
-            隐私政策
-          </a>
-          <a href={`${MAIN_BASE}/terms`} className="orasage-portal-footer-link">
-            服务条款
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
+  return <PortalFooter locale="zh-CN" />;
 }
 
 export type AdminBackendShellProps = {

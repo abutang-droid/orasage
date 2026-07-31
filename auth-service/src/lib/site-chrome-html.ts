@@ -10,8 +10,8 @@ type FooterStrings = { login: string; copyright: string; privacy: string; terms:
 const FOOTER_STRINGS: Record<string, FooterStrings> = {
   'zh-CN': { login: '登录', copyright: '© 2026 OraSage. 保留所有权利。', privacy: '隐私政策', terms: '服务条款' },
   'zh-TW': { login: '登入', copyright: '© 2026 OraSage. 保留所有權利。', privacy: '隱私政策', terms: '服務條款' },
-  en: { login: 'Login', copyright: '© 2026 OraSage. All rights reserved.', privacy: 'Privacy', terms: 'Terms' },
-  'pt-BR': { login: 'Entrar', copyright: '© 2026 OraSage. Todos os direitos reservados.', privacy: 'Privacidade', terms: 'Termos' },
+  en: { login: 'Login', copyright: '© 2026 OraSage. All rights reserved.', privacy: 'Privacy Policy', terms: 'Terms of Service' },
+  'pt-BR': { login: 'Entrar', copyright: '© 2026 OraSage. Todos os direitos reservados.', privacy: 'Política de Privacidade', terms: 'Termos de Serviço' },
 };
 
 const normalizeLocale = toCoreLocale;
