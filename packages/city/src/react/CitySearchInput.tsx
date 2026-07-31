@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { BirthplaceValue, CityLookupResult, CityRecord } from "../types";
 import { addCityToCatalog, loadCityCatalog } from "../catalog";
 import { matchLocalCity, searchCities, toCityCoords } from "../search";
@@ -13,6 +13,11 @@ export type CitySearchInputProps = {
   fieldClassName?: string;
   dropdownClassName?: string;
   optionClassName?: string;
+  id?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean | "true" | "false";
+  required?: boolean;
 };
 
 export async function resolveCityCoords(
@@ -34,9 +39,17 @@ export function CitySearchInput({
   fieldClassName,
   dropdownClassName,
   optionClassName,
+  id,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  required,
 }: CitySearchInputProps) {
   const { api, locale } = useCityContext();
   const t = getCityMessages(locale);
+  const reactId = useId();
+  const listboxId = `${reactId}-listbox`;
+  const inputId = id ?? `${reactId}-city-input`;
 
   const [catalog, setCatalog] = useState<CityRecord[]>([]);
   const [ready, setReady] = useState(false);
@@ -44,6 +57,7 @@ export function CitySearchInput({
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<CityRecord[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [dataError, setDataError] = useState<string | null>(null);
   const [aiSearching, setAiSearching] = useState(false);
   const [pending, setPending] = useState<CityLookupResult | null>(null);
@@ -78,6 +92,7 @@ export function CitySearchInput({
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setActiveIndex(-1);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -96,6 +111,7 @@ export function CitySearchInput({
       setPending(null);
       setDataError(null);
       setOpen(false);
+      setActiveIndex(-1);
     },
     [onChange],
   );
@@ -131,6 +147,15 @@ export function CitySearchInput({
     const q = e.target.value;
     setQuery(q);
     setPending(null);
+    setActiveIndex(-1);
+
+    // 输入与已选标签不一致时取消过期选择（保留坐标契约不串位）
+    if (value.city) {
+      const selectedLabel = formatCityLabel(value.city, value.country);
+      if (q !== selectedLabel) {
+        onChange({ city: "", country: "" });
+      }
+    }
 
     if (q.length >= 1) {
       const results = searchCities(catalog, q, 8);
@@ -156,6 +181,43 @@ export function CitySearchInput({
   const handleSelect = (city: CityRecord) => {
     setQuery(formatCityLabel(city.city, city.country));
     applyCity(city);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      if (!open && suggestions.length > 0) {
+        setOpen(true);
+        setActiveIndex(0);
+        e.preventDefault();
+        return;
+      }
+      if (open && suggestions.length > 0) {
+        e.preventDefault();
+        setActiveIndex((i) => (i + 1) % suggestions.length);
+      }
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      if (open && suggestions.length > 0) {
+        e.preventDefault();
+        setActiveIndex((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+      }
+      return;
+    }
+    if (e.key === "Enter") {
+      if (open && activeIndex >= 0 && activeIndex < suggestions.length) {
+        e.preventDefault();
+        handleSelect(suggestions[activeIndex]!);
+      }
+      return;
+    }
+    if (e.key === "Escape") {
+      if (open) {
+        e.preventDefault();
+        setOpen(false);
+        setActiveIndex(-1);
+      }
+    }
   };
 
   const handleConfirm = async () => {
@@ -196,6 +258,9 @@ export function CitySearchInput({
   const fieldClass = `${fieldClassName || "orasage-city-field"}${focused ? " is-focused" : ""}`;
   const dropdownClass = dropdownClassName || "orasage-city-dropdown";
   const optionClass = optionClassName || "orasage-city-option";
+  const listOpen = open && suggestions.length > 0;
+  const activeOptionId =
+    listOpen && activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined;
 
   return (
     <div className={className ?? "relative"} ref={containerRef}>
@@ -216,27 +281,41 @@ export function CitySearchInput({
           <path d="M21 21l-4.35-4.35" />
         </svg>
         <input
+          id={inputId}
           type="text"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={listOpen}
+          aria-controls={listboxId}
+          aria-activedescendant={activeOptionId}
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          aria-required={required || undefined}
           value={query}
           onChange={handleInput}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
             setFocused(true);
-            if (query.length >= 1) setOpen(suggestions.length > 0);
+            if (query.length >= 1 && suggestions.length > 0) setOpen(true);
           }}
           onBlur={() => setFocused(false)}
           placeholder={t.placeholder}
+          autoComplete="off"
         />
         {aiSearching ? (
-          <span className="text-xs text-primary/70 shrink-0">{t.aiMatching}</span>
+          <span className="text-xs text-primary/70 shrink-0" role="status">
+            {t.aiMatching}
+          </span>
         ) : null}
         {query ? (
           <button
             type="button"
             onClick={handleReject}
-            className="text-muted-foreground text-base leading-none px-0.5"
-            aria-label="Clear"
+            className="orasage-city-clear"
+            aria-label={t.clear}
           >
-            ×
+            <span aria-hidden>×</span>
           </button>
         ) : null}
       </div>
@@ -253,34 +332,47 @@ export function CitySearchInput({
         </div>
       ) : null}
 
-      {open && suggestions.length > 0 ? (
-        <div className={dropdownClass}>
-          {suggestions.map((city) => (
-            <button
-              key={`${city.city}-${city.province}-${city.country}`}
-              type="button"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleSelect(city);
-              }}
-              className={optionClass}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>{city.city}</span>
-                <span style={{ fontSize: "0.7rem", color: "#6b7280" }}>
-                  {city.country && city.country !== "中国" ? city.country : city.province || ""}
-                </span>
-              </div>
-              <div style={{ fontSize: "0.65rem", color: "#6b7280", marginTop: "0.125rem" }}>
-                {city.lng > 0
-                  ? `${t.longitudeEast} ${city.lng.toFixed(2)}°`
-                  : `${t.longitudeWest} ${Math.abs(city.lng).toFixed(2)}°`}
-                {city.timezone ? ` · UTC${city.timezone}` : null}
-              </div>
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <div
+        id={listboxId}
+        role="listbox"
+        hidden={!listOpen}
+        className={listOpen ? dropdownClass : undefined}
+      >
+        {listOpen
+          ? suggestions.map((city, index) => {
+              const selected = index === activeIndex;
+              return (
+                <button
+                  key={`${city.city}-${city.province}-${city.country}`}
+                  id={`${listboxId}-option-${index}`}
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  tabIndex={-1}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelect(city);
+                  }}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  className={`${optionClass}${selected ? " is-active" : ""}`}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>{city.city}</span>
+                    <span style={{ fontSize: "0.7rem", color: "var(--os-color-mono-gray-deep, #6b7280)" }}>
+                      {city.country && city.country !== "中国" ? city.country : city.province || ""}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "var(--os-color-mono-gray-deep, #6b7280)", marginTop: "0.125rem" }}>
+                    {city.lng > 0
+                      ? `${t.longitudeEast} ${city.lng.toFixed(2)}°`
+                      : `${t.longitudeWest} ${Math.abs(city.lng).toFixed(2)}°`}
+                    {city.timezone ? ` · UTC${city.timezone}` : null}
+                  </div>
+                </button>
+              );
+            })
+          : null}
+      </div>
 
       {pending ? (
         <CityConfirmCard

@@ -5,6 +5,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { Dna, Heart, Landmark, Shield, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, BG_PAGE, SERIF_F, SANS_F, CARD_BORDER, INK_DEEP } from "@/theme";
 import {
@@ -599,7 +600,10 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
             <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '命理小结')}</h3>
             <div className="space-y-2">
               <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{result.mingLiSummary.overview}</p>
-              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>✨ {result.mingLiSummary.personality.slice(0, 40)}……</p>
+              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>
+                <Sparkles size={12} className="inline mr-1" aria-hidden />
+                {result.mingLiSummary.personality.slice(0, 40)}……
+              </p>
             </div>
           </div>
         </div>
@@ -784,13 +788,13 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           </div>
           {/* 三维解读 */}
           {([
-            { label: t('report.character', '性格特征'), icon: '✨', text: result.mingLiSummary.personality },
-            { label: t('report.career', '事业方向'), icon: '⛄', text: result.mingLiSummary.career },
-            { label: t('report.relationship', '感情倾向'), icon: '♥', text: result.mingLiSummary.relationship },
-          ] as const).map(({ label, icon, text }) => (
+            { label: t('report.character', '性格特征'), Icon: Sparkles, text: result.mingLiSummary.personality },
+            { label: t('report.career', '事业方向'), Icon: Landmark, text: result.mingLiSummary.career },
+            { label: t('report.relationship', '感情倾向'), Icon: Heart, text: result.mingLiSummary.relationship },
+          ] as const).map(({ label, Icon, text }) => (
             <div key={label}>
               <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="text-[10px]">{icon}</span>
+                <Icon size={12} color={GOLD} aria-hidden />
                 <span className="text-[11px] font-semibold tracking-widest" style={{ color: GOLD }}>{label}</span>
               </div>
               <p className="text-xs leading-relaxed pl-4" style={{ color: GOLD_DIM, borderLeft: '2px solid rgba(196,160,78,0.22)' }}>{text}</p>
@@ -874,7 +878,10 @@ function DailyFortuneCard({ fortune }: { fortune: DailyFortune }) {
         </div>
         {/* 幸运提示 */}
         <div className="flex items-center gap-4 text-xs" style={{ color: BODY_CLR }}>
-          <span>✨ {t('result.lucky_color', '幸运颜色')}：<span style={{ color: GOLD }}>{fortune.luckyColor}</span></span>
+          <span className="inline-flex items-center gap-1">
+            <Sparkles size={12} aria-hidden />
+            {t('result.lucky_color', '幸运颜色')}：<span style={{ color: GOLD }}>{fortune.luckyColor}</span>
+          </span>
           <span>★ {t('result.lucky_direction', '幸运方位')}：<span style={{ color: GOLD }}>{fortune.luckyDirection}</span></span>
         </div>
         {/* 宜忌 */}
@@ -1634,7 +1641,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
       {/* 标题栏 */}
       <div className="px-5 py-4" style={{ background: CARD_GRADIENT_SOFT, borderBottom: `1px solid ${GOLD_FAINT}` }}>
         <div className="flex items-center gap-3">
-          <span style={{ fontSize: "1.25rem" }}>🔮</span>
+          <Sparkles size={20} color={GOLD} aria-hidden />
           <div>
             <p className="text-base font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>
               {t('insight.title').replace('{name}', result.name)}
@@ -1707,17 +1714,17 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.15)" }}>
-                <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🏛</span><span className="text-sm font-bold" style={{ color: "#60a5fa" }}>{t('insight.pattern')}</span></div>
+                <div className="flex items-center gap-1.5 mb-1.5"><Landmark size={14} color="#60a5fa" aria-hidden /><span className="text-sm font-bold" style={{ color: "#60a5fa" }}>{t('insight.pattern')}</span></div>
                 <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.pattern || ''}</p>
               </div>
               <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.15)" }}>
-                <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🧬</span><span className="text-sm font-bold" style={{ color: "#4ade80" }}>{t('insight.personality')}</span></div>
+                <div className="flex items-center gap-1.5 mb-1.5"><Dna size={14} color="#4ade80" aria-hidden /><span className="text-sm font-bold" style={{ color: "#4ade80" }}>{t('insight.personality')}</span></div>
                 <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.personality || aiProfile.career || ''}</p>
               </div>
             </div>
 
             <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.15)" }}>
-              <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🛡</span><span className="text-sm font-bold" style={{ color: "#f87171" }}>{t('insight.risk')}</span></div>
+              <div className="flex items-center gap-1.5 mb-1.5"><Shield size={14} color="#f87171" aria-hidden /><span className="text-sm font-bold" style={{ color: "#f87171" }}>{t('insight.risk')}</span></div>
               <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.risk}</p>
             </div>
 
@@ -2025,7 +2032,7 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
           border: `1px solid ${GOLD_FAINT}`,
         }}>
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-lg">💞</span>
+            <Heart size={18} color={GOLD} aria-hidden />
             <p className="text-sm font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>
               {t('paywall.couple.hook_title', '你们合盘的隐藏密码')}
             </p>

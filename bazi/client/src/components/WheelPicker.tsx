@@ -70,8 +70,8 @@ function closestOption(options: string[], raw: string): string {
 // DatePicker — 可点击下拉 + 可双击手动输入 + 即时校验
 // ════════════════════════════════════════════════════════════════════════
 export function DatePicker({
-  options, value, onChange, label, formatLabel, kind: kindProp,
-}: WheelPickerProps & { kind?: FieldKind }) {
+  options, value, onChange, label, formatLabel, kind: kindProp, invalid, describedBy,
+}: WheelPickerProps & { kind?: FieldKind; invalid?: boolean; describedBy?: string }) {
   const [open, setOpen] = useState(false);
   const [editValue, setEditValue] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -100,11 +100,12 @@ export function DatePicker({
     return () => document.removeEventListener("mousedown", handler);
   }, [open, isEditing]);
 
-  // 未填写时显示的极淡占位数字
+  // 未填写：明确占位文案，不用伪默认日期（T2-01）
   const placeholders: Record<FieldKind, string> = {
-    year: "1900", month: "01", day: "01", hour: "00", minute: "00",
+    year: "----", month: "--", day: "--", hour: "--", minute: "--",
   };
   const placeholder = placeholders[kind] || "";
+  const accessibleName = label ? `${label}${isEmpty ? "，未选择" : `，当前 ${display}`}` : undefined;
 
   const handleClick = () => {
     if (isEditing) return;
@@ -157,10 +158,12 @@ export function DatePicker({
     }
   };
 
+  const showInvalid = Boolean(invalid || error);
+
   return (
     <div className="flex flex-col items-center gap-1 flex-1 select-none" ref={containerRef}>
       {label && (
-        <span className="text-xs" style={{ color: error ? ERR_CLR : MUTED_CLR, fontFamily: SANS, fontSize: "0.6875rem" }}>
+        <span className="text-xs" style={{ color: showInvalid ? ERR_CLR : MUTED_CLR, fontFamily: SANS, fontSize: "0.6875rem" }}>
           {error ? error : label}
         </span>
       )}
@@ -170,18 +173,27 @@ export function DatePicker({
             ref={inputRef}
             type="text"
             inputMode="numeric"
+            name={`bazi-date-${kind}`}
+            data-bazi-date-kind={kind}
             value={editValue}
             placeholder={placeholder}
+            aria-label={accessibleName}
+            aria-invalid={showInvalid || undefined}
+            aria-describedby={describedBy}
             onChange={handleInputChange}
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
-            className={`bazi-date-input${error ? ' border-destructive' : ''}`}
-            style={error ? { borderColor: ERR_CLR, color: ERR_CLR } : undefined}
+            className={`bazi-date-input${showInvalid ? ' border-destructive' : ''}`}
+            style={showInvalid ? { borderColor: ERR_CLR, color: ERR_CLR } : undefined}
           />
         ) : (
           <button
             type="button"
+            data-bazi-date-kind={kind}
             onClick={handleClick}
+            aria-label={accessibleName}
+            aria-invalid={showInvalid || undefined}
+            aria-describedby={describedBy}
             className={`bazi-date-trigger flex items-center justify-center${isEmpty ? ' bazi-date-trigger--placeholder' : ''}`}
           >
             {isEmpty ? placeholder : display}

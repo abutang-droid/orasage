@@ -40,8 +40,33 @@
   cursor: pointer;
 }
 
-.orasage-city-option:hover {
+.orasage-city-option:hover,
+.orasage-city-option.is-active {
   background: #fafaf8;
+}
+
+.orasage-city-clear {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -10px -6px -10px 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.orasage-city-clear:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .orasage-city-confirm {

@@ -30,7 +30,7 @@ const ui: TranslationDict = {
   "date.hour": "Hr",
   "date.minute": "Min",
 
-  "form.hint.time": "Se o horário exato for desconhecido, 00:00 será usado",
+  "form.hint.time": "Se o horário exato for desconhecido, 08:00 será usado",
   "form.submit.single": "Iniciar Leitura",
   "form.submit.couple": "Iniciar Sinastria",
   "form.error.gender": "Selecione o gênero",

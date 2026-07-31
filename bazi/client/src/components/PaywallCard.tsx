@@ -2,12 +2,18 @@
  * PaywallCard — OraSage 计费方案卡片组件
  *
  * 三档商品独立卡片：选中态 + 「解锁报告」跳转 shop 结账。
+ * T1-04：产品 loading/error/empty/price 未就绪时禁用 CTA。
  */
 
 import type { PlanType } from "@shared/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { fetchBaziPlanProducts, type PlanProductInfo } from "@/lib/plan-products";
+import {
+  derivePaywallStatus,
+  selectedPlanReady,
+  type PaywallFetchStatus,
+} from "@/lib/paywall-gating";
 import {
   GOLD, GOLD_LIGHT, HEADING, BODY_CLR, MUTED_CLR, SERIF_F, SANS_F,
 } from "@/theme";
@@ -43,20 +49,52 @@ export function PaywallCard({
   mode = "single",
   className,
 }: PaywallCardProps) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [plans, setPlans] = useState<PlanProductInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [status, setStatus] = useState<PaywallFetchStatus>("loading");
 
-  useEffect(() => {
+  const loadPlans = useCallback(() => {
     let cancelled = false;
-    void fetchBaziPlanProducts(mode).then((list) => {
-      if (!cancelled) {
+    setLoading(true);
+    setFetchError(false);
+    setStatus("loading");
+    void fetchBaziPlanProducts(mode, locale)
+      .then((list) => {
+        if (cancelled) return;
         setPlans(list);
         setLoading(false);
-      }
-    });
-    return () => { cancelled = true; };
-  }, [mode]);
+        const next = derivePaywallStatus(false, false, list);
+        setStatus(next);
+        if (next === "error" || next === "empty") setFetchError(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPlans([]);
+        setLoading(false);
+        setFetchError(true);
+        setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, locale]);
+
+  useEffect(() => loadPlans(), [loadPlans]);
+
+  const canCheckout = selectedPlanReady(status, plans, selectedPlan) && !payLoading;
+
+  const statusMessage = (() => {
+    if (payLoading) return t("paywall.unlocking", "正在解锁…");
+    if (status === "loading") return t("paywall.loading_plans", "正在加载方案价格…");
+    if (status === "error" || status === "empty") {
+      return t("paywall.plans_error", "方案价格加载失败，请重试");
+    }
+    if (!selectedPlan) return t("paywall.select_plan", "请先选择方案");
+    if (!canCheckout) return t("paywall.price_unavailable", "所选方案价格暂不可用");
+    return null;
+  })();
 
   return (
     <div
@@ -100,6 +138,7 @@ export function PaywallCard({
               role="radio"
               aria-checked={isSelected}
               data-plan={plan.type}
+              disabled={status === "loading"}
               onClick={() => onSelectPlan(plan.type)}
               style={{
                 width: "100%",
@@ -118,7 +157,7 @@ export function PaywallCard({
                   ? "0 4px 16px rgba(196,160,78,0.22)"
                   : "0 1px 6px rgba(0,0,0,0.05)",
                 transition: "all 0.15s ease",
-                cursor: "pointer",
+                cursor: status === "loading" ? "wait" : "pointer",
                 outline: "none",
               }}
             >
@@ -200,7 +239,7 @@ export function PaywallCard({
                   fontWeight: 700,
                   whiteSpace: "nowrap",
                 }}>
-                  {loading ? "…" : plan.priceDisplay}
+                  {loading ? "…" : (plan.priceDisplay || "—")}
                 </span>
                 <p style={{ color: MUTED_CLR, fontSize: "0.625rem", marginTop: "0.125rem" }}>
                   {TIER_HINTS[index] ?? ""}
@@ -211,17 +250,60 @@ export function PaywallCard({
         })}
       </div>
 
+      {statusMessage ? (
+        <p
+          role="status"
+          aria-live="polite"
+          data-testid="bazi-paywall-status"
+          style={{
+            color: fetchError ? "var(--os-color-status-error, #dc2626)" : MUTED_CLR,
+            fontSize: "0.75rem",
+            textAlign: "center",
+            marginTop: "0.75rem",
+          }}
+        >
+          {statusMessage}
+        </p>
+      ) : null}
+
+      {fetchError ? (
+        <button
+          type="button"
+          data-testid="bazi-paywall-retry"
+          onClick={() => loadPlans()}
+          style={{
+            width: "100%",
+            marginTop: "0.5rem",
+            borderRadius: 12,
+            padding: "0.625rem 1rem",
+            background: "transparent",
+            color: HEADING,
+            fontFamily: SANS_F,
+            fontSize: "0.8125rem",
+            fontWeight: 600,
+            border: `1px solid ${PLAN_CARD_BORDER}`,
+            cursor: "pointer",
+          }}
+        >
+          {t("paywall.retry", "重新加载价格")}
+        </button>
+      ) : null}
+
       <button
         type="button"
         data-testid="bazi-paywall-unlock"
-        disabled={!selectedPlan || payLoading}
-        onClick={() => onPay()}
+        disabled={!canCheckout}
+        aria-disabled={!canCheckout}
+        onClick={() => {
+          if (!canCheckout) return;
+          onPay(selectedPlan ?? undefined);
+        }}
         style={{
           width: "100%",
           marginTop: "0.875rem",
           borderRadius: 14,
           padding: "0.875rem 1rem",
-          background: selectedPlan
+          background: canCheckout
             ? `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`
             : "rgba(184,148,63,0.2)",
           color: "#ffffff",
@@ -230,12 +312,12 @@ export function PaywallCard({
           fontWeight: 700,
           letterSpacing: "0.14em",
           border: "none",
-          boxShadow: selectedPlan ? "0 4px 14px rgba(184,148,63,0.35)" : "none",
-          cursor: selectedPlan && !payLoading ? "pointer" : "not-allowed",
+          boxShadow: canCheckout ? "0 4px 14px rgba(184,148,63,0.35)" : "none",
+          cursor: canCheckout ? "pointer" : "not-allowed",
           opacity: payLoading ? 0.75 : 1,
         }}
       >
-        {payLoading ? t("paywall.unlocking", "正在解锁…") : "解锁报告"}
+        {payLoading ? t("paywall.unlocking", "正在解锁…") : t("paywall.unlock", "解锁报告")}
       </button>
     </div>
   );

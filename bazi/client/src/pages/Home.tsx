@@ -25,6 +25,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
+import { resolveUnknownBirthTime } from "@/lib/birth-time";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -89,8 +90,13 @@ const SERIF_F    = "'Noto Serif SC','Source Han Serif SC',serif";
 function LoadingView() {
   const { t } = useT();
   return (
-    <div className="flex flex-col items-center justify-center py-28 gap-8 animate-fade-in-up">
-      <div className="relative w-20 h-20">
+    <div
+      className="flex flex-col items-center justify-center py-28 gap-8 animate-fade-in-up"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="relative w-20 h-20" aria-hidden>
         <svg width="80" height="80" viewBox="0 0 100 100" fill="none"
           className="animate-spin" style={{ animationDuration: "3s" }}>
           <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
@@ -121,9 +127,19 @@ function DayTimeHint() {
 }
 
 // ─── 表单面板 ─────────────────────────
-function PersonFormPanel({ form, onChange }: {
+function PersonFormPanel({ form, onChange, fieldErrors, ids }: {
   form: PersonForm;
   onChange: (patch: Partial<PersonForm>) => void;
+  fieldErrors?: Partial<Record<"gender" | "year" | "month" | "day" | "city", string>>;
+  ids: {
+    name: string;
+    place: string;
+    placeLabel: string;
+    timeHint: string;
+    gender: string;
+    calendar: string;
+    year: string;
+  };
 }) {
   const { t } = useT();
   const isLunar = form.calendar === "lunar";
@@ -131,7 +147,9 @@ function PersonFormPanel({ form, onChange }: {
 
   useEffect(() => {
     if (!isLunar) { setLeapMonth(0); return; }
-    const y = parseInt(form.year) || 1990;
+    if (!form.year.trim()) { setLeapMonth(0); return; }
+    const y = parseInt(form.year, 10);
+    if (Number.isNaN(y)) { setLeapMonth(0); return; }
     preloadDecade(y);
     getLeapMonthOfYear(y).then(setLeapMonth);
   }, [form.year, isLunar]);
@@ -149,8 +167,10 @@ function PersonFormPanel({ form, onChange }: {
 
   // 根据年月计算实际最大天数（公历用 Date API，农历根据大小月）
   const maxDayCount = useMemo(() => {
-    const y = parseInt(form.year) || 1990;
-    const m = parseInt(form.month.replace('L', '')) || 1;
+    if (!form.year.trim() || !form.month.trim()) return 31;
+    const y = parseInt(form.year, 10);
+    const m = parseInt(form.month.replace('L', ''), 10);
+    if (Number.isNaN(y) || Number.isNaN(m)) return 31;
     if (isLunar) {
       // 农历：大月30天，小月29天；简单处理用30天
       return 30;
@@ -180,75 +200,92 @@ function PersonFormPanel({ form, onChange }: {
     }
   }, [isLunar, form.month, onChange]);
 
-  // 必填字段验证
-  const genderInvalid = !form.gender;
-  const yearInvalid = !form.year || parseInt(form.year) < 1900 || parseInt(form.year) > 2100;
-
-  // Field label helper
-  const Label = ({ text, required }: { text: string; required?: boolean }) => (
-    <div className="flex items-center gap-1 mb-2">
-      <span className="bazi-calc-field-label">{text}</span>
-      {required && <span className="text-red-500 text-xs">*</span>}
-    </div>
-  );
+  const genderError = fieldErrors?.gender;
+  const yearError = fieldErrors?.year;
+  const monthError = fieldErrors?.month;
+  const dayError = fieldErrors?.day;
+  const cityError = fieldErrors?.city;
 
   return (
     <div className="flex flex-col gap-4">
 
       <div className="flex items-center gap-1.5">
         <div className="flex-1">
+          <label htmlFor={ids.name} className="sr-only">{t('form.name.placeholder')}</label>
           <input
+            id={ids.name}
+            name="name"
             type="text"
             value={form.name}
             onChange={(e) => onChange({ name: e.target.value })}
             placeholder={t('form.name.placeholder')}
             className="bazi-field-input"
+            autoComplete="name"
           />
         </div>
 
-        <div className="bazi-calc-segment">
+        <fieldset id={ids.gender} className="bazi-calc-segment m-0 min-w-0 border-0 p-0" aria-invalid={genderError ? true : undefined} aria-describedby={genderError ? `${ids.gender}-error` : undefined}>
+          <legend className="sr-only">{t('form.error.gender')}</legend>
           {(["male", "female"] as const).map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => onChange({ gender: g })}
-              className={`bazi-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}
-            >
+            <label key={g} className={`bazi-calc-segment-btn${form.gender === g ? ' is-active' : ''}`}>
+              <input
+                type="radio"
+                name={`${ids.gender}-radio`}
+                value={g}
+                checked={form.gender === g}
+                onChange={() => onChange({ gender: g })}
+                className="sr-only"
+              />
               {g === "male" ? (t('form.gender.male') || "男") : (t('form.gender.female') || "女")}
-            </button>
+            </label>
           ))}
-        </div>
+        </fieldset>
 
-        <div className="bazi-calc-segment">
+        <fieldset id={ids.calendar} className="bazi-calc-segment m-0 min-w-0 border-0 p-0">
+          <legend className="sr-only">{t('form.calendar.solar')} / {t('form.calendar.lunar')}</legend>
           {(["solar", "lunar"] as const).map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => onChange({ calendar: c })}
-              className={`bazi-calc-segment-btn${form.calendar === c ? ' is-active' : ''}`}
-            >
+            <label key={c} className={`bazi-calc-segment-btn${form.calendar === c ? ' is-active' : ''}`}>
+              <input
+                type="radio"
+                name={`${ids.calendar}-radio`}
+                value={c}
+                checked={form.calendar === c}
+                onChange={() => onChange({ calendar: c })}
+                className="sr-only"
+              />
               {c === "solar" ? (t('form.calendar.solar') || "公") : (t('form.calendar.lunar') || "农")}
-            </button>
+            </label>
           ))}
-        </div>
+        </fieldset>
       </div>
-      {isLunar && leapMonth > 0 && (
-        <p style={{ color: GOLD, fontFamily: SANS, fontSize: '0.6875rem', marginTop: '-0.5rem' }}>
-          {parseInt(form.year)}{t('form.calendar.lunar_hint')}{leapMonth}月
+      {genderError ? (
+        <p id={`${ids.gender}-error`} role="alert" className="text-xs text-red-600" style={{ marginTop: "-0.5rem" }}>{genderError}</p>
+      ) : null}
+      {isLunar && leapMonth > 0 && form.year.trim() && (
+        <p style={{ color: "var(--os-color-mono-gray-deep, #6b7280)", fontFamily: SANS, fontSize: '0.6875rem', marginTop: '-0.5rem' }}>
+          {parseInt(form.year, 10)}{t('form.calendar.lunar_hint')}{leapMonth}月
         </p>
       )}
 
       {/* 出生日期与时间 */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="flex items-center gap-2 mb-1 px-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary" aria-hidden>
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
           <span className="bazi-calc-field-label">{t('form.birth_time')}</span>
-          <span className="text-red-500 text-xs">*</span>
-        </div>
+          <span className="text-red-500 text-xs" aria-hidden>*</span>
+        </legend>
         <div className="flex gap-2">
-          <DatePicker kind="year" label={t('date.year', '年')} options={YEARS} value={form.year} onChange={(v) => onChange({ year: v })} />
+          <DatePicker
+            kind="year"
+            label={t('date.year', '年')}
+            options={YEARS}
+            value={form.year}
+            onChange={(v) => onChange({ year: v })}
+            invalid={Boolean(yearError)}
+            describedBy={yearError ? `${ids.year}-error` : ids.timeHint}
+          />
           <DatePicker
             kind="month"
             label={t('date.month', '月')}
@@ -256,29 +293,47 @@ function PersonFormPanel({ form, onChange }: {
             value={form.month}
             onChange={(v) => onChange({ month: v })}
             formatLabel={(v) => v.startsWith("L") ? (t('form.calendar.lunar_hint', '闰') || '闰') + parseInt(v.slice(1)) : v}
+            invalid={Boolean(monthError)}
           />
-          <DatePicker kind="day" label={t('date.day', '日')} options={dynamicDayOptions} value={form.day} onChange={(v) => onChange({ day: v })} />
-          <DatePicker kind="hour" label={t('date.hour', '时')} options={HOURS} value={form.hour} onChange={(v) => onChange({ hour: v })} />
-          <DatePicker kind="minute" label={t('date.minute', '分')} options={MINUTES} value={form.minute} onChange={(v) => onChange({ minute: v })} />
+          <DatePicker
+            kind="day"
+            label={t('date.day', '日')}
+            options={dynamicDayOptions}
+            value={form.day}
+            onChange={(v) => onChange({ day: v })}
+            invalid={Boolean(dayError)}
+          />
+          <DatePicker kind="hour" label={t('date.hour', '时')} options={HOURS} value={form.hour} onChange={(v) => onChange({ hour: v })} describedBy={ids.timeHint} />
+          <DatePicker kind="minute" label={t('date.minute', '分')} options={MINUTES} value={form.minute} onChange={(v) => onChange({ minute: v })} describedBy={ids.timeHint} />
         </div>
-        <DayTimeHint />
-      </div>
+        <div id={ids.timeHint}><DayTimeHint /></div>
+        {yearError ? <p id={`${ids.year}-error`} role="alert" className="text-xs text-red-600 mt-1">{yearError}</p> : null}
+        {monthError ? <p role="alert" className="text-xs text-red-600 mt-1">{monthError}</p> : null}
+        {dayError ? <p role="alert" className="text-xs text-red-600 mt-1">{dayError}</p> : null}
+      </fieldset>
 
       {/* 出生地 */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary" aria-hidden>
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
           </svg>
-          <Label text={t('form.birth_place')} />
+          <label id={ids.placeLabel} htmlFor={ids.place} className="bazi-calc-field-label">
+            {t('form.birth_place')}
+          </label>
         </div>
         <CitySearchInput
+          id={ids.place}
           value={form.birthplace}
           onChange={(v) => onChange({ birthplace: v })}
           fieldClassName="bazi-city-field"
           dropdownClassName="bazi-city-dropdown"
           optionClassName="bazi-city-option"
+          aria-labelledby={ids.placeLabel}
+          aria-invalid={cityError ? true : undefined}
+          aria-describedby={cityError ? `${ids.place}-error` : undefined}
         />
+        {cityError ? <p id={`${ids.place}-error`} role="alert" className="text-xs text-red-600 mt-1">{cityError}</p> : null}
       </div>
 
     </div>
@@ -398,46 +453,115 @@ export default function Home() {
     }
   }, [isAuthenticated, result, locale]);
 
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"gender" | "year" | "month" | "day" | "city", string>>>({});
+  const formFieldIds = {
+    name: "bazi-field-name",
+    place: "bazi-field-place",
+    placeLabel: "bazi-field-place-label",
+    timeHint: "bazi-field-time-hint",
+    gender: "bazi-field-gender",
+    calendar: "bazi-field-calendar",
+    year: "bazi-field-year",
+  };
+
   const updateForm = (idx: 0 | 1, patch: Partial<PersonForm>) => {
     setForms((prev) => {
       const next = [...prev] as [PersonForm, PersonForm];
       next[idx] = { ...next[idx], ...patch };
       return next;
     });
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if (patch.gender !== undefined) delete next.gender;
+      if (patch.year !== undefined) delete next.year;
+      if (patch.month !== undefined) delete next.month;
+      if (patch.day !== undefined) delete next.day;
+      if (patch.birthplace !== undefined) delete next.city;
+      return next;
+    });
+  };
+
+  const focusFirstError = (errors: Partial<Record<"gender" | "year" | "month" | "day" | "city", string>>) => {
+    const order: Array<keyof typeof errors> = ["gender", "year", "month", "day", "city"];
+    for (const key of order) {
+      if (!errors[key]) continue;
+      const el =
+        key === "gender" ? document.getElementById(formFieldIds.gender)?.querySelector<HTMLElement>("input")
+        : key === "year" ? document.querySelector<HTMLElement>('[data-bazi-date-kind="year"]')
+        : key === "month" ? document.querySelector<HTMLElement>('[data-bazi-date-kind="month"]')
+        : key === "day" ? document.querySelector<HTMLElement>('[data-bazi-date-kind="day"]')
+        : document.getElementById(formFieldIds.place);
+      el?.focus();
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
+      break;
+    }
   };
 
   const handleSubmit = () => {
-    const f0 = forms[0];
-    // 必填验证
-    if (!f0.gender) { toast.error(t('form.error.gender')); return; }
-    if (!f0.year || parseInt(f0.year) < 1900 || parseInt(f0.year) > 2100) { toast.error(t('form.error.year')); return; }
-    if (!f0.month || parseInt(f0.month) < 1 || parseInt(f0.month) > 12) { toast.error(t('form.error.month')); return; }
-    if (!f0.day || parseInt(f0.day) < 1 || parseInt(f0.day) > 31) { toast.error(t('form.error.day')); return; }
-    if (!f0.birthplace.city?.trim()) { toast.error(t('form.error.city')); return; }
+    const collectErrors = (f: PersonForm, second: boolean) => {
+      const bag: Partial<Record<"gender" | "year" | "month" | "day" | "city", string>> = {};
+      if (!f.gender) bag.gender = t(second ? 'form.error.gender_second' : 'form.error.gender');
+      if (!f.year || parseInt(f.year) < 1900 || parseInt(f.year) > 2100) {
+        bag.year = t(second ? 'form.error.year_second' : 'form.error.year');
+      }
+      const monthNum = parseInt(f.month.replace('L', ''), 10);
+      if (!f.month || Number.isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        bag.month = t(second ? 'form.error.month_second' : 'form.error.month');
+      }
+      if (!f.day || parseInt(f.day) < 1 || parseInt(f.day) > 31) {
+        bag.day = t(second ? 'form.error.day_second' : 'form.error.day');
+      }
+      if (!f.birthplace.city?.trim()) {
+        bag.city = t(second ? 'form.error.city_second' : 'form.error.city');
+      }
+      return bag;
+    };
+
     if (mode === "couple") {
-      const f1 = forms[1];
-      if (!f1.gender) { toast.error(t('form.error.gender_second')); return; }
-      if (!f1.year || parseInt(f1.year) < 1900 || parseInt(f1.year) > 2100) { toast.error(t('form.error.year_second')); return; }
-      if (!f1.month || parseInt(f1.month) < 1 || parseInt(f1.month) > 12) { toast.error(t('form.error.month_second')); return; }
-      if (!f1.day || parseInt(f1.day) < 1 || parseInt(f1.day) > 31) { toast.error(t('form.error.day_second')); return; }
-      if (!f1.birthplace.city?.trim()) { toast.error(t('form.error.city_second')); return; }
+      const e0 = collectErrors(forms[0], false);
+      if (Object.keys(e0).length > 0) {
+        setActivePerson(0);
+        setFieldErrors(e0);
+        toast.error(Object.values(e0)[0]!);
+        requestAnimationFrame(() => focusFirstError(e0));
+        return;
+      }
+      const e1 = collectErrors(forms[1], true);
+      if (Object.keys(e1).length > 0) {
+        setActivePerson(1);
+        setFieldErrors(e1);
+        toast.error(Object.values(e1)[0]!);
+        requestAnimationFrame(() => focusFirstError(e1));
+        return;
+      }
+    } else {
+      const errors = collectErrors(forms[0], false);
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        toast.error(Object.values(errors)[0]!);
+        requestAnimationFrame(() => focusFirstError(errors));
+        return;
+      }
     }
 
+    setFieldErrors({});
+
+    const f0 = forms[0];
     // 自动填充默认值并同步到 state
     const resolvedF0 = { ...f0 };
     if (!resolvedF0.name) resolvedF0.name = "访客";
-    if (!resolvedF0.hour) resolvedF0.hour = "08";
-    if (!resolvedF0.minute) resolvedF0.minute = "00";
-    if (!resolvedF0.birthplace.city) resolvedF0.birthplace = { city: "北京", country: "中国", lng: 116.4074, timezone: "+8" };
+    const time0 = resolveUnknownBirthTime(resolvedF0.hour, resolvedF0.minute);
+    resolvedF0.hour = time0.hour;
+    resolvedF0.minute = time0.minute;
 
     let resolvedF1: PersonForm | undefined;
     if (mode === "couple") {
       const f1 = forms[1];
       resolvedF1 = { ...f1 };
       if (!resolvedF1.name) resolvedF1.name = "访客";
-      if (!resolvedF1.hour) resolvedF1.hour = "08";
-      if (!resolvedF1.minute) resolvedF1.minute = "00";
-      if (!resolvedF1.birthplace.city) resolvedF1.birthplace = { city: "北京", country: "中国", lng: 116.4074, timezone: "+8" };
+      const time1 = resolveUnknownBirthTime(resolvedF1.hour, resolvedF1.minute);
+      resolvedF1.hour = time1.hour;
+      resolvedF1.minute = time1.minute;
     }
 
     // 同步 state（用于显示），但不依赖其值做计算
@@ -448,7 +572,10 @@ export default function Home() {
 
     setView("loading");
 
-    setTimeout(async () => {
+    const MIN_LOADING_MS = 220; // 非阻断最短视觉过渡（原固定 1.8s）
+    const startedAt = Date.now();
+
+    void (async () => {
       try {
         const toInput = async (f: PersonForm) => {
           const cityName = f.birthplace.city;
@@ -467,14 +594,15 @@ export default function Home() {
           const rawMonth = f.month;
           const isLeapMonth = rawMonth.startsWith('L');
           const monthNum = parseInt(isLeapMonth ? rawMonth.slice(1) : rawMonth);
+          const time = resolveUnknownBirthTime(f.hour, f.minute);
           return {
             name: f.name.trim() || "访客",
             gender: (f.gender || "male") as "male" | "female",
             year: parseInt(f.year),
             month: monthNum,
             day: parseInt(f.day),
-            hour: parseInt(f.hour),
-            minute: parseInt(f.minute),
+            hour: parseInt(time.hour, 10),
+            minute: parseInt(time.minute, 10),
             calendar: f.calendar === "solar" ? ("gregorian" as const) : ("lunar" as const),
             ...(isLeapMonth ? { isLeapMonth: true } : {}),
             birthplace: [f.birthplace.country, f.birthplace.city].filter(Boolean).join(' '),
@@ -513,6 +641,10 @@ export default function Home() {
           const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
           saveLastReadingId(readingId);
         }
+        const elapsed = Date.now() - startedAt;
+        if (elapsed < MIN_LOADING_MS) {
+          await new Promise((r) => setTimeout(r, MIN_LOADING_MS - elapsed));
+        }
         setView("result");
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
@@ -520,7 +652,7 @@ export default function Home() {
         toast.error(t('toast.calc_error'));
         setView("form");
       }
-    }, 1800);
+    })();
   };
 
   const handleBack = () => {
@@ -613,6 +745,8 @@ export default function Home() {
               <PersonFormPanel
                 form={forms[mode === "single" ? 0 : activePerson]}
                 onChange={(patch) => updateForm(mode === "single" ? 0 : activePerson, patch)}
+                fieldErrors={fieldErrors}
+                ids={formFieldIds}
               />
 
               <button
