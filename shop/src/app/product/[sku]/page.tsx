@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getProduct, categoryLabels } from '@/lib/products';
+import { getTranslations } from 'next-intl/server';
+import { getProduct } from '@/lib/products';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCmsProductPage } from '@/lib/cms-product-page';
 import { fetchProductTestimonials } from '@/lib/cms-product-testimonials';
 import { fetchUgcReviews } from '@/lib/ugc-reviews';
 import { buildPdpContent, productEyebrow, resolveRelatedCrystalSkus, injectProductSpecs } from '@/lib/pdp-content';
+import { pdpContentLabelsFromT } from '@/lib/pdp-labels';
+import { localizeFiveElement } from '@/lib/pdp-i18n';
 import { fetchProductLinks } from '@/lib/product-links';
 import { ProductAttachments } from '@/components/ProductAttachments';
 import { ProductMediaLinks } from '@/components/ProductMediaLinks';
@@ -27,11 +30,12 @@ type PageProps = { params: Promise<{ sku: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { sku } = await params;
   const locale = await getServerShopLocale();
+  const t = await getTranslations('pdp');
   const [product, cmsPage] = await Promise.all([
     getProduct(sku, locale),
     fetchCmsProductPage(sku, locale),
   ]);
-  if (!product) return { title: '商品不存在' };
+  if (!product) return { title: t('notFoundTitle') };
   const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`;
   const description = cmsPage?.seoDescription?.trim() || product.desc;
   const ogImage = cmsPage?.heroImages[0]?.url;
@@ -46,13 +50,15 @@ export default async function ProductPage({ params }: PageProps) {
   const { sku } = await params;
   if (sku === 'diy-bracelet') redirect('/diy');
   const locale = await getServerShopLocale();
-  const [product, imageMap, cmsPage, testimonials, mediaLinks, ugcReviews] = await Promise.all([
+  const [product, imageMap, cmsPage, testimonials, mediaLinks, ugcReviews, t, tc] = await Promise.all([
     getProduct(sku, locale),
     fetchProductImageMap(),
     fetchCmsProductPage(sku, locale),
     fetchProductTestimonials(sku, locale),
     fetchProductLinks(sku, locale),
     fetchUgcReviews(sku),
+    getTranslations('pdp'),
+    getTranslations('categories'),
   ]);
 
   if (!product) notFound();
@@ -66,18 +72,25 @@ export default async function ProductPage({ params }: PageProps) {
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
   const listThumbnail = imageMap.get(product.sku) ?? product.imageUrl ?? null;
   const englishSubtitle = cmsPage?.subtitle?.trim();
-  const rawContent = buildPdpContent(cmsPage?.sections ?? []);
-  const specTitle = locale.startsWith('zh') ? '商品规格' : 'Specifications';
-  const content = injectProductSpecs(rawContent, product.specs ?? [], specTitle);
+  const labels = pdpContentLabelsFromT(t);
+  const localizedElement = localizeFiveElement(product.element, locale);
+  const rawContent = buildPdpContent(cmsPage?.sections ?? [], labels, locale);
+  const localizedSpecs = (product.specs ?? []).map((s) => ({
+    label: s.label,
+    value: s.key === 'element' ? localizeFiveElement(s.value, locale) || s.value : s.value,
+  }));
+  const content = injectProductSpecs(rawContent, localizedSpecs, labels.specs);
   const relatedSkus = resolveRelatedCrystalSkus(product.sku, content.relatedSkus);
-  const eyebrow = productEyebrow(product.sku, product.element, product.material) ?? categoryLabels[product.category];
+  const eyebrow =
+    productEyebrow(product.sku, product.element, product.material, labels, localizedElement)
+    ?? tc(product.category);
   const hasAccordion = content.accordions.length > 0;
 
   return (
     <main className="shop-page safe-bottom flex-1">
       <div className="shop-pdp shop-pdp--content">
         <Link href="/" className="shop-pdp-back shop-pdp-back--top">
-          ← 返回商城
+          ← {t('backToShop')}
         </Link>
 
         <div className="shop-pdp-hero-grid">

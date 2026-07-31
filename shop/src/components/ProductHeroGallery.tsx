@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type GallerySlide =
   | { kind: 'image'; url: string; alt: string }
@@ -22,6 +23,7 @@ export function ProductHeroGallery({
   fallbackUrl,
   videoUrl,
 }: ProductHeroGalleryProps) {
+  const t = useTranslations('pdp.gallery');
   const baseImages: Array<{ url: string; alt: string }> =
     images.length > 0
       ? images
@@ -73,14 +75,14 @@ export function ProductHeroGallery({
       </div>
 
       {slides.length > 1 ? (
-        <div className="shop-pdp-gallery-thumbs" role="tablist" aria-label="商品图片">
+        <div className="shop-pdp-gallery-thumbs" role="tablist" aria-label={t('imagesAria')}>
           {slides.map((slide, i) => (
             <button
               key={`${slide.url}-${i}`}
               type="button"
               role="tab"
               aria-selected={i === index}
-              aria-label={slide.kind === 'video' ? '商品视频' : `第 ${i + 1} 张图片`}
+              aria-label={slide.kind === 'video' ? t('videoAria') : t('imageAria', { n: i + 1 })}
               className={`shop-pdp-gallery-thumb${i === index ? ' is-active' : ''}`}
               onClick={() => setIndex(i)}
             >

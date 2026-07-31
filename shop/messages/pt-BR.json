@@ -246,6 +246,8 @@
     "disc": "Disco"
   },
   "pdp": {
+    "backToShop": "Voltar à loja",
+    "notFoundTitle": "Produto não encontrado",
     "attachmentsTitle": "Downloads",
     "mediaLinksTitle": "Mídia e Avaliações",
     "linkKind": {
@@ -253,6 +255,56 @@
       "media": "Mídia",
       "review": "Análise",
       "article": "Artigo"
+    },
+    "eyebrowElement": "Elemento · {element} · {material}",
+    "eyebrowMaterial": "{material}",
+    "materials": {
+      "crystal-wood": "Quartzo Verde Fantasma natural",
+      "crystal-fire": "Ágata vermelha natural",
+      "crystal-earth": "Citrino natural",
+      "crystal-metal": "Quartzo transparente natural",
+      "crystal-water": "Obsidiana natural"
+    },
+    "elements": {
+      "木": "Madeira",
+      "火": "Fogo",
+      "土": "Terra",
+      "金": "Metal",
+      "水": "Água"
+    },
+    "reportBazi": "Leitura BaZi · Relatório digital",
+    "reportZiwei": "Zi Wei · Relatório digital",
+    "reportTarot": "Leitura de tarô · Relatório digital",
+    "serviceConsult": "Consulta energética · 1:1",
+    "ziweiChatPack": "Chat Zi Wei · Pacote de créditos",
+    "ziweiChatYearly": "Chat Zi Wei · Anual",
+    "templeDonation": "Bênção do templo · Doação voluntária",
+    "accordion": {
+      "energyDetails": "Detalhes energéticos",
+      "productDetails": "Detalhes do produto",
+      "reportDetails": "Detalhes do relatório",
+      "serviceDetails": "Detalhes do serviço",
+      "spiritualStory": "História espiritual",
+      "deepReading": "Leitura profunda",
+      "moreAbout": "Mais informações",
+      "pairingGuide": "Guia de uso e combinações",
+      "upgradePath": "Caminho de upgrade",
+      "wearGuide": "Guia de uso",
+      "wearGuidePairing": "Guia de uso e combinações",
+      "upgradeGuide": "Uso e upgrades",
+      "specs": "Especificações",
+      "faq": "Perguntas frequentes",
+      "related": "Ressoe com"
+    },
+    "gallery": {
+      "imagesAria": "Imagens do produto",
+      "imageAria": "Imagem {n}",
+      "videoAria": "Vídeo do produto"
+    },
+    "manifest": {
+      "wear": "Wear to Manifest",
+      "read": "Read to Manifest",
+      "act": "Act to Manifest"
     },
     "sceneEyebrow": "Em cena",
     "sceneAria": "{name} em cena",

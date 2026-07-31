@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import type { Product } from '@/lib/products';
 import { ProductImage } from '@/components/ProductImage';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
 import type { ShopCurrency } from '@/lib/currency';
+import { pickLocalizedTitle } from '@/lib/pdp-i18n';
 
 export async function RelatedProducts({ skus, title }: { skus: string[]; title?: string }) {
   if (!skus.length) return null;
@@ -12,6 +14,7 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
   const { getServerShopLocale } = await import('@/lib/currency-server');
 
   const locale = await getServerShopLocale();
+  const t = await getTranslations('pdp');
   const [products, imageMap] = await Promise.all([fetchProducts(locale), fetchProductImageMap()]);
   const related = skus
     .map((sku) => products.find((p) => p.sku === sku))
@@ -21,10 +24,11 @@ export async function RelatedProducts({ skus, title }: { skus: string[]; title?:
   if (!related.length) return null;
 
   const currency = (await import('@/lib/currency')).currencyForLocale(locale);
+  const heading = pickLocalizedTitle(title, t('accordion.related'), locale);
 
   return (
     <div className="shop-pdp-related">
-      <h3 className="shop-pdp-related-heading">{title || '与之共振'}</h3>
+      <h3 className="shop-pdp-related-heading">{heading}</h3>
       <div className="shop-pdp-related-grid">
         {related.map((product) => (
           <RelatedProductCard

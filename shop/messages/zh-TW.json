@@ -246,6 +246,8 @@
     "disc": "隔片"
   },
   "pdp": {
+    "backToShop": "返回商城",
+    "notFoundTitle": "商品不存在",
     "attachmentsTitle": "資料下載",
     "mediaLinksTitle": "媒體與用戶報導",
     "linkKind": {
@@ -253,6 +255,56 @@
       "media": "媒體",
       "review": "測評",
       "article": "文章"
+    },
+    "eyebrowElement": "五行·{element} · {material}",
+    "eyebrowMaterial": "{material}",
+    "materials": {
+      "crystal-wood": "天然綠幽靈",
+      "crystal-fire": "天然紅瑪瑙",
+      "crystal-earth": "天然黃水晶",
+      "crystal-metal": "天然白水晶",
+      "crystal-water": "天然黑曜石"
+    },
+    "elements": {
+      "木": "木",
+      "火": "火",
+      "土": "土",
+      "金": "金",
+      "水": "水"
+    },
+    "reportBazi": "八字解讀 · 數字報告",
+    "reportZiwei": "紫微斗數 · 數字報告",
+    "reportTarot": "塔羅解讀 · 數字報告",
+    "serviceConsult": "能量諮詢 · 一對一",
+    "ziweiChatPack": "紫微問答 · 加量包",
+    "ziweiChatYearly": "紫微問答 · 年卡",
+    "templeDonation": "祈福樂捐 · 自願支持",
+    "accordion": {
+      "energyDetails": "能量詳解",
+      "productDetails": "商品詳情",
+      "reportDetails": "報告詳解",
+      "serviceDetails": "服務詳解",
+      "spiritualStory": "靈性故事",
+      "deepReading": "深度解讀",
+      "moreAbout": "更多介紹",
+      "pairingGuide": "佩戴指南與搭配",
+      "upgradePath": "升級路徑",
+      "wearGuide": "佩戴指南",
+      "wearGuidePairing": "佩戴指南與搭配",
+      "upgradeGuide": "使用指南與升級",
+      "specs": "商品規格",
+      "faq": "常見問題",
+      "related": "與之共振"
+    },
+    "gallery": {
+      "imagesAria": "商品圖片",
+      "imageAria": "第 {n} 張圖片",
+      "videoAria": "商品視頻"
+    },
+    "manifest": {
+      "wear": "佩戴顯化",
+      "read": "解讀顯化",
+      "act": "行動顯化"
     },
     "sceneEyebrow": "佩戴場景",
     "sceneAria": "{name} 佩戴場景",
