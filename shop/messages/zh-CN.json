@@ -8,7 +8,8 @@
     "buyNow": "立即购买",
     "addToCartFull": "加入购物车",
     "addedToCart": "已加入购物车",
-    "customBracelet": "定制手链"
+    "customBracelet": "定制手链",
+    "tagsLabel": "标签"
   },
   "categories": {
     "crystal": "水晶手串",

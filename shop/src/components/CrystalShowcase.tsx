@@ -16,6 +16,7 @@ import {
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { localizeFiveElement } from '@/lib/pdp-i18n';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
 
@@ -39,7 +40,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
   const t = useTranslations('crystalShowcase');
   const tp = useTranslations('product');
   const searchParams = useSearchParams();
-  const { currency } = useShopLocale();
+  const { locale, currency } = useShopLocale();
   const { addItem } = useCart();
 
   const initialBase = resolveInitialBaseSku(lineup, searchParams.get('element'));
@@ -145,7 +146,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
               style={{ '--crystal-accent': row.accent } as React.CSSProperties}
               onClick={() => selectBase(row.baseSku)}
             >
-              <span className="crystal-element-tab-char">{row.element}</span>
+              <span className="crystal-element-tab-char">{localizeFiveElement(row.element, locale) || row.element}</span>
               <span className="crystal-element-tab-tagline">{rowEntry?.tagline}</span>
             </button>
           );
@@ -177,7 +178,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
 
         <div className="crystal-feature-body">
           <p className="crystal-feature-eyebrow">
-            {t('elementLabel', { element: active.element })}
+            {t('elementLabel', { element: localizeFiveElement(active.element, locale) || active.element })}
           </p>
           <h2 className="crystal-feature-title">
             {entry?.tagline ? (
@@ -310,7 +311,7 @@ export function CrystalShowcase({ lineup, content }: CrystalShowcaseProps) {
                 imageUrl={thumbProduct.imageUrl}
                 className="crystal-thumb-image"
               />
-              <span className="crystal-thumb-element">{row.element}</span>
+              <span className="crystal-thumb-element">{localizeFiveElement(row.element, locale) || row.element}</span>
               <span className="crystal-thumb-tagline">{rowEntry?.tagline}</span>
             </button>
           );
