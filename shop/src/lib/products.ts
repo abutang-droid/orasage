@@ -12,6 +12,8 @@ export interface Product {
   weightGrams?: number | null;
   specs?: Array<{ key: string; label: string; value: string }>;
   attachments?: Array<{ name: string; url: string }>;
+  /** Locale-resolved catalog tags from auth-service */
+  tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
   desc: string;
   priceCents: number;
   priceCentsUsd?: number | null;
@@ -76,6 +78,7 @@ interface ApiProduct {
   weightGrams?: number | null;
   specs?: Array<{ key: string; label: string; value: string }>;
   attachments?: Array<{ name: string; url: string }>;
+  tags?: Array<{ id: number; code: string; label: string; groupCode: string }>;
   desc?: string;
   description?: string;
   priceCents: number;
@@ -100,6 +103,7 @@ function mapApiProduct(p: ApiProduct): Product {
     weightGrams: p.weightGrams,
     specs: p.specs,
     attachments: p.attachments,
+    tags: p.tags ?? [],
     desc: p.desc ?? p.description ?? '',
     priceCents: p.priceCents,
     priceCentsUsd: p.priceCentsUsd,

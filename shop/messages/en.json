@@ -8,7 +8,8 @@
     "buyNow": "Buy now",
     "addToCartFull": "Add to cart",
     "addedToCart": "Added to cart",
-    "customBracelet": "Custom bracelet"
+    "customBracelet": "Custom bracelet",
+    "tagsLabel": "Tags"
   },
   "categories": {
     "crystal": "Crystal Bracelets",

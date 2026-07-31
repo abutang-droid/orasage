@@ -15,15 +15,25 @@ import {
 import type { Product } from '@/lib/products';
 import { useShopLocale } from '@/components/ShopLocaleProvider';
 import { formatShopPrice, resolvePriceCents } from '@/lib/currency';
+import { localizeFiveElement } from '@/lib/pdp-i18n';
 import { useCart } from '@/lib/cart';
 import { ProductImage } from './ProductImage';
+
+function productDisplayTags(product: Product, locale: string): string[] {
+  const fromApi = (product.tags ?? [])
+    .map((t) => t.label?.trim())
+    .filter((label): label is string => Boolean(label));
+  if (fromApi.length > 0) return fromApi;
+  const element = localizeFiveElement(product.element, locale);
+  return element ? [element] : [];
+}
 
 export function ProductCard({ product }: { product: Product }) {
   const t = useTranslations('product');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
-  const { currency } = useShopLocale();
+  const { locale, currency } = useShopLocale();
   const { addItem } = useCart();
 
   const displayCents = product.priceCentsResolved
@@ -32,6 +42,8 @@ export function ProductCard({ product }: { product: Product }) {
       currency,
     );
   const displayPrice = product.priceDisplay ?? formatShopPrice(displayCents, currency);
+  const tags = productDisplayTags(product, locale);
+  const badgeLabel = tags[0];
 
   async function handleBuy() {
     setLoading(true);
@@ -74,8 +86,6 @@ export function ProductCard({ product }: { product: Product }) {
     window.setTimeout(() => setAdded(false), 1500);
   }
 
-  const badgeLabel = product.element;
-
   return (
     <Card variant="interactive" className="flex h-full flex-col p-3 shadow-none">
       <Link href={`/product/${encodeURIComponent(product.sku)}`} className="shop-product-card-link">
@@ -91,6 +101,15 @@ export function ProductCard({ product }: { product: Product }) {
         <CardTitle className="shop-product-name text-base font-semibold leading-snug">
           {product.name}
         </CardTitle>
+        {tags.length > 0 ? (
+          <div className="shop-product-tags" aria-label={t('tagsLabel')}>
+            {tags.map((label) => (
+              <span key={label} className="shop-product-tag">
+                {label}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <CardDescription className="shop-product-desc line-clamp-2">
           {product.desc}
         </CardDescription>
