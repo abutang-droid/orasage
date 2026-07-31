@@ -9,6 +9,7 @@ import { BlessingScreen } from "@/components/temple/BlessingScreen"
 import { TempleHome } from "@/components/temple/TempleHome"
 import { useTempleCopy } from "@/lib/i18n/ui-strings"
 import { formatFaithLabel } from "@/lib/faiths/religions"
+import { resolveCountryLabel } from "@/lib/geo/country-label"
 import { FAITH_STORAGE_KEY, isSkippedFaith, SKIP_FAITH_ID } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
@@ -252,6 +253,11 @@ function TemplePageContent() {
     [selectedDeity, selectedFaith],
   )
 
+  const countryDisplayName = useMemo(
+    () => resolveCountryLabel(user?.countryCode ?? selectedCountry, [], temple.lang),
+    [user?.countryCode, selectedCountry, temple.lang],
+  )
+
   if (phase === "journey") {
     return (
       <GeoJourneyPicker
@@ -289,7 +295,7 @@ function TemplePageContent() {
             <h1>{temple.pickTitle}</h1>
             <p>
               {selectedFaith
-                ? temple.pickWithFaith(formatFaithLabel(selectedFaith, undefined, temple.lang), selectedCountry)
+                ? temple.pickWithFaith(formatFaithLabel(selectedFaith, undefined, temple.lang), countryDisplayName)
                 : temple.pickSimple}
             </p>
           </div>
