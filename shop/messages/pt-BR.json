@@ -391,5 +391,10 @@
         "note": "Um consultor entrará em contato para confirmar o horário"
       }
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. Todos os direitos reservados.",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço"
   }
 }

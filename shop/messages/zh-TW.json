@@ -391,5 +391,10 @@
         "note": "付款後顧問將聯繫確認時段"
       }
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. 保留所有權利。",
+    "privacy": "隱私政策",
+    "terms": "服務條款"
   }
 }

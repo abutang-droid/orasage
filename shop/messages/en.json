@@ -391,5 +391,10 @@
         "note": "An advisor will contact you to confirm the time"
       }
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   }
 }
