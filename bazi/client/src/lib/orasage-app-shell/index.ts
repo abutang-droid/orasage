@@ -3,7 +3,10 @@ export type { AppShellProps, LocaleOption } from './AppShell';
 export { OrasageAuthChip } from './OrasageAuthChip';
 export { SiteTopNav } from './SiteTopNav';
 export { LocaleSwitcher } from './LocaleSwitcher';
+export { PortalFooter } from './PortalFooter';
+export type { PortalFooterProps } from './PortalFooter';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
+export { pickLabel, SHELL_LABELS } from './labels';
 export type { AppId, NavContext } from './config';
 export {
   appBrandLabel,
