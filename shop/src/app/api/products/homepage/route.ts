@@ -1,15 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { detectShopLocale, SHOP_LOCALE_COOKIE, SHOP_LOCALE_OVERRIDE_COOKIE } from '../../../../../../shared/shop-locale/index';
 
 const authInternalUrl = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const jar = await cookies();
     const hdrs = await headers();
     const locale = detectShopLocale({
+      queryLocale: req.nextUrl.searchParams.get('locale') || req.nextUrl.searchParams.get('lang'),
       cookieLocale: jar.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value ?? jar.get(SHOP_LOCALE_COOKIE)?.value,
       acceptLanguage: hdrs.get('accept-language'),
     });
@@ -28,7 +29,7 @@ export async function GET() {
       ...p,
       imageUrl: imageMap.get(p.sku) ?? null,
     }));
-    return NextResponse.json({ ...data, products });
+    return NextResponse.json({ ...data, products, locale });
   } catch (err) {
     console.warn('[shop] homepage products fallback:', err);
     const { FALLBACK_PRODUCTS, categoryLabels } = await import('@/lib/products');

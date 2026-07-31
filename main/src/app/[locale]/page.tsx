@@ -15,7 +15,7 @@ export default async function HomePage({ params }: Props) {
   });
 
   const [homepageCatalog, hero] = await Promise.all([
-    fetchHomepageCatalog(),
+    fetchHomepageCatalog(locale),
     fetchHomeHero(locale, fallback),
   ]);
 

@@ -26,10 +26,19 @@ const FALLBACK_CRYSTALS: HomepageCatalogItem[] = [
   { sku: 'report-bazi-basic', name: '八字深度解读', element: null, desc: '完整命盘 AI 解读报告', priceDisplay: '', category: 'report', categoryLabel: '数字报告', shopUrl: 'https://shop.orasage.com?sku=report-bazi-basic' },
 ];
 
-export async function fetchHomepageCatalog(): Promise<HomepageCatalog> {
+const CATEGORY_LABELS: Record<string, Record<ProductCategory, string>> = {
+  'zh-CN': { crystal: '水晶手串', report: '数字报告', service: '能量咨询' },
+  en: { crystal: 'Crystal Bracelets', report: 'Digital Reports', service: 'Energy Consultations' },
+  'pt-BR': { crystal: 'Pulseiras de Cristal', report: 'Relatórios Digitais', service: 'Consultas Energéticas' },
+};
+
+export async function fetchHomepageCatalog(locale = 'zh-CN'): Promise<HomepageCatalog> {
   const shopUrl = process.env.SHOP_URL ?? 'https://shop.orasage.com';
   try {
-    const res = await fetch(`${shopUrl}/api/products/homepage`, { next: { revalidate: 60 } });
+    const res = await fetch(
+      `${shopUrl}/api/products/homepage?locale=${encodeURIComponent(locale)}`,
+      { next: { revalidate: 60 } },
+    );
     if (!res.ok) throw new Error(`shop homepage API ${res.status}`);
     const data = await res.json() as {
       products: Array<{
@@ -63,7 +72,7 @@ export async function fetchHomepageCatalog(): Promise<HomepageCatalog> {
       products,
       categories: data.categories?.length
         ? data.categories
-        : deriveCategories(products),
+        : deriveCategories(products, locale),
     };
   } catch {
     return {
@@ -71,17 +80,13 @@ export async function fetchHomepageCatalog(): Promise<HomepageCatalog> {
         ...p,
         shopUrl: `${shopUrl}?sku=${encodeURIComponent(p.sku)}`,
       })),
-      categories: deriveCategories(FALLBACK_CRYSTALS),
+      categories: deriveCategories(FALLBACK_CRYSTALS, locale),
     };
   }
 }
 
-function deriveCategories(products: HomepageCatalogItem[]) {
-  const labels: Record<ProductCategory, string> = {
-    crystal: '水晶手串',
-    report: '数字报告',
-    service: '能量咨询',
-  };
+function deriveCategories(products: HomepageCatalogItem[], locale = 'zh-CN') {
+  const labels = CATEGORY_LABELS[locale] ?? CATEGORY_LABELS.en ?? CATEGORY_LABELS['zh-CN'];
   const ids = new Set(products.map((p) => p.category));
   return (['crystal', 'report', 'service'] as const)
     .filter((id) => ids.has(id))
