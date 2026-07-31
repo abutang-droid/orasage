@@ -44,18 +44,18 @@ export function extractSectionKeywords(content: string, sectionTitle?: string): 
   const keywords: string[] = [];
   const seen = new Set<string>();
 
-  for (const m of content.matchAll(/[「『【]([^「」『』【】]{2,10})[」』】]/g)) {
+  for (const m of Array.from(content.matchAll(/[「『【]([^「」『』【】]{2,10})[」』】]/g))) {
     addKeyword(keywords, seen, m[1]);
   }
 
   for (const pat of BAZI_PATTERNS) {
     const re = new RegExp(pat.source, pat.flags);
-    for (const m of content.matchAll(re)) {
+    for (const m of Array.from(content.matchAll(re))) {
       addKeyword(keywords, seen, m[0]);
     }
   }
 
-  for (const m of content.matchAll(/\*\*([^*\n]{2,10})\*\*/g)) {
+  for (const m of Array.from(content.matchAll(/\*\*([^*\n]{2,10})\*\*/g))) {
     addKeyword(keywords, seen, m[1]);
   }
 
