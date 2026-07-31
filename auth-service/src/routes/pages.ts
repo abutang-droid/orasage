@@ -92,7 +92,11 @@ function registerCardHtml(locale: string, redirect: string): string {
               <label class="auth-label" for="reg-password">${c.password}</label>
               <input id="reg-password" class="auth-input" type="password" name="password" required minlength="6" autocomplete="new-password" placeholder="${esc(c.passwordPlaceholder)}">
             </div>
-            <p id="form-error" class="auth-error" role="alert" hidden></p>
+            <label class="auth-consent" for="reg-consent">
+              <input id="reg-consent" type="checkbox" name="acceptServiceAgreement" value="1" required>
+              <span>${c.consentHtml}</span>
+            </label>
+            <p id="form-error" class="auth-error" role="alert" hidden data-consent-required="${esc(c.consentRequired)}"></p>
             <button type="submit" class="auth-submit">${c.registerBtn}</button>
           </form>
           <footer class="auth-card-footer">

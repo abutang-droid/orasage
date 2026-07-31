@@ -1,4 +1,5 @@
 import { toCoreLocale } from '../../../packages/i18n/src/index.ts';
+import { mainLegalUrl } from '../../../shared/legal/index.ts';
 
 export type AuthPageCopy = {
   loginTitle: string;
@@ -17,11 +18,34 @@ export type AuthPageCopy = {
   nicknamePlaceholder: string;
   emailPlaceholder: string;
   passwordPlaceholder: string;
+  /** HTML（含协议链接） */
+  consentHtml: string;
+  consentRequired: string;
 };
 
-type CoreLocale = ReturnType<typeof toCoreLocale>;
+/** auth 页文案语言：含繁体（toCoreLocale 会把 zh-* 收成 zh-CN） */
+type AuthLocale = 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
 
-const COPY: Record<CoreLocale, AuthPageCopy> = {
+function normalizeAuthLocale(locale: string): AuthLocale {
+  if (locale === 'zh-TW' || locale === 'zh-HK') return 'zh-TW';
+  const core = toCoreLocale(locale);
+  if (core === 'zh-CN' || core === 'en' || core === 'pt-BR') return core;
+  return 'en';
+}
+
+function consentHtmlFor(locale: AuthLocale): string {
+  const serviceHref = mainLegalUrl('service', locale);
+  const privacyHref = mainLegalUrl('privacy', locale);
+  const map: Record<AuthLocale, string> = {
+    'zh-CN': `我已阅读并同意 <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">服务协议</a> 与 <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">隐私政策</a>`,
+    'zh-TW': `我已閱讀並同意 <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">服務協議</a> 與 <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">隱私政策</a>`,
+    en: `I have read and agree to the <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">Privacy Policy</a>`,
+    'pt-BR': `Li e concordo com o <a href="${serviceHref}" target="_blank" rel="noopener noreferrer">Termo de Serviço</a> e a <a href="${privacyHref}" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>`,
+  };
+  return map[locale];
+}
+
+const COPY: Record<AuthLocale, Omit<AuthPageCopy, 'consentHtml'>> = {
   'zh-CN': {
     loginTitle: '登录以继续',
     loginLead: '登录后可同步测试对象、占卜记录与订单',
@@ -39,6 +63,7 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: '可选，用于显示名称',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: '至少 6 位',
+    consentRequired: '请先勾选同意服务协议与隐私政策',
   },
   'zh-TW': {
     loginTitle: '登入以繼續',
@@ -57,6 +82,7 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: '選填，用於顯示名稱',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: '至少 6 個字元',
+    consentRequired: '請先勾選同意服務協議與隱私政策',
   },
   en: {
     loginTitle: 'Sign in to continue',
@@ -75,6 +101,7 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: 'Optional display name',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: 'At least 6 characters',
+    consentRequired: 'Please accept the Terms of Service and Privacy Policy',
   },
   'pt-BR': {
     loginTitle: 'Entrar para continuar',
@@ -93,25 +120,28 @@ const COPY: Record<CoreLocale, AuthPageCopy> = {
     nicknamePlaceholder: 'Nome de exibição opcional',
     emailPlaceholder: 'name@example.com',
     passwordPlaceholder: 'Pelo menos 6 caracteres',
+    consentRequired: 'Aceite o Termo de Serviço e a Política de Privacidade',
   },
 };
 
-const normalizeLocale = toCoreLocale;
-
 export function authPageCopy(locale: string): AuthPageCopy {
-  return COPY[normalizeLocale(locale)];
+  const core = normalizeAuthLocale(locale);
+  return {
+    ...COPY[core],
+    consentHtml: consentHtmlFor(core),
+  };
 }
 
 export function authLoginLabel(locale: string): string {
-  return COPY[normalizeLocale(locale)].loginBtn;
+  return COPY[normalizeAuthLocale(locale)].loginBtn;
 }
 
 export function authRequestFailed(locale: string): string {
-  const map: Record<CoreLocale, string> = {
+  const map: Record<AuthLocale, string> = {
     'zh-CN': '请求失败',
     'zh-TW': '請求失敗',
     en: 'Request failed',
     'pt-BR': 'Falha na solicitação',
   };
-  return map[normalizeLocale(locale)];
+  return map[normalizeAuthLocale(locale)];
 }

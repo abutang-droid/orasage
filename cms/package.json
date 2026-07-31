@@ -14,6 +14,7 @@
     "seed:tarot-geo": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-tarot-geo.ts",
     "seed:shop-demo": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-shop-product-demo.ts",
     "seed:shop-pages-all": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-shop-product-pages-all.ts",
+    "seed:legal": "cross-env NODE_OPTIONS=--no-deprecation npx tsx scripts/seed-legal-agreements.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3120"
   },

@@ -18,6 +18,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '缺少订单号' }, { status: 400 });
   }
 
+  let acceptProductAgreement = false;
+  try {
+    const body = await req.json().catch(() => ({}));
+    acceptProductAgreement = body?.acceptProductAgreement === true;
+  } catch {
+    acceptProductAgreement = false;
+  }
+  if (!acceptProductAgreement) {
+    return NextResponse.json({ error: '请先同意商品服务协议' }, { status: 400 });
+  }
+
   try {
     const order = await getOrderByNo(orderNo);
     if (!order) {

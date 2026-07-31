@@ -1,14 +1,15 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useRef, useState, Suspense, useCallback, type ReactNode } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutCouponForm, type CouponState } from '@/components/CheckoutCouponForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
+import { LEGAL_AGREEMENT_VERSION_DEFAULT, mainLegalUrl } from '../../../../shared/legal/index';
 
 type CheckoutOrder = {
   orderNo: string;
@@ -54,6 +55,7 @@ function appendOrderToReturnUrl(returnUrl: string, orderNo: string): string {
 
 function CheckoutContent() {
   const t = useTranslations('checkout');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clear: clearCart } = useCart();
@@ -81,6 +83,8 @@ function CheckoutContent() {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [guestLoading, setGuestLoading] = useState(false);
+  const [acceptServiceAgreement, setAcceptServiceAgreement] = useState(false);
+  const [acceptProductAgreement, setAcceptProductAgreement] = useState(false);
 
   const [flowPhase, setFlowPhase] = useState<'idle' | 'shipping' | 'paying' | 'done' | 'error'>('idle');
   const [payError, setPayError] = useState<string | null>(null);
@@ -89,6 +93,31 @@ function CheckoutContent() {
   const payingRef = useRef(false);
   const guestStartedRef = useRef(false);
   const autoFlowOrderRef = useRef<string | null>(null);
+
+  const serviceUrl = mainLegalUrl('service', locale);
+  const privacyUrl = mainLegalUrl('privacy', locale);
+  const productUrl = mainLegalUrl('product', locale);
+
+  const serviceConsentLabel = t.rich('serviceConsentLabel', {
+    service: (chunks: ReactNode) => (
+      <a href={serviceUrl} target="_blank" rel="noopener noreferrer" className="underline text-sage-primary">
+        {chunks}
+      </a>
+    ),
+    privacy: (chunks: ReactNode) => (
+      <a href={privacyUrl} target="_blank" rel="noopener noreferrer" className="underline text-sage-primary">
+        {chunks}
+      </a>
+    ),
+  });
+
+  const productConsentLabel = t.rich('productConsentLabel', {
+    product: (chunks: ReactNode) => (
+      <a href={productUrl} target="_blank" rel="noopener noreferrer" className="underline text-sage-primary">
+        {chunks}
+      </a>
+    ),
+  });
 
   useEffect(() => {
     setCoupleShipping(coupleFromUrl);
@@ -128,6 +157,11 @@ function CheckoutContent() {
   }, [coupleShipping]);
 
   const completePayment = useCallback(async (targetOrderNo: string) => {
+    if (!acceptProductAgreement) {
+      setPayError(t('productConsentRequired'));
+      setFlowPhase('error');
+      throw new Error(t('productConsentRequired'));
+    }
     if (payingRef.current) {
       throw new Error(t('payInProgress'));
     }
@@ -138,6 +172,8 @@ function CheckoutContent() {
       const res = await fetch(`/api/pay?order=${encodeURIComponent(targetOrderNo)}`, {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acceptProductAgreement: true }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || t('payFailed'));
@@ -155,7 +191,7 @@ function CheckoutContent() {
       setPayError(err instanceof Error ? err.message : t('payFailed'));
       throw err;
     }
-  }, [returnUrl, router, clearCart, t]);
+  }, [acceptProductAgreement, returnUrl, router, clearCart, t]);
 
   const onCouponUpdated = useCallback((next: CouponState) => {
     setCouponPricing(next);
@@ -168,26 +204,25 @@ function CheckoutContent() {
     } : prev));
   }, []);
 
-  const runReportAutoCheckout = useCallback(async (
+  /** 报告类数字订单：仅自动填模拟收货，支付需用户勾选协议后手动确认 */
+  const runReportAutoShipping = useCallback(async (
     targetOrderNo: string,
     needsShipping: boolean,
     alreadyShipped: boolean,
   ) => {
     if (autoFlowOrderRef.current === targetOrderNo) return;
+    if (!needsShipping || alreadyShipped) return;
     autoFlowOrderRef.current = targetOrderNo;
-    setFlowPhase(needsShipping && !alreadyShipped ? 'shipping' : 'paying');
+    setFlowPhase('shipping');
     try {
-      if (needsShipping && !alreadyShipped) {
-        await submitMockShipping(targetOrderNo);
-      }
-      await completePayment(targetOrderNo);
+      await submitMockShipping(targetOrderNo);
+      setFlowPhase('idle');
     } catch (err) {
       autoFlowOrderRef.current = null;
-      payingRef.current = false;
       setFlowPhase('error');
       setPayError(err instanceof Error ? err.message : t('checkoutFailed'));
     }
-  }, [submitMockShipping, completePayment]);
+  }, [submitMockShipping, t]);
 
   useEffect(() => {
     if (orderNo) {
@@ -216,9 +251,10 @@ function CheckoutContent() {
           if (
             REPORT_APP_SOURCES.has(loadedOrder.appSource ?? appSource)
             && loadedOrder.status === 'pending'
-            && !loadedFulfillment.requiresShipping
+            && loadedFulfillment.requiresShipping
+            && !hasShipping
           ) {
-            void runReportAutoCheckout(
+            void runReportAutoShipping(
               orderNo,
               loadedFulfillment.requiresShipping,
               hasShipping,
@@ -332,6 +368,10 @@ function CheckoutContent() {
       setEmailError(t('emailRequired'));
       return;
     }
+    if (!acceptServiceAgreement) {
+      setEmailError(t('serviceConsentRequired'));
+      return;
+    }
     setGuestLoading(true);
     setEmailError(null);
     try {
@@ -339,7 +379,11 @@ function CheckoutContent() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({
+          email: trimmed,
+          acceptServiceAgreement: true,
+          agreementVersion: LEGAL_AGREEMENT_VERSION_DEFAULT,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || t('emailVerifyFailed'));
@@ -455,6 +499,15 @@ function CheckoutContent() {
             <p className="mt-3 text-xs text-sage-muted leading-relaxed">
               {t('emailConsent')}
             </p>
+            <label className="mt-3 flex items-start gap-2 text-left text-xs text-sage-muted leading-relaxed cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={acceptServiceAgreement}
+                onChange={(e) => setAcceptServiceAgreement(e.target.checked)}
+              />
+              <span>{serviceConsentLabel}</span>
+            </label>
             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
             <Button type="submit" disabled={guestLoading} loading={guestLoading} className="mt-6 w-full">
               {guestLoading ? t('processing') : t('continueUnlock')}
@@ -487,32 +540,27 @@ function CheckoutContent() {
         <h1 className="font-serif text-2xl text-sage-primary">{t('unlockReport')}</h1>
         <p className="mt-2 text-sm text-sage-muted">{order.title}</p>
         <p className="mt-1 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
+        <label className="mt-6 flex w-full max-w-sm items-start gap-2 text-left text-xs text-sage-muted leading-relaxed cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={acceptProductAgreement}
+            onChange={(e) => setAcceptProductAgreement(e.target.checked)}
+          />
+          <span>{productConsentLabel}</span>
+        </label>
         {payError ? (
-          <>
-            <p className="mt-4 text-sm text-red-600">{payError}</p>
-            <Button
-              type="button"
-              className="mt-6 px-8"
-              onClick={() => {
-                autoFlowOrderRef.current = null;
-                payingRef.current = false;
-                setFlowPhase('idle');
-                setPayError(null);
-                void runReportAutoCheckout(
-                  orderNo,
-                  fulfillment?.requiresShipping ?? false,
-                  shippingDone,
-                );
-              }}
-            >
-              {t('retry')}
-            </Button>
-          </>
-        ) : (
-          <p className="mt-6 text-sm text-sage-primary">
-            {flowPhase === 'shipping' ? t('confirmingShipping') : flowPhase === 'done' ? t('unlockSuccess') : t('mockPayProcessing')}
-          </p>
-        )}
+          <p className="mt-4 text-sm text-red-600">{payError}</p>
+        ) : null}
+        <Button
+          type="button"
+          className="mt-6 px-8"
+          disabled={flowPhase === 'paying'}
+          loading={flowPhase === 'paying'}
+          onClick={() => void completePayment(orderNo)}
+        >
+          {flowPhase === 'paying' ? t('processing') : flowPhase === 'done' ? t('unlockSuccess') : t('mockPay')}
+        </Button>
       </main>
     );
   }
@@ -562,6 +610,15 @@ function CheckoutContent() {
       </div>
       <p className="mt-3 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
       <p className="mt-3 text-sm text-sage-muted">{t('orderNo', { orderNo })}</p>
+      <label className="mt-6 flex w-full max-w-sm items-start gap-2 text-left text-xs text-sage-muted leading-relaxed cursor-pointer">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={acceptProductAgreement}
+          onChange={(e) => setAcceptProductAgreement(e.target.checked)}
+        />
+        <span>{productConsentLabel}</span>
+      </label>
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
       <Button
         type="button"
