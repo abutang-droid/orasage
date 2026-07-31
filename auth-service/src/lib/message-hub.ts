@@ -123,18 +123,28 @@ export function pushHubOpsNotification(subject: string, text: string): void {
 }
 
 /** 发送 Telegram 并返回 message_id（IM 桥接用）。 */
-export async function sendHubTelegramReturningId(text: string): Promise<number | null> {
+export async function sendHubTelegramReturningId(
+  text: string,
+  options?: { chatId?: string; messageThreadId?: number },
+): Promise<number | null> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatIds = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-  if (!token || chatIds.length === 0) {
-    warnOnce("tg", "Telegram 通道未配置（TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID），跳过");
+  const chatId = options?.chatId ?? resolveImChatId();
+  if (!token || !chatId) {
+    warnOnce("tg", "Telegram 通道未配置（TELEGRAM_BOT_TOKEN / TELEGRAM_IM_CHAT_ID），跳过");
     return null;
   }
-  const chatId = chatIds[0];
+  const payload: Record<string, unknown> = {
+    chat_id: chatId,
+    text,
+    disable_web_page_preview: true,
+  };
+  if (options?.messageThreadId) {
+    payload.message_thread_id = options.messageThreadId;
+  }
   const res = await timedFetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
@@ -143,4 +153,37 @@ export async function sendHubTelegramReturningId(text: string): Promise<number |
   }
   const data = (await res.json().catch(() => null)) as { result?: { message_id?: number } } | null;
   return data?.result?.message_id ?? null;
+}
+
+/** IM 客服超级群 id；可与订单通知群分开。 */
+export function resolveImChatId(): string | null {
+  const im = (process.env.TELEGRAM_IM_CHAT_ID ?? "").trim();
+  if (im) return im;
+  const fallback = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  return fallback[0] ?? null;
+}
+
+/** 在 Forum 超级群创建话题，返回 message_thread_id。 */
+export async function createTelegramForumTopic(name: string): Promise<number | null> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = resolveImChatId();
+  if (!token || !chatId) return null;
+
+  const res = await timedFetch(`https://api.telegram.org/bot${token}/createForumTopic`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      name: name.slice(0, 128),
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`[message-hub] createForumTopic 失败 (${res.status}): ${body.slice(0, 200)}`);
+    return null;
+  }
+  const data = (await res.json().catch(() => null)) as {
+    result?: { message_thread_id?: number };
+  } | null;
+  return data?.result?.message_thread_id ?? null;
 }
