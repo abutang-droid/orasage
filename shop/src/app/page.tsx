@@ -28,7 +28,6 @@ async function loadFeaturedSkus(locale: string): Promise<string[]> {
 
 export default async function ShopPage() {
   const locale = await getServerShopLocale();
-  const th = await getTranslations('home');
   const tc = await getTranslations('catalog');
   const [user, products, imageMap, featuredSkus, homeLayout] = await Promise.all([
     getAuthUser(),
@@ -62,12 +61,6 @@ export default async function ShopPage() {
           <ProductCatalog products={productsWithImages} featuredSkus={featuredSkus} />
         </Suspense>
       )}
-
-      <p className="shop-footer-note">
-        {th('footerNote')}{' '}
-        <a href="https://auth.orasage.com/center">{th('userCenter')}</a>
-        {th('footerView') ? ` ${th('footerView')}` : ''}
-      </p>
     </main>
   );
 }
