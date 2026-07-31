@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ProductCategory } from '@/lib/products';
+import { localizeFiveElement } from '@/lib/pdp-i18n';
+import { getServerShopLocale } from '@/lib/currency-server';
 
 type ProductBrandClosureProps = {
   element?: string | null;
@@ -30,6 +32,7 @@ function closureKey(sku: string, category: ProductCategory): ClosureKey {
   if (category === 'report') {
     if (sku.includes('bazi')) return 'reportBazi';
     if (sku.includes('ziwei')) return 'reportZiwei';
+    if (sku.includes('tarot')) return 'reportTarot';
     return 'reportTarot';
   }
   if (sku === 'temple-donation') return 'temple';
@@ -42,15 +45,17 @@ export async function ProductBrandClosure({
   sku,
   category,
 }: ProductBrandClosureProps) {
+  const locale = await getServerShopLocale();
   const t = await getTranslations('pdp');
   const key = closureKey(sku, category);
   const prefix = `closure.${key}` as const;
+  const localizedElement = localizeFiveElement(element, locale);
 
   const title = t(`${prefix}.title`);
   const sub = t(`${prefix}.sub`);
   const body =
-    key === 'crystal' && element
-      ? t(`${prefix}.bodyWithElement`, { element })
+    key === 'crystal' && localizedElement
+      ? t(`${prefix}.bodyWithElement`, { element: localizedElement })
       : t(`${prefix}.body`);
   const cta = t(`${prefix}.cta`);
   const note = t(`${prefix}.note`);

@@ -246,6 +246,8 @@
     "disc": "Disc"
   },
   "pdp": {
+    "backToShop": "Back to shop",
+    "notFoundTitle": "Product not found",
     "attachmentsTitle": "Downloads",
     "mediaLinksTitle": "Media & User Stories",
     "linkKind": {
@@ -253,6 +255,56 @@
       "media": "Media",
       "review": "Review",
       "article": "Article"
+    },
+    "eyebrowElement": "Element · {element} · {material}",
+    "eyebrowMaterial": "{material}",
+    "materials": {
+      "crystal-wood": "Natural Green Phantom Quartz",
+      "crystal-fire": "Natural Red Agate",
+      "crystal-earth": "Natural Citrine",
+      "crystal-metal": "Natural Clear Quartz",
+      "crystal-water": "Natural Obsidian"
+    },
+    "elements": {
+      "木": "Wood",
+      "火": "Fire",
+      "土": "Earth",
+      "金": "Metal",
+      "水": "Water"
+    },
+    "reportBazi": "BaZi reading · Digital report",
+    "reportZiwei": "Zi Wei · Digital report",
+    "reportTarot": "Tarot reading · Digital report",
+    "serviceConsult": "Energy consult · 1:1",
+    "ziweiChatPack": "Zi Wei chat · Credit pack",
+    "ziweiChatYearly": "Zi Wei chat · Annual",
+    "templeDonation": "Temple blessing · Voluntary gift",
+    "accordion": {
+      "energyDetails": "Energy details",
+      "productDetails": "Product details",
+      "reportDetails": "Report details",
+      "serviceDetails": "Service details",
+      "spiritualStory": "Spiritual story",
+      "deepReading": "Deep reading",
+      "moreAbout": "More about",
+      "pairingGuide": "Wear guide & pairing",
+      "upgradePath": "Upgrade path",
+      "wearGuide": "Wear guide",
+      "wearGuidePairing": "Wear guide & pairing",
+      "upgradeGuide": "Usage & upgrades",
+      "specs": "Specifications",
+      "faq": "FAQ",
+      "related": "Resonate with"
+    },
+    "gallery": {
+      "imagesAria": "Product images",
+      "imageAria": "Image {n}",
+      "videoAria": "Product video"
+    },
+    "manifest": {
+      "wear": "Wear to Manifest",
+      "read": "Read to Manifest",
+      "act": "Act to Manifest"
     },
     "sceneEyebrow": "In Scene",
     "sceneAria": "{name} in scene",
@@ -339,5 +391,10 @@
         "note": "An advisor will contact you to confirm the time"
       }
     }
+  },
+  "footer": {
+    "copyright": "© 2026 OraSage. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   }
 }
