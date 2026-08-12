@@ -329,7 +329,11 @@
       "contact": "Contact",
       "privacy": "Privacy policy",
       "terms": "Terms of service",
-      "noBody": "No content"
+      "noBody": "No content",
+      "shipping": "配送政策",
+      "returns": "退貨與退款",
+      "shippingFallback": "實體商品依訂單收貨地址出貨，通常於付款後 3–7 個工作日內寄出；國際配送時效因目的地而異。數位商品／報告於付款成功後即時解鎖。運費與可達區域以結帳頁為準。",
+      "returnsFallback": "未開封且不影響二次銷售的實體商品，可於簽收後 7 日內申請退換。客製類、已開封配戴及數位商品（已解鎖報告）原則上不支援無理由退貨；品質問題請透過「聯絡我們」提交訂單號與憑證。"
     },
     "merit": {
       "title": "Merit details",

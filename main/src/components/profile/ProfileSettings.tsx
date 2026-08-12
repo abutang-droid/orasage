@@ -7,11 +7,14 @@ import { useProfileAuth } from './ProfileAuth';
 import { ProfileAccountCard } from './ProfileAccountCard';
 import { ProfileLoginCard } from './ProfileLoginCard';
 
+/** 帮助与法律 — 公开页，未登录可见（与页脚 / 设计规范一致） */
 const LEGAL_LINKS = [
   { href: '/profile/about', labelKey: 'about' },
-  { href: '/profile/contact', labelKey: 'contact' },
-  { href: '/profile/privacy', labelKey: 'privacy' },
-  { href: '/profile/terms', labelKey: 'terms' },
+  { href: '/contact', labelKey: 'contact' },
+  { href: '/privacy', labelKey: 'privacy' },
+  { href: '/terms', labelKey: 'terms' },
+  { href: '/shipping', labelKey: 'shipping' },
+  { href: '/returns', labelKey: 'returns' },
 ] as const;
 
 const SIGNED_IN_LINKS = [{ href: '/profile/tickets', labelKey: 'tickets' }] as const;
@@ -25,7 +28,7 @@ export function ProfileSettings({ locale }: { locale: string }) {
   const t = useTranslations('profile.settings');
   const tLegal = useTranslations('profile.legal');
   const tTickets = useTranslations('profile.tickets');
-  const { user } = useProfileAuth();
+  const { user, loading } = useProfileAuth();
 
   return (
     <div className="space-y-6">
@@ -35,7 +38,13 @@ export function ProfileSettings({ locale }: { locale: string }) {
           <p className="text-sm text-muted-foreground">{t('accountDesc')}</p>
         </CardHeader>
         <CardContent className="p-0 pb-4">
-          {!user ? <ProfileLoginCard locale={locale} variant="gate" /> : <ProfileAccountCard embedded />}
+          {loading ? (
+            <div className="mx-4 mb-2 h-20 animate-pulse rounded-md bg-muted" aria-hidden />
+          ) : !user ? (
+            <ProfileLoginCard locale={locale} variant="gate" />
+          ) : (
+            <ProfileAccountCard embedded />
+          )}
         </CardContent>
       </Card>
 

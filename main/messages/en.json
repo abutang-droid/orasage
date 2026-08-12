@@ -289,7 +289,7 @@
       "notSet": "Not set",
       "notChosen": "Not chosen",
       "helpTitle": "Help & legal",
-      "helpDesc": "About, contact, and policies"
+      "helpDesc": "About, contact, privacy, terms, shipping, and returns"
     },
     "profiles": {
       "title": "Saved charts",
@@ -372,6 +372,10 @@
       "contact": "Contact",
       "privacy": "Privacy policy",
       "terms": "Terms of service",
+      "shipping": "Shipping policy",
+      "returns": "Returns & refunds",
+      "shippingFallback": "Physical orders ship to the address on your order, usually within 3–7 business days after payment. International delivery times vary by destination. Digital products unlock immediately after payment. Shipping fees and coverage are shown at checkout.",
+      "returnsFallback": "Unopened physical items in resalable condition may be returned within 7 days of delivery. Custom, worn, opened, and digital goods (unlocked reports) are generally non-refundable except for quality issues — contact us with your order number and proof.",
       "noBody": "No content"
     },
     "contact": {

@@ -8,6 +8,9 @@ export function getPortalSectionKey(pathname: string): string | null {
   if (p === '/about') return 'about';
   if (p === '/terms') return 'terms';
   if (p === '/privacy') return 'privacy';
+  if (p === '/shipping') return 'shipping';
+  if (p === '/returns') return 'returns';
+  if (p === '/contact') return 'contact';
   if (p === '/faq') return 'faq';
   if (p === '/profile' || p.startsWith('/profile/')) return 'profile';
   return null;
