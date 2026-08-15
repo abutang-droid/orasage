@@ -28,6 +28,11 @@ npm run android    # 需 Android Studio 模拟器，或用 Expo Go 扫码
 - `EXPO_PUBLIC_AUTH_URL` — auth-service 基址，默认 `https://auth.orasage.com`。
   本地联调设为 `http://127.0.0.1:3101`（需先按仓库 AGENTS.md 启动 auth-service）。
 
+本地联调注意：auth-service 的 `npm start` 固定 `NODE_ENV=production`，
+此时 CORS 只放行 `CORS_ORIGINS` 白名单。浏览器里跑 `npm run web` 联调时需
+`CORS_ORIGINS=http://localhost:8081` 启动 auth-service（原生 App 内的 fetch
+不受 CORS 限制，生产无需此配置）。
+
 ## iOS / Android 出包（EAS Build，需要开发者账号）
 
 一次性准备：
