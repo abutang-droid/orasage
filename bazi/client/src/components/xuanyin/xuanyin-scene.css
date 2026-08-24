@@ -304,6 +304,14 @@
   border-top: 1px solid rgba(46, 41, 91, 0.08);
 }
 
+.xy-dock--with-tabs {
+  padding-bottom: 8px;
+}
+
+.xy-stage--with-tabs {
+  padding-bottom: 4px;
+}
+
 .xy-line-box {
   background: var(--xy-paper);
   border: 1px solid rgba(46, 41, 91, 0.1);

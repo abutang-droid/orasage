@@ -87,10 +87,12 @@ export default function XuanYinScenePage() {
     }, wait);
   }, []);
 
+  const canTalk = phase === 'dialogue' || (phase === 'result' && tab === 'assistant');
+
   const submitUser = useCallback(
     (raw: string) => {
       const text = raw.trim();
-      if (!text || busy || phase !== 'dialogue') return;
+      if (!text || busy || !canTalk) return;
       setBusy(true);
       setListening(false);
       setInput('');
@@ -116,7 +118,7 @@ export default function XuanYinScenePage() {
         });
       }, THINK_MS);
     },
-    [busy, phase, step, collected, speakAsXuan],
+    [busy, canTalk, step, collected, speakAsXuan],
   );
 
   const onChoice = (id: string) => {
@@ -126,7 +128,7 @@ export default function XuanYinScenePage() {
   };
 
   const toggleMic = () => {
-    if (busy || phase !== 'dialogue') return;
+    if (busy || !canTalk) return;
     const SR =
       typeof window !== 'undefined'
         ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -185,8 +187,12 @@ export default function XuanYinScenePage() {
   };
 
   const backToAssistant = () => {
-    setPhase('dialogue');
+    // 保持 result 相位，底部 5 Tab 不消失；助手 Tab 内继续与玄隐对话
+    setPhase('result');
+    const switching = tab !== 'assistant';
     setTab('assistant');
+    setStep((s) => (s === 'closing_chart' ? 'done' : s));
+    if (!switching) return;
     setMood('speaking');
     const line: Line = {
       role: 'xuan',
@@ -196,16 +202,18 @@ export default function XuanYinScenePage() {
     setLog((prev) => [...prev, { ...line, id: `x${idRef.current++}`, typed: true }]);
   };
 
+  const showDialogueStage = phase !== 'result' || tab === 'assistant';
+
   return (
     <div className="xy-scene" data-phase={phase}>
       <SceneAtmosphere />
       <div className={`xy-ink-veil ${inkOn ? 'xy-ink-veil--on' : ''}`} />
 
-      {phase !== 'result' ? (
-        <div className="xy-stage">
+      {showDialogueStage ? (
+        <div className={`xy-stage ${phase === 'result' ? 'xy-stage--with-tabs' : ''}`}>
           <div className="xy-topbar">
             <Link href="/">← 经典排盘</Link>
-            <span className="xy-brand">OraSage · 玄隐</span>
+            <span className="xy-brand">{phase === 'result' ? '追问 · 玄隐' : 'OraSage · 玄隐'}</span>
             <span style={{ width: 64 }} />
           </div>
 
@@ -221,19 +229,11 @@ export default function XuanYinScenePage() {
           </div>
         </div>
       ) : (
-        <ResultShell
-          tab={tab}
-          setTab={setTab}
-          collected={collected}
-          onAssistant={() => {
-            setTab('assistant');
-            backToAssistant();
-          }}
-        />
+        <ResultShell tab={tab} setTab={setTab} collected={collected} onAssistant={backToAssistant} />
       )}
 
-      {phase === 'dialogue' || (phase === 'result' && tab === 'assistant') ? (
-        <div className="xy-dock">
+      {canTalk ? (
+        <div className={`xy-dock ${phase === 'result' ? 'xy-dock--with-tabs' : ''}`}>
           <div className="xy-line-box">
             <div className="xy-line-head">
               <span className="xy-seal">玄隐</span>
@@ -294,6 +294,34 @@ export default function XuanYinScenePage() {
           <p className="xy-hint">语音与文字皆可；确认时请点「可是如此」以防误识。</p>
         </div>
       ) : null}
+
+      {phase === 'result' && tab === 'assistant' ? (
+        <nav className="xy-tabs" aria-label="结果导航">
+          {(
+            [
+              ['assistant', '助手'],
+              ['chart', '排盘'],
+              ['dayun', '大运'],
+              ['report', '报告'],
+              ['member', '会员'],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className="xy-tab"
+              aria-selected={tab === id}
+              onClick={() => {
+                if (id === 'assistant') {
+                  if (tab !== 'assistant') backToAssistant();
+                } else setTab(id);
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      ) : null}
     </div>
   );
 }
@@ -353,12 +381,6 @@ function ResultShell({
             <h2>会员</h2>
             <p>复用现有 `PaywallCard` / 方案选择。场景内可引导「解锁完整推演」。</p>
             <Link href="/">前往经典页查看会员方案 →</Link>
-          </section>
-        ) : null}
-        {tab === 'assistant' ? (
-          <section className="xy-result-panel">
-            <h2>助手</h2>
-            <p>回到与玄隐的对话场景，继续追问。</p>
           </section>
         ) : null}
       </div>

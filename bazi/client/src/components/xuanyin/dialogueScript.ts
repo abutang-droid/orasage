@@ -262,6 +262,19 @@ export function advanceDialogue(
     };
   }
 
+  if (step === 'closing_chart' || step === 'done') {
+    return {
+      nextStep: 'done',
+      collected,
+      xuanLines: [
+        {
+          role: 'xuan',
+          text: '此事可再细想。正式版将接真实排盘与报告；此刻你可先在「排盘」「大运」诸页浏览示意。',
+        },
+      ],
+    };
+  }
+
   return { nextStep: step, collected, xuanLines: [] };
 }
 
