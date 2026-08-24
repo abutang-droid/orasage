@@ -1,4 +1,17 @@
 {
   "install": "mkdir -p ~/.ssh && chmod 700 ~/.ssh",
-  "start": "for i in $(seq 1 30); do [ -n \"${SSH_PRIVATE_KEY:-}\" ] && break; sleep 1; done; echo 'Cloud Agent ready for bazi deploy'"
+  "start": "for i in $(seq 1 30); do [ -n \"${SSH_PRIVATE_KEY:-}\" ] && break; sleep 1; done; echo 'Cloud Agent ready for bazi deploy'",
+  "ports": [
+    {
+      "name": "bazi-xuanyin-scene",
+      "port": 3110
+    }
+  ],
+  "terminals": [
+    {
+      "name": "bazi-scene-preview",
+      "command": "cd bazi && (test -f dist/public/index.html || pnpm exec vite build) && pnpm exec vite preview --host 0.0.0.0 --port 3110",
+      "description": "BaZi Vite preview for /scene (玄隐 V3). Bind 0.0.0.0 so Cursor can port-forward to localhost:3110."
+    }
+  ]
 }
