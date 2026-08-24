@@ -153,35 +153,26 @@ export function XuanYinCharacter({ mood, className = '' }: Props) {
           fill={mouthOpen ? '#6b3a45' : '#b08978'}
         />
 
-        {/* 仙风长白须 — 实心造型，盖过胸前 */}
+        {/* 仙风长白须 — 实色填充 + 描边，确保在深色道袍上清晰可见 */}
         <path
-          d="M86 136
-             C78 150 72 170 70 196
-             C68 230 74 270 82 300
-             C90 318 102 322 110 322
-             C118 322 130 318 138 300
-             C146 270 152 230 150 196
-             C148 170 142 150 134 136
-             C128 142 118 146 110 146
-             C102 146 92 142 86 136 Z"
-          fill="url(#xyBeardFill)"
-          opacity="0.96"
+          d="M84 138 C72 158 64 190 66 228 C68 268 82 304 98 318 C104 324 110 326 110 326 C110 326 116 324 122 318 C138 304 152 268 154 228 C156 190 148 158 136 138 C128 148 118 152 110 152 C102 152 92 148 84 138 Z"
+          fill="#f3efe6"
+          stroke="#a89f8e"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
         />
-        {/* 须缕分隔线，增强飘逸感 */}
-        <path d="M98 148 Q94 210 92 290" fill="none" stroke="#b8ae9c" strokeWidth="1.1" opacity="0.45" />
-        <path d="M110 148 Q110 220 110 310" fill="none" stroke="#b8ae9c" strokeWidth="1.2" opacity="0.5" />
-        <path d="M122 148 Q126 210 128 290" fill="none" stroke="#b8ae9c" strokeWidth="1.1" opacity="0.45" />
+        <path
+          d="M92 142 C86 168 82 210 84 260 C86 292 96 312 110 318 C124 312 134 292 136 260 C138 210 134 168 128 142 C120 150 114 152 110 152 C106 152 100 150 92 142 Z"
+          fill="#faf7f1"
+          opacity="0.85"
+        />
+        {/* 须缕 */}
+        <path d="M98 154 Q94 230 96 300" fill="none" stroke="#b0a694" strokeWidth="1.3" opacity="0.55" />
+        <path d="M110 156 Q110 240 110 312" fill="none" stroke="#b0a694" strokeWidth="1.5" opacity="0.6" />
+        <path d="M122 154 Q126 230 124 300" fill="none" stroke="#b0a694" strokeWidth="1.3" opacity="0.55" />
         {/* 颊须 */}
-        <path
-          d="M78 122 C74 138 78 152 90 158 C86 146 84 132 86 124 Z"
-          fill="#f2ede4"
-          opacity="0.9"
-        />
-        <path
-          d="M142 122 C146 138 142 152 130 158 C134 146 136 132 134 124 Z"
-          fill="#f2ede4"
-          opacity="0.9"
-        />
+        <path d="M76 124 C68 142 74 160 92 164 C86 148 82 134 84 126 Z" fill="#f3efe6" stroke="#a89f8e" strokeWidth="0.8" />
+        <path d="M144 124 C152 142 146 160 128 164 C134 148 138 134 136 126 Z" fill="#f3efe6" stroke="#a89f8e" strokeWidth="0.8" />
       </svg>
 
       {mood === 'listening' ? (
