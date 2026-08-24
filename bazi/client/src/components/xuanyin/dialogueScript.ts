@@ -50,7 +50,8 @@ export function parseBirthUtterance(raw: string): Partial<CollectedBirth> | null
   const year = t.match(/(19\d{2}|20\d{2})年?/)?.[1];
   const lunar = /农历|阴历/.test(t);
   const solar = /公历|阳历/.test(t);
-  const monthNum = t.match(/(?:农历|阴历)?([正一二三四五六七八九十]+)月/)?.[1];
+  const monthCnTok = t.match(/(?:农历|阴历)?([正一二三四五六七八九十]+)月/)?.[1];
+  const monthArTok = !monthCnTok ? t.match(/(1[0-2]|[1-9])月/)?.[1] : undefined;
   const dayCn = t.match(/(初[一二三四五六七八九十]|十[一二三四五六七八九]|廿[一二三四五六七八九]|三十)日?/)?.[1];
   const dayAr = !dayCn ? t.match(/(?:月)([12]?\d|3[01])日/)?.[1] : undefined;
 
@@ -62,7 +63,7 @@ export function parseBirthUtterance(raw: string): Partial<CollectedBirth> | null
     '1': '正', '2': '二', '3': '三', '4': '四', '5': '五', '6': '六',
     '7': '七', '8': '八', '9': '九', '10': '十', '11': '十一', '12': '十二',
   };
-  const month = monthNum ? monthMap[monthNum] || monthNum : undefined;
+  const month = monthCnTok ? monthMap[monthCnTok] || monthCnTok : monthArTok;
   const dayPart = dayCn || dayAr;
 
   let hourHint: string | undefined;
