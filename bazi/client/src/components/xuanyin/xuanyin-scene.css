@@ -38,6 +38,22 @@
   overflow: hidden;
 }
 
+.xy-mountain-bg {
+  position: absolute;
+  inset: 0;
+  background-color: var(--xy-bg);
+  background-image:
+    linear-gradient(180deg, rgba(243, 238, 248, 0.5) 0%, rgba(243, 238, 248, 0.78) 52%, rgba(243, 238, 248, 0.94) 100%),
+    image-set(
+      url('/xuanyin/mist-mountains-bg.webp') type('image/webp'),
+      url('/xuanyin/mist-mountains-bg.png') type('image/png')
+    );
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.95;
+}
+
 .xy-mist {
   position: absolute;
   border-radius: 50%;
@@ -138,9 +154,59 @@
   flex-direction: column;
   align-items: center;
   margin: 0 auto 2px;
-  min-height: 300px;
+  min-height: 280px;
   flex-shrink: 0;
   overflow: visible;
+}
+
+.xy-portrait-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(72vw, 280px);
+  aspect-ratio: 2 / 3;
+  border-radius: 18px 18px 28px 28px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 40px rgba(46, 41, 91, 0.18),
+    inset 0 0 0 1px rgba(232, 213, 163, 0.35);
+  transition: transform 0.35s ease;
+}
+
+.xy-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.xy-speak-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 28%;
+  width: 42%;
+  height: 18%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(232, 213, 163, 0.45) 0%, transparent 70%);
+  animation: xy-speak-pulse 0.7s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.xy-listen-ring {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50% 50% 42% 42%;
+  border: 1.5px solid rgba(201, 168, 108, 0.45);
+  animation: xy-halo-pulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes xy-speak-pulse {
+  from { opacity: 0.35; transform: translateX(-50%) scale(0.92); }
+  to { opacity: 0.85; transform: translateX(-50%) scale(1.05); }
 }
 
 .xy-avatar {
@@ -152,11 +218,11 @@
 
 .xy-halo {
   position: absolute;
-  top: 24px;
-  width: 200px;
-  height: 200px;
+  top: 36px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(232, 213, 163, 0.42) 0%, transparent 72%);
+  background: radial-gradient(circle, rgba(232, 213, 163, 0.4) 0%, transparent 72%);
   z-index: 0;
   opacity: 0.7;
 }

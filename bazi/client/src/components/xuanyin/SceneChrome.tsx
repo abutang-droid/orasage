@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/** 淡紫雾感浮尘光点（克制 opacity/transform） */
+/** 淡紫雾感 + 水墨仙山背景 + 浮尘光点 */
 export function SceneAtmosphere() {
   const [dots] = useState(() =>
     Array.from({ length: 18 }, (_, i) => ({
@@ -15,6 +15,7 @@ export function SceneAtmosphere() {
 
   return (
     <div className="xy-atmosphere" aria-hidden="true">
+      <div className="xy-mountain-bg" />
       <div className="xy-mist xy-mist--a" />
       <div className="xy-mist xy-mist--b" />
       <div className="xy-paper-grain" />
