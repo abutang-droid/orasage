@@ -38,7 +38,7 @@ export function XuanYinCharacter({ mood, className = '' }: Props) {
             src="/xuanyin/immortal-portrait.png"
             alt="玄隐先生"
             width={360}
-            height={540}
+            height={480}
             decoding="async"
             draggable={false}
           />

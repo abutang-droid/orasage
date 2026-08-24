@@ -162,9 +162,9 @@
 .xy-portrait-wrap {
   position: relative;
   z-index: 1;
-  width: min(72vw, 280px);
-  aspect-ratio: 2 / 3;
-  border-radius: 18px 18px 28px 28px;
+  width: min(78vw, 300px);
+  aspect-ratio: 3 / 4;
+  border-radius: 20px 20px 32px 32px;
   overflow: hidden;
   box-shadow:
     0 12px 40px rgba(46, 41, 91, 0.18),
@@ -177,7 +177,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  /* 半身特写：偏脸部与长须上缘 */
+  object-position: center 12%;
+  transform: scale(1.06);
+  transform-origin: center 20%;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -185,9 +188,9 @@
 .xy-speak-glow {
   position: absolute;
   left: 50%;
-  bottom: 28%;
-  width: 42%;
-  height: 18%;
+  bottom: 22%;
+  width: 48%;
+  height: 16%;
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(ellipse, rgba(232, 213, 163, 0.45) 0%, transparent 70%);
