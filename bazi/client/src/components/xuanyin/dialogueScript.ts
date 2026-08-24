@@ -51,41 +51,54 @@ export function parseBirthUtterance(raw: string): Partial<CollectedBirth> | null
   const lunar = /农历|阴历/.test(t);
   const solar = /公历|阳历/.test(t);
   const monthNum = t.match(/(?:农历|阴历)?([正一二三四五六七八九十]+)月/)?.[1];
-  const dayPart = t.match(/(初[一二三四五六七八九十]|十[一二三四五六七八九]|廿[一二三四五六七八九]|三十|[1-9]|[12]\d|3[01])日?/)?.[1];
-  const hour =
-    t.match(/([上下]午)?\s*([一二三四五六七八九十\d]{1,2})\s*[点时]/)?.[2] ||
-    t.match(/([子丑寅卯辰巳午未申酉戌亥])时/)?.[1];
-
-  if (!year && !monthNum && !dayPart && !hour) return null;
+  const dayCn = t.match(/(初[一二三四五六七八九十]|十[一二三四五六七八九]|廿[一二三四五六七八九]|三十)日?/)?.[1];
+  const dayAr = !dayCn ? t.match(/(?:月)([12]?\d|3[01])日/)?.[1] : undefined;
 
   const monthMap: Record<string, string> = {
     正: '1', 一: '1', 二: '2', 三: '3', 四: '4', 五: '5', 六: '6',
     七: '7', 八: '8', 九: '9', 十: '10', 十一: '11', 十二: '12',
   };
+  const monthCnMap: Record<string, string> = {
+    '1': '正', '2': '二', '3': '三', '4': '四', '5': '五', '6': '六',
+    '7': '七', '8': '八', '9': '九', '10': '十', '11': '十一', '12': '十二',
+  };
   const month = monthNum ? monthMap[monthNum] || monthNum : undefined;
+  const dayPart = dayCn || dayAr;
 
   let hourHint: string | undefined;
-  if (hour) {
-    if (/申/.test(String(hour))) hourHint = '申时（约十五点）';
-    else if (/^\d+$/.test(String(hour))) {
-      const h = Number(hour);
-      const adj = /下午|晚上/.test(t) && h < 12 ? h + 12 : h;
-      hourHint = `${String(adj).padStart(2, '0')}时许`;
-    } else hourHint = `${hour}时`;
-  } else if (/下午三|三点左右|15\s*[:：]?00?/.test(t)) {
+  if (/下午\s*三\s*点|三点左右|15\s*[:：]?00?|申时/.test(t)) {
     hourHint = '申时（约十五点）';
+  } else {
+    const zhi = t.match(/([子丑寅卯辰巳午未申酉戌亥])时/)?.[1];
+    const clock = t.match(/([上下]午)?([一二三四五六七八九十两\d]{1,2})[点时]/)?.[2];
+    if (zhi) hourHint = `${zhi}时`;
+    else if (clock) {
+      const cnToNum: Record<string, number> = {
+        一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10,
+      };
+      const n = /^\d+$/.test(clock) ? Number(clock) : cnToNum[clock];
+      if (n != null) {
+        const adj = /下午|晚上/.test(t) && n < 12 ? n + 12 : n;
+        hourHint = `${String(adj).padStart(2, '0')}时许`;
+      }
+    }
   }
 
-  const dayLabel = dayPart || '';
-  const calLabel = lunar || (!solar && /初|廿/.test(t)) ? '农历' : '公历';
-  const mLabel = month ? `${calLabel === '农历' && month === '1' ? '正' : month}月` : '';
-  const summaryParts = [
-    year ? `${year}年` : '',
-    calLabel,
-    mLabel,
-    dayLabel,
-    hourHint || '',
-  ].filter(Boolean);
+  if (!year && !month && !dayPart && !hourHint) return null;
+
+  const calLabel = lunar || (!solar && !!dayCn) ? '农历' : '公历';
+  const monthLabel =
+    month == null
+      ? ''
+      : calLabel === '农历'
+        ? `${monthCnMap[month] || month}月`
+        : `${month}月`;
+  const dayLabel = dayPart ? (dayCn ? dayCn : `${dayPart}日`) : '';
+
+  const summary = [year ? `${year}年` : '', calLabel, monthLabel, dayLabel, hourHint]
+    .filter(Boolean)
+    .join('')
+    .replace(/^(.*)(农历|公历)\2/, '$1$2');
 
   return {
     year,
@@ -93,7 +106,7 @@ export function parseBirthUtterance(raw: string): Partial<CollectedBirth> | null
     day: dayPart,
     hourHint,
     calendar: calLabel === '农历' ? 'lunar' : 'solar',
-    birthSummary: summaryParts.join('').replace(/公历公历|农历农历/g, (s) => s.slice(0, 2)) || raw.trim(),
+    birthSummary: summary || raw.trim(),
   };
 }
 
