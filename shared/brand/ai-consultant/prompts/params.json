@@ -5,6 +5,13 @@
   "identityLock": "shared/brand/ai-consultant/identity-lock.png",
   "identityLockSize": { "width": 1024, "height": 1536, "aspect": "3:4" },
   "durationSec": { "min": 6, "max": 8, "preferred": 8 },
+  "silentIdlePreview": {
+    "file": "shared/brand/ai-consultant/silent-idle-3s.mp4",
+    "durationSec": 3,
+    "fps": 24,
+    "audio": false,
+    "size": { "width": 1024, "height": 1536, "aspect": "3:4" }
+  },
   "fps": { "min": 24, "max": 30, "preferred": 24 },
   "motionStrength": "low",
   "cameraMovement": "none",

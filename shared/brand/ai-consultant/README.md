@@ -6,6 +6,8 @@
 | 路径 | 内容 |
 | :--- | :--- |
 | `identity-lock.png` | 对镜头讲话的身份锁静帧（1024×1536，3:4） |
+| `silent-idle-3s.mp4` | 3 秒无声微动预览（锁镜头、轻呼吸、光晕；无音轨） |
+| `build_silent_idle.py` | 从身份锁重建 `silent-idle-3s.mp4` |
 | `prompts/talking-head.zh.txt` | 中文 I2V 提示词 |
 | `prompts/talking-head.en.txt` | 英文 I2V 提示词 |
 | `prompts/negative.en.txt` | Negative / Avoid |

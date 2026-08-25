@@ -211,6 +211,16 @@ TTS 建议：成熟温柔女声，不要播音腔、不要撒娇腔。品牌名�
 Do not speak. Mouth stays gently closed. Idle portrait with tiny breathing and occasional blinks only.
 ```
 
+**3 秒预览成片**（本仓库已出）：`shared/brand/ai-consultant/silent-idle-3s.mp4`
+
+| 项 | 值 |
+| :--- | :--- |
+| 时长 / 帧率 | 3.0s · 24 fps · 无音轨 |
+| 画幅 | 1024×1536（3:4，与身份锁相同） |
+| 运动 | 锁镜头；胸腔枢轴极轻呼吸；发丝外缘微动；金色光晕慢呼吸；粒子微闪 |
+| 口型 / 眨眼 | 闭嘴；不合成眨眼（程序化闭眼会毁掉虹膜，眨眼留给 I2V 工具） |
+| 重建 | `python3 shared/brand/ai-consultant/build_silent_idle.py`（需 opencv-python-headless + mediapipe，仅构建时） |
+
 ---
 
 ## 7. 验收清单
