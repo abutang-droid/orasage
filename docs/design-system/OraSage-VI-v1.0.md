@@ -318,6 +318,7 @@
 - 片尾（≤2s）：墨底反白锁定 + 域名。
 - 常驻水印：右下角玄璧，6–8% 透明度。
 - 字幕：Noto Sans SC，白字 + 60% 墨色衬底条。
+- **AI 命理顾问对镜头讲话**（6–8s 锁定人像）：独立片种，规范见 [`ai-consultant-talking-head.md`](./ai-consultant-talking-head.md)。该片种不加玄璧片头片尾；**不得**替代 §8.1 头像或图形标。社媒长内容可将讲话嵌在本节约定的片头/片尾之间。
 
 ### 8.5 语气与运营边界
 
@@ -384,7 +385,7 @@
 | 摄影（商品 / 水晶） | 纸色背景、自然侧光、留白 ≥40%、阴影柔和；禁止纯白棚拍死白底与高饱和滤镜 |
 | 摄影（人文 / 场景） | 低饱和、暖灰调；可与衬线大字叠排（字压图须衬墨色 40–60% 底） |
 | 命理图表 | 单色线框 + 灰度填充；数据字 JetBrains Mono |
-| AI 生成素材 | 须重绘至符合线描规范后使用，禁止直接投放成品 |
+| AI 生成素材 | 须重绘至符合线描规范后使用，禁止直接投放成品。**唯一例外**：[`ai-consultant-talking-head.md`](./ai-consultant-talking-head.md) 身份锁人像及其按该规范生成的对镜头讲话 / 无声微动成片 |
 
 ---
 
@@ -397,6 +398,7 @@ shared/brand/
 ├── logo/            # orasage-mark.svg（canonical）、lockup-h.svg、lockup-v.svg、各反白/朱砂版
 ├── subbrands/       # bazi.svg ziwei.svg manto.svg energy.svg（§5.2 网格）
 ├── favicon/         # icon.svg favicon.ico apple-touch-icon.png icon-192/512.png
+├── ai-consultant/   # 命理顾问数字人身份锁 + I2V 提示词（见 talking-head 规范）
 ├── social/          # avatar-800.png、各平台封面模板
 └── print/           # 印刷用 PDF/AI 源（专色定稿后入库）
 ```
@@ -460,3 +462,4 @@ shared/brand/
 | 版本 | 日期 | 变更 |
 | :--- | :--- | :--- |
 | v1.0 | 2026-07-08 | 初版：标志方案 A、朱砂印色、子品牌背书制、网站 / App / 社媒 / 线下应用规范 |
+| v1.0.1 | 2026-08-25 | §8.4 / §10 / §11.1：增补 AI 命理顾问对镜头讲话片种与身份锁资产例外 |
