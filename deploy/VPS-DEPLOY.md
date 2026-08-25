@@ -1,6 +1,8 @@
 # VPS 全量部署指南
 
-VPS: `34.75.40.67`（GCP e2-standard-2，用户 `ubuntu`）
+> **2026-08 起**：旧机 `34.75.40.67` SSH 不可达时，请按 **[GCP-REDEPLOY.md](./GCP-REDEPLOY.md)** 在 Google Cloud 重建实例，再回来执行本页的 bootstrap。
+
+VPS: `34.75.40.67`（历史 GCP e2-standard-2，用户 `ubuntu`）— 可能已退役，以 DNS 当前 A 记录为准。
 
 ## 当前线上状态（2026-07-01）
 

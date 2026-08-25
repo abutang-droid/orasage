@@ -60,9 +60,10 @@ cms.orasage.com       → cms     :3120   Payload CMS
 13. VPS 新旧并行迁移
 14. VPS 建议升至 16GB，CI/CD 脚本化
 
-## 部署 — 全部 App 统一部署在同一台 VPS
+## 部署 — 全部 App 统一部署在同一台 VPS（GCP Compute Engine）
 
-- VPS: `34.75.40.67`（GCP e2-standard-2）
+- **重建手册（旧机不可用时）**: [`deploy/GCP-REDEPLOY.md`](deploy/GCP-REDEPLOY.md)
+- 历史 VPS: `34.75.40.67`（GCP e2-standard-2）— 以当前 DNS A 记录为准
 - 基础设施: PostgreSQL 16 / Redis / Docker / Nginx
 - 域名配置: 见 [`docs/domain-setup.md`](docs/domain-setup.md)
 - Nginx 配置（唯一可信源）: 见 [`deploy/nginx/orasage.conf`](deploy/nginx/orasage.conf)
@@ -71,11 +72,11 @@ cms.orasage.com       → cms     :3120   Payload CMS
 ### 全部 App 一键部署（推荐）
 
 ```bash
-# 在 VPS 本机（GCP 控制台 SSH）执行：
+# 在 VPS 本机（GCP 控制台 SSH / gcloud compute ssh）执行：
 ORASAGE_REF=main bash /opt/orasage/deploy/bootstrap-all-on-vps.sh
 
-# 从本地/Cloud Agent 远程触发（需 SSH 私钥）：
-SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-all.sh
+# 从本地/Cloud Agent 远程触发（需 SSH 私钥 + 可达的 SSH_HOST）：
+SSH_HOST=<新IP> SSH_KEY=~/.ssh/id_rsa bash deploy/remote-deploy-all.sh
 
 # 命理 App 尚无 .env 时先用 proxy 回滚模式：
 FORTUNE_MODE=proxy bash deploy/remote-deploy-all.sh
