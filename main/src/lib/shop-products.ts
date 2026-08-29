@@ -32,6 +32,15 @@ const CATEGORY_LABELS: Record<string, Record<ProductCategory, string>> = {
   'pt-BR': { crystal: 'Pulseiras de Cristal', report: 'Relatórios Digitais', service: 'Consultas Energéticas' },
 };
 
+/** Shop 同源相对路径（如 /cms-media/P4-1.webp）在门户域名下不可用，需补成 shop 绝对 URL */
+function absoluteShopAssetUrl(shopBase: string, imageUrl: string | null | undefined): string | null {
+  if (!imageUrl?.trim()) return null;
+  const url = imageUrl.trim();
+  if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
+  const base = shopBase.replace(/\/$/, '');
+  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
+}
+
 export async function fetchHomepageCatalog(locale = 'zh-CN'): Promise<HomepageCatalog> {
   const shopUrl = process.env.SHOP_URL ?? 'https://shop.orasage.com';
   try {
@@ -65,7 +74,7 @@ export async function fetchHomepageCatalog(locale = 'zh-CN'): Promise<HomepageCa
       category: p.category,
       categoryLabel: p.categoryLabel ?? p.category,
       shopUrl: p.shopUrl ?? `${shopUrl}?sku=${encodeURIComponent(p.sku)}`,
-      imageUrl: p.imageUrl ?? null,
+      imageUrl: absoluteShopAssetUrl(shopUrl, p.imageUrl),
     }));
 
     return {
