@@ -3,7 +3,7 @@ const CMS_INTERNAL_URL =
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL ||
   process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
+  'https://cms.orasage.com/cms';
 
 type CmsMedia = {
   url?: string | null;
@@ -19,7 +19,24 @@ function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | 
   if (!media || typeof media === 'number') return null;
   const url = media.url;
   if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    // Tunnel 未走 nginx 时 admin…/cms 媒体 404；统一改写到 CMS_PUBLIC_URL 主机
+    try {
+      const u = new URL(url);
+      if (u.pathname.includes('/cms/api/media/')) {
+        const base = new URL(CMS_PUBLIC_URL);
+        return `${base.origin}${u.pathname}${u.search}`;
+      }
+    } catch {
+      /* keep original */
+    }
+    return url;
+  }
+  // media.url 可能已带 /cms 前缀
+  if (url.startsWith('/cms/')) {
+    const base = CMS_PUBLIC_URL.replace(/\/cms\/?$/, '');
+    return `${base}${url}`;
+  }
   return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
@@ -55,7 +72,13 @@ export async function fetchProductImageMap(): Promise<Map<string, string>> {
 
 export async function getProductImageUrl(sku: string): Promise<string | null> {
   const map = await fetchProductImageMap();
-  return map.get(sku) ?? null;
+  if (map.has(sku)) return map.get(sku) ?? null;
+  // 礼盒 SKU 复用基础款主图（CMS shop_product_images 通常只挂基础 sku）
+  if (sku.endsWith('-gift')) {
+    const base = sku.slice(0, -'-gift'.length);
+    return map.get(base) ?? null;
+  }
+  return null;
 }
 
 const CRYSTAL_ELEMENT_PLACEHOLDERS = new Set([

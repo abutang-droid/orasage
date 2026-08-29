@@ -12,6 +12,21 @@ export function resolveCmsMediaUrl(media: CmsMediaRef | number | null | undefine
   if (!media || typeof media === 'number') return null;
   const url = media.url;
   if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      const u = new URL(url);
+      if (u.pathname.includes('/cms/api/media/')) {
+        const base = new URL(CMS_PUBLIC_URL);
+        return `${base.origin}${u.pathname}${u.search}`;
+      }
+    } catch {
+      /* keep original */
+    }
+    return url;
+  }
+  if (url.startsWith('/cms/')) {
+    const base = CMS_PUBLIC_URL.replace(/\/cms\/?$/, '');
+    return `${base}${url}`;
+  }
   return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
