@@ -11,7 +11,7 @@
     {
       "name": "main",
       "command": "cd main && npm run dev",
-      "description": "Next.js portal on http://127.0.0.1:3100 (default locale path /zh)."
+      "description": "Next.js portal on http://127.0.0.1:3100 (default locale path /zh-CN)."
     },
     {
       "name": "shop",

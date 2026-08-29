@@ -10,7 +10,7 @@ Repository-managed environment config lives in `.cursor/environment.json`.
 
 - `install` runs `bash scripts/cloud-agent/install.sh`: PostgreSQL 16 via apt, `npm ci` / `pnpm install` for all 8 apps plus `packages/*`, and gitignored local `.env` files when missing.
 - `start` runs `bash scripts/cloud-agent/start.sh`: starts the Postgres 16 cluster, creates `orasage_{auth,cms,bazi,tarot}`, pushes Drizzle / Prisma / Payload schema. If `SSH_PRIVATE_KEY` is present it is written to `~/.ssh/id_rsa` (no wait loop).
-- Default terminals: `auth-service` (:3101), `main` (:3100), `shop` (:3102), `ziwei` (:3111). Start the others on demand:
+- Default terminals: `auth-service` (:3101), `main` (:3100, locale path `/zh-CN`), `shop` (:3102), `ziwei` (:3111, redirects to `/chart`). Start the others on demand:
   - `admin`: `cd admin && npm run dev` (:3103)
   - `cms`: `cd cms && npm run dev` (:3120) after `npm run migrate`
   - `bazi`: `cd bazi && PORT=3110 pnpm dev` (:3110)
