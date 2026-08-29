@@ -1,4 +1,37 @@
 {
-  "install": "mkdir -p ~/.ssh && chmod 700 ~/.ssh",
-  "start": "for i in $(seq 1 30); do [ -n \"${SSH_PRIVATE_KEY:-}\" ] && break; sleep 1; done; echo 'Cloud Agent ready for bazi deploy'"
+  "name": "OraSage local apps",
+  "install": "bash scripts/cloud-agent/install.sh",
+  "start": "bash scripts/cloud-agent/start.sh",
+  "terminals": [
+    {
+      "name": "auth-service",
+      "command": "cd auth-service && npm run dev",
+      "description": "Unified auth API + login pages on http://127.0.0.1:3101. Health: GET /health. Local cookie jars on 127.0.0.1 will not keep the orasage_token cookie; use the JSON token field as Authorization: Bearer."
+    },
+    {
+      "name": "main",
+      "command": "cd main && npm run dev",
+      "description": "Next.js portal on http://127.0.0.1:3100 (default locale path /zh-CN)."
+    },
+    {
+      "name": "shop",
+      "command": "cd shop && npm run dev",
+      "description": "Next.js shop on http://127.0.0.1:3102 with PAYMENT_MODE=mock."
+    },
+    {
+      "name": "ziwei",
+      "command": "cd ziwei && HUSKY=0 npm run dev",
+      "description": "Next.js ziwei app on http://127.0.0.1:3111. No database required."
+    }
+  ],
+  "ports": [
+    { "name": "main", "port": 3100 },
+    { "name": "auth", "port": 3101 },
+    { "name": "shop", "port": 3102 },
+    { "name": "admin", "port": 3103 },
+    { "name": "bazi", "port": 3110 },
+    { "name": "ziwei", "port": 3111 },
+    { "name": "tarot", "port": 3112 },
+    { "name": "cms", "port": 3120 }
+  ]
 }
