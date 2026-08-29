@@ -11,6 +11,7 @@ import {
   type DialogueStepId,
   type Line,
 } from '@/components/xuanyin/dialogueScript';
+import { cancelSpeech, speakText, warmVoices } from '@/components/xuanyin/browserTts';
 import '@/components/xuanyin/xuanyin-scene.css';
 
 type Phase = 'dialogue' | 'ink' | 'result';
@@ -52,6 +53,8 @@ export default function XuanYinScenePage() {
   const recognitionRef = useRef<{ stop: () => void } | null>(null);
   const idRef = useRef(1);
   const openedRef = useRef(false);
+  const speakGenRef = useRef(0);
+  const [lipPulse, setLipPulse] = useState(0);
 
   const { shown, done: typeDone } = useTypewriter(
     currentLine.text,
@@ -66,26 +69,39 @@ export default function XuanYinScenePage() {
   }, [log, shown, phase]);
 
   useEffect(() => {
-    if (mood === 'speaking' && typeDone) {
-      setMood('idle');
-    }
-  }, [mood, typeDone]);
+    void warmVoices();
+    return () => {
+      speakGenRef.current += 1;
+      cancelSpeech();
+    };
+  }, []);
 
   const speakAsXuan = useCallback((lines: Line[], then?: () => void) => {
     if (!lines.length) {
       then?.();
       return;
     }
+    const gen = ++speakGenRef.current;
+    cancelSpeech();
     const [first, ...rest] = lines;
     setMood('speaking');
     setCurrentLine(first);
     setLog((prev) => [...prev, { ...first, id: `x${idRef.current++}`, typed: true }]);
-    // 等打字机大致结束再接下句（按字数估算）
-    const wait = Math.max(600, first.text.length * 28 + 200);
-    window.setTimeout(() => {
+
+    const typeMs = Math.max(600, first.text.length * 28 + 200);
+    const typeWait = new Promise<void>((r) => window.setTimeout(r, typeMs));
+    const voiceWait = speakText(first.text, {
+      onBoundary: () => {
+        if (speakGenRef.current === gen) setLipPulse((n) => n + 1);
+      },
+    });
+
+    void Promise.all([typeWait, voiceWait]).then(() => {
+      if (speakGenRef.current !== gen) return;
+      setMood('idle');
       if (rest.length) speakAsXuan(rest, then);
       else then?.();
-    }, wait);
+    });
   }, []);
 
   /** 出场：先自我介绍，再问性别 */
@@ -102,6 +118,8 @@ export default function XuanYinScenePage() {
     (raw: string) => {
       const text = raw.trim();
       if (!text || busy || !canTalk) return;
+      speakGenRef.current += 1;
+      cancelSpeech();
       setBusy(true);
       setListening(false);
       setInput('');
@@ -202,13 +220,12 @@ export default function XuanYinScenePage() {
     setTab('assistant');
     setStep((s) => (s === 'closing_chart' ? 'done' : s));
     if (!switching) return;
-    setMood('speaking');
     const line: Line = {
       role: 'xuan',
       text: '命盘已成。你还想追问哪一事？大运流转、流年应事，或心中未决之事，皆可细说。',
     };
-    setCurrentLine(line);
-    setLog((prev) => [...prev, { ...line, id: `x${idRef.current++}`, typed: true }]);
+    setBusy(true);
+    speakAsXuan([line], () => setBusy(false));
   };
 
   const showDialogueStage = phase !== 'result' || tab === 'assistant';
@@ -226,7 +243,7 @@ export default function XuanYinScenePage() {
             <span style={{ width: 64 }} />
           </div>
 
-          <XuanYinCharacter mood={mood} />
+          <XuanYinCharacter mood={mood} lipPulse={lipPulse} />
 
           <div className="xy-log" ref={logRef} aria-live="polite" aria-relevant="additions">
             {(mood === 'speaking' && !typeDone ? log.slice(0, -1) : log).map((item) => (
