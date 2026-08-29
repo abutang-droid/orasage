@@ -1,7 +1,7 @@
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL ||
   process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
+  'https://cms.orasage.com/cms';
 
 export type CmsMediaRef = {
   url?: string | null;
