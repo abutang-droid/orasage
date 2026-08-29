@@ -12,19 +12,25 @@ import { ProfileSection } from './ProfileSection';
 
 export function ProfileHub({ locale }: { locale: string }) {
   const t = useTranslations('profile');
-  const { user } = useProfileAuth();
+  const { user, loading } = useProfileAuth();
 
   return (
     <ProfileSection title={t('title')} description={t('desc')}>
       <div className="space-y-6">
-        {!user ? <ProfileLoginCard locale={locale} variant="hub" /> : <ProfileIdentitySummary />}
+        {loading ? (
+          <div className="h-24 animate-pulse rounded-lg bg-muted" aria-hidden />
+        ) : !user ? (
+          <ProfileLoginCard locale={locale} variant="hub" />
+        ) : (
+          <ProfileIdentitySummary />
+        )}
 
         {user ? <BlessingMeritCard /> : null}
 
         <ProfileDataCards />
 
         {/* 已登录用户经身份卡「管理账户」进入账户与设置，此处不再重复入口（避免同页双入口） */}
-        {!user ? (
+        {!loading && !user ? (
           <section aria-labelledby="profile-more-heading">
             <h2 id="profile-more-heading" className="sr-only">
               {t('moreSection')}

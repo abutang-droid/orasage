@@ -45,7 +45,7 @@ export function TicketsList() {
     return (
       <p className="text-sm text-muted-foreground">
         {t('empty')}{' '}
-        <Link href="/profile/contact" className="text-primary underline-offset-4 hover:underline">
+        <Link href="/contact" className="text-primary underline-offset-4 hover:underline">
           {t('contactLink')}
         </Link>
       </p>

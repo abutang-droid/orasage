@@ -4,7 +4,7 @@ import { Alert, AlertDescription, Button, Card, CardContent, Input, Label, Texta
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { useProfileAuth } from './ProfileAuth';
+import { useOptionalProfileAuth } from './ProfileAuth';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -14,7 +14,8 @@ const CATEGORIES = ['general', 'complaint', 'refund', 'bug'] as const;
 export function ContactForm() {
   const t = useTranslations('profile.contact');
   const locale = useLocale();
-  const { user } = useProfileAuth();
+  const auth = useOptionalProfileAuth();
+  const user = auth?.user ?? null;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

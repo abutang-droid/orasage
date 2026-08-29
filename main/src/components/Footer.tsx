@@ -18,10 +18,10 @@ export function Footer() {
           {pickLabel(SHELL_LABELS.copyright, locale)}
         </p>
         <div className="flex w-full justify-center gap-8 sm:w-auto sm:gap-6">
-          <Link href="/profile/privacy" className={SITE_FOOTER_LINK_CLASS}>
+          <Link href="/privacy" className={SITE_FOOTER_LINK_CLASS}>
             {pickLabel(SHELL_LABELS.privacy, locale)}
           </Link>
-          <Link href="/profile/terms" className={SITE_FOOTER_LINK_CLASS}>
+          <Link href="/terms" className={SITE_FOOTER_LINK_CLASS}>
             {pickLabel(SHELL_LABELS.terms, locale)}
           </Link>
         </div>

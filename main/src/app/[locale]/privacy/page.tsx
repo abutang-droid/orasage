@@ -1,8 +1,8 @@
-import { redirect } from '@/i18n/navigation';
+import { PublicPolicyPage } from '@/components/legal/PublicPolicyPage';
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function PrivacyPage({ params }: Props) {
-  const { locale } = await params;
-  redirect({ href: '/profile/privacy', locale });
+/** 公开隐私政策 — 未登录可见 */
+export default function PrivacyPage({ params }: Props) {
+  return <PublicPolicyPage params={params} policy="privacy" />;
 }

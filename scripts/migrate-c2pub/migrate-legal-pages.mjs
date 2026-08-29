@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 /**
- * 迁移 c2.pub 静态页到 CMS（用户中心 legal/*）
+ * 迁移 c2.pub 静态页到 CMS（公开公共政策 legal/*）
+ *
+ * 映射：
+ *   about / contact-us / orasage-limited / user-agreement / refund_returns
+ *   + 本地种子 legal/shipping（WP 无独立配送政策页时）
  *
  * 用法:
  *   node scripts/migrate-c2pub/migrate-legal-pages.mjs
@@ -13,13 +17,31 @@ import pg from 'pg';
 const WP_BASE = (process.env.C2PUB_URL || 'https://www.c2.pub').replace(/\/$/, '');
 const DRY_RUN = process.env.DRY_RUN === '1';
 
-/** WP slug → CMS slug */
+/** WP slug → CMS slug（公开页：/{locale}/privacy|terms|shipping|returns|contact） */
 const PAGE_MAP = [
   { wpSlug: 'about', cmsSlug: 'legal/about', title: '关于我们' },
   { wpSlug: 'contact-us', cmsSlug: 'legal/contact', title: '联系我们' },
   { wpSlug: 'orasage-limited', cmsSlug: 'legal/privacy', title: '隐私政策' },
   { wpSlug: 'user-agreement', cmsSlug: 'legal/terms', title: '服务条款' },
+  { wpSlug: 'refund_returns', cmsSlug: 'legal/returns', title: '退货与退款' },
 ];
+
+const SHIPPING_SEED = {
+  cmsSlug: 'legal/shipping',
+  title: '配送政策',
+  legacyHtml: `
+<h2>配送范围</h2>
+<p>实体商品按订单收货地址发货。可配送国家/地区与运费以结账页实时估算为准。</p>
+<h2>发货时效</h2>
+<p>付款成功后，通常于 3–7 个工作日内发出。定制类（含 DIY / 按出生信息定制）可能需要额外制作时间，以商品页说明为准。</p>
+<h2>国际配送</h2>
+<p>跨境物流时效因目的地海关与承运商而异。签收前请保持收件电话畅通。</p>
+<h2>数字商品</h2>
+<p>数字报告与在线服务在支付成功后按约定即时解锁，无需物流。</p>
+<h2>物流查询</h2>
+<p>发货后可在「我的 → 订单」查看物流信息；如有异常请通过「联系我们」提交订单号。</p>
+`.trim(),
+};
 
 function cmsDatabaseUrl() {
   if (process.env.CMS_DATABASE_URL) return process.env.CMS_DATABASE_URL;
@@ -90,6 +112,25 @@ async function upsertLegalPage(client, map, item) {
   return 'inserted';
 }
 
+/** 仅当 slug 不存在时写入配送政策种子（不覆盖运营手改） */
+async function ensureShippingSeed(client) {
+  const bySlug = await client.query('SELECT id FROM pages WHERE slug = $1', [SHIPPING_SEED.cmsSlug]);
+  if (bySlug.rows[0]) {
+    console.log(`[migrate-legal] skip seed ${SHIPPING_SEED.cmsSlug} (exists id=${bySlug.rows[0].id})`);
+    return 'skipped';
+  }
+  if (DRY_RUN) {
+    console.log(`[dry-run] insert seed ${SHIPPING_SEED.cmsSlug}`);
+    return 'inserted';
+  }
+  await client.query(
+    `INSERT INTO pages (title, slug, app_source, legacy_html, source_url, wp_type, locale, wp_status, created_at, updated_at)
+     VALUES ($1, $2, 'main', $3, NULL, 'page', 'zh-CN', 'publish', now(), now())`,
+    [SHIPPING_SEED.title, SHIPPING_SEED.cmsSlug, SHIPPING_SEED.legacyHtml],
+  );
+  return 'inserted';
+}
+
 async function main() {
   console.log(`[migrate-legal] source=${WP_BASE} dry_run=${DRY_RUN}`);
 
@@ -113,6 +154,10 @@ async function main() {
     else updated += 1;
     console.log(`[migrate-legal] ${r} ${map.cmsSlug} (${stripHtml(item.title?.rendered).slice(0, 40)})`);
   }
+
+  const seed = await ensureShippingSeed(client);
+  if (seed === 'inserted') inserted += 1;
+  console.log(`[migrate-legal] shipping seed: ${seed}`);
 
   await client.end();
   console.log(`[migrate-legal] done: inserted=${inserted} updated=${updated} missing=${missing}`);

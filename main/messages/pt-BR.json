@@ -329,7 +329,11 @@
       "contact": "Contact",
       "privacy": "Privacy policy",
       "terms": "Terms of service",
-      "noBody": "No content"
+      "noBody": "No content",
+      "shipping": "Política de envio",
+      "returns": "Trocas e reembolsos",
+      "shippingFallback": "Pedidos físicos são enviados para o endereço do pedido, geralmente em 3–7 dias úteis após o pagamento. Prazos internacionais variam. Produtos digitais são liberados imediatamente após o pagamento. Frete e cobertura aparecem no checkout.",
+      "returnsFallback": "Itens físicos fechados e revendáveis podem ser devolvidos em até 7 dias após a entrega. Itens personalizados, usados, abertos e digitais (relatórios desbloqueados) geralmente não têm reembolso sem motivo — contate-nos com o número do pedido e comprovante em caso de defeito."
     },
     "merit": {
       "title": "Merit details",
