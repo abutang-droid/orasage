@@ -556,7 +556,7 @@ export default function Home() {
 
             <p className="mb-4 text-center text-sm" style={{ color: MUTED_CLR }}>
               <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 玄隐真人对话排盘（V3 场景原型）→
+                试一试 · 沈知微真人对话排盘（V3 场景原型）→
               </Link>
             </p>
 

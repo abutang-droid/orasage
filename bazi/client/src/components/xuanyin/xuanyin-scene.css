@@ -1,4 +1,4 @@
-/* 玄隐 V3 真人对话场景 — 淡紫雾感 + 国风沉浸（仅 /scene 作用域） */
+/* 沈知微 V3 真人对话场景 — 淡紫雾感 + 国风沉浸（仅 /scene 作用域） */
 
 .xy-scene {
   --xy-bg: #f3eef8;
@@ -131,7 +131,7 @@
   color: var(--xy-ink);
 }
 
-/* ── 角色（透明底半身动画人物） ── */
+/* ── 角色（沈知微动画肖像） ── */
 .xy-character {
   position: relative;
   display: flex;
@@ -146,12 +146,12 @@
 .xy-figure {
   position: relative;
   z-index: 1;
-  width: min(76vw, 300px);
+  width: min(72vw, 280px);
   max-height: 42dvh;
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  filter: drop-shadow(0 18px 28px rgba(46, 41, 91, 0.22));
+  filter: drop-shadow(0 16px 32px rgba(12, 10, 24, 0.45));
   transform-origin: 50% 80%;
   transition: transform 0.4s ease;
 }
@@ -166,6 +166,13 @@
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+}
+
+.xy-figure-img--gif {
+  border-radius: 18px;
+  aspect-ratio: 240 / 320;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .xy-figure--float {

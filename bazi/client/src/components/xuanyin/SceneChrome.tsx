@@ -36,7 +36,7 @@ export function SceneAtmosphere() {
   );
 }
 
-/** 简易语音波形（玄隐金 / 用户紫） */
+/** 简易语音波形（沈知微金 / 用户紫） */
 export function Waveform({ variant, active }: { variant: 'xuan' | 'user'; active: boolean }) {
   const bars = [0.4, 0.7, 1, 0.55, 0.85, 0.45, 0.75];
   return (

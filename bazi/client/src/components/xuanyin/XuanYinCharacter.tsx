@@ -6,7 +6,7 @@ type Props = {
 };
 
 /**
- * 玄隐先生 — 透明底半身特写动画角色
+ * 沈知微 — 动画肖像角色（GIF）
  * idle: 呼吸漂浮 | listening: 倾身聆听 | thinking: 冒泡 | speaking: 讲述微振
  */
 export function XuanYinCharacter({ mood, className = '' }: Props) {
@@ -39,18 +39,15 @@ export function XuanYinCharacter({ mood, className = '' }: Props) {
           .filter(Boolean)
           .join(' ')}
       >
-        <picture>
-          <source srcSet="/xuanyin/immortal-bust.webp" type="image/webp" />
-          <img
-            className="xy-figure-img"
-            src="/xuanyin/immortal-bust.png"
-            alt="玄隐先生"
-            width={360}
-            height={534}
-            decoding="async"
-            draggable={false}
-          />
-        </picture>
+        <img
+          className="xy-figure-img xy-figure-img--gif"
+          src="/xuanyin/shenzhiwei.gif"
+          alt="沈知微"
+          width={240}
+          height={320}
+          decoding="async"
+          draggable={false}
+        />
         {speaking ? <span className="xy-speak-glow" aria-hidden /> : null}
       </div>
 

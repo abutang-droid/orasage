@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { XuanYinCharacter } from '@/components/xuanyin/XuanYinCharacter';
 import { SceneAtmosphere, Waveform, useTypewriter } from '@/components/xuanyin/SceneChrome';
 import {
-  OPENING_LINE,
+  OPENING_LINES,
   advanceDialogue,
   INITIAL_COLLECTED,
   type CharacterMood,
@@ -41,8 +41,8 @@ export default function XuanYinScenePage() {
   const [step, setStep] = useState<DialogueStepId>('greet_gender');
   const [collected, setCollected] = useState<CollectedBirth>(INITIAL_COLLECTED);
   const [mood, setMood] = useState<CharacterMood>('speaking');
-  const [log, setLog] = useState<LogItem[]>([{ ...OPENING_LINE, id: 'open', typed: true }]);
-  const [currentLine, setCurrentLine] = useState<Line>(OPENING_LINE);
+  const [log, setLog] = useState<LogItem[]>([]);
+  const [currentLine, setCurrentLine] = useState<Line>(OPENING_LINES[0]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -51,6 +51,7 @@ export default function XuanYinScenePage() {
   const logRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<{ stop: () => void } | null>(null);
   const idRef = useRef(1);
+  const openedRef = useRef(false);
 
   const { shown, done: typeDone } = useTypewriter(
     currentLine.text,
@@ -86,6 +87,14 @@ export default function XuanYinScenePage() {
       else then?.();
     }, wait);
   }, []);
+
+  /** 出场：先自我介绍，再问性别 */
+  useEffect(() => {
+    if (openedRef.current) return;
+    openedRef.current = true;
+    setBusy(true);
+    speakAsXuan(OPENING_LINES, () => setBusy(false));
+  }, [speakAsXuan]);
 
   const canTalk = phase === 'dialogue' || (phase === 'result' && tab === 'assistant');
 
@@ -187,7 +196,7 @@ export default function XuanYinScenePage() {
   };
 
   const backToAssistant = () => {
-    // 保持 result 相位，底部 5 Tab 不消失；助手 Tab 内继续与玄隐对话
+    // 保持 result 相位，底部 5 Tab 不消失；助手 Tab 内继续与沈知微对话
     setPhase('result');
     const switching = tab !== 'assistant';
     setTab('assistant');
@@ -213,7 +222,7 @@ export default function XuanYinScenePage() {
         <div className={`xy-stage ${phase === 'result' ? 'xy-stage--with-tabs' : ''}`}>
           <div className="xy-topbar">
             <Link href="/">← 经典排盘</Link>
-            <span className="xy-brand">{phase === 'result' ? '追问 · 玄隐' : 'OraSage · 玄隐'}</span>
+            <span className="xy-brand">{phase === 'result' ? '追问 · 沈知微' : 'OraSage · 沈知微'}</span>
             <span style={{ width: 64 }} />
           </div>
 
@@ -222,7 +231,7 @@ export default function XuanYinScenePage() {
           <div className="xy-log" ref={logRef} aria-live="polite" aria-relevant="additions">
             {(mood === 'speaking' && !typeDone ? log.slice(0, -1) : log).map((item) => (
               <div key={item.id} className={`xy-log-item xy-log-item--${item.role === 'xuan' ? 'xuan' : 'user'}`}>
-                <span className="xy-log-name">{item.role === 'xuan' ? '玄隐' : '你'}</span>
+                <span className="xy-log-name">{item.role === 'xuan' ? '沈知微' : '你'}</span>
                 <div className="xy-log-bubble">{item.text}</div>
               </div>
             ))}
@@ -236,7 +245,7 @@ export default function XuanYinScenePage() {
         <div className={`xy-dock ${phase === 'result' ? 'xy-dock--with-tabs' : ''}`}>
           <div className="xy-line-box">
             <div className="xy-line-head">
-              <span className="xy-seal">玄隐</span>
+              <span className="xy-seal">沈知微</span>
               <Waveform variant="xuan" active={mood === 'speaking'} />
               <Waveform variant="user" active={listening} />
             </div>
@@ -373,7 +382,7 @@ function ResultShell({
         {tab === 'report' ? (
           <section className="xy-result-panel">
             <h2>命理分析报告</h2>
-            <p>付费报告仍走现有 AI 分析与打字机呈现；玄隐场景负责采集与追问氛围。</p>
+            <p>付费报告仍走现有 AI 分析与打字机呈现；沈知微场景负责采集与追问氛围。</p>
           </section>
         ) : null}
         {tab === 'member' ? (

@@ -1,4 +1,4 @@
-/** 玄隐先生 · V3 真人对话场景 — 脚本化采集流程（后续可接 lunar-data + NLP） */
+/** 沈知微 · V3 真人对话场景 — 脚本化采集流程（后续可接 lunar-data + NLP） */
 
 export type CharacterMood = 'idle' | 'listening' | 'thinking' | 'speaking';
 
@@ -147,7 +147,7 @@ export function isNegative(raw: string): boolean {
   return /^(不|错|不对|重来|改|no)/i.test(raw.trim());
 }
 
-/** 根据当前步骤与用户输入，推进脚本并返回玄隐下一句 */
+/** 根据当前步骤与用户输入，推进脚本并返回沈知微下一句 */
 export function advanceDialogue(
   step: DialogueStepId,
   userText: string,
@@ -299,7 +299,17 @@ export function advanceDialogue(
   return { nextStep: step, collected, xuanLines: [] };
 }
 
-export const OPENING_LINE: Line = {
-  role: 'xuan',
-  text: '夜安。我是玄隐。先问一句——你是公子，还是姑娘？',
-};
+/** 出场自我介绍（先说完再问性别） */
+export const OPENING_LINES: Line[] = [
+  {
+    role: 'xuan',
+    text: '夜安。我是沈知微——观星象、读生辰，愿以命理为你照见前路，也听一听你心中未说出口的困惑。',
+  },
+  {
+    role: 'xuan',
+    text: '先问一句——你是公子，还是姑娘？',
+  },
+];
+
+/** @deprecated 请用 OPENING_LINES；保留首句兼容旧引用 */
+export const OPENING_LINE: Line = OPENING_LINES[0];
