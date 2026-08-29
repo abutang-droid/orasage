@@ -179,8 +179,8 @@
 .xy-mouth {
   position: absolute;
   left: 50%;
-  top: 60%;
-  width: 22%;
+  top: 54%;
+  width: 20%;
   height: auto;
   transform: translateX(-50%);
   opacity: 0;
