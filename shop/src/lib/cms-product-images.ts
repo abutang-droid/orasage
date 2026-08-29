@@ -1,6 +1,3 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
 
@@ -55,8 +52,14 @@ const CACHE_TTL_MS = 15_000;
 async function loadPhysicalSkuMap(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   try {
-    const raw = await readFile(path.join(process.cwd(), 'public/cms-media/sku-map.json'), 'utf8');
-    const obj = JSON.parse(raw) as Record<string, string>;
+    // 同源静态文件（由 phys-copy 脚本写入 public/cms-media/），可在 server/client 共用
+    const base =
+      typeof window === 'undefined'
+        ? process.env.SHOP_INTERNAL_URL || 'http://127.0.0.1:3102'
+        : '';
+    const res = await fetch(`${base}/cms-media/sku-map.json`, { cache: 'no-store' });
+    if (!res.ok) return map;
+    const obj = (await res.json()) as Record<string, string>;
     for (const [sku, filename] of Object.entries(obj)) {
       const local = localCmsMediaPath(filename);
       if (sku && local) map.set(sku, local);
@@ -69,7 +72,7 @@ async function loadPhysicalSkuMap(): Promise<Map<string, string>> {
 
 /**
  * SKU → 主图 URL。
- * 优先读 public/cms-media/sku-map.json（物理复制的文件）；否则再问本机 CMS API，但仍解析成 /cms-media/ 同源路径。
+ * 优先读 /cms-media/sku-map.json（物理复制的文件）；否则再问本机 CMS API，但仍解析成 /cms-media/ 同源路径。
  */
 export async function fetchProductImageMap(): Promise<Map<string, string>> {
   if (cachedMap && Date.now() < cacheExpiry) {
