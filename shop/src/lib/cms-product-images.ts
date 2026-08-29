@@ -1,12 +1,12 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
-const CMS_PUBLIC_URL =
-  process.env.CMS_PUBLIC_URL ||
-  process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://cms.orasage.com/cms';
 
 type CmsMedia = {
   url?: string | null;
+  filename?: string | null;
   alt?: string | null;
 };
 
@@ -15,39 +15,72 @@ type CmsProductImageRow = {
   image?: CmsMedia | number | null;
 };
 
+/** 物理落盘：shop/public/cms-media/<filename> → 同源 /cms-media/<filename>（不经 CMS HTTP 反代） */
+export function localCmsMediaPath(filename: string | null | undefined): string | null {
+  if (!filename?.trim()) return null;
+  const name = filename.trim().replace(/^.*[/\\]/, '');
+  if (!name || name.includes('..')) return null;
+  return `/cms-media/${encodeURI(name)}`;
+}
+
+function filenameFromMediaUrl(url: string): string | null {
+  try {
+    const u = url.startsWith('http') ? new URL(url) : null;
+    const pathname = u?.pathname ?? url;
+    const marker = '/cms/api/media/file/';
+    const idx = pathname.indexOf(marker);
+    if (idx >= 0) return decodeURIComponent(pathname.slice(idx + marker.length));
+    if (pathname.startsWith('/cms-media/')) return decodeURIComponent(pathname.slice('/cms-media/'.length));
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 function resolveMediaUrl(media: CmsMedia | number | null | undefined): string | null {
   if (!media || typeof media === 'number') return null;
+  const fromName = localCmsMediaPath(media.filename ?? null);
+  if (fromName) return fromName;
   const url = media.url;
   if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    // Tunnel 未走 nginx 时 admin…/cms 媒体 404；统一改写到 CMS_PUBLIC_URL 主机
-    try {
-      const u = new URL(url);
-      if (u.pathname.includes('/cms/api/media/')) {
-        const base = new URL(CMS_PUBLIC_URL);
-        return `${base.origin}${u.pathname}${u.search}`;
-      }
-    } catch {
-      /* keep original */
-    }
-    return url;
-  }
-  // media.url 可能已带 /cms 前缀
-  if (url.startsWith('/cms/')) {
-    const base = CMS_PUBLIC_URL.replace(/\/cms\/?$/, '');
-    return `${base}${url}`;
-  }
-  return `${CMS_PUBLIC_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  const fromUrl = localCmsMediaPath(filenameFromMediaUrl(url));
+  if (fromUrl) return fromUrl;
+  return null;
 }
 
 let cachedMap: Map<string, string> | null = null;
 let cacheExpiry = 0;
 const CACHE_TTL_MS = 15_000;
 
-/** 从 CMS 拉取 SKU → 主图 URL 映射 */
+async function loadPhysicalSkuMap(): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  try {
+    const raw = await readFile(path.join(process.cwd(), 'public/cms-media/sku-map.json'), 'utf8');
+    const obj = JSON.parse(raw) as Record<string, string>;
+    for (const [sku, filename] of Object.entries(obj)) {
+      const local = localCmsMediaPath(filename);
+      if (sku && local) map.set(sku, local);
+    }
+  } catch {
+    /* no physical map yet */
+  }
+  return map;
+}
+
+/**
+ * SKU → 主图 URL。
+ * 优先读 public/cms-media/sku-map.json（物理复制的文件）；否则再问本机 CMS API，但仍解析成 /cms-media/ 同源路径。
+ */
 export async function fetchProductImageMap(): Promise<Map<string, string>> {
   if (cachedMap && Date.now() < cacheExpiry) {
     return cachedMap;
+  }
+
+  const physical = await loadPhysicalSkuMap();
+  if (physical.size > 0) {
+    cachedMap = physical;
+    cacheExpiry = Date.now() + CACHE_TTL_MS;
+    return physical;
   }
 
   const map = new Map<string, string>();
@@ -60,7 +93,12 @@ export async function fetchProductImageMap(): Promise<Map<string, string>> {
     const data = (await res.json()) as { docs?: CmsProductImageRow[] };
     for (const row of data.docs ?? []) {
       const url = resolveMediaUrl(row.image);
-      if (row.sku && url) map.set(row.sku, url);
+      if (row.sku && url) {
+        map.set(row.sku, url);
+        if (!row.sku.endsWith('-gift')) {
+          map.set(`${row.sku}-gift`, url);
+        }
+      }
     }
     cachedMap = map;
     cacheExpiry = Date.now() + CACHE_TTL_MS;
@@ -73,10 +111,8 @@ export async function fetchProductImageMap(): Promise<Map<string, string>> {
 export async function getProductImageUrl(sku: string): Promise<string | null> {
   const map = await fetchProductImageMap();
   if (map.has(sku)) return map.get(sku) ?? null;
-  // 礼盒 SKU 复用基础款主图（CMS shop_product_images 通常只挂基础 sku）
   if (sku.endsWith('-gift')) {
-    const base = sku.slice(0, -'-gift'.length);
-    return map.get(base) ?? null;
+    return map.get(sku.slice(0, -'-gift'.length)) ?? null;
   }
   return null;
 }
