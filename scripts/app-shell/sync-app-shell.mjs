@@ -24,6 +24,8 @@ const TS_FILES = [
   'SiteTopNav.tsx',
   'LocaleSwitcher.tsx',
   'PortalFooter.tsx',
+  'Disclaimer.tsx',
+  'disclaimer-copy.ts',
   'locale-cookie.ts',
   'BottomNav.tsx',
   'config.ts',

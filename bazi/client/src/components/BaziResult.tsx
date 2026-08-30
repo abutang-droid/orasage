@@ -22,6 +22,7 @@ import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
 import type { BraceletRecommendation } from "@/lib/bazi";
+import { Disclaimer } from "@/lib/orasage-app-shell";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -609,7 +610,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
 }
 // 单人结果主体（可复用于双人合盘中）
 function SingleResultBody({ result, compact }: { result: SingleBaziResult; compact?: boolean }) {
-  const { t, term } = useT();
+  const { t, term, locale } = useT();
   const pillars = [result.year, result.month, result.day, result.hour];
   const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
   const wxEntries = Object.entries(result.wuXing) as [string, number][];
@@ -619,6 +620,8 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
 
   return (
     <div className="flex flex-col gap-3">
+      <Disclaimer variant="full" locale={locale} />
+
       {/* 身份信息 — 仅在 compact 模式显示，否则顶部头部已展示 */}
       {compact && (
         <div className="rounded-xl px-5 py-3.5" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}`, backdropFilter: "blur(4px)" }}>
@@ -805,7 +808,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
             <p className="text-xs leading-relaxed" style={{ color: '#78718B' }}>{result.mingLiSummary.fortune}</p>
           </div>
           <p className="text-[10px] pt-0.5" style={{ color: 'rgba(93,89,115,0.45)' }}>
-            {t('report.disclaimer', '※ 以上分析仅供参考，命理之道博大精深，如需深度解读请咨询专业命理师。')}
+            {t('report.disclaimer', '※ 以上分析仅供娱乐与自我探索参考，不构成医疗、财务或人生决策建议。')}
           </p>
         </div>
       </InfoCard>

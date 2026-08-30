@@ -2,13 +2,14 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@orasage/ui/button';
 import { ShippingForm } from '@/components/ShippingForm';
 import { CheckoutCouponForm, type CouponState } from '@/components/CheckoutCouponForm';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 import { useCart } from '@/lib/cart';
 import { parseShippingAddress, inferCoupleEligible } from '../../../../shared/shop-fulfillment/index';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 type CheckoutOrder = {
   orderNo: string;
@@ -54,6 +55,7 @@ function appendOrderToReturnUrl(returnUrl: string, orderNo: string): string {
 
 function CheckoutContent() {
   const t = useTranslations('checkout');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clear: clearCart } = useCart();
@@ -562,6 +564,7 @@ function CheckoutContent() {
       </div>
       <p className="mt-3 text-lg font-semibold text-sage-primary">{amountDisplay}</p>
       <p className="mt-3 text-sm text-sage-muted">{t('orderNo', { orderNo })}</p>
+      <Disclaimer variant="transaction" locale={locale} compact className="mt-4 w-full max-w-sm text-left" />
       {payError && <p className="mt-4 text-sm text-red-600">{payError}</p>}
       <Button
         type="button"

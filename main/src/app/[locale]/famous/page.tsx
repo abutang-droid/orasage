@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { FamousCategoryTabs, type FamousCategoryFilter } from '@/components/famous/FamousCategoryTabs';
@@ -6,6 +7,7 @@ import { FamousPersonCard } from '@/components/famous/FamousPersonCard';
 import { cmsLocale, fetchFamousPages, type FamousDoc } from '@/lib/cms';
 import { FAMOUS_CATEGORIES, type FamousCategory } from '@/lib/famous-index';
 import { buildFamousListItems } from '@/lib/famous-list';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 import { Alert, AlertDescription, Badge, buttonVariants } from '@orasage/ui';
 
@@ -15,6 +17,10 @@ type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ page?: string; cat?: string }>;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { robots: { index: false, follow: true } };
+}
 
 export default async function FamousPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -63,6 +69,8 @@ export default async function FamousPage({ params, searchParams }: Props) {
         <PageLead>{t('desc')}</PageLead>
         {allFallback && <p className="mt-2 text-xs text-muted-foreground">{t('zhNotice')}</p>}
       </header>
+
+      <Disclaimer variant="full" locale={locale} figureNote className="mt-6 max-w-3xl" />
 
       {!docs ? (
         <Alert variant="destructive" className="mt-6 sm:mt-8">

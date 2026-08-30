@@ -100,7 +100,7 @@ export default async function CrystalHomePage({
                   <input
                     name={`${sku}_keywords`}
                     defaultValue={entry?.keywords?.join('，') ?? ''}
-                    placeholder="如：招财，事业，生机"
+                    placeholder="如：意向，事业，生机"
                   />
                 </label>
                 <label className="full-width">

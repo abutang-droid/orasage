@@ -151,8 +151,8 @@ const CRYSTALS: Record<WuxingSku, CrystalCopy> = {
     wuxing: '水',
     color: '#3A3A3A',
     domains: [
-      { zh: '保护', en: 'Protection', pt: 'Proteção', es: 'Protección' },
-      { zh: '辟邪', en: 'Shielding', pt: 'Escudo', es: 'Escudo' },
+      { zh: '边界', en: 'Boundaries', pt: 'Limites', es: 'Límites' },
+      { zh: '防护', en: 'Shielding', pt: 'Escudo', es: 'Escudo' },
       { zh: '内在平静', en: 'Inner calm', pt: 'Calma interior', es: 'Calma interior' },
     ],
     desc: {

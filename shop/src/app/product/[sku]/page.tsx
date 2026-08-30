@@ -24,6 +24,7 @@ import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 type PageProps = { params: Promise<{ sku: string }> };
 
@@ -110,6 +111,7 @@ export default async function ProductPage({ params }: PageProps) {
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
             <p className="shop-pdp-price">{displayPrice}</p>
+            <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
             <ProductDetailActions product={product} />
             {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
             {!hasAccordion && product.desc ? (

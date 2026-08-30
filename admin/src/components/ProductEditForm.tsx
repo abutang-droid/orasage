@@ -117,7 +117,7 @@ export function ProductEditForm({
                   rows={3}
                   required
                   defaultValue={product?.desc ?? ''}
-                  placeholder="招财旺运 · 五行补木"
+                  placeholder="生机生长 · 五行补木"
                 />
               </label>
             </div>

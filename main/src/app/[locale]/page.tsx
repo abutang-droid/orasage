@@ -2,6 +2,7 @@ import { Hero, ToolCards, ShopSection, ContentSections } from '@/components/Home
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { fetchHomepageCatalog } from '@/lib/shop-products';
 import { fallbackHomeHero, fetchHomeHero } from '@/lib/cms-home-hero';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -22,6 +23,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <div className="home-portal">
       <Hero hero={hero} />
+      <Disclaimer variant="standard" locale={locale} className="orasage-disclaimer--banner px-5 sm:px-6" />
       <ToolCards />
       <ShopSection catalog={homepageCatalog} />
       <ContentSections />
