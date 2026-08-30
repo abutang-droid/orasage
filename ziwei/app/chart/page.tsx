@@ -15,6 +15,7 @@ import { ZiweiHomeFeed } from '@/components/ZiweiHomeFeed';
 import { ZiweiBriefInsight } from '@/components/ZiweiBriefInsight';
 import { ZiweiOrasageChat } from '@/components/ZiweiOrasageChat';
 import { ZiweiRecommendCard } from '@/components/ZiweiRecommendCard';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 import {
   clearChartSession,
   getLastReadingId,
@@ -363,6 +364,8 @@ export default function ChartPage() {
           当前为未成年人命盘（未满 16 周岁），解读内容仅包含基础命格、健康、学业与未来方向。
         </div>
       ) : null}
+
+      <Disclaimer variant="full" locale={locale} className="mb-4" />
 
       <div className="ziwei-result-stack">
         <div className="ziwei-result-chart ziwei-chart-rice-paper">

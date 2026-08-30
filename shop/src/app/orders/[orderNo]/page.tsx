@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { Button } from '@orasage/ui/button';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 import {
   SHIPMENT_STATUS_LABELS,
   formatShippingDisplay,
@@ -23,6 +25,7 @@ type OrderDetail = {
 
 export default function OrderDetailPage() {
   const params = useParams();
+  const locale = useLocale();
   const orderNo = String(params.orderNo ?? '');
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [shipments, setShipments] = useState<OrderShipment[]>([]);
@@ -89,6 +92,8 @@ export default function OrderDetailPage() {
           </p>
         ) : null}
       </section>
+
+      <Disclaimer variant="transaction" locale={locale} compact className="mt-4" />
 
       <section className="mt-6">
         <h2 className="text-sm font-semibold text-sage-primary">物流跟踪</h2>

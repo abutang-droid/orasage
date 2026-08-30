@@ -1,5 +1,6 @@
 import { mainPortalUrl } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
+import { Disclaimer } from './Disclaimer';
 
 export type PortalFooterProps = {
   /** Must be the same locale as AppShell nav (not a delayed i18n provider). */
@@ -7,7 +8,7 @@ export type PortalFooterProps = {
 };
 
 /**
- * PC portal footer — copyright / privacy / terms.
+ * PC portal footer — copyright / privacy / terms + entertainment-only notice.
  * Driven by shell `locale` so it stays in sync with the language switcher.
  */
 export function PortalFooter({ locale }: PortalFooterProps) {
@@ -16,6 +17,7 @@ export function PortalFooter({ locale }: PortalFooterProps) {
   return (
     <footer className="orasage-portal-footer safe-bottom mt-auto">
       <div className="orasage-portal-footer-inner">
+        <Disclaimer variant="standard" locale={locale} compact />
         <p className="orasage-portal-footer-copy">
           {pickLabel(SHELL_LABELS.copyright, locale)}
         </p>

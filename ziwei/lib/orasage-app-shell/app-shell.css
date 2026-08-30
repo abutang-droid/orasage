@@ -580,3 +580,50 @@
   border-color: var(--shell-gold);
   color: var(--shell-gold);
 }
+
+/* Entertainment-only disclaimer (PRD §8.1 / R1) */
+.orasage-disclaimer {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #e7e5e4);
+  background: color-mix(in srgb, var(--shell-muted, #6b7280) 8%, transparent);
+  color: var(--shell-muted, #6b7280);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: start;
+}
+
+.orasage-disclaimer p {
+  margin: 0;
+}
+
+.orasage-disclaimer p + p {
+  margin-top: 6px;
+}
+
+.orasage-disclaimer-title {
+  color: var(--shell-text, #171717);
+  margin-bottom: 4px !important;
+}
+
+.orasage-disclaimer--compact {
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.orasage-disclaimer--compact strong {
+  font-weight: 600;
+  color: var(--shell-text, #171717);
+}
+
+.orasage-portal-footer .orasage-disclaimer {
+  margin-top: 12px;
+  max-width: 52rem;
+}
+
+.orasage-disclaimer--banner {
+  margin: 0 auto 1.25rem;
+  max-width: 42rem;
+}

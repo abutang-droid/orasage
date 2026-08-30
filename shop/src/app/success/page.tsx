@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Button } from '@orasage/ui/button';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 export default async function SuccessPage({
   searchParams,
@@ -9,6 +10,7 @@ export default async function SuccessPage({
 }) {
   const { order } = await searchParams;
   const t = await getTranslations('success');
+  const locale = await getLocale();
 
   return (
     <main className="shop-page safe-bottom mx-auto flex min-h-[60dvh] max-w-lg flex-1 flex-col items-center justify-center py-12 text-center">
@@ -20,6 +22,12 @@ export default async function SuccessPage({
         </p>
       )}
       <p className="mt-2 text-sm text-sage-muted">{t('synced')}</p>
+      <Disclaimer
+        variant="transaction"
+        locale={locale}
+        compact
+        className="mt-6 w-full max-w-sm text-left"
+      />
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
         {order ? (
           <Button asChild className="w-full">

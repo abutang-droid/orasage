@@ -5,6 +5,14 @@ export { SiteTopNav } from './SiteTopNav';
 export { LocaleSwitcher } from './LocaleSwitcher';
 export { PortalFooter } from './PortalFooter';
 export type { PortalFooterProps } from './PortalFooter';
+export { Disclaimer } from './Disclaimer';
+export type { DisclaimerProps } from './Disclaimer';
+export {
+  disclaimerLocale,
+  getDisclaimerCopy,
+  getDisclaimerPlainText,
+} from './disclaimer-copy';
+export type { DisclaimerVariant, DisclaimerLocale } from './disclaimer-copy';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
 export { pickLabel, SHELL_LABELS } from './labels';
 export type { AppId, NavContext } from './config';

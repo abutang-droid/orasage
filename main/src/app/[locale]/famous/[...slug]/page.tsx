@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
@@ -7,11 +8,16 @@ import { FamousArticleNav } from '@/components/famous/FamousArticleNav';
 import { cmsLocale, fetchCmsPageBySlug, fetchFamousPages } from '@/lib/cms';
 import { buildFamousListItems, resolveFamousNeighbors } from '@/lib/famous-list';
 import { prepareFamousArticle } from '@/lib/famous-meta';
+import { Disclaimer } from '@/lib/orasage-app-shell';
 
 import { Alert, AlertDescription, Separator } from '@orasage/ui';
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { robots: { index: false, follow: true } };
+}
 
 export default async function FamousArticlePage({ params }: Props) {
   const { locale, slug: slugParts } = await params;
@@ -35,6 +41,7 @@ export default async function FamousArticlePage({ params }: Props) {
 
   return (
     <PageShell>
+      <Disclaimer variant="full" locale={locale} figureNote className="mb-6" />
       {/* 正文自带封面（含人名大标题）时不再重复渲染页面级标题 */}
       {!article?.hasCover && (
         <>
@@ -75,7 +82,7 @@ export default async function FamousArticlePage({ params }: Props) {
       )}
 
       {neighbors && <FamousArticleNav neighbors={neighbors} />}
-      <FamousArticleCta />
+      <FamousArticleCta locale={locale} />
     </PageShell>
   );
 }
