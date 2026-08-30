@@ -44,7 +44,7 @@
       "wood": {
         "name": "绿幽灵",
         "element": "木",
-        "desc": "招财旺运"
+        "desc": "生机生长"
       },
       "fire": {
         "name": "红玛瑙",
@@ -64,7 +64,7 @@
       "water": {
         "name": "黑曜石",
         "element": "水",
-        "desc": "辟邪护身"
+        "desc": "边界沉静"
       }
     },
     "categories": {

@@ -126,7 +126,7 @@ My fire warms others without burning out.`,
     stoneEn: 'Citrine',
     stoneZh: '黄水晶',
     element: '土',
-    elementTrait: '土主稳定、主承载、主聚财。适合需要「脚踏实地」「守住成果」「在变动中保持内心安稳」的阶段。',
+    elementTrait: '土主稳定、主承载、主守成。适合需要「脚踏实地」「守住成果」「在变动中保持内心安稳」的阶段。',
     storyTitle: '黄水晶的灵性图谱',
     storyBody: `黄水晶在商业世界中被称为「商人之石」，但古老的智慧更强调它的「土行」本质：不是投机，而是耕耘后的收获。
 
@@ -149,7 +149,7 @@ My roots go deep; my fruits come in time.`,
     pairings: [
       { combo: '黄水晶 + 白水晶', effect: '务实判断，不被欲望牵着走' },
       { combo: '黄水晶 + 绿幽灵', effect: '既有愿景也有落地的耐心' },
-      { combo: '黄水晶 + 黑曜石', effect: '聚财时守住能量边界' },
+      { combo: '黄水晶 + 黑曜石', effect: '守成时守住能量边界' },
     ],
     promiseNote: '每颗黄水晶保留天然色带与冰裂——天然蜜金而非人工染色',
     testimonials: [

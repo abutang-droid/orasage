@@ -44,7 +44,7 @@
       "wood": {
         "name": "Green Phantom",
         "element": "Wood",
-        "desc": "Prosperity"
+        "desc": "Growth intention"
       },
       "fire": {
         "name": "Red Agate",
@@ -59,12 +59,12 @@
       "metal": {
         "name": "Clear Quartz",
         "element": "Metal",
-        "desc": "Purify"
+        "desc": "Clarity"
       },
       "water": {
         "name": "Obsidian",
         "element": "Water",
-        "desc": "Protection"
+        "desc": "Calm boundaries"
       }
     },
     "categories": {
