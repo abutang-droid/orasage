@@ -7,27 +7,36 @@ import { LangProvider } from "@/lib/i18n/context"
 import { resolveServerLang } from "@/lib/i18n/request-lang"
 import { siteMetadataForLang } from "@/lib/i18n/site-metadata"
 import { UserProvider } from "@/lib/user"
-import { buildOrasageMetadata, ORASAGE_URLS } from "@/lib/orasage-seo"
+import { ORASAGE_URLS } from "@/lib/orasage-seo"
 import { localeFromTarotLang } from "@orasage/i18n"
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await resolveServerLang()
   const meta = siteMetadataForLang(lang)
 
-  return buildOrasageMetadata({
-    title: meta.title,
+  return {
+    metadataBase: new URL(ORASAGE_URLS.tarot),
+    title: {
+      default: meta.title,
+      template: '%s | OraSage',
+    },
     description: meta.description,
     keywords: ["OraSage", "tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "命理"],
-    metadataBase: new URL(ORASAGE_URLS.tarot),
-    canonical: "/",
     openGraph: {
+      siteName: 'OraSage',
       title: meta.title,
       description: meta.description,
       url: ORASAGE_URLS.tarot,
       locale: meta.locale,
+      images: [{ url: `${ORASAGE_URLS.tarot}/og.png`, width: 1200, height: 630 }],
     },
-    ogImage: `${ORASAGE_URLS.tarot}/og.png`,
-  })
+    twitter: {
+      card: 'summary_large_image',
+      title: meta.title,
+      description: meta.description,
+      images: [`${ORASAGE_URLS.tarot}/og.png`],
+    },
+  }
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

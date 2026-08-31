@@ -5,18 +5,30 @@ import { PageShell, PageTitle } from '@/components/PageShell';
 import { ArticleTitle, LegacyHtmlArticle } from '@/components/LegacyHtmlArticle';
 import { FamousArticleCta } from '@/components/famous/FamousArticleCta';
 import { FamousArticleNav } from '@/components/famous/FamousArticleNav';
-import { cmsLocale, fetchCmsPageBySlug, fetchFamousPages } from '@/lib/cms';
+import { cmsLocale, decodeHtmlEntities, famousArticlePath, fetchCmsPageBySlug, fetchFamousPages, stripHtml } from '@/lib/cms';
 import { buildFamousListItems, resolveFamousNeighbors } from '@/lib/famous-list';
 import { prepareFamousArticle } from '@/lib/famous-meta';
 import { Disclaimer } from '@/lib/orasage-app-shell';
+import { buildPortalPageMeta } from '@/lib/seo';
 
 import { Alert, AlertDescription, Separator } from '@orasage/ui';
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { robots: { index: false, follow: true } };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug: slugParts } = await params;
+  const slug = slugParts.join('/');
+  const page = await fetchCmsPageBySlug(slug);
+  if (!page || page.appSource !== 'famous') return { title: 'Not found' };
+  const description = page.excerpt ?? (page.legacyHtml ? stripHtml(page.legacyHtml) : undefined);
+  return buildPortalPageMeta({
+    locale,
+    pathname: famousArticlePath(slug),
+    title: decodeHtmlEntities(page.title),
+    description,
+    noindex: true,
+  });
 }
 
 export default async function FamousArticlePage({ params }: Props) {

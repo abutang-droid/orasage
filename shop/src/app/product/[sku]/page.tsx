@@ -24,6 +24,7 @@ import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
+import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 import { Disclaimer } from '@/lib/orasage-app-shell';
 
 type PageProps = { params: Promise<{ sku: string }> };
@@ -40,11 +41,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`;
   const description = cmsPage?.seoDescription?.trim() || product.desc;
   const ogImage = cmsPage?.heroImages[0]?.url;
-  return {
+  return buildOrasageMetadata({
     title,
     description,
-    openGraph: ogImage ? { images: [{ url: ogImage }] } : undefined,
-  };
+    canonical: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(sku)}`,
+    openGraph: {
+      title,
+      description,
+      url: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(sku)}`,
+      image: ogImage,
+    },
+    ogImage,
+  });
 }
 
 export default async function ProductPage({ params }: PageProps) {

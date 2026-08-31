@@ -13,7 +13,6 @@ export const metadata: Metadata = buildOrasageMetadata({
   description: PAGE_DESCRIPTION,
   keywords: ['OraSage', 'energy shop', 'crystal bracelet', 'divination report', '能量商城', '水晶手串'],
   metadataBase: new URL(ORASAGE_URLS.shop),
-  canonical: '/',
   openGraph: {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,

@@ -1,10 +1,13 @@
+import type { Metadata } from 'next';
 import { SingleCardFlow } from '@/components/single-card/SingleCardFlow';
+import { tarotPageMeta } from '@/lib/seo-routes';
 import '../tarot-home.css';
 
-export const metadata = {
-  title: '定命切片 // FOCUS · Manto',
-  description: '单点高能聚焦。心中固化是非题，滑动牌堆抽取倾向性数据切片。',
-};
+export const metadata: Metadata = tarotPageMeta(
+  '/single-card',
+  'Single Card Reading',
+  'Quick single-card tarot guidance',
+);
 
 export default function SingleCardPage() {
   return <SingleCardFlow />;
