@@ -28,17 +28,17 @@ export default async function OriginsPage({ params }: Props) {
 
   const links = [
     {
-      href: '/origins',
+      href: '/origins/the-making',
       title: t('The Making', '造物记'),
       desc: t('Five piece stories — design decisions you can verify.', '五款单品故事：可核对的设计决策。'),
     },
     {
-      href: '/origins',
+      href: '/origins/atelier',
       title: t('Atelier', '工坊'),
       desc: t('How pieces are made, inspected, and packed.', '制作、品控与包装流程。'),
     },
     {
-      href: '/origins',
+      href: '/origins/our-story',
       title: t('Our Story', '缘起'),
       desc: t('Why OraSage builds content commerce this way.', 'OraSage 为何这样做内容电商。'),
     },

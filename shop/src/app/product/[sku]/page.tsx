@@ -27,6 +27,7 @@ import { TrustBar } from '@/components/TrustBar';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 import { Disclaimer } from '@/lib/orasage-app-shell';
+import { makingSkuForProduct, makingUrl } from '@/lib/origins-making';
 
 type PageProps = { params: Promise<{ sku: string }> };
 
@@ -123,6 +124,23 @@ export default async function ProductPage({ params }: PageProps) {
             <TrustBar locale={locale} />
             <ProductDetailActions product={product} />
             <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
+            {(() => {
+              const makingSku = makingSkuForProduct(product.sku);
+              if (!makingSku) return null;
+              const href = makingUrl(locale.startsWith('zh') ? 'zh-CN' : 'en', makingSku);
+              return (
+                <p className="shop-pdp-making mb-4 text-sm">
+                  <a href={href} className="font-medium text-foreground underline-offset-4 hover:underline">
+                    {locale.startsWith('zh') ? '造物记 →' : 'The Making →'}
+                  </a>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {locale.startsWith('zh')
+                      ? '设计决策与可核验工艺（非功效承诺）'
+                      : 'Design decisions and inspectable craft — not outcome claims'}
+                  </span>
+                </p>
+              );
+            })()}
             {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
             {!hasAccordion && product.desc ? (
               <p className="shop-pdp-desc">{product.desc}</p>
