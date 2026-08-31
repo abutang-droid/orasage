@@ -19,9 +19,7 @@ export function Header() {
     { href: externalUrls.bazi, label: tNav('bazi'), external: true },
     { href: externalUrls.ziwei, label: tNav('ziwei'), external: true },
     { href: externalUrls.tarot, label: tNav('tarot'), external: true },
-    { href: externalUrls.temple, label: tNav('blessing'), external: true },
     { href: externalUrls.shop, label: tNav('shop'), external: true },
-    ...(locale.startsWith('en') ? [] : [{ href: '/famous' as const, label: tNav('famous') }]),
     { href: '/daozang', label: tNav('daozang') },
   ];
 

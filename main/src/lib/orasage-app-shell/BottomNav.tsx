@@ -8,7 +8,6 @@ import {
   isCurrentAppHome,
   isOnPortalHome,
   isOnProfile,
-  isOnTemple,
   resolveSecondNavSlot,
   type NavContext,
 } from './config';
@@ -60,15 +59,15 @@ export type FixedBottomNavProps = {
 
 /**
  * 固定底栏 5 键 — 移动端全站
- * 1 首页 · 2 探索/当前应用（动态）· 3 祈福 · 4 商城 · 5 我的
- * 锚点页（首页/祈福/商城/我的）时第 2 键轮换至八字/塔罗/紫微/道藏/名人，避免与固定键重复
+ * 1 首页 · 2 探索/当前应用（动态）· 3 八字测算（P0：祈福撤一级）· 4 商城 · 5 我的
+ * 锚点页时第 2 键轮换至八字/塔罗/紫微/道藏，避免与固定键重复
  */
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const homeHref = mainPortalUrl(locale);
   const slot2 = resolveSecondNavSlot(context, pathname, locale);
 
   const onPortalHome = context === 'portal' && isOnPortalHome(pathname);
-  const onTemple = isOnTemple(pathname);
+  const onBazi = pathname === '/' && context === 'bazi';
   const onShop = context === 'shop' && isCurrentAppHome('shop', pathname);
   const onProfile = context === 'portal' && isOnProfile(pathname);
 
@@ -85,9 +84,9 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
           <span className="orasage-app-nav-brand">{slot2.label}</span>
         </a>
 
-        <a href={ORASAGE_URLS.temple} className="orasage-app-nav-item" data-active={onTemple ? 'true' : 'false'}>
-          <NavIcon name="blessing" active={onTemple} />
-          <span>{pickLabel(SHELL_LABELS.blessing, locale)}</span>
+        <a href={ORASAGE_URLS.bazi} className="orasage-app-nav-item" data-active={onBazi ? 'true' : 'false'}>
+          <NavIcon name="app" active={onBazi} />
+          <span>{pickLabel(SHELL_LABELS.bazi, locale)}</span>
         </a>
 
         <a href={ORASAGE_URLS.shop} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>

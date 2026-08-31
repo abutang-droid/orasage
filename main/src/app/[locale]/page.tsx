@@ -12,9 +12,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const messages = (await import(`../../../messages/${locale}.json`)).default;
   const homeTitles: Record<string, string> = {
-    'zh-CN': '命理与能量',
-    en: 'Destiny & Energy',
-    'pt-BR': 'Destino e Energia',
+    'zh-CN': '看见真实的自己',
+    en: 'Self & Energy',
+    'pt-BR': 'Self & Energy',
   };
   return buildPortalPageMeta({
     locale,

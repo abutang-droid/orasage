@@ -4,7 +4,7 @@ import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
 import { Moon, Sparkles, SunMoon, type LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 import type { HomeHeroContent } from '@/lib/cms-home-hero';
@@ -283,8 +283,8 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
 
 export function ContentSections() {
   const t = useTranslations('sections');
-  const locale = useLocale();
-  const showFamous = !locale.startsWith('en');
+  // Q5: famous removed from nav + home cards (page kept with disclaimer)
+  const showFamous = false;
 
   return (
     <section className="home-section home-section--tail">

@@ -1,15 +1,15 @@
 {
   "meta": {
-    "title": "OraSage — Destiny & Energy",
-    "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy",
-    "keywords": "OraSage, divination, BaZi, Zi Wei, tarot, crystal energy, Eastern astrology"
+    "title": "Self & Energy | OraSage",
+    "description": "BaZi, Zi Wei, Tarot — structured introspection through the Five Elements. Crystal jewelry as mindful reminders of intention.",
+    "keywords": "OraSage, BaZi, Zi Wei, tarot, Five Elements, crystal jewelry, self-exploration"
   },
   "nav": {
     "home": "Home",
     "bazi": "BaZi",
     "ziwei": "ZiWei",
     "tarot": "Tarot",
-    "blessing": "Blessing",
+    "blessing": "Wishing Well",
     "famous": "Famous Cases",
     "daozang": "Dao Canon",
     "login": "Sign In",
@@ -17,27 +17,27 @@
     "shop": "Shop"
   },
   "hero": {
-    "title": "Explore Destiny, Balance Energy",
-    "subtitle": "BaZi · Zi Wei · Tarot — Eastern wisdom meets modern technology",
+    "title": "Discover Your True Self",
+    "subtitle": "We look at the symbolic distribution of the Five Elements as a tool for introspection, stripping away fatalism and predetermined outcomes.",
     "cta": "Start Exploring"
   },
   "tools": {
-    "title": "Divination Tools",
+    "title": "Reading Tools",
     "bazi": {
       "name": "BaZi Chart",
       "desc": "Five Elements · Life analysis · Crystal recommendations"
     },
     "ziwei": {
       "name": "Zi Wei Dou Shu",
-      "desc": "Twelve palaces · Star readings · Energy guidance"
+      "desc": "Twelve palaces · Star readings · Element guidance"
     },
     "tarot": {
       "name": "Tarot Reading",
-      "desc": "Daily energy · Deep insights · Spiritual guidance"
+      "desc": "Daily draw · Deep insights · Self-reflection"
     }
   },
   "shop": {
-    "title": "Energy Shop",
+    "title": "The Five Elements Collection",
     "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
     "cta": "More products",
     "products": {
@@ -107,7 +107,7 @@
   },
   "terms": {
     "title": "Terms of Service",
-    "content": "By using OraSage, you agree to these terms. Divination readings are for reference only and do not constitute professional advice. We reserve the right to modify our services at any time."
+    "content": "By using OraSage, you agree to these terms. Readings are for reference only and do not constitute professional advice. We reserve the right to modify our services at any time."
   },
   "famous": {
     "title": "Famous Cases",
@@ -172,16 +172,16 @@
         "desc": "Classical Chinese medicine"
       },
       "ming": {
-        "name": "Ming · Destiny",
-        "desc": "Destiny reading and astrology"
+        "name": "Ming · Life Studies",
+        "desc": "Life-structure classics and calendrics"
       },
       "xiang": {
         "name": "Xiang · Physiognomy",
         "desc": "Feng Shui and physiognomy"
       },
       "bu": {
-        "name": "Bu · Divination",
-        "desc": "Divination classics"
+        "name": "Bu · Oracles",
+        "desc": "Classic oracle texts"
       }
     },
     "categories": {

@@ -1,10 +1,21 @@
 /** OraSage Entertainment-Only 声明文案（PRD §8.1 / R1） */
 
-export type DisclaimerVariant = 'standard' | 'full' | 'product' | 'transaction';
+export type DisclaimerVariant = 'standard' | 'full' | 'product' | 'transaction' | 'compact';
 
 export type DisclaimerLocale = 'zh' | 'en';
 
 type CopyBlock = { title: string; body: string[]; figureNote?: string };
+
+const COMPACT: Record<DisclaimerLocale, CopyBlock> = {
+  zh: {
+    title: '🎭 娱乐与自我探索',
+    body: ['不构成医疗、财务、法律或人生决策建议。'],
+  },
+  en: {
+    title: '🎭 Entertainment & self-exploration',
+    body: ['Not medical, financial, legal or life-decision advice.'],
+  },
+};
 
 const STANDARD: Record<DisclaimerLocale, CopyBlock> = {
   zh: {
@@ -79,6 +90,7 @@ const TRANSACTION: Record<DisclaimerLocale, CopyBlock> = {
 };
 
 const BY_VARIANT: Record<DisclaimerVariant, Record<DisclaimerLocale, CopyBlock>> = {
+  compact: COMPACT,
   standard: STANDARD,
   full: FULL,
   product: PRODUCT,

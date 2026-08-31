@@ -4,7 +4,7 @@ import { CityProvider } from "@orasage/city/react";
 import "@orasage/city/city.css";
 import { cityApi } from "@/lib/city-client";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import { useEffect, useRef } from "react";
 import { I18nProvider, useI18n } from "@orasage/i18n/react";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -14,12 +14,33 @@ import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
 import { DICTIONARIES } from "./lib/i18n";
 
+const PORTAL_LOCALES = new Set([
+  "zh-CN", "en", "pt-BR", "zh-TW", "es", "fr", "de", "ja", "ko", "vi", "th", "ar",
+]);
+
+/** P0-4: `/en` → `/` with locale applied (Vite SPA has no path-locale routes). */
+function LocaleRootRedirect() {
+  const [, setLocation] = useLocation();
+  const { setLocale } = useI18n();
+  useEffect(() => {
+    const seg = window.location.pathname.replace(/\/$/, "").split("/")[1] || "";
+    if (PORTAL_LOCALES.has(seg)) {
+      setLocale(seg);
+      setLocation("/");
+    }
+  }, [setLocale, setLocation]);
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/history"} component={HistoryPage} />
       <Route path={"/404"} component={NotFound} />
+      <Route path="/:locale">{(params) =>
+        PORTAL_LOCALES.has(params.locale) ? <LocaleRootRedirect /> : <NotFound />
+      }</Route>
       <Route component={NotFound} />
     </Switch>
   );

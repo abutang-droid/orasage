@@ -47,9 +47,14 @@ export function famousUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/famous`;
 }
 
-/** R4: hide /en/famous from nav — content quality not ready for English audience */
-export function isFamousNavVisible(locale: string): boolean {
-  return !locale.startsWith('en');
+/** R4/Q5: famous removed from primary nav (EN noindex; ZH keep page + disclaimer, no nav) */
+export function isFamousNavVisible(_locale: string): boolean {
+  return false;
+}
+
+/** P0-3: Blessing / temple not in primary nav (reachable via Readings / footer later) */
+export function isBlessingNavVisible(): boolean {
+  return false;
 }
 
 export function daozangUrl(locale = 'zh-CN'): string {
