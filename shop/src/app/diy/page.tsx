@@ -41,7 +41,7 @@ export default async function DiyPage({ searchParams }: PageProps) {
         </Link>
 
         <header className="shop-diy-header">
-          <p className="shop-diy-eyebrow">OraSage Energy Shop</p>
+          <p className="shop-diy-eyebrow">OraSage Crystal Shop</p>
           <h1 className="shop-diy-title">{t('title')}</h1>
           <p className="shop-diy-sub">{t('subtitle')}</p>
         </header>

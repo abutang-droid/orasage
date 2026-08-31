@@ -18,7 +18,7 @@ export type SingleCardStoredCard = {
   element: string;
 };
 
-/** 定命切片 Focus：冷峻是非/倾向性数据切片 */
+/** 问题切片 Focus：冷峻是非/倾向性数据切片 */
 export type DestinySliceFocusPayload = {
   tendency: string;
   probability: string;

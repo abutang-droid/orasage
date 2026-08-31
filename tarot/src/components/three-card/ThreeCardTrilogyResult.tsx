@@ -1,7 +1,7 @@
 'use client';
 
 import type { ThreeCardTrilogyPayload } from '@/lib/three-card/trilogy-types';
-import { Disclaimer } from '@/lib/orasage-app-shell';
+import { Disclaimer, ResultExitLinks } from '@/lib/orasage-app-shell';
 import { useTarotLocale } from '@/lib/i18n/context';
 
 type Props = {
@@ -27,6 +27,7 @@ export function ThreeCardTrilogyResult({
   return (
     <div className="trilogy-result card">
       <Disclaimer variant="full" locale={locale} className="mb-4" />
+      <ResultExitLinks locale={locale} className="mb-4" />
       <section className="trilogy-result-section">
         <h2 className="trilogy-result-heading">{sectionArchitecture}</h2>
         <p className="trilogy-result-line">

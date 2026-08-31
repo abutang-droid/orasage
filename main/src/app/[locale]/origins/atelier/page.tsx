@@ -36,7 +36,7 @@ export default async function AtelierPage({ params }: Props) {
       <PageTitle>{t('Atelier', '工坊')}</PageTitle>
       <PageLead>
         {t(
-          'Workshop process shell — selection, finishing, stringing, QC, and packing. Full walkthrough later.',
+          'Workshop process — selection, finishing, stringing, QC, and packing. Full walkthrough later.',
           '工坊流程骨架 — 选石、抛光、串制、品控与包装。完整图文稍后上线。',
         )}
       </PageLead>

@@ -65,7 +65,7 @@ export function DailyInsightGlyph() {
   );
 }
 
-/** 定命切片：金属球穿透三块玻璃切面 + 虚线视轴 */
+/** 问题切片：金属球穿透三块玻璃切面 + 虚线视轴 */
 export function DestinySliceGlyph() {
   const panel = (x: number, opacity: number) => (
     <path

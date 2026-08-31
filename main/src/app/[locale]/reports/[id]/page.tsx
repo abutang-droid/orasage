@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-/** Batch 3: $0.99 in-site HTML report skeleton (Q1). Wired to live jobs later. */
+/** In-site HTML report stub ($0.99). Wired to live jobs later. */
 export default async function DigitalReportSkeletonPage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
@@ -36,7 +36,7 @@ export default async function DigitalReportSkeletonPage({ params }: Props) {
       <PageTitle>{t('Your structural reading', '你的结构解读')}</PageTitle>
       <PageLead>
         {t(
-          'This is an in-site HTML report shell. Paid generation will render Day Master, element balance, and reflective notes here — not predictions.',
+          'This is an in-site HTML report. Paid generation will render Day Master, element balance, and reflective notes here — not predictions.',
           '这是站内 HTML 报告骨架。付费生成后将在此呈现日主、五行分布与内省笔记——不是预测。',
         )}
       </PageLead>
@@ -47,25 +47,25 @@ export default async function DigitalReportSkeletonPage({ params }: Props) {
         <section className="rounded-[var(--os-radius-card)] border border-dashed border-border p-5">
           <h2 className="font-serif text-lg font-medium">{t('Chart summary', '命盘摘要')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t('Placeholder — Day Master / pillars will appear after purchase unlock.', '占位 — 购买解锁后显示日主与四柱。')}
+            {t('Day Master / pillars will appear after purchase unlock.', '占位 — 购买解锁后显示日主与四柱。')}
           </p>
         </section>
         <section className="rounded-[var(--os-radius-card)] border border-dashed border-border p-5">
           <h2 className="font-serif text-lg font-medium">{t('Five Elements balance', '五行分布')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t('Placeholder — symbolic distribution chart.', '占位 — 象征性五行分布图。')}
+            {t('symbolic distribution chart.', '占位 — 象征性五行分布图。')}
           </p>
         </section>
         <section className="rounded-[var(--os-radius-card)] border border-dashed border-border p-5">
           <h2 className="font-serif text-lg font-medium">{t('Reflective notes', '内省笔记')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t('Placeholder — entertainment / self-exploration copy only.', '占位 — 仅娱乐与自我探索文案。')}
+            {t('entertainment / self-exploration copy only.', '占位 — 仅娱乐与自我探索文案。')}
           </p>
         </section>
         <section className="rounded-[var(--os-radius-card)] border border-dashed border-border p-5">
           <h2 className="font-serif text-lg font-medium">{t('Related piece', '相关器物')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t('Placeholder — link to matching Five Elements PDP / The Making.', '占位 — 链向对应五行 PDP / 造物记。')}
+            {t('link to matching Five Elements PDP / The Making.', '占位 — 链向对应五行 PDP / 造物记。')}
           </p>
           <Link href="/origins/the-making" className="mt-3 inline-flex text-sm underline-offset-4 hover:underline">
             {t('Browse The Making →', '浏览造物记 →')}

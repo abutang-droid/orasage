@@ -57,8 +57,8 @@ export default async function OriginsPage({ params }: Props) {
       <PageTitle>{t('Craft you can inspect.', '可被检视的工艺。')}</PageTitle>
       <PageLead>
         {t(
-          'Origins explains materials, making, and story — without outcome claims. Full piece pages land in a later batch.',
-          '造物讲述材料、工艺与缘起——不做结果承诺。完整单品页将在后续批次上线。',
+          'Origins explains materials, making, and story — without outcome claims. Full piece pages come when the piece is ready.',
+          '造物讲述材料、工艺与缘起——不做结果承诺。完整单品页将在即将上线。',
         )}
       </PageLead>
 

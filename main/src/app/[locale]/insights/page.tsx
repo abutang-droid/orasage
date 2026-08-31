@@ -88,7 +88,7 @@ export default async function InsightsPage({ params }: Props) {
       <section id="latest" className="mt-12">
         <h2 className="font-serif text-xl font-medium">{t('Latest', '最新')}</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          {t('Featured essays will appear here (Batch 3+ content).', '精选文章将在此呈现（后续批次上线）。')}
+          {t('Featured essays will appear here as they are published.', '精选文章将在此呈现（即将上线）。')}
         </p>
       </section>
 

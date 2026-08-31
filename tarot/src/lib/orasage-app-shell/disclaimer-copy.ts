@@ -8,7 +8,7 @@ type CopyBlock = { title: string; body: string[]; figureNote?: string };
 
 const COMPACT: Record<DisclaimerLocale, CopyBlock> = {
   zh: {
-    title: '🎭 娱乐与自我探索',
+    title: '🎭 娱乐与自我探索 · Entertainment',
     body: ['不构成医疗、财务、法律或人生决策建议。'],
   },
   en: {
@@ -19,9 +19,9 @@ const COMPACT: Record<DisclaimerLocale, CopyBlock> = {
 
 const STANDARD: Record<DisclaimerLocale, CopyBlock> = {
   zh: {
-    title: '🎭 娱乐用途声明',
+    title: '🎭 娱乐用途声明 · Entertainment-Only Notice',
     body: [
-      'OraSage 的八字、紫微、塔罗测算与水晶内容，均为文化娱乐与自我探索工具，不构成医疗、财务、法律或人生决策建议。结果由算法基于公开历法模型生成，仅供您参考。',
+      'OraSage 的八字、紫微斗数与塔罗解读，以及我们的水晶内容，均为文化娱乐与自我探索工具，不构成医疗、财务、法律或人生决策建议。结果由算法基于公开历法模型生成，仅供您参考。',
     ],
   },
   en: {
@@ -34,12 +34,12 @@ const STANDARD: Record<DisclaimerLocale, CopyBlock> = {
 
 const FULL: Record<DisclaimerLocale, CopyBlock> = {
   zh: {
-    title: '🎭 娱乐与自我探索工具',
+    title: '🎭 娱乐与自我探索工具 · Entertainment-Only',
     body: [
       '本页内容由 OraSage 算法依据您（或公开人物）输入的出生信息自动生成，仅供娱乐与文化参考。',
       '• 非医疗建议：不替代专业诊断或治疗；如有健康困扰请咨询持证医师。',
       '• 非财务 / 投资建议：不预测收益，不指导任何交易或投资。',
-      '• 非命运定论：传统命理提供的是一种文化视角的自我觉察，而非既定结局。我们帮您连接当下的能量，但未来由您的自由意志书写。',
+      '• 非命运定论：传统命理提供的是一种文化视角的自我觉察，而非既定结局。结构可供对照，选择仍由你自己做出。',
       '数据来源：基于中国传统历法与命理文献的公开算法模型；结果存在传统流派差异，并非绝对真理。',
     ],
     figureNote:
@@ -51,7 +51,7 @@ const FULL: Record<DisclaimerLocale, CopyBlock> = {
       "This page is generated automatically by OraSage's algorithm from the birth details you (or a public figure) provide. It is for entertainment and cultural reference only.",
       '• Not medical advice — does not replace professional diagnosis or treatment. Consult a licensed physician for health concerns.',
       '• Not financial or investment advice — does not predict returns or direct any trade or investment.',
-      '• Not a fixed destiny — traditional metaphysics offers a cultural lens for self-awareness, not a predetermined outcome. We help you connect with present energy; your future is written by your own free will.',
+      '• Not a fixed destiny — traditional metaphysics offers a cultural lens for self-awareness, not a predetermined outcome. Structure is for reflection; choices remain yours.',
       'Data source: Public algorithmic models based on traditional Chinese calendar and metaphysics literature. Results vary across traditions and are not absolute truth.',
     ],
     figureNote:

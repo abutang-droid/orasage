@@ -107,8 +107,8 @@ export function buildSingleCardSyncPayload(
   }
 
   const title = record.paidTier
-    ? `定命切片详读 · ${questionLabel}`
-    : `定命切片 · ${questionLabel}`;
+    ? `问题切片详读 · ${questionLabel}`
+    : `问题切片 · ${questionLabel}`;
 
   return {
     appSource: 'tarot',

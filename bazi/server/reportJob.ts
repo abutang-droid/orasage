@@ -60,7 +60,7 @@ async function writeReportHtml(
 
   const planLabelMap: Record<string, string> = {
     basic: '深度解读',
-    advanced: '能量手串',
+    advanced: '水晶手串',
     premium: '终极能量礼盒',
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';

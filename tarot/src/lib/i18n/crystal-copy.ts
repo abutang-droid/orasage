@@ -239,8 +239,8 @@ export const crystalUi = {
     es: 'Pedir una · {name}',
   },
   blessLink: {
-    zh: '请守护神加持这条手串',
-    en: 'Ask your patron to bless this bracelet',
+    zh: '请为这条手串献上祝福',
+    en: 'Offer a blessing for this bracelet',
     pt: 'Peça bênção do patrono para esta pulseira',
     es: 'Pide la bendición de tu patrón para esta pulsera',
   },

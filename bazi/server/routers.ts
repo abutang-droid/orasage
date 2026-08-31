@@ -355,7 +355,7 @@ export const appRouter = router({
             const reportsDir = resolveReportsDir();
             console.log('[StaticReport] reportsDir:', reportsDir, 'exists:', fs.existsSync(reportsDir));
 
-            const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
+            const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '水晶手串', premium: '终极能量礼盒' };
             const planLabel = planLabelMap[input.planType] || input.planType;
             const summary = input.inputSummary as Record<string, unknown> | undefined;
             const wuXing = summary?.wuXing as Record<string, number> | undefined;
@@ -436,7 +436,7 @@ export const appRouter = router({
             try {
               const wpUrl = ENV.wordpressUrl;
               if (wpUrl) {
-                const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
+                const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '水晶手串', premium: '终极能量礼盒' };
                 const planLabel = planLabelMap[input.planType] || input.planType;
                 const title = (input.reportContent || '').match(/^###\s*(.+)$/m);
                 const reportTitle = title ? title[1].replace(/[*#]/g, '').trim() : `${planLabel} · ${buyerName || email}`;
@@ -472,7 +472,7 @@ export const appRouter = router({
 
           if (input.readingId && ctx.user?.id) {
             try {
-              const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '能量手串', premium: '终极能量礼盒' };
+              const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '水晶手串', premium: '终极能量礼盒' };
               const planLabel = planLabelMap[input.planType] || input.planType;
               await pushReportToAuth({
                 userId: ctx.user.id,
