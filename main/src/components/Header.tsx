@@ -21,7 +21,7 @@ export function Header() {
     { href: externalUrls.tarot, label: tNav('tarot'), external: true },
     { href: externalUrls.temple, label: tNav('blessing'), external: true },
     { href: externalUrls.shop, label: tNav('shop'), external: true },
-    { href: '/famous', label: tNav('famous') },
+    ...(locale.startsWith('en') ? [] : [{ href: '/famous' as const, label: tNav('famous') }]),
     { href: '/daozang', label: tNav('daozang') },
   ];
 

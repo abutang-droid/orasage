@@ -4,7 +4,7 @@ import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
 import { Moon, Sparkles, SunMoon, type LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
 import type { HomeHeroContent } from '@/lib/cms-home-hero';
@@ -283,26 +283,30 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
 
 export function ContentSections() {
   const t = useTranslations('sections');
+  const locale = useLocale();
+  const showFamous = !locale.startsWith('en');
 
   return (
     <section className="home-section home-section--tail">
       <ModuleTitle>{t('moduleTitle')}</ModuleTitle>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-        <Link
-          href="/famous"
-          className={cn(
-            cardVariants({ variant: 'interactive' }),
-            'home-editorial-card group block p-5 sm:p-6',
-          )}
-        >
-          <h3 className="font-serif text-heading-3 font-medium text-foreground">{t('famous')}</h3>
-          <p className="mt-2 text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground">
-            {t('famousDesc')}
-          </p>
-          <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
-            {t('explore')} →
-          </p>
-        </Link>
+      <div className={`grid grid-cols-1 gap-3 ${showFamous ? 'sm:grid-cols-2' : ''} sm:gap-4`}>
+        {showFamous ? (
+          <Link
+            href="/famous"
+            className={cn(
+              cardVariants({ variant: 'interactive' }),
+              'home-editorial-card group block p-5 sm:p-6',
+            )}
+          >
+            <h3 className="font-serif text-heading-3 font-medium text-foreground">{t('famous')}</h3>
+            <p className="mt-2 text-sm leading-[var(--os-line-body)] tracking-[var(--os-letter-wide)] text-muted-foreground">
+              {t('famousDesc')}
+            </p>
+            <p className="mt-4 text-sm font-medium text-foreground transition-transform duration-fast group-hover:translate-x-0.5">
+              {t('explore')} →
+            </p>
+          </Link>
+        ) : null}
         <Link
           href="/daozang"
           className={cn(
