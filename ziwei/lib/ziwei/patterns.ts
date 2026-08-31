@@ -958,7 +958,7 @@ function detectChangQuTongHui(chart: ZiweiChart, patterns: Pattern[]) {
     level: 'good',
     description: inMing
       ? '文昌文曲同入命宫，主聪明俊秀、文采斐然，宜文学、教育、写作、咨询。最忌化忌——昌曲化忌主文书契约暗亏。'
-      : '文昌文曲同会三方四正，主才华横溢、口才文笔俱佳。宜走需要表达与文采的行业，化科加持则名声大显。',
+      : '文昌文曲同会三方四正，主才华横溢、口才文笔俱佳。宜走需要表达与文采的行业，化科助益则名声大显。',
     palaces: ['命宫'],
     conditions: { required: ['文昌、文曲同会命宫三方四正'] },
     source: '《紫微斗数全书·文星论》',
@@ -986,7 +986,7 @@ function detectKuiYueTongHui(chart: ZiweiChart, patterns: Pattern[]) {
   patterns.push({
     name: '魁钺同会',
     level: 'good',
-    description: '天魁天钺同会命宫三方四正，主"天乙贵人"加持，关键时刻总有贵人提携。倪师说「魁钺夹命，必为贵人」——遇到困难时身边会出现得力相助者，宜主动维护人脉。',
+    description: '天魁天钺同会命宫三方四正，主"天乙贵人"助益，关键时刻总有贵人提携。倪师说「魁钺夹命，必为贵人」——遇到困难时身边会出现得力相助者，宜主动维护人脉。',
     palaces: ['命宫'],
     conditions: { required: ['天魁、天钺同会命宫三方四正'] },
     source: '《紫微斗数全书·魁钺论》',

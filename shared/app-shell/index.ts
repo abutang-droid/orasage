@@ -13,6 +13,7 @@ export {
   getDisclaimerPlainText,
 } from './disclaimer-copy';
 export type { DisclaimerVariant, DisclaimerLocale } from './disclaimer-copy';
+export { ResultExitLinks } from './ResultExitLinks';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
 export { pickLabel, SHELL_LABELS } from './labels';
 export type { AppId, NavContext } from './config';

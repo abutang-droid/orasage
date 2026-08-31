@@ -87,8 +87,8 @@ export function buildPillarPage(pillar: Pillar) {
         <div className="mt-10 space-y-4 text-sm text-muted-foreground">
           <p>
             {t(
-              'Article body lands in the content engineering phase. This shell reserves the route, disclaimer placement, and IA links.',
-              '正文将在内容工程阶段上线。本页预留路由、声明位置与信息架构链接。',
+              'Article body lands in the next writing pass. This page holds the route, the disclaimer, and links onward.',
+              '正文将在下一轮撰写上线。本页保留路由、声明与继续阅读的入口。',
             )}
           </p>
           <p>

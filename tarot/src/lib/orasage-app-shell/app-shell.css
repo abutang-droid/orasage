@@ -705,3 +705,43 @@
   margin: 0 auto 1.25rem;
   max-width: 42rem;
 }
+
+/* Result-page exit zone (doc 20 §4) */
+.orasage-result-exit {
+  margin: 1.5rem 0 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--shell-border, #e7e5e4);
+  border-radius: 10px;
+  background: var(--shell-surface, #fafaf8);
+}
+
+.orasage-result-exit-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--shell-text, #171717);
+}
+
+.orasage-result-exit-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.orasage-result-exit-list a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--shell-text, #171717);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.orasage-result-exit-list a:hover {
+  color: var(--shell-gold, #171717);
+}

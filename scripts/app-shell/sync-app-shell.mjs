@@ -28,6 +28,7 @@ const TS_FILES = [
   'disclaimer-copy.ts',
   'locale-cookie.ts',
   'BottomNav.tsx',
+  'ResultExitLinks.tsx',
   'config.ts',
   'labels.ts',
   'primary-nav.ts',

@@ -101,14 +101,14 @@ const ui: TranslationDict = {
   "plan.tier.premium": "尊享版",
   "plan.basic.name": "OraSage 深度解读",
   "plan.basic.desc": "完整命理解读报告",
-  "plan.advanced.name": "定制专属能量手串",
+  "plan.advanced.name": "定制专属水晶手串",
   "plan.advanced.desc": "根据五行定制专属手串",
   "plan.premium.name": "定制终极能量礼盒",
   "plan.premium.desc": "全套命理能量礼盒",
   "plan.couple.basic.name": "双人合盘深度解读",
   "plan.couple.basic.desc": "双人完整合盘解读报告",
-  "plan.couple.advanced.name": "定制双人能量手串",
-  "plan.couple.advanced.desc": "为两人各定制一条能量手串",
+  "plan.couple.advanced.name": "定制双人水晶手串",
+  "plan.couple.advanced.desc": "为两人各定制一条水晶手串",
   "plan.couple.premium.name": "定制终极能量礼盒（双人版）",
   "plan.couple.premium.desc": "双人全套命理能量礼盒",
   "plan.popular": "推荐",
@@ -117,19 +117,19 @@ const ui: TranslationDict = {
   "plan.success": "购买成功！已解锁完整内容",
 
   /* ── 手串推荐 ── */
-  "bracelet.title": "定制专属能量手串",
-  "bracelet.desc": "根据您的五行缺失，由资深匠人手工定制专属能量手串。精选天然水晶、宝石材质，融合东方命理与现代工艺，为您补足五行，调和气场。",
-  "bracelet.upgrade": "$99 升级获取能量手串",
-  "bracelet.upgrade_couple": "$198 升级获取双人能量手串",
+  "bracelet.title": "定制专属水晶手串",
+  "bracelet.desc": "根据您的五行缺失，由资深匠人手工定制专属水晶手串。精选天然水晶、宝石材质，融合东方命理与现代工艺，为您补足五行，调和气场。",
+  "bracelet.upgrade": "$99 升级获取水晶手串",
+  "bracelet.upgrade_couple": "$198 升级获取双人水晶手串",
   "bracelet.recommend": "五行手串推荐",
   "bracelet.standard": "标准版",
   "bracelet.premium_box": "礼盒版",
   "bracelet.energy_guide": "能量激活指南",
-  "bracelet.buy_shop": "前往能量商城购买",
+  "bracelet.buy_shop": "前往水晶商城购买",
   "bracelet.premium_kit": "礼盒套装包含：手串 {spec} · 石印章 · 檀香 · 红木礼盒",
   "bracelet.tag.natural": "天然水晶",
   "bracelet.tag.handmade": "手工制作",
-  "bracelet.tag.energy": "能量加持",
+  "bracelet.tag.energy": "仪式祝福",
   "bracelet.tag.gift_box": "精美礼盒",
 
   /* ── 结果页面 ── */
@@ -171,9 +171,9 @@ const ui: TranslationDict = {
   "pdf.error": "请输入有效的邮箱地址",
 
   /* ── 收货表单 ── */
-  "shipping.title.basic": "定制专属能量手串 · 收货信息",
+  "shipping.title.basic": "定制专属水晶手串 · 收货信息",
   "shipping.title.premium": "定制终极能量礼盒 · 收货信息",
-  "shipping.title.couple_basic": "双人定制能量手串 · 收货信息",
+  "shipping.title.couple_basic": "双人定制水晶手串 · 收货信息",
   "shipping.title.couple_premium": "双人定制终极能量礼盒 · 收货信息",
   "shipping.name": "收货人姓名",
   "shipping.phone": "联系电话",
@@ -193,8 +193,8 @@ const ui: TranslationDict = {
   "shipping.cm": "cm",
 
   /* ── 升级 ── */
-  "upgrade.basic_to_advanced": "已升级为定制专属能量手串方案",
-  "upgrade.basic_to_couple": "已升级为定制双人能量手串方案",
+  "upgrade.basic_to_advanced": "已升级为定制专属水晶手串方案",
+  "upgrade.basic_to_couple": "已升级为定制双人水晶手串方案",
 
   /* ── 提示 ── */
   "toast.save_error": "排盘记录保存失败，请稍后重试",

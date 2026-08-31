@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     fetchCmsProductPage(sku, locale),
   ]);
   if (!product) return { title: t('notFoundTitle') };
-  const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Energy Shop`;
+  const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Crystal Shop`;
   const description = cmsPage?.seoDescription?.trim() || product.desc;
   const ogImage = cmsPage?.heroImages[0]?.url;
   return buildOrasageMetadata({

@@ -7,6 +7,8 @@ import { TarotHomeGreeting } from '@/components/home/TarotHomeGreeting';
 import { TarotHomeHero } from '@/components/home/TarotHomeHero';
 import { TarotProductVisual } from '@/components/home/TarotProductVisual';
 import { useHomeCopy } from '@/lib/i18n/reading-copy';
+import { Disclaimer } from '@/lib/orasage-app-shell';
+import { useTarotLocale } from '@/lib/i18n/context';
 
 type UnlockPayload = {
   unlocked: boolean;
@@ -15,6 +17,7 @@ type UnlockPayload = {
 export function TarotHomeV2() {
   const router = useRouter();
   const home = useHomeCopy();
+  const { locale } = useTarotLocale();
   const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
@@ -30,6 +33,8 @@ export function TarotHomeV2() {
         <div className="tarot-home-visual-glow tarot-home-visual-glow--a" />
         <div className="tarot-home-visual-glow tarot-home-visual-glow--b" />
       </div>
+
+      <Disclaimer variant="standard" locale={locale} className="mx-4 mt-3 mb-2" />
 
       <TarotHomeGreeting />
       <TarotHomeHero />

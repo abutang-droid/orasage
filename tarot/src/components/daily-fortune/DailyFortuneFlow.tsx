@@ -11,6 +11,8 @@ import { getDailyAttitudeGuide, getDailyTone } from '@/lib/daily-fortune/attitud
 import { getCardById } from '@/lib/tarot/cards';
 import { useCardName } from '@/lib/i18n/context';
 import { useDailyFortuneCopy } from '@/lib/i18n/reading-copy';
+import { useTarotLocale } from '@/lib/i18n/context';
+import { Disclaimer, ResultExitLinks } from '@/lib/orasage-app-shell';
 import { shopUrlForSku } from '@/lib/shop-products';
 import type {
   DailyFortuneFullReport,
@@ -50,6 +52,7 @@ function formatCount(n: number): string {
 
 export function DailyFortuneFlow() {
   const copy = useDailyFortuneCopy();
+  const { locale } = useTarotLocale();
   const cardNameFor = useCardName();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
@@ -273,6 +276,12 @@ export function DailyFortuneFlow() {
 
       {step === 'report' && card && cardMeta && (
         <div className="daily-fortune-report animate-fade-in-up">
+          <Disclaimer variant="full" locale={locale} className="mb-4" />
+          <ResultExitLinks
+            locale={locale}
+            readingId={record?.id ?? null}
+            className="mb-4"
+          />
           <div className="page-header">
             <span className="label">{copy.label}</span>
             <h1>{copy.introTitle}</h1>

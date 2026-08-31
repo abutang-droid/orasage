@@ -14,11 +14,11 @@
   "categories": {
     "crystal": "Crystal Bracelets",
     "report": "Digital Reports",
-    "service": "Energy Consultations",
+    "service": "Consultations",
     "all": "All"
   },
   "shop": {
-    "title": "Energy Shop",
+    "title": "Crystal Shop",
     "subtitle": "Crystal bracelets · Digital reports · Energy consultations"
   },
   "cart": {
@@ -46,7 +46,7 @@
     "empty": "Crystal bracelets are not available yet.",
     "guideTitle": "How to choose",
     "guideStep1": "Discover your element from a BaZi or reading recommendation",
-    "guideStep2": "Pick the bracelet that resonates with your energy",
+    "guideStep2": "Pick the bracelet that pairs with your energy",
     "guideStep3": "Choose standard wear or gift box packaging",
     "guideCta": "View my element recommendations →",
     "elementTabs": "Five elements",
@@ -73,7 +73,7 @@
     "userCenter": "Account Center",
     "footerView": "",
     "heroEyebrow": "OraSage",
-    "heroTitle": "Energy Shop",
+    "heroTitle": "Crystal Shop",
     "heroSubtitle": "Reading picks · Crystal bracelets · Digital reports",
     "heroLoggedIn": "Signed in — orders sync to your account center"
   },
@@ -196,7 +196,7 @@
     "continueShopping": "Continue shopping"
   },
   "diy": {
-    "metaTitle": "Custom Resonance · Design Your Bracelet | OraSage Energy Shop",
+    "metaTitle": "Custom Resonance · Design Your Bracelet | OraSage Crystal Shop",
     "metaDescription": "Pick crystals, spacers, and discs bead by bead. Preview fit and price by wrist size.",
     "backToShop": "Back to shop",
     "title": "Custom Resonance · Design Your Bracelet",
@@ -301,7 +301,7 @@
       "upgradeGuide": "Usage & upgrades",
       "specs": "Specifications",
       "faq": "FAQ",
-      "related": "Resonate with"
+      "related": "Align with"
     },
     "gallery": {
       "imagesAria": "Product images",

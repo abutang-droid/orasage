@@ -193,8 +193,8 @@ const onboarding = {
     es: 'Sin problema — empecemos por tu cumpleaños.',
   },
   saving: {
-    zh: '很好，我正在为你铺好今日的星途……',
-    en: "Great — I'm preparing today's path for you…",
+    zh: '很好，我正在为你准备好今日的题目……',
+    en: "Great — I'm setting up today's prompts for you…",
     pt: 'Ótimo — estou preparando seu caminho de hoje…',
     es: 'Genial — estoy preparando tu camino de hoy…',
   },

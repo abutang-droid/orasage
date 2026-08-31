@@ -37,8 +37,38 @@ function mapHomeHero(data: CmsHeroRaw): HomeHeroContent | null {
   return mapCmsHeroContent(data, resolveMediaUrl);
 }
 
+const CJK_RE = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]/;
+
+function isZhLocale(locale: string) {
+  return locale === 'zh-CN' || locale === 'zh-TW' || locale.startsWith('zh');
+}
+
+/**
+ * Prefer i18n fallback headline/subtitle when CMS copy is in the wrong script
+ * for the active locale (root cause of `/en` H1 showing Chinese).
+ */
+function localizeHeroText(
+  hero: HomeHeroContent,
+  locale: string,
+  fallback: HomeHeroContent,
+): HomeHeroContent {
+  if (!hero.enabled) return hero;
+  if (isZhLocale(locale)) return hero;
+
+  const headline = hero.headline?.trim() ?? '';
+  const subtitle = hero.subtitle?.trim() ?? '';
+  const patch: Partial<HomeHeroContent> = {};
+  if (!headline || CJK_RE.test(headline)) {
+    patch.headline = fallback.headline;
+  }
+  if (!subtitle || CJK_RE.test(subtitle)) {
+    patch.subtitle = fallback.subtitle;
+  }
+  return Object.keys(patch).length ? { ...hero, ...patch } : hero;
+}
+
 export async function fetchHomeHero(
-  _locale: string,
+  locale: string,
   fallback: HomeHeroContent,
 ): Promise<HomeHeroContent> {
   try {
@@ -48,10 +78,11 @@ export async function fetchHomeHero(
     if (!res.ok) return fallback;
     const data = (await res.json()) as CmsHeroRaw;
     const mapped = mapHomeHero(data);
-    return resolveHeroWithFallback(mapped, fallback, {
+    const resolved = await resolveHeroWithFallback(mapped, fallback, {
       publicCmsBase: CMS_PUBLIC_URL,
       internalCmsBase: CMS_INTERNAL_URL,
     });
+    return localizeHeroText(resolved, locale, fallback);
   } catch {
     return fallback;
   }

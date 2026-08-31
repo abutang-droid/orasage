@@ -4,7 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
 import { buildPortalPageMeta } from '@/lib/seo';
-import { MAKING_META, MAKING_SKUS } from '@/lib/origins-making';
+import { MAKING_META, MAKING_SKUS, isMakingLiveSku } from '@/lib/origins-making';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -44,8 +44,8 @@ export default async function TheMakingIndexPage({ params }: Props) {
       <PageTitle>{t('The Making', '造物记')}</PageTitle>
       <PageLead>
         {t(
-          'Five piece stories — materials, making, and choices you can verify. Full seven-screen narratives expand in later content batches.',
-          '五款单品故事：材料、工艺与可核验的选择。完整七屏叙事将在后续内容批次展开。',
+          'Five piece stories — materials, making, and choices you can verify. Wood is live; the others are still being written.',
+          '五款单品故事：材料、工艺与可核验的选择。木款已上线，其余仍在撰写中。',
         )}
       </PageLead>
 
@@ -54,20 +54,37 @@ export default async function TheMakingIndexPage({ params }: Props) {
       <ul className="mt-10 grid gap-4 sm:grid-cols-2">
         {MAKING_SKUS.map((sku) => {
           const m = MAKING_META[sku];
+          const live = isMakingLiveSku(sku);
+          const body = (
+            <>
+              <p className="text-xs tracking-wide text-muted-foreground">
+                {isZh ? `${m.elementZh} · ${m.intentionZh}` : `${m.elementEn} · ${m.intentionEn}`}
+              </p>
+              <h2 className="mt-2 font-serif text-lg font-medium text-foreground">
+                {isZh ? m.nameZh : m.nameEn}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {live ? t('Read the making →', '阅读造物记 →') : t('In progress', '撰写中')}
+              </p>
+            </>
+          );
           return (
             <li key={sku}>
-              <Link
-                href={`/origins/the-making/${sku}`}
-                className="block rounded-[var(--os-radius-card)] border border-border bg-card p-5 transition-colors hover:border-foreground/20"
-              >
-                <p className="text-xs tracking-wide text-muted-foreground">
-                  {isZh ? `${m.elementZh} · ${m.intentionZh}` : `${m.elementEn} · ${m.intentionEn}`}
-                </p>
-                <h2 className="mt-2 font-serif text-lg font-medium text-foreground">
-                  {isZh ? m.nameZh : m.nameEn}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">{t('Read the making →', '阅读造物记 →')}</p>
-              </Link>
+              {live ? (
+                <Link
+                  href={`/origins/the-making/${sku}`}
+                  className="block rounded-[var(--os-radius-card,1rem)] border border-border bg-card p-5 transition-colors hover:border-foreground/20"
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div
+                  className="block rounded-[var(--os-radius-card,1rem)] border border-dashed border-border bg-card/60 p-5 opacity-80"
+                  aria-disabled="true"
+                >
+                  {body}
+                </div>
+              )}
             </li>
           );
         })}

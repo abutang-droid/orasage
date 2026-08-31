@@ -28,30 +28,30 @@ export interface Product {
 
 /** 静态兜底（auth-service 不可用时） */
 export const FALLBACK_PRODUCTS: Product[] = [
-  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 生长与丰盛 · 生机拓展', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 活力与行动 · 勇敢前行', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固与持守 · 守成安定', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-metal', name: '澄明之境 · 白水晶能量手串', element: '金', desc: '五行属金 · 澄澈与静定 · 思绪澄明', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-water', name: '深海静盾 · 黑曜石能量手串', element: '水', desc: '五行属水 · 守护与边界 · 心理锚点', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-wood-gift', name: '生长之境 · 绿幽灵能量手串 · 礼盒装', element: '木', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属木 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-fire-gift', name: '焰心觉醒 · 红玛瑙能量手串 · 礼盒装', element: '火', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属火 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-earth-gift', name: '厚土之根 · 黄水晶能量手串 · 礼盒装', element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属土 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-metal-gift', name: '澄明之境 · 白水晶能量手串 · 礼盒装', element: '金', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属金 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-water-gift', name: '深海静盾 · 黑曜石能量手串 · 礼盒装', element: '水', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属水 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵水晶手串', element: '木', desc: '五行属木 · 生长与丰盛 · 生机拓展', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙水晶手串', element: '火', desc: '五行属火 · 活力与行动 · 勇敢前行', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶水晶手串', element: '土', desc: '五行属土 · 稳固与持守 · 守成安定', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-metal', name: '澄明之境 · 白水晶水晶手串', element: '金', desc: '五行属金 · 澄澈与静定 · 思绪澄明', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-water', name: '深海静盾 · 黑曜石水晶手串', element: '水', desc: '五行属水 · 守护与边界 · 心理锚点', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-wood-gift', name: '生长之境 · 绿幽灵水晶手串 · 礼盒装', element: '木', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属木 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-fire-gift', name: '焰心觉醒 · 红玛瑙水晶手串 · 礼盒装', element: '火', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属火 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-earth-gift', name: '厚土之根 · 黄水晶水晶手串 · 礼盒装', element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属土 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-metal-gift', name: '澄明之境 · 白水晶水晶手串 · 礼盒装', element: '金', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属金 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-water-gift', name: '深海静盾 · 黑曜石水晶手串 · 礼盒装', element: '水', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属水 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告（站内 HTML）', priceCents: 99, priceCentsUsd: 99, category: 'report' },
-  { sku: 'report-bazi-advanced', name: '八字报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 1375, priceCentsUsd: 1375, category: 'report' },
-  { sku: 'report-bazi-premium', name: '八字终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },
+  { sku: 'report-bazi-advanced', name: '八字报告 + 水晶手串', desc: '深度解读 + 五行水晶推荐', priceCents: 1375, priceCentsUsd: 1375, category: 'report' },
+  { sku: 'report-bazi-premium', name: '八字终极水晶礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },
   { sku: 'report-bazi-couple-basic', name: '八字合盘深度解读', desc: '双人合盘 AI 解读报告（站内 HTML）', priceCents: 99, priceCentsUsd: 99, category: 'report' },
-  { sku: 'report-bazi-couple-advanced', name: '八字合盘报告 + 能量手串', desc: '合盘解读 + 双人五行水晶推荐', priceCents: 2750, priceCentsUsd: 2750, category: 'report' },
-  { sku: 'report-bazi-couple-premium', name: '八字合盘终极能量礼盒', desc: '完整合盘报告 + 水晶礼盒', priceCents: 8306, priceCentsUsd: 8306, category: 'report' },
+  { sku: 'report-bazi-couple-advanced', name: '八字合盘报告 + 水晶手串', desc: '合盘解读 + 双人五行水晶推荐', priceCents: 2750, priceCentsUsd: 2750, category: 'report' },
+  { sku: 'report-bazi-couple-premium', name: '八字合盘终极水晶礼盒', desc: '完整合盘报告 + 水晶礼盒', priceCents: 8306, priceCentsUsd: 8306, category: 'report' },
   { sku: 'report-ziwei-basic', name: '紫微深度解读', desc: '命盘 AI 解读报告（站内 HTML）', priceCents: 99, priceCentsUsd: 99, category: 'report' },
-  { sku: 'report-ziwei-advanced', name: '紫微报告 + 能量手串', desc: '深度解读 + 五行水晶推荐', priceCents: 1375, priceCentsUsd: 1375, category: 'report' },
-  { sku: 'report-ziwei-premium', name: '紫微终极能量礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },
+  { sku: 'report-ziwei-advanced', name: '紫微报告 + 水晶手串', desc: '深度解读 + 五行水晶推荐', priceCents: 1375, priceCentsUsd: 1375, category: 'report' },
+  { sku: 'report-ziwei-premium', name: '紫微终极水晶礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },
   { sku: 'ziwei-chat-pack-10', name: '紫微问答加量包', desc: '额外 10 次 OraSage 对话机会', priceCents: 138, priceCentsUsd: 138, category: 'service' },
   { sku: 'ziwei-chat-yearly', name: '紫微问答年卡', desc: '365 天无限 OraSage 对话', priceCents: 1375, priceCentsUsd: 1375, category: 'service' },
   { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 667, priceCentsUsd: 667, category: 'report' },
-  { sku: 'report-tarot-bundle', name: '塔罗深度解读+能量法器', desc: '三牌阵完整报告 + 专属能量法器（实体发货）', priceCents: 16800, priceCentsUsd: 16800, category: 'report' },
-  { sku: 'tarot-destiny-slice', name: '定命切片', desc: '面临抉择时抽牌得行动指引 · 一次付费永久解锁', priceCents: 403, priceCentsUsd: 403, category: 'report' },
+  { sku: 'report-tarot-bundle', name: '塔罗深度解读+仪式器物', desc: '三牌阵完整报告 + 专属仪式器物（实体发货）', priceCents: 16800, priceCentsUsd: 16800, category: 'report' },
+  { sku: 'tarot-destiny-slice', name: '问题切片', desc: '面临抉择时抽牌得行动指引 · 一次付费永久解锁', priceCents: 403, priceCentsUsd: 403, category: 'report' },
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
 
@@ -66,7 +66,7 @@ export const ELEMENT_TO_SKU: Record<string, string> = {
 export const categoryLabels: Record<ProductCategory, string> = {
   crystal: '水晶手串',
   report: '数字报告',
-  service: '能量咨询',
+  service: '咨询服务',
 };
 
 interface ApiProduct {

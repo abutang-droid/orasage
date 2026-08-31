@@ -2,7 +2,7 @@ import type { AiLocale } from '../../../../shared/ai-locale/index';
 import { generateDestinySliceGuidanceFromLayers } from '@/lib/tarot/generation/generate';
 import type { DestinySliceFocusPayload, SingleCardStoredCard } from './types';
 
-/** 定命切片：抽牌后生成简洁行动指引 */
+/** 问题切片：抽牌后生成简洁行动指引 */
 export async function generateDestinySliceGuidance(input: {
   question: string;
   card: SingleCardStoredCard;

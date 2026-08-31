@@ -38,7 +38,7 @@ export default async function OurStoryPage({ params }: Props) {
       <PageTitle>{t('Our Story', '缘起')}</PageTitle>
       <PageLead>
         {t(
-          'Brand origin shell — “know the structure, do not ask fortune.” Full narrative later.',
+          'Brand origin — “know the structure, do not ask fortune.” Full narrative later.',
           '品牌缘起骨架 — 「知结构，不问吉凶」。完整叙事稍后上线。',
         )}
       </PageLead>

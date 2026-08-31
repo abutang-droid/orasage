@@ -14,12 +14,12 @@
   "categories": {
     "crystal": "水晶手串",
     "report": "数字报告",
-    "service": "能量咨询",
+    "service": "咨询服务",
     "all": "全部"
   },
   "shop": {
-    "title": "能量商城",
-    "subtitle": "水晶手串 · 数字报告 · 能量咨询"
+    "title": "水晶商城",
+    "subtitle": "水晶手串 · 数字报告 · 咨询服务"
   },
   "cart": {
     "title": "购物车",
@@ -63,7 +63,7 @@
     "compareStandard": "手链 + 保护袋，轻便随身，适合日常自戴。",
     "compareGift": "精美礼盒 + 祝福卡 + 绒布袋，专为赠礼场景设计。",
     "diyTitle": "共振定制",
-    "diyHint": "逐颗挑选水晶、隔珠与隔片，按手围实时预览与计价，打造专属于你的五行能量手串。",
+    "diyHint": "逐颗挑选水晶、隔珠与隔片，按手围实时预览与计价，打造专属于你的五行水晶手串。",
     "diyCtaElement": "以{element}元素定制",
     "diyCtaGeneric": "自由搭配全部珠子 →",
     "diyInline": "或以此款水晶自己搭配手串"
@@ -73,7 +73,7 @@
     "userCenter": "用户中心",
     "footerView": "查看",
     "heroEyebrow": "OraSage",
-    "heroTitle": "能量商城",
+    "heroTitle": "水晶商城",
     "heroSubtitle": "命理解读推荐 · 水晶手串 · 数字报告",
     "heroLoggedIn": "已登录，购买后订单将同步至用户中心"
   },
@@ -196,10 +196,10 @@
     "continueShopping": "继续购物"
   },
   "diy": {
-    "metaTitle": "共振定制 · 设计你的能量手串 | OraSage Energy Shop",
-    "metaDescription": "逐颗挑选水晶、隔珠与隔片，按手围实时预览与计价，定制专属于你的五行能量手串。",
+    "metaTitle": "共振定制 · 设计你的水晶手串 | OraSage Crystal Shop",
+    "metaDescription": "逐颗挑选水晶、隔珠与隔片，按手围实时预览与计价，定制专属于你的五行水晶手串。",
     "backToShop": "返回商城",
-    "title": "共振定制 · 设计你的能量手串",
+    "title": "共振定制 · 设计你的水晶手串",
     "subtitle": "Design Your Resonance — 逐颗挑选，让能量与你共振",
     "wristLabel": "手围尺寸 · 左右滑动标尺",
     "canvasHintLine1": "从下方选择珠子",
@@ -276,7 +276,7 @@
     "reportBazi": "八字解读 · 数字报告",
     "reportZiwei": "紫微斗数 · 数字报告",
     "reportTarot": "塔罗解读 · 数字报告",
-    "serviceConsult": "能量咨询 · 一对一",
+    "serviceConsult": "咨询服务 · 一对一",
     "ziweiChatPack": "紫微问答 · 加量包",
     "ziweiChatYearly": "紫微问答 · 年卡",
     "templeDonation": "祈福乐捐 · 自愿支持",
@@ -360,7 +360,7 @@
       "reportZiwei": {
         "title": "读懂星盘，再迈出一步",
         "sub": "读懂星象，带着意图前行。",
-        "body": "紫微报告描绘十二宫的人生面向；读懂之后，用 OraSage 对话深入追问，或搭配能量手串让平衡触手可及。",
+        "body": "紫微报告描绘十二宫的人生面向；读懂之后，用 OraSage 对话深入追问，或搭配水晶手串让平衡触手可及。",
         "cta": "前往紫微斗数",
         "href": "https://ziwei.orasage.com",
         "note": "在 App 内查看完整命盘解读"

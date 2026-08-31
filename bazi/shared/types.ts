@@ -36,14 +36,14 @@ export const PLAN_OPTIONS: PlanOption[] = [
   },
   {
     type: "advanced",
-    name: "定制专属能量手串",
+    name: "定制专属水晶手串",
     nameEn: "Energy Bracelet",
     price: "99",
     priceLabel: "$99",
     description: "根据五行定制专属手串",
     features: [
       "基础版全部功能",
-      "五行定制能量手串",
+      "五行定制水晶手串",
       "专属能量激活指南",
       "精美礼盒包装",
     ],
@@ -59,7 +59,7 @@ export const PLAN_OPTIONS: PlanOption[] = [
     description: "全套命理能量礼盒",
     features: [
       "进阶版全部功能",
-      "终极能量手串（礼盒版）",
+      "终极水晶手串（礼盒版）",
       "能量激活指南（精装）",
       "专属命理顾问 1v1",
       "石印章、檀香等配件",
@@ -83,11 +83,11 @@ export const COUPLE_PLAN_OPTIONS: PlanOption[] = [
   },
   {
     type: "advanced",
-    name: "定制双人能量手串",
+    name: "定制双人水晶手串",
     nameEn: "Couple Bracelet Set",
     price: "198",
     priceLabel: "$198",
-    description: "为两人各定制一条能量手串",
+    description: "为两人各定制一条水晶手串",
     features: [
       "基础版全部功能",
       "两条五行定制手串",
@@ -106,7 +106,7 @@ export const COUPLE_PLAN_OPTIONS: PlanOption[] = [
     description: "双人全套命理能量礼盒",
     features: [
       "进阶版全部功能",
-      "双条终极能量手串（礼盒版）",
+      "双条终极水晶手串（礼盒版）",
       "双人能量激活指南（精装）",
       "专属命理顾问 1v1",
       "石印章、檀香等配件",
