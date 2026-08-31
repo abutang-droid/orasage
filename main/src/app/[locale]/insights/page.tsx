@@ -28,23 +28,23 @@ export default async function InsightsPage({ params }: Props) {
 
   const pillars = [
     {
-      href: '/insights',
+      href: '/insights/day-master',
       title: t('Day Master Typology', '日主人格学'),
       desc: t('Start here — twelve Day Masters as reflective archetypes.', '从这里开始：十二日主作为内省原型。'),
       featured: true,
     },
     {
-      href: '/insights',
+      href: '/insights/five-elements',
       title: t('Five Elements Decoded', '五行解码'),
       desc: t('Wood, Fire, Earth, Metal, Water as symbolic structure.', '木火土金水作为象征结构。'),
     },
     {
-      href: '/insights',
+      href: '/insights/solar-terms',
       title: t('24 Solar Terms', '节气与流年'),
       desc: t('Seasonal markers without fortune forecasts.', '节气节点，不做运势预测。'),
     },
     {
-      href: '/insights',
+      href: '/insights/crystal',
       title: t('Crystal Companion', '水晶志'),
       desc: t('Jewelry as intention reminders — not guarantees.', '器物承载意图，不是结果保证。'),
     },

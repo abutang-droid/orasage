@@ -131,22 +131,22 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
   const insightsChildren: NavLink[] = [
     {
       id: 'day-master',
-      href: `${insightsUrl(locale)}#pillars`,
+      href: `${insightsUrl(locale)}/day-master`,
       label: pickLabel(SHELL_LABELS.navDayMaster, locale),
     },
     {
       id: 'five-elements',
-      href: `${insightsUrl(locale)}#pillars`,
+      href: `${insightsUrl(locale)}/five-elements`,
       label: pickLabel(SHELL_LABELS.navFiveElementsDecoded, locale),
     },
     {
       id: 'solar-terms',
-      href: `${insightsUrl(locale)}#pillars`,
+      href: `${insightsUrl(locale)}/solar-terms`,
       label: pickLabel(SHELL_LABELS.navSolarTerms, locale),
     },
     {
       id: 'crystal-companion',
-      href: `${insightsUrl(locale)}#pillars`,
+      href: `${insightsUrl(locale)}/crystal`,
       label: pickLabel(SHELL_LABELS.navCrystalCompanion, locale),
     },
     {
@@ -164,17 +164,17 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
   const originsChildren: NavLink[] = [
     {
       id: 'the-making',
-      href: `${originsUrl(locale)}`,
+      href: `${originsUrl(locale)}/the-making`,
       label: pickLabel(SHELL_LABELS.navTheMaking, locale),
     },
     {
       id: 'atelier',
-      href: `${originsUrl(locale)}`,
+      href: `${originsUrl(locale)}/atelier`,
       label: pickLabel(SHELL_LABELS.navAtelier, locale),
     },
     {
       id: 'our-story',
-      href: `${originsUrl(locale)}`,
+      href: `${originsUrl(locale)}/our-story`,
       label: pickLabel(SHELL_LABELS.navOurStory, locale),
     },
   ];
