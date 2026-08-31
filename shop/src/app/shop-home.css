@@ -1158,6 +1158,38 @@
   color: var(--os-color-mono-black, #171717);
 }
 
+.shop-trust-bar {
+  list-style: none;
+  margin: 0.75rem 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--os-color-mono-gray-dark, #57534e);
+}
+
+.shop-trust-bar li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.shop-trust-bar li span[aria-hidden] {
+  flex-shrink: 0;
+  width: 1rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .shop-trust-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+}
+
 .shop-pdp-accordion {
   margin-top: 1.75rem;
   border-top: 0.5px solid var(--os-color-mono-gray-light, #e7e5e4);

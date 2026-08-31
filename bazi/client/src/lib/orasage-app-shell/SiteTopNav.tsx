@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
+import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, isFamousNavVisible, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
@@ -46,7 +46,7 @@ export function SiteTopNav({
           {brandLabel}
         </a>
         <nav className="orasage-site-topnav-menu" aria-label="Site navigation">
-          {TOP_NAV_ITEMS.map((item) => {
+          {TOP_NAV_ITEMS.filter((item) => item.id !== 'famous' || isFamousNavVisible(locale)).map((item) => {
             const href = typeof item.href === 'function' ? item.href(locale) : item.href;
             const label = pickLabel(SHELL_LABELS[item.id], locale);
             return (

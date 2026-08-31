@@ -44,27 +44,27 @@
       "wood": {
         "name": "绿幽灵",
         "element": "木",
-        "desc": "生机生长"
+        "desc": "生长与丰盛"
       },
       "fire": {
         "name": "红玛瑙",
         "element": "火",
-        "desc": "补火平衡"
+        "desc": "活力与行动"
       },
       "earth": {
         "name": "黄水晶",
         "element": "土",
-        "desc": "稳固根基"
+        "desc": "稳固与持守"
       },
       "metal": {
         "name": "白水晶",
         "element": "金",
-        "desc": "净化能量"
+        "desc": "澄澈与静定"
       },
       "water": {
         "name": "黑曜石",
         "element": "水",
-        "desc": "边界沉静"
+        "desc": "守护与边界"
       }
     },
     "categories": {

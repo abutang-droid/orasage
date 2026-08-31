@@ -18,11 +18,11 @@ export interface HomepageCatalog {
 }
 
 const FALLBACK_CRYSTALS: HomepageCatalogItem[] = [
-  { sku: 'crystal-wood', name: '绿幽灵', element: '木', desc: '生机生长', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-wood' },
-  { sku: 'crystal-fire', name: '红玛瑙', element: '火', desc: '补火平衡', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-fire' },
-  { sku: 'crystal-earth', name: '黄水晶', element: '土', desc: '稳固根基', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-earth' },
-  { sku: 'crystal-metal', name: '白水晶', element: '金', desc: '净化能量', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-metal' },
-  { sku: 'crystal-water', name: '黑曜石', element: '水', desc: '边界沉静', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-water' },
+  { sku: 'crystal-wood', name: '绿幽灵', element: '木', desc: '生长与丰盛', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-wood' },
+  { sku: 'crystal-fire', name: '红玛瑙', element: '火', desc: '活力与行动', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-fire' },
+  { sku: 'crystal-earth', name: '黄水晶', element: '土', desc: '稳固与持守', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-earth' },
+  { sku: 'crystal-metal', name: '白水晶', element: '金', desc: '澄澈与静定', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-metal' },
+  { sku: 'crystal-water', name: '黑曜石', element: '水', desc: '守护与边界', priceDisplay: '', category: 'crystal', categoryLabel: '水晶手串', shopUrl: 'https://shop.orasage.com?sku=crystal-water' },
   { sku: 'report-bazi-basic', name: '八字深度解读', element: null, desc: '完整命盘 AI 解读报告', priceDisplay: '', category: 'report', categoryLabel: '数字报告', shopUrl: 'https://shop.orasage.com?sku=report-bazi-basic' },
 ];
 

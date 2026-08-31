@@ -47,6 +47,11 @@ export function famousUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/famous`;
 }
 
+/** R4: hide /en/famous from nav — content quality not ready for English audience */
+export function isFamousNavVisible(locale: string): boolean {
+  return !locale.startsWith('en');
+}
+
 export function daozangUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/daozang`;
 }
@@ -101,7 +106,7 @@ export type ExploreItem = {
 };
 
 export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
-  return [
+  const items: ExploreItem[] = [
     {
       id: 'bazi',
       href: ORASAGE_URLS.bazi,
@@ -123,6 +128,7 @@ export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
       labels: { 'zh-CN': '道藏库', en: 'Dao Canon', 'zh-TW': '道藏庫' },
     },
   ];
+  return isFamousNavVisible(locale) ? items : items.filter((i) => i.id !== 'famous');
 }
 
 /** 底栏第 2 键探索轮换项（八字 / 塔罗 / 紫微 / 道藏 / 名人） */
@@ -172,7 +178,9 @@ export function rotationExploreLink(
   id: BottomNavRotationId,
   locale: string,
 ): { href: string; label: string } {
-  switch (id) {
+  const effectiveId: BottomNavRotationId =
+    !isFamousNavVisible(locale) && id === 'famous' ? 'daozang' : id;
+  switch (effectiveId) {
     case 'bazi':
       return { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) };
     case 'tarot':
@@ -202,7 +210,9 @@ export function resolveSecondNavSlot(
 ): SecondNavSlot {
   const anchor = detectNavAnchor(context, pathname);
   if (anchor) {
-    const link = rotationExploreLink(ANCHOR_ROTATION_SLOT[anchor], locale);
+    let slotId = ANCHOR_ROTATION_SLOT[anchor];
+    if (!isFamousNavVisible(locale) && slotId === 'famous') slotId = 'daozang';
+    const link = rotationExploreLink(slotId, locale);
     return { href: link.href, label: link.label, active: false, kind: 'explore' };
   }
 

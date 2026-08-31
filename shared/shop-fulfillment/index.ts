@@ -4,6 +4,13 @@ export type ProductFulfillment = {
   requiresShipping?: boolean | null;
 };
 
+/** USD cents — free standard shipping threshold shown on PDP TrustBar (R5) */
+export const FREE_STANDARD_SHIPPING_THRESHOLD_USD_CENTS = 3990;
+
+export function freeShippingThresholdUsd(): number {
+  return FREE_STANDARD_SHIPPING_THRESHOLD_USD_CENTS / 100;
+}
+
 /** 实体商品是否需要收货地址（DB 字段优先，否则按分类/SKU 推断） */
 export function inferRequiresShipping(product: ProductFulfillment): boolean {
   if (product.requiresShipping != null) return product.requiresShipping;

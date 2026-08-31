@@ -1,4 +1,4 @@
-import { daozangUrl, famousUrl, mainPortalUrl, ORASAGE_URLS } from './config';
+import { daozangUrl, famousUrl, isFamousNavVisible, mainPortalUrl, ORASAGE_URLS } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 
 /** 静态页 PC 顶栏 HTML（auth-service 等无 React 环境） */
@@ -10,7 +10,9 @@ export function topNavHtml(locale = 'zh-CN'): string {
     { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) },
     { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) },
     { href: ORASAGE_URLS.shop, label: pickLabel(SHELL_LABELS.shop, locale) },
-    { href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) },
+    ...(isFamousNavVisible(locale)
+      ? [{ href: famousUrl(locale), label: pickLabel(SHELL_LABELS.famous, locale) }]
+      : []),
     { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) },
   ];
   const links = items

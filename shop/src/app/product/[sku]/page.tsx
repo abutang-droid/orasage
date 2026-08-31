@@ -23,6 +23,7 @@ import { ProductTestimonials } from '@/components/ProductTestimonials';
 import { ProductUgcReviews } from '@/components/ProductUgcReviews';
 import { ProductBrandClosure } from '@/components/ProductBrandClosure';
 import { RelatedProducts } from '@/components/RelatedProducts';
+import { TrustBar } from '@/components/TrustBar';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 import { Disclaimer } from '@/lib/orasage-app-shell';
@@ -119,8 +120,9 @@ export default async function ProductPage({ params }: PageProps) {
               <p className="shop-pdp-english-subtitle">{englishSubtitle}</p>
             ) : null}
             <p className="shop-pdp-price">{displayPrice}</p>
-            <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
+            <TrustBar locale={locale} />
             <ProductDetailActions product={product} />
+            <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
             {hasAccordion ? <ProductInfoAccordion items={content.accordions} /> : null}
             {!hasAccordion && product.desc ? (
               <p className="shop-pdp-desc">{product.desc}</p>
