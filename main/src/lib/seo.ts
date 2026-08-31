@@ -3,12 +3,13 @@ import type { ContentItem } from '@/lib/content';
 import { portalAbsoluteUrl } from '@/lib/content';
 import { orasageOpenGraph, orasageTwitter, ORASAGE_URLS } from '@/lib/orasage-seo';
 
-/** Build page metadata with self-referencing canonical. Title suffix comes from layout template. */
+/** Build page metadata with self-referencing canonical. Title suffix is set explicitly for consistency. */
 export function buildPageMeta(item: ContentItem): Metadata {
   const ogTitle = item.title.includes('OraSage') ? item.title : `${item.title} | OraSage`;
+  const pageTitle = ogTitle;
 
   return {
-    title: item.title,
+    title: { absolute: pageTitle },
     ...(item.description ? { description: item.description } : {}),
     alternates: {
       canonical: item.canonical,
