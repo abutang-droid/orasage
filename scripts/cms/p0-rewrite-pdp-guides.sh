@@ -43,6 +43,23 @@ WHERE s._parent_id = p.id
   AND p.locale = 'en'
   AND p.sku LIKE 'crystal-%';
 
+UPDATE shop_product_pages_sections s
+SET body = $pt$I. Uso
+Use em qualquer mão, conforme preferir. Retire durante esportes, trabalho pesado ou ao usar produtos de limpeza químicos.
+
+II. Antes do primeiro uso
+Limpe as contas suavemente com um pano macio. Se vierem lascas de cristal, pode descansar a pulseira sobre elas por algumas horas como ritual de abertura.
+
+III. Cuidados
+1. Retire ao tomar banho, lavar o cabelo, remover maquiagem ou lavar louça.
+2. Evite calor alto, fontes termais, saunas e sol direto prolongado.
+3. Evite impactos fortes; retire durante exercícios.$pt$
+FROM shop_product_pages p
+WHERE s._parent_id = p.id
+  AND s.type = 'guide'
+  AND p.locale = 'pt-BR'
+  AND p.sku LIKE 'crystal-%';
+
 COMMIT;
 
 SELECT p.sku, p.locale, left(s.body, 60)

@@ -258,6 +258,84 @@
   color: var(--shell-text);
 }
 
+.orasage-site-topnav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 44px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  transition: color 0.15s var(--orasage-ease-organic, ease);
+}
+
+.orasage-site-topnav-icon:hover {
+  color: var(--shell-text);
+}
+
+.orasage-site-nav-dd {
+  position: relative;
+}
+
+.orasage-site-nav-dd-trigger {
+  gap: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.orasage-site-nav-dd-caret {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.orasage-site-nav-dd-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  min-width: 200px;
+  max-height: min(70vh, 420px);
+  overflow: auto;
+  padding: 8px 0;
+  background: var(--shell-menu-bg, #fff);
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 40;
+}
+
+.orasage-site-nav-dd:hover > .orasage-site-nav-dd-menu,
+.orasage-site-nav-dd:focus-within > .orasage-site-nav-dd-menu {
+  display: block;
+}
+
+.orasage-site-nav-util .orasage-site-nav-dd-menu {
+  left: auto;
+  right: 0;
+}
+
+.orasage-site-nav-dd-item {
+  display: block;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.orasage-site-nav-dd-item:hover {
+  color: var(--shell-text);
+  background: var(--shell-border-subtle, #fafaf8);
+}
+
+.orasage-site-nav-dd-chip {
+  padding: 8px 16px;
+  border-top: 1px solid var(--shell-border);
+}
+
 .orasage-site-topnav-menu .orasage-auth-chip {
   margin-inline-start: 4px;
 }

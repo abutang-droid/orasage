@@ -30,6 +30,8 @@ const TS_FILES = [
   'BottomNav.tsx',
   'config.ts',
   'labels.ts',
+  'primary-nav.ts',
+  'top-nav-html.ts',
   'index.ts',
 ];
 

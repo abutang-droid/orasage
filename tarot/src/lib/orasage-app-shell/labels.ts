@@ -1,134 +1,120 @@
+type LabelMap = Record<string, string>;
+
 type LabelSet = {
-  back: Record<string, string>;
-  home: Record<string, string>;
-  explore: Record<string, string>;
-  blessing: Record<string, string>;
-  shop: Record<string, string>;
-  mine: Record<string, string>;
-  exploreTitle: Record<string, string>;
-  login: Record<string, string>;
-  signedIn: Record<string, string>;
-  bazi: Record<string, string>;
-  ziwei: Record<string, string>;
-  tarot: Record<string, string>;
-  energyShop: Record<string, string>;
-  famous: Record<string, string>;
-  daozang: Record<string, string>;
-  /** PC portal footer */
-  copyright: Record<string, string>;
-  privacy: Record<string, string>;
-  terms: Record<string, string>;
+  back: LabelMap;
+  home: LabelMap;
+  explore: LabelMap;
+  blessing: LabelMap;
+  shop: LabelMap;
+  mine: LabelMap;
+  exploreTitle: LabelMap;
+  login: LabelMap;
+  signedIn: LabelMap;
+  bazi: LabelMap;
+  ziwei: LabelMap;
+  tarot: LabelMap;
+  energyShop: LabelMap;
+  famous: LabelMap;
+  daozang: LabelMap;
+  copyright: LabelMap;
+  privacy: LabelMap;
+  terms: LabelMap;
+  /** P1 IA */
+  insights: LabelMap;
+  origins: LabelMap;
+  readings: LabelMap;
+  search: LabelMap;
+  cart: LabelMap;
+  myReadings: LabelMap;
+  navByElement: LabelMap;
+  navByIntention: LabelMap;
+  navBracelets: LabelMap;
+  navReports: LabelMap;
+  navGifts: LabelMap;
+  elementWood: LabelMap;
+  elementFire: LabelMap;
+  elementEarth: LabelMap;
+  elementMetal: LabelMap;
+  elementWater: LabelMap;
+  intentGrowth: LabelMap;
+  intentCourage: LabelMap;
+  intentGrounding: LabelMap;
+  intentClarity: LabelMap;
+  intentBoundaries: LabelMap;
+  navDayMaster: LabelMap;
+  navFiveElementsDecoded: LabelMap;
+  navSolarTerms: LabelMap;
+  navCrystalCompanion: LabelMap;
+  navLatest: LabelMap;
+  navCorrections: LabelMap;
+  navTheMaking: LabelMap;
+  navAtelier: LabelMap;
+  navOurStory: LabelMap;
+};
+
+const L = {
+  zh: (zh: string, en: string, tw = zh, pt = en): LabelMap => ({
+    'zh-CN': zh,
+    en,
+    'zh-TW': tw,
+    'pt-BR': pt,
+  }),
 };
 
 export const SHELL_LABELS: LabelSet = {
-  back: {
-    'zh-CN': '返回',
-    en: 'Back',
-    'zh-TW': '返回',
-    'pt-BR': 'Voltar',
-  },
-  home: {
-    'zh-CN': '首页',
-    en: 'Home',
-    'zh-TW': '首頁',
-    'pt-BR': 'Início',
-  },
-  explore: {
-    'zh-CN': '探索',
-    en: 'Explore',
-    'zh-TW': '探索',
-    'pt-BR': 'Explorar',
-  },
-  blessing: {
-    'zh-CN': '祈愿池',
-    en: 'Wishing Well',
-    'zh-TW': '祈願池',
-    'pt-BR': 'Poço dos Desejos',
-  },
-  shop: {
-    'zh-CN': '商店',
-    en: 'Shop',
-    'zh-TW': '商店',
-    'pt-BR': 'Loja',
-  },
-  mine: {
-    'zh-CN': '我的',
-    en: 'Me',
-    'zh-TW': '我的',
-    'pt-BR': 'Eu',
-  },
-  exploreTitle: {
-    'zh-CN': '探索',
-    en: 'Explore',
-    'zh-TW': '探索',
-    'pt-BR': 'Explorar',
-  },
-  login: {
-    'zh-CN': '登录',
-    en: 'Login',
-    'zh-TW': '登入',
-    'pt-BR': 'Entrar',
-  },
-  signedIn: {
-    'zh-CN': '已通过 OraSage 登录',
-    en: 'Signed in with OraSage',
-    'zh-TW': '已通過 OraSage 登入',
-    'pt-BR': 'Conectado com OraSage',
-  },
-  bazi: {
-    'zh-CN': '八字',
-    en: 'BaZi',
-    'zh-TW': '八字',
-    'pt-BR': 'BaZi',
-  },
-  ziwei: {
-    'zh-CN': '紫微',
-    en: 'Zi Wei',
-    'zh-TW': '紫微',
-    'pt-BR': 'Zi Wei',
-  },
-  tarot: {
-    'zh-CN': '塔罗牌',
-    en: 'Tarot',
-    'zh-TW': '塔羅牌',
-    'pt-BR': 'Tarô',
-  },
-  energyShop: {
-    'zh-CN': '五行造物',
-    en: 'Five Elements',
-    'zh-TW': '五行造物',
-    'pt-BR': 'Cinco Elementos',
-  },
-  famous: {
-    'zh-CN': '名人案例',
-    en: 'Famous Cases',
-    'zh-TW': '名人案例',
-    'pt-BR': 'Casos Famosos',
-  },
-  daozang: {
-    'zh-CN': '道藏',
-    en: 'Dao Canon',
-    'zh-TW': '道藏',
-    'pt-BR': 'Canon Taoista',
-  },
-  copyright: {
-    'zh-CN': '© 2026 OraSage. 保留所有权利。',
-    en: '© 2026 OraSage. All rights reserved.',
-    'zh-TW': '© 2026 OraSage. 保留所有權利。',
-    'pt-BR': '© 2026 OraSage. Todos os direitos reservados.',
-  },
-  privacy: {
-    'zh-CN': '隐私政策',
-    en: 'Privacy Policy',
-    'zh-TW': '隱私政策',
-    'pt-BR': 'Política de Privacidade',
-  },
-  terms: {
-    'zh-CN': '服务条款',
-    en: 'Terms of Service',
-    'zh-TW': '服務條款',
-    'pt-BR': 'Termos de Serviço',
-  },
+  back: L.zh('返回', 'Back', '返回', 'Voltar'),
+  home: L.zh('首页', 'Home', '首頁', 'Início'),
+  explore: L.zh('探索', 'Explore', '探索', 'Explorar'),
+  blessing: L.zh('祈愿池', 'Wishing Well', '祈願池', 'Poço dos Desejos'),
+  shop: L.zh('商城', 'Shop', '商城', 'Loja'),
+  mine: L.zh('我的', 'Me', '我的', 'Eu'),
+  exploreTitle: L.zh('探索', 'Explore', '探索', 'Explorar'),
+  login: L.zh('登录', 'Login', '登入', 'Entrar'),
+  signedIn: L.zh('已通过 OraSage 登录', 'Signed in with OraSage', '已通過 OraSage 登入', 'Conectado com OraSage'),
+  bazi: L.zh('八字', 'BaZi', '八字', 'BaZi'),
+  ziwei: L.zh('紫微', 'Zi Wei', '紫微', 'Zi Wei'),
+  tarot: L.zh('塔罗牌', 'Tarot', '塔羅牌', 'Tarô'),
+  energyShop: L.zh('五行造物', 'Five Elements', '五行造物', 'Cinco Elementos'),
+  famous: L.zh('名人案例', 'Famous Cases', '名人案例', 'Casos Famosos'),
+  daozang: L.zh('道藏', 'Dao Canon', '道藏', 'Canon Taoista'),
+  copyright: L.zh(
+    '© 2026 OraSage. 保留所有权利。',
+    '© 2026 OraSage. All rights reserved.',
+    '© 2026 OraSage. 保留所有權利。',
+    '© 2026 OraSage. Todos os direitos reservados.',
+  ),
+  privacy: L.zh('隐私政策', 'Privacy Policy', '隱私政策', 'Política de Privacidade'),
+  terms: L.zh('服务条款', 'Terms of Service', '服務條款', 'Termos de Serviço'),
+  insights: L.zh('玄析', 'Insights', '玄析', 'Insights'),
+  origins: L.zh('造物', 'Origins', '造物', 'Origins'),
+  readings: L.zh('测算', 'Readings', '測算', 'Leituras'),
+  search: L.zh('搜索', 'Search', '搜尋', 'Buscar'),
+  cart: L.zh('购物车', 'Cart', '購物車', 'Carrinho'),
+  myReadings: L.zh('我的测算', 'My Readings', '我的測算', 'Minhas leituras'),
+  navByElement: L.zh('按五行', 'By Element', '按五行', 'Por elemento'),
+  navByIntention: L.zh('按愿', 'By Intention', '按願', 'Por intenção'),
+  navBracelets: L.zh('手串', 'Bracelets', '手串', 'Pulseiras'),
+  navReports: L.zh('数字报告', 'Digital Reports', '數字報告', 'Relatórios digitais'),
+  navGifts: L.zh('礼赠', 'Gifts', '禮贈', 'Presentes'),
+  elementWood: L.zh('木 · 生长', 'Wood · Growth', '木 · 生長', 'Madeira · Crescimento'),
+  elementFire: L.zh('火 · 勇气', 'Fire · Courage', '火 · 勇氣', 'Fogo · Coragem'),
+  elementEarth: L.zh('土 · 稳固', 'Earth · Grounding', '土 · 穩固', 'Terra · Estabilidade'),
+  elementMetal: L.zh('金 · 澄明', 'Metal · Clarity', '金 · 澄明', 'Metal · Clareza'),
+  elementWater: L.zh('水 · 边界', 'Water · Boundaries', '水 · 邊界', 'Água · Limites'),
+  intentGrowth: L.zh('生长', 'Growth', '生長', 'Crescimento'),
+  intentCourage: L.zh('勇气', 'Courage', '勇氣', 'Coragem'),
+  intentGrounding: L.zh('稳固', 'Grounding', '穩固', 'Estabilidade'),
+  intentClarity: L.zh('澄明', 'Clarity', '澄明', 'Clareza'),
+  intentBoundaries: L.zh('边界', 'Boundaries', '邊界', 'Limites'),
+  navDayMaster: L.zh('日主人格学', 'Day Master Typology', '日主人格學', 'Tipologia do Dia Mestre'),
+  navFiveElementsDecoded: L.zh('五行解码', 'Five Elements Decoded', '五行解碼', 'Cinco Elementos'),
+  navSolarTerms: L.zh('节气与流年', '24 Solar Terms', '節氣與流年', 'Termos solares'),
+  navCrystalCompanion: L.zh('水晶志', 'Crystal Companion', '水晶志', 'Companheiro de cristal'),
+  navLatest: L.zh('最新', 'Latest', '最新', 'Mais recentes'),
+  navCorrections: L.zh('勘误', 'Corrections', '勘誤', 'Correções'),
+  navTheMaking: L.zh('造物记', 'The Making', '造物記', 'A criação'),
+  navAtelier: L.zh('工坊', 'Atelier', '工坊', 'Ateliê'),
+  navOurStory: L.zh('缘起', 'Our Story', '緣起', 'Nossa história'),
 };
 
 export function pickLabel(map: Record<string, string>, locale: string, fallback?: string): string {

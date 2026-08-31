@@ -22,6 +22,10 @@ export {
   profileUrl,
   famousUrl,
   daozangUrl,
+  insightsUrl,
+  originsUrl,
+  readingsUrl,
+  searchUrl,
   exploreItems,
   isCurrentAppHome,
   isAppSubpage,
@@ -29,3 +33,5 @@ export {
   isMainPortalHome,
   resolveSecondNavSlot,
 } from './config';
+export { getPrimaryNavCategories, getUtilityNav } from './primary-nav';
+export type { NavCategory, NavLink } from './primary-nav';

@@ -61,6 +61,22 @@ export function daozangUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/daozang`;
 }
 
+export function insightsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/insights`;
+}
+
+export function originsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/origins`;
+}
+
+export function readingsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/readings`;
+}
+
+export function searchUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/search`;
+}
+
 export const APP_HOME_PATH: Record<AppId, string> = {
   bazi: '/',
   ziwei: '/chart',
