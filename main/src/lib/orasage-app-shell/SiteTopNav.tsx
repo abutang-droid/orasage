@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, isFamousNavVisible, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
+import { appBrandLabel, appHomeUrl, daozangUrl, famousUrl, isBlessingNavVisible, isFamousNavVisible, mainPortalUrl, ORASAGE_URLS, type NavContext } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
@@ -16,6 +16,12 @@ const TOP_NAV_ITEMS = [
   { id: 'famous' as const, href: (locale: string) => famousUrl(locale), external: false },
   { id: 'daozang' as const, href: (locale: string) => daozangUrl(locale), external: false },
 ];
+
+function isTopNavItemVisible(id: string, locale: string): boolean {
+  if (id === 'famous') return isFamousNavVisible(locale);
+  if (id === 'blessing') return isBlessingNavVisible();
+  return true;
+}
 
 export type SiteTopNavProps = {
   locale?: string;
@@ -46,7 +52,7 @@ export function SiteTopNav({
           {brandLabel}
         </a>
         <nav className="orasage-site-topnav-menu" aria-label="Site navigation">
-          {TOP_NAV_ITEMS.filter((item) => item.id !== 'famous' || isFamousNavVisible(locale)).map((item) => {
+          {TOP_NAV_ITEMS.filter((item) => isTopNavItemVisible(item.id, locale)).map((item) => {
             const href = typeof item.href === 'function' ? item.href(locale) : item.href;
             const label = pickLabel(SHELL_LABELS[item.id], locale);
             return (

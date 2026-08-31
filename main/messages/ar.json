@@ -1,26 +1,26 @@
 {
   "meta": {
-    "title": "OraSage — Destiny & Energy",
-    "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
+    "title": "Self & Energy | OraSage",
+    "description": "BaZi, Zi Wei, Tarot — structured introspection through the Five Elements."
   },
   "nav": {
     "home": "الرئيسية",
     "bazi": "BaZi",
     "ziwei": "ZiWei",
     "tarot": "Tarot",
-    "blessing": "Blessing",
+    "blessing": "Wishing Well",
     "famous": "Famous Cases",
     "daozang": "Dao Canon",
     "login": "Sign In",
     "shop": "المتجر"
   },
   "hero": {
-    "title": "Explore Destiny, Balance Energy",
-    "subtitle": "BaZi · Zi Wei · Tarot — Eastern wisdom meets modern technology",
+    "title": "Discover Your True Self",
+    "subtitle": "We look at the symbolic distribution of the Five Elements as a tool for introspection.",
     "cta": "Start Exploring"
   },
   "tools": {
-    "title": "Divination Tools",
+    "title": "Reading Tools",
     "bazi": {
       "name": "BaZi Chart",
       "desc": "Five Elements · Life analysis · Crystal recommendations"
@@ -171,7 +171,7 @@
     "annotationLegend": "الهوامش (眉批) والحاشيات (注) والشروح (歌释) من النص الأصلي، وقد عُرضت بشكل منفصل."
   },
   "shop": {
-    "title": "Energy Shop",
+    "title": "The Five Elements Collection",
     "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
     "cta": "More products",
     "products": {

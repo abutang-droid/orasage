@@ -40,10 +40,10 @@ export const SHELL_LABELS: LabelSet = {
     'pt-BR': 'Explorar',
   },
   blessing: {
-    'zh-CN': '祈福',
-    en: 'Blessing',
-    'zh-TW': '祈福',
-    'pt-BR': 'Bênção',
+    'zh-CN': '祈愿池',
+    en: 'Wishing Well',
+    'zh-TW': '祈願池',
+    'pt-BR': 'Poço dos Desejos',
   },
   shop: {
     'zh-CN': '商店',
@@ -94,10 +94,10 @@ export const SHELL_LABELS: LabelSet = {
     'pt-BR': 'Tarô',
   },
   energyShop: {
-    'zh-CN': '能量商城',
-    en: 'Energy Shop',
-    'zh-TW': '能量商城',
-    'pt-BR': 'Loja de Energia',
+    'zh-CN': '五行造物',
+    en: 'Five Elements',
+    'zh-TW': '五行造物',
+    'pt-BR': 'Cinco Elementos',
   },
   famous: {
     'zh-CN': '名人案例',

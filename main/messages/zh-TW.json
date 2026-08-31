@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "OraSage — Destiny & Energy",
-    "description": "BaZi, Zi Wei, Tarot — Explore destiny, balance energy"
+    "title": "Self & Energy | OraSage",
+    "description": "BaZi, Zi Wei, Tarot — structured introspection through the Five Elements."
   },
   "nav": {
     "home": "首頁",
@@ -15,12 +15,12 @@
     "shop": "商店"
   },
   "hero": {
-    "title": "Explore Destiny, Balance Energy",
-    "subtitle": "BaZi · Zi Wei · Tarot — Eastern wisdom meets modern technology",
+    "title": "Discover Your True Self",
+    "subtitle": "We look at the symbolic distribution of the Five Elements as a tool for introspection.",
     "cta": "Start Exploring"
   },
   "tools": {
-    "title": "Divination Tools",
+    "title": "Reading Tools",
     "bazi": {
       "name": "BaZi Chart",
       "desc": "Five Elements · Life analysis · Crystal recommendations"
@@ -171,7 +171,7 @@
     "annotationLegend": "眉批、注、歌釋等為原書註釋，已單獨排版便於對照閱讀。"
   },
   "shop": {
-    "title": "Energy Shop",
+    "title": "The Five Elements Collection",
     "subtitle": "Reading recommendations · Crystal bracelets · Digital reports",
     "cta": "更多商品",
     "products": {

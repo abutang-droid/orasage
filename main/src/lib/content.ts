@@ -91,8 +91,9 @@ const STATIC_ROUTES: StaticRouteDef[] = [
   {
     path: '',
     titles: {
-      'zh-CN': '命理与能量',
-      en: 'Destiny & Energy',
+      'zh-CN': '看见真实的自己',
+      en: 'Self & Energy',
+      'pt-BR': 'Self & Energy',
       'pt-BR': 'Destino e Energia',
     },
     descriptions: {
