@@ -38,15 +38,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     metadataBase: new URL(ORASAGE_URLS.main),
-    title,
+    title: {
+      default: title,
+      template: '%s | OraSage',
+    },
     description,
     keywords: keywords.split(',').map((k: string) => k.trim()),
-    alternates: {
-      canonical: `/${locale}`,
-      languages: Object.fromEntries(
-        routing.locales.map((loc) => [loc, `/${loc}`]),
-      ),
-    },
     openGraph: orasageOpenGraph({
       title,
       description,

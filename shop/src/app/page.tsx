@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { ProductCatalog } from '@/components/ProductCatalog';
 import { CrystalShowcase } from '@/components/CrystalShowcase';
@@ -11,6 +12,15 @@ import { fetchProductImageMap } from '@/lib/cms-product-images';
 import { fetchCrystalContent, fetchShopHomeLayout } from '@/lib/shop-config';
 import { buildCrystalLineup } from '@/lib/crystal-lineup';
 import { isCrystalGiftSku } from '../../../shared/shop-crystal/index';
+import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildOrasageMetadata({
+    title: 'OraSage Energy Shop',
+    description: 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
+    canonical: ORASAGE_URLS.shop,
+  });
+}
 
 async function loadFeaturedSkus(locale: string): Promise<string[]> {
   try {

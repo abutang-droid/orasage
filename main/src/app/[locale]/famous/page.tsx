@@ -8,6 +8,7 @@ import { cmsLocale, fetchFamousPages, type FamousDoc } from '@/lib/cms';
 import { FAMOUS_CATEGORIES, type FamousCategory } from '@/lib/famous-index';
 import { buildFamousListItems } from '@/lib/famous-list';
 import { Disclaimer } from '@/lib/orasage-app-shell';
+import { buildPortalPageMeta } from '@/lib/seo';
 
 import { Alert, AlertDescription, Badge, buttonVariants } from '@orasage/ui';
 
@@ -18,8 +19,16 @@ type Props = {
   searchParams: Promise<{ page?: string; cat?: string }>;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { robots: { index: false, follow: true } };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'famous' });
+  return buildPortalPageMeta({
+    locale,
+    pathname: '/famous',
+    title: t('title'),
+    description: t('desc'),
+    noindex: true,
+  });
 }
 
 export default async function FamousPage({ params, searchParams }: Props) {

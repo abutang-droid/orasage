@@ -13,6 +13,7 @@ import {
   fetchDaozangIndex,
   stripHtml,
 } from '@/lib/cms';
+import { buildPortalPageMeta } from '@/lib/seo';
 import { prepareDaozangArticle } from '@/lib/daozang-article';
 import { compareArticles, resolveArticleCategory } from '@/lib/daozang-taxonomy';
 import {
@@ -36,10 +37,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!page || page.appSource !== 'daozang') return {};
   const t = await getTranslations({ locale, namespace: 'daozang' });
   const description = page.excerpt ?? (page.legacyHtml ? stripHtml(page.legacyHtml) : undefined);
-  return {
+  return buildPortalPageMeta({
+    locale,
+    pathname: daozangArticlePath(slug),
     title: `${decodeHtmlEntities(page.title)} · ${t('title')}`,
     description,
-  };
+  });
 }
 
 export default async function DaozangArticlePage({ params }: Props) {

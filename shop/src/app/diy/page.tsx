@@ -6,6 +6,7 @@ import { fetchDiyCatalog } from '@/lib/diy-server';
 import { getServerShopLocale } from '@/lib/currency-server';
 import { currencyForLocale } from '@/lib/currency';
 import { DiyDesigner } from '@/components/diy/DiyDesigner';
+import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
 type PageProps = {
   searchParams: Promise<{ base?: string; element?: string }>;
@@ -13,10 +14,11 @@ type PageProps = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('diy');
-  return {
+  return buildOrasageMetadata({
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+    canonical: `${ORASAGE_URLS.shop}/diy`,
+  });
 }
 
 export default async function DiyPage({ searchParams }: PageProps) {

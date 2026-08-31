@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { cmsLocale, decodeHtmlEntities, fetchDaozangIndex, type DaozangIndexItem } from '@/lib/cms';
+import { buildPortalPageMeta } from '@/lib/seo';
 import {
   DAOZANG_TOPS,
   categoriesOfTop,
@@ -34,17 +35,36 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { locale } = await params;
   const { cat, vol } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'daozang' });
+  let pathname = '/daozang';
+  const qs = new URLSearchParams();
+  if (cat) qs.set('cat', cat);
+  if (vol) qs.set('vol', vol);
+  const query = qs.toString();
+  if (query) pathname = `${pathname}?${query}`;
+
   if (isDaozangCategoryKey(cat)) {
     const categoryTitle = t(`categories.${cat}`);
     if (vol && isBookCategory(cat)) {
-      return {
+      return buildPortalPageMeta({
+        locale,
+        pathname,
         title: `${localizedVolumeLabel(vol, t)} · ${categoryTitle} · ${t('title')}`,
         description: t('desc'),
-      };
+      });
     }
-    return { title: `${categoryTitle} · ${t('title')}`, description: t('desc') };
+    return buildPortalPageMeta({
+      locale,
+      pathname,
+      title: `${categoryTitle} · ${t('title')}`,
+      description: t('desc'),
+    });
   }
-  return { title: t('title'), description: t('desc') };
+  return buildPortalPageMeta({
+    locale,
+    pathname,
+    title: t('title'),
+    description: t('desc'),
+  });
 }
 
 export default async function DaozangPage({ params, searchParams }: Props) {

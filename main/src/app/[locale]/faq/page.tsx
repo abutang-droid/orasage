@@ -1,8 +1,20 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import type { Metadata } from 'next';
 import { PageShell, PageTitle } from '@/components/PageShell';
+import { buildPortalPageMeta } from '@/lib/seo';
 
 import { Card, CardContent } from '@orasage/ui';
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'faq' });
+  return buildPortalPageMeta({
+    locale,
+    pathname: '/faq',
+    title: t('title'),
+  });
+}
 
 export default async function FaqPage({ params }: Props) {
   const { locale } = await params;
