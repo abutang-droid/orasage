@@ -5,7 +5,7 @@ export type ProductFulfillment = {
 };
 
 /** USD cents — free standard shipping threshold shown on PDP TrustBar (R5) */
-export const FREE_STANDARD_SHIPPING_THRESHOLD_USD_CENTS = 12900;
+export const FREE_STANDARD_SHIPPING_THRESHOLD_USD_CENTS = 16800;
 
 export function freeShippingThresholdUsd(): number {
   return FREE_STANDARD_SHIPPING_THRESHOLD_USD_CENTS / 100;
