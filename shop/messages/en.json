@@ -279,7 +279,13 @@
     "serviceConsult": "Energy consult · 1:1",
     "ziweiChatPack": "Zi Wei chat · Credit pack",
     "ziweiChatYearly": "Zi Wei chat · Annual",
-    "templeDonation": "Temple blessing · Voluntary gift",
+    "templeDonation": "Wishing Well · Support the project",
+    "trustBar": {
+      "ariaLabel": "Purchase assurances",
+      "authentic": "Authentic natural crystals — material & craftsmanship guaranteed",
+      "returns": "30-day hassle-free returns & exchanges",
+      "freeShipping": "Free standard shipping on orders over {threshold}"
+    },
     "accordion": {
       "energyDetails": "Energy details",
       "productDetails": "Product details",
@@ -369,11 +375,11 @@
       },
       "temple": {
         "title": "Blessing is connection.",
-        "sub": "Every offering links you to a larger kindness.",
+        "sub": "Your support keeps our open BaZi library free.",
         "body": "Each blessing is a connection to something larger. Your gift helps keep the OraSage temple experience available for everyone.",
         "cta": "Explore OraSage",
         "href": "https://orasage.com",
-        "note": "Thank you for your voluntary support"
+        "note": "Thank you for your support"
       },
       "ziweiChat": {
         "title": "Ask deeper. Understand more.",

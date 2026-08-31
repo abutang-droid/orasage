@@ -280,6 +280,12 @@
     "ziweiChatPack": "紫微问答 · 加量包",
     "ziweiChatYearly": "紫微问答 · 年卡",
     "templeDonation": "祈福乐捐 · 自愿支持",
+    "trustBar": {
+      "ariaLabel": "购买保障",
+      "authentic": "天然水晶材质保证 · 真材实料",
+      "returns": "30 天无忧退换",
+      "freeShipping": "满 {threshold} 免标准运费"
+    },
     "accordion": {
       "energyDetails": "能量详解",
       "productDetails": "商品详情",

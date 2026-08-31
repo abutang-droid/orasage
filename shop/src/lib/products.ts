@@ -28,11 +28,11 @@ export interface Product {
 
 /** 静态兜底（auth-service 不可用时） */
 export const FALLBACK_PRODUCTS: Product[] = [
-  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 生机生长 · 事业拓展', priceCents: 1778, priceCentsUsd: 1778, category: 'crystal' },
-  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 提振活力 · 勇敢行动', priceCents: 1361, priceCentsUsd: 1361, category: 'crystal' },
-  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固根基 · 守成安定', priceCents: 1500, priceCentsUsd: 1500, category: 'crystal' },
-  { sku: 'crystal-metal', name: '澄明之境 · 白水晶能量手串', element: '金', desc: '五行属金 · 净化能量 · 思绪澄明', priceCents: 1222, priceCentsUsd: 1222, category: 'crystal' },
-  { sku: 'crystal-water', name: '深海静盾 · 黑曜石能量手串', element: '水', desc: '五行属水 · 边界沉静 · 心理锚点', priceCents: 1639, priceCentsUsd: 1639, category: 'crystal' },
+  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵能量手串', element: '木', desc: '五行属木 · 生长与丰盛 · 生机拓展', priceCents: 1778, priceCentsUsd: 1778, category: 'crystal' },
+  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙能量手串', element: '火', desc: '五行属火 · 活力与行动 · 勇敢前行', priceCents: 1361, priceCentsUsd: 1361, category: 'crystal' },
+  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶能量手串', element: '土', desc: '五行属土 · 稳固与持守 · 守成安定', priceCents: 1500, priceCentsUsd: 1500, category: 'crystal' },
+  { sku: 'crystal-metal', name: '澄明之境 · 白水晶能量手串', element: '金', desc: '五行属金 · 澄澈与静定 · 思绪澄明', priceCents: 1222, priceCentsUsd: 1222, category: 'crystal' },
+  { sku: 'crystal-water', name: '深海静盾 · 黑曜石能量手串', element: '水', desc: '五行属水 · 守护与边界 · 心理锚点', priceCents: 1639, priceCentsUsd: 1639, category: 'crystal' },
   { sku: 'crystal-wood-gift', name: '生长之境 · 绿幽灵能量手串 · 礼盒装', element: '木', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属木 · 赠礼专属包装', priceCents: 2333, priceCentsUsd: 2333, category: 'crystal' },
   { sku: 'crystal-fire-gift', name: '焰心觉醒 · 红玛瑙能量手串 · 礼盒装', element: '火', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属火 · 赠礼专属包装', priceCents: 1917, priceCentsUsd: 1917, category: 'crystal' },
   { sku: 'crystal-earth-gift', name: '厚土之根 · 黄水晶能量手串 · 礼盒装', element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属土 · 赠礼专属包装', priceCents: 2056, priceCentsUsd: 2056, category: 'crystal' },
