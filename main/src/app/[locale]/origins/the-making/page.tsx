@@ -44,8 +44,8 @@ export default async function TheMakingIndexPage({ params }: Props) {
       <PageTitle>{t('The Making', '造物记')}</PageTitle>
       <PageLead>
         {t(
-          'Five piece stories — materials, making, and choices you can verify. Wood, Fire, and Earth are live; Metal and Water are still being written.',
-          '五款单品故事：材料、工艺与可核验的选择。木、火、土已上线；金、水仍在撰写中。',
+          'Five piece stories — materials, making, and choices you can verify. All five crystal SKUs are live.',
+          '五款单品故事：材料、工艺与可核验的选择。五款水晶 SKU 均已上线。',
         )}
       </PageLead>
 
