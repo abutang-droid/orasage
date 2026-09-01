@@ -144,7 +144,14 @@ export default async function ProductPage({ params }: PageProps) {
             <p className="shop-pdp-price">{displayPrice}</p>
             <TrustBar locale={locale} />
             <ProductDetailActions product={product} />
-            <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
+            {product.category === 'report' ? (
+              <>
+                <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-2" />
+                <Disclaimer variant="standard" locale={locale} compact className="mb-4" />
+              </>
+            ) : (
+              <Disclaimer variant="product" locale={locale} compact className="mt-3 mb-4" />
+            )}
             {(() => {
               const makingSku = makingSkuForProduct(product.sku);
               if (!makingSku) return null;

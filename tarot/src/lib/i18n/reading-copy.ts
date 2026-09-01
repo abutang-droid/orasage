@@ -813,10 +813,10 @@ const home = {
     es: 'Bendición',
   },
   templeDesc: {
-    zh: '轻触神像完成今日参拜，可获得单牌阵额外抽取机会。',
-    en: 'Tap the deity to worship today and earn an extra single-card draw.',
-    pt: 'Toque a divindade para adorar hoje e ganhar um sorteio extra de carta única.',
-    es: 'Toca la deidad para adorar hoy y gana una tirada extra de carta única.',
+    zh: '完成今日祈福互动，可解锁一次额外单牌体验。',
+    en: 'Complete today\'s blessing ritual to unlock one extra single-card draw.',
+    pt: 'Conclua o ritual de bênção de hoje para desbloquear uma tiragem extra de carta única.',
+    es: 'Completa el ritual de bendición de hoy para desbloquear una tirada extra de carta única.',
   },
   templeCta: {
     zh: '前往祈福 →',

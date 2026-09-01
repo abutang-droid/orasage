@@ -9,6 +9,7 @@ import {
   type DaozangIndexItem,
 } from '@/lib/cms';
 import { ORASAGE_URLS } from '@/lib/orasage-seo';
+import { MAKING_SKUS } from '@/lib/origins-making';
 import { locales, type Locale } from '@/i18n/routing';
 
 /** Locales included in sitemap for CMS articles (canonical language versions). */
@@ -148,6 +149,87 @@ const STATIC_ROUTES: StaticRouteDef[] = [
     changeFrequency: 'monthly',
   },
   {
+    path: '/readings',
+    titles: { 'zh-CN': '测算', en: 'Readings', 'pt-BR': 'Leituras' },
+    descriptions: {
+      'zh-CN': '八字、紫微、塔罗 — 娱乐与自我探索用途的结构对照。',
+      en: 'BaZi, Zi Wei, and Tarot — structural lenses for entertainment and self-exploration.',
+      'pt-BR': 'BaZi, Zi Wei e Tarô — lentes estruturais para entretenimento e introspecção.',
+    },
+    priority: 0.85,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/insights',
+    titles: { 'zh-CN': '玄析', en: 'Insights', 'pt-BR': 'Insights' },
+    descriptions: {
+      'zh-CN': '理解结构，不问吉凶。日主、五行、节气与水晶志。',
+      en: 'Understand the structure. Not the fortune.',
+      'pt-BR': 'Entenda a estrutura. Não a sorte.',
+    },
+    priority: 0.8,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/insights/day-master',
+    titles: { 'zh-CN': '日主人格学', en: 'Day Master Typology', 'pt-BR': 'Tipologia do Mestre do Dia' },
+    priority: 0.75,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/insights/five-elements',
+    titles: { 'zh-CN': '五行解码', en: 'Five Elements Decoded', 'pt-BR': 'Cinco Elementos' },
+    priority: 0.75,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/insights/solar-terms',
+    titles: { 'zh-CN': '节气笔记', en: 'Solar Terms', 'pt-BR': 'Termos solares' },
+    priority: 0.7,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/insights/corrections',
+    titles: { 'zh-CN': '校正与流派', en: 'Corrections & Schools', 'pt-BR': 'Correções e escolas' },
+    priority: 0.65,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/insights/crystal',
+    titles: { 'zh-CN': '水晶志', en: 'Crystal Companion', 'pt-BR': 'Companheiro de cristal' },
+    priority: 0.7,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/origins',
+    titles: { 'zh-CN': '造物', en: 'Origins', 'pt-BR': 'Origens' },
+    descriptions: {
+      'zh-CN': '造物记、工坊与缘起 — 工艺与选择的可核对说明。',
+      en: 'The Making, Atelier, and Our Story — inspectable craft decisions.',
+      'pt-BR': 'The Making, Atelier e Our Story — decisões de artesanato verificáveis.',
+    },
+    priority: 0.75,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/origins/the-making',
+    titles: { 'zh-CN': '造物记', en: 'The Making', 'pt-BR': 'The Making' },
+    priority: 0.7,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/origins/atelier',
+    titles: { 'zh-CN': '工坊', en: 'Atelier', 'pt-BR': 'Atelier' },
+    priority: 0.65,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/origins/our-story',
+    titles: { 'zh-CN': '缘起', en: 'Our Story', 'pt-BR': 'Nossa história' },
+    priority: 0.65,
+    changeFrequency: 'monthly',
+  },
+  {
     path: '/famous',
     titles: { 'zh-CN': '名人案例', en: 'Famous Cases', 'pt-BR': 'Casos famosos' },
     noindex: true,
@@ -169,9 +251,15 @@ const PRIVATE_PROFILE_PATHS = [
 
 function getStaticPages(): ContentItem[] {
   const items: ContentItem[] = [];
+  const makingRoutes: StaticRouteDef[] = MAKING_SKUS.map((sku) => ({
+    path: `/origins/the-making/${sku}`,
+    titles: { 'zh-CN': `造物记 · ${sku}`, en: `The Making · ${sku}`, 'pt-BR': `The Making · ${sku}` },
+    priority: 0.6,
+    changeFrequency: 'monthly' as const,
+  }));
 
   for (const locale of locales) {
-    for (const route of STATIC_ROUTES) {
+    for (const route of [...STATIC_ROUTES, ...makingRoutes]) {
       items.push({
         canonical: portalAbsoluteUrl(locale, route.path),
         title: route.titles?.[locale] ?? route.titleKey ?? 'OraSage',

@@ -39,4 +39,9 @@ echo "=== Product JSON-LD (crystal-wood) ==="
 curl -sL https://shop.orasage.com/product/crystal-wood | grep -o '"@type":"Product"' | head -1 || echo "Product JSON-LD MISSING"
 
 echo
-echo "Expect: bazi/ziwei/tarot entertainment>=1; making_wood placeholder=0; http→https 301; Product JSON-LD present"
+echo "=== bazi sitemap.xml ==="
+curl -sI https://bazi.orasage.com/sitemap.xml | grep -iE '^(HTTP|content-type)' || true
+curl -sL https://bazi.orasage.com/sitemap.xml | head -5 || echo "bazi sitemap MISSING"
+
+echo
+echo "Expect: bazi/ziwei/tarot entertainment>=1; making_wood placeholder=0; http→https 301; Product JSON-LD present; bazi sitemap Content-Type application/xml"

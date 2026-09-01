@@ -442,13 +442,13 @@ export const temple = {
     es: 'Elegir deidad patrón',
   },
   pickWithFaith: {
-    zh: '信仰：{faith}{country} · 选定守护神，即可开始参拜',
+    zh: '信仰：{faith}{country} · 选定守护神，即可开始祈福互动',
     en: 'Faith: {faith}{country} · Choose a patron to begin worship',
     pt: 'Fé: {faith}{country} · Escolha um patrono para começar',
     es: 'Fe: {faith}{country} · Elige un patrón para comenzar',
   },
   pickSimple: {
-    zh: '点选一位守护神，即可开始参拜',
+    zh: '点选一位守护神，即可开始祈福互动',
     en: 'Tap a patron deity to begin worship',
     pt: 'Toque um patrono para começar a adorar',
     es: 'Toca un patrón para comenzar la adoración',
@@ -490,25 +490,25 @@ export const temple = {
     es: 'Mi patrón',
   },
   worshipAgain: {
-    zh: '再次参拜',
+    zh: '再次祈福',
     en: 'Worship again',
     pt: 'Adorar novamente',
     es: 'Adorar de nuevo',
   },
   worshipToday: {
-    zh: '今日参拜',
+    zh: '今日祈福',
     en: 'Worship today',
     pt: 'Adorar hoje',
     es: 'Adorar hoy',
   },
   worshipHold: {
-    zh: '按住以持续参拜',
+    zh: '按住以持续祈福',
     en: 'Hold to continue worship',
     pt: 'Segure para continuar',
     es: 'Mantén para continuar',
   },
   worshipInProgress: {
-    zh: '静心参拜中…',
+    zh: '静心祈福中…',
     en: 'Worship in progress…',
     pt: 'Adoração em andamento…',
     es: 'Adoración en curso…',
@@ -538,7 +538,7 @@ export const temple = {
     es: 'Rito casi completo',
   },
   worshipTapHint: {
-    zh: '轻按守护神像，静心参拜',
+    zh: '轻按守护象征，静心祈福',
     en: 'Press and hold the patron image to worship',
     pt: 'Pressione a imagem do patrono para adorar',
     es: 'Mantén la imagen del patrón para adorar',
@@ -550,7 +550,7 @@ export const temple = {
     es: 'Mantén un poco más — {name} está escuchando',
   },
   worshipAria: {
-    zh: '参拜 {name}',
+    zh: '祈福 {name}',
     en: 'Worship {name}',
     pt: 'Adorar {name}',
     es: 'Adorar a {name}',
@@ -562,13 +562,13 @@ export const temple = {
     es: 'Rito sincero completo',
   },
   blessingPeak2: {
-    zh: '深度参拜',
+    zh: '深度祈福',
     en: 'Deep worship',
     pt: 'Adoração profunda',
     es: 'Adoración profunda',
   },
   blessingPeak1: {
-    zh: '参拜礼成',
+    zh: '祈福完成',
     en: 'Worship complete',
     pt: 'Adoração concluída',
     es: 'Adoración completada',
@@ -646,7 +646,7 @@ export const temple = {
     es: 'Pendiente',
   },
   statusStreakLabel: {
-    zh: '连续参拜',
+    zh: '连续祈福',
     en: 'Worship streak',
     pt: 'Sequência de adoração',
     es: 'Racha de adoración',
@@ -724,7 +724,7 @@ export const temple = {
     es: 'Bendición',
   },
   skippedHomeLead: {
-    zh: '你尚未选择信仰与守护神，可随时补选后开始参拜。',
+    zh: '你尚未选择信仰与守护神，可随时补选后开始祈福。',
     en: 'You have not chosen a faith or patron yet. Set them up anytime to begin worship.',
     pt: 'Você ainda não escolheu fé ou patrono. Configure quando quiser para começar.',
     es: 'Aún no has elegido fe o patrón. Configúralos cuando quieras para comenzar.',
