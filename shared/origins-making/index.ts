@@ -128,12 +128,23 @@ export const MAKING_META: Record<
   },
 };
 
-/** Only Wood has a publishable making page for now. */
-export const MAKING_LIVE_SKUS: readonly MakingSku[] = ['crystal-wood'];
+/** SKUs with a finished Making narrative (see stories.ts). */
+export const MAKING_LIVE_SKUS: readonly MakingSku[] = [
+  'crystal-wood',
+  'crystal-fire',
+  'crystal-earth',
+];
 
 export function isMakingLiveSku(sku: string): boolean {
   return (MAKING_LIVE_SKUS as readonly string[]).includes(sku);
 }
+
+export {
+  MAKING_STORIES,
+  getMakingStory,
+  hasMakingStory,
+} from './stories';
+export type { MakingStory, MakingSection } from './stories';
 
 export function makingUrl(locale: string, sku: MakingSku): string {
   return `https://orasage.com/${locale}/origins/the-making/${sku}`;
