@@ -1,27 +1,17 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { externalUrls } from '@/lib/urls';
-import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
+import { SiteTopNav } from '@/lib/orasage-app-shell/SiteTopNav';
 import { PortalLocaleSwitcher } from '@/components/PortalLocaleSwitcher';
+import { OrasageAuthChip } from '@/lib/orasage-app-shell/OrasageAuthChip';
+import { getUtilityNav } from '@/lib/orasage-app-shell/primary-nav';
+import { Search } from 'lucide-react';
 
-/** 门户顶栏：PC 左品牌 + 右导航；移动左品牌 + 右登录芯片（与子应用一致） */
+/** 门户顶栏：PC 用共享 SiteTopNav（P1 IA）；移动左品牌 + 搜索/语言/登录 */
 export function Header() {
-  const tNav = useTranslations('nav');
   const locale = useLocale();
-
-  const navItems: Array<
-    | { href: '/' | '/famous' | '/daozang'; label: string }
-    | { href: string; label: string; external: true }
-  > = [
-    { href: '/', label: tNav('home') },
-    { href: externalUrls.bazi, label: tNav('bazi'), external: true },
-    { href: externalUrls.ziwei, label: tNav('ziwei'), external: true },
-    { href: externalUrls.tarot, label: tNav('tarot'), external: true },
-    { href: externalUrls.shop, label: tNav('shop'), external: true },
-    { href: '/daozang', label: tNav('daozang') },
-  ];
+  const util = getUtilityNav(locale);
 
   return (
     <>
@@ -30,45 +20,25 @@ export function Header() {
           OraSage
         </Link>
         <div className="flex items-center gap-2">
+          <a
+            href={util.search.href}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground"
+            aria-label={util.search.label}
+          >
+            <Search size={18} strokeWidth={1.6} aria-hidden />
+          </a>
           <PortalLocaleSwitcher />
           <OrasageAuthChip locale={locale} />
         </div>
       </header>
 
-      <header className="safe-top hidden border-b border-border/80 bg-background lg:block">
-        <div className="safe-x mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
-          <Link
-            href="/"
-            className="inline-flex min-h-11 items-center rounded-sm font-serif text-lg tracking-wide text-foreground transition-colors hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-xl"
-          >
-            OraSage
-          </Link>
-
-          <nav className="flex items-center gap-5" aria-label="Portal navigation">
-            {navItems.map((item) =>
-              'external' in item && item.external ? (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  {item.label}
-                </Link>
-              ),
-            )}
-            <PortalLocaleSwitcher />
-            <OrasageAuthChip locale={locale} />
-          </nav>
-        </div>
-      </header>
+      <div className="hidden lg:block border-b border-border/80 bg-background [&_.orasage-site-topnav]:block [&_.orasage-site-topnav]:bg-background">
+        <SiteTopNav
+          locale={locale}
+          context="portal"
+          showLocaleSwitcher
+        />
+      </div>
     </>
   );
 }

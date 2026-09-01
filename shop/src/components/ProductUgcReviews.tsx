@@ -118,6 +118,7 @@ export function ProductUgcReviews({ sku, reviews }: { sku: string; reviews: UgcR
       <h2 id="shop-pdp-ugc-title" className="shop-pdp-passage-heading">
         {t('title')}
       </h2>
+      <p className="shop-pdp-review-disclaimer text-sm text-muted-foreground">{t('disclaimer')}</p>
 
       {reviews.length > 0 ? (
         <ul className="shop-pdp-voice-list">

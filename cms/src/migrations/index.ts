@@ -27,6 +27,8 @@ import * as migration_20260708_120000_daozang_book_categories from './20260708_1
 import * as migration_20260708_150000_daozang_volume from './20260708_150000_daozang_volume';
 import * as migration_20260709_120000_shop_pdp_locales from './20260709_120000_shop_pdp_locales';
 import * as migration_20260710_100000_users_staff_permissions from './20260710_100000_users_staff_permissions';
+import * as migration_20260831_120000_p0_feed_sanitize from './20260831_120000_p0_feed_sanitize';
+import * as migration_20260831_140000_p0_pdp_zh_compliance from './20260831_140000_p0_pdp_zh_compliance';
 
 export const migrations = [
   {
@@ -173,5 +175,15 @@ export const migrations = [
     up: migration_20260710_100000_users_staff_permissions.up,
     down: migration_20260710_100000_users_staff_permissions.down,
     name: '20260710_100000_users_staff_permissions',
+  },
+  {
+    up: migration_20260831_120000_p0_feed_sanitize.up,
+    down: migration_20260831_120000_p0_feed_sanitize.down,
+    name: '20260831_120000_p0_feed_sanitize',
+  },
+  {
+    up: migration_20260831_140000_p0_pdp_zh_compliance.up,
+    down: migration_20260831_140000_p0_pdp_zh_compliance.down,
+    name: '20260831_140000_p0_pdp_zh_compliance',
   },
 ];

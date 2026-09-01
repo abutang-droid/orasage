@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * P0 claims lint: forbid efficacy / superstition wording in product & shop copy.
+ * Extended to BaZi / Zi Wei / Tarot per doc 20 §6.
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -24,6 +25,20 @@ const FORBIDDEN = [
   /\btemple\s+blessing\b/gi,
   /\bdivination\s+tools\b/gi,
   /\bdestiny\s+&\s+energy\b/gi,
+  /\bintended\s+to\s+provide\b/gi,
+  /\bcareer-related\b/gi,
+  /\bvital\s+energy\b/gi,
+  /\benergy\s+bracelet\b/gi,
+  /\benergy\s+shop\b/gi,
+  /\bresonates?\s+with\b/gi,
+  /\bchakra\b/gi,
+  /\bcleanse\s+(?:the\s+)?(?:energy|aura|crystal)/gi,
+  /\bpurify\s+(?:the\s+)?(?:energy|aura|crystal)/gi,
+  /\battracts?\s+abundance\b/gi,
+  /\battracts?\s+prosperity\b/gi,
+  /\bbrings?\s+fortune\b/gi,
+  /\bbrings?\s+wealth\b/gi,
+  /\bbrings?\s+luck\b/gi,
   /招财/g,
   /旺运/g,
   /辟邪/g,
@@ -35,14 +50,38 @@ const FORBIDDEN = [
   /左进右出/g,
   /开光/g,
   /加持/g,
+  /定命(?:切片|论|书)/g,
+  /因现果/g,
+  /星途/g,
+  /能量手串/g,
+  /能量商城/g,
+  /能量法器/g,
+  /能量概率/g,
+  /能量流动/g,
+  /能量地图/g,
+  /命理工具平台/g,
+  /divination platform/gi,
+  /解读很准/g,
+  /按八字推荐/g,
+  /解命运密码/g,
+  /批命用/g,
+  /磁场玄学/g,
 ];
 
-/** Allowlisted substrings — if a hit is only inside these phrases, skip (whitelist). */
+/** Allowlisted substrings — if a hit is only inside these phrases, skip. */
 const ALLOWLIST = [
   /in crystal tradition/gi,
   /symbol of/gi,
   /a prompt to/gi,
   /for entertainment purposes only/gi,
+  /entertainment-only notice/gi,
+  /cultural-entertainment/gi,
+  /self-exploration/gi,
+  /Self & Energy/gi,
+  /Crystal Shop/gi,
+  /crystal bracelet/gi,
+  /Five Elements/gi,
+  /for entertainment and cultural reference only/gi,
 ];
 
 const EXT = new Set(['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.sql']);
@@ -55,7 +94,14 @@ const SCAN_ROOTS = [
   'main/messages/zh-CN.json',
   'shared/shop-crystal',
   'shared/shop-fulfillment',
+  'shared/origins-making',
+  'bazi/client/src',
+  'ziwei/app',
+  'ziwei/lib',
+  'ziwei/components',
+  'tarot/src',
   'auth-service/drizzle/0045_wood_drop_career_expansion.sql',
+  'auth-service/drizzle/0017_temple_donation.sql',
   'auth-service/drizzle/0046_disable_temple_donation.sql',
 ];
 
@@ -91,6 +137,10 @@ function walk(absPath) {
   const rel = relative(repoRoot, absPath);
   if (/auth-service\/drizzle\/00[0-3]\d_/.test(rel)) return;
   if (/scripts\/cms\//.test(rel)) return;
+  if (/ziwei\/lib\/classics\//.test(rel)) return;
+  if (/ziwei\/lib\/classics\//.test(rel)) return;
+  if (/privacy\/page\.tsx$/.test(rel)) return;
+  // Vendored disclaimer copies may mention brand phrases; still scan product copy.
   const source = readFileSync(absPath, 'utf8');
   for (const re of FORBIDDEN) {
     re.lastIndex = 0;

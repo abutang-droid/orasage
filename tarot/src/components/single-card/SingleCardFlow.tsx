@@ -9,6 +9,8 @@ import { DestinySliceDeck } from '@/components/single-card/DestinySliceDeck';
 import { DestinySliceFocusResult } from '@/components/single-card/DestinySliceFocusResult';
 import { SingleCardReveal } from '@/components/single-card/SingleCardReveal';
 import { useSingleCardCopy } from '@/lib/i18n/reading-copy';
+import { useTarotLocale } from '@/lib/i18n/context';
+import { Disclaimer, ResultExitLinks } from '@/lib/orasage-app-shell';
 import { startAppCheckout, redirectAfterCheckout } from '@/lib/shop-checkout';
 import type { TarotBillingProduct } from '@/lib/tarot-billing-config';
 import type {
@@ -142,6 +144,7 @@ function PaywallPanel({
 
 export function SingleCardFlow() {
   const copy = useSingleCardCopy();
+  const { locale } = useTarotLocale();
   const [step, setStep] = useState<Step>('loading');
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [question, setQuestion] = useState('');
@@ -380,6 +383,8 @@ export function SingleCardFlow() {
 
       {step === 'result' && card && (
         <div className="destiny-slice-result animate-fade-in-up">
+          <Disclaimer variant="full" locale={locale} className="mb-4" />
+          <ResultExitLinks locale={locale} readingId={readingId} className="mb-4" />
           <SingleCardReveal
             card={card}
             revealed

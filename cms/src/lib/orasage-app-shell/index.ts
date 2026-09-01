@@ -13,6 +13,7 @@ export {
   getDisclaimerPlainText,
 } from './disclaimer-copy';
 export type { DisclaimerVariant, DisclaimerLocale } from './disclaimer-copy';
+export { ResultExitLinks } from './ResultExitLinks';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
 export { pickLabel, SHELL_LABELS } from './labels';
 export type { AppId, NavContext } from './config';
@@ -22,6 +23,10 @@ export {
   profileUrl,
   famousUrl,
   daozangUrl,
+  insightsUrl,
+  originsUrl,
+  readingsUrl,
+  searchUrl,
   exploreItems,
   isCurrentAppHome,
   isAppSubpage,
@@ -29,3 +34,5 @@ export {
   isMainPortalHome,
   resolveSecondNavSlot,
 } from './config';
+export { getPrimaryNavCategories, getUtilityNav } from './primary-nav';
+export type { NavCategory, NavLink } from './primary-nav';

@@ -1,14 +1,14 @@
 'use client';
 
-import { Flame, Home, LayoutGrid, ShoppingCart, User } from 'lucide-react';
+import { BookOpen, Home, ShoppingCart, User } from 'lucide-react';
 import {
   ORASAGE_URLS,
   mainPortalUrl,
   profileUrl,
+  readingsUrl,
   isCurrentAppHome,
   isOnPortalHome,
   isOnProfile,
-  resolveSecondNavSlot,
   type NavContext,
 } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
@@ -16,38 +16,20 @@ import { pickLabel, SHELL_LABELS } from './labels';
 const ICON_SIZE = 20;
 const ICON_STROKE = 1.6;
 
-/** 玄璧图形标（VI v1.0 §2.2）— 符号位仅图形，20px 档光学描边 */
-function OrasageMark({ active }: { active: boolean }) {
-  const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 64 64" fill="none" aria-hidden>
-      <path
-        d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355"
-        stroke={color}
-        strokeWidth="5.5"
-        strokeLinecap="round"
-      />
-      <circle cx="32" cy="32" r="5" fill={color} />
-    </svg>
-  );
-}
-
 function NavIcon({ name, active }: { name: string; active: boolean }) {
   const color = active ? 'var(--shell-gold)' : 'var(--shell-muted)';
   const props = { size: ICON_SIZE, strokeWidth: ICON_STROKE, color, 'aria-hidden': true as const };
   switch (name) {
     case 'home':
       return <Home {...props} />;
-    case 'blessing':
-      return <Flame {...props} />;
     case 'shop':
       return <ShoppingCart {...props} />;
+    case 'readings':
+      return <BookOpen {...props} />;
     case 'mine':
       return <User {...props} />;
-    case 'orasage':
-      return <OrasageMark active={active} />;
     default:
-      return <LayoutGrid {...props} />;
+      return <Home {...props} />;
   }
 }
 
@@ -58,17 +40,18 @@ export type FixedBottomNavProps = {
 };
 
 /**
- * 固定底栏 5 键 — 移动端全站
- * 1 首页 · 2 探索/当前应用（动态）· 3 八字测算（P0：祈福撤一级）· 4 商城 · 5 我的
- * 锚点页时第 2 键轮换至八字/塔罗/紫微/道藏，避免与固定键重复
+ * 固定底栏 4 键 — EN/ZH 一致（Q4）
+ * 1 首页 · 2 商城 · 3 测算 · 4 我的
  */
 export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: FixedBottomNavProps) {
   const homeHref = mainPortalUrl(locale);
-  const slot2 = resolveSecondNavSlot(context, pathname, locale);
+  const readingsHref = readingsUrl(locale);
 
   const onPortalHome = context === 'portal' && isOnPortalHome(pathname);
-  const onBazi = pathname === '/' && context === 'bazi';
   const onShop = context === 'shop' && isCurrentAppHome('shop', pathname);
+  const onReadings =
+    context === 'portal' &&
+    (pathname === '/readings' || pathname.startsWith('/readings/'));
   const onProfile = context === 'portal' && isOnProfile(pathname);
 
   return (
@@ -79,19 +62,18 @@ export function FixedBottomNav({ context, locale = 'zh-CN', pathname = '/' }: Fi
           <span>{pickLabel(SHELL_LABELS.home, locale)}</span>
         </a>
 
-        <a href={slot2.href} className="orasage-app-nav-item" data-active={slot2.active ? 'true' : 'false'}>
-          <NavIcon name={slot2.kind === 'orasage' ? 'orasage' : 'app'} active={slot2.active} />
-          <span className="orasage-app-nav-brand">{slot2.label}</span>
-        </a>
-
-        <a href={ORASAGE_URLS.bazi} className="orasage-app-nav-item" data-active={onBazi ? 'true' : 'false'}>
-          <NavIcon name="app" active={onBazi} />
-          <span>{pickLabel(SHELL_LABELS.bazi, locale)}</span>
-        </a>
-
         <a href={ORASAGE_URLS.shop} className="orasage-app-nav-item" data-active={onShop ? 'true' : 'false'}>
           <NavIcon name="shop" active={onShop} />
           <span>{pickLabel(SHELL_LABELS.shop, locale)}</span>
+        </a>
+
+        <a
+          href={readingsHref}
+          className="orasage-app-nav-item"
+          data-active={onReadings ? 'true' : 'false'}
+        >
+          <NavIcon name="readings" active={onReadings} />
+          <span>{pickLabel(SHELL_LABELS.readings, locale)}</span>
         </a>
 
         <a href={profileUrl(locale)} className="orasage-app-nav-item" data-active={onProfile ? 'true' : 'false'}>

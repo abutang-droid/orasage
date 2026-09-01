@@ -24,7 +24,7 @@ function buildSinglePrompt(chart: ZiweiChart, planType: string, locale: AiLocale
     ? '撰写一份精炼的深度解读（约 800 字）'
     : planType === 'premium'
       ? '撰写一份完整终极报告（约 2000 字），含流年运势与开运建议'
-      : '撰写一份完整深度报告（约 1200 字），含十二宫要点与能量手串建议';
+      : '撰写一份完整深度报告（约 1200 字），含十二宫要点与水晶手串建议';
 
   return `${depth}，基于以下紫微命盘数据：
 

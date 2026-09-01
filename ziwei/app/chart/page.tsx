@@ -15,7 +15,7 @@ import { ZiweiHomeFeed } from '@/components/ZiweiHomeFeed';
 import { ZiweiBriefInsight } from '@/components/ZiweiBriefInsight';
 import { ZiweiOrasageChat } from '@/components/ZiweiOrasageChat';
 import { ZiweiRecommendCard } from '@/components/ZiweiRecommendCard';
-import { Disclaimer } from '@/lib/orasage-app-shell';
+import { Disclaimer, ResultExitLinks } from '@/lib/orasage-app-shell';
 import {
   clearChartSession,
   getLastReadingId,
@@ -286,6 +286,7 @@ export default function ChartPage() {
   if (!chart) {
     return (
       <div className="ziwei-chart-page orasage-fade-in">
+        <Disclaimer variant="standard" locale={locale} className="mb-4" />
         <ZiweiHomeHero />
         <div className="ziwei-calc-form ziwei-calc-section">
           <div className="ziwei-calc-mode-bar">
@@ -366,6 +367,7 @@ export default function ChartPage() {
       ) : null}
 
       <Disclaimer variant="full" locale={locale} className="mb-4" />
+      <ResultExitLinks locale={locale} readingId={activeReadingId || null} className="mb-4" />
 
       <div className="ziwei-result-stack">
         <div className="ziwei-result-chart ziwei-chart-rice-paper">

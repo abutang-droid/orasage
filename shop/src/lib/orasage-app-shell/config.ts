@@ -17,7 +17,7 @@ export const APP_BRANDS: Record<AppId, string> = {
   shop: 'Energy',
 };
 
-/** 子应用品牌名（随 locale；中文商城用「能量商城」） */
+/** 子应用品牌名（随 locale；中文商城用「水晶商城」） */
 export function appBrandLabel(appId: AppId, locale: string): string {
   if (appId === 'shop') {
     return pickLabel(SHELL_LABELS.energyShop, locale, APP_BRANDS.shop);
@@ -59,6 +59,22 @@ export function isBlessingNavVisible(): boolean {
 
 export function daozangUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/daozang`;
+}
+
+export function insightsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/insights`;
+}
+
+export function originsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/origins`;
+}
+
+export function readingsUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/readings`;
+}
+
+export function searchUrl(locale = 'zh-CN'): string {
+  return `${ORASAGE_URLS.main}/${locale}/search`;
 }
 
 export const APP_HOME_PATH: Record<AppId, string> = {

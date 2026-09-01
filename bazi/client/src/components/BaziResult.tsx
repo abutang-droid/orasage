@@ -22,7 +22,7 @@ import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
 import type { BraceletRecommendation } from "@/lib/bazi";
-import { Disclaimer } from "@/lib/orasage-app-shell";
+import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -621,6 +621,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
   return (
     <div className="flex flex-col gap-3">
       <Disclaimer variant="full" locale={locale} />
+      <ResultExitLinks locale={locale} className="mt-4 mb-4" />
 
       {/* 身份信息 — 仅在 compact 模式显示，否则顶部头部已展示 */}
       {compact && (

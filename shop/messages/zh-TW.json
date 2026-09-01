@@ -18,7 +18,7 @@
     "all": "全部"
   },
   "shop": {
-    "title": "能量商城",
+    "title": "水晶商城",
     "subtitle": "水晶手串 · 數位報告 · 能量諮詢"
   },
   "cart": {
@@ -63,7 +63,7 @@
     "compareStandard": "手鏈 + 保護袋，輕便隨身，適合日常自戴。",
     "compareGift": "精美禮盒 + 祝福卡 + 絨布袋，專為贈禮場景設計。",
     "diyTitle": "共振定制",
-    "diyHint": "逐顆挑選水晶、隔珠與隔片，按手圍即時預覽與計價，打造專屬於你的五行能量手串。",
+    "diyHint": "逐顆挑選水晶、隔珠與隔片，按手圍即時預覽與計價，打造專屬於你的五行水晶手串。",
     "diyCtaElement": "以{element}元素定制",
     "diyCtaGeneric": "自由搭配全部珠子 →",
     "diyInline": "或以此款水晶自己搭配手串"
@@ -73,7 +73,7 @@
     "userCenter": "用戶中心",
     "footerView": "查看",
     "heroEyebrow": "OraSage",
-    "heroTitle": "能量商城",
+    "heroTitle": "水晶商城",
     "heroSubtitle": "命理解讀推薦 · 水晶手串 · 數位報告",
     "heroLoggedIn": "已登入，購買後訂單將同步至用戶中心"
   },
@@ -196,11 +196,11 @@
     "continueShopping": "繼續購物"
   },
   "diy": {
-    "metaTitle": "共振定制 · 設計你的能量手串 | OraSage Energy Shop",
-    "metaDescription": "逐顆挑選水晶、隔珠與隔片，按手圍即時預覽與計價，定制專屬於你的五行能量手串。",
+    "metaTitle": "共振定制 · 設計你的水晶手串 | OraSage Crystal Shop",
+    "metaDescription": "逐顆挑選水晶、隔珠與隔片，按手圍即時預覽與計價，定制專屬於你的五行水晶手串。",
     "backToShop": "返回商城",
-    "title": "共振定制 · 設計你的能量手串",
-    "subtitle": "Design Your Resonance — 逐顆挑選，讓能量與你共振",
+    "title": "共振定制 · 設計你的水晶手串",
+    "subtitle": "Design Your Resonance — 逐顆挑選，按手圍預覽與計價",
     "wristLabel": "手圍尺寸 · 左右滑動標尺",
     "canvasHintLine1": "從下方選擇珠子",
     "canvasHintLine2": "開始你的設計",
@@ -216,7 +216,7 @@
     "moveLeft": "← 左移",
     "moveRight": "右移 →",
     "delete": "刪除",
-    "baziRecommend": "✦ 按八字推薦",
+    "baziRecommend": "✦ 按五行元素推薦",
     "randomInspire": "隨機靈感",
     "clear": "清空",
     "selectBeads": "選擇珠子",
@@ -313,6 +313,7 @@
     "starsAria": "{rating} 星",
     "reviews": {
       "title": "用戶評價",
+      "disclaimer": "評價僅代表個人體驗，不代表任何功效或結果承諾。",
       "featured": "精選",
       "empty": "暫無公開評價。",
       "eyebrow": "購買用戶",
@@ -354,7 +355,7 @@
       "reportZiwei": {
         "title": "讀懂星盤，再邁出一步",
         "sub": "讀懂星象，帶著意圖前行。",
-        "body": "紫微報告描繪十二宮的人生面向；讀懂之後，用 OraSage 對話深入追問，或搭配能量手串讓平衡觸手可及。",
+        "body": "紫微報告描繪十二宮的人生面向；讀懂之後，用 OraSage 對話深入追問，或搭配水晶手串讓平衡觸手可及。",
         "cta": "前往紫微斗數",
         "href": "https://ziwei.orasage.com",
         "note": "在 App 內查看完整命盤解讀"

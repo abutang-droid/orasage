@@ -5,13 +5,13 @@ import './globals.css';
 import { ShopShell } from '@/components/ShopShell';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
-const PAGE_TITLE = 'OraSage Energy Shop';
+const PAGE_TITLE = 'OraSage Crystal Shop';
 const PAGE_DESCRIPTION = 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.';
 
 export const metadata: Metadata = buildOrasageMetadata({
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: ['OraSage', 'energy shop', 'crystal bracelet', 'divination report', '能量商城', '水晶手串'],
+  keywords: ['OraSage', 'crystal shop', 'crystal bracelet', 'divination report', '水晶商城', '水晶手串'],
   metadataBase: new URL(ORASAGE_URLS.shop),
   openGraph: {
     title: PAGE_TITLE,

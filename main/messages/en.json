@@ -17,7 +17,7 @@
     "shop": "Shop"
   },
   "hero": {
-    "title": "Discover Your True Self",
+    "title": "Discover your true self.",
     "subtitle": "We look at the symbolic distribution of the Five Elements as a tool for introspection, stripping away fatalism and predetermined outcomes.",
     "cta": "Start Exploring"
   },
@@ -89,13 +89,13 @@
   },
   "about": {
     "title": "About OraSage",
-    "p1": "OraSage is a divination platform blending Eastern wisdom with modern technology. We offer BaZi, Zi Wei Dou Shu, and Tarot tools to help you explore yourself and understand destiny.",
-    "p2": "Based on your readings, we recommend crystals and energy products to help balance your elements and harmonize your energy."
+    "p1": "OraSage is a brand of Eastern-inspired design offering cultural and self-exploration content across BaZi, Zi Wei, and Tarot.",
+    "p2": "We also offer five-element crystal jewelry and digital content as cultural objects and prompts for reflection—not medical, financial, or life-decision advice."
   },
   "faq": {
     "title": "FAQ",
     "q1": "What is OraSage?",
-    "a1": "OraSage is a divination platform offering BaZi, Zi Wei, and Tarot services, combined with crystal energy product recommendations.",
+    "a1": "OraSage is a brand of Eastern-inspired design, offering cultural and self-exploration content across BaZi, Zi Wei, and Tarot, alongside five-element crystal jewelry.",
     "q2": "How do I use the tools?",
     "a2": "Click a tool card on the homepage to visit the corresponding app and try basic features for free. Premium reports are available via in-app purchase.",
     "q3": "Is my data safe?",

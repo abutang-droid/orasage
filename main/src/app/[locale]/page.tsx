@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const messages = (await import(`../../../messages/${locale}.json`)).default;
   const homeTitles: Record<string, string> = {
-    'zh-CN': '看见真实的自己',
-    en: 'Self & Energy',
+    'zh-CN': '探索真实的自己',
+    en: 'Discover your true self',
     'pt-BR': 'Self & Energy',
   };
   return buildPortalPageMeta({

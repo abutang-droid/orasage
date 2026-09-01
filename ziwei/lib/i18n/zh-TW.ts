@@ -31,7 +31,7 @@ const zhTW: Record<string, string> = {
   'form.longitude': '經度',
   'form.timezone': '時差',
   'form.minutes': '分鐘',
-  'form.location.hint': '* 倪海夏批命用真太陽時，建議填寫出生地以自動校正時辰',
+  'form.location.hint': '* 真太陽時校正依賴出生地經度；建議填寫出生城市',
   'form.location.china': '中國大陸',
   'form.location.global': '海外/全球',
   'form.city.search.placeholder': '搜尋城市，如舊金山、東京…',

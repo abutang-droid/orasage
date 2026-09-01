@@ -258,6 +258,84 @@
   color: var(--shell-text);
 }
 
+.orasage-site-topnav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 44px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  transition: color 0.15s var(--orasage-ease-organic, ease);
+}
+
+.orasage-site-topnav-icon:hover {
+  color: var(--shell-text);
+}
+
+.orasage-site-nav-dd {
+  position: relative;
+}
+
+.orasage-site-nav-dd-trigger {
+  gap: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.orasage-site-nav-dd-caret {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.orasage-site-nav-dd-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  min-width: 200px;
+  max-height: min(70vh, 420px);
+  overflow: auto;
+  padding: 8px 0;
+  background: var(--shell-menu-bg, #fff);
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 40;
+}
+
+.orasage-site-nav-dd:hover > .orasage-site-nav-dd-menu,
+.orasage-site-nav-dd:focus-within > .orasage-site-nav-dd-menu {
+  display: block;
+}
+
+.orasage-site-nav-util .orasage-site-nav-dd-menu {
+  left: auto;
+  right: 0;
+}
+
+.orasage-site-nav-dd-item {
+  display: block;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--shell-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.orasage-site-nav-dd-item:hover {
+  color: var(--shell-text);
+  background: var(--shell-border-subtle, #fafaf8);
+}
+
+.orasage-site-nav-dd-chip {
+  padding: 8px 16px;
+  border-top: 1px solid var(--shell-border);
+}
+
 .orasage-site-topnav-menu .orasage-auth-chip {
   margin-inline-start: 4px;
 }
@@ -626,4 +704,44 @@
 .orasage-disclaimer--banner {
   margin: 0 auto 1.25rem;
   max-width: 42rem;
+}
+
+/* Result-page exit zone (doc 20 §4) */
+.orasage-result-exit {
+  margin: 1.5rem 0 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--shell-border, #e7e5e4);
+  border-radius: 10px;
+  background: var(--shell-surface, #fafaf8);
+}
+
+.orasage-result-exit-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--shell-text, #171717);
+}
+
+.orasage-result-exit-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.orasage-result-exit-list a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--shell-text, #171717);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.orasage-result-exit-list a:hover {
+  color: var(--shell-gold, #171717);
 }

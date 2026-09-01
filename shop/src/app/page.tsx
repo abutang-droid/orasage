@@ -16,7 +16,7 @@ import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildOrasageMetadata({
-    title: 'OraSage Energy Shop',
+    title: 'OraSage Crystal Shop',
     description: 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
     canonical: ORASAGE_URLS.shop,
   });
