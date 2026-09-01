@@ -11,7 +11,7 @@ const CMS_INTERNAL_URL =
 const CMS_PUBLIC_URL =
   process.env.CMS_PUBLIC_URL ||
   process.env.NEXT_PUBLIC_CMS_URL ||
-  'https://admin.orasage.com/cms';
+  'https://cms.orasage.com/cms';
 
 export type ShopHeroDisplayMode = HeroDisplayMode;
 export type ShopHomeHeroContent = MappedHeroContent;

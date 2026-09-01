@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
   });
 
   const imageMap = await fetchProductImageMap();
+  const imageFor = (s: string) =>
+    imageMap.get(s) ?? (s.endsWith('-gift') ? imageMap.get(s.slice(0, -'-gift'.length)) : undefined) ?? null;
 
   if (sku) {
     const product = await getProduct(sku, locale);
@@ -35,14 +37,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '商品不存在' }, { status: 404 });
     }
     return NextResponse.json({
-      product: mapProduct(product, imageMap.get(product.sku)),
+      product: mapProduct(product, imageFor(product.sku)),
     });
   }
 
   const products = await fetchProducts(locale);
   return NextResponse.json({
     products: products.map((p) => ({
-      ...mapProduct(p, imageMap.get(p.sku)),
+      ...mapProduct(p, imageFor(p.sku)),
       shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
     })),
   });
