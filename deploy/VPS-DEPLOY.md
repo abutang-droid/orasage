@@ -45,15 +45,25 @@ FORTUNE_MODE=native bash deploy/bootstrap-all-on-vps.sh
 
 ## 方式二：Cloud Agent / 本地远程部署
 
+生产源站在 **家用服务器**（经 Cloudflare Tunnel），不是 GCP `34.75.40.67`。
+
 在 [Cursor Cloud Agents → Secrets](https://cursor.com/dashboard/cloud-agents) 添加：
 
-- `SSH_PRIVATE_KEY`（Runtime Secret，完整 PEM 私钥）
+| Secret | Type | 说明 |
+|--------|------|------|
+| `SSH_PRIVATE_KEY` | Runtime Secret | 完整 PEM 私钥 |
+| `SSH_HOST` | Environment Variable | `ssh.orasage.com`（触发 Tunnel 自动模式） |
+| `SSH_USER` | Environment Variable | `root` |
 
 **重新启动 Cloud Agent 后**执行：
 
 ```bash
 bash deploy/remote-deploy-all.sh
+# 或仅 main
+bash scripts/vps-deploy-main.sh
 ```
+
+`deploy/lib/ssh-setup.sh` 检测到 `SSH_HOST=ssh.*` 时会自动运行 `cloudflared access tcp` → `localhost:2222`，**勿**直连 `ssh.orasage.com:22`。详见 `docs/AGENT-RULES.md`。
 
 ## 方式三：GitHub Actions
 
