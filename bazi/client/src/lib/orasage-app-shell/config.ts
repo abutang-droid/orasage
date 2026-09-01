@@ -17,7 +17,7 @@ export const APP_BRANDS: Record<AppId, string> = {
   shop: 'Energy',
 };
 
-/** 子应用品牌名（随 locale；中文商城用「水晶商城」） */
+/** 子应用品牌名（随 locale；中文商城用「能量商城」） */
 export function appBrandLabel(appId: AppId, locale: string): string {
   if (appId === 'shop') {
     return pickLabel(SHELL_LABELS.energyShop, locale, APP_BRANDS.shop);
