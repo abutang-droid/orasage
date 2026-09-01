@@ -133,6 +133,8 @@ export const MAKING_LIVE_SKUS: readonly MakingSku[] = [
   'crystal-wood',
   'crystal-fire',
   'crystal-earth',
+  'crystal-metal',
+  'crystal-water',
 ];
 
 export function isMakingLiveSku(sku: string): boolean {

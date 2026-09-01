@@ -241,6 +241,148 @@ export const MAKING_STORIES: Partial<Record<MakingSku, MakingStory>> = {
       },
     ],
   },
+
+  'crystal-metal': {
+    sku: 'crystal-metal',
+    leadEn:
+      'Clear quartz for readable transparency, the shared adjustable cord, and Clarity framed as a cue to sort thoughts — not a promise of insight.',
+    leadZh: '白水晶取其可读的通透，共用可调蜡线，并把「澄明」写成整理思绪的提示——不是洞见承诺。',
+    sections: [
+      {
+        titleEn: '2 · Why this stone',
+        titleZh: '2 · 为什么是这颗石',
+        paragraphs: [
+          {
+            en: 'Clear quartz shows light through the bead. We use that transparency as a design signal for “see the structure,” not as a claim about mind or fate. We sort for few inclusions and reject beads with sharp chips at the drill hole.',
+            zh: '白水晶能透光。我们把这种通透当作「看见结构」的设计信号，而非对心智或命运的宣称。分拣时少选包裹体，剔除钻孔处有尖锐崩口的珠。',
+          },
+          {
+            en: 'Bead target stays 8 mm. Metal shares the Wood/Fire/Earth knotting stack so one sizing card covers the whole set.',
+            zh: '珠径目标仍为 8 mm。金款与木/火/土共用结法，一张尺码卡覆盖整组。',
+          },
+        ],
+      },
+      {
+        titleEn: '3 · Intention frame',
+        titleZh: '3 · 意图框架',
+        paragraphs: [
+          {
+            en: 'Metal · Clarity means listing what to keep and what to cut before a decision. The bracelet can mark the list-making moment. It does not deliver answers, luck, or career outcomes.',
+            zh: '金 · 澄明指在决策前列出保留与删减。手串可以标记列清单的时刻。它不交付答案、运气或事业结果。',
+          },
+          {
+            en: 'Try writing three open loops, then closing one today. Let the object cue the edit — you still make the cut.',
+            zh: '试写下三个未闭环事项，今天关掉其中一个。让物件提示「编辑」——裁剪仍须你来做。',
+          },
+        ],
+      },
+      {
+        titleEn: '4 · Cord and knotting',
+        titleZh: '4 · 线与结',
+        paragraphs: [
+          {
+            en: 'Waxed cord, hand knots between beads, 15–18 cm slider. Same mechanics as Realm of Growth; only the stone and name change.',
+            zh: '蜡线、珠间手结、15–18 cm 滑结。机械结构与「生长之境」相同；变的是石头与名称。',
+          },
+        ],
+      },
+      {
+        titleEn: '5 · What we inspect',
+        titleZh: '5 · 我们检查什么',
+        paragraphs: [
+          {
+            en: 'Drill-hole chip screen, clarity sample, knot pull, slider travel, archive photo. Packing lists material and size — no ritual language.',
+            zh: '钻孔崩口筛查、净度抽检、结拉力、滑结行程、存档照片。包装列材质与尺寸——不含仪式用语。',
+          },
+          {
+            en: 'Care: dry wipe, soft pouch, no ultrasonic cleaner on the corded strand.',
+            zh: '护理：干擦、软袋、不对穿绳串使用超声波清洗。',
+          },
+        ],
+      },
+      {
+        titleEn: '6 · Read next',
+        titleZh: '6 · 继续阅读',
+        paragraphs: [
+          {
+            en: 'Insights → Crystal Companion · Clear Quartz and Five Elements · Metal. Shop PDP holds price and returns.',
+            zh: '玄析 → 水晶志 · 白水晶 与 五行 · 金。价格与退换见商城单品页。',
+          },
+        ],
+      },
+    ],
+  },
+
+  'crystal-water': {
+    sku: 'crystal-water',
+    leadEn:
+      'Obsidian for a dark, opaque full stop on the wrist, shared cord construction, and Boundaries as spoken limits — not a shield myth.',
+    leadZh: '黑曜石作腕上深色不透明的句点，共用蜡线构造，并把「边界」写成说出口的限度——不是盾牌神话。',
+    sections: [
+      {
+        titleEn: '2 · Why this stone',
+        titleZh: '2 · 为什么是这颗石',
+        paragraphs: [
+          {
+            en: 'Obsidian is dark and usually opaque — a visual full stop. We choose it when the design job is contrast and quiet weight on the wrist, not sparkle. We reject beads with sharp flake edges at the equator.',
+            zh: '黑曜石深色、多不透明——视觉上的句点。设计目标是对比与腕上安静的重量，不是闪亮。剔除赤道处有尖锐片状边的珠。',
+          },
+          {
+            en: 'Same 8 mm target and knotting recipe as the rest of the set. Water is a colorway and name, not a separate factory line.',
+            zh: '珠径目标与结法与整组相同。水是配色与名称，不是另一条产线。',
+          },
+        ],
+      },
+      {
+        titleEn: '3 · Intention frame',
+        titleZh: '3 · 意图框架',
+        paragraphs: [
+          {
+            en: 'Water · Boundaries means closing tabs, ending a meeting on time, or saying no once out loud. The bracelet can cue the sentence. It does not block harm, absorb trouble, or change other people.',
+            zh: '水 · 边界指关掉标签、按时结束会议、或大声说一次不。手串可以提示那句话。它不阻挡伤害、不吸收麻烦、也不改变他人。',
+          },
+          {
+            en: 'Name one boundary you will state this week. Keep it practical: time, attention, or access — not mythology.',
+            zh: '写下本周会亲口说出的一条边界。保持实用：时间、注意力或权限——不是神话。',
+          },
+        ],
+      },
+      {
+        titleEn: '4 · Cord and knotting',
+        titleZh: '4 · 线与结',
+        paragraphs: [
+          {
+            en: 'Waxed cord, hand-knotted intervals, adjustable 15–18 cm fit — identical to Wood through Metal. One repair note covers all five.',
+            zh: '蜡线、手结间距、15–18 cm 可调——与木至金相同。一张维修说明覆盖五款。',
+          },
+        ],
+      },
+      {
+        titleEn: '5 · What we inspect',
+        titleZh: '5 · 我们检查什么',
+        paragraphs: [
+          {
+            en: 'Edge flake screen, diameter check, knot security, slider, scale photo. No ritual steps on the packing checklist.',
+            zh: '边缘片状筛查、直径检查、结牢度、滑结、比例尺照片。装箱清单不含仪式步骤。',
+          },
+          {
+            en: 'Care matches the line: wipe dry, soft storage, keep solvents off the waxed cord.',
+            zh: '护理与同列一致：擦干、软袋存放、溶剂远离蜡线。',
+          },
+        ],
+      },
+      {
+        titleEn: '6 · Read next',
+        titleZh: '6 · 继续阅读',
+        paragraphs: [
+          {
+            en: 'Insights → Crystal Companion · Obsidian and Five Elements · Water. Atelier explains shared workshop steps across SKUs.',
+            zh: '玄析 → 水晶志 · 黑曜石 与 五行 · 水。工坊页说明各 SKU 共用的制作步骤。',
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export function getMakingStory(sku: MakingSku): MakingStory | undefined {
