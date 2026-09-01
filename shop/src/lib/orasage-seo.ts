@@ -34,7 +34,8 @@ export function orasageOpenGraph(opts: {
   description: string;
   url?: string;
   locale?: string;
-  type?: 'website' | 'article' | 'product';
+  /** Next.js Metadata only accepts website | article (not product). */
+  type?: 'website' | 'article';
   /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
   image?: string;
 }) {
