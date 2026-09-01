@@ -47,7 +47,7 @@ export function famousUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}/famous`;
 }
 
-/** R4/Q5: famous removed from primary nav (EN noindex; ZH keep page + disclaimer, no nav) */
+/** R4/Q5: famous in Readings submenu (not primary top-level) */
 export function isFamousNavVisible(_locale: string): boolean {
   return false;
 }

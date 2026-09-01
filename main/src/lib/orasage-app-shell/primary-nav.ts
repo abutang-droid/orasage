@@ -1,6 +1,7 @@
 import { pickLabel, SHELL_LABELS } from './labels';
 import {
   daozangUrl,
+  famousUrl,
   insightsUrl,
   mainPortalUrl,
   ORASAGE_URLS,
@@ -28,138 +29,9 @@ function isZh(locale: string): boolean {
   return locale === 'zh-CN' || locale === 'zh-TW' || locale.startsWith('zh');
 }
 
-function shopProduct(sku: string): string {
-  return `${ORASAGE_URLS.shop}/product/${sku}`;
-}
-
-/** P1 desktop primary categories — EN 4 / ZH 6 (道藏一级). */
+/** P1 desktop primary categories — EN 4 / ZH 5 (商城·玄析无二级；道藏仅测算下). */
 export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
   const zh = isZh(locale);
-  const shopChildren: NavLink[] = [
-    {
-      id: 'by-element',
-      href: `${ORASAGE_URLS.shop}/#by-element`,
-      label: pickLabel(SHELL_LABELS.navByElement, locale),
-      external: true,
-    },
-    {
-      id: 'wood',
-      href: shopProduct('crystal-wood'),
-      label: pickLabel(SHELL_LABELS.elementWood, locale),
-      external: true,
-    },
-    {
-      id: 'fire',
-      href: shopProduct('crystal-fire'),
-      label: pickLabel(SHELL_LABELS.elementFire, locale),
-      external: true,
-    },
-    {
-      id: 'earth',
-      href: shopProduct('crystal-earth'),
-      label: pickLabel(SHELL_LABELS.elementEarth, locale),
-      external: true,
-    },
-    {
-      id: 'metal',
-      href: shopProduct('crystal-metal'),
-      label: pickLabel(SHELL_LABELS.elementMetal, locale),
-      external: true,
-    },
-    {
-      id: 'water',
-      href: shopProduct('crystal-water'),
-      label: pickLabel(SHELL_LABELS.elementWater, locale),
-      external: true,
-    },
-    {
-      id: 'by-intention',
-      href: `${ORASAGE_URLS.shop}/#by-intention`,
-      label: pickLabel(SHELL_LABELS.navByIntention, locale),
-      external: true,
-    },
-    {
-      id: 'intent-growth',
-      href: shopProduct('crystal-wood'),
-      label: pickLabel(SHELL_LABELS.intentGrowth, locale),
-      external: true,
-    },
-    {
-      id: 'intent-courage',
-      href: shopProduct('crystal-fire'),
-      label: pickLabel(SHELL_LABELS.intentCourage, locale),
-      external: true,
-    },
-    {
-      id: 'intent-grounding',
-      href: shopProduct('crystal-earth'),
-      label: pickLabel(SHELL_LABELS.intentGrounding, locale),
-      external: true,
-    },
-    {
-      id: 'intent-clarity',
-      href: shopProduct('crystal-metal'),
-      label: pickLabel(SHELL_LABELS.intentClarity, locale),
-      external: true,
-    },
-    {
-      id: 'intent-boundaries',
-      href: shopProduct('crystal-water'),
-      label: pickLabel(SHELL_LABELS.intentBoundaries, locale),
-      external: true,
-    },
-    {
-      id: 'bracelets',
-      href: ORASAGE_URLS.shop,
-      label: pickLabel(SHELL_LABELS.navBracelets, locale),
-      external: true,
-    },
-    {
-      id: 'reports',
-      href: `${ORASAGE_URLS.shop}/product/report-bazi-basic`,
-      label: pickLabel(SHELL_LABELS.navReports, locale),
-      external: true,
-    },
-    {
-      id: 'gifts',
-      href: `${ORASAGE_URLS.shop}/gifts`,
-      label: pickLabel(SHELL_LABELS.navGifts, locale),
-      external: true,
-    },
-  ];
-
-  const insightsChildren: NavLink[] = [
-    {
-      id: 'day-master',
-      href: `${insightsUrl(locale)}/day-master`,
-      label: pickLabel(SHELL_LABELS.navDayMaster, locale),
-    },
-    {
-      id: 'five-elements',
-      href: `${insightsUrl(locale)}/five-elements`,
-      label: pickLabel(SHELL_LABELS.navFiveElementsDecoded, locale),
-    },
-    {
-      id: 'solar-terms',
-      href: `${insightsUrl(locale)}/solar-terms`,
-      label: pickLabel(SHELL_LABELS.navSolarTerms, locale),
-    },
-    {
-      id: 'crystal-companion',
-      href: `${insightsUrl(locale)}/crystal`,
-      label: pickLabel(SHELL_LABELS.navCrystalCompanion, locale),
-    },
-    {
-      id: 'latest',
-      href: `${insightsUrl(locale)}#latest`,
-      label: pickLabel(SHELL_LABELS.navLatest, locale),
-    },
-    {
-      id: 'corrections',
-      href: `${insightsUrl(locale)}#corrections`,
-      label: pickLabel(SHELL_LABELS.navCorrections, locale),
-    },
-  ];
 
   const originsChildren: NavLink[] = [
     {
@@ -209,6 +81,11 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
       href: daozangUrl(locale),
       label: pickLabel(SHELL_LABELS.daozang, locale),
     },
+    {
+      id: 'famous',
+      href: famousUrl(locale),
+      label: pickLabel(SHELL_LABELS.famous, locale),
+    },
   ];
 
   const shop: NavCategory = {
@@ -216,13 +93,11 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
     href: ORASAGE_URLS.shop,
     label: pickLabel(SHELL_LABELS.shop, locale),
     external: true,
-    children: shopChildren,
   };
   const insights: NavCategory = {
     id: 'insights',
     href: insightsUrl(locale),
     label: pickLabel(SHELL_LABELS.insights, locale),
-    children: insightsChildren,
   };
   const origins: NavCategory = {
     id: 'origins',
@@ -236,11 +111,6 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
     label: pickLabel(SHELL_LABELS.readings, locale),
     children: readingsChildren,
   };
-  const daozang: NavCategory = {
-    id: 'daozang',
-    href: daozangUrl(locale),
-    label: pickLabel(SHELL_LABELS.daozang, locale),
-  };
   const home: NavCategory = {
     id: 'home',
     href: mainPortalUrl(locale),
@@ -248,8 +118,8 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
   };
 
   if (zh) {
-    // 首页 / 商城 / 玄析 / 造物 / 道藏 / 测算
-    return [home, shop, insights, origins, daozang, readings];
+    // 首页 / 商城 / 玄析 / 造物 / 测算（道藏、名人案例在测算二级）
+    return [home, shop, insights, origins, readings];
   }
   // Shop → Insights → Origins → Readings
   return [shop, insights, origins, readings];
