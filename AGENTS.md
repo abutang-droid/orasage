@@ -100,6 +100,8 @@ units, and remote deploy scripts targeting a single production VPS.
 - **AI 解读必需** `DEEPSEEK_API_KEY`（或 `OPENAI_API_KEY` / `MANUS_API_KEY` /
   `BUILT_IN_FORGE_API_KEY`）写在各 App `.env` 或根 `/opt/orasage/.env`。
   缺失时八字 `freeInsight`/`analyze`、紫微 `interpret`、塔罗 brief 等全部失败。
+  **出生地**（城市搜索 AI 匹配）走 `auth-service` 的 `/api/cities/lookup`，
+  只读根 `/opt/orasage/.env`；改 key 后须 `systemctl restart orasage-auth`。
   部署脚本会通过 `deploy/lib/ensure-llm-env.sh` 校验；运维抽检：
   `bash scripts/check-llm-env.sh /opt/orasage`。
 

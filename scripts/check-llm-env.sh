@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Check whether bazi / ziwei / tarot (and optional root) .env files have an LLM API key.
+# Check whether root + bazi/ziwei/tarot .env files have an LLM API key.
+# auth-service reads /opt/orasage/.env only (出生地 /api/cities/lookup 依赖它).
 # Usage (on VPS): bash scripts/check-llm-env.sh [/opt/orasage]
-# Exit 0 = all three apps have a key; 1 = one or more missing.
+# Exit 0 = all checked files have a key; 1 = one or more missing.
 
 set -euo pipefail
 
@@ -33,17 +34,19 @@ check_file() {
 }
 
 echo "LLM env check under $ROOT"
-check_file "root " "$ROOT/.env"
+check_file "root (auth + shared)" "$ROOT/.env"
 check_file "bazi " "$ROOT/bazi/.env"
 check_file "ziwei" "$ROOT/ziwei/.env"
 check_file "tarot" "$ROOT/tarot/.env"
 
 if [ "$missing" -ne 0 ]; then
   echo
-  echo "AI readings will fail until DEEPSEEK_API_KEY is set (recommend root or each app .env),"
-  echo "then: sudo systemctl restart orasage-bazi orasage-ziwei orasage-tarot"
+  echo "AI readings / birthplace lookup fail until DEEPSEEK_API_KEY is set."
+  echo "Recommend: write key in $ROOT/.env, then restart:"
+  echo "  sudo systemctl restart orasage-auth orasage-bazi orasage-ziwei orasage-tarot"
   exit 1
 fi
 echo
-echo "All checked apps have an LLM API key configured."
+echo "All checked env files have an LLM API key."
+echo "If you just added/changed the root key, restart orasage-auth so birthplace lookup picks it up."
 exit 0
