@@ -1,7 +1,7 @@
 name: Deploy Core Apps (main + auth + shop + admin)
 
 # Push 自动部署需要 GCP IAP（VPS 22 端口不对公网开放）。
-# 未配置 GCP_SA_KEY 时 push 会跳过 deploy job，避免 CI 误报红。
+# 未配置 GCP_SA_KEY 时 push 会跳过部署步骤，避免 CI 误报红。
 # 手动部署：Actions → Deploy Core Apps → Run workflow
 
 on:
@@ -27,14 +27,27 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: >-
-      github.repository == 'abutang-droid/orasage' &&
-      (github.event_name == 'workflow_dispatch' || secrets.GCP_SA_KEY != '')
+    if: github.repository == 'abutang-droid/orasage'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Gate auto-deploy (requires GCP_SA_KEY on push)
+        id: gate
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$GCP_SA_KEY" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deploy skipped::GCP_SA_KEY not configured. Add secret per deploy/GITHUB-ACTIONS-SETUP.md, or run bash scripts/vps-deploy-main.sh on GCP Console SSH."
+          fi
+
       - name: Setup SSH key
+        if: steps.gate.outputs.run == 'true'
         env:
           KEY1: ${{ secrets.SSH_PRIVATE_KEY }}
           KEY2: ${{ secrets.SSH_KEY }}
@@ -52,6 +65,7 @@ jobs:
 
       - name: Configure SSH transport
         id: ssh_transport
+        if: steps.gate.outputs.run == 'true'
         env:
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
@@ -90,6 +104,7 @@ jobs:
           echo "mode=iap" >> "$GITHUB_OUTPUT"
 
       - name: Full deploy on VPS (bootstrap-all)
+        if: steps.gate.outputs.run == 'true'
         env:
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
@@ -109,6 +124,7 @@ jobs:
              sudo nginx -t && sudo systemctl reload nginx"
 
       - name: Verify deployment
+        if: steps.gate.outputs.run == 'true'
         env:
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
