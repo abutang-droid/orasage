@@ -1,42 +1,57 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres';
 
+function escSqlLiteral(value: string): string {
+  return value.replace(/'/g, "''");
+}
+
+/** Apply one idempotent REPLACE on section body for zh-CN crystal PDPs. */
+async function replaceSectionBody(db: MigrateUpArgs['db'], from: string, to: string): Promise<void> {
+  const fromSql = escSqlLiteral(from);
+  const toSql = escSqlLiteral(to);
+  await db.execute(sql.raw(`
+    UPDATE shop_product_pages_sections s
+    SET body = REPLACE(COALESCE(s.body, ''), '${fromSql}', '${toSql}')
+    FROM shop_product_pages p
+    WHERE s._parent_id = p.id
+      AND p.locale = 'zh-CN'
+      AND p.sku LIKE 'crystal-%';
+  `));
+}
+
 /**
  * P0 A1: sanitize crystal PDP CMS copy (story / richText / faq / specList).
  * Idempotent REPLACE on zh-CN crystal pages; guide sections use p0-rewrite-pdp-guides.sh.
  */
 export async function up({ db }: MigrateUpArgs): Promise<void> {
-  await db.execute(sql`
-    -- section bodies (richText, guide, quote)
-    UPDATE shop_product_pages_sections s
-    SET body = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-      REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-        COALESCE(s.body, ''),
-        '能量手串', '五行水晶手串'),
-        '能量搭配推荐', '搭配建议'),
-        '能量预处理', '开箱检查'),
-        '能量使用指南', '佩戴指南卡片'),
-        '能量之石', '文化象征'),
-        '财富之石', '生长象征'),
-        '商人之石', '土行象征'),
-        '万能放大器', '百搭基础款'),
-        '效果 ×2', '组合佩戴'),
-        '定向放大', '组合佩戴'),
-        '脉轮', '传统象征'),
-        '消磁', '保养'),
-        '净化仪式', '开箱整理'),
-        '净化', '清洁'),
-        '负能量', '外界干扰'),
-        '招财', '文化意象'),
-        'OraSage Energy Shop', 'OraSage Crystal Shop'),
-        '能量商城', '水晶商城'),
-        '能量法器', '文化饰品'),
-        '能量礼盒', '礼盒套装'),
-        '能量详', '五行详')
-    FROM shop_product_pages p
-    WHERE s._parent_id = p.id
-      AND p.locale = 'zh-CN'
-      AND p.sku LIKE 'crystal-%';
+  const bodyReplacements: Array<[string, string]> = [
+    ['能量手串', '五行水晶手串'],
+    ['能量搭配推荐', '搭配建议'],
+    ['能量预处理', '开箱检查'],
+    ['能量使用指南', '佩戴指南卡片'],
+    ['能量之石', '文化象征'],
+    ['财富之石', '生长象征'],
+    ['商人之石', '土行象征'],
+    ['万能放大器', '百搭基础款'],
+    ['效果 ×2', '组合佩戴'],
+    ['定向放大', '组合佩戴'],
+    ['脉轮', '传统象征'],
+    ['消磁', '保养'],
+    ['净化仪式', '开箱整理'],
+    ['净化', '清洁'],
+    ['负能量', '外界干扰'],
+    ['招财', '文化意象'],
+    ['OraSage Energy Shop', 'OraSage Crystal Shop'],
+    ['能量商城', '水晶商城'],
+    ['能量法器', '文化饰品'],
+    ['能量礼盒', '礼盒套装'],
+    ['能量详', '五行详'],
+  ];
 
+  for (const [from, to] of bodyReplacements) {
+    await replaceSectionBody(db, from, to);
+  }
+
+  await db.execute(sql`
     UPDATE shop_product_pages_sections s
     SET quote = REPLACE(REPLACE(COALESCE(s.quote, ''),
       '能量', '五行'),
@@ -54,7 +69,6 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       AND p.locale = 'zh-CN'
       AND p.sku LIKE 'crystal-%';
 
-    -- spec items
     UPDATE shop_product_pages_sections_spec_items si
     SET value = REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(si.value, ''),
       '能量预处理', '开箱检查'),
@@ -67,7 +81,6 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       AND p.locale = 'zh-CN'
       AND p.sku LIKE 'crystal-%';
 
-    -- FAQ answers
     UPDATE shop_product_pages_sections_faq_items fi
     SET answer = REPLACE(REPLACE(REPLACE(COALESCE(fi.answer, ''),
       '消磁', '保养'),
@@ -87,7 +100,6 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       AND p.locale = 'zh-CN'
       AND p.sku LIKE 'crystal-%';
 
-    -- page-level SEO
     UPDATE shop_product_pages
     SET seo_title = REPLACE(COALESCE(seo_title, ''), 'Energy Shop', 'Crystal Shop'),
         seo_description = REPLACE(REPLACE(COALESCE(seo_description, ''),
