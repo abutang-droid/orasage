@@ -10,6 +10,7 @@ import {
 } from '@/lib/cms';
 import { ORASAGE_URLS } from '@/lib/orasage-seo';
 import { MAKING_SKUS } from '@/lib/origins-making';
+import { INSIGHTS_ARTICLES } from '@/lib/insights-articles';
 import { locales, type Locale } from '@/i18n/routing';
 
 /** Locales included in sitemap for CMS articles (canonical language versions). */
@@ -257,9 +258,24 @@ function getStaticPages(): ContentItem[] {
     priority: 0.6,
     changeFrequency: 'monthly' as const,
   }));
+  const insightsArticleRoutes: StaticRouteDef[] = INSIGHTS_ARTICLES.map((article) => ({
+    path: `/insights/${article.pillar}/${article.slug}`,
+    titles: {
+      'zh-CN': article.titleZh,
+      en: article.titleEn,
+      'pt-BR': article.titleEn,
+    },
+    descriptions: {
+      'zh-CN': article.descriptionZh,
+      en: article.descriptionEn,
+      'pt-BR': article.descriptionEn,
+    },
+    priority: 0.65,
+    changeFrequency: 'monthly' as const,
+  }));
 
   for (const locale of locales) {
-    for (const route of [...STATIC_ROUTES, ...makingRoutes]) {
+    for (const route of [...STATIC_ROUTES, ...makingRoutes, ...insightsArticleRoutes]) {
       items.push({
         canonical: portalAbsoluteUrl(locale, route.path),
         title: route.titles?.[locale] ?? route.titleKey ?? 'OraSage',

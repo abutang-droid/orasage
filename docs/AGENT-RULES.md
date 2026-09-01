@@ -51,3 +51,22 @@
 
 - **未经明确批准**，不要改动全局布局或增删产品功能。
 - 大规模 UI 变更前先与任务方确认范围与例外。
+
+## Step 5 内容填充（Insights / Making）
+
+| 目标 | 路径 | 说明 |
+|------|------|------|
+| Insights ≥24 篇 | `main/src/lib/insights-articles/` → `/insights/{pillar}/{slug}` | 数据驱动；`bash scripts/content-baseline-audit.sh` 计数 |
+| Making 7 篇成稿 | `shared/origins-making/` → `/origins/the-making/[sku]` | 5 水晶 SKU + Atelier + Our Story |
+
+**Insights 写作规则**
+
+- 双语 `{ en, zh }` 段落，存于 `insights-articles/*.ts`（非 CMS）。
+- 日主 / 五行 / 节气：结构、原型、内省提示；**禁止**运势 / 功效 / 结果承诺（`node scripts/lint-claims.mjs`）。
+- 水晶志：意图提醒 + 可核验规格，链到 Shop / The Making。
+- 新增文章：在 pillar 文件加条目 → 自动进 sitemap、`#latest`、pillar 列表。
+
+**Making 成稿规则**
+
+- 规格以 `MAKING_META` 为准；成稿后更新页面叙事并加入 `MAKING_LIVE_SKUS`。
+- 去掉「still writing」占位后再算完成。

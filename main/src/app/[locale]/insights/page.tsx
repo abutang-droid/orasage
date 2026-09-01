@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
 import { buildPortalPageMeta } from '@/lib/seo';
+import { getLatestInsightsArticles, insightsArticlePath } from '@/lib/insights-articles';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -25,6 +26,7 @@ export default async function InsightsPage({ params }: Props) {
   setRequestLocale(locale);
   const isZh = locale.startsWith('zh');
   const t = (en: string, zh: string) => (isZh ? zh : en);
+  const latest = getLatestInsightsArticles(8);
 
   const pillars = [
     {
@@ -87,9 +89,21 @@ export default async function InsightsPage({ params }: Props) {
 
       <section id="latest" className="mt-12">
         <h2 className="font-serif text-xl font-medium">{t('Latest', '最新')}</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          {t('Featured essays will appear here as they are published.', '精选文章将在此呈现（即将上线）。')}
-        </p>
+        <ul className="mt-4 space-y-3">
+          {latest.map((a) => (
+            <li key={`${a.pillar}-${a.slug}`}>
+              <Link
+                href={insightsArticlePath(a.pillar, a.slug)}
+                className="block rounded-[var(--os-radius-card)] border border-border bg-card p-4 transition-colors hover:border-foreground/20"
+              >
+                <span className="font-medium text-foreground">{isZh ? a.titleZh : a.titleEn}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  {isZh ? a.descriptionZh : a.descriptionEn}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="corrections" className="mt-10">
