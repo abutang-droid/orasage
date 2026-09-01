@@ -13,13 +13,11 @@ on:
       - 'shop/**'
       - 'admin/**'
       - 'shared/**'
-      - 'deploy/deploy-shop.sh'
-      - 'deploy/deploy-shop-on-vps.sh'
-      - 'deploy/nginx/orasage.conf'
-      - 'deploy/main/**'
-      - 'deploy/auth/**'
-      - 'deploy/shop/**'
-      - 'deploy/admin/**'
+      - 'cms/**'
+      - 'bazi/**'
+      - 'ziwei/**'
+      - 'tarot/**'
+      - 'deploy/**'
       - '.github/workflows/deploy-core.yml'
       - '.github/actions/setup-vps-ssh/**'
 
@@ -35,7 +33,7 @@ jobs:
         uses: ./.github/actions/setup-vps-ssh
         secrets: inherit
 
-      - name: Deploy main + auth + shop + admin on VPS
+      - name: Full deploy on VPS (bootstrap-all)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST || '34.75.40.67' }}
           SSH_USER: ${{ secrets.SSH_USER || 'ubuntu' }}
@@ -48,8 +46,11 @@ jobs:
           fi
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
             "sudo chown -R ubuntu:ubuntu /opt/orasage 2>/dev/null || true; \
-             cd /opt/orasage && git fetch origin ${BRANCH} && git checkout ${BRANCH} && git reset --hard origin/${BRANCH} && \
-             BRANCH=${BRANCH} ORASAGE_REF=${BRANCH} bash deploy/deploy-shop-on-vps.sh"
+             cd /opt/orasage && git fetch origin ${BRANCH} && git checkout ${BRANCH} && git reset --hard origin/${BRANCH}; \
+             sudo ORASAGE_REF=${BRANCH} FORTUNE_MODE=native SKIP_CMS=0 DEPLOY_DIR=/opt/orasage \
+               bash deploy/bootstrap-all-on-vps.sh; \
+             bash /opt/orasage/scripts/cms/p0-rewrite-pdp-guides.sh || true; \
+             sudo nginx -t && sudo systemctl reload nginx"
 
       - name: Verify deployment
         env:
@@ -62,4 +63,7 @@ jobs:
             SSH_OPTS="$SSH_OPTS -o ProxyCommand='$GCP_IAP_PROXY_COMMAND'"
           fi
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "curl -sf http://127.0.0.1:3101/health && echo && curl -sI https://orasage.com | head -5 && curl -sI https://shop.orasage.com | head -5"
+            "curl -sf http://127.0.0.1:3101/health && echo && \
+             curl -sI https://orasage.com | head -3 && \
+             curl -sI https://shop.orasage.com | head -3 && \
+             curl -sI https://bazi.orasage.com/sitemap.xml | head -3"
