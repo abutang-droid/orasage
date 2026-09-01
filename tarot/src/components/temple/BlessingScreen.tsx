@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { Button } from '@orasage/ui/button';
-import { TempleDonation } from '@/components/temple/TempleDonation';
 import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import './temple.css';
 
@@ -64,8 +63,6 @@ export function BlessingScreen({
         {levelUp ? temple.blessingLevelUp : ''}
         {streakDays && streakDays > 1 ? temple.blessingStreak(streakDays) : ''}
       </div>
-
-      <TempleDonation deityName={deity.name} />
 
       <div className="temple-blessing-actions">
         <Button asChild className="w-full">

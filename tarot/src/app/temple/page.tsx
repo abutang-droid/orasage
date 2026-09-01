@@ -22,7 +22,6 @@ type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 function TemplePageContent() {
   const temple = useTempleCopy()
   const searchParams = useSearchParams()
-  const donated = searchParams.get("donated") === "1"
   const changeAction = searchParams.get("change")
   const { user, setFaith, setDeity, setGeo } = useUser()
   const [selectedFaith, setSelectedFaith] = useState<string | null>(null)
@@ -272,7 +271,6 @@ function TemplePageContent() {
     return (
       <TempleHome
         deity={savedDeity ?? undefined}
-        donated={donated}
         latestBlessing={latestBlessing}
         onWorship={handleStartWorship}
         onSetupFaith={isSkippedFaith(selectedFaith) ? () => setPhase("journey") : undefined}
