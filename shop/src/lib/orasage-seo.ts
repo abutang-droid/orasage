@@ -34,7 +34,7 @@ export function orasageOpenGraph(opts: {
   description: string;
   url?: string;
   locale?: string;
-  type?: 'website' | 'article';
+  type?: 'website' | 'article' | 'product';
   /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
   image?: string;
 }) {

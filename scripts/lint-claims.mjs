@@ -58,6 +58,14 @@ const FORBIDDEN = [
   /能量法器/g,
   /能量概率/g,
   /能量流动/g,
+  /能量地图/g,
+  /命理工具平台/g,
+  /divination platform/gi,
+  /解读很准/g,
+  /按八字推荐/g,
+  /解命运密码/g,
+  /批命用/g,
+  /磁场玄学/g,
 ];
 
 /** Allowlisted substrings — if a hit is only inside these phrases, skip. */

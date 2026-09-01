@@ -26,6 +26,7 @@ import { RelatedProducts } from '@/components/RelatedProducts';
 import { TrustBar } from '@/components/TrustBar';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
+import { buildProductJsonLd } from '@/lib/product-jsonld';
 import { Disclaimer } from '@/lib/orasage-app-shell';
 import { makingSkuForProduct, makingUrl } from '@/lib/origins-making';
 
@@ -52,6 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(sku)}`,
       image: ogImage,
+      type: 'product',
     },
     ogImage,
   });
@@ -96,9 +98,28 @@ export default async function ProductPage({ params }: PageProps) {
     productEyebrow(product.sku, product.element, product.material, labels, localizedElement)
     ?? tc(product.category);
   const hasAccordion = content.accordions.length > 0;
+  const productDescription = cmsPage?.seoDescription?.trim() || product.desc;
+  const heroImage = cmsPage?.heroImages[0]?.url ?? listThumbnail ?? undefined;
+  const productJsonLd =
+    product.category === 'crystal'
+      ? buildProductJsonLd({
+          product,
+          locale,
+          description: productDescription,
+          imageUrl: heroImage,
+          priceCents: displayCents,
+          currency,
+        })
+      : null;
 
   return (
     <main className="shop-page safe-bottom flex-1">
+      {productJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      ) : null}
       <div className="shop-pdp shop-pdp--content">
         <Link href="/" className="shop-pdp-back shop-pdp-back--top">
           ← {t('backToShop')}

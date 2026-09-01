@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { PageShell, PageTitle } from '@/components/PageShell';
 import { buildPortalPageMeta } from '@/lib/seo';
+import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
 
 import { Card, CardContent } from '@orasage/ui';
 type Props = { params: Promise<{ locale: string }> };
@@ -37,6 +38,7 @@ export default async function FaqPage({ params }: Props) {
           </Card>
         ))}
       </div>
+      <Disclaimer variant="standard" locale={locale} className="mt-8" />
     </PageShell>
   );
 }

@@ -32,11 +32,16 @@ type CmsListResponse = {
 
 const FALLBACK_ZH: ZiweiFeedItem[] = [
   { id: 'fb-1', kind: 'order', message: '张** 刚刚完成了紫微排盘' },
-  { id: 'fb-2', kind: 'order', message: '李** 解锁了十二宫 AI 解读' },
-  { id: 'fb-3', kind: 'review', message: '「命宫解读很准，合盘分析也很细致」— 来自上海的用户' },
+  { id: 'fb-2', kind: 'order', message: '李** 解锁了十二宫深度报告' },
+  { id: 'fb-3', kind: 'review', message: '「界面简洁，排盘速度快」— 来自上海的用户' },
   { id: 'fb-4', kind: 'order', message: '王** 刚刚完成了双人合盘' },
-  { id: 'fb-5', kind: 'review', message: '「界面简洁，排盘速度快」— 来自广州的用户' },
+  { id: 'fb-5', kind: 'review', message: '「喜欢这种东方式的呈现方式」— 来自广州的用户' },
 ];
+
+function sanitizeFeed(items: ZiweiFeedItem[]): ZiweiFeedItem[] {
+  const bad = /很准|选对|命中|财运|功效|磁场|\u62db\u8d22|谈成|客户|事业|灵/i;
+  return items.filter((item) => item.message.trim() && !bad.test(item.message));
+}
 
 function mapDoc(doc: CmsZiweiFeedDoc): ZiweiFeedItem | null {
   const message = doc.message?.trim();
@@ -61,12 +66,14 @@ export async function fetchZiweiFeed(locale: string): Promise<ZiweiFeedItem[]> {
       return locale === 'zh-CN' ? FALLBACK_ZH : [];
     }
     const data = (await res.json()) as CmsListResponse;
-    const items = (data.docs ?? [])
-      .map(mapDoc)
-      .filter((item): item is ZiweiFeedItem => item !== null);
+    const items = sanitizeFeed(
+      (data.docs ?? [])
+        .map(mapDoc)
+        .filter((item): item is ZiweiFeedItem => item !== null),
+    );
     if (items.length > 0) return items;
-    return locale === 'zh-CN' ? FALLBACK_ZH : [];
+    return locale === 'zh-CN' ? sanitizeFeed(FALLBACK_ZH) : [];
   } catch {
-    return locale === 'zh-CN' ? FALLBACK_ZH : [];
+    return locale === 'zh-CN' ? sanitizeFeed(FALLBACK_ZH) : [];
   }
 }
