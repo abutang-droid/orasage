@@ -16,6 +16,22 @@ outputs:
     description: direct or iap
     value: ${{ steps.transport.outputs.mode }}
 
+secrets:
+  SSH_PRIVATE_KEY:
+    required: false
+  SSH_KEY:
+    required: false
+  VPS_SSH_KEY:
+    required: false
+  GCP_SA_KEY:
+    required: false
+  GCP_PROJECT:
+    required: false
+  GCP_ZONE:
+    required: false
+  GCP_INSTANCE:
+    required: false
+
 runs:
   using: composite
   steps:
