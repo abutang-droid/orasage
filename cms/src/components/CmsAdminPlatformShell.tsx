@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { FixedBottomNav } from '@/lib/orasage-app-shell/BottomNav';
 import { SiteTopNav } from '@/lib/orasage-app-shell/SiteTopNav';
 import { AdminBackendShell } from '@/components/AdminBackendShell';
 
@@ -14,7 +13,6 @@ export function CmsAdminPlatformShell({ children }: { children: ReactNode }) {
           {children}
         </AdminBackendShell>
       </div>
-      <FixedBottomNav context="portal" locale="zh-CN" pathname="/cms" />
     </div>
   );
 }

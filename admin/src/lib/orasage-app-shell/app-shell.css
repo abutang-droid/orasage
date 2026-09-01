@@ -156,7 +156,7 @@
   flex: 1;
   position: relative;
   z-index: 1;
-  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
+  padding-bottom: 12px;
 }
 
 .orasage-app-main--column {
@@ -174,30 +174,23 @@
 }
 
 .orasage-portal-main {
-  padding-bottom: calc(var(--shell-bottom-h, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
+  padding-bottom: 12px;
 }
 
 @media (min-width: 1024px) {
-  .orasage-app-main,
-  .orasage-portal-main {
-    padding-bottom: 12px;
-  }
-
-  .orasage-app-main--no-bottomnav {
-    padding-bottom: 12px;
-  }
-
   .orasage-page-toolbar .orasage-auth-chip {
     display: none;
   }
 }
 
-/* —— PC 顶栏主导航（左品牌 + 右链接，页面流内非浮层色块） —— */
+/* —— 全站顶栏（PC 水平菜单 / 移动折叠菜单） —— */
 .orasage-site-topnav {
-  display: none;
-  position: relative;
-  z-index: 10;
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   background: var(--shell-bg);
+  border-bottom: 1px solid var(--shell-border);
   padding-top: env(safe-area-inset-top, 0px);
 }
 
@@ -234,13 +227,104 @@
   }
 }
 
-.orasage-site-topnav-menu {
-  display: flex;
+.orasage-site-topnav-menu--desktop {
+  display: none;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 20px;
   min-width: 0;
+}
+
+.orasage-site-topnav-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.orasage-site-mobile-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--shell-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.orasage-site-mobile-nav-toggle:hover {
+  color: var(--shell-text);
+}
+
+.orasage-site-mobile-nav-icon-close[hidden] {
+  display: none;
+}
+
+.orasage-site-mobile-nav-backdrop[hidden],
+.orasage-site-mobile-nav-panel[hidden] {
+  display: none !important;
+}
+
+.orasage-site-mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  border: 0;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+.orasage-site-mobile-nav-panel {
+  position: fixed;
+  top: calc(var(--shell-top-h) + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  overflow-y: auto;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--shell-bg);
+  border-top: 1px solid var(--shell-border);
+}
+
+.orasage-site-mobile-nav-section + .orasage-site-mobile-nav-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--shell-border-subtle);
+}
+
+.orasage-site-mobile-nav-heading {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--shell-text);
+  text-decoration: none;
+}
+
+.orasage-site-mobile-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline-start: 12px;
+  font-size: 14px;
+  color: var(--shell-muted);
+  text-decoration: none;
+}
+
+.orasage-site-mobile-nav-link:hover {
+  color: var(--shell-gold);
+}
+
+.orasage-site-mobile-nav-utilities {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--shell-border);
 }
 
 .orasage-site-topnav-link {
@@ -341,53 +425,25 @@
 }
 
 @media (min-width: 1024px) {
-  .orasage-site-topnav {
-    display: block;
+  .orasage-site-topnav-menu--desktop {
+    display: flex;
   }
-}
 
-/* —— 移动顶栏（仅 Logo + 登录） —— */
-.orasage-site-mobile-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: var(--shell-top-h);
-  padding: env(safe-area-inset-top, 0px) 16px 0;
-  background: var(--shell-bg);
-}
-
-.orasage-site-mobile-bar-brand {
-  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
-  font-size: 1.125rem;
-  letter-spacing: 0.08em;
-  color: var(--shell-gold);
-  text-decoration: none;
-}
-
-.orasage-site-mobile-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-@media (min-width: 1024px) {
-  .orasage-site-mobile-bar {
+  .orasage-site-topnav-mobile-actions {
     display: none;
   }
+
+  .orasage-site-mobile-nav-backdrop,
+  .orasage-site-mobile-nav-panel {
+    display: none !important;
+  }
 }
 
-/* PC 页脚 — 版权/隐私；移动端隐藏（底栏已承载导航） */
+/* —— 全站页脚 — 上行免责声明 + 下行版权/隐私/条款 —— */
 .orasage-portal-footer {
-  display: none;
+  display: block;
   margin-top: auto;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@media (min-width: 1024px) {
-  .orasage-portal-footer {
-    display: block;
-  }
 }
 
 .orasage-portal-footer-inner {
@@ -402,9 +458,27 @@
 
 @media (min-width: 640px) {
   .orasage-portal-footer-inner {
+    padding-inline: 1.5rem;
+  }
+}
+
+.orasage-portal-footer-disclaimer {
+  width: 100%;
+  max-width: 48rem;
+}
+
+.orasage-portal-footer-meta {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .orasage-portal-footer-meta {
     flex-direction: row;
     justify-content: space-between;
-    padding-inline: 1.5rem;
   }
 }
 
@@ -442,11 +516,11 @@
   color: var(--shell-gold);
 }
 
-@media (min-width: 1024px) {
-  .orasage-app-bottomnav {
-    display: none !important;
-  }
+.orasage-app-bottomnav {
+  display: none !important;
+}
 
+@media (min-width: 1024px) {
   .orasage-page-toolbar--subpage {
     display: none !important;
   }

@@ -1,5 +1,5 @@
 import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
-import { bottomNavHtml } from './bottom-nav-html.ts';
+import { getDisclaimerCopy } from '../../../shared/app-shell/disclaimer-copy.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
@@ -15,6 +15,10 @@ const FOOTER_STRINGS: Record<string, FooterStrings> = {
 };
 
 const normalizeLocale = toCoreLocale;
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 export function localeFromRedirect(url?: string): string {
   if (!url) return 'zh-CN';
@@ -37,32 +41,25 @@ function authStrings(locale: string): FooterStrings {
   return FOOTER_STRINGS[key] ?? FOOTER_STRINGS.en;
 }
 
-/** 移动顶栏 — 左品牌 + 右登录芯片（与子应用一致） */
-export function mobileNavHtml(locale: string): string {
-  const main = mainPortalUrl(locale);
-  const loginLabelText = authLoginLabel(locale);
-  const profile = `${main}/profile`;
-  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
-
-  return `
-<header class="orasage-site-mobile-bar orasage-auth-mobile-bar">
-  <a href="${main}" class="orasage-site-mobile-bar-brand">OraSage</a>
-  <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${loginLabelText}</a>
-</header>`;
-}
-
-/** PC 页脚 — 与 main Footer / DS §7 一致 */
+/** PC 页脚 — 与 main Footer / 全站 shell 一致 */
 export function footerHtml(locale: string): string {
   const main = mainPortalUrl(locale);
   const { copyright, privacy, terms } = authStrings(locale);
+  const disc = getDisclaimerCopy('standard', locale);
+  const discBody = disc.lines.join(' ');
 
   return `
 <footer class="orasage-portal-footer orasage-auth-footer">
   <div class="orasage-portal-footer-inner">
-    <p class="orasage-portal-footer-copy">${copyright}</p>
-    <div class="orasage-portal-footer-links">
-      <a href="${main}/privacy" class="orasage-portal-footer-link">${privacy}</a>
-      <a href="${main}/terms" class="orasage-portal-footer-link">${terms}</a>
+    <aside class="orasage-disclaimer orasage-disclaimer--standard orasage-disclaimer--compact orasage-portal-footer-disclaimer" role="note" aria-label="${escHtml(disc.title)}">
+      <p><strong>${escHtml(disc.title)}</strong> ${escHtml(discBody)}</p>
+    </aside>
+    <div class="orasage-portal-footer-meta">
+      <p class="orasage-portal-footer-copy">${copyright}</p>
+      <div class="orasage-portal-footer-links">
+        <a href="${main}/privacy" class="orasage-portal-footer-link">${privacy}</a>
+        <a href="${main}/terms" class="orasage-portal-footer-link">${terms}</a>
+      </div>
     </div>
   </div>
 </footer>`;
@@ -84,13 +81,18 @@ export function authPageLayout(title: string, body: string, locale: string): str
 </head>
 <body class="orasage-auth-body">
   ${topNavHtml(locale)}
-  ${mobileNavHtml(locale)}
   <div class="orasage-auth-main">
     ${body}
   </div>
   ${footerHtml(locale)}
-  ${bottomNavHtml(locale)}
   <script src="/assets/app.js" defer></script>
 </body>
 </html>`;
+}
+
+/** @deprecated 移动顶栏已合并进 topNavHtml */
+export function mobileNavHtml(locale: string): string {
+  void locale;
+  void authLoginLabel;
+  return '';
 }

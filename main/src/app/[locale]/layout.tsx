@@ -75,7 +75,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <AnalyticsPageView locale={locale} />
           <LiveChatWidget />
           <Header />
-          <PortalChrome locale={locale}>{children}</PortalChrome>
+          <PortalChrome>{children}</PortalChrome>
           <ConditionalFooter />
         </NextIntlClientProvider>
       </body>
