@@ -2,6 +2,7 @@ type LabelMap = Record<string, string>;
 
 type LabelSet = {
   back: LabelMap;
+  menu: LabelMap;
   home: LabelMap;
   explore: LabelMap;
   blessing: LabelMap;
@@ -63,6 +64,7 @@ const L = {
 
 export const SHELL_LABELS: LabelSet = {
   back: L.zh('返回', 'Back', '返回', 'Voltar'),
+  menu: L.zh('菜单', 'Menu', '選單', 'Menu'),
   home: L.zh('首页', 'Home', '首頁', 'Início'),
   explore: L.zh('探索', 'Explore', '探索', 'Explorar'),
   blessing: L.zh('祈愿池', 'Wishing Well', '祈願池', 'Poço dos Desejos'),

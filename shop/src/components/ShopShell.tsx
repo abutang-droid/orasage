@@ -27,7 +27,7 @@ function ShopShellInner({ children }: { children: ReactNode }) {
   );
 }
 
-/** Shop 全站：PC 顶栏 + 移动品牌/登录顶栏 + 移动 4 键底栏 + PC 页脚 */
+/** Shop 全站：统一顶栏（移动折叠菜单）+ 全端页脚 */
 export function ShopShell({ children }: { children: ReactNode }) {
   return (
     <ShopLocaleProvider>

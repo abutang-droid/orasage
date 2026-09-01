@@ -3,12 +3,9 @@
 import { ChevronLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { Button } from '@orasage/ui/button';
-import { appBrandLabel, appHomeUrl, shouldShowAppShellPageBack, type AppId } from './config';
+import { appBrandLabel, shouldShowAppShellPageBack, type AppId } from './config';
 import { SiteTopNav } from './SiteTopNav';
 import { pickLabel, SHELL_LABELS } from './labels';
-import { FixedBottomNav } from './BottomNav';
-import { OrasageAuthChip } from './OrasageAuthChip';
-import { LocaleSwitcher } from './LocaleSwitcher';
 import './app-shell.css';
 
 export type LocaleOption = { code: string; label: string };
@@ -20,7 +17,9 @@ export type AppShellProps = {
   onLocaleChange?: (code: string) => void;
   theme?: 'light' | 'dark';
   pathname?: string;
+  /** @deprecated 移动端已改用顶栏折叠菜单，底栏默认关闭 */
   showBottomNav?: boolean;
+  /** @deprecated 已合并进 SiteTopNav */
   showMobileBar?: boolean;
   showSiteTopNav?: boolean;
   immersive?: boolean;
@@ -30,28 +29,28 @@ export type AppShellProps = {
   footer?: ReactNode;
   /** 顶栏右侧插槽（PC 导航尾、移动顶栏登录旁），如 shop 购物车 */
   headerExtra?: ReactNode;
+  /** 覆盖默认 LocaleSwitcher */
+  localeSwitcher?: ReactNode;
   children: ReactNode;
 };
 
-/** 子应用外壳：PC 顶栏 + 移动顶栏品牌/登录 + 移动底栏 4 键 */
+/** 子应用外壳：全端顶栏（移动折叠菜单）+ 可选页脚 */
 export function AppShell({
   appId,
   locale = 'zh-CN',
   theme = 'dark',
   pathname = '/',
-  showBottomNav = true,
-  showMobileBar = true,
   showSiteTopNav = true,
   immersive = false,
   showPageBack = true,
   showLocaleSwitcher = true,
   footer = null,
   headerExtra = null,
+  localeSwitcher = null,
   onLocaleChange,
   children,
 }: AppShellProps) {
   const showBack = showPageBack && shouldShowAppShellPageBack(appId, pathname) && !immersive;
-  const brandLabel = appBrandLabel(appId, locale);
 
   return (
     <div className="orasage-app-shell orasage-grain" data-theme={theme} data-app={appId}>
@@ -61,26 +60,14 @@ export function AppShell({
           context={appId}
           trailing={headerExtra}
           showLocaleSwitcher={showLocaleSwitcher}
+          localeSwitcher={localeSwitcher}
           onLocaleChange={onLocaleChange}
         />
       )}
 
-      {showMobileBar && (
-        <header className="orasage-site-mobile-bar lg:hidden">
-          <a href={appHomeUrl(appId)} className="orasage-site-mobile-bar-brand">
-            {brandLabel}
-          </a>
-          <div className="orasage-site-mobile-bar-actions">
-            {headerExtra}
-            {showLocaleSwitcher && (
-              <LocaleSwitcher locale={locale} context={appId} onLocaleChange={onLocaleChange} />
-            )}
-            <OrasageAuthChip locale={locale} />
-          </div>
-        </header>
-      )}
-
-      <main className={`orasage-app-main orasage-app-main--column${showBottomNav ? '' : ' orasage-app-main--no-bottomnav'}${immersive ? ' orasage-app-main--immersive' : ''}`}>
+      <main
+        className={`orasage-app-main orasage-app-main--column orasage-app-main--no-bottomnav${immersive ? ' orasage-app-main--immersive' : ''}`}
+      >
         {showBack && (
           <div className="orasage-page-toolbar orasage-page-toolbar--subpage lg:hidden">
             <Button
@@ -98,14 +85,11 @@ export function AppShell({
         {children}
         {footer}
       </main>
-
-      {showBottomNav && <FixedBottomNav context={appId} locale={locale} pathname={pathname} />}
     </div>
   );
 }
 
 export { APP_BRANDS, ORASAGE_URLS, appBrandLabel, type AppId } from './config';
-export { FixedBottomNav } from './BottomNav';
 export { AppBrandMark } from './AppBrandMark';
 export type { NavContext } from './config';
 export { isMainPortalHome } from './config';

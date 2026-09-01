@@ -20,8 +20,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         onLocaleChange={setLocale}
         theme="light"
         pathname={pathname}
-        showBottomNav={!isOnboarding}
-        showMobileBar={!isOnboarding}
         showSiteTopNav={!isOnboarding}
         immersive={isOnboarding}
         showPageBack={!isTemple}

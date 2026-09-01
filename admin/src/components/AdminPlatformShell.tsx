@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { FixedBottomNav } from '@/lib/orasage-app-shell/BottomNav';
 import { SiteTopNav } from '@/lib/orasage-app-shell/SiteTopNav';
 import { AdminBackendShell } from '@/components/AdminBackendShell';
 
@@ -20,7 +19,6 @@ export function AdminPlatformShell({
       <div className="admin-platform-body">
         <AdminBackendShell showSidebar={showSidebar} staffUser={staffUser}>{children}</AdminBackendShell>
       </div>
-      <FixedBottomNav context="portal" locale="zh-CN" pathname="/" />
     </div>
   );
 }

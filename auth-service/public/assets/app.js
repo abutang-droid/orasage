@@ -60,6 +60,33 @@ async function hydrateAuthChips() {
 
 hydrateAuthChips();
 
+function initMobileNav() {
+  const toggle = qs(".orasage-site-mobile-nav-toggle");
+  const panel = qs("#orasage-mobile-nav-panel");
+  const backdrop = qs(".orasage-site-mobile-nav-backdrop");
+  if (!toggle || !panel || !backdrop) return;
+
+  const iconOpen = toggle.querySelector(".orasage-site-mobile-nav-icon-open");
+  const iconClose = toggle.querySelector(".orasage-site-mobile-nav-icon-close");
+
+  const setOpen = (open) => {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    panel.hidden = !open;
+    backdrop.hidden = !open;
+    document.body.style.overflow = open ? "hidden" : "";
+    if (iconOpen) iconOpen.hidden = open;
+    if (iconClose) iconClose.hidden = !open;
+  };
+
+  toggle.addEventListener("click", () => setOpen(panel.hidden));
+  backdrop.addEventListener("click", () => setOpen(false));
+  panel.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+}
+
+initMobileNav();
+
 const loginForm = qs("#login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
