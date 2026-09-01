@@ -53,7 +53,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(sku)}`,
       image: ogImage,
-      type: 'product',
+      // Next.js Metadata openGraph.type does not allow 'product' (throws in AsyncMetadataOutlet).
+      type: 'website',
     },
     ogImage,
   });
