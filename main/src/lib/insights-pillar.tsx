@@ -4,6 +4,8 @@ import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
 import { buildPortalPageMeta } from '@/lib/seo';
+import { getArticlesByPillar, getPillarIntro } from '@/lib/insights-articles';
+import { InsightsArticleList } from '@/lib/insights-article-view';
 
 type Pillar = 'day-master' | 'five-elements' | 'solar-terms' | 'crystal';
 
@@ -64,6 +66,8 @@ export function buildPillarPage(pillar: Pillar) {
     const isZh = locale.startsWith('zh');
     const t = (en: string, zh: string) => (isZh ? zh : en);
     const meta = PILLARS[pillar];
+    const intro = getPillarIntro(pillar);
+    const articles = getArticlesByPillar(pillar);
 
     return (
       <PageShell className="max-w-3xl">
@@ -84,19 +88,21 @@ export function buildPillarPage(pillar: Pillar) {
 
         <Disclaimer variant="compact" locale={locale} className="mt-6" />
 
-        <div className="mt-10 space-y-4 text-sm text-muted-foreground">
-          <p>
-            {t(
-              'Article body lands in the next writing pass. This page holds the route, the disclaimer, and links onward.',
-              '正文将在下一轮撰写上线。本页保留路由、声明与继续阅读的入口。',
-            )}
-          </p>
-          <p>
-            <Link href="/insights" className="text-foreground underline-offset-4 hover:underline">
-              {t('← Back to Insights', '← 返回玄析')}
-            </Link>
-          </p>
-        </div>
+        {intro ? (
+          <div className="mt-10 space-y-4 text-sm leading-relaxed text-muted-foreground">
+            {intro.paragraphs.map((p, i) => (
+              <p key={i}>{isZh ? p.zh : p.en}</p>
+            ))}
+          </div>
+        ) : null}
+
+        <InsightsArticleList locale={locale} articles={articles} />
+
+        <p className="mt-10 text-sm">
+          <Link href="/insights" className="text-foreground underline-offset-4 hover:underline">
+            {t('← Back to Insights', '← 返回玄析')}
+          </Link>
+        </p>
 
         <Disclaimer variant="standard" locale={locale} className="mt-12" />
       </PageShell>
