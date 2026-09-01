@@ -60,6 +60,44 @@ WHERE s._parent_id = p.id
   AND p.locale = 'pt-BR'
   AND p.sku LIKE 'crystal-%';
 
+-- P0 A1: specList + FAQ compliance (pairs with CMS migration 20260831_140000)
+UPDATE shop_product_pages_sections_spec_items si
+SET value = REPLACE(REPLACE(REPLACE(COALESCE(si.value, ''),
+  '能量预处理', '开箱检查'),
+  '净化仪式（月光照射 + 鼠尾草烟熏）', '软布擦拭与静置'),
+  '能量使用指南卡片', '佩戴指南卡片')
+FROM shop_product_pages_sections s
+JOIN shop_product_pages p ON s._parent_id = p.id
+WHERE si._parent_id = s.id
+  AND p.locale = 'zh-CN'
+  AND p.sku LIKE 'crystal-%';
+
+UPDATE shop_product_pages_sections_faq_items fi
+SET
+  question = REPLACE(COALESCE(fi.question, ''), '消磁', '保养'),
+  answer = REPLACE(REPLACE(REPLACE(COALESCE(fi.answer, ''),
+    '消磁', '保养'),
+    '能量沉闷', '佩戴感变化'),
+    '月光下静置一晚', '软布擦拭后静置')
+FROM shop_product_pages_sections s
+JOIN shop_product_pages p ON s._parent_id = p.id
+WHERE fi._parent_id = s.id
+  AND p.locale = 'zh-CN'
+  AND p.sku LIKE 'crystal-%';
+
+UPDATE shop_product_pages_sections s
+SET body = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(s.body, ''),
+  '能量搭配推荐', '搭配建议'),
+  '能量之石', '文化象征'),
+  '脉轮', '传统象征'),
+  '招财', '文化意象'),
+  '负能量', '外界干扰')
+FROM shop_product_pages p
+WHERE s._parent_id = p.id
+  AND s.type = 'richText'
+  AND p.locale = 'zh-CN'
+  AND p.sku LIKE 'crystal-%';
+
 COMMIT;
 
 SELECT p.sku, p.locale, left(s.body, 60)

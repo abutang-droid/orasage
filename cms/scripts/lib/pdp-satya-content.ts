@@ -24,9 +24,9 @@ export type GeneratedPage = {
   testimonials: Array<{ author: string; rating: number; body: string; sort: number }>;
 };
 
-const MANIFEST_WEAR = '佩戴显化 · Wear to Manifest';
-const MANIFEST_READ = '解读显化 · Read to Manifest';
-const MANIFEST_ACT = '行动显化 · Act to Manifest';
+const MANIFEST_WEAR = '佩戴仪式 · Wear Ritual';
+const MANIFEST_READ = '阅读仪式 · Read Ritual';
+const MANIFEST_ACT = '行动仪式 · Act Ritual';
 
 type CrystalConfig = {
   subtitle: string;
@@ -54,11 +54,11 @@ const CRYSTAL_SATYA: Record<string, CrystalConfig> = {
     element: '木',
     elementTrait: '木主生长、主拓展、主生机。适合希望「打开局面」「增添活力」「让事业与生活向上生长」的阶段。',
     storyTitle: '绿幽灵的灵性图谱',
-    storyBody: `在水晶疗愈传统中，绿幽灵被称为「财富之石」——并非指一夜暴富，而是象征生长中的丰盛：像一棵正在抽芽的树，根系稳固，枝叶向光。
+    storyBody: `在水晶文化传统中，绿幽灵常被视为「生长象征」——并非指一夜暴富，而是象征生长中的丰盛：像一棵正在抽芽的树，根系稳固，枝叶向光。
 
 巴西矿区的绿幽灵常带有层叠的「幽灵」纹理，那是水晶在形成过程中多次生长留下的年轮，被视作时间沉淀的智慧。
 
-东方五行中，木行对应春、东方、肝胆与决策的「开始」。绿幽灵的能量温和而持续，适合需要耐心积累、而非急躁冲刺的人。
+东方五行中，木行对应春、东方、肝胆与决策的「开始」。绿幽灵的意象温和而持续，适合需要耐心积累、而非急躁冲刺的人。
 
 这不是炫耀的财富符号。这是一颗正在生长的种子。`,
     manifestEn: `I grow with patience. I welcome abundance.
@@ -71,7 +71,7 @@ My path unfolds like spring — steady, green, alive.`,
 🌿 感到停滞时 → 提醒自己：生长需要时间
 🧘 晨间冥想 → 观想绿意从心底蔓延
 🌙 睡前 → 放下对结果的焦虑，信任过程`,
-    pairingIntro: '绿幽灵（生长）+ 其他水晶 = 定向放大',
+    pairingIntro: '绿幽灵（生长）+ 其他水晶 = 组合佩戴',
     pairings: [
       { combo: '绿幽灵 + 白水晶', effect: '看清方向再行动，生长不盲目' },
       { combo: '绿幽灵 + 黄水晶', effect: '既有愿景也有落地执行的稳' },
@@ -79,8 +79,8 @@ My path unfolds like spring — steady, green, alive.`,
     ],
     promiseNote: '每颗绿幽灵均保留天然雾状包裹体与层理——那是时间写下的生长印记',
     testimonials: [
-      { author: '林**', body: '创业第一年戴着它，不是为了招财，是提醒自己别急。绿幽灵里的纹理像年轮，看着心就稳。' },
-      { author: '周**', body: '八字补木推荐这款。名字「生长之境」很贴切——每次抬腕看见它，就想起：事情正在长，不用慌。' },
+      { author: '林**', body: '创业第一年戴着它，不是为了求财，是提醒自己别急。绿幽灵里的纹理像年轮，看着心就稳。' },
+      { author: '周**', body: '五行木主题推荐这款。名字「生长之境」很贴切——每次抬腕看见它，就想起：事情正在长，不用慌。' },
       { author: '王**', body: '珠子比图片更有层次，幽灵纹理每颗不同。搭配正装也不突兀，低调但有故事。' },
     ],
   },
@@ -93,7 +93,7 @@ My path unfolds like spring — steady, green, alive.`,
     storyTitle: '红玛瑙的灵性图谱',
     storyBody: `古埃及人将红玛瑙献给战神与太阳神，相信它能赋予佩戴者勇气与生命力。罗马战士常在盔甲上镶嵌红玛瑙，作为护身与提振士气的信物。
 
-在脉轮体系中，红玛瑙连接脐轮与心轮之间——那是「想要」与「敢做」的桥梁。它的色泽来自铁元素氧化，温暖而不刺眼，像黄昏时分仍有余温的炭火。
+在传统文化中，红玛瑙连接脐轮与心轮之间——那是「想要」与「敢做」的桥梁。它的色泽来自铁元素氧化，温暖而不刺眼，像黄昏时分仍有余温的炭火。
 
 五行火行对应夏、南方、心与表达。红玛瑙不制造躁动的亢奋，而是点燃可持续的行动力。
 
@@ -108,7 +108,7 @@ My fire warms others without burning out.`,
 ❤️ 社交场合 → 保持开放与亲和力
 🏃 运动 / 健身 → 增强耐力与专注
 🌙 睡前取下 → 让身心在夜间恢复平静`,
-    pairingIntro: '红玛瑙（行动）+ 其他水晶 = 定向放大',
+    pairingIntro: '红玛瑙（行动）+ 其他水晶 = 组合佩戴',
     pairings: [
       { combo: '红玛瑙 + 白水晶', effect: '热情有方向，行动不盲目' },
       { combo: '红玛瑙 + 黑曜石', effect: '勇敢前行同时守住边界' },
@@ -117,7 +117,7 @@ My fire warms others without burning out.`,
     promiseNote: '每颗红玛瑙保留天然色差与玛瑙纹——色泽深浅不一是大地的签名',
     testimonials: [
       { author: '陈**', body: '汇报前戴着心里踏实很多，红色不艳俗，是那种让人想站直了说话的颜色。' },
-      { author: '张**', body: '补火用的。以前总拖延，现在抬手看见它就想起：先做第一步。' },
+      { author: '张**', body: '火行主题用的。以前总拖延，现在抬手看见它就想起：先做第一步。' },
       { author: '李**', body: '质感温润，比想象中轻。日常通勤戴，同事问了好几次链接。' },
     ],
   },
@@ -128,7 +128,7 @@ My fire warms others without burning out.`,
     element: '土',
     elementTrait: '土主稳定、主承载、主守成。适合需要「脚踏实地」「守住成果」「在变动中保持内心安稳」的阶段。',
     storyTitle: '黄水晶的灵性图谱',
-    storyBody: `黄水晶在商业世界中被称为「商人之石」，但古老的智慧更强调它的「土行」本质：不是投机，而是耕耘后的收获。
+    storyBody: `黄水晶在商业世界中被称为「土行象征」，但古老的智慧更强调它的「土行」本质：不是投机，而是耕耘后的收获。
 
 苏格兰与巴西的黄水晶矿脉，晶体常呈温暖的蜜金色，像被阳光浸透的琥珀。天然黄水晶（非加热紫水晶）尤为珍贵，其色泽来自微量铁与辐射成因。
 
@@ -145,16 +145,16 @@ My roots go deep; my fruits come in time.`,
 🏠 感到漂泊不安时 → 观想脚下有根
 🧘 午后倦怠 → 温和的蜜金色提振心神
 🌙 睡前 → 放下对「不够」的焦虑`,
-    pairingIntro: '黄水晶（稳固）+ 其他水晶 = 定向放大',
+    pairingIntro: '黄水晶（稳固）+ 其他水晶 = 组合佩戴',
     pairings: [
       { combo: '黄水晶 + 白水晶', effect: '务实判断，不被欲望牵着走' },
       { combo: '黄水晶 + 绿幽灵', effect: '既有愿景也有落地的耐心' },
-      { combo: '黄水晶 + 黑曜石', effect: '守成时守住能量边界' },
+      { combo: '黄水晶 + 黑曜石', effect: '守成时守住个人边界' },
     ],
     promiseNote: '每颗黄水晶保留天然色带与冰裂——天然蜜金而非人工染色',
     testimonials: [
       { author: '赵**', body: '土行水晶里最喜欢这款，颜色像蜂蜜。戴着它做财务规划，心没那么浮躁。' },
-      { author: '吴**', body: '八字说土弱，顾问推荐。名字「厚土之根」很戳——提醒自己别飘，先把脚下踩实。' },
+      { author: '吴**', body: '五行土主题。名字「厚土之根」很戳——提醒自己别飘，先把脚下踩实。' },
       { author: '郑**', body: '光泽温润，阳光下特别好看。弹力绳结实，戴了一个月没有松。' },
     ],
   },
@@ -167,13 +167,13 @@ My roots go deep; my fruits come in time.`,
     storyTitle: '白水晶的灵性图谱',
     storyBody: `几乎每一种古老传统中，透明水晶都占据着特殊的位置。
 
-在喜马拉雅修行传统中，白水晶被视为「冻结的光」，认为它捕捉了第一缕阳光的纯粹能量。西藏僧侣用它来触碰脉轮、标记冥想空间的神圣边界。
+在喜马拉雅修行传统中，白水晶被视为「冻结的光」，认为它捕捉了第一缕阳光的纯粹意象。西藏僧侣用它来标记冥想空间的文化边界。
 
 古希腊人相信白水晶是「来自冰神的神赐礼物」，Plato 在《蒂迈欧篇》中将其描述为一种「穿透物质世界、直达理念世界的透明介质」。
 
 北美原住民的萨满用白水晶来做「看见」——他们相信晶体能放大内在视觉，让人看到隐藏在表象之下的事物真相。
 
-现代能量疗愈师称其为万能放大器（amplifier），因为它不带有特定色彩偏频，而是均匀地放大你放入其中的任何意图。
+现代水晶文化称其为百搭基础款，因为它不带有特定色彩偏频，而是与多种搭配组合佩戴。
 
 这不是装饰品。这是一扇窗。`,
     manifestEn: `I think clearly. I see through illusions.
@@ -186,7 +186,7 @@ My mind is a still lake, reflecting truth.`,
 🧘 冥想 / 静心 → 加深进入安静的速度
 💼 重要会议 / 谈判 → 保持清醒不被情绪带走
 🌙 睡前 → 清理一天积累的思维碎片`,
-    pairingIntro: '白水晶（放大器）+ 任何其他水晶 = 效果 ×2',
+    pairingIntro: '白水晶（澄明）+ 任何其他水晶 = 组合佩戴',
     pairings: [
       { combo: '白水晶 + 黑曜石', effect: '保护力强 + 保持清醒头脑' },
       { combo: '白水晶 + 粉水晶', effect: '清晰地感知爱（而不是盲目陷入）' },
@@ -195,7 +195,7 @@ My mind is a still lake, reflecting truth.`,
     promiseNote: '每颗白水晶均经手工筛选，保持天然冰裂纹理与内含物——那是地球的指纹',
     testimonials: [
       { author: '林**', body: '戴上之后开会脑子清楚多了，不像以前那么容易被人带节奏。珠子很通透，像把杂念滤掉了一层。' },
-      { author: '周**', body: '八字说缺金，顾问推荐这款。名字「澄明之境」很戳我——每次抬手看见它，就会提醒自己：想清楚再说话。' },
+      { author: '周**', body: '五行金主题，顾问推荐这款。名字「澄明之境」很戳我——每次抬手看见它，就会提醒自己：想清楚再说话。' },
       { author: '陈**', body: '肯定语卡片我截图设成壁纸了。备考那段时间每天戴着，心没那么慌，专注力确实稳了一些。' },
     ],
   },
@@ -204,13 +204,13 @@ My mind is a still lake, reflecting truth.`,
     stoneEn: 'Obsidian',
     stoneZh: '黑曜石',
     element: '水',
-    elementTrait: '水主流动、主防护、主净化。适合需要「建立边界」「吸收负能量」「在敏感环境中保持内在稳定」的阶段。',
+    elementTrait: '水主流动、主防护、主边界。适合需要「建立边界」「在敏感环境中保持内在稳定」的阶段。',
     storyTitle: '黑曜石的灵性图谱',
     storyBody: `黑曜石是火山熔岩急速冷却形成的天然玻璃，古人将它视作「大地之泪」凝固后的形态——深邃、锋利、却充满保护力。
 
 阿兹特克与玛雅文明用黑曜石制作镜子与仪式工具，相信它能映照真相，包括那些我们不愿面对的阴影。现代心理学称之为「阴影工作」的入门石。
 
-在五行中，水行对应冬、北方、肾与直觉。黑曜石不是让人变得冷漠，而是教人分辨：哪些能量属于自己，哪些需要归还。
+在五行中，水行对应冬、北方、肾与直觉。黑曜石不是让人变得冷漠，而是教人分辨：哪些感受属于自己，哪些需要归还。
 
 这不是攻击性的武器。这是一面沉默的盾。`,
     manifestEn: `I am protected. I release what is not mine.
@@ -218,12 +218,12 @@ My depth holds wisdom; my boundaries hold peace.`,
     manifestZh: `我受到保护。我放下不属于我的。
 我的深处有智慧；我的边界带来安宁。`,
     guideTitle: '何时佩戴黑曜石',
-    guideBody: `🛡️ 进入嘈杂 / 负能量环境前 → 建立心理边界
-🌙 感到情绪沉重时 → 观想黑色吸纳杂质后净化
+    guideBody: `🛡️ 进入嘈杂环境前 → 建立心理边界
+🌙 感到情绪沉重时 → 观想黑色吸纳杂念后放松
 ✈️ 差旅 / 陌生场合 → 保持内在稳定
 🧘 深度冥想 → 面对内在阴影，不逃避
 ☀️ 避免长时间暴晒 → 天然玻璃需温和对待`,
-    pairingIntro: '黑曜石（防护）+ 其他水晶 = 定向放大',
+    pairingIntro: '黑曜石（防护）+ 其他水晶 = 组合佩戴',
     pairings: [
       { combo: '黑曜石 + 白水晶', effect: '防护同时保持头脑清醒' },
       { combo: '黑曜石 + 红玛瑙', effect: '勇敢表达但不失边界' },
@@ -239,18 +239,18 @@ My depth holds wisdom; my boundaries hold peace.`,
 };
 
 const CRYSTAL_NAMES: Record<string, string> = {
-  'crystal-wood': '生长之境 · 绿幽灵能量手串',
-  'crystal-fire': '焰心觉醒 · 红玛瑙能量手串',
-  'crystal-earth': '厚土之根 · 黄水晶能量手串',
-  'crystal-metal': '澄明之境 · 白水晶能量手串',
-  'crystal-water': '深海静盾 · 黑曜石能量手串',
+  'crystal-wood': '生长之境 · 绿幽灵五行水晶手串',
+  'crystal-fire': '焰心觉醒 · 红玛瑙五行水晶手串',
+  'crystal-earth': '厚土之根 · 黄水晶五行水晶手串',
+  'crystal-metal': '澄明之境 · 白水晶五行水晶手串',
+  'crystal-water': '深海静盾 · 黑曜石五行水晶手串',
 };
 
 function crystalEnergyBlock(cfg: CrystalConfig): string {
   return `✦ ${cfg.stoneEn} — ${cfg.stoneZh}
 
-${cfg.stoneZh}的能量特质：
-• 与五行${cfg.element}行共振，调和对应能量场
+${cfg.stoneZh}的文化意象：
+• 与五行${cfg.element}行主题相应，作为日常佩戴的文化符号
 • 天然石料，每颗珠子独一无二
 • 适合日常佩戴，作为意图提醒的物理锚点
 
@@ -273,7 +273,7 @@ ${cfg.storyBody}`;
 
 function crystalPairingBlock(cfg: CrystalConfig): string {
   const lines = cfg.pairings.map((p) => `• ${p.combo} → ${p.effect}`).join('\n');
-  return `── 能量搭配推荐 ──
+  return `── 搭配建议 ──
 
 ${cfg.pairingIntro}
 
@@ -284,16 +284,16 @@ function crystalPromiseItems(cfg: CrystalConfig) {
   return [
     { label: '天然石料', value: cfg.promiseNote },
     { label: '手工穿制', value: '由经验丰富的工匠逐颗穿制，弹力绳选用日本进口水晶线，耐用且亲肤' },
-    { label: '能量预处理', value: '每条手串出货前经过简单净化仪式（月光照射 + 鼠尾草烟熏）' },
-    { label: '附赠', value: '绒布收纳袋 × 1 + 能量使用指南卡片 × 1' },
+    { label: '开箱检查', value: '每条手串出货前经软布擦拭与外观检查' },
+    { label: '附赠', value: '绒布收纳袋 × 1 + 佩戴指南卡片 × 1' },
   ];
 }
 
 function crystalFaq() {
   return [
     { question: '如何选手围？', answer: '结账时选择手围尺码；若介于两档之间，建议选大一号，佩戴更舒适。' },
-    { question: '水晶需要消磁吗？', answer: '收到后可用清水轻冲、阴干即可。若感觉能量沉闷，可放在月光下静置一晚。' },
-    { question: '可以和其他水晶一起戴吗？', answer: '可以。可参考能量搭配推荐；避免长时间暴晒，睡觉时可取下让手腕休息。' },
+    { question: '收到后如何保养？', answer: '收到后可用软布轻擦、阴干即可。若长期佩戴，可定期取下让手腕休息。' },
+    { question: '可以和其他水晶一起戴吗？', answer: '可以。可参考搭配建议；避免长时间暴晒，睡觉时可取下让手腕休息。' },
   ];
 }
 
@@ -316,8 +316,8 @@ function buildCrystalPage(sku: string, product: ProductRow, all: ProductRow[]): 
 
   return {
     subtitle: cfg.subtitle,
-    seoTitle: `${name} | OraSage Energy Shop`,
-    seoDescription: `天然${cfg.stoneZh}能量手串，五行${cfg.element}行。${product.desc || product.description || ''}付款后 3–5 个工作日发货。`,
+    seoTitle: `${name} | OraSage Crystal Shop`,
+    seoDescription: `天然${cfg.stoneZh}五行水晶手串，五行${cfg.element}行。${product.desc || product.description || ''}付款后 3–5 个工作日发货。`,
     ...video,
     sections: [
       { type: 'richText', body: crystalEnergyBlock(cfg) },
@@ -381,7 +381,7 @@ function parseReportSku(sku: string): ReportConfig | null {
       legacy: '完整命盘 · 数字交付',
       basic: '深度解读 · 数字交付',
       advanced: '解读 + 五行水晶推荐',
-      premium: '完整报告 + 能量礼盒',
+      premium: '完整报告 + 礼盒套装',
       'couple-basic': '双人合盘 · 数字交付',
       'couple-advanced': '合盘解读 + 双人水晶推荐',
       'couple-premium': '合盘礼盒 · 实体交付',
@@ -394,10 +394,10 @@ function parseReportSku(sku: string): ReportConfig | null {
       legacy: ['四柱命盘完整解析', '十神与格局要点', '大运流年趋势', 'PDF 可下载保存'],
       basic: ['AI 深度命盘解读', '十神格局与用神', '大运流年提示', '登录八字 App 随时查看'],
       advanced: ['包含基础版全部内容', '五行强弱可视化', '专属水晶 SKU 推荐', '可选实体手串发货'],
-      premium: ['包含进阶版全部内容', '定制能量礼盒', '实体水晶 + 精美包装', '附赠使用指南卡片'],
+      premium: ['包含进阶版全部内容', '定制礼盒套装', '实体水晶 + 精美包装', '附赠使用指南卡片'],
       'couple-basic': ['双人四柱合盘', '关系互动模式分析', '相处建议与注意点', '数字报告即时解锁'],
       'couple-advanced': ['包含合盘基础版', '双人五行互补分析', '各推荐一款水晶', '可选实体发货'],
-      'couple-premium': ['包含合盘进阶版', '双人能量礼盒', '实体水晶 + 仪式指南', '专属合盘纪念卡'],
+      'couple-premium': ['包含合盘进阶版', '双人礼盒套装', '实体水晶 + 仪式指南', '专属合盘纪念卡'],
       tarot: [],
       daily: [],
       bundle: [],
@@ -420,7 +420,7 @@ Knowledge turns fate into choice.`,
         en: `I read my map. I carry my remedy.
 Insight in mind, energy in hand.`,
         zh: `我读懂地图。我携带解药。
-洞察在心里，能量在手上。`,
+洞察在心里，仪式在手上。`,
       },
       premium: {
         en: `I honor my journey. I gift myself wholeness.
@@ -438,7 +438,7 @@ Two maps woven into one story.`,
         en: `We understand our dance. We wear our harmony.
 Insight shared, energy matched.`,
         zh: `我们懂得彼此的舞步。我们佩戴和谐。
-洞察共享，能量相配。`,
+洞察共享，节奏相配。`,
       },
       'couple-premium': {
         en: `We celebrate our bond. We carry it daily.
@@ -463,16 +463,16 @@ A ritual for two, a gift for the journey.`,
       highlights: highlights[tierKey],
       storyTitle: isCouple ? '合盘解读的意义' : '八字解读的意义',
       storyBody: isCouple
-        ? `合盘不是判断「配不配」，而是看见两个人能量如何互动：哪里天然共鸣，哪里需要刻意磨合，以及如何在差异中保持成长。
+        ? `合盘不是判断「配不配」，而是看见两个人节奏如何互动：哪里天然共鸣，哪里需要刻意磨合，以及如何在差异中保持成长。
 
 OraSage 合盘报告以双人四柱为基础，用结构化语言描述关系模式，避免简单的好/坏标签，给你们可讨论的框架。`
-        : `八字以出生时刻的天地能量为起点，描绘一个人独特的「能量指纹」。它不是预言，而是一面镜子——帮你看见倾向、时机与选择。
+        : `八字以出生时刻的天地节律为起点，描绘一个人独特的「结构指纹」。它不是预言，而是一面镜子——帮你看见倾向、时机与选择。
 
 OraSage 八字报告将传统术语转化为可理解的洞察，让你知道「我为什么是这样」，以及「我可以往哪里走」。`,
       manifestEn: manifests[tierKey].en,
       manifestZh: manifests[tierKey].zh,
       guideBody: isCouple
-        ? `💑 确定关系方向前 → 了解彼此能量互动模式
+        ? `💑 确定关系方向前 → 了解彼此相处模式
 🌙 争吵后冷静期 → 用报告框架讨论，而非情绪对抗
 📅 重要节点（订婚、同居）→ 看见潜在磨合点
 🎁 纪念日 → 作为「更懂彼此」的礼物`
@@ -481,8 +481,8 @@ OraSage 八字报告将传统术语转化为可理解的洞察，让你知道「
 🧘 自我探索期 → 每月重读，看见新层次
 🎁 生日 → 送自己一份「看见自己」的礼物`,
       upsellLines: isCouple
-        ? ['合盘基础版 → 进阶版：获得双人水晶推荐', '合盘进阶版 → 礼盒版：实体能量礼物']
-        : ['基础版 → 进阶版：获得五行水晶推荐', '进阶版 → 礼盒版：实体能量礼盒到家'],
+        ? ['合盘基础版 → 进阶版：获得双人水晶推荐', '合盘进阶版 → 礼盒版：实体礼盒']
+        : ['基础版 → 进阶版：获得五行水晶推荐', '进阶版 → 礼盒版：实体礼盒套装到家'],
       testimonials: [
         { author: '林**', body: `八字报告比我预期的详细，${isCoupleTier ? '合盘' : '格局'}部分读完豁然开朗，不是那种吓人的宿命论。` },
         { author: '周**', body: '付款后几分钟就解锁了，手机上看着很方便。结构清晰，适合反复翻看。' },
@@ -497,19 +497,19 @@ OraSage 八字报告将传统术语转化为可理解的洞察，让你知道「
       legacy: '十二宫详解 · 数字交付',
       basic: '深度解读 · 数字交付',
       advanced: '解读 + 五行水晶推荐',
-      premium: '完整报告 + 能量礼盒',
+      premium: '完整报告 + 礼盒套装',
     };
     const highlights: Record<string, string[]> = {
       legacy: ['十二宫完整解析', '主星辅星组合', '大限流年趋势', 'PDF 可下载'],
       basic: ['AI 紫微命盘解读', '十二宫要点', '大限流年提示', '登录紫微 App 查看'],
-      advanced: ['包含基础版全部', '五行能量推荐', '专属水晶 SKU', '可选实体发货'],
-      premium: ['包含进阶版全部', '定制能量礼盒', '实体水晶发货', '附赠指南卡片'],
+      advanced: ['包含基础版全部', '五行水晶推荐', '专属水晶 SKU', '可选实体发货'],
+      premium: ['包含进阶版全部', '定制礼盒套装', '实体水晶发货', '附赠指南卡片'],
     };
     const manifests: Record<string, { en: string; zh: string }> = {
       legacy: { en: `I see my stars. I navigate with grace.\nMy palace map lights the way.`, zh: `我看见自己的星曜。我优雅地导航。\n命盘之图照亮前路。` },
       basic: { en: `I know my nature. I choose my timing.\nThe stars suggest; I decide.`, zh: `我了解本性。我选择时机。\n星曜提示；我决定。` },
-      advanced: { en: `I read my chart. I carry my balance.\nInsight and energy, aligned.`, zh: `我读懂命盘。我携带平衡。\n洞察与能量，对齐。` },
-      premium: { en: `I honor my destiny. I gift myself ritual.\nMind mapped, energy held.`, zh: `我尊重命运。我赠自己仪式。\n心智有图，能量在握。` },
+      advanced: { en: `I read my chart. I carry my balance.\nInsight and ritual, aligned.`, zh: `我读懂命盘。我携带平衡。\n洞察与仪式，对齐。` },
+      premium: { en: `I honor my destiny. I gift myself ritual.\nMind mapped, intention held.`, zh: `我尊重命运。我赠自己仪式。\n心智有图，意图在握。` },
     };
     return {
       app: '紫微',
@@ -528,7 +528,7 @@ OraSage 紫微报告不追求「算得准不准」，而是帮你建立自我认
 💕 感情困惑时 → 阅读夫妻宫与福德宫
 📅 大限交替年 → 重读流年提示
 🎁 新年 → 送自己一份年度指引`,
-      upsellLines: ['基础版 → 进阶版：五行水晶推荐', '进阶版 → 礼盒版：实体能量礼盒'],
+      upsellLines: ['基础版 → 进阶版：五行水晶推荐', '进阶版 → 礼盒版：实体礼盒套装'],
       testimonials: [
         { author: '王**', body: '紫微报告十二宫写得很清楚，比免费简读深太多，值得入手。' },
         { author: '张**', body: '大限部分读完对今年方向有底了，不是空话，有具体建议。' },
@@ -548,7 +548,7 @@ OraSage 紫微报告不追求「算得准不准」，而是帮你建立自我认
 🌙 睡前反思 → 用牌面作为日记起点
 📅 每周回顾 → 对比多次解读看见模式
 🎁 送给朋友 → 一份「看见当下」的礼物`,
-        upsellLines: ['单报告 → 礼包版：报告 + 实体能量法器'],
+        upsellLines: ['单报告 → 礼包版：报告 + 实体文化饰品'],
       },
       daily: {
         tierLabel: '每日运势加抽',
@@ -560,12 +560,12 @@ OraSage 紫微报告不追求「算得准不准」，而是帮你建立自我认
         upsellLines: ['每日加抽 → 三牌阵深度报告：看见更大图景'],
       },
       bundle: {
-        tierLabel: '深度解读 + 能量法器',
-        highlights: ['三牌阵完整报告', '专属能量法器实体', '报告与实体联动指南', '礼盒包装发货'],
+        tierLabel: '深度解读 + 文化饰品',
+        highlights: ['三牌阵完整报告', '专属文化饰品实体', '报告与实体联动指南', '礼盒包装发货'],
         guideBody: `🎁 重要节点 → 报告+法器作为仪式套装
 🧘 冥想前 → 手持法器，重读报告行动建议
 📦 收到后 → 按指南卡片完成首次净化
-💌 送礼 → 一份完整的能量体验`,
+💌 送礼 → 一份完整的文化体验`,
         upsellLines: ['已购单报告 → 联系客服补差价升级礼包'],
       },
     };
@@ -699,7 +699,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
   const configs: Record<string, { subtitle: string; body: string; specs: Array<{ label: string; value: string }>; guide: string; manifestEn: string; manifestZh: string; testimonials: Array<{ author: string; body: string }> }> = {
     'service-consult': {
       subtitle: 'Energy Consultation · 30 Minutes',
-      body: `✦ 一对一能量咨询 — 30 分钟
+      body: `✦ 一对一咨询 — 30 分钟
 
 由 OraSage 命理顾问在线答疑，帮助你：
 • 理清当下困惑的核心问题
@@ -838,7 +838,7 @@ function buildServicePage(sku: string, product: ProductRow, all: ProductRow[]): 
 
   return {
     subtitle: cfg.subtitle,
-    seoTitle: `${product.name} | OraSage 能量服务`,
+    seoTitle: `${product.name} | OraSage 咨询服务`,
     seoDescription: `${product.name}。${product.desc || product.description || ''}`,
     sections: [
       { type: 'richText', body: cfg.body },
