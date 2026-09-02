@@ -117,3 +117,12 @@ CREATE TABLE IF NOT EXISTS "saved_profiles" (
 CREATE INDEX IF NOT EXISTS "user_readings_user_id_idx" ON "user_readings" ("user_id");
 CREATE INDEX IF NOT EXISTS "user_orders_user_id_idx" ON "user_orders" ("user_id");
 CREATE INDEX IF NOT EXISTS "saved_profiles_user_id_idx" ON "saved_profiles" ("user_id");
+
+-- When applied via postgres superuser, ensure app role can read/write.
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'orasage') THEN
+    GRANT ALL PRIVILEGES ON TABLE users, user_readings, user_orders, user_recommendations, saved_profiles TO orasage;
+    GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO orasage;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO orasage;
+  END IF;
+END $$;
