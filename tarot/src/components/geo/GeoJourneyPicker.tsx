@@ -799,6 +799,7 @@ export function GeoJourneyPicker({
                   subtitle=""
                   confirmLabel={resolvedFaithConfirm}
                   customFirst
+                  persistOnSelect={false}
                 />
               )}
             </div>

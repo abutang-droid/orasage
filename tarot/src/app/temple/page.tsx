@@ -11,6 +11,7 @@ import { useTempleCopy } from "@/lib/i18n/ui-strings"
 import { formatFaithLabel } from "@/lib/faiths/religions"
 import { FAITH_STORAGE_KEY, isSkippedFaith, SKIP_FAITH_ID } from "@/lib/faiths/religions"
 import type { GeoJourneySelection } from "@/lib/geo/types"
+import { loadStoredGeo } from "@/lib/geo/types"
 import type { Sanctuary } from "@/lib/cms/sanctuaries"
 import { facingForFaithCode } from "@/lib/temple/facing"
 import { loadLastBlessing, storeLastBlessing, type LastBlessing } from "@/lib/temple/last-blessing"
@@ -22,8 +23,9 @@ type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
 function resolveStoredTemplePhase(): TemplePhase | null {
   if (typeof window === "undefined") return null
   const storedFaith = loadStoredFaith()
+  const geo = loadStoredGeo()
   if (isSkippedFaith(storedFaith)) return "home"
-  if (storedFaith) {
+  if (storedFaith && geo) {
     return localStorage.getItem("manto:deity") ? "home" : "pick"
   }
   return null
@@ -55,6 +57,8 @@ function TemplePageContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [worshipSaving, setWorshipSaving] = useState(false)
   const journeyProgressRef = useRef(false)
+  const phaseRef = useRef<TemplePhase>("journey")
+  phaseRef.current = phase
 
   useEffect(() => {
     setLatestBlessing(loadLastBlessing())
@@ -86,10 +90,12 @@ function TemplePageContent() {
     }
     if (storedFaith) {
       setSelectedFaith(storedFaith)
-      setSelectedCountry(user?.countryCode ?? null)
-      setSelectedContinent(user?.continentCode ?? null)
+      setSelectedCountry(user?.countryCode ?? loadStoredGeo()?.countryCode ?? null)
+      setSelectedContinent(user?.continentCode ?? loadStoredGeo()?.continentCode ?? null)
       const saved = localStorage.getItem("manto:deity")
-      if (!saved) setPhase("pick")
+      if (!saved && phaseRef.current !== "journey" && phaseRef.current !== "worship" && phaseRef.current !== "blessing") {
+        setPhase("pick")
+      }
       return
     }
     if (!journeyProgressRef.current) {
