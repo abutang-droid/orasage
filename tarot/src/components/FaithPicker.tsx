@@ -28,6 +28,8 @@ type FaithPickerProps = {
   confirmLabel?: string;
   /** 将「自定义」放在首屏网格第一位 */
   customFirst?: boolean;
+  /** 选中卡片时即写入 localStorage；祈愿池地理流程中应关闭，避免父页过早跳转 */
+  persistOnSelect?: boolean;
 };
 
 type FaithApiResponse = {
@@ -82,6 +84,7 @@ export function FaithPicker({
   subtitle,
   confirmLabel,
   customFirst = true,
+  persistOnSelect = true,
 }: FaithPickerProps) {
   const faithCopy = useFaithCopy();
   const resolvedTitle = title ?? faithCopy.title;
@@ -153,7 +156,7 @@ export function FaithPicker({
   function selectFaith(id: string) {
     setPending(id);
     setShowMore(false);
-    if (!isCustomFaithId(id)) {
+    if (persistOnSelect && !isCustomFaithId(id)) {
       try {
         localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id }));
       } catch {
@@ -170,6 +173,13 @@ export function FaithPicker({
 
   function confirmSelection() {
     if (!pending || isCustomFaithId(pending)) return;
+    if (!persistOnSelect) {
+      try {
+        localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id: pending }));
+      } catch {
+        /* ignore */
+      }
+    }
     onChange(pending);
   }
 
