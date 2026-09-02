@@ -1,5 +1,5 @@
 "use client"
-import { useState, useCallback, useEffect, useMemo, Suspense } from "react"
+import { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@orasage/ui/button"
 import { GeoJourneyPicker } from "@/components/geo/GeoJourneyPicker"
@@ -18,6 +18,16 @@ import { useUser } from "@/lib/user"
 import "@/components/temple/temple.css"
 
 type TemplePhase = "journey" | "home" | "pick" | "worship" | "blessing"
+
+function resolveStoredTemplePhase(): TemplePhase | null {
+  if (typeof window === "undefined") return null
+  const storedFaith = loadStoredFaith()
+  if (isSkippedFaith(storedFaith)) return "home"
+  if (storedFaith) {
+    return localStorage.getItem("manto:deity") ? "home" : "pick"
+  }
+  return null
+}
 
 function TemplePageContent() {
   const temple = useTempleCopy()
@@ -44,13 +54,20 @@ function TemplePageContent() {
   } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [worshipSaving, setWorshipSaving] = useState(false)
+  const journeyProgressRef = useRef(false)
 
   useEffect(() => {
     setLatestBlessing(loadLastBlessing())
   }, [])
 
+  useLayoutEffect(() => {
+    const storedPhase = resolveStoredTemplePhase()
+    if (storedPhase) setPhase(storedPhase)
+  }, [])
+
   useEffect(() => {
     if (changeAction === "faith") {
+      journeyProgressRef.current = false
       setPhase("journey")
       return
     }
@@ -73,10 +90,12 @@ function TemplePageContent() {
       setSelectedContinent(user?.continentCode ?? null)
       const saved = localStorage.getItem("manto:deity")
       if (!saved) setPhase("pick")
-    } else if (!user?.onboardingCompleted) {
+      return
+    }
+    if (!journeyProgressRef.current) {
       setPhase("journey")
     }
-  }, [changeAction, user?.faith, user?.countryCode, user?.continentCode, user?.onboardingCompleted])
+  }, [changeAction, user?.faith, user?.countryCode, user?.continentCode])
 
   useEffect(() => {
     if (!selectedFaith || isSkippedFaith(selectedFaith)) return
@@ -116,9 +135,15 @@ function TemplePageContent() {
   }, [selectedFaith, changeAction])
 
   const handleJourneyComplete = useCallback(async (result: GeoJourneySelection) => {
+    journeyProgressRef.current = true
     setSelectedFaith(result.faith)
     setSelectedCountry(result.countryCode)
     setSelectedContinent(result.continentCode)
+    try {
+      localStorage.setItem(FAITH_STORAGE_KEY, JSON.stringify({ id: result.faith }))
+    } catch {
+      /* ignore */
+    }
     await setGeo(result.continentCode, result.countryCode)
     await setFaith(result.faith)
     void fetch('/api/onboarding', {
@@ -154,6 +179,7 @@ function TemplePageContent() {
   }, [setFaith, setGeo, setDeity])
 
   const handleFaithSkip = useCallback(async (ctx: { continentCode: string; countryCode: string }) => {
+    journeyProgressRef.current = true
     setSelectedFaith(SKIP_FAITH_ID)
     setSelectedCountry(ctx.countryCode)
     setSelectedContinent(ctx.continentCode)
