@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/lib/user';
 
-const BYPASS_PREFIXES = ['/onboarding', '/login', '/api'];
+const BYPASS_PREFIXES = ['/onboarding', '/login', '/api', '/temple'];
 
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
