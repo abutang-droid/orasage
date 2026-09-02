@@ -8,7 +8,6 @@ import { useLang } from '@/lib/i18n/context';
 import { profileMeritUrlFromLang, profileSettingsUrlFromLang } from '@/lib/orasage-locale';
 import { useTempleCopy } from '@/lib/i18n/ui-strings';
 import { meritLevelTitle } from '@/lib/merit';
-import { TempleDonation } from '@/components/temple/TempleDonation';
 import { TempleStatusCard } from '@/components/temple/TempleStatusCard';
 import type { Sanctuary } from '@/lib/cms/sanctuaries';
 import { loadLastBlessing, type LastBlessing } from '@/lib/temple/last-blessing';
@@ -34,7 +33,6 @@ type LeaderboardEntry = {
 
 type TempleHomeProps = {
   deity?: Sanctuary;
-  donated?: boolean;
   onWorship: () => void;
   onSetupFaith?: () => void;
   latestBlessing?: LastBlessing | null;
@@ -42,7 +40,6 @@ type TempleHomeProps = {
 
 export function TempleHome({
   deity,
-  donated,
   onWorship,
   onSetupFaith,
   latestBlessing,
@@ -104,10 +101,6 @@ export function TempleHome({
 
   return (
     <div className="temple-home">
-      {donated && (
-        <div className="temple-donation-toast">{temple.donationSuccess}</div>
-      )}
-
       <TempleStatusCard />
 
       <section className="temple-home-shrine" aria-label={deity ? temple.myPatron : temple.skippedHomeTitle}>
@@ -204,10 +197,6 @@ export function TempleHome({
             ))}
           </ol>
         )}
-      </section>
-
-      <section className="temple-home-donation" aria-label={temple.donationAria}>
-        <TempleDonation deityName={deity?.name} />
       </section>
 
       <p className="temple-home-settings-hint">
