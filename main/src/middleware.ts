@@ -63,6 +63,29 @@ function redirectZhAlias(request: NextRequest): NextResponse | null {
   return null;
 }
 
+function applyHtmlCacheHeaders(request: NextRequest, response: NextResponse) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return;
+
+  const { pathname } = request.nextUrl;
+  const isPrivate =
+    pathname === '/' ||
+    pathname.includes('/profile') ||
+    pathname.startsWith('/api') ||
+    pathname.includes('/login');
+
+  if (isPrivate) {
+    response.headers.set('Cache-Control', 'private, no-store');
+    return;
+  }
+
+  // Locale is in the path (`/zh-CN`, `/en`, `/pt-BR`), so HTML is shareable.
+  response.headers.set(
+    'Cache-Control',
+    'public, s-maxage=3600, stale-while-revalidate=86400',
+  );
+  response.headers.set('CDN-Cache-Control', 'public, s-maxage=3600');
+}
+
 export default function middleware(request: NextRequest) {
   const deprecatedRedirect = redirectDeprecatedLocale(request);
   if (deprecatedRedirect) return deprecatedRedirect;
@@ -75,6 +98,7 @@ export default function middleware(request: NextRequest) {
 
   const response = intlMiddleware(request);
   response.headers.set(ORASAGE_PATHNAME_HEADER, stripLocalePrefix(request.nextUrl.pathname));
+  applyHtmlCacheHeaders(request, response);
   return response;
 }
 
