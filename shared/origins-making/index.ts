@@ -44,8 +44,8 @@ export const MAKING_META: Record<
   'crystal-wood': {
     elementEn: 'Wood',
     elementZh: '木',
-    nameEn: 'Realm of Growth · Green Phantom',
-    nameZh: '生长之境 · 绿幽灵',
+    nameEn: 'Realm of Growth · Green Phantom Quartz Bracelet',
+    nameZh: '生长之境 · 绿幽灵手串',
     intentionEn: 'Growth',
     intentionZh: '生长',
     specs: {
@@ -61,8 +61,8 @@ export const MAKING_META: Record<
   'crystal-fire': {
     elementEn: 'Fire',
     elementZh: '火',
-    nameEn: 'Awakening Flame · Red Agate',
-    nameZh: '焰心觉醒 · 红玛瑙',
+    nameEn: 'Awakening of the Inner Flame · Red Agate Bracelet',
+    nameZh: '焰心觉醒 · 红玛瑙手串',
     intentionEn: 'Courage',
     intentionZh: '勇气',
     specs: {
@@ -78,8 +78,8 @@ export const MAKING_META: Record<
   'crystal-earth': {
     elementEn: 'Earth',
     elementZh: '土',
-    nameEn: 'Root of Earth · Citrine',
-    nameZh: '厚土之根 · 黄水晶',
+    nameEn: 'Roots of the Fertile Earth · Citrine Bracelet',
+    nameZh: '厚土之根 · 黄水晶手串',
     intentionEn: 'Grounding',
     intentionZh: '稳固',
     specs: {
@@ -95,8 +95,8 @@ export const MAKING_META: Record<
   'crystal-metal': {
     elementEn: 'Metal',
     elementZh: '金',
-    nameEn: 'Clear Realm · Clear Quartz',
-    nameZh: '澄明之境 · 白水晶',
+    nameEn: 'Realm of Clarity – Clear Quartz Bracelet',
+    nameZh: '澄明之境 · 白水晶手串',
     intentionEn: 'Clarity',
     intentionZh: '澄明',
     specs: {
@@ -112,8 +112,8 @@ export const MAKING_META: Record<
   'crystal-water': {
     elementEn: 'Water',
     elementZh: '水',
-    nameEn: 'Deep Sea Shield · Obsidian',
-    nameZh: '深海静盾 · 黑曜石',
+    nameEn: 'Deep-Sea Silent Shield · Obsidian Bracelet',
+    nameZh: '深海静盾 · 黑曜石手串',
     intentionEn: 'Boundaries',
     intentionZh: '边界',
     specs: {

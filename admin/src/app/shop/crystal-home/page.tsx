@@ -5,11 +5,11 @@ import { AdminSubmitButton } from '@/components/AdminButton';
 import { redirect } from 'next/navigation';
 
 const CRYSTAL_ROWS: Array<{ sku: string; element: string; name: string }> = [
-  { sku: 'crystal-wood', element: '木', name: '绿幽灵能量手串' },
-  { sku: 'crystal-fire', element: '火', name: '红玛瑙能量手串' },
-  { sku: 'crystal-earth', element: '土', name: '黄水晶能量手串' },
-  { sku: 'crystal-metal', element: '金', name: '白水晶能量手串' },
-  { sku: 'crystal-water', element: '水', name: '黑曜石能量手串' },
+  { sku: 'crystal-wood', element: '木', name: '绿幽灵手串' },
+  { sku: 'crystal-fire', element: '火', name: '红玛瑙手串' },
+  { sku: 'crystal-earth', element: '土', name: '黄水晶手串' },
+  { sku: 'crystal-metal', element: '金', name: '白水晶手串' },
+  { sku: 'crystal-water', element: '水', name: '黑曜石手串' },
 ];
 
 export default async function CrystalHomePage({

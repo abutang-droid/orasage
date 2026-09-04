@@ -1,5 +1,5 @@
 /**
- * SATYA 五层结构优化：crystal-metal（澄明之境 · 白水晶能量手串）
+ * SATYA 五层结构优化：crystal-metal（澄明之境 · 白水晶手串）
  * Usage (from cms/):
  *   DATABASE_URL=... PAYLOAD_SECRET=... npx tsx scripts/seed-crystal-metal-satya.ts
  */
@@ -10,9 +10,9 @@ const SKU = 'crystal-metal';
 
 const SATYA_PAGE = {
   subtitle: 'Clarity Unveiled Clear Quartz Bracelet',
-  seoTitle: '澄明之境 · 白水晶能量手串 | OraSage Energy Shop',
+  seoTitle: '澄明之境 · 白水晶手串 | OraSage Crystal Shop',
   seoDescription:
-    '天然白水晶能量手串，被称为 Master Healer。净化能量场、放大正向意图，适合需要清晰决策与五行补金的你。',
+    '天然白水晶手串。五行属金，作为静定的日常提醒。文化意象，非疗效承诺。',
   galleryVideoUrl: 'https://shop.orasage.com/videos/crystal-metal-scene.mp4',
   sceneVideoUrl: 'https://shop.orasage.com/videos/crystal-metal-scene.mp4',
   sections: [
@@ -172,7 +172,7 @@ async function main() {
     image: imageId,
     alt:
       index === 0
-        ? '澄明之境 · 白水晶能量手串主图'
+        ? '澄明之境 · 白水晶手串主图'
         : `澄明之境白水晶手串细节 ${index + 1}`,
     sort: index * 10,
   }));

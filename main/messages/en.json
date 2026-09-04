@@ -42,29 +42,29 @@
     "cta": "More products",
     "products": {
       "wood": {
-        "name": "Green Phantom",
+        "name": "Realm of Growth · Green Phantom Quartz Bracelet",
         "element": "Wood",
-        "desc": "Growth intention"
+        "desc": "Wood Element · Symbol of Becoming · Growth Reminder"
       },
       "fire": {
-        "name": "Red Agate",
+        "name": "Awakening of the Inner Flame · Red Agate Bracelet",
         "element": "Fire",
-        "desc": "Fire balance"
+        "desc": "Fire Element · Symbol of Warmth · Action Reminder"
       },
       "earth": {
-        "name": "Citrine",
+        "name": "Roots of the Fertile Earth · Citrine Bracelet",
         "element": "Earth",
-        "desc": "Grounding"
+        "desc": "Earth Element · Symbol of Bearing · Steadfast Reminder"
       },
       "metal": {
-        "name": "Clear Quartz",
+        "name": "Realm of Clarity – Clear Quartz Bracelet",
         "element": "Metal",
-        "desc": "Clarity"
+        "desc": "Metal Element · Symbol of Refinement · Stillness Reminder"
       },
       "water": {
-        "name": "Obsidian",
+        "name": "Deep-Sea Silent Shield · Obsidian Bracelet",
         "element": "Water",
-        "desc": "Calm boundaries"
+        "desc": "Water Element · Symbol of Flow · Boundary Reminder"
       }
     },
     "categories": {
