@@ -12,6 +12,7 @@ import { OraSageAppShell } from "./components/OraSageAppShell";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
+import XuanYinScenePage from "./pages/XuanYinScene";
 import { DICTIONARIES } from "./lib/i18n";
 
 const PORTAL_LOCALES = new Set([
@@ -37,6 +38,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/history"} component={HistoryPage} />
+      <Route path={"/scene"} component={XuanYinScenePage} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/:locale">{(params) =>
         PORTAL_LOCALES.has(params.locale) ? <LocaleRootRedirect /> : <NotFound />
@@ -48,12 +50,14 @@ function Router() {
 
 function AppBody() {
   const { locale } = useI18n();
+  const [pathname] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isScene = pathname === "/scene" || pathname.startsWith("/scene?");
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || isScene) return;
 
     const sendHeight = () => {
       const h = el.scrollHeight;
@@ -62,29 +66,28 @@ function AppBody() {
       }
     };
 
-    // 初始发送
     sendHeight();
-
-    // MutationObserver 监听 DOM 变化
     const observer = new MutationObserver(() => sendHeight());
     observer.observe(el, { childList: true, subtree: true, attributes: true });
-
-    // 定时兜底（AI 报告异步加载后、图片加载后等）
     const timer = setInterval(sendHeight, 2000);
 
     return () => {
       observer.disconnect();
       clearInterval(timer);
     };
-  }, []);
+  }, [isScene]);
 
   return (
     <CityProvider api={cityApi} locale={locale}>
       <OraSageToaster />
-      <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: "auto" }}>
-        <OraSageAppShell>
+      <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: isScene ? "100dvh" : "auto" }}>
+        {isScene ? (
           <Router />
-        </OraSageAppShell>
+        ) : (
+          <OraSageAppShell>
+            <Router />
+          </OraSageAppShell>
+        )}
       </div>
     </CityProvider>
   );
