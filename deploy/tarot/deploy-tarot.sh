@@ -31,8 +31,14 @@ sync_config_repo() {
   mkdir -p "$DEPLOY_DIR"
   if [ -d "$DEPLOY_DIR/.git" ]; then
     git -C "$DEPLOY_DIR" fetch --all --prune
-    git -C "$DEPLOY_DIR" checkout "${ORASAGE_REF:-main}" 2>/dev/null || git -C "$DEPLOY_DIR" checkout main
-    git -C "$DEPLOY_DIR" pull --ff-only || true
+    # Prefer exact remote ref so feature branches deploy correctly (local branch may be stale/missing).
+    REF="${ORASAGE_REF:-main}"
+    if git -C "$DEPLOY_DIR" rev-parse --verify "origin/$REF" >/dev/null 2>&1; then
+      git -C "$DEPLOY_DIR" checkout -B "$REF" "origin/$REF"
+    else
+      git -C "$DEPLOY_DIR" checkout "$REF" 2>/dev/null || git -C "$DEPLOY_DIR" checkout main
+      git -C "$DEPLOY_DIR" pull --ff-only || true
+    fi
   else
     git clone https://github.com/abutang-droid/orasage.git "$DEPLOY_DIR"
   fi

@@ -219,7 +219,8 @@ export function GeoJourneyPicker({
   useEffect(() => {
     if (!locationResolved) return;
     if (value?.continentCode && value?.countryCode) return;
-    if (countryCode || detectedSuggestion || continentCode) return;
+    // manualListMode: user rejected/skipped IP suggestion — do not re-apply it
+    if (countryCode || detectedSuggestion || continentCode || manualListMode) return;
 
     if (suggestion) {
       setDetectedSuggestion(suggestion);
@@ -234,6 +235,7 @@ export function GeoJourneyPicker({
     countryCode,
     detectedSuggestion,
     continentCode,
+    manualListMode,
     value?.continentCode,
     value?.countryCode,
     loadCountries,

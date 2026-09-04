@@ -50,9 +50,10 @@ export const FALLBACK_PRODUCTS: Product[] = [
   { sku: 'report-ziwei-premium', name: '紫微终极水晶礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },
   { sku: 'ziwei-chat-pack-10', name: '紫微问答加量包', desc: '额外 10 次 OraSage 对话机会', priceCents: 138, priceCentsUsd: 138, category: 'service' },
   { sku: 'ziwei-chat-yearly', name: '紫微问答年卡', desc: '365 天无限 OraSage 对话', priceCents: 1375, priceCentsUsd: 1375, category: 'service' },
-  { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 667, priceCentsUsd: 667, category: 'report' },
-  { sku: 'report-tarot-bundle', name: '塔罗深度解读+仪式器物', desc: '三牌阵完整报告 + 专属仪式器物（实体发货）', priceCents: 16800, priceCentsUsd: 16800, category: 'report' },
-  { sku: 'tarot-destiny-slice', name: '问题切片', desc: '面临抉择时抽牌得行动指引 · 一次付费永久解锁', priceCents: 403, priceCentsUsd: 403, category: 'report' },
+  { sku: 'report-tarot', name: '塔罗深度解读', desc: '牌阵详解 · 行动建议', priceCents: 99, priceCentsUsd: 99, category: 'report' },
+  { sku: 'report-tarot-bundle', name: '塔罗深度解读+仪式器物', desc: '三牌阵完整报告 + 专属仪式器物（实体发货）', priceCents: 99, priceCentsUsd: 99, category: 'report' },
+  { sku: 'tarot-destiny-slice', name: '问题切片', desc: '面临抉择时抽牌得行动指引 · 一次付费永久解锁', priceCents: 99, priceCentsUsd: 99, category: 'report' },
+  { sku: 'tarot-daily-draw', name: '塔罗每日运势加抽', desc: '当日免费运势次数用尽后，额外抽取一次 AI 四维运势解读', priceCents: 99, priceCentsUsd: 99, category: 'report' },
   { sku: 'temple-donation', name: '祈福乐捐', desc: '支持祈福体系维护与软硬件投入（$0.01–$1 自选）', priceCents: 1, priceCentsUsd: 1, category: 'service' },
 ];
 
