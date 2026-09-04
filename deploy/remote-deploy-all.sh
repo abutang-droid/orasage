@@ -8,7 +8,8 @@
 #
 # 环境变量:
 #   SSH_PRIVATE_KEY / VPS_SSH_KEY / SSH_KEY — SSH 私钥
-#   SSH_USER / SSH_HOST / SSH_PORT          — 默认 ubuntu@34.75.40.67:22
+#   SSH_USER / SSH_HOST / SSH_PORT          — 生产: root@ssh.orasage.com（CF Tunnel）
+#                                             默认仍是 ubuntu@34.75.40.67:22（GCP）
 #   ORASAGE_REF                             — git 分支（默认 main）
 #   FORTUNE_MODE                            — native | proxy（默认 native）
 #   SKIP_CMS                                — 1 跳过 cms
@@ -28,14 +29,10 @@ log() { echo "[deploy-all] $*"; }
 
 setup_ssh_key
 test_ssh_connection 3
-
-SSH_USER="${SSH_USER:-ubuntu}"
-SSH_HOST="${SSH_HOST:-34.75.40.67}"
-SSH_PORT="${SSH_PORT:-22}"
 configure_ssh_transport
 
-SSH="ssh $SSH_OPTS -p $SSH_PORT ${SSH_USER}@${SSH_HOST}"
-SCP="scp $SSH_OPTS -P $SSH_PORT"
+SSH="ssh $SSH_OPTS ${SSH_USER}@${SSH_HOST}"
+SCP="scp $SSH_OPTS"
 
 log "上传 bootstrap 脚本..."
 $SCP "$SCRIPT_DIR/bootstrap-all-on-vps.sh" "${SSH_USER}@${SSH_HOST}:/tmp/bootstrap-all-on-vps.sh"

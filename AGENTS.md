@@ -18,6 +18,20 @@ Repository-managed environment config lives in `.cursor/environment.json`.
 - Local JWT/DB values in those `.env` files are well-known Cloud Agent dummies, not production secrets. They must match across apps (`JWT_SECRET`).
 - Auth cookie domain still defaults to `.orasage.com`. Hitting `127.0.0.1` over HTTP will not keep `orasage_token`; use the JSON `token` as `Authorization: Bearer`.
 
+### Production SSH via Cloudflare Tunnel
+
+Home production uses **Cloudflare Tunnel**; do **not** SSH to `orasage.com:22` or default to GCP `34.75.40.67` for deploys. See [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md) § 生产环境与 SSH.
+
+**Cloud Agent Secrets** (new session required after save):
+
+| Name | Type | Value |
+|------|------|-------|
+| `SSH_PRIVATE_KEY` | Runtime Secret | full PEM private key |
+| `SSH_HOST` | Environment Variable | `ssh.orasage.com` |
+| `SSH_USER` | Environment Variable | `root` |
+
+`deploy/lib/ssh-setup.sh` uses `cloudflared access ssh` when `SSH_HOST` matches `ssh.*`. Verify: `source deploy/lib/ssh-setup.sh && setup_ssh_key && test_ssh_connection`.
+
 ### What is runnable in this repo
 
 All 8 apps now have source in this repo: `main/` (Next.js 15 portal),
