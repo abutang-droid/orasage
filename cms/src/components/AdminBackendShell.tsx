@@ -32,7 +32,7 @@ function NavSection({
   pathname: string;
 }) {
   return (
-    <div>
+    <div className="admin-backend-sidebar-section">
       <div className="admin-backend-sidebar-title">{title}</div>
       {items.map((item) => {
         const active = navItemActive(item, pathname);
@@ -76,17 +76,15 @@ export function AdminBackendShell({
   return (
     <div className="admin-backend-layout">
       {showSidebar ? (
-        <>
-          <aside className="admin-backend-sidebar" aria-label="后台导航">
-            <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} />
-            <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} />
-          </aside>
-          <MobileNav pathname={pathname} />
-        </>
+        <aside className="admin-backend-sidebar" aria-label="后台导航">
+          <NavSection title="运营" items={OPS_NAV_ITEMS} pathname={pathname} />
+          <NavSection title="商城" items={SHOP_NAV_ITEMS} pathname={pathname} />
+          <NavSection title="应用计费" items={BILLING_NAV_ITEMS} pathname={pathname} />
+          <NavSection title="内容" items={CMS_NAV_ITEMS} pathname={pathname} />
+        </aside>
       ) : null}
       <div className="admin-backend-main">
+        {showSidebar ? <MobileNav pathname={pathname} /> : null}
         <div
           className={
             wideContent ? 'admin-backend-content admin-backend-content--wide' : 'admin-backend-content'
