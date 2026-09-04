@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/SeoJsonLd';
 import type { InsightsArticle } from '@/lib/insights-articles';
 import { insightsArticlePath } from '@/lib/insights-articles';
 
@@ -21,9 +22,31 @@ export function InsightsArticleView({
 }: Props) {
   const isZh = locale.startsWith('zh');
   const t = (en: string, zh: string) => (isZh ? zh : en);
+  const title = isZh ? article.titleZh : article.titleEn;
+  const description = isZh ? article.descriptionZh : article.descriptionEn;
+  const articlePath = insightsArticlePath(article.pillar, article.slug);
 
   return (
     <PageShell className="max-w-3xl">
+      <ArticleJsonLd
+        locale={locale}
+        path={articlePath}
+        title={title}
+        description={description}
+        datePublished={article.publishedAt}
+        dateModified={article.publishedAt}
+        inLanguage={locale}
+      />
+      <BreadcrumbJsonLd
+        locale={locale}
+        items={[
+          { name: t('Home', '首页'), url: '' },
+          { name: t('Insights', '玄析'), url: '/insights' },
+          { name: isZh ? pillarTitleZh : pillarTitleEn, url: pillarPath },
+          { name: title, url: articlePath },
+        ]}
+      />
+
       <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-foreground">
           {t('Home', '首页')}

@@ -37,7 +37,7 @@ export const PLAN_OPTIONS: PlanOption[] = [
   {
     type: "advanced",
     name: "定制专属水晶手串",
-    nameEn: "Energy Bracelet",
+    nameEn: "Crystal Bracelet",
     price: "99",
     priceLabel: "$99",
     description: "根据五行定制专属手串",

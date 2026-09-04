@@ -239,11 +239,11 @@ My depth holds wisdom; my boundaries hold peace.`,
 };
 
 const CRYSTAL_NAMES: Record<string, string> = {
-  'crystal-wood': '生长之境 · 绿幽灵五行水晶手串',
-  'crystal-fire': '焰心觉醒 · 红玛瑙五行水晶手串',
-  'crystal-earth': '厚土之根 · 黄水晶五行水晶手串',
-  'crystal-metal': '澄明之境 · 白水晶五行水晶手串',
-  'crystal-water': '深海静盾 · 黑曜石五行水晶手串',
+  'crystal-wood': '生长之境 · 绿幽灵手串',
+  'crystal-fire': '焰心觉醒 · 红玛瑙手串',
+  'crystal-earth': '厚土之根 · 黄水晶手串',
+  'crystal-metal': '澄明之境 · 白水晶手串',
+  'crystal-water': '深海静盾 · 黑曜石手串',
 };
 
 function crystalEnergyBlock(cfg: CrystalConfig): string {

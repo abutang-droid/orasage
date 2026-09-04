@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { PortalChrome } from '@/components/PortalChrome';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
+import { PlausibleScript } from '@orasage/analytics/react';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ORASAGE_URLS, orasageOpenGraph, orasageTwitter } from '@/lib/orasage-seo';
 import { buildHreflangAlternates } from '@/lib/seo';
@@ -70,8 +71,14 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      <head>
+        <link rel="preconnect" href="https://cms.orasage.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cms.orasage.com" />
+        <link rel="preconnect" href="https://admin.orasage.com" crossOrigin="anonymous" />
+      </head>
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
         <NextIntlClientProvider messages={messages}>
+          <PlausibleScript />
           <AnalyticsPageView locale={locale} />
           <LiveChatWidget />
           <Header />

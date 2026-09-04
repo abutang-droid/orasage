@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/SeoJsonLd';
 import { buildPortalPageMeta } from '@/lib/seo';
 import {
   isMakingSku,
@@ -53,12 +54,36 @@ export default async function TheMakingSkuPage({ params }: Props) {
   const live = isMakingLiveSku(sku);
   const story = getMakingStory(sku as MakingSku);
   const published = live && story;
+  const title = isZh ? m.nameZh : m.nameEn;
+  const description = story
+    ? isZh
+      ? story.leadZh
+      : story.leadEn
+    : isZh
+      ? `${m.elementZh}行造物记 — 材料与工艺，非功效承诺。`
+      : `${m.elementEn} making story — materials and craft, not outcome claims.`;
   const notifyHref = `mailto:hello@orasage.com?subject=${encodeURIComponent(
     `Notify me: The Making / ${sku}`,
   )}`;
 
   return (
     <PageShell hideBack className="max-w-3xl">
+      <ArticleJsonLd
+        locale={locale}
+        path={`/origins/the-making/${sku}`}
+        title={title}
+        description={description}
+        inLanguage={locale}
+      />
+      <BreadcrumbJsonLd
+        locale={locale}
+        items={[
+          { name: t('Origins', '造物'), url: '/origins' },
+          { name: t('The Making', '造物记'), url: '/origins/the-making' },
+          { name: isZh ? m.elementZh : m.elementEn, url: `/origins/the-making/${sku}` },
+        ]}
+      />
+
       <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href="/origins" className="hover:text-foreground">
           {t('Origins', '造物')}

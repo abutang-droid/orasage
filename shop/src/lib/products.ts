@@ -1,4 +1,5 @@
 import { inferRequiresShipping, inferRequiresWristSize } from '../../../shared/shop-fulfillment/index';
+import { crystalName, crystalTagline } from '../../../shared/shop-crystal/naming';
 
 export type ProductCategory = 'crystal' | 'report' | 'service';
 
@@ -28,16 +29,16 @@ export interface Product {
 
 /** 静态兜底（auth-service 不可用时） */
 export const FALLBACK_PRODUCTS: Product[] = [
-  { sku: 'crystal-wood', name: '生长之境 · 绿幽灵水晶手串', element: '木', desc: '五行属木 · 生长与丰盛 · 生机拓展', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-fire', name: '焰心觉醒 · 红玛瑙水晶手串', element: '火', desc: '五行属火 · 活力与行动 · 勇敢前行', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-earth', name: '厚土之根 · 黄水晶水晶手串', element: '土', desc: '五行属土 · 稳固与持守 · 守成安定', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-metal', name: '澄明之境 · 白水晶水晶手串', element: '金', desc: '五行属金 · 澄澈与静定 · 思绪澄明', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-water', name: '深海静盾 · 黑曜石水晶手串', element: '水', desc: '五行属水 · 守护与边界 · 心理锚点', priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
-  { sku: 'crystal-wood-gift', name: '生长之境 · 绿幽灵水晶手串 · 礼盒装', element: '木', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属木 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-fire-gift', name: '焰心觉醒 · 红玛瑙水晶手串 · 礼盒装', element: '火', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属火 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-earth-gift', name: '厚土之根 · 黄水晶水晶手串 · 礼盒装', element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属土 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-metal-gift', name: '澄明之境 · 白水晶水晶手串 · 礼盒装', element: '金', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属金 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
-  { sku: 'crystal-water-gift', name: '深海静盾 · 黑曜石水晶手串 · 礼盒装', element: '水', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: '五行属水 · 赠礼专属包装', priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-wood', name: crystalName('crystal-wood')!, element: '木', desc: crystalTagline('crystal-wood')!, priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-fire', name: crystalName('crystal-fire')!, element: '火', desc: crystalTagline('crystal-fire')!, priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-earth', name: crystalName('crystal-earth')!, element: '土', desc: crystalTagline('crystal-earth')!, priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-metal', name: crystalName('crystal-metal')!, element: '金', desc: crystalTagline('crystal-metal')!, priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-water', name: crystalName('crystal-water')!, element: '水', desc: crystalTagline('crystal-water')!, priceCents: 16800, priceCentsUsd: 16800, category: 'crystal' },
+  { sku: 'crystal-wood-gift', name: crystalName('crystal-wood-gift')!, element: '木', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: crystalTagline('crystal-wood-gift')!, priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-fire-gift', name: crystalName('crystal-fire-gift')!, element: '火', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: crystalTagline('crystal-fire-gift')!, priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-earth-gift', name: crystalName('crystal-earth-gift')!, element: '土', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: crystalTagline('crystal-earth-gift')!, priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-metal-gift', name: crystalName('crystal-metal-gift')!, element: '金', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: crystalTagline('crystal-metal-gift')!, priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
+  { sku: 'crystal-water-gift', name: crystalName('crystal-water-gift')!, element: '水', packaging: '精美礼盒 · 祝福卡 · 绒布袋', desc: crystalTagline('crystal-water-gift')!, priceCents: 58800, priceCentsUsd: 58800, category: 'crystal' },
   { sku: 'report-bazi-basic', name: '八字深度解读', desc: '完整命盘 AI 解读报告（站内 HTML）', priceCents: 99, priceCentsUsd: 99, category: 'report' },
   { sku: 'report-bazi-advanced', name: '八字报告 + 水晶手串', desc: '深度解读 + 五行水晶推荐', priceCents: 1375, priceCentsUsd: 1375, category: 'report' },
   { sku: 'report-bazi-premium', name: '八字终极水晶礼盒', desc: '完整报告 + 水晶礼盒', priceCents: 4153, priceCentsUsd: 4153, category: 'report' },

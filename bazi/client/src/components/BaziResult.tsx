@@ -1259,6 +1259,15 @@ function AIAnalysisPanel({
   const [hasTriggered, setHasTriggered] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const analyzeMutation = trpc.bazi.analyze.useMutation({
+    onMutate: () => {
+      if (typeof window !== "undefined") {
+        (
+          window as unknown as {
+            plausible?: (name: string, opts?: { props?: { type: string } }) => void;
+          }
+        ).plausible?.("GenerateChart", { props: { type: "bazi" } });
+      }
+    },
     onSuccess: (data) => {
       setLoadingStep(0);
       // 报告生成完毕 → 通知父组件（用于推送到用户中心）

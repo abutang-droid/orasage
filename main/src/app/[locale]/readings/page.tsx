@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageShell, PageTitle, PageLead } from '@/components/PageShell';
 import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
+import { BreadcrumbJsonLd, FaqJsonLd } from '@/components/SeoJsonLd';
 import { buildPortalPageMeta } from '@/lib/seo';
 import { externalUrls } from '@/lib/urls';
 
@@ -65,24 +66,20 @@ export default async function ReadingsPage({ params }: Props) {
   const isZh = locale.startsWith('zh');
   const t = (en: string, zh: string) => (isZh ? zh : en);
 
-  const faqJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: FAQ.map((item) => ({
-      '@type': 'Question',
-      name: isZh ? item.q.zh : item.q.en,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: isZh ? item.a.zh : item.a.en,
-      },
-    })),
-  };
-
   return (
     <PageShell hideBack className="max-w-4xl">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      <FaqJsonLd
+        items={FAQ.map((item) => ({
+          question: isZh ? item.q.zh : item.q.en,
+          answer: isZh ? item.a.zh : item.a.en,
+        }))}
+      />
+      <BreadcrumbJsonLd
+        locale={locale}
+        items={[
+          { name: t('Home', '首页'), url: '' },
+          { name: t('Readings', '测算'), url: '/readings' },
+        ]}
       />
 
       <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">

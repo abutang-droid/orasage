@@ -29,6 +29,7 @@ import * as migration_20260709_120000_shop_pdp_locales from './20260709_120000_s
 import * as migration_20260710_100000_users_staff_permissions from './20260710_100000_users_staff_permissions';
 import * as migration_20260831_120000_p0_feed_sanitize from './20260831_120000_p0_feed_sanitize';
 import * as migration_20260831_140000_p0_pdp_zh_compliance from './20260831_140000_p0_pdp_zh_compliance';
+import * as migration_20260903_120000_r3_naming_layer from './20260903_120000_r3_naming_layer';
 
 export const migrations = [
   {
@@ -185,5 +186,10 @@ export const migrations = [
     up: migration_20260831_140000_p0_pdp_zh_compliance.up,
     down: migration_20260831_140000_p0_pdp_zh_compliance.down,
     name: '20260831_140000_p0_pdp_zh_compliance',
+  },
+  {
+    up: migration_20260903_120000_r3_naming_layer.up,
+    down: migration_20260903_120000_r3_naming_layer.down,
+    name: '20260903_120000_r3_naming_layer',
   },
 ];

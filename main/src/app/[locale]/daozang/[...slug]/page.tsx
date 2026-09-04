@@ -14,6 +14,7 @@ import {
   stripHtml,
 } from '@/lib/cms';
 import { buildPortalPageMeta } from '@/lib/seo';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/SeoJsonLd';
 import { prepareDaozangArticle } from '@/lib/daozang-article';
 import { compareArticles, resolveArticleCategory } from '@/lib/daozang-taxonomy';
 import {
@@ -89,9 +90,27 @@ export default async function DaozangArticlePage({ params }: Props) {
     category?.titlePrefix && page.title
       ? chapterDisplayTitle(page.title, category.titlePrefix)
       : decodeHtmlEntities(page.title);
+  const articlePath = daozangArticlePath(slug);
+  const description = page.excerpt ?? (page.legacyHtml ? stripHtml(page.legacyHtml) : undefined);
+  const breadcrumbItems = [
+    { name: t('title'), url: '/daozang' },
+    ...(category && categoryLabel
+      ? [{ name: categoryLabel, url: `/daozang?cat=${category.key}` }]
+      : []),
+    { name: decodeHtmlEntities(page.title), url: articlePath },
+  ];
 
   return (
     <PageShell hideBack>
+      <ArticleJsonLd
+        locale={locale}
+        path={articlePath}
+        title={displayTitle}
+        description={description}
+        inLanguage={locale}
+      />
+      <BreadcrumbJsonLd locale={locale} items={breadcrumbItems} />
+
       <DaozangBreadcrumb
         items={[
           { label: t('title'), href: '/daozang' },

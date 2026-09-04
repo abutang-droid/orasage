@@ -7,23 +7,28 @@ import { ShopLocaleProvider, useShopLocale } from '@/components/ShopLocaleProvid
 import { PortalFooter } from '@/components/PortalFooter';
 import { CartProvider } from '@/lib/cart';
 import { CartLink } from '@/components/CartLink';
+import { AnalyticsPageView, PlausibleScript } from '@orasage/analytics/react';
 
 function ShopShellInner({ children }: { children: ReactNode }) {
   const { locale, setLocale } = useShopLocale();
   const pathname = usePathname() ?? '/';
 
   return (
-    <AppShell
-      appId="shop"
-      locale={locale}
-      onLocaleChange={setLocale}
-      theme="light"
-      pathname={pathname}
-      footer={<PortalFooter />}
-      headerExtra={<CartLink />}
-    >
-      {children}
-    </AppShell>
+    <>
+      <PlausibleScript />
+      <AnalyticsPageView app="shop" locale={locale} path={pathname} />
+      <AppShell
+        appId="shop"
+        locale={locale}
+        onLocaleChange={setLocale}
+        theme="light"
+        pathname={pathname}
+        footer={<PortalFooter />}
+        headerExtra={<CartLink />}
+      >
+        {children}
+      </AppShell>
+    </>
   );
 }
 
