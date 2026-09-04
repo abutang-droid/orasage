@@ -11,6 +11,7 @@ import type { HomeHeroContent } from '@/lib/cms-home-hero';
 import type { HomepageCatalog, ProductCategory } from '@/lib/shop-products';
 import { HomeHeroVideo } from '@/components/HomeHeroVideo';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
 const toolUrls = { bazi: externalUrls.bazi, ziwei: externalUrls.ziwei, tarot: externalUrls.tarot };
@@ -119,10 +120,14 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
         ) : null}
 
         {showImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={hero.imageUrl!}
             alt={hero.imageAlt ?? ''}
+            width={2400}
+            height={1200}
+            priority
+            fetchPriority="high"
+            sizes="100vw"
             className="home-hero-image border border-border"
           />
         ) : null}
@@ -249,12 +254,12 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
           >
             {item.imageUrl ? (
               <div className="home-product-image-wrap">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={item.imageUrl}
                   alt={item.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 33vw"
                   className="home-product-image"
-                  loading="lazy"
                 />
               </div>
             ) : (
