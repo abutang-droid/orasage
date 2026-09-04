@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { Link } from "wouter";
 import { loadCityCatalog, matchLocalCity, toCityCoords } from "@orasage/city";
 import { CitySearchInput } from "@orasage/city/react";
 import { getLeapMonthOfYear, preloadDecade } from "@/lib/lunarData";
@@ -552,6 +553,12 @@ export default function Home() {
         {view === "form" && (
           <>
             <BaziHomeHero />
+
+            <p className="mb-4 text-center text-sm" style={{ color: MUTED_CLR }}>
+              <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
+                试一试 · 沈知微真人对话排盘（V3 场景原型）→
+              </Link>
+            </p>
 
             <div className="bazi-calc-form bazi-calc-section animate-fade-in-up">
               <div className="bazi-calc-mode-bar">

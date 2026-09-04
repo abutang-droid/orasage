@@ -193,4 +193,9 @@ export default defineConfig({
       allow: ["..", path.resolve(REPO_ROOT, "packages"), path.resolve(REPO_ROOT, "shared")],
     },
   },
+  // Cloud Agent / tunnel 预览：允许 loca.lt、trycloudflare 等临时域名
+  preview: {
+    host: true,
+    allowedHosts: true,
+  },
 });
