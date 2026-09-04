@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  transpilePackages: ['@orasage/ui', '@orasage/tokens', '@orasage/i18n'],
+  transpilePackages: ['@orasage/ui', '@orasage/tokens', '@orasage/i18n', '@orasage/analytics'],
   webpack(config) {
     config.resolve.symlinks = false;
     return config;

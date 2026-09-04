@@ -19,6 +19,7 @@ import {
   setCartQuantity,
   type CartState,
 } from '../../../shared/shop-cart/index';
+import { trackConversion } from '@orasage/analytics';
 
 type CartContextValue = {
   cart: CartState;
@@ -56,6 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((sku: string, quantity = 1) => {
     setCart((prev) => addToCart(prev, sku, quantity));
+    trackConversion('shop', 'AddToCart', { product: sku, quantity });
   }, []);
 
   const removeItem = useCallback((sku: string) => {

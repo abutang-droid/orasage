@@ -33,6 +33,10 @@ import { AnalyticsPageView } from "@orasage/analytics/react";
 |------|------|
 | `NEXT_PUBLIC_ANALYTICS_URL` | `https://auth.orasage.com/api/events` |
 | `VITE_ANALYTICS_URL` | 同上（Vite 应用） |
+| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | `orasage.com` |
+| `NEXT_PUBLIC_PLAUSIBLE_SRC` | `https://plausible.io/js/script.js` |
+
+`<PlausibleScript />` 注入 cookie-less 页面浏览；`trackConversion('shop', 'AddToCart', { product })` 会同时写入 `analytics_events` 与 `window.plausible`。
 
 ## 事件命名
 

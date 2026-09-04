@@ -37,3 +37,13 @@ export const DEFAULT_ANALYTICS_ENDPOINT =
     : typeof process !== "undefined" && process.env?.VITE_ANALYTICS_URL
       ? process.env.VITE_ANALYTICS_URL
       : "https://auth.orasage.com/api/events";
+
+export const DEFAULT_PLAUSIBLE_DOMAIN =
+  typeof process !== "undefined" && process.env?.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+    ? process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+    : "orasage.com";
+
+export const DEFAULT_PLAUSIBLE_SRC =
+  typeof process !== "undefined" && process.env?.NEXT_PUBLIC_PLAUSIBLE_SRC
+    ? process.env.NEXT_PUBLIC_PLAUSIBLE_SRC
+    : "https://plausible.io/js/script.js";
