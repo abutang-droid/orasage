@@ -26,7 +26,7 @@ import { RelatedProducts } from '@/components/RelatedProducts';
 import { TrustBar } from '@/components/TrustBar';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
-import { buildProductJsonLd } from '@/lib/product-jsonld';
+import { buildProductJsonLd, faqJsonLd } from '@/lib/product-jsonld';
 import { Disclaimer } from '@/lib/orasage-app-shell';
 import { makingSkuForProduct, makingUrl } from '@/lib/origins-making';
 
@@ -101,6 +101,15 @@ export default async function ProductPage({ params }: PageProps) {
   const hasAccordion = content.accordions.length > 0;
   const productDescription = cmsPage?.seoDescription?.trim() || product.desc;
   const heroImage = cmsPage?.heroImages[0]?.url ?? listThumbnail ?? undefined;
+  const faqItems = content.accordions
+    .flatMap((item) => item.sections)
+    .flatMap((section) => section.faqItems ?? [])
+    .filter((item) => item.question.trim() && item.answer.trim());
+  const ratingCount = ugcReviews.length;
+  const ratingValue =
+    ratingCount > 0
+      ? ugcReviews.reduce((sum, review) => sum + review.rating, 0) / ratingCount
+      : undefined;
   const productJsonLd =
     product.category === 'crystal'
       ? buildProductJsonLd({
@@ -110,8 +119,12 @@ export default async function ProductPage({ params }: PageProps) {
           imageUrl: heroImage,
           priceCents: displayCents,
           currency,
+          ratingValue,
+          reviewCount: ratingCount,
+          faqItems,
         })
       : null;
+  const faqPageJsonLd = faqJsonLd(faqItems);
 
   return (
     <main className="shop-page safe-bottom flex-1">
@@ -119,6 +132,12 @@ export default async function ProductPage({ params }: PageProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      ) : null}
+      {faqPageJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd) }}
         />
       ) : null}
       <div className="shop-pdp shop-pdp--content">
