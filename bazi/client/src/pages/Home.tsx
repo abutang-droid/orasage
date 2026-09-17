@@ -554,9 +554,13 @@ export default function Home() {
           <>
             <BaziHomeHero />
 
-            <p className="mb-4 text-center text-sm" style={{ color: MUTED_CLR }}>
-              <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 沈知微真人对话排盘（V3 场景原型）→
+            <p className="mb-4 text-center text-base leading-relaxed">
+              <Link
+                href="/scene"
+                className="inline-flex items-center justify-center px-3 text-base"
+                style={{ color: GOLD, minHeight: 48 }}
+              >
+                和沈知微对话排盘（字大，可说话）→
               </Link>
             </p>
 

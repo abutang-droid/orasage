@@ -63,8 +63,8 @@ export function speakText(text: string, opts: SpeakOptions = {}): Promise<void> 
       new Promise<void>((resolve) => {
         const u = new SpeechSynthesisUtterance(trimmed);
         u.lang = opts.lang || 'zh-CN';
-        u.rate = opts.rate ?? 0.95;
-        u.pitch = opts.pitch ?? 1.05;
+        u.rate = opts.rate ?? 0.82;
+        u.pitch = opts.pitch ?? 1.02;
         const voice = pickZhVoice();
         if (voice) u.voice = voice;
 
@@ -80,7 +80,7 @@ export function speakText(text: string, opts: SpeakOptions = {}): Promise<void> 
         u.onboundary = () => opts.onBoundary?.();
 
         // 部分浏览器长暂停会卡住，加硬超时
-        const hardMs = Math.max(4000, trimmed.length * 220 + 1500);
+        const hardMs = Math.max(5000, trimmed.length * 280 + 2000);
         const timer = window.setTimeout(() => {
           syn.cancel();
           finish();
