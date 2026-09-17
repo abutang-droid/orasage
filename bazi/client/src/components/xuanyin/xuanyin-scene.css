@@ -451,7 +451,7 @@
 .xy-choices {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   margin-top: 12px;
 }
 
@@ -477,6 +477,12 @@
   background: var(--xy-ink);
   color: #fff;
   border-color: var(--xy-ink);
+}
+
+.xy-choice--alt {
+  background: #f4ead0;
+  color: var(--xy-ink);
+  border-color: #7a4e24;
 }
 
 /* ── 输入行 ── */

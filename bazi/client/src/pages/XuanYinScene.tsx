@@ -159,6 +159,8 @@ export default function XuanYinScenePage() {
   const onChoice = (id: string) => {
     if (id === 'confirm') submitUser('可是如此');
     else if (id === 'edit') submitUser('不对');
+    else if (id === 'female') submitUser('我是女士');
+    else if (id === 'male') submitUser('我是男士');
     else submitUser(id);
   };
 
@@ -284,7 +286,9 @@ export default function XuanYinScenePage() {
                   <button
                     key={c.id}
                     type="button"
-                    className={`xy-choice ${c.id === 'edit' ? '' : 'xy-choice--primary'}`}
+                    className={`xy-choice ${
+                      c.id === 'edit' ? '' : c.id === 'male' ? 'xy-choice--alt' : 'xy-choice--primary'
+                    }`}
                     onClick={() => onChoice(c.id)}
                     disabled={busy}
                   >

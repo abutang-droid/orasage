@@ -39,15 +39,20 @@ export const INITIAL_COLLECTED: CollectedBirth = {
 
 export function parseGender(raw: string): 'male' | 'female' | null {
   const t = raw.trim().toLowerCase();
-  if (/女|姑娘|小姐|女士|female|woman|girl|坤造/.test(t)) return 'female';
-  if (/男|公子|先生|男士|male|man|boy|乾造/.test(t)) return 'male';
+  if (/我是女士/.test(t)) return 'female';
+  if (/我是男士/.test(t)) return 'male';
+  const hasFemale = /女士|姑娘|小姐|坤造|\bfemale\b|\bwoman\b|\bgirl\b/.test(t) || (/女/.test(t) && !/男/.test(t));
+  const hasMale = /男士|公子|先生|乾造|\bmale\b|\bman\b|\bboy\b/.test(t) || (/男/.test(t) && !/女/.test(t));
+  if (hasFemale && hasMale) return null;
+  if (hasFemale) return 'female';
+  if (hasMale) return 'male';
   return null;
 }
 
 /** 大按钮：避免只能靠打字或文言称呼 */
 export const GENDER_CHOICES = [
-  { id: '女士', label: '我是女士' },
-  { id: '男士', label: '我是男士' },
+  { id: 'female', label: '女 · 我是女士' },
+  { id: 'male', label: '男 · 我是男士' },
 ];
 
 export const CONFIRM_CHOICES = [
@@ -188,13 +193,14 @@ export function advanceDialogue(
       };
     }
     const next: CollectedBirth = { ...collected, gender };
+    const who = gender === 'female' ? '女士' : '男士';
     return {
       nextStep: 'ask_birth',
       collected: next,
       xuanLines: [
         {
           role: 'xuan',
-          text: '好。请告诉我您的出生日期。公历、农历都可以，再补上大概几点出生。例如：一九九五年农历三月初八，下午三点。',
+          text: `好，您是${who}。请告诉我您的出生日期。公历、农历都可以，再补上大概几点出生。例如：一九九五年农历三月初八，下午三点。`,
         },
       ],
     };
