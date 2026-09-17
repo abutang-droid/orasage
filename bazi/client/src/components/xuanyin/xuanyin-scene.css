@@ -645,6 +645,13 @@
   padding: 16px 16px 8px;
 }
 
+.xy-result-panel {
+  background: var(--xy-paper);
+  border: 1.5px solid rgba(26, 21, 64, 0.16);
+  border-radius: 14px;
+  padding: 18px 16px 20px;
+}
+
 .xy-result-panel h2 {
   font-family: var(--xy-sans);
   font-size: 24px;

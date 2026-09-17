@@ -396,21 +396,28 @@ function ResultShell({
           </section>
         ) : null}
         {tab === 'dayun' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="大运">
             <h2>大运 · 流年</h2>
-            <p>这里稍后会显示大运格子。现在先占位。</p>
+            <p>十年大运的格子还在准备中，这一页暂时没有图表。</p>
+            <p>您可以先看命盘，或点底部「对话」继续和沈知微说话。</p>
+            <button type="button" className="xy-choice xy-choice--primary" onClick={() => setTab('chart')}>
+              回到命盘
+            </button>
           </section>
         ) : null}
         {tab === 'report' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="报告">
             <h2>命理分析报告</h2>
-            <p>完整报告仍走现有分析。这里先由沈知微帮您采集生辰、回答追问。</p>
+            <p>完整报告仍走现有分析。这里先由沈知微帮您记下生辰、回答问题。</p>
+            <button type="button" className="xy-choice xy-choice--primary" onClick={() => setTab('chart')}>
+              回到命盘
+            </button>
           </section>
         ) : null}
         {tab === 'member' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="会员">
             <h2>会员</h2>
-            <p>可在经典填写页查看会员方案。</p>
+            <p>可在填写页查看会员方案。</p>
             <Link href="/">前往填写页查看会员方案</Link>
           </section>
         ) : null}
