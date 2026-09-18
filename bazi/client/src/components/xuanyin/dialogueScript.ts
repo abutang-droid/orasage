@@ -39,10 +39,26 @@ export const INITIAL_COLLECTED: CollectedBirth = {
 
 export function parseGender(raw: string): 'male' | 'female' | null {
   const t = raw.trim().toLowerCase();
-  if (/女|姑娘|小姐|female|woman|girl|坤造/.test(t)) return 'female';
-  if (/男|公子|先生|male|man|boy|乾造/.test(t)) return 'male';
+  if (/我是女士/.test(t)) return 'female';
+  if (/我是男士/.test(t)) return 'male';
+  const hasFemale = /女士|姑娘|小姐|坤造|\bfemale\b|\bwoman\b|\bgirl\b/.test(t) || (/女/.test(t) && !/男/.test(t));
+  const hasMale = /男士|公子|先生|乾造|\bmale\b|\bman\b|\bboy\b/.test(t) || (/男/.test(t) && !/女/.test(t));
+  if (hasFemale && hasMale) return null;
+  if (hasFemale) return 'female';
+  if (hasMale) return 'male';
   return null;
 }
+
+/** 大按钮：避免只能靠打字或文言称呼 */
+export const GENDER_CHOICES = [
+  { id: 'female', label: '女 · 我是女士' },
+  { id: 'male', label: '男 · 我是男士' },
+];
+
+export const CONFIRM_CHOICES = [
+  { id: 'confirm', label: '对，就是这样' },
+  { id: 'edit', label: '不对，我再改' },
+];
 
 /** 极简生辰解析：支持「1995年农历三月初八下午三点」一类口语 */
 export function parseBirthUtterance(raw: string): Partial<CollectedBirth> | null {
@@ -140,7 +156,7 @@ export function parsePlace(raw: string): string | null {
 }
 
 export function isAffirmative(raw: string): boolean {
-  return /^(对|是|没错|可以|确认|好|嗯|yes|ok|是的|可是如此)/i.test(raw.trim());
+  return /^(对|是|没错|可以|确认|好|嗯|yes|ok|是的|可是如此|就是这样)/i.test(raw.trim());
 }
 
 export function isNegative(raw: string): boolean {
@@ -167,18 +183,24 @@ export function advanceDialogue(
       return {
         nextStep: 'greet_gender',
         collected,
-        xuanLines: [{ role: 'xuan', text: '方才未听真切——你是公子，还是姑娘？' }],
+        xuanLines: [
+          {
+            role: 'xuan',
+            text: '刚才没听清。请点下面的按钮：您是女士，还是男士？',
+            choices: GENDER_CHOICES,
+          },
+        ],
       };
     }
     const next: CollectedBirth = { ...collected, gender };
-    const address = gender === 'male' ? '公子' : '姑娘';
+    const who = gender === 'female' ? '女士' : '男士';
     return {
       nextStep: 'ask_birth',
       collected: next,
       xuanLines: [
         {
           role: 'xuan',
-          text: `原是位${address}。那你的生辰是哪一日？不拘公历农历，约莫什么时辰降生，都请道来。`,
+          text: `好，您是${who}。请告诉我您的出生日期。公历、农历都可以，再补上大概几点出生。例如：一九九五年农历三月初八，下午三点。`,
         },
       ],
     };
@@ -193,7 +215,7 @@ export function advanceDialogue(
         xuanLines: [
           {
             role: 'xuan',
-            text: '生辰还请说得再分明些——例如「一九九五年农历三月初八，下午三点左右」。',
+            text: '生日请再说清楚一些。例如：一九九五年农历三月初八，下午三点。',
           },
         ],
       };
@@ -205,11 +227,8 @@ export function advanceDialogue(
       xuanLines: [
         {
           role: 'xuan',
-          text: `唔…我记下了：${next.birthSummary}。可是如此？`,
-          choices: [
-            { id: 'confirm', label: '可是如此 ✓' },
-            { id: 'edit', label: '不对 ✎' },
-          ],
+          text: `我记下了：${next.birthSummary}。对不对？`,
+          choices: CONFIRM_CHOICES,
         },
       ],
     };
@@ -220,7 +239,7 @@ export function advanceDialogue(
       return {
         nextStep: 'ask_birth',
         collected: { ...collected, birthSummary: '', year: undefined, month: undefined, day: undefined, hourHint: undefined },
-        xuanLines: [{ role: 'xuan', text: '无妨，再道一遍生辰便是。' }],
+        xuanLines: [{ role: 'xuan', text: '没关系，请再告诉我一次出生日期。' }],
       };
     }
     if (!isAffirmative(text) && text !== 'confirm' && text !== '可是如此') {
@@ -234,11 +253,8 @@ export function advanceDialogue(
           xuanLines: [
             {
               role: 'xuan',
-              text: `唔…我记下了：${next.birthSummary}。可是如此？`,
-              choices: [
-                { id: 'confirm', label: '可是如此 ✓' },
-                { id: 'edit', label: '不对 ✎' },
-              ],
+              text: `我记下了：${next.birthSummary}。对不对？`,
+              choices: CONFIRM_CHOICES,
             },
           ],
         };
@@ -250,7 +266,7 @@ export function advanceDialogue(
       xuanLines: [
         {
           role: 'xuan',
-          text: '好。最后一事——你降生于何地？我须校正真太阳时。',
+          text: '好。最后请告诉我您的出生城市，例如北京、上海、广州。用来把时间校准。',
         },
       ],
     };
@@ -262,21 +278,21 @@ export function advanceDialogue(
       return {
         nextStep: 'ask_place',
         collected,
-        xuanLines: [{ role: 'xuan', text: '出生之地还请告知，例如「北京」「上海」「广州」。' }],
+        xuanLines: [{ role: 'xuan', text: '请告诉我出生的城市，例如北京、上海、广州。' }],
       };
     }
     const next = { ...collected, place };
     const beijingLike = /北京|京畿|帝都/.test(place);
     const placeLine = beijingLike
-      ? '京畿之地，经度近乎标准，无需校正。'
-      : `${place}之地，我会按经度略作校正。`;
+      ? '北京不用额外校正时间。'
+      : `${place}我会按经度稍作校正。`;
     return {
       nextStep: 'closing_chart',
       collected: next,
       xuanLines: [
         {
           role: 'xuan',
-          text: `${placeLine}如此，生辰已齐。且待我为你排盘……`,
+          text: `${placeLine}生辰齐了，现在为您排盘。`,
         },
       ],
       openChart: true,
@@ -290,7 +306,7 @@ export function advanceDialogue(
       xuanLines: [
         {
           role: 'xuan',
-          text: '此事可再细想。正式版将接真实排盘与报告；此刻你可先在「排盘」「大运」诸页浏览示意。',
+          text: '您还可以继续问我。下面几个按钮可以看命盘、大运和报告。',
         },
       ],
     };
@@ -303,11 +319,12 @@ export function advanceDialogue(
 export const OPENING_LINES: Line[] = [
   {
     role: 'xuan',
-    text: '夜安。我是沈知微——观星象、读生辰，愿以命理为你照见前路，也听一听你心中未说出口的困惑。',
+    text: '您好。我是沈知微。请告诉我您的生辰，我来为您排盘。',
   },
   {
     role: 'xuan',
-    text: '先问一句——你是公子，还是姑娘？',
+    text: '请问您是女士，还是男士？点下面的按钮，或者说出来都行。',
+    choices: GENDER_CHOICES,
   },
 ];
 

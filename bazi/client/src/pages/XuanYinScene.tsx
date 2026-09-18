@@ -20,16 +20,24 @@ type ResultTab = 'assistant' | 'chart' | 'dayun' | 'report' | 'member';
 type LogItem = Line & { id: string; typed?: boolean };
 
 const THINK_MS = 900;
+const TYPE_MS = 36;
+const RESULT_TABS = [
+  ['assistant', '对话'],
+  ['chart', '命盘'],
+  ['dayun', '大运'],
+  ['report', '报告'],
+  ['member', '会员'],
+] as const;
 const DEMO_PILLARS = [
-  { label: '年柱', ganZhi: '乙亥' },
-  { label: '月柱', ganZhi: '庚辰' },
-  { label: '日柱', ganZhi: '丙午' },
-  { label: '时柱', ganZhi: '丙申' },
+  { label: '年', ganZhi: '乙亥' },
+  { label: '月', ganZhi: '庚辰' },
+  { label: '日', ganZhi: '丙午' },
+  { label: '时', ganZhi: '丙申' },
 ];
 
 function MicIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
       <rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="1.8" />
       <path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -59,7 +67,7 @@ export default function XuanYinScenePage() {
   const { shown, done: typeDone } = useTypewriter(
     currentLine.text,
     phase === 'dialogue' && mood === 'speaking',
-    28,
+    TYPE_MS,
   );
 
   useEffect(() => {
@@ -88,7 +96,7 @@ export default function XuanYinScenePage() {
     setCurrentLine(first);
     setLog((prev) => [...prev, { ...first, id: `x${idRef.current++}`, typed: true }]);
 
-    const typeMs = Math.max(600, first.text.length * 28 + 200);
+    const typeMs = Math.max(700, first.text.length * TYPE_MS + 240);
     const typeWait = new Promise<void>((r) => window.setTimeout(r, typeMs));
     const voiceWait = speakText(first.text, {
       onBoundary: () => {
@@ -151,6 +159,8 @@ export default function XuanYinScenePage() {
   const onChoice = (id: string) => {
     if (id === 'confirm') submitUser('可是如此');
     else if (id === 'edit') submitUser('不对');
+    else if (id === 'female') submitUser('我是女士');
+    else if (id === 'male') submitUser('我是男士');
     else submitUser(id);
   };
 
@@ -222,7 +232,7 @@ export default function XuanYinScenePage() {
     if (!switching) return;
     const line: Line = {
       role: 'xuan',
-      text: '命盘已成。你还想追问哪一事？大运流转、流年应事，或心中未决之事，皆可细说。',
+      text: '命盘已经排好。您还想问哪一件事？大运、流年，或心里的事，都可以说。',
     };
     setBusy(true);
     speakAsXuan([line], () => setBusy(false));
@@ -238,9 +248,9 @@ export default function XuanYinScenePage() {
       {showDialogueStage ? (
         <div className={`xy-stage ${phase === 'result' ? 'xy-stage--with-tabs' : ''}`}>
           <div className="xy-topbar">
-            <Link href="/">← 经典排盘</Link>
-            <span className="xy-brand">{phase === 'result' ? '追问 · 沈知微' : 'OraSage · 沈知微'}</span>
-            <span style={{ width: 64 }} />
+            <Link href="/">返回填写页</Link>
+            <span className="xy-brand">{phase === 'result' ? '继续对话' : '沈知微'}</span>
+            <span />
           </div>
 
           <XuanYinCharacter mood={mood} lipPulse={lipPulse} />
@@ -248,7 +258,7 @@ export default function XuanYinScenePage() {
           <div className="xy-log" ref={logRef} aria-live="polite" aria-relevant="additions">
             {(mood === 'speaking' && !typeDone ? log.slice(0, -1) : log).map((item) => (
               <div key={item.id} className={`xy-log-item xy-log-item--${item.role === 'xuan' ? 'xuan' : 'user'}`}>
-                <span className="xy-log-name">{item.role === 'xuan' ? '沈知微' : '你'}</span>
+                <span className="xy-log-name">{item.role === 'xuan' ? '沈知微' : '您'}</span>
                 <div className="xy-log-bubble">{item.text}</div>
               </div>
             ))}
@@ -276,7 +286,9 @@ export default function XuanYinScenePage() {
                   <button
                     key={c.id}
                     type="button"
-                    className={`xy-choice ${c.id === 'confirm' ? 'xy-choice--primary' : ''}`}
+                    className={`xy-choice ${
+                      c.id === 'edit' ? '' : c.id === 'male' ? 'xy-choice--alt' : 'xy-choice--primary'
+                    }`}
                     onClick={() => onChoice(c.id)}
                     disabled={busy}
                   >
@@ -303,12 +315,13 @@ export default function XuanYinScenePage() {
               onClick={toggleMic}
             >
               <MicIcon />
+              <span className="xy-mic-label">{listening ? '停止' : '说话'}</span>
             </button>
             <input
               className="xy-text-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="说出来，或在此打字…"
+              placeholder="请在这里打字"
               aria-label="对话输入"
               disabled={busy}
               autoComplete="off"
@@ -317,21 +330,13 @@ export default function XuanYinScenePage() {
               发送
             </button>
           </form>
-          <p className="xy-hint">语音与文字皆可；确认时请点「可是如此」以防误识。</p>
+          <p className="xy-hint">可以说话，也可以打字。确认生日时请点「对，就是这样」。</p>
         </div>
       ) : null}
 
       {phase === 'result' && tab === 'assistant' ? (
         <nav className="xy-tabs" aria-label="结果导航">
-          {(
-            [
-              ['assistant', '助手'],
-              ['chart', '排盘'],
-              ['dayun', '大运'],
-              ['report', '报告'],
-              ['member', '会员'],
-            ] as const
-          ).map(([id, label]) => (
+          {(RESULT_TABS).map(([id, label]) => (
             <button
               key={id}
               type="button"
@@ -366,20 +371,20 @@ function ResultShell({
   return (
     <div className="xy-result">
       <div className="xy-topbar" style={{ padding: '12px 16px 0' }}>
-        <Link href="/">← 经典排盘</Link>
-        <span className="xy-brand">排盘已成</span>
-        <span style={{ width: 64 }} />
+        <Link href="/">返回填写页</Link>
+        <span className="xy-brand">命盘已排好</span>
+        <span />
       </div>
       <div className="xy-result-body">
         {tab === 'chart' ? (
-          <section className="xy-result-panel" aria-label="排盘">
+          <section className="xy-result-panel" aria-label="命盘">
             <h2>命盘</h2>
             <p>
-              {collected.gender === 'female' ? '坤造' : '乾造'}
+              {collected.gender === 'female' ? '女士' : collected.gender === 'male' ? '男士' : ''}
               {collected.birthSummary ? ` · ${collected.birthSummary}` : ''}
               {collected.place ? ` · ${collected.place}` : ''}
             </p>
-            <p>以下为场景原型示意四柱（后续接入真实 lunar-data 排盘引擎）。</p>
+            <p>下面是示意命盘，方便您先看版式。正式版会接入真实排盘。</p>
             <div className="xy-pillars">
               {DEMO_PILLARS.map((p) => (
                 <div key={p.label} className="xy-pillar">
@@ -391,35 +396,34 @@ function ResultShell({
           </section>
         ) : null}
         {tab === 'dayun' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="大运">
             <h2>大运 · 流年</h2>
-            <p>保留 V1/V2 可视化大运网格。此原型仅占位——正式版复用 `BaziResult` 大运区块。</p>
+            <p>十年大运的格子还在准备中，这一页暂时没有图表。</p>
+            <p>您可以先看命盘，或点底部「对话」继续和沈知微说话。</p>
+            <button type="button" className="xy-choice xy-choice--primary" onClick={() => setTab('chart')}>
+              回到命盘
+            </button>
           </section>
         ) : null}
         {tab === 'report' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="报告">
             <h2>命理分析报告</h2>
-            <p>付费报告仍走现有 AI 分析与打字机呈现；沈知微场景负责采集与追问氛围。</p>
+            <p>完整报告仍走现有分析。这里先由沈知微帮您记下生辰、回答问题。</p>
+            <button type="button" className="xy-choice xy-choice--primary" onClick={() => setTab('chart')}>
+              回到命盘
+            </button>
           </section>
         ) : null}
         {tab === 'member' ? (
-          <section className="xy-result-panel">
+          <section className="xy-result-panel" aria-label="会员">
             <h2>会员</h2>
-            <p>复用现有 `PaywallCard` / 方案选择。场景内可引导「解锁完整推演」。</p>
-            <Link href="/">前往经典页查看会员方案 →</Link>
+            <p>可在填写页查看会员方案。</p>
+            <Link href="/">前往填写页查看会员方案</Link>
           </section>
         ) : null}
       </div>
       <nav className="xy-tabs" aria-label="结果导航">
-        {(
-          [
-            ['assistant', '助手'],
-            ['chart', '排盘'],
-            ['dayun', '大运'],
-            ['report', '报告'],
-            ['member', '会员'],
-          ] as const
-        ).map(([id, label]) => (
+          {(RESULT_TABS).map(([id, label]) => (
           <button
             key={id}
             type="button"
