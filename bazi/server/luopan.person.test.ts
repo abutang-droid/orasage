@@ -67,6 +67,21 @@ describe("luopanToPersonInput", () => {
   });
 });
 
+describe("bracelet fallback", () => {
+  it("picks the weakest 五行 SKU when recommend API is missing", async () => {
+    const { fallbackRecommendFromChart } = await import("../client/src/lib/shop-products");
+    const product = fallbackRecommendFromChart({
+      birthStr: "公历 1962年8月14日 15:30",
+      gender: "male",
+      name: "访客",
+      wuXing: { 木: 1.6, 火: 0.3, 土: 1.4, 金: 1.8, 水: 2.9 },
+    });
+    expect(product?.element).toBe("火");
+    expect(product?.sku).toBe("crystal-fire");
+    expect(product?.name).toContain("火");
+  });
+});
+
 describe("luopan ranking uses calcSingleBazi", () => {
   const here = dirname(fileURLToPath(import.meta.url));
   const decadePath = join(here, "../client/public/data/data_1960s_7b72e69a.json");
