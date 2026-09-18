@@ -1,0 +1,135 @@
+<div id="dialScreen">
+<div class="head">
+  <a class="luopan-back" data-luopan-back href="/">返回填写页</a>
+  <h1>八字罗盘</h1>
+</div>
+
+<!-- ══════ 罗盘 ══════ -->
+<div class="dial-wrap">
+  <div class="dial">
+    <svg viewBox="0 0 420 420" id="dialSvg" aria-label="出生信息罗盘">
+      <defs id="skyDefs">
+        <linearGradient id="pillarG" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0"   stop-color="#FFFDF8" stop-opacity=".30"/>
+          <stop offset=".55" stop-color="#FFFDF8" stop-opacity=".74"/>
+          <stop offset="1"   stop-color="#FFFDF8" stop-opacity=".90"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 底盘 -->
+      <circle cx="210" cy="210" r="208" fill="#FFFDF8" stroke="#DCD5C6" stroke-width="1"/>
+      <circle cx="210" cy="210" r="205" fill="none" stroke="#EFE9DC" stroke-width="1"/>
+      <circle cx="210" cy="210" r="180" fill="none" stroke="#E9E2D4" stroke-width="1"/>
+      <circle cx="210" cy="210" r="148" fill="none" stroke="#E9E2D4" stroke-width="1"/>
+      <circle cx="210" cy="210" r="116" fill="none" stroke="#E9E2D4" stroke-width="1"/>
+      <circle cx="210" cy="210" r="86"  fill="none" stroke="#E9E2D4" stroke-width="1"/>
+      <circle cx="210" cy="210" r="58"  fill="#FFFDF8" stroke="#DCD5C6" stroke-width="1"/>
+
+      <!-- 五环（由内而外：年 · 月 · 日 · 小时 · 分钟）
+           外套一层 #rings：选中环要抬到最上层，只能在本组内重排，
+           不能直接往 svg 末尾追加 —— 那会盖到浮层与读数上面去。 -->
+      <g id="rings">
+        <g class="ring-g" id="rMin"></g>
+        <g class="ring-g" id="rHour"></g>
+        <g class="ring-g" id="rDay"></g>
+        <g class="ring-g" id="rMon"></g>
+        <g class="ring-g" id="rYear"></g>
+      </g>
+
+      <!-- 拨动时该环的外缘朱砂描边。
+           必须画在 #rings 之上：小时/月环是实心色块，描边放在下面会被整个盖住。
+           放在这里又仍在浮层与读数之下。 -->
+      <g id="ringEdgeBox"></g>
+
+      <!-- 轴心（在浮层之下，只作隐约的基准线） -->
+      <g id="marks">
+        <line x1="210" y1="6" x2="210" y2="210" stroke="#A8433A" stroke-width="1" opacity=".2"/>
+      </g>
+
+      <!-- 从圆心向上的半透浮层：把指针处的一列读数托起来 -->
+      <g id="pillar">
+        <rect x="175" y="4" width="70" height="206" rx="21" fill="url(#pillarG)"/>
+        <rect x="175" y="4" width="70" height="206" rx="21" fill="none"
+              stroke="#A8433A" stroke-opacity=".16" stroke-width="1.2"/>
+      </g>
+
+      <!-- 被托起的读数：选中即加大高亮，数字后面跟单位 -->
+      <g id="pillarVal">
+        <text id="pvY" x="210" y="140" font-size="19"><tspan>1962</tspan><tspan class="u" dx="1.5">年</tspan></text>
+        <text id="pvM" x="210" y="109" font-size="19"><tspan>8</tspan><tspan class="u" dx="1.5">月</tspan></text>
+        <text id="pvD" x="210" y="76"  font-size="19"><tspan>14</tspan><tspan class="u" dx="1.5">日</tspan></text>
+        <text id="pvH" x="210" y="44"  font-size="19"><tspan>15</tspan><tspan class="u" dx="1.5">时</tspan></text>
+        <text id="pvI" x="210" y="15"  class="mp"><tspan>30</tspan><tspan class="u" dx="1.5">分</tspan></text>
+      </g>
+
+      <!-- 指针：移到罗盘之外，悬在 12 点正上方，尖端指着盘沿 -->
+      <g id="needle">
+        <path d="M210 -2 L200.5 -22 L219.5 -22 Z" fill="#A8433A"/>
+        <circle cx="210" cy="-27.5" r="1.9" fill="#A8433A" opacity=".4"/>
+      </g>
+    </svg>
+
+    <div class="seal" id="seal" role="button" tabindex="0" aria-label="按住，口述你的生辰">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 历制 · 性别（同排） ══════ -->
+<div class="topbar">
+  <div class="grp">
+    <button class="cal on" data-cal="solar" aria-pressed="true">公历</button>
+    <button class="cal" data-cal="lunar" aria-pressed="false">农历</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp" role="group" aria-label="性别">
+    <button class="cal sx" data-sex="女" aria-pressed="false">女</button>
+    <button class="cal sx" data-sex="男" aria-pressed="false">男</button>
+  </div>
+</div>
+
+<div class="readout-fit" id="readoutFit">
+<div class="readout" id="readout">
+  <div class="ro" id="ro-year"><div class="row">
+    <button class="mini" data-k="year" data-d="-1" aria-label="减">−</button>
+    <span class="val" id="roY">1962</span>
+    <button class="mini" data-k="year" data-d="1" aria-label="加">+</button></div>
+  <span class="lb">year</span></div>
+  <div class="ro" id="ro-month"><div class="row">
+    <button class="mini" data-k="month" data-d="-1" aria-label="减">−</button>
+    <span class="val" id="roM">8</span>
+    <button class="mini" data-k="month" data-d="1" aria-label="加">+</button></div>
+  <span class="lb">month</span></div>
+  <div class="ro" id="ro-day"><div class="row">
+    <button class="mini" data-k="day" data-d="-1" aria-label="减">−</button>
+    <span class="val" id="roD">14</span>
+    <button class="mini" data-k="day" data-d="1" aria-label="加">+</button></div>
+  <span class="lb">day</span></div>
+  <div class="ro" id="ro-time"><div class="row">
+    <button class="mini" data-k="hour" data-d="-1" aria-label="减一小时">−</button>
+    <span class="val tm" id="roS">15:30</span>
+    <button class="mini" data-k="hour" data-d="1" aria-label="加一小时">+</button>
+    <span class="tsep" aria-hidden="true"></span>
+    <button class="mini sm2" data-k="min" data-d="-5" aria-label="减五分">−</button>
+    <span class="minv" id="roMi">30 分</span>
+    <button class="mini sm2" data-k="min" data-d="5" aria-label="加五分">+</button></div>
+  <span class="lb">time</span></div>
+</div>
+</div>
+
+
+<div class="place" id="placeBox">
+  <label class="place-lb">出生城市</label>
+  <div id="luopan-city-slot"></div>
+  <p class="place-hint">排盘要用出生地校正真太阳时，请填写城市，例如北京、上海</p>
+  <div id="luopan-err-slot"></div>
+</div>
+
+<div class="act"><button class="btn-main" id="btnGo">起 盘</button></div>
+
+<div class="live" id="live" hidden><div class="st" id="liveSt">听着呢…</div><div class="tx" id="liveTx"></div></div>
+
+<div class="hint">外圈拨分、其内拨时（0–23）· 按住中央印章口述，如「一九六二年八月十四，下午三点二十分」</div>
+</div><!-- /dialScreen -->

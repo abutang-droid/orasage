@@ -13,6 +13,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
 import XuanYinScenePage from "./pages/XuanYinScene";
+import LuopanPage from "./pages/LuopanPage";
 import { DICTIONARIES } from "./lib/i18n";
 
 const PORTAL_LOCALES = new Set([
@@ -39,6 +40,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/history"} component={HistoryPage} />
       <Route path={"/scene"} component={XuanYinScenePage} />
+      <Route path={"/luopan"} component={LuopanPage} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/:locale">{(params) =>
         PORTAL_LOCALES.has(params.locale) ? <LocaleRootRedirect /> : <NotFound />
@@ -52,12 +54,14 @@ function AppBody() {
   const { locale } = useI18n();
   const [pathname] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const isScene = pathname === "/scene" || pathname.startsWith("/scene?");
+  const isImmersive =
+    pathname === "/scene" || pathname.startsWith("/scene?") ||
+    pathname === "/luopan" || pathname.startsWith("/luopan?");
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || isScene) return;
+    if (!el || isImmersive) return;
 
     const sendHeight = () => {
       const h = el.scrollHeight;
@@ -75,13 +79,13 @@ function AppBody() {
       observer.disconnect();
       clearInterval(timer);
     };
-  }, [isScene]);
+  }, [isImmersive]);
 
   return (
     <CityProvider api={cityApi} locale={locale}>
       <OraSageToaster />
-      <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: isScene ? "100dvh" : "auto" }}>
-        {isScene ? (
+      <div ref={containerRef} style={{ display: "flex", flexDirection: "column", minHeight: isImmersive ? "100dvh" : "auto" }}>
+        {isImmersive ? (
           <Router />
         ) : (
           <OraSageAppShell>

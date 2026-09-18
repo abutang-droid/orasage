@@ -1,0 +1,183 @@
+.luopan-root{
+  /* 宣纸 · 松烟墨 · 黛蓝 · 朱砂 · 竹 */
+  --paper:#F7F5EF; --paper-2:#FFFDF8; --paper-3:#F2EEE4;
+  --ink-900:#22201C; --ink-700:#57534B; --ink-500:#6E685C; --ink-300:#B3AC9F;
+  --line-200:#E5DFD3; --line-100:#F0EBE1;
+  --dai-800:#22384D; --dai-700:#2E4A63; --dai-600:#3E6584; --dai-100:#DCE4EA;
+  --zhu:#A8433A; --zhu-deep:#8C3229; --zhu-50:#F7EDEA; --zhu-100:#EFDAD5;
+  --bamboo-1:#F0E7D0; --bamboo-2:#E2D5B2; --bamboo-edge:#C9B98D; --bamboo-cord:#8A7448;
+  --wx-wood:#4A7A5C; --wx-fire:#A85A3C; --wx-earth:#8A6D45; --wx-metal:#6E6E7E; --wx-water:#3E6B8A;
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif SC","SimSun",serif;
+  --font:system-ui,-apple-system,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --num:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+}.luopan-root, .luopan-root *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }.luopan-root [hidden]{display:none !important}.luopan-root{
+  background:var(--paper);
+  background-image:
+    radial-gradient(circle at 14% 8%, rgba(168,67,58,.045), transparent 38%),
+    radial-gradient(circle at 88% 92%, rgba(46,74,99,.05), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(255,253,248,.7), transparent 70%);
+  font-family:var(--font); color:var(--ink-900);
+  min-height:100dvh; padding:20px 16px 48px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* 显式定宽：body 是 align-items:center 的列 flex，本节点按 fit-content 定宽，
+   会被 width:max-content 的读数行顶出一个 430px 的 min-content 地板，窄屏整页横向溢出。
+   width:100% + max-width 让窄屏真正收窄，超出部分由 fitReadout() 等比缩放消化。 */.luopan-root #dialScreen{width:100%;max-width:430px;margin:0 auto;min-width:0;}
+
+/* ── 页头 ── */.luopan-root .head{width:100%;max-width:430px;text-align:center;margin-bottom:16px;}.luopan-root .head h1{font-family:var(--serif);font-size:25px;font-weight:600;letter-spacing:.14em;margin:0;color:var(--ink-900);}
+
+/* ── 罗盘 ── */
+/* padding 而非 margin：与页头的 margin-bottom 相邻会被合并掉，指针就没有净空了 */.luopan-root .dial-wrap{width:100%;max-width:430px;position:relative;display:flex;justify-content:center;padding-top:20px;}
+/* 正方形靠 aspect-ratio 维持：窄屏被 max-width 压窄时，若高度仍写死 380，
+   SVG 会按 meet 上下留出信箱边，罗盘上方的空白就比下方多一倍。 */.luopan-root .dial{width:380px;aspect-ratio:1/1;max-width:100%;position:relative;touch-action:none;}.luopan-root .dial svg{width:100%;height:100%;display:block;overflow:visible;}.luopan-root .ring-g{transform-origin:210px 210px;will-change:transform;transition:opacity .22s ease;}
+/* 拨动时：被转的那一环浮起并加粗，其余退为背景。
+   不用「朱砂洗色垫在环下」—— 小时/月环是实心色块，半透朱砂叠上去只会让
+   颜色发灰（实测饱和度 33%→23%），而它原本就被色块盖住看不见。
+   选中态交给三件事：环带加粗（FOCUS 表）+ 外缘描一遍朱砂 + 邻环淡出。 */.luopan-root .dial.focus .ring-g{opacity:.14;}.luopan-root .dial.focus .ring-g.on{opacity:1;}.luopan-root .ring-edge{fill:none;stroke:#A8433A;stroke-width:3.4;opacity:0;
+  pointer-events:none;transition:opacity .2s ease;}.luopan-root .ring-edge.on{opacity:.8;}.luopan-root .ro.on{background:var(--zhu-50);}.luopan-root .ro.on .val, .luopan-root .ro.on .lb{color:var(--zhu);}.luopan-root .ro.on .mini{color:var(--zhu);}.luopan-root .ring-g.snapping{transition:transform .5s cubic-bezier(.3,1.34,.44,1), opacity .22s ease;}.luopan-root .tick-l{stroke:rgba(34,32,28,.16);stroke-width:.8;}
+/* 刻度字的 fill 一律由 JS 按所在色块算出（WCAG 对比度选墨/米白），
+   CSS 里不能再写 fill —— 样式表会压过 SVG 表现属性，写了就全环同色。 */.luopan-root .tick-t{font-size:10.6px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;
+  transform-box:fill-box;transform-origin:center;pointer-events:none;}.luopan-root .tick-t.big{font-size:12.2px;}.luopan-root .tick-t.dim{fill:var(--ink-300);}      /* 该日在本月不存在：压灰，是唯一的 fill 覆盖 */
+/* 小时环：24 格，天色作分组底色，只写 0–23 单数字 */.luopan-root .hour-t{font-size:13.2px;font-weight:600;font-family:var(--num);letter-spacing:.01em;
+  text-anchor:middle;dominant-baseline:middle;
+  transform-box:fill-box;transform-origin:center;pointer-events:none;}
+/* 分钟环：60 格，每 5 分标一个数 */.luopan-root .min-l{stroke:rgba(34,32,28,.38);stroke-linecap:round;}.luopan-root .min-t{font-size:12px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;
+  transform-box:fill-box;transform-origin:center;pointer-events:none;}
+/* 被托起的那一格：刻度隐去，改由浮层里的放大读数承担 */.luopan-root .tick-t.sel, .luopan-root .hour-t.sel, .luopan-root .min-t.sel{opacity:0;}
+
+/* ── 从圆心向上的半透浮层：把指针处的一列读数托起来 ── */.luopan-root #pillar, .luopan-root #pillarVal{pointer-events:none;}.luopan-root #pillarVal text{font-family:var(--num);font-weight:700;fill:var(--zhu);text-anchor:middle;
+  dominant-baseline:middle;letter-spacing:-.015em;
+  paint-order:stroke;stroke:#FFFDF8;stroke-width:2.6;stroke-linejoin:round;}.luopan-root #pillarVal text.mp{font-size:16px;font-weight:650;}
+/* 单位：跟在大字后面，小一号、稍轻，描边收细免得把笔画糊掉 */.luopan-root #pillarVal .u{font-size:12px;font-weight:600;opacity:.8;stroke-width:1.6;letter-spacing:0;}.luopan-root #pillarVal text.dimmed{opacity:.34;}
+
+/* 跨过一格：咔哒一下（被托起的读数脉冲 + 轻微震动） */.luopan-root #marks g, .luopan-root #pillarVal text{transform-box:fill-box;transform-origin:center;}.luopan-root .pulsing{animation:luopan-mkPulse .26s cubic-bezier(.3,1.5,.5,1);}
+@keyframes luopan-mkPulse{0%{transform:scale(1)}40%{transform:scale(1.24)}100%{transform:scale(1)}}
+
+/* 中心印 */.luopan-root .seal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:104px;height:104px;border-radius:50%;
+  background:linear-gradient(165deg,#B04C42,#8C3229);
+  box-shadow:0 8px 22px rgba(140,50,41,.32), inset 0 1px 0 rgba(255,255,255,.22);
+  border:2.5px solid rgba(255,253,248,.9);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  color:#FFF9F3;cursor:pointer;user-select:none;transition:transform .18s, box-shadow .25s;
+  font-family:var(--serif);}.luopan-root .seal:active{transform:translate(-50%,-50%) scale(.95);}.luopan-root .seal.listening{animation:luopan-pulse 1.3s ease-in-out infinite;}
+@keyframes luopan-pulse{0%,100%{box-shadow:0 8px 22px rgba(140,50,41,.32),inset 0 1px 0 rgba(255,255,255,.22),0 0 0 0 rgba(168,67,58,.42);}
+  50%{box-shadow:0 8px 22px rgba(140,50,41,.32),inset 0 1px 0 rgba(255,255,255,.22),0 0 0 16px rgba(168,67,58,0);}}.luopan-root .seal .s1{font-size:15px;letter-spacing:.34em;text-indent:.34em;opacity:.96;}.luopan-root .seal .s3{font-size:11px;opacity:.72;letter-spacing:.14em;}
+/* 静息态只有 mic 一枚，放大居中；录音态多了「聆听…」，mic 收一档给文字让位 */.luopan-root .seal svg{width:42px;height:42px;transition:width .18s ease,height .18s ease;}.luopan-root .seal.listening svg{width:34px;height:34px;}
+@media (prefers-reduced-motion:reduce){.luopan-root .seal.listening{animation:none}.luopan-root .ring-g.snapping{transition:none}}
+
+/* ── 设置行：历制与性别同排（性别不写字，靠分组语义标注） ── */.luopan-root .topbar{width:100%;max-width:430px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;}.luopan-root .topbar .grp{display:flex;align-items:center;gap:6px;}.luopan-root .topbar .sep{width:1px;height:22px;background:var(--line-200);flex:0 0 1px;}.luopan-root .cal{min-height:38px;padding:0 16px;border:1px solid var(--line-200);background:var(--paper-2);
+  border-radius:19px;font-family:var(--serif);font-size:14.5px;letter-spacing:.1em;text-indent:.1em;
+  color:var(--ink-700);cursor:pointer;box-shadow:0 1px 3px rgba(34,32,28,.05);}.luopan-root .cal.on{background:var(--zhu);border-color:var(--zhu);color:#FFF9F3;box-shadow:0 2px 8px rgba(140,50,41,.22);}.luopan-root .cal:active{transform:translateY(1px);}.luopan-root .topbar .sx{min-width:52px;padding:0 14px;}
+/* 读数区：四组控件同一行；时与分也同行（分钟步进 5 分）。
+   整行宽度由内容决定，再由 fitReadout() 按容器可用宽等比缩放，任何宽度下都不换行。 */.luopan-root .readout-fit{width:100%;max-width:430px;margin-top:10px;}.luopan-root .readout{width:max-content;margin:0;display:flex;align-items:stretch;gap:9px;
+  white-space:nowrap;transform-origin:top left;}.luopan-root .ro{background:transparent;border:0;padding:2px 0 3px;text-align:center;border-radius:12px;
+  display:flex;flex-direction:column;justify-content:center;flex:0 0 auto;}.luopan-root .ro .row{display:flex;align-items:center;justify-content:center;gap:2px;}.luopan-root .ro .lb{display:block;font-size:10.5px;color:var(--ink-500);letter-spacing:.1em;margin-top:1px;}.luopan-root .mini{width:19px;height:19px;flex:0 0 19px;border:0;background:transparent;border-radius:50%;
+  color:var(--ink-300);font-size:13px;line-height:1;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;justify-content:center;padding:0;position:relative;}.luopan-root .mini::after{content:"";position:absolute;inset:-7px;}.luopan-root .mini:active{background:var(--zhu-50);color:var(--zhu);}.luopan-root .ro .val{font-family:var(--serif);font-size:16px;font-weight:650;color:var(--ink-900);min-width:36px;
+  letter-spacing:0;line-height:1.15;}.luopan-root .ro .val.sm{font-size:13px;min-width:44px;}.luopan-root .ro .val.tm{font-family:var(--num);font-size:15px;font-weight:650;min-width:50px;letter-spacing:.01em;}
+/* 时 : 分 之间的分组竖线 */.luopan-root .tsep{width:1px;height:16px;flex:0 0 1px;background:var(--line-200);margin:0 2px;}.luopan-root .mini.sm2{width:15px;height:15px;flex:0 0 15px;font-size:11px;}.luopan-root .ro .minv{font-family:var(--num);font-size:12px;color:var(--ink-500);min-width:32px;line-height:1.1;}.luopan-root .ro.on .minv{color:var(--zhu);}
+
+/* ── 主按钮 ── */.luopan-root .act{width:100%;max-width:430px;margin-top:16px;}.luopan-root .btn-main{width:100%;min-height:56px;border:0;border-radius:16px;background:linear-gradient(165deg,#3A5A76,#22384D);
+  color:#FFFDF8;font-family:var(--serif);font-size:19px;letter-spacing:.42em;text-indent:.42em;font-weight:600;
+  cursor:pointer;box-shadow:0 6px 18px rgba(34,56,77,.24), inset 0 1px 0 rgba(255,255,255,.14);}.luopan-root .btn-main:active{background:linear-gradient(165deg,#2E4A63,#1B2E40);}.luopan-root .btn-main[disabled]{opacity:.42;box-shadow:none;cursor:not-allowed;}.luopan-root .hint{width:100%;max-width:430px;margin-top:12px;text-align:center;font-size:12.5px;color:var(--ink-500);line-height:1.75;}.luopan-root .hint b{color:var(--dai-700);font-weight:600;}
+
+/* 实时字幕 */.luopan-root .live{width:100%;max-width:430px;margin-top:12px;min-height:44px;background:var(--paper-2);
+  border:1px dashed var(--zhu-100);border-radius:14px;padding:12px 14px;font-size:16px;
+  color:var(--ink-900);line-height:1.6;text-align:center;}.luopan-root .live .st{font-size:12.5px;color:var(--zhu);font-weight:600;margin-bottom:4px;letter-spacing:.06em;}.luopan-root .live .tx{color:var(--ink-700);}
+
+/* ══════ 结果屏 ══════ */.luopan-root .res{width:100%;max-width:430px;animation:luopan-fade .5s ease both;}
+@keyframes luopan-fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.luopan-root .res-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}.luopan-root .res-top .bk{width:40px;height:40px;border:1px solid var(--line-200);background:var(--paper-2);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-700);flex:0 0 40px;}.luopan-root .res-top .bk:active{background:var(--zhu-50);}.luopan-root .res-top .tt{font-family:var(--serif);font-size:19px;letter-spacing:.14em;}
+
+/* 日主大印 */.luopan-root .dm{display:flex;flex-direction:column;align-items:center;margin:6px 0 22px;}.luopan-root .dm .ring{width:132px;height:132px;border-radius:50%;border:2.5px solid var(--zhu);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:radial-gradient(circle at 50% 38%, rgba(168,67,58,.07), transparent 72%), var(--paper-2);
+  box-shadow:0 4px 16px rgba(34,32,28,.07);}.luopan-root .dm .lb{font-size:12px;color:var(--ink-500);letter-spacing:.28em;text-indent:.28em;}.luopan-root .dm .gz{font-family:var(--serif);font-size:46px;line-height:1.05;color:var(--zhu);font-weight:600;letter-spacing:.04em;}.luopan-root .dm .wx{font-family:var(--serif);font-size:15px;color:var(--ink-700);letter-spacing:.2em;}.luopan-root .dm .cap{margin-top:12px;font-size:14.5px;color:var(--ink-700);line-height:1.7;text-align:center;}
+
+/* 竹简 */.luopan-root .bamboo-row{display:flex;flex-direction:row-reverse;justify-content:center;gap:9px;margin:4px 0 8px;}.luopan-root .bb{width:66px;flex:0 0 66px;border-radius:9px;position:relative;overflow:hidden;
+  background:linear-gradient(96deg,var(--bamboo-2) 0%,var(--bamboo-1) 34%,#F4EDDA 58%,var(--bamboo-2) 100%);
+  border:1px solid var(--bamboo-edge);
+  box-shadow:0 3px 10px rgba(90,72,36,.16), inset 0 0 0 1px rgba(255,255,255,.35);
+  padding:20px 0 18px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  min-height:296px;}.luopan-root .bb::before, .luopan-root .bb::after{content:"";position:absolute;left:0;right:0;height:7px;
+  background:repeating-linear-gradient(90deg,var(--bamboo-cord) 0 3px,#A8905C 3px 6px);
+  opacity:.62;}.luopan-root .bb::before{top:9px;}.luopan-root .bb::after{bottom:9px;}.luopan-root .bb .fib{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(90deg,transparent 0 7px,rgba(120,96,44,.07) 7px 8px);}.luopan-root .bb.day{background:linear-gradient(96deg,#EFE2C4 0%,#F7EFD8 34%,#FCF6E6 58%,#EFE2C4 100%);
+  border-color:var(--zhu);box-shadow:0 3px 14px rgba(140,50,41,.20), inset 0 0 0 1px rgba(255,255,255,.4);}.luopan-root .bb .cap{font-family:var(--serif);font-size:13px;color:var(--ink-500);letter-spacing:.22em;
+  writing-mode:vertical-rl;text-orientation:upright;margin-bottom:2px;}.luopan-root .bb .gan, .luopan-root .bb .zhi{font-family:var(--serif);font-size:34px;line-height:1.06;color:var(--ink-900);
+  writing-mode:vertical-rl;text-orientation:upright;font-weight:600;}.luopan-root .bb .gan{color:var(--zhu-deep);}.luopan-root .bb .ss{font-family:var(--serif);font-size:11px;color:var(--ink-500);writing-mode:vertical-rl;
+  text-orientation:upright;letter-spacing:.1em;min-height:8px;}.luopan-root .bb .line{width:26px;height:1px;background:var(--bamboo-edge);opacity:.7;}.luopan-root .bb .cang{font-family:var(--serif);font-size:10.5px;color:var(--ink-500);writing-mode:vertical-rl;
+  text-orientation:upright;letter-spacing:.14em;min-height:6px;}.luopan-root .bb .wxtag{width:7px;height:7px;border-radius:50%;margin-top:1px;}.luopan-root .bamboo-row .bb{animation:luopan-unroll .55s cubic-bezier(.2,.8,.3,1) both;}
+@keyframes luopan-unroll{from{opacity:0;transform:translateY(-22px) scaleY(.82)}to{opacity:1;transform:none}}
+
+/* 竹简上方一行读序（不写说明书） */.luopan-root .bamboo-hint{text-align:center;font-size:12.5px;color:var(--ink-500);letter-spacing:.26em;
+  text-indent:.26em;margin:2px 0 10px;}.luopan-root .creed{margin-top:28px;text-align:center;font-family:var(--serif);font-size:14px;
+  color:var(--ink-500);letter-spacing:.34em;text-indent:.34em;}.luopan-root .fine{margin-top:10px;text-align:center;font-size:11.5px;color:var(--ink-300);line-height:1.95;}
+/* 五行墨点 */.luopan-root .ink-sec{margin-top:22px;}.luopan-root .ink-h{font-family:var(--serif);font-size:15px;color:var(--ink-700);letter-spacing:.2em;text-align:center;margin-bottom:14px;}.luopan-root .ink-row{display:flex;justify-content:center;align-items:flex-end;gap:16px;flex-wrap:wrap;}.luopan-root .ink{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;}.luopan-root .ink .drop{position:relative;width:var(--d);height:var(--d);
+  border-radius:47% 53% 56% 44%/52% 45% 55% 48%;
+  background:radial-gradient(circle at 38% 32%, var(--c) 0%, var(--c) 46%, transparent 74%);
+  opacity:var(--o);filter:blur(.4px);}.luopan-root .ink .drop::after{content:"";position:absolute;inset:22%;
+  border-radius:52% 48% 44% 56%/48% 54% 46% 52%;
+  background:radial-gradient(circle at 42% 36%, var(--c), transparent 78%);opacity:.9;}.luopan-root .ink .nm{font-family:var(--serif);font-size:14px;color:var(--ink-700);}.luopan-root .ink .ct{font-size:11.5px;color:var(--ink-500);font-family:var(--num);}
+
+/* 说明 */.luopan-root .res-foot{margin-top:16px;display:flex;gap:10px;}.luopan-root .res-foot button{flex:1;min-height:50px;border-radius:14px;font-size:15.5px;font-family:var(--font);cursor:pointer;}.luopan-root .b-sec{background:var(--paper-2);border:1px solid var(--line-200);color:var(--ink-700);}.luopan-root .b-sec:active{background:var(--zhu-50);}.luopan-root .stage-foot{max-width:430px;width:100%;margin-top:26px;font-size:12px;color:var(--ink-300);line-height:1.8;text-align:center;}
+@media (max-width:400px){
+  .luopan-root{padding-left:8px;padding-right:8px;}
+  .luopan-root .dial{width:340px;height:340px;}
+  .luopan-root .bamboo-row{gap:6px;}
+  .luopan-root .bb{width:60px;flex:0 0 60px;}
+  .luopan-root .bb .gan, .luopan-root .bb .zhi{font-size:30px;}
+}
+.luopan-root .luopan-back{
+  display:inline-flex; align-items:center; min-height:44px;
+  font-size:15px; font-weight:600; color:var(--dai-700);
+  text-decoration:underline; text-underline-offset:3px; margin-bottom:4px;
+}.luopan-root .place{ width:100%; max-width:430px; margin-top:14px; }.luopan-root .place-lb{ display:block; font-family:var(--serif); font-size:15px; letter-spacing:.12em;
+  color:var(--ink-700); margin-bottom:8px; }.luopan-root .place-hint{ margin:8px 0 0; font-size:12.5px; color:var(--ink-500); line-height:1.6; text-align:center; }.luopan-root .luopan-city-field{
+  width:100%; min-height:52px; border:1.5px solid var(--line-200); background:var(--paper-2);
+  border-radius:14px; padding:0 14px; font-size:17px; color:var(--ink-900);
+  font-family:var(--font);
+}.luopan-root .luopan-city-field.is-focused{ border-color:var(--zhu); box-shadow:0 0 0 3px rgba(168,67,58,.12); }.luopan-root .luopan-city-field input{
+  width:100%; min-height:50px; border:0; background:transparent; font-size:17px;
+  color:var(--ink-900); font-family:var(--font); outline:none;
+}.luopan-root .luopan-city-dropdown{
+  margin-top:6px; background:var(--paper-2); border:1px solid var(--line-200);
+  border-radius:12px; box-shadow:0 8px 24px rgba(34,32,28,.08); overflow:hidden;
+}.luopan-root .luopan-city-option{ min-height:48px; padding:10px 14px; font-size:16px; }.luopan-root .luopan-err{ width:100%; max-width:430px; margin-top:10px; text-align:center;
+  color:var(--zhu); font-size:15px; min-height:1.2em; }.luopan-root .luopan-busy{ opacity:.55; pointer-events:none; }
+@media (max-width:400px){.luopan-root{padding-left:8px;padding-right:8px;}
+}
+
+.luopan-root .place { position: relative; }
+.luopan-root .luopan-city-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.luopan-root .luopan-city-field input {
+  flex: 1;
+  min-width: 0;
+}
+.luopan-root .luopan-city-field input::placeholder { color: var(--ink-300); }
+.luopan-root .luopan-city-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 40;
+}
+.luopan-root .orasage-city-meta,
+.luopan-root .orasage-city-error {
+  font-size: 12px;
+  color: var(--ink-500);
+  text-align: center;
+  margin-top: 6px;
+}
+.luopan-root .stage-foot a {
+  color: var(--dai-700);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

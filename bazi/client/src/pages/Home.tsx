@@ -558,6 +558,10 @@ export default function Home() {
               <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
                 试一试 · 沈知微真人对话排盘（V3 场景原型）→
               </Link>
+              <br />
+              <Link href="/luopan" style={{ color: GOLD, letterSpacing: '0.04em' }}>
+                试一试 · 八字罗盘 · 竹简命盘 →
+              </Link>
             </p>
 
             <div className="bazi-calc-form bazi-calc-section animate-fade-in-up">
