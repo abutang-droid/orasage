@@ -106,10 +106,10 @@ function parseSpeech(text){
   if(o.hh===null){ for(const [re,h] of SEGKEYS){ if(re.test(t)){ o.hh=h; o.mi=0; break; } } }
   o.lunar=/(腊月|冬月|正月|初一|初二|初三|初四|初五|初六|初七|初八|初九|初十|十五|廿|闰)/.test(t);
   /* 性别 */
-  if(/(女的|女性|我妈|我婆婆|我奶奶|我姥姥|我媳妇|姑娘)/.test(t)) o.sex="女";
-  else if(/(男的|男性|我爸|我爷爷|我姥爷|我老公|小子)/.test(t)) o.sex="男";
-  else if(/(?:^|[，,。、\s])女(?=$|[，,。、\s])/.test(t)) o.sex="女";
-  else if(/(?:^|[，,。、\s])男(?=$|[，,。、\s])/.test(t)) o.sex="男";
+  if(/(女的|女性|女士|女孩|女儿|我妈|我婆婆|我奶奶|我姥姥|我媳妇|姑娘)/.test(t)) o.sex="女";
+  else if(/(男的|男性|男士|男孩|儿子|我爸|我爷爷|我姥爷|我老公|小子)/.test(t)) o.sex="男";
+  else if(/女/.test(t) && !/男女|子女/.test(t)) o.sex="女";
+  else if(/男/.test(t) && !/男女/.test(t)) o.sex="男";
   return o;
 }
 
