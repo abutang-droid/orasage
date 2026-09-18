@@ -449,28 +449,28 @@ function inPillar(R,v){
   const a=((v*R.step+R.th)%360+540)%360-180;      /* 归一到 -180..180，0 = 12 点 */
   return Math.abs(a)<half;
 }
+/* 刻度保持正向：绕「字自己的 (x,y)」反转，抵消 wrap 的扇区角 + 整环 CSS 转角。
+   不能用 CSS transform-box:fill-box —— WebKit/Android 对 SVG <text> 的 fill-box
+   原点经常算成 0,0 或乱 bbox，窄屏上数字会飞出环带。SVG rotate(a,x,y) 走用户坐标。 */
+function uprightTick(t,R){
+  const v=+t.getAttribute("data-v");
+  const x=+t.getAttribute("x"), y=+t.getAttribute("y");
+  t.style.removeProperty("transform");           /* 清掉旧 CSS，避免压过 SVG 属性 */
+  t.setAttribute("transform",`rotate(${-(R.th+v*R.step)}, ${x}, ${y})`);
+  t.classList.toggle("sel",inPillar(R,v));
+}
 function render(k){
   const R=RI[k];
   R.g.style.transform=`rotate(${R.th}deg)`;
   if(k==="year"||k==="month"||k==="day"){
-    R.g.querySelectorAll(".tick-t").forEach(t=>{
-      const v=+t.getAttribute("data-v");
-      t.classList.toggle("sel",inPillar(R,v));
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
-    });
+    R.g.querySelectorAll(".tick-t").forEach(t=>uprightTick(t,R));
   }else if(k==="hour"){
     R.g.querySelectorAll(".hour-t").forEach(t=>{
-      const v=+t.getAttribute("data-v");
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
-      t.classList.toggle("sel",inPillar(R,v));
+      uprightTick(t,R);
       t.removeAttribute("opacity");              /* 字色已按本格对比度选定，不再整体压暗 */
     });
   }else{
-    R.g.querySelectorAll(".min-t").forEach(t=>{
-      const v=+t.getAttribute("data-v");
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
-      t.classList.toggle("sel",inPillar(R,v));
-    });
+    R.g.querySelectorAll(".min-t").forEach(t=>uprightTick(t,R));
   }
   paintReadout();
 }
