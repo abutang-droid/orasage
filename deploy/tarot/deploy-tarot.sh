@@ -89,6 +89,9 @@ deploy_native() {
   npm run build
 
   cp "$DEPLOY_DIR/deploy/tarot/orasage-tarot.service" /etc/systemd/system/
+  # 历史 drop-in 会加载 /opt/orasage/.env 并覆盖 DATABASE_URL → orasage_auth，导致 Prisma 找不到 User 表
+  rm -f /etc/systemd/system/orasage-tarot.service.d/cms-env.conf
+  rmdir /etc/systemd/system/orasage-tarot.service.d 2>/dev/null || true
   systemctl daemon-reload
   systemctl enable orasage-tarot
   systemctl restart orasage-tarot
