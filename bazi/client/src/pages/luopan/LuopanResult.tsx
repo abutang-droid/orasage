@@ -16,6 +16,10 @@ const PILLAR_ORDER = [
   { key: 'hour' as const, cap: '时柱' },
 ];
 
+function formatWx(n: number) {
+  return n % 1 === 0 ? String(n) : n.toFixed(1);
+}
+
 export function LuopanResult({
   result,
   onBack,
@@ -47,8 +51,7 @@ export function LuopanResult({
         </div>
         <div className="cap">
           {result.birthStr}
-          {result.birthCity ? `　${result.birthCity}` : ''}
-          {result.trueSolarNote ? <><br />{result.trueSolarNote.replace(/[（）]/g, '')}</> : null}
+          {result.birthCity && !result.birthStr.includes(result.birthCity) ? `　${result.birthCity}` : ''}
         </div>
       </div>
       <div className="bamboo-hint">自右向左 · 年 月 日 时</div>
@@ -83,7 +86,7 @@ export function LuopanResult({
               <div key={nm} className="ink">
                 <div className="drop" style={{ ['--c' as string]: WX_VAR[nm], ['--d' as string]: `${d}px`, ['--o' as string]: o }} />
                 <div className="nm">{nm}</div>
-                <div className="ct">{n}</div>
+                <div className="ct">{formatWx(n)}</div>
               </div>
             );
           })}

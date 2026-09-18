@@ -115,7 +115,7 @@
 /* 竹简上方一行读序（不写说明书） */.luopan-root .bamboo-hint{text-align:center;font-size:12.5px;color:var(--ink-500);letter-spacing:.26em;
   text-indent:.26em;margin:2px 0 10px;}.luopan-root .creed{margin-top:28px;text-align:center;font-family:var(--serif);font-size:14px;
   color:var(--ink-500);letter-spacing:.34em;text-indent:.34em;}.luopan-root .fine{margin-top:10px;text-align:center;font-size:11.5px;color:var(--ink-300);line-height:1.95;}
-/* 五行墨点 */.luopan-root .ink-sec{margin-top:22px;}.luopan-root .ink-h{font-family:var(--serif);font-size:15px;color:var(--ink-700);letter-spacing:.2em;text-align:center;margin-bottom:14px;}.luopan-root .ink-row{display:flex;justify-content:center;align-items:flex-end;gap:16px;flex-wrap:wrap;}.luopan-root .ink{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;}.luopan-root .ink .drop{position:relative;width:var(--d);height:var(--d);
+/* 五行墨点 */.luopan-root .ink-sec{margin-top:22px;}.luopan-root .ink-h{font-family:var(--serif);font-size:15px;color:var(--ink-700);letter-spacing:.2em;text-align:center;margin-bottom:14px;}.luopan-root .ink-row{display:flex;justify-content:center;align-items:flex-end;gap:16px;flex-wrap:nowrap;}.luopan-root .ink{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;}.luopan-root .ink .drop{position:relative;width:var(--d);height:var(--d);
   border-radius:47% 53% 56% 44%/52% 45% 55% 48%;
   background:radial-gradient(circle at 38% 32%, var(--c) 0%, var(--c) 46%, transparent 74%);
   opacity:var(--o);filter:blur(.4px);}.luopan-root .ink .drop::after{content:"";position:absolute;inset:22%;

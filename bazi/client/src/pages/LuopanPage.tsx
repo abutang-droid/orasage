@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'wouter';
 import { loadCityCatalog, matchLocalCity, toCityCoords } from '@orasage/city';
-import { CitySearchInput } from '@orasage/city/react';
+import { CityProvider, CitySearchInput } from '@orasage/city/react';
 import type { BirthplaceValue } from '@orasage/city';
 import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi';
+import { cityApi } from '@/lib/city-client';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { LuopanResult } from './luopan/LuopanResult';
 import markup from './luopan/markup.html?raw';
@@ -116,7 +117,8 @@ export default function LuopanPage() {
       />
       {citySlot
         ? createPortal(
-            <CitySearchInput
+            <CityProvider api={cityApi} locale="zh-CN">
+              <CitySearchInput
               value={place}
               onChange={(v) => {
                 setPlace(v);
@@ -125,7 +127,8 @@ export default function LuopanPage() {
               fieldClassName="luopan-city-field"
               dropdownClassName="luopan-city-dropdown"
               optionClassName="luopan-city-option"
-            />,
+            />
+            </CityProvider>,
             citySlot,
           )
         : null}
