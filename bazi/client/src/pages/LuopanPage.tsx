@@ -8,6 +8,7 @@ import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi'
 import { cityApi } from '@/lib/city-client';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
+import { luopanToPersonInput } from './luopan/luopanPerson';
 import { LuopanResult } from './luopan/LuopanResult';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
@@ -53,21 +54,10 @@ export default function LuopanPage() {
           timezone = coords.timezone;
         }
       }
-      const isLunar = s.calendar === 'lunar';
-      const data = await calcSingleBazi({
-        name: '访客',
-        gender: s.sex === '女' ? 'female' : 'male',
-        year: isLunar ? s.lunarYear : s.y,
-        month: isLunar ? s.lunarMonth : s.m,
-        day: isLunar ? s.lunarDay : s.d,
-        hour: s.hh,
-        minute: s.mi,
-        calendar: isLunar ? 'lunar' : 'gregorian',
-        ...(isLunar && s.lunarLeap ? { isLeapMonth: true } : {}),
-        birthplace: city.city,
-        cityName: city.city,
+      const data = await calcSingleBazi(luopanToPersonInput(s, {
+        ...city,
         ...(lng != null ? { lng, lat: lat ?? 0, timezone } : {}),
-      });
+      }));
       setResult(data);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {

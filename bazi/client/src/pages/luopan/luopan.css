@@ -122,6 +122,26 @@
   border-radius:52% 48% 44% 56%/48% 54% 46% 52%;
   background:radial-gradient(circle at 42% 36%, var(--c), transparent 78%);opacity:.9;}.luopan-root .ink .nm{font-family:var(--serif);font-size:14px;color:var(--ink-700);}.luopan-root .ink .ct{font-size:11.5px;color:var(--ink-500);font-family:var(--num);}
 
+.luopan-root .dm .hit{margin:10px 18px 0;font-family:var(--serif);font-size:15px;color:var(--dai-700);letter-spacing:.06em;line-height:1.55;text-align:center;}
+.luopan-root .ora-sec{width:100%;margin-top:20px;padding:16px 16px 14px;background:var(--paper-2);border:1px solid var(--line-200);border-radius:16px;}
+.luopan-root .ora-h{font-family:var(--serif);font-size:15px;color:var(--ink-700);letter-spacing:.2em;text-align:center;margin-bottom:12px;}
+.luopan-root .ora-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.luopan-root .ora-cell{padding:10px 12px;background:var(--paper);border-radius:12px;border:1px solid var(--line-100);}
+.luopan-root .ora-k{font-size:11px;color:var(--ink-500);letter-spacing:.16em;margin-bottom:4px;}
+.luopan-root .ora-v{font-family:var(--serif);font-size:17px;color:var(--ink-900);letter-spacing:.04em;line-height:1.35;}
+.luopan-root .ora-v.fav{color:var(--wx-wood);}
+.luopan-root .ora-v.unfav{color:var(--zhu);}
+.luopan-root .ora-p{margin:10px 2px 0;font-size:14px;color:var(--ink-700);line-height:1.75;}
+.luopan-root .ora-p.climate{color:var(--dai-700);}
+.luopan-root .yun-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+.luopan-root .yun{flex:0 0 auto;min-width:58px;padding:8px 6px;text-align:center;background:var(--paper);border:1px solid var(--line-100);border-radius:12px;}
+.luopan-root .yun-gz{font-family:var(--serif);font-size:18px;color:var(--zhu-deep);letter-spacing:.04em;}
+.luopan-root .yun-age{margin-top:4px;font-size:11.5px;color:var(--ink-500);}
+.luopan-root .sha-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.luopan-root .sha-list li{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:14px;line-height:1.5;}
+.luopan-root .sha-n{flex:0 0 auto;font-family:var(--serif);color:var(--dai-700);letter-spacing:.08em;}
+.luopan-root .sha-v{text-align:right;color:var(--ink-700);}
+
 /* 说明 */.luopan-root .res-foot{margin-top:16px;display:flex;gap:10px;}.luopan-root .res-foot button{flex:1;min-height:50px;border-radius:14px;font-size:15.5px;font-family:var(--font);cursor:pointer;}.luopan-root .b-sec{background:var(--paper-2);border:1px solid var(--line-200);color:var(--ink-700);}.luopan-root .b-sec:active{background:var(--zhu-50);}.luopan-root .stage-foot{max-width:430px;width:100%;margin-top:26px;font-size:12px;color:var(--ink-300);line-height:1.8;text-align:center;}
 @media (max-width:400px){
   .luopan-root{padding-left:8px;padding-right:8px;}

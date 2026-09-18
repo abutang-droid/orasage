@@ -1,35 +1,7 @@
 /** 八字罗盘拨盘（从竹简命盘原型抽出，由 React 页挂载） */
 export function initLuopan(root, hooks) {
   const $ = (s) => root.querySelector(s);
-/* ══════════════════════════════════════════════
-   一、历法与排盘内核（已与 lunar-python 对拍 1200 例，零偏差）
-   ══════════════════════════════════════════════ */
-/* ↓↓↓ 历法内核 ↓↓↓ */
-const JQ="07ps14he21k32z523xaz4vyq5uw66tsa7sce8qdh9ntsakt606vl13n820px2yaw3wgs4v4h5u1u6sxv7rhx8piy9mz9ajyn075413wu20zl2ykm3wqg4ve65ubl6t7p7rru8psx9n99ak8m07f2146o219c2yu93x024vnq5ul66thc7s1l8q2r9nj4akig07ot14gd21j02z3x3x9p4vxd5uut6tr07sb98qcg9nstaks406uh13m020on2y9m3wfh4v385u0o6swv7rh48pib9myqajy4074i13w220yn2yji3wp84vct5ua56t687rqf8pro9n87ak7q07e8145u218e2yt63wyt4vmc5ujp6tfv7s058q1f9nhwakhe07nv14fg21i12z2u3x8j4vw55utk6tpr7sa18qb99nrpakr506tm13l820nv2y8r3weg4v1y5tz76sv87rff8pgn9mx3ajwk073213ur20xg2yid3wo24vbm5u8v6t4w7rp48pqd9n6wak6e07cv144g21722yrw3wxl4vl55uih6tek7ryt8q029nglakg407ml14e521gp2z1i3x774vur5us46to77s8e8q9l9nq1akpi06rz13jl20m72y723wct4v0h5txw6su17re98pff9mvuajvb071s13tf20w22ygv3wmi4va15u7c6t3f7rno8pow9n5eak4w07be1430215m2yqe3ww04vjh5ugt6tcz7rxc8pyn9nf5akek07ky14ch21f12yzu3x5k4vt65uqm6tmv7s788q8k9np2akoi06qv13id20kw2y5p3wbe4uyy5tw96ssd7rcn8pdy9mujaju2070j13s220ul2yfc3wkz4v8i5u5v6t207rmc8pnp9n4cak3x07af141y214e2yp13wul4vi35ufi6tbr7rw68pxk9ne7akdt07kb14bv21eb2yyy3x4g4vrw5up86tlf7s5t8q769nnqakn906pr13hd20jy2y4o3wa94uxr5tv36sr97rbn8pd29mtoajt706zq13rc20tx2yen3wk64v7k5u4r6t0u7rl68pml9n3bak2y079i1414213m2yob3wtt4vh65uee6tai7ruv8pwa9ncyakck07j314am21d42yxt3x3f4vqy5uoc6tki7s4v8q689nmuakmf06oy13gj20j12y3r3w9c4uwt5tu26sq57rae8pbp9msaajrv06yg13q320so2yde3wix4v6c5u3m6szr7rk38plg9n23ak1o078613zq21272ymw3wse4vfv5ud76t9g7rtx8pvd9nc0akbk07i0149i21bx2ywl3x244vpk5umv6tj27s3g8q4w9nliakl106nh13ey20hf2y233w7o4uv65tsj6soq7r968pan9mrbajqx06xe13ow20rb2ybw3whc4v4r5u216sy77ril8pk39n0vak0l077613yp21122ylk3wqx4ve85ubh6t7p7rs68pto9naeaka207gl148421aj2yv33x0i4vnw5ul86thi7s218q3k9nk9akjv06me13dx20ge2y103w6g4uts5tqy6sn27r7g8p8y9mpoajpc06vx13ni20q02yan3wg24v3c5u0j6swn7rh18pil9mzeajz4075n13x520zi2yk23wph4vcv5ua56t6e7rqv8psg9n99ak8y07fi146z219c2ytv3wz94vmn5ujx6tg47s0i8q1z9nipakie06ky13ci20ey2xzi3w4y4usc5tpo6slw7r6c8p7t9mokajo706us13md20os2y9c3wep4v205tz96svh7rfy8phj9mybajy1074m13w620yk2yj33woe4vbo5u8v6t547rpn8pr99n82ak7p07e6145n21802ysj3wxy4vlc5uio6tez7rzl8q189ni2akhp06k613bm20dy2xyi3w3x4ura5toi6sko7r558p6q9mnmajnd06ty13lh20nt2y8a3wdl4v0v5ty36su97rer8pgd9mxaajx4073q13v720xh2yhu3wn34vae5u7p6t417ron8pqc9n78ak7007dm1454217f2yru3wx34vkb5uhk6tds7ryb8pzx9ngrakgh06j113am20d02xxi3w2t4uq25tn96sjg7r3z8p5n9mmiajm906su13kd20mr2y783wci4uzp5twu6st07rdk8pf89mw7ajw1072o13u620wh2ygw3wm54v9c5u6h6t2m7rn58pot9n5pak5h07c2143j215t2yq83wvj4viv5ug56tcf7rwz8pym9nfhakf806hs139a20bm2xw23w1d4uon5tlv6si27r2j8p449mkzajkr06rd13ix20la2y5p3wax4uy45tva6sri7rc18pdp9mulajud070x13sd20um2yf03wk84v7g5u4r6t147rlu8pnm9n4kak4b07at1428214g2yos3wu14vh95uei6tas7rvf8px59ne3akdu06gd137s20a02xud3vzm4umu5tk36sgc7r0z8p2r9mjrajjm06q713ho20jv2y453w994uwf5ttn6spx7ral8pce9mthajtg070513rn20tt2ye13wj34v665u3b6szk7rk98pm29n32ak2y079l1413213c2ynm3wsq4vfv5ud26t9e7ru48pvy9ncyakcs06ff136x20982xtl3vys4ulw5tiz6sf67qzr8p1j9milajii06p713gq20j22y3f3w8k4uvn5tso6sot7r9e8pb69msaajs806yv13qc20sj2yct3whz4v555u2c6sym7rjb8pl69n28ak25078s1409212g2ymq3wrw4vf35ucb6t8k7rt58puv9nbuakbp06ec135v20852xsh3vxm4uks5thz6se97qyv8p0l9mhkajhf06o213fl20hu2y243w774uub5tri6snt7r8j8pae9mrgajrc06xy13pf20rn2ybw3wgy4v415u176sxh7ri88pk39n14ak0x077g13yu21102yla3wqe4vdk5uat6t757rrx8ptu9naxakas06db134n206s2xr13vw64ujb5tgi6scs7qxh8ozc9mghajgg06n413ej20go2y0u3w5u4usw5tq06sm97r6y8p8u9mq0ajq006wp13o320q52ya83wf54v265tze6svt7rgo8pin9mztajzs076f13xu20zy2yk33wp14vc25u986t5k7rqb8ps89n9cak9a06bx133f205m2xpt3vut4uht5tev6sb37qvt8oxr9mexajew06ll13d220f72xzc3w4b4ura5toc6skl7r5d8p7d9monajoq06vg13mw20p02y943we24v125ty46sud7rf38ph19my7ajy8074w13wc20yg2yil3wnk4vam5u7s6t437rou8pqr9n7xak7w06ak132120462xod3vtd4ugf5tdk6s9t7quj8owg9mdlajdl06kc13bu20e12xy73w364uq45tn76sjg7r478p659mnbajna06ty13lc20ng2y7k3wci4uzi5twp6st37re08pg39mxbajxa073v13v720x92yhe3wme4v9g5u6o6t307rnu8ppu9n72ak72069o131120342xn83vs74uf85tcd6s8o7qtg8ovh9mcqajcs06ji13aw20cx2xww3w1r4uop5tlu6si77r338p579mmkajmp06th13kx20mx2y6w3wbp4uyl5tvo6ss27rcx8pf09mw9ajwb073013ug20wi2ygj3wle4v8a5u5d6t1q7rmn8poq9n60ak61068p130420282xmc3vr84ue55tb66s7g7qsa8oud9mboajbs06ij13a020c32xw63w114unw5tkw6sh37r1v8p3x9ml9ajle06s313jh20lg2y5g3waa4ux75tub6sqo7rbk8pdo9mv1ajv5071u13t820v72yf73wk24v715u476t0j7rlc8pnd9n4mak4o067e12yv200x2xky3vps4ucp5t9s6s637qqw8osx9ma6aja806gy138f20ag2xuf3vz64um05tj36sfg7r0f8p2l9mjyajk206qs13i620k52y443w8w4uvr5tst6sp77ra58pcb9mtoajtq070c13ro20tm2ydl3wif4v5b5u2e6sys7rjq8plw9n3aak3e066212xd1zzb2xj93vo24uaz5t816s4d7qp98org9m8waj9406fw137b209a2xt63vxw4ukp5thq6se17qyw8p129miiajiq06pi13gw20it2y2n3w7b4uu35tr66snl7r8m8pav9msaajsh06z713qm20sl2ych3wh74v415u146sxi7rih8pkn9n21ak26064x12wd1zye2xie3vn64u9z5t6y6s387qo48oqa9m7paj7w06eo136320822xry3vwn4ujf5tge6scq7qxp8ozz9mhiajhs06ok13fy20hv2y1r3w6g4uta5tqc6smp7r7n8p9u9mraajrh06y813pm20rj2ybf3wg54v305u036swh7rhf8pjl9n0zak15063v12va1zx82xh53vlv4u8o5t5q6s247qn28opa9m6paj6w06do135420742xr03vvp4uih5tfh6sbu7qwt8oz29mgjajgp06ne13eq20gl2y0f3w524uru5tow6sld7r6g8p8t9mqcajqi06x613of20q82ya23wer4v1m5tyq6sv67rg88pij9n01ak09062z12ua1zw52xfz3vkn4u7g5t4h6s0t7qls8oo39m5maj5x06cq1342205v2xpk3vu14ugp5tdq6sa57qv88oxm9mf9ajfm06mg13du20fo2xzd3w3u4uqi5tni6sjy7r528p7f9mozajp806w113nf20pa2y923wdm4v095tx86stl7ren8pgz9mykajyt061k12sy1zuv2xeo3vj94u5w5t2s6rz37qk38omh9m44aj4g06bb132q204n2xog3vt04ufo5tck6s8u7qtt8ow59mdsaje406kx13ca20e32xxt3w2d4up15tm16sie7r3g8p5t9mneajnp06ui13lv20no2y7f3wc04uys5tvu6ss97rda8pfk9mx3ajxc060512rk1zth2xda3vhv4u4l5t1m6rxz7qiz8ola9m2saj31069u131820332xmt3vra4udw5tav6s7b7qsg8oux9mckajcv";
-const GAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-const ZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-const WX=[0,0,1,1,2,2,3,3,4,4], WXN=["木","火","土","金","水"];
-const WXC=["var(--wx-wood)","var(--wx-fire)","var(--wx-earth)","var(--wx-metal)","var(--wx-water)"];
-const ZHI_WX=[4,2,0,0,2,1,1,2,3,3,2,4];
-const CANG=[[8],[5,8,7],[0,2,4],[1],[4,1,8],[2,6,4],[3,5],[5,3,1],[6,8,4],[7],[4,7,3],[8,0]];
-const MZ=[1,2,3,4,5,6,7,8,9,10,11,0];
-function jqOf(y){const b=(y-1920)*48,a=[];for(let k=0;k<12;k++)a.push(parseInt(JQ.substr(b+k*4,4),36));return a;}
-function doy(y,m,d){return Math.floor((Date.UTC(y,m-1,d)-Date.UTC(y,0,1))/86400000)+1;}
-function jdn(y,m,d){const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;
-  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;}
-function shishen(o,me){const wo=WX[me],ox=WX[o],s=(o%2)===(me%2);
-  if(ox===wo)return s?"比肩":"劫财"; if(ox===(wo+1)%5)return s?"食神":"伤官";
-  if(ox===(wo+2)%5)return s?"偏财":"正财"; if(ox===(wo+3)%5)return s?"七杀":"正官";
-  return s?"偏印":"正印";}
-function paipan(y,m,d,hh,mi){
-  const key=doy(y,m,d)*1440+hh*60+mi,q=jqOf(y);
-  const ny=key>=q[1]?y:y-1, yg=(ny-4+10000)%10, yz=(ny-4+12000)%12;
-  let mz=0; for(let i=11;i>=0;i--){if(key>=q[i]){mz=MZ[i];break;}}
-  const mg=((((yg%5)*2+2)+((mz-2+12)%12))%10+10)%10;
-  const dz=(jdn(y,m,d)+49)%60, dg=dz%10, dzh=dz%12;
-  const tz=((hh+1)/2|0)%12, tg=((dg%5)*2+tz)%10;
-  return {year:{g:yg,z:yz},month:{g:mg,z:mz},day:{g:dg,z:dzh},time:{g:tg,z:tz}};
-}
+/* 排盘走 React 侧 calcSingleBazi（与经典填写页同一套）。此处只保留拨盘与语音。 */
 /* ══════ 一天的天色：8 个生活化时段（仅作小时环的分组底色与语音词，不再是选项） ══════ */
 const SEG = [
   {n:"半夜",   h:1,  s:"子丑"}, {n:"天快亮", h:4,  s:"寅"},
@@ -797,104 +769,7 @@ seal.addEventListener("click",e=>{
 });
 seal.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();recording?stopRec():startRec();} });
 
-/* ══════════════════════════════════════════════
-   四、竹简命盘
-   ══════════════════════════════════════════════ */
-const WXNAME=["木","火","土","金","水"];
-const WXVAR=["var(--wx-wood)","var(--wx-fire)","var(--wx-earth)","var(--wx-metal)","var(--wx-water)"];
-const SSMEAN={
-  "比肩":"和你同类的力量，主自立、并肩",
-  "劫财":"和你同类但相异，主争夺、也主帮身",
-  "食神":"你所生的温和之力，主表达、才思",
-  "伤官":"你所生的外放之力，主锋芒、不羁",
-  "偏财":"你克制的流动之财，主机缘、手头活钱",
-  "正财":"你克制的稳定之财，主经营、细水长流",
-  "七杀":"克制你的刚猛之力，主压力、也主魄力",
-  "正官":"克制你的端正之力，主规矩、分寸",
-  "偏印":"生养你的偏斜之力，主奇思、孤学",
-  "正印":"生养你的端正之力，主涵养、庇护"
-};
-
-function showResult(){
-  const p=paipan(S.y,S.m,S.d,S.hh,S.mi);
-  const shi=ZHI[((S.hh+1)/2|0)%12];
-  const dg=p.day.g;
-  const pillars=[
-    {k:"年柱",g:p.year.g, z:p.year.z},
-    {k:"月柱",g:p.month.g,z:p.month.z},
-    {k:"日柱",g:p.day.g,  z:p.day.z, day:true},
-    {k:"时柱",g:p.time.g, z:p.time.z}
-  ];
-  /* 五行统计：四天干 + 四地支 */
-  const cnt=[0,0,0,0,0];
-  pillars.forEach(pl=>{ cnt[WX[pl.g]]++; cnt[ZHI_WX[pl.z]]++; });
-  const max=Math.max.apply(null,cnt);
-
-  const bb=pillars.map((pl,i)=>{
-    const cg=(CANG[pl.z]||[]).map(x=>GAN[x]).join(" ");
-    const ss=shishen(pl.g,dg);
-    const zw=ZHI_WX[pl.z];
-    return `<div class="bb${pl.day?" day":""}" style="animation-delay:${i*0.13}s">
-      <div class="fib"></div>
-      <div class="cap">${pl.k}</div>
-      <div class="gan">${GAN[pl.g]}</div>
-      <div class="ss">${ss}</div>
-      <div class="line"></div>
-      <div class="zhi">${ZHI[pl.z]}</div>
-      <div class="wxtag" style="background:${WXVAR[zw]}"></div>
-      <div class="cang">${cg?"藏 "+cg:""}</div>
-    </div>`;
-  }).join("");
-
-  const inks=cnt.map((n,i)=>{
-    const d=Math.round(30+ (n/(max||1))*34);
-    const o=(0.30+0.55*(n/(max||1))).toFixed(2);
-    return `<div class="ink"><div class="drop" style="--c:${WXVAR[i]};--d:${d}px;--o:${o}"></div>
-      <div class="nm">${WXNAME[i]}</div><div class="ct">${n}</div></div>`;
-  }).join("");
-
-  const dmWx=WXN[WX[dg]];
-  const lr=s2l(S.y,S.m,S.d);
-  const lunar = lr ? `农历 ${lr.y} 年 ${lr.lp?"闰":""}${LU_MN[lr.m-1]}月${LU_DN[lr.d-1]}` : "";
-
-  $("#res").innerHTML=`
-    <div class="res-top">
-      <button class="bk" id="bk" aria-label="返回罗盘"><svg viewBox="0 0 10 17" fill="none" width="10" height="17"><path d="M8.5 1L1.5 8.5L8.5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <span class="tt">你的命盘</span>
-    </div>
-    <div class="dm">
-      <div class="ring">
-        <div class="lb">日 主</div>
-        <div class="gz">${GAN[dg]}</div>
-        <div class="wx">五行属 ${dmWx}</div>
-      </div>
-      <div class="cap">${S.y} 年 ${S.m} 月 ${S.d} 日　${pad2(S.hh)}:${pad2(S.mi)}　${shi}时${S.sex?"　"+S.sex:""}<br>${lunar}</div>
-    </div>
-    <div class="bamboo-hint">自右向左 · 年 月 日 时</div>
-    <div class="bamboo-row">${bb}</div>
-    <div class="ink-sec">
-      <div class="ink-h">五 行</div>
-      <div class="ink-row">${inks}</div>
-    </div>
-    <div class="creed">知结构，不问吉凶</div>
-    <div class="fine">
-      按立春分岁、十二「节」分月，节气时刻精确到分钟；未取真太阳时。<br>
-      本盘只呈现干支结构，不判吉凶，不构成任何医疗、法律、财务或人生决策建议。
-    </div>
-    <div class="res-foot">
-      <button class="b-sec" id="again">重 排</button>
-      <button class="b-sec" id="back2">返回罗盘</button>
-    </div>`;
-  $("#res").hidden=false;
-  $("#dialScreen").hidden=true;
-  $("#bk").onclick=back; $("#back2").onclick=back; $("#again").onclick=back;
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function back(){
-  $("#res").hidden=true;
-  $("#dialScreen").hidden=false;
-  window.scrollTo({top:0,behavior:"smooth"});
-}
+/* 结果屏由 React LuopanResult 渲染，不再使用原型 paipan。 */
 function getState(){
   return {
     y:S.y, m:S.m, d:S.d, hh:S.hh, mi:S.mi,
@@ -907,7 +782,6 @@ if(goBtn) goBtn.onclick=()=>{
   const n=maxDay();
   if(!S.y||!S.m||!S.d||S.d>n){ alert("日期还没选对，看一下罗盘上的读数。"); return; }
   if (hooks && typeof hooks.onGo === "function") hooks.onGo(getState());
-  else showResult();
 };
 
 /* ── 初始 ── */
