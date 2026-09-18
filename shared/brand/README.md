@@ -14,6 +14,7 @@
 | `favicon/icon-180.png` | apple-touch-icon（方形无圆角，系统裁切） |
 | `favicon/icon-192.png` / `icon-512.png` | PWA / manifest |
 | `og/og-{main,bazi,ziwei,tarot,shop}.png` | 1200×630 静态分享图（VI §6.2 模板） |
+| `ai-consultant/` | AI 命理顾问数字人身份锁与 I2V 提示词（[talking-head 规范](../../docs/design-system/ai-consultant-talking-head.md)）；**不得**作头像 / 图标 |
 
 ## 同步方式
 
