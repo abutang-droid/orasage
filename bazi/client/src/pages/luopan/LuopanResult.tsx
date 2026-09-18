@@ -1,5 +1,10 @@
+import { useMemo, useRef } from 'react';
 import type { SingleBaziResult } from '@/lib/bazi';
-import { BRANCH_WU_XING, SHI_SHEN_MAP, WU_XING_MAP, ZANG_GAN_MAP } from '@/lib/bazi';
+import { BRANCH_WU_XING, recommendBracelet, SHI_SHEN_MAP, WU_XING_MAP, ZANG_GAN_MAP } from '@/lib/bazi';
+import { PaywallCard } from '@/components/PaywallCard';
+import { UnlockedContent } from '@/components/BaziResult';
+import { BaziConfiguredProductRecommend } from '@/components/BaziConfiguredProductRecommend';
+import { usePaymentFlow } from '@/_core/hooks/usePaymentFlow';
 import { cangGanList } from './luopanPerson';
 
 const WX_VAR: Record<string, string> = {
@@ -42,6 +47,30 @@ export function LuopanResult({
   const shenshaEntries = Object.entries(result.shensha ?? {}).filter(([, vals]) => vals?.length);
   const daYun = result.daYun ?? [];
   const hit = result.oneLineHit;
+  const payment = usePaymentFlow();
+  const captureRef = useRef<HTMLDivElement>(null);
+  const braceletRec = useMemo(
+    () => recommendBracelet(result.wuXing as unknown as Record<string, number>),
+    [result],
+  );
+  const chart = useMemo(() => ({
+    birthStr: result.birthStr,
+    gender: result.gender,
+    name: result.name,
+    wuXing: result.wuXing as unknown as Record<string, number>,
+  }), [result.birthStr, result.gender, result.name, result.wuXing]);
+
+  const handleReportReady = (reportContent: string, _sections: Array<{ title: string; content: string }>) => {
+    if (!payment.purchasedPlan) return;
+    if (!payment.shopOrderNo && !payment.wooOrderId) return;
+    payment.pushReportToWordPress({
+      planType: payment.purchasedPlan,
+      wooOrderId: payment.wooOrderId || undefined,
+      shopOrderNo: payment.shopOrderNo || undefined,
+      reportContent,
+      name: result.name,
+    });
+  };
 
   return (
     <div className="res">
@@ -167,6 +196,29 @@ export function LuopanResult({
           </ul>
         </section>
       ) : null}
+
+      <div className="luopan-commerce">
+        {!payment.unlocked ? (
+          <PaywallCard
+            selectedPlan={payment.selectedPlan}
+            onSelectPlan={payment.setSelectedPlan}
+            onPay={payment.handlePaySelected}
+            payLoading={payment.payLoading}
+          />
+        ) : (
+          <UnlockedContent
+            result={result}
+            purchasedPlan={payment.purchasedPlan}
+            braceletRec={braceletRec}
+            captureRef={captureRef}
+            onReportReady={handleReportReady}
+          />
+        )}
+        {/* 基础版解锁后 UnlockedContent 已带手串；未付费时也可直接去商城买推荐手串 */}
+        {!payment.unlocked || payment.purchasedPlan !== 'basic' ? (
+          <BaziConfiguredProductRecommend chart={chart} />
+        ) : null}
+      </div>
 
       <div className="creed">与经典排盘同一套算法</div>
       <div className="fine">

@@ -142,6 +142,9 @@
 .luopan-root .sha-n{flex:0 0 auto;font-family:var(--serif);color:var(--dai-700);letter-spacing:.08em;}
 .luopan-root .sha-v{text-align:right;color:var(--ink-700);}
 
+.luopan-root .luopan-commerce{width:100%;margin-top:22px;display:flex;flex-direction:column;gap:12px;}
+.luopan-root .luopan-commerce [data-testid="bazi-paywall"]{background:var(--paper-2) !important;border-color:var(--line-200) !important;box-shadow:0 2px 12px rgba(34,32,28,.06) !important;}
+
 /* 说明 */.luopan-root .res-foot{margin-top:16px;display:flex;gap:10px;}.luopan-root .res-foot button{flex:1;min-height:50px;border-radius:14px;font-size:15.5px;font-family:var(--font);cursor:pointer;}.luopan-root .b-sec{background:var(--paper-2);border:1px solid var(--line-200);color:var(--ink-700);}.luopan-root .b-sec:active{background:var(--zhu-50);}.luopan-root .stage-foot{max-width:430px;width:100%;margin-top:26px;font-size:12px;color:var(--ink-300);line-height:1.8;text-align:center;}
 @media (max-width:400px){
   .luopan-root{padding-left:8px;padding-right:8px;}
