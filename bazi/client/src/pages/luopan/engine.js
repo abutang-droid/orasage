@@ -96,13 +96,13 @@ function parseSpeech(text){
       if(m) o.d=cnNum(m[1])||parseInt(toDigits(m[1]),10); }
   }
   /* 具体钟点：优先于时段词，可带分（三点半 / 三点二十 / 十五点零五分 / 三点一刻） */
-  m=t.match(new RegExp("([0-9]{1,2}|[一二三四五六七八九十两]{1,3})\\s*[点时](半|一刻|两刻|三刻|[〇零一二三四五六七八九十两0-9]{1,3}\\s*分)?"));
+  m=t.match(new RegExp("([0-9]{1,2}|[一二三四五六七八九十两]{1,3})\\s*[点时](半|一刻|两刻|三刻|([〇零一二三四五六七八九十两0-9]{1,3})\\s*分?)?"));
   if(m){ let h=/[0-9]/.test(m[1])?parseInt(m[1],10):cnNum(m[1]);
          const isPM=/(下午|过晌)/.test(t);
          const isNight=/(晚上|夜里|黄昏|掌灯|半宿|傍晚)/.test(t);
          if(isPM && h<12) h+=12;
          else if(isNight && h>=6 && h<12) h+=12;   /* 晚上两点=凌晨2点，不加12 */
-         if(h>=0&&h<=23){ o.hh=h; o.mi=minuteOf(m[2]); } }
+         if(h>=0&&h<=23){ o.hh=h; o.mi=minuteOf(m[2]||m[3]); } }
   if(o.hh===null){ for(const [re,h] of SEGKEYS){ if(re.test(t)){ o.hh=h; o.mi=0; break; } } }
   o.lunar=/(腊月|冬月|正月|初一|初二|初三|初四|初五|初六|初七|初八|初九|初十|十五|廿|闰)/.test(t);
   /* 性别 */
@@ -715,39 +715,62 @@ function sealHTML(svg,s1,s3){
   seal.innerHTML=svg+ (s1?`<div class="s1">${s1}</div>`:"") + (s3?`<div class="s3">${s3}</div>`:"");
 }
 const MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>';
-let rec=null,recording=false;
+let rec=null,recording=false,lastTranscript="",speechApplied=false;
 if(SR){
-  rec=new SR(); rec.lang="zh-CN"; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+  rec=new SR(); rec.lang="zh-CN"; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
   rec.onresult=e=>{
-    let fin="",inter="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const r=e.results[i]; if(r.isFinal) fin+=r[0].transcript; else inter+=r[0].transcript;
-    }
-    liveTx.textContent=fin||inter||"…";
-    if(fin){ stopRec(); handle(fin); }
+    let text="";
+    for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
+    lastTranscript=text;
+    liveTx.textContent=text||"…";
   };
   rec.onerror=e=>{
-    stopRec();
+    if(e.error==="aborted"||e.error==="no-speech") return;
+    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
     live.hidden=false; liveSt.textContent="未识别";
     liveTx.textContent = (e.error==="not-allowed") ? "未获麦克风授权，可用罗盘拨选。" : "未能识别，请再说一次，或拨动罗盘。";
     setTimeout(()=>{ if(!recording) live.hidden=true; },4200);
   };
-  rec.onend=()=>{ if(recording) stopRec(); };
+  rec.onend=()=>{
+    const was=recording;
+    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
+    if(was) commitSpeech();
+  };
 }
 function startRec(){
   if(!SR){ live.hidden=false; liveSt.textContent="此浏览器不支持语音";
     liveTx.textContent="可用罗盘拨选。"; return; }
+  lastTranscript=""; speechApplied=false;
   recording=true; seal.classList.add("listening");
   live.hidden=false; liveSt.textContent="聆听中"; liveTx.textContent="";
   sealHTML(MIC,"聆听…","");
-  try{ rec.start(); }catch(e){}
+  try{ rec.start(); }catch(err){
+    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
+    liveSt.textContent="未识别";
+    liveTx.textContent="麦克风正忙，请再点一次中央印章。";
+  }
 }
 function stopRec(){
   recording=false; seal.classList.remove("listening");
   sealHTML(MIC,"","");
-  try{ rec.stop(); }catch(e){}
+  try{ rec && rec.stop(); }catch(_){}
+  commitSpeech();
+}
+function commitSpeech(){
+  const t=(lastTranscript||"").trim();
+  if(speechApplied) return;
+  if(!t){
+    live.hidden=false;
+    liveSt.textContent="未听清";
+    liveTx.textContent="请再说一次年月日时和城市，或拨动罗盘。";
+    setTimeout(()=>{ if(!recording) live.hidden=true; },3500);
+    return;
+  }
+  speechApplied=true;
+  handle(t);
 }
 function handle(t){
+  lastTranscript=t;
   const o=parseSpeech(t);
   let miss=[];
   if(o.y){S.y=o.y;} else miss.push("年");
@@ -761,11 +784,17 @@ function handle(t){
   live.hidden=false;
   liveSt.textContent="已记下";
   const hm=pad2(S.hh)+":"+pad2(S.mi);
-  liveTx.innerHTML=miss.length? `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}　<span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span>`
-                             : `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}`;
-  setTimeout(()=>{live.hidden=true;},5000);
+  const heard=t.replace(/[<>&]/g,"");
+  liveTx.innerHTML=miss.length? `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}<br><span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span><br><span style="opacity:.7">听到：${heard}</span>`
+                             : `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}<br><span style="opacity:.7">听到：${heard}</span>`;
+  if(hooks && typeof hooks.onTranscript==="function") hooks.onTranscript(t);
+  setTimeout(()=>{ if(!recording) live.hidden=true; },6000);
 }
-seal.addEventListener("click",()=>{ recording?stopRec():startRec(); });
+seal.addEventListener("pointerdown",e=>{ e.stopPropagation(); });
+seal.addEventListener("click",e=>{
+  e.stopPropagation();
+  recording?stopRec():startRec();
+});
 seal.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();recording?stopRec():startRec();} });
 
 /* ══════════════════════════════════════════════
@@ -902,10 +931,17 @@ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
   },700);
 }
 
+  try {
+    const say = new URLSearchParams(window.location.search).get("say");
+    if (say) setTimeout(() => handle(say), 500);
+  } catch (_) {}
+
   return {
     getState,
+    applyTranscript: handle,
     destroy() {
       window.removeEventListener("resize", onWinResize);
+      recording=false;
       try { rec && rec.abort && rec.abort(); } catch (_) {}
     }
   };

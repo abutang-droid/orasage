@@ -14,8 +14,12 @@ export type LuopanDialState = {
 
 export function initLuopan(
   root: ParentNode,
-  hooks?: { onGo?: (state: LuopanDialState) => void },
+  hooks?: {
+    onGo?: (state: LuopanDialState) => void;
+    onTranscript?: (text: string) => void;
+  },
 ): {
   getState: () => LuopanDialState;
+  applyTranscript: (text: string) => void;
   destroy: () => void;
 };

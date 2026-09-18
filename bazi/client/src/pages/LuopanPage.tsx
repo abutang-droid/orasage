@@ -7,6 +7,7 @@ import type { BirthplaceValue } from '@orasage/city';
 import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi';
 import { cityApi } from '@/lib/city-client';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
+import { pickCityFromSpeech } from './luopan/speechPlace';
 import { LuopanResult } from './luopan/LuopanResult';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
@@ -14,7 +15,7 @@ import './luopan/luopan.css';
 export default function LuopanPage() {
   const [, setLocation] = useLocation();
   const hostRef = useRef<HTMLDivElement>(null);
-  const apiRef = useRef<{ destroy: () => void } | null>(null);
+  const apiRef = useRef<{ destroy: () => void; applyTranscript: (text: string) => void } | null>(null);
   const [citySlot, setCitySlot] = useState<HTMLElement | null>(null);
   const [errSlot, setErrSlot] = useState<HTMLElement | null>(null);
   const [place, setPlace] = useState<BirthplaceValue>({ city: '', country: '' });
@@ -77,6 +78,25 @@ export default function LuopanPage() {
     }
   }, []);
 
+  const onTranscript = useCallback(async (text: string) => {
+    try {
+      const catalog = await loadCityCatalog();
+      const hit = pickCityFromSpeech(text, catalog);
+      if (!hit) return;
+      const coords = toCityCoords(hit);
+      setPlace({
+        city: hit.city,
+        country: hit.country,
+        lng: coords.lng,
+        lat: coords.lat,
+        timezone: coords.timezone,
+      });
+      setError('');
+    } catch (err) {
+      console.warn('luopan speech city', err);
+    }
+  }, []);
+
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
@@ -87,7 +107,7 @@ export default function LuopanPage() {
       setLocation('/');
     };
     back?.addEventListener('click', onBackClick);
-    const api = initLuopan(host, { onGo });
+    const api = initLuopan(host, { onGo, onTranscript });
     apiRef.current = api;
     setCitySlot(host.querySelector('#luopan-city-slot') as HTMLElement | null);
     setErrSlot(host.querySelector('#luopan-err-slot') as HTMLElement | null);
@@ -98,7 +118,7 @@ export default function LuopanPage() {
       setCitySlot(null);
       setErrSlot(null);
     };
-  }, [onGo, setLocation]);
+  }, [onGo, onTranscript, setLocation]);
 
   const messages = (
     <>
