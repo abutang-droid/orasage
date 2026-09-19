@@ -1,6 +1,6 @@
 # OraSage 商城后台重构方案 v2（待确认）
 
-> 状态：**方案评审中** — 基于运营方 2026-07-09 提出的 8 条要求重新规划。
+> 状态：**执行中** — Phase A–D 已落地（2026-07-09）；B′ 媒体基建仍推迟。进度以本文 §七 为准。
 > 前置：`docs/plans/shop-redesign-v1.md`（Phase 0–2 已完成）、PR #236（结构化属性 Phase 1）。
 
 ## 〇、运营方 8 条要求（原文归纳）
@@ -237,14 +237,25 @@ UNIQUE(appSource, slotKey, sort)
 | Q5 | DIY 珠子是否需要多语言名称（前台目前中文为主） | 需要（R8 全覆盖） |
 | Q6 | UGC 评价与促销排期：与权限（Item 7）谁先？ | 权限先行，评价/促销随后 |
 
-## 七、实施分期（待批准后执行）
+## 七、实施分期
+
+> 进度快照：**2026-07-09**（详见 [`HANDOFF-agent-2026-07-09.md`](../HANDOFF-agent-2026-07-09.md) §4）。
 
 | Phase | 内容 | 涉及 | 状态 |
 |-------|------|------|------|
 | **A 基座** | visibility/kind/库存/slug + 标签体系 + 关联链接 + `app_billing_slots` + 新侧栏 IA（商城/应用计费分组） | auth-service 迁移、admin 大改版、shop 目录过滤 | ✅ PR #239 已上线（2026-07-09） |
-| **B 内容与多语言** | CMS 详情页/评价 4 语；admin 原生详情内容编辑（Q2-b）；PDP 附件下载区、关联页面区块前台展示 | cms、shop、admin | 待做 |
-| **B′ 媒体基建** | Cloudflare CDN + R2 迁移 | deploy、cms | **推迟：与服务器迁移同期执行** |
-| **C 履约运营** | 订单筛选/批量/导出、运费模板落库、DIY 并入商城组 | auth-service、admin、shared/shop-fulfillment | 待做 |
-| **D 增长** | UGC 评价、促销、权限角色化 | 全栈 | 待做（权限先行） |
+| **B 内容与多语言** | CMS 详情页/评价多语；admin 原生详情内容编辑（Q2-b）；PDP 附件下载区、关联页面区块；商品列表批量/CSV/缺语言筛选、Hero 拖拽排序 | cms、shop、admin | ✅ 主体完成 #241 #245（2026-07-09）；admin 商品 i18n 现为第一期 **3 语** Tab（#249） |
+| **B′ 媒体基建** | Cloudflare CDN + R2 迁移 | deploy、cms | **推迟：与服务器迁移同期执行**（Q1 决策不变） |
+| **C 履约运营** | 订单筛选/批量/导出、运费模板落库（`shipping_zones`）、DIY 并入商城组、shop 运费估算 API | auth-service、admin、shared/shop-fulfillment | ✅ PR #246 已上线（2026-07-09） |
+| **D 增长** | UGC 评价、促销/coupon admin、权限角色化（`admin` / `shop_ops` / `content_ops`）、CMS SSO content_ops | auth-service、admin、cms | ✅ PR #247 已上线（2026-07-09） |
+| **结账优惠码** | shop 结账 UI + auth internal coupon API；支付完成递增 `used_count` | shop、auth-service | ✅ PR #248 已上线（2026-07-09）；mock 支付路径已通；**Stripe 金额同步未做** |
+
+**Phase 后续 / 未纳入上表：**
+
+| 项 | 说明 |
+|----|------|
+| Stripe 结账 + 优惠码 | `PAYMENT_MODE=stripe` 时 Checkout 金额与 DB `amount_cents` 一致性待核对 |
+| 第一期语言策略 | `PHASE_1_LOCALES` = zh-CN / en / pt-BR（#249）；恢复 zh-TW + T2 时扩表与路由 |
+| B′ R2/CDN | 等服务器迁移窗口 |
 
 每 Phase 合入前按 AGENT-RULES 做关联分支穿透 + 全量回归。
