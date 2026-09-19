@@ -87,7 +87,23 @@ async function loadRecommendData(): Promise<RecommendCache> {
   return cache;
 }
 
-export function shopCheckoutUrlForProduct(product: Pick<BaziRecommendProduct, 'sku' | 'priceCents' | 'priceCentsUsd' | 'recommendPriceOverride'>): string {
+export function fallbackRecommendFromChart(chart: BaziChartRecommendContext): BaziRecommendProduct | null {
+  const entries = Object.entries(chart.wuXing).filter(([, v]) => Number.isFinite(v));
+  if (entries.length === 0) return null;
+  const [element] = entries.reduce((min, cur) => (cur[1] < min[1] ? cur : min));
+  const sku = ELEMENT_TO_SHOP_SKU[element];
+  if (!sku) return null;
+  return {
+    sku,
+    name: `${element}行水晶手串`,
+    desc: `命盘中「${element}」较弱，建议佩戴对应五行水晶手串。`,
+    priceDisplay: '',
+    priceCents: 0,
+    element,
+  };
+}
+
+export function shopCheckoutUrlForProduct(product: Pick<BaziRecommendProduct, 'sku' | 'priceCents' | 'priceCentsUsd' | 'recommendPriceOverride' | 'shopUrl'>): string {
   if (product.shopUrl) return product.shopUrl;
   const params = new URLSearchParams({
     sku: product.sku,
@@ -125,12 +141,14 @@ export async function resolveRecommendProductForChart(
     });
     if (chart.name) params.set('name', chart.name);
     const res = await fetch(`/api/recommend/product?${params.toString()}`);
-    if (!res.ok) return null;
-    const body = await res.json() as { product?: BaziRecommendProduct };
-    return body.product ?? null;
+    if (res.ok) {
+      const body = await res.json() as { product?: BaziRecommendProduct };
+      if (body.product?.sku) return body.product;
+    }
   } catch {
-    return null;
+    /* billing slot / local vite without API — still offer a shop SKU */
   }
+  return fallbackRecommendFromChart(chart);
 }
 
 export async function resolveRecommendProductForElement(element: string): Promise<BaziRecommendProduct | null> {

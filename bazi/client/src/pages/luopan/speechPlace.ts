@@ -19,7 +19,7 @@ export function pickCityFromSpeech<T extends SpeechCityHit>(
   text: string,
   catalog: T[],
 ): T | null {
-  const t = text.replace(/\s+/g, "");
+  const t = text.replace(/[\s\u3000]/g, "").replace(/[，。,.、；;！!？?]/g, "");
   if (!t || catalog.length === 0) return null;
 
   const labeled = t.match(new RegExp(`${PLACE_PREFIX.source}([\\u4e00-\\u9fff]{2,8})`));
