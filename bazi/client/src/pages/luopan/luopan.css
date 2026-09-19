@@ -43,7 +43,7 @@
    CSS 里不能再写 fill —— 样式表会压过 SVG 表现属性，写了就全环同色。 */.luopan-root .tick-t{font-size:10.6px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;pointer-events:none;}.luopan-root .tick-t.big{font-size:12.2px;}.luopan-root .tick-t.dim{fill:var(--ink-300);}      /* 该日在本月不存在：压灰，是唯一的 fill 覆盖 */
 /* 小时环：24 格，天色作分组底色，只写 0–23 单数字 */.luopan-root .hour-t{font-size:13.2px;font-weight:600;font-family:var(--num);letter-spacing:.01em;
   text-anchor:middle;dominant-baseline:middle;pointer-events:none;}
-/* 分钟环：60 格，每 5 分标一个数 */.luopan-root .min-l{stroke:rgba(34,32,28,.38);stroke-linecap:round;}.luopan-root .min-t{font-size:12px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;pointer-events:none;}
+/* 分钟环：60 格，0–59 全部标数；逢 5 略放大 */.luopan-root .min-t{font-size:7.6px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;pointer-events:none;}.luopan-root .min-t.major{font-size:8.8px;font-weight:600;}
 /* 被托起的那一格：刻度隐去，改由浮层里的放大读数承担 */.luopan-root .tick-t.sel, .luopan-root .hour-t.sel, .luopan-root .min-t.sel{opacity:0;}
 
 /* ── 从圆心向上的半透浮层：把指针处的一列读数托起来 ── */.luopan-root #pillar, .luopan-root #pillarVal{pointer-events:none;}.luopan-root #pillarVal text{font-family:var(--num);font-weight:700;fill:var(--zhu);text-anchor:middle;

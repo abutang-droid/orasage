@@ -320,27 +320,19 @@ function drawHour(r0,r1){
     wrap.appendChild(t); g.appendChild(wrap);
   }
 }
-/* ── 分钟环：60 格，每格一块底色，每 5 分标一个数 ── */
+/* ── 分钟环：60 格，每格一块底色、标一个数 0–59（与小时环同一套语言） ── */
 function drawMin(r0,r1){
   const g=$("#rMin"); RI.min.g=g;
   while(g.firstChild) g.removeChild(g.firstChild);      /* 半径会变（选中时加粗），按新带重画 */
   const rm=(r0+r1)/2;
   const pal=palette("min");
-  /* 原来是「一圈淡灰 + 刻度线」，现在与其余四环同一套语言：每格各自成块 */
   for(let i=0;i<60;i++)
     g.appendChild(el("path",{d:sector(r0,r1,i*6-3-.06,i*6+3+.06),fill:pal[i]}));
   for(let i=0;i<60;i++){
-    const major=i%5===0, zero=i===0;
-    let w=el("g",{transform:`rotate(${i*6} ${C} ${C})`});
-    w.appendChild(el("line",{x1:C,y1:C-r1+1.6,x2:C,y2:C-(r1-(major?10:5)),class:"min-l",
-      "stroke-width":zero?2:(major?1.2:.6),opacity:zero?1:(major?.85:.42)}));
-    g.appendChild(w);
-    if(major){
-      w=el("g",{transform:`rotate(${i*6} ${C} ${C})`});
-      const t=el("text",{x:C,y:C-(r0+(r1-r0)*0.44),class:"min-t","data-v":i,fill:inkOn(pal[i])});
-      t.textContent=String(i);
-      w.appendChild(t); g.appendChild(w);
-    }
+    const wrap=el("g",{transform:`rotate(${i*6} ${C} ${C})`});
+    const t=el("text",{x:C,y:C-rm,class:"min-t"+(i%5===0?" major":""),"data-v":i,fill:inkOn(pal[i])});
+    t.textContent=String(i);
+    wrap.appendChild(t); g.appendChild(wrap);
   }
 }
 function sector(r0,r1,a0,a1){
