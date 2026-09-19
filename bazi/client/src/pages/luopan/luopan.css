@@ -37,7 +37,7 @@
 /* 拨动时：被转的那一环浮起并加粗，其余退为背景。
    不用「朱砂洗色垫在环下」—— 小时/月环是实心色块，半透朱砂叠上去只会让
    颜色发灰（实测饱和度 33%→23%），而它原本就被色块盖住看不见。
-   选中态交给三件事：环带加粗（FOCUS 表）+ 外缘描一遍朱砂 + 邻环淡出。 */.luopan-root .dial.focus .ring-g{opacity:.14;}.luopan-root .dial.focus .ring-g.on{opacity:1;}.luopan-root .ring-edge{fill:none;stroke:#A8433A;stroke-width:3.4;opacity:0;
+   选中态交给三件事：环带略加粗（FOCUS 每侧 +3）+ 外缘描一遍朱砂 + 邻环淡出。 */.luopan-root .dial.focus .ring-g{opacity:.14;}.luopan-root .dial.focus .ring-g.on{opacity:1;}.luopan-root .ring-edge{fill:none;stroke:#A8433A;stroke-width:3.4;opacity:0;
   pointer-events:none;transition:opacity .2s ease;}.luopan-root .ring-edge.on{opacity:.8;}.luopan-root .ro.on{background:var(--zhu-50);}.luopan-root .ro.on .val, .luopan-root .ro.on .lb{color:var(--zhu);}.luopan-root .ro.on .mini{color:var(--zhu);}.luopan-root .ring-g.snapping{transition:transform .5s cubic-bezier(.3,1.34,.44,1), opacity .22s ease;}.luopan-root .tick-l{stroke:rgba(34,32,28,.16);stroke-width:.8;}
 /* 刻度字的 fill 一律由 JS 按所在色块算出（WCAG 对比度选墨/米白），
    CSS 里不能再写 fill —— 样式表会压过 SVG 表现属性，写了就全环同色。 */.luopan-root .tick-t{font-size:10.6px;font-family:var(--num);text-anchor:middle;dominant-baseline:middle;pointer-events:none;}.luopan-root .tick-t.big{font-size:12.2px;}.luopan-root .tick-t.dim{fill:var(--ink-300);}      /* 该日在本月不存在：压灰，是唯一的 fill 覆盖 */

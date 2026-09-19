@@ -400,13 +400,21 @@ function drawRing(k,r0,r1){
     }
   }
 }
-/* ── 选中环的「加大加粗」：内胀外扩，带厚 +30~50%，中线几乎不动（读数不会跳）。
-      外沿最多只压到邻环 4 单位，而邻环此刻已淡到 .15，读作「浮起来」；
-      同时把该环抬到最上层，扩出去的部分才不会被邻环盖住。 ── */
-/* 选中时的环带半径：内沿外沿各向外扩 7 —— 「加粗」靠它，不是靠整体等比放大。
-   等比放大会让最外圈冲破盘沿（206×1.06=218 > 208），而厚度只涨 6%，看不出加粗。
-   年环内沿被中心印（半径 58）挡住，只能停在 56；分钟环外沿止于 207（盘沿 208）。 */
-const FOCUS={year:[56,91],month:[81,121],day:[113,155],hour:[145,187],min:[177,207]};
+/* ── 选中环略加粗：内胀外扩，中线几乎不动（读数不跳），邻环淡到 .15 读作浮起。
+      原先每侧扩 7，带厚到未选中的 1.5 倍，手机上看起来像两圈宽。
+      现每侧只扩 3（约 +20%），外沿最多压进邻环 3，盘沿 / 中心印仍钳位。 ── */
+const DISK_R=208;
+const FOCUS_PAD=3;
+function focusRadii(r0,r1){
+  return [Math.max(R_YEAR[0], r0-FOCUS_PAD), Math.min(DISK_R-1, r1+FOCUS_PAD)];
+}
+const FOCUS={
+  year: focusRadii(R_YEAR[0], R_YEAR[1]),
+  month:focusRadii(R_MON[0],  R_MON[1]),
+  day:  focusRadii(R_DAY[0],  R_DAY[1]),
+  hour: focusRadii(R_HOUR[0], R_HOUR[1]),
+  min:  focusRadii(R_MIN[0],  R_MIN[1]),
+};
 function redraw(k){ const R=RI[k], v=R.foc?FOCUS[k]:R.r; drawRing(k,v[0],v[1]); }
 function buildRing(k){ redraw(k); }              /* 原名保留，供 rebuild / 初始化调用 */
 function orderRings(){                            /* 复位到「由内而外」的基准层序 */
