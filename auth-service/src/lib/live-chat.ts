@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gt, sql } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { chatConversations, chatMessages, users } from "../db/schema.ts";
-import { sendHubTelegramReturningId } from "./message-hub.ts";
+import { sendHubTelegramReturningId, createTelegramForumTopic } from "./message-hub.ts";
 import type { User } from "../db/schema.ts";
 
 const MAX_BODY = 2000;
@@ -110,7 +110,30 @@ async function insertMessage(input: {
 
 function buildTelegramForwardText(conversationId: number, user: Pick<User, "email" | "nickname">, body: string) {
   const label = user.nickname?.trim() || user.email;
-  return [`💬 IM #${conversationId}`, `${label}`, "", body.slice(0, 1500)].join("\n");
+  return [`👤 ${label}`, body.slice(0, 1500), "", `会话 #${conversationId} · admin.orasage.com/im`].join("\n");
+}
+
+function buildTopicTitle(conversationId: number, user: Pick<User, "email" | "nickname">) {
+  const label = (user.nickname?.trim() || user.email).slice(0, 40);
+  return `💬 #${conversationId} ${label}`;
+}
+
+async function ensureTelegramTopic(
+  conversation: typeof chatConversations.$inferSelect,
+  user: User,
+): Promise<number | null> {
+  if (conversation.telegramTopicId) return conversation.telegramTopicId;
+
+  const topicId = await createTelegramForumTopic(buildTopicTitle(conversation.id, user));
+  if (!topicId) return null;
+
+  await db
+    .update(chatConversations)
+    .set({ telegramTopicId: topicId, updatedAt: new Date() })
+    .where(eq(chatConversations.id, conversation.id));
+
+  conversation.telegramTopicId = topicId;
+  return topicId;
 }
 
 export async function sendUserChatMessage(user: User, body: string) {
@@ -119,15 +142,16 @@ export async function sendUserChatMessage(user: User, body: string) {
   if (trimmed.length > MAX_BODY) throw new Error("消息过长");
 
   const conversation = await getOrCreateOpenConversation(user.id);
+  const topicId = await ensureTelegramTopic(conversation, user);
   const row = await insertMessage({
     conversationId: conversation.id,
     direction: "user",
     body: trimmed,
   });
 
-  const tgId = await sendHubTelegramReturningId(
-    buildTelegramForwardText(conversation.id, user, trimmed),
-  );
+  const tgId = await sendHubTelegramReturningId(buildTelegramForwardText(conversation.id, user, trimmed), {
+    messageThreadId: topicId ?? undefined,
+  });
   if (tgId) {
     await db
       .update(chatMessages)
@@ -170,12 +194,35 @@ export async function ingestTelegramOpsReply(replyToMessageId: number, body: str
     .limit(1);
   if (!anchor || anchor.direction !== "user") return null;
 
+  return insertOpsMessage(anchor.conversationId, trimmed);
+}
+
+/** Forum 超级群：运营在对应话题内直接回复（无需 reply 锚点）。 */
+export async function ingestTelegramTopicMessage(
+  topicId: number,
+  body: string,
+  senderLabel?: string,
+) {
+  const trimmed = body.trim();
+  if (!trimmed) return null;
+
+  const [conv] = await db
+    .select()
+    .from(chatConversations)
+    .where(eq(chatConversations.telegramTopicId, topicId))
+    .limit(1);
+  if (!conv) return null;
+
+  return insertOpsMessage(conv.id, trimmed, senderLabel);
+}
+
+async function insertOpsMessage(conversationId: number, trimmed: string, senderLabel?: string) {
   const [existing] = await db
     .select()
     .from(chatMessages)
     .where(
       and(
-        eq(chatMessages.conversationId, anchor.conversationId),
+        eq(chatMessages.conversationId, conversationId),
         eq(chatMessages.direction, "ops"),
         eq(chatMessages.body, trimmed),
       ),
@@ -185,7 +232,7 @@ export async function ingestTelegramOpsReply(replyToMessageId: number, body: str
   if (existing && Date.now() - existing.createdAt.getTime() < 5000) return existing;
 
   return insertMessage({
-    conversationId: anchor.conversationId,
+    conversationId,
     direction: "ops",
     body: trimmed,
   });
