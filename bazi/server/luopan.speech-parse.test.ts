@@ -44,6 +44,15 @@ describe("parseSpeech maps spoken birth onto dial fields", () => {
     expect(parseSpeech("下午两点").hh).toBe(14);
     expect(parseSpeech("晚上十二点").hh).toBe(0);
     expect(parseSpeech("三点半").mi).toBe(30);
+    expect(parseSpeech("晚8点").hh).toBe(20);
+    expect(parseSpeech("农历1998年正初八晚8点北京女")).toMatchObject({
+      y: 1998,
+      m: 1,
+      d: 8,
+      hh: 20,
+      sex: "女",
+      lunar: true,
+    });
   });
 
   it("fills day from 八月十四 without 日", () => {

@@ -151,7 +151,7 @@ export function parseSpeech(text: string): SpeechParse {
   o.lunar =
     o.leap ||
     /农历|阴历|旧历/.test(t) ||
-    /正月|腊月|冬月/.test(t) ||
+    /正月|正初|腊月|冬月/.test(t) ||
     /初[一二三四五六七八九十0-9]/.test(t) ||
     /廿[一二三四五六七八九0-9]?/.test(t);
   if (o.solar) o.lunar = false;
@@ -167,7 +167,7 @@ export function parseSpeech(text: string): SpeechParse {
     }
   }
 
-  if (/正月/.test(t)) o.m = 1;
+  if (/正月|正初/.test(t)) o.m = 1;
   else if (/腊月/.test(t)) o.m = 12;
   else if (/冬月/.test(t)) o.m = 11;
   else {
@@ -200,7 +200,7 @@ export function parseSpeech(text: string): SpeechParse {
   if (m) {
     let h = /[0-9]/.test(m[1]) ? parseInt(m[1], 10) : cnNum(m[1]);
     const isPM = /下午|过晌/.test(t);
-    const isNight = /晚上|夜里|黄昏|掌灯|半宿|傍晚/.test(t);
+    const isNight = /晚上|夜里|黄昏|掌灯|半宿|傍晚|晚[0-9一二三四五六七八九十两]/.test(t);
     const isDawn = /凌晨|半夜|深夜|子夜/.test(t);
     if (isPM && h > 0 && h < 12) h += 12;
     else if (isNight && h >= 6 && h < 12) h += 12;
