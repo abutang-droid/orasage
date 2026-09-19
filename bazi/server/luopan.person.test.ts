@@ -129,5 +129,7 @@ describe("luopan ranking uses calcSingleBazi", () => {
     expect(src).not.toMatch(/function paipan\s*\(/);
     expect(src).not.toMatch(/function showResult\s*\(/);
     expect(src).toMatch(/hooks\.onGo\(getState\(\)\)/);
+    expect(src).toMatch(/from ["']\.\/speechParse["']/);
+    expect(src).toMatch(/setCal\("lunar"\)/);
   });
 });
