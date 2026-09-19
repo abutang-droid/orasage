@@ -19,6 +19,11 @@ export type AdminRequest = Request & {
   staffPermissions: Set<AnyStaffPermission>;
 };
 
+/** 在 requireStaff / assertPermission 中间件之后读取运营上下文 */
+export function asAdminRequest(req: Request): AdminRequest {
+  return req as AdminRequest;
+}
+
 async function loadAdminContext(
   req: Request,
   res: Response,

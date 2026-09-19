@@ -87,7 +87,7 @@ async function loadRecommendData(): Promise<RecommendCache> {
   return cache;
 }
 
-export function shopCheckoutUrlForProduct(product: Pick<BaziRecommendProduct, 'sku' | 'priceCents' | 'priceCentsUsd' | 'recommendPriceOverride'>): string {
+export function shopCheckoutUrlForProduct(product: Pick<BaziRecommendProduct, 'sku' | 'priceCents' | 'priceCentsUsd' | 'recommendPriceOverride' | 'shopUrl'>): string {
   if (product.shopUrl) return product.shopUrl;
   const params = new URLSearchParams({
     sku: product.sku,

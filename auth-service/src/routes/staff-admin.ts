@@ -5,9 +5,9 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema.ts";
 import {
+  asAdminRequest,
   assertPermission,
   requireStaff,
-  type AdminRequest,
 } from "../lib/admin-auth.ts";
 import { generateUniqueDisplayId } from "../lib/display-id.ts";
 import { effectivePermissionsArray } from "../lib/staff-permissions.ts";
@@ -125,7 +125,7 @@ staffAdminRouter.patch("/:id", async (req, res) => {
       res.status(400).json({ error: "参数错误" });
       return;
     }
-    const ctx = req as AdminRequest;
+    const ctx = asAdminRequest(req);
     if (id === ctx.adminUser.id) {
       res.status(400).json({ error: "不能修改自己的角色或停用状态" });
       return;
