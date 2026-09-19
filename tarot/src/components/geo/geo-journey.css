@@ -288,6 +288,11 @@
   --jvm-border-color: var(--border);
 }
 
+.journey-vector-map--ambient .jvm-tooltip {
+  display: none !important;
+  pointer-events: none;
+}
+
 .journey-vector-map-canvas,
 .journey-vector-map-canvas .jvm-container {
   width: 100%;

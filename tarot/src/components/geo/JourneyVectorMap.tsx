@@ -11,6 +11,7 @@ import {
   JVM_REGION_STYLE,
 } from '@/lib/geo/journey-map-styles';
 import { mapPercentToCoords } from '@/lib/geo/map-percent-to-coords';
+import { normalizeCountryCode } from '@/lib/geo/country-label';
 import type { GeoCountry } from '@/lib/geo/types';
 
 export type JourneyFaithMarker = {
@@ -136,7 +137,7 @@ export function JourneyVectorMap({
             : step === 'country' && continentCode
               ? { regions: [buildCountryStepSeries(allCountries, continentCode)] }
               : step === 'faith' && countryCode
-                ? { regions: [buildFaithStepSeries(countryCode)] }
+                ? { regions: [buildFaithStepSeries(normalizeCountryCode(countryCode))] }
                 : undefined;
 
         const markers =
@@ -161,7 +162,7 @@ export function JourneyVectorMap({
           draggable: !lockInteraction,
           zoomButtons: !lockInteraction,
           zoomOnScroll: !lockInteraction,
-          showTooltip: true,
+          showTooltip: !ambient,
           regionStyle: JVM_REGION_STYLE,
           markerStyle: JVM_MARKER_STYLE,
           markersSelectable: step === 'faith',
@@ -189,7 +190,7 @@ export function JourneyVectorMap({
             if (step === 'country' && continentCode && countryCodesInContinent.length > 0) {
               safeSetFocus(instance, { regions: countryCodesInContinent, animate: true });
             } else if (step === 'faith' && countryCode) {
-              safeSetFocus(instance, { region: countryCode, animate: true });
+              safeSetFocus(instance, { region: normalizeCountryCode(countryCode), animate: true });
             }
           },
         });
