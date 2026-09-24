@@ -124,9 +124,7 @@ function noticeCardHtml(
           <p class="auth-card-lead">${lead}</p>
         </header>
         <div class="auth-card-body">
-          <p class="auth-switch">
-            <a class="auth-submit" href="${esc(switchHref)}" style="display:inline-block;text-align:center;text-decoration:none">${c.switchAccount}</a>
-          </p>
+          <a class="auth-submit" href="${esc(switchHref)}">${c.switchAccount}</a>
           <footer class="auth-card-footer">
             <p class="auth-switch"><a href="${esc(home)}">${c.backHome}</a></p>
           </footer>
