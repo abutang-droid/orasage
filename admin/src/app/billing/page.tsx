@@ -110,7 +110,8 @@ export default async function BillingPage({
   searchParams?: Promise<{ saved?: string; err?: string }>;
 }) {
   const admin = await getAdminUser();
-  if (!admin || !staffCan(admin, 'billing.slots')) redirect(loginUrl());
+  if (!admin) redirect(loginUrl());
+  if (!staffCan(admin, 'billing.slots')) redirect('/');
   const sp = (await searchParams) ?? {};
 
   let slots: AdminBillingSlot[] = [];

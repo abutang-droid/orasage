@@ -60,6 +60,23 @@ export async function OrasageLoginRedirect() {
     redirect('/admin');
   }
 
+  if (orasageToken) {
+    const logout = `${AUTH_URL}/logout?redirect=${encodeURIComponent(`${ADMIN_URL}/cms/admin`)}`;
+    return (
+      <main style={{ maxWidth: 420, margin: '20vh auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
+        <h1 style={{ fontSize: 22, marginBottom: 12 }}>当前账号不能进入内容后台</h1>
+        <p style={{ lineHeight: 1.6, color: '#444' }}>
+          这个登录态不是运营账号。继续登录只会反复回到登录页。请退出后换已提权的运营账号。
+        </p>
+        <p style={{ marginTop: 24 }}>
+          <a href={logout}>退出并换号</a>
+          {'　·　'}
+          <a href={ADMIN_URL}>返回运营后台</a>
+        </p>
+      </main>
+    );
+  }
+
   const redirectTarget = `${ADMIN_URL}/cms/admin`;
-  redirect(`${AUTH_URL}/login?redirect=${encodeURIComponent(redirectTarget)}`);
+  redirect(`${AUTH_URL}/login?redirect=${encodeURIComponent(redirectTarget)}&from=cms`);
 }

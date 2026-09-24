@@ -94,10 +94,15 @@ if (loginForm) {
     const err = qs("#form-error");
     err.hidden = true;
     const fd = new FormData(loginForm);
+    const submit = loginForm.querySelector("button[type=submit]");
+    if (submit) submit.disabled = true;
     try {
       await api("/auth/login", { method: "POST", body: JSON.stringify({ email: fd.get("email"), password: fd.get("password") }) });
       location.href = loginForm.dataset.redirect || "/center";
-    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+    } catch (ex) {
+      if (submit) submit.disabled = false;
+      err.textContent = ex.message; err.hidden = false;
+    }
   });
 }
 
