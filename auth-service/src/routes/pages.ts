@@ -3,7 +3,7 @@ import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
 import { authPageLayout } from "../lib/site-chrome-html.ts";
 import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
-import { getCookieOptions } from "../lib/jwt.ts";
+import { clearAuthCookies } from "../lib/jwt.ts";
 import { userIsActiveStaff } from "../lib/staff-permissions.ts";
 import { loginPageGate } from "../lib/login-gate.ts";
 
@@ -160,13 +160,7 @@ pagesRouter.get("/login", async (req, res) => {
 });
 
 pagesRouter.get("/logout", (req, res) => {
-  const cookieOpts = getCookieOptions();
-  res.clearCookie(cookieOpts.name, {
-    path: cookieOpts.path,
-    domain: cookieOpts.domain,
-    secure: cookieOpts.secure,
-    sameSite: cookieOpts.sameSite,
-  });
+  clearAuthCookies(res);
   const redirectParamValue = redirectParam(req);
   const locale = resolveAuthPageLocale(req, redirectParamValue);
   const next = safeRedirect(redirectParamValue, locale);
