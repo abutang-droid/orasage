@@ -60,3 +60,24 @@ export function getCookieOptions() {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   };
 }
+
+type CookieClearTarget = {
+  clearCookie: (
+    name: string,
+    options?: {
+      path?: string;
+      domain?: string;
+      secure?: boolean;
+      sameSite?: "lax" | "strict" | "none";
+      httpOnly?: boolean;
+    },
+  ) => void;
+};
+
+/** 同时清 Domain=.orasage.com 与 host-only（本地 127.0.0.1 手动种的 cookie）。 */
+export function clearAuthCookies(res: CookieClearTarget) {
+  const { name, path, domain, secure, sameSite, httpOnly } = getCookieOptions();
+  res.clearCookie(name, { path, domain, secure, sameSite, httpOnly });
+  res.clearCookie(name, { path, secure, sameSite, httpOnly });
+  res.clearCookie(name, { path });
+}

@@ -3,6 +3,9 @@ import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
 import { authPageLayout } from "../lib/site-chrome-html.ts";
 import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
+import { clearAuthCookies } from "../lib/jwt.ts";
+import { userIsActiveStaff } from "../lib/staff-permissions.ts";
+import { loginPageGate } from "../lib/login-gate.ts";
 
 export const pagesRouter = Router();
 
@@ -103,16 +106,65 @@ function registerCardHtml(locale: string, redirect: string): string {
     </main>`;
 }
 
+function noticeCardHtml(
+  locale: string,
+  redirect: string,
+  kind: "staff-denied" | "session-mismatch",
+): string {
+  const c = authPageCopy(locale);
+  const title = kind === "staff-denied" ? c.staffDeniedTitle : c.sessionMismatchTitle;
+  const lead = kind === "staff-denied" ? c.staffDeniedLead : c.sessionMismatchLead;
+  const home = `https://orasage.com/${locale}`;
+  const switchHref = `/logout?redirect=${encodeURIComponent(redirect)}`;
+  return `
+    <main class="auth-page">
+      <div class="auth-card">
+        <header class="auth-card-header">
+          <h1 class="auth-card-title">${title}</h1>
+          <p class="auth-card-lead">${lead}</p>
+        </header>
+        <div class="auth-card-body">
+          <a class="auth-submit" href="${esc(switchHref)}">${c.switchAccount}</a>
+          <footer class="auth-card-footer">
+            <p class="auth-switch"><a href="${esc(home)}">${c.backHome}</a></p>
+          </footer>
+        </div>
+      </div>
+    </main>`;
+}
+
 pagesRouter.get("/", (_req, res) => res.redirect("/center"));
 
-pagesRouter.get("/login", (req, res) => {
+pagesRouter.get("/login", async (req, res) => {
   const redirectParamValue = redirectParam(req);
-  // Detect from the user-provided redirect only — the hardcoded fallback used
-  // to force zh-CN and shadow ?lang / the shared NEXT_LOCALE cookie.
   const locale = resolveAuthPageLocale(req, redirectParamValue);
   const redirect = safeRedirect(redirectParamValue, locale);
+  const bouncedFromAdmin = req.query.from === "admin" || req.query.from === "cms";
+  const user = await getAuthUser(req);
+  const gate = loginPageGate({
+    user: user ? { isActiveStaff: userIsActiveStaff(user) } : null,
+    redirectTo: redirect,
+    bouncedFromAdmin,
+  });
   const c = authPageCopy(locale);
+  if (gate.kind === "redirect") {
+    res.redirect(gate.to);
+    return;
+  }
+  if (gate.kind === "staff-denied" || gate.kind === "session-mismatch") {
+    const title = gate.kind === "session-mismatch" ? c.sessionMismatchTitle : c.staffDeniedTitle;
+    res.send(authPageLayout(title, noticeCardHtml(locale, redirect, gate.kind), locale));
+    return;
+  }
   res.send(authPageLayout(c.loginTitle, loginCardHtml(locale, redirect), locale));
+});
+
+pagesRouter.get("/logout", (req, res) => {
+  clearAuthCookies(res);
+  const redirectParamValue = redirectParam(req);
+  const locale = resolveAuthPageLocale(req, redirectParamValue);
+  const next = safeRedirect(redirectParamValue, locale);
+  res.redirect(`/login?redirect=${encodeURIComponent(next)}`);
 });
 
 pagesRouter.get("/register", (req, res) => {
