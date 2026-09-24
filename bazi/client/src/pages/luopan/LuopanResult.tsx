@@ -1,5 +1,6 @@
 import type { SingleBaziResult } from '@/lib/bazi';
 import { BRANCH_WU_XING, DI_ZHI_CANG_GAN, WU_XING_MAP } from '@/lib/bazi';
+import { WuXingPolarChart, pillarsFromBazi } from '@/components/WuXingPolarChart';
 
 const WX_VAR: Record<string, string> = {
   木: 'var(--wx-wood)',
@@ -16,10 +17,6 @@ const PILLAR_ORDER = [
   { key: 'hour' as const, cap: '时柱' },
 ];
 
-function formatWx(n: number) {
-  return n % 1 === 0 ? String(n) : n.toFixed(1);
-}
-
 export function LuopanResult({
   result,
   onBack,
@@ -29,9 +26,6 @@ export function LuopanResult({
 }) {
   const dayGan = result.day.gan;
   const dmWx = WU_XING_MAP[dayGan] ?? '';
-  const counts = [result.wuXing.木, result.wuXing.火, result.wuXing.土, result.wuXing.金, result.wuXing.水];
-  const max = Math.max(1, ...counts);
-  const names = ['木', '火', '土', '金', '水'] as const;
 
   return (
     <div className="res">
@@ -77,20 +71,7 @@ export function LuopanResult({
       </div>
       <div className="ink-sec">
         <div className="ink-h">五 行</div>
-        <div className="ink-row">
-          {names.map((nm, i) => {
-            const n = counts[i];
-            const d = Math.round(30 + (n / max) * 34);
-            const o = (0.3 + 0.55 * (n / max)).toFixed(2);
-            return (
-              <div key={nm} className="ink">
-                <div className="drop" style={{ ['--c' as string]: WX_VAR[nm], ['--d' as string]: `${d}px`, ['--o' as string]: o }} />
-                <div className="nm">{nm}</div>
-                <div className="ct">{formatWx(n)}</div>
-              </div>
-            );
-          })}
-        </div>
+        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </div>
       <div className="creed">知结构，不问吉凶</div>
       <div className="fine">

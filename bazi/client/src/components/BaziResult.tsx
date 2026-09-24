@@ -10,7 +10,7 @@ import { GOLD, GOLD_LIGHT, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BG_CARD, B
 import {
   SingleBaziResult, DoubleBaziResult, ScoreDimension,
   DailyFortune,
-  WU_XING_COLOR, WU_XING_BG, DI_ZHI_CANG_GAN,
+  WU_XING_COLOR, DI_ZHI_CANG_GAN,
   calcDailyFortune, recommendBracelet,
 } from "@/lib/bazi";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
@@ -21,6 +21,7 @@ import type { PlanType } from "@shared/types";
 import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
+import { WuXingPolarChart, pillarsFromBazi } from "@/components/WuXingPolarChart";
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 
@@ -357,33 +358,12 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
   );
 }
 
-function WuXingBar({ label, value, max }: { label: string; value: number; max: number }) {
-  const { term } = useT();
-  const pct = max > 0 ? (value / max) * 100 : 0;
-  const color = WU_XING_COLOR[label];
-  const bg = WU_XING_BG[label];
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-4 text-xs font-bold shrink-0" style={{ color }}>{term(label)}</span>
-      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: TRACK_BG }}>
-        <div className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: color, boxShadow: `0 0 5px ${color}40` }} />
-      </div>
-      <span className="w-8 text-xs text-right shrink-0" style={{ color: BODY_CLR }}>
-        {value % 1 === 0 ? value : value.toFixed(1)}
-      </span>
-    </div>
-  );
-}
-
 // ── 单人结果预览（计费墙前展示的内容）────────────────────────────────────────
 function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
   const { t, term } = useT();
   const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
   const pillars = [result.year, result.month, result.day, result.hour];
   const shenshaCnt = Object.keys(result.shensha ?? {}).length;
-  const wxEntries = Object.entries(result.wuXing) as [string, number][];
-  const totalWx = wxEntries.reduce((s, [, v]) => s + v, 0);
   return (
     <div className="flex flex-col gap-4">
       {/* 命盘头部 */}
@@ -479,24 +459,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
       }>
-        <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <WuXingRadar data1={result.wuXing as unknown as Record<string, number>} name1={result.name} />
-          </div>
-          <div className="flex-1 flex flex-col gap-2 min-w-0">
-            {wxEntries.map(([label, value]) => (
-              <WuXingBar key={label} label={label} value={value} max={totalWx} />
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid rgba(196,160,78,0.12)" }}>
-          {wxEntries.sort((a, b) => b[1] - a[1]).map(([label, value]) => (
-            <span key={label} className="text-xs px-2 py-1 rounded-full"
-              style={{ background: WU_XING_BG[label], color: WU_XING_COLOR[label], border: `1px solid ${WU_XING_COLOR[label]}30` }}>
-              {label} {value % 1 === 0 ? value : value.toFixed(1)}
-            </span>
-          ))}
-        </div>
+        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </InfoCard>
     </div>
   );
@@ -613,9 +576,6 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
   const { t, term, locale } = useT();
   const pillars = [result.year, result.month, result.day, result.hour];
   const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
-  const wxEntries = Object.entries(result.wuXing) as [string, number][];
-  const maxWx = Math.max(...wxEntries.map(([, v]) => v), 1);
-  const totalWx = wxEntries.reduce((s, [, v]) => s + v, 0);
   const shenshaCnt = Object.keys(result.shensha).length;
 
   return (
@@ -717,24 +677,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
       }>
-        <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <WuXingRadar data1={result.wuXing as unknown as Record<string, number>} name1={result.name} />
-          </div>
-          <div className="flex-1 flex flex-col gap-2 min-w-0">
-            {wxEntries.map(([label, value]) => (
-              <WuXingBar key={label} label={label} value={value} max={totalWx} />
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: "1px solid rgba(196,160,78,0.12)" }}>
-          {wxEntries.sort((a, b) => b[1] - a[1]).map(([label, value]) => (
-            <span key={label} className="text-xs px-2 py-1 rounded-full"
-              style={{ background: WU_XING_BG[label], color: WU_XING_COLOR[label], border: `1px solid ${WU_XING_COLOR[label]}30` }}>
-              {label} {value % 1 === 0 ? value : value.toFixed(1)}
-            </span>
-          ))}
-        </div>
+        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </InfoCard>
 
       {/* 神煞 */}
@@ -1055,49 +998,6 @@ function extractQuote(content: string): string {
   return "";
 }
 
-/** 五行能量环形图（SVG 圆环）*/
-const WX_RING_COLORS: Record<string, string> = { 木: '#4AB478', 火: '#DC6B6B', 土: '#C49B3C', 金: '#A0A8B8', 水: '#5A9BC8' };
-const WX_ORDER = ['木', '火', '土', '金', '水'];
-function WuXingRing({ values }: { values?: Record<string, number> }) {
-  const { t } = useT();
-  const data = values && Object.keys(values).length === 5 ? values : { 木: 5, 火: 5, 土: 5, 金: 5, 水: 5 };
-  const total = Object.values(data).reduce((a, b) => a + b, 0) || 25;
-  let cumulative = 0;
-  const segments = WX_ORDER.map((wx) => {
-    const pct = (data[wx] || 0) / total;
-    const start = cumulative;
-    cumulative += pct;
-    return { wx, pct, start, color: WX_RING_COLORS[wx], value: data[wx] || 0 };
-  });
-
-  const R = 40, CX = 50, CY = 50, STROKE_W = 10;
-  const circ = 2 * Math.PI * R;
-
-  return (
-    <div className="flex flex-col items-center gap-3 py-2">
-      <p className="text-xs font-bold" style={{ color: "#3CA0C8", fontFamily: "'Noto Serif SC', serif", letterSpacing: "0.12em" }}>{t('result.wuxing_energy', '五行能量分布')}</p>
-      <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
-        {segments.map((s) => (
-          <circle key={s.wx} cx={CX} cy={CY} r={R} fill="none"
-            stroke={s.color} strokeWidth={STROKE_W} strokeDasharray={`${s.pct * circ} ${circ}`}
-            strokeDashoffset={-s.start * circ} strokeLinecap="round" opacity={0.8} />
-        ))}
-        <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(196,160,78,0.08)" strokeWidth={STROKE_W} />
-      </svg>
-      <div className="flex gap-3 flex-wrap justify-center">
-        {segments.map((s) => (
-          <div key={s.wx} className="flex items-center gap-1">
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, opacity: 0.8 }} />
-            <span style={{ fontSize: "0.6rem", color: "#6F6880", fontFamily: "'Noto Sans SC', sans-serif" }}>
-              {s.wx} {s.value.toFixed(1)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /** 大卡片瀑布章节 — 每章正文拆成段落卡片 + 大字标题 */
 function SectionCard({
   index, title, content, isOpen, onToggle,
@@ -1228,10 +1128,11 @@ function SectionCard({
             </div>
           )}
 
-          {/* 五行圆环 */}
-          {title.includes("健康") && (
+          {/* 五行极坐标图 */}
+          {title.includes("健康") && wuXing && (
             <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${DIVIDER_SUBTLE}` }}>
-              <WuXingRing values={wuXing} />
+              <p className="text-xs font-bold text-center mb-2" style={{ color: "#3CA0C8", fontFamily: "'Noto Serif SC', serif", letterSpacing: "0.12em" }}>{t('result.wuxing_energy', '五行能量分布')}</p>
+              <WuXingPolarChart wuXing={wuXing} />
             </div>
           )}
         </div>
@@ -1861,6 +1762,14 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
             <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} dark />
           ))}
         </div>
+      </div>
+
+      {/* 五行极坐标图 — 免费结果即展示 */}
+      <div className="rounded-xl px-4 py-5" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
+        <h3 className="text-sm mb-1 text-center" style={{ color: BODY_CLR, fontFamily: SERIF_F, letterSpacing: "0.24em" }}>
+          {t('result.wuxing', '五行分析')}
+        </h3>
+        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </div>
 
       {/* 免费命理解读：日主分析 + 职业 + 合作 + 风险 */}
