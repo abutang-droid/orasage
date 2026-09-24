@@ -1764,6 +1764,14 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
         </div>
       </div>
 
+      {/* 五行极坐标图 — 免费结果即展示 */}
+      <div className="rounded-xl px-4 py-5" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
+        <h3 className="text-sm mb-1 text-center" style={{ color: BODY_CLR, fontFamily: SERIF_F, letterSpacing: "0.24em" }}>
+          {t('result.wuxing', '五行分析')}
+        </h3>
+        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
+      </div>
+
       {/* 免费命理解读：日主分析 + 职业 + 合作 + 风险 */}
       <FreeBaziInsight result={result} />
 
