@@ -7,7 +7,6 @@ export type CityMessages = {
   parentHint: string;
   verifyHint: string;
   confirmTitle: string;
-  confirmYes: string;
   confirmNo: string;
   longitudeEast: string;
   longitudeWest: string;
@@ -22,9 +21,8 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     notFound: "未找到该城市，可尝试输入上级行政单位（如「湖北荆州」）或「国家+城市」",
     parentHint: "如不确定，可尝试输入省/市等上级行政单位",
     verifyHint: "匹配结果置信度较低，请核对是否为正确城市",
-    confirmTitle: "是否确认为：",
-    confirmYes: "确认",
-    confirmNo: "重新输入",
+    confirmTitle: "已匹配：",
+    confirmNo: "更改",
     longitudeEast: "东经",
     longitudeWest: "西经",
     timezone: "时区",
@@ -36,9 +34,8 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     notFound: "未找到該城市，可嘗試輸入上級行政單位（如「湖北荊州」）或「國家+城市」",
     parentHint: "如不確定，可嘗試輸入省/市等上級行政單位",
     verifyHint: "匹配結果置信度較低，請核對是否為正確城市",
-    confirmTitle: "是否確認為：",
-    confirmYes: "確認",
-    confirmNo: "重新輸入",
+    confirmTitle: "已匹配：",
+    confirmNo: "更改",
     longitudeEast: "東經",
     longitudeWest: "西經",
     timezone: "時區",
@@ -50,9 +47,8 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     notFound: 'City not found. Try a parent region (e.g. "Hubei Jingzhou") or "Country+City"',
     parentHint: "If unsure, try entering province/state or parent region",
     verifyHint: "Low confidence match — please verify this is the correct city",
-    confirmTitle: "Confirm city: ",
-    confirmYes: "Confirm",
-    confirmNo: "Re-enter",
+    confirmTitle: "Matched: ",
+    confirmNo: "Change",
     longitudeEast: "E",
     longitudeWest: "W",
     timezone: "TZ",
@@ -64,9 +60,8 @@ const MESSAGES: Record<CityLocale, CityMessages> = {
     notFound: 'Cidade não encontrada. Tente região superior ou "País+Cidade"',
     parentHint: "Se não tiver certeza, tente informar província/estado ou região superior",
     verifyHint: "Correspondência com baixa confiança — verifique se a cidade está correta",
-    confirmTitle: "Confirmar cidade: ",
-    confirmYes: "Confirmar",
-    confirmNo: "Digitar novamente",
+    confirmTitle: "Correspondência: ",
+    confirmNo: "Alterar",
     longitudeEast: "L",
     longitudeWest: "O",
     timezone: "Fuso",

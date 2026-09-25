@@ -47,10 +47,11 @@ export function CitySearchInput({
   const [dataError, setDataError] = useState<string | null>(null);
   const [aiSearching, setAiSearching] = useState(false);
   const [pending, setPending] = useState<CityLookupResult | null>(null);
-  const [pendingQuery, setPendingQuery] = useState("");
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lookupSeqRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,11 +94,35 @@ export function CitySearchInput({
         lat: record.lat,
         timezone: record.timezone,
       });
-      setPending(null);
       setDataError(null);
       setOpen(false);
     },
     [onChange],
+  );
+
+  const persistMatchedCity = useCallback(
+    async (result: CityLookupResult, q: string, seq: number) => {
+      try {
+        const saved = await api.confirmCity({
+          query: q,
+          city: result.city,
+          province: result.province,
+          country: result.country,
+          lng: result.lng,
+          lat: result.lat,
+          timezone: result.timezone,
+          alias: q !== result.city ? [q] : undefined,
+        });
+        if (seq !== lookupSeqRef.current) return;
+        addCityToCatalog(saved);
+        setCatalog((prev) => [...prev.filter((c) => c.city !== saved.city || c.province !== saved.province), saved]);
+        setQuery(formatCityLabel(saved.city, saved.country));
+        applyCity(saved);
+      } catch {
+        // Local coords already applied; catalog persist is best-effort.
+      }
+    },
+    [api, applyCity],
   );
 
   const triggerAiLookup = useCallback(
@@ -105,30 +130,47 @@ export function CitySearchInput({
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       if (q.length < 2) return;
 
+      const seq = ++lookupSeqRef.current;
       searchTimeoutRef.current = setTimeout(async () => {
         setAiSearching(true);
         setDataError(null);
         setPending(null);
         try {
           const result = await api.lookupCity(q);
+          if (seq !== lookupSeqRef.current) return;
           if ("found" in result && result.found === false) {
             setDataError(result.suggestion || t.notFound);
             return;
           }
-          setPendingQuery(q);
-          setPending(result as CityLookupResult);
+          const matched = result as CityLookupResult;
+          const record: CityRecord = {
+            city: matched.city,
+            province: matched.province,
+            country: matched.country,
+            lng: matched.lng,
+            lat: matched.lat,
+            timezone: matched.timezone,
+          };
+          setQuery(formatCityLabel(matched.city, matched.country));
+          applyCity(record);
+          setPending(matched);
+          void persistMatchedCity(matched, q, seq);
         } catch {
+          if (seq !== lookupSeqRef.current) return;
           setDataError(t.notFound);
         } finally {
-          setAiSearching(false);
+          if (seq === lookupSeqRef.current) setAiSearching(false);
         }
       }, 800);
     },
-    [api, t.notFound],
+    [api, applyCity, persistMatchedCity, t.notFound],
   );
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
+    lookupSeqRef.current += 1;
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    setAiSearching(false);
     setQuery(q);
     setPending(null);
 
@@ -154,43 +196,22 @@ export function CitySearchInput({
   };
 
   const handleSelect = (city: CityRecord) => {
+    lookupSeqRef.current += 1;
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    setAiSearching(false);
+    setPending(null);
     setQuery(formatCityLabel(city.city, city.country));
     applyCity(city);
   };
 
-  const handleConfirm = async () => {
-    if (!pending) return;
-    try {
-      const saved = await api.confirmCity({
-        query: pendingQuery,
-        city: pending.city,
-        province: pending.province,
-        country: pending.country,
-        lng: pending.lng,
-        lat: pending.lat,
-        timezone: pending.timezone,
-        alias: pendingQuery !== pending.city ? [pendingQuery] : undefined,
-      });
-      addCityToCatalog(saved);
-      setCatalog((prev) => [...prev.filter((c) => c.city !== saved.city || c.province !== saved.province), saved]);
-      setQuery(formatCityLabel(saved.city, saved.country));
-      applyCity(saved);
-    } catch {
-      applyCity({
-        city: pending.city,
-        province: pending.province,
-        country: pending.country,
-        lng: pending.lng,
-        lat: pending.lat,
-        timezone: pending.timezone,
-      });
-    }
-  };
-
-  const handleReject = () => {
+  const handleChangeMatch = () => {
+    lookupSeqRef.current += 1;
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    setAiSearching(false);
     setPending(null);
     setQuery("");
     onChange({ city: "", country: "" });
+    requestAnimationFrame(() => inputRef.current?.focus());
   };
 
   const fieldClass = `${fieldClassName || "orasage-city-field"}${focused ? " is-focused" : ""}`;
@@ -216,6 +237,7 @@ export function CitySearchInput({
           <path d="M21 21l-4.35-4.35" />
         </svg>
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={handleInput}
@@ -232,7 +254,7 @@ export function CitySearchInput({
         {query ? (
           <button
             type="button"
-            onClick={handleReject}
+            onClick={handleChangeMatch}
             className="text-muted-foreground text-base leading-none px-0.5"
             aria-label="Clear"
           >
@@ -286,8 +308,7 @@ export function CitySearchInput({
         <CityConfirmCard
           result={pending}
           locale={locale}
-          onConfirm={() => void handleConfirm()}
-          onReject={handleReject}
+          onRevise={handleChangeMatch}
         />
       ) : null}
     </div>
