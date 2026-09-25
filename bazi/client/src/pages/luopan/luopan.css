@@ -147,6 +147,39 @@
 }
 
 .luopan-root .place { position: relative; }
+.luopan-root .place-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+.luopan-root .place-name {
+  flex: 0 0 38%;
+  min-width: 0;
+}
+.luopan-root .place-city {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+.luopan-root .luopan-name-field {
+  width: 100%;
+  min-height: 52px;
+  border: 1.5px solid var(--line-200);
+  background: var(--paper-2);
+  border-radius: 14px;
+  padding: 0 14px;
+  font-size: 17px;
+  color: var(--ink-900);
+  font-family: var(--font);
+  outline: none;
+  box-sizing: border-box;
+}
+.luopan-root .luopan-name-field::placeholder { color: var(--ink-300); }
+.luopan-root .luopan-name-field:focus {
+  border-color: var(--zhu);
+  box-shadow: 0 0 0 3px rgba(168,67,58,.12);
+}
 .luopan-root .luopan-city-field {
   display: flex;
   align-items: center;

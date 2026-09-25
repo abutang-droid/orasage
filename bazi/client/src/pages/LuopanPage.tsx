@@ -25,10 +25,14 @@ export default function LuopanPage() {
   const hostRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<{ destroy: () => void; applyTranscript: (text: string) => void } | null>(null);
   const [citySlot, setCitySlot] = useState<HTMLElement | null>(null);
+  const [nameSlot, setNameSlot] = useState<HTMLElement | null>(null);
   const [errSlot, setErrSlot] = useState<HTMLElement | null>(null);
   const [place, setPlace] = useState<BirthplaceValue>({ city: '', country: '' });
   const placeRef = useRef(place);
   placeRef.current = place;
+  const [personName, setPersonName] = useState('');
+  const nameRef = useRef(personName);
+  nameRef.current = personName;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -69,7 +73,7 @@ export default function LuopanPage() {
       }
       const isLunar = s.calendar === 'lunar';
       const data = await calcSingleBazi({
-        name: '访客',
+        name: nameRef.current.trim() || '访客',
         gender: s.sex === '女' ? 'female' : 'male',
         year: isLunar ? s.lunarYear : s.y,
         month: isLunar ? s.lunarMonth : s.m,
@@ -117,11 +121,13 @@ export default function LuopanPage() {
     host.innerHTML = markup;
     const api = initLuopan(host, { onGo, onTranscript });
     apiRef.current = api;
+    setNameSlot(host.querySelector('#luopan-name-slot') as HTMLElement | null);
     setCitySlot(host.querySelector('#luopan-city-slot') as HTMLElement | null);
     setErrSlot(host.querySelector('#luopan-err-slot') as HTMLElement | null);
     return () => {
       api.destroy();
       apiRef.current = null;
+      setNameSlot(null);
       setCitySlot(null);
       setErrSlot(null);
     };
@@ -142,6 +148,22 @@ export default function LuopanPage() {
         className="luopan-host"
         style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
       />
+      {nameSlot
+        ? createPortal(
+            <input
+              id="luopan-name"
+              type="text"
+              className="luopan-name-field"
+              value={personName}
+              onChange={(e) => setPersonName(e.target.value)}
+              placeholder="请输入姓名"
+              autoComplete="name"
+              maxLength={32}
+              aria-label="姓名"
+            />,
+            nameSlot,
+          )
+        : null}
       {citySlot
         ? createPortal(
             <CityProvider api={cityApi} locale="zh-CN">
