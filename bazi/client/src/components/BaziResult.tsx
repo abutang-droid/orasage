@@ -21,7 +21,8 @@ import type { PlanType } from "@shared/types";
 import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
-import { WuXingPolarChart } from "@/components/WuXingPolarChart";
+import { BaziMingpanCard, WuXingDistributionSection } from "@/components/BaziPosterCards";
+import { WuXingPieChart } from "@/components/WuXingPieChart";
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
@@ -396,8 +397,6 @@ function SolarTimeNote({ result }: { result: SingleBaziResult }) {
 // ── 单人结果预览（计费墙前展示的内容）────────────────────────────────────────
 function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
   const { t, term, locale } = useT();
-  const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
-  const pillars = [result.year, result.month, result.day, result.hour];
   return (
     <div className="flex flex-col gap-4">
       {/* 命盘头部 */}
@@ -436,19 +435,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
           </div>
         </div>
       </div>
-      {/* 八字命盘 */}
-      <InfoCard title={t('result.single.bazi')} icon={
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
-        </svg>
-      }>
-        <div className="flex gap-2 justify-around pt-3">
-          {pillars.map((p, i) => (
-            <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} />
-          ))}
-        </div>
-        <PillarGridFooter />
-      </InfoCard>
+      <BaziMingpanCard result={result} />
       {/* 命局分析 */}
       <InfoCard title={t('result.bazi_analysis', '命局分析')} icon={
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -489,14 +476,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
           </div>
         </div>
       </InfoCard>
-      {/* 五行分析 */}
-      <InfoCard title={t('result.wuxing', '五行分析')} icon={
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      }>
-        <WuXingPolarChart wuXing={result.wuXing} />
-      </InfoCard>
+      <WuXingDistributionSection wuXing={result.wuXing} />
     </div>
   );
 }
@@ -611,8 +591,6 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
 // 单人结果主体（可复用于双人合盘中）
 function SingleResultBody({ result, compact }: { result: SingleBaziResult; compact?: boolean }) {
   const { t, term, locale } = useT();
-  const pillars = [result.year, result.month, result.day, result.hour];
-  const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
 
   return (
     <div className="flex flex-col gap-3">
@@ -654,19 +632,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
         </div>
       )}
 
-      {/* 八字命盘 */}
-      <InfoCard title={t('result.single.bazi')} icon={
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
-        </svg>
-      }>
-        <div className="flex gap-2 justify-around pt-3">
-          {pillars.map((p, i) => (
-            <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} />
-          ))}
-        </div>
-        <PillarGridFooter />
-      </InfoCard>
+      <BaziMingpanCard result={result} />
 
       {/* 身强弱 + 喜忌神 */}
       <InfoCard title={t('result.bazi_analysis', '命局分析')} icon={
@@ -709,14 +675,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
         </div>
       </InfoCard>
 
-      {/* 五行分析 */}
-      <InfoCard title={t('result.wuxing', '五行分析')} icon={
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      }>
-        <WuXingPolarChart wuXing={result.wuXing} />
-      </InfoCard>
+      <WuXingDistributionSection wuXing={result.wuXing} />
 
       {/* 神煞不进入面向用户的文案（规范 B.1） */}
 
@@ -1121,11 +1080,11 @@ function SectionCard({
             </div>
           )}
 
-          {/* 五行极坐标图 */}
+          {/* 五行分布饼图 */}
           {title.includes("健康") && wuXing && (
             <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${DIVIDER_SUBTLE}` }}>
-              <p className="text-xs font-bold text-center mb-2" style={{ color: "#3CA0C8", fontFamily: "'Noto Serif SC', serif", letterSpacing: "0.12em" }}>{t('result.wuxing_energy', '五行能量分布')}</p>
-              <WuXingPolarChart wuXing={wuXing} />
+              <p className="text-xs font-bold text-center mb-2" style={{ color: "#3CA0C8", fontFamily: "'Noto Serif SC', serif", letterSpacing: "0.12em" }}>{t('result.wx.dist', '五行分布')}</p>
+              <WuXingPieChart wuXing={wuXing} />
             </div>
           )}
         </div>
@@ -1575,7 +1534,6 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
 // ════════════════════════════════════════════════════════════════════
 export function SingleBaziResultView({ result, onBack, onStartDouble }: SingleProps) {
   const { t, term } = useT();
-  const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
   const payment = usePaymentFlow();
   const [showPlans, setShowPlans] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
@@ -1645,28 +1603,9 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
         </div>
       </div>
 
-      {/* 八字四柱 — 深色视觉锚点 */}
-      <div className="rounded-xl px-5 py-5" style={{ background: PILLAR_SURFACE, border: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(196,160,78,0.2)" }} />
-          <span className="text-[10px] font-bold tracking-widest" style={{ color: "#C4A04E", fontFamily: SERIF_F, letterSpacing: "0.3em", opacity: 0.8 }}>{t('result.pillars')}</span>
-          <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(196,160,78,0.2)" }} />
-        </div>
-        <div className="flex gap-5 justify-around">
-          {[result.year, result.month, result.day, result.hour].map((p, i) => (
-            <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} dark />
-          ))}
-        </div>
-        <PillarGridFooter dark />
-      </div>
+      <BaziMingpanCard result={result} />
 
-      {/* 五行极坐标图 — 免费结果即展示 */}
-      <div className="rounded-xl px-1 py-3" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
-        <h3 className="text-sm mb-1 text-center" style={{ color: BODY_CLR, fontFamily: SERIF_F, letterSpacing: "0.24em" }}>
-          {t('result.wuxing', '五行分析')}
-        </h3>
-        <WuXingPolarChart wuXing={result.wuXing} />
-      </div>
+      <WuXingDistributionSection wuXing={result.wuXing} />
 
       {/* 免费命理解读：日主分析 + 职业 + 合作 + 风险 */}
       <FreeBaziInsight result={result} />
