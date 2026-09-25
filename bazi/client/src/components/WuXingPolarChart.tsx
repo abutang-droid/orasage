@@ -7,17 +7,8 @@ import {
 const VB = 400;
 const CX = 200;
 const CY = 200;
-const R = 172;
-const LABEL_R = R + 20;
-const RINGS = 5;
-const SPOKES = 12;
-
-function labelAnchor(deg: number): "start" | "middle" | "end" {
-  const c = Math.cos((deg * Math.PI) / 180);
-  if (c > 0.45) return "start";
-  if (c < -0.45) return "end";
-  return "middle";
-}
+const R = 188;
+const LABEL_ON_FILL = "#F7F3E8";
 
 export function WuXingPolarChart({
   wuXing,
@@ -45,59 +36,26 @@ export function WuXingPolarChart({
         return <path key={s.name} d={d} fill={s.color} opacity={0.92} />;
       })}
 
-      {Array.from({ length: RINGS }, (_, i) => {
-        const rr = ((i + 1) / RINGS) * R;
-        return (
-          <circle
-            key={rr}
-            cx={CX}
-            cy={CY}
-            r={rr}
-            fill="none"
-            stroke="#C8C8C8"
-            strokeWidth={1}
-          />
-        );
-      })}
-      {Array.from({ length: SPOKES }, (_, i) => {
-        const deg = -90 + i * (360 / SPOKES);
-        const p = polarPoint(CX, CY, R, deg);
-        return (
-          <line
-            key={i}
-            x1={CX}
-            y1={CY}
-            x2={p.x}
-            y2={p.y}
-            stroke="#C8C8C8"
-            strokeWidth={1}
-          />
-        );
-      })}
-
       {slices.map((s) => {
-        const p = polarPoint(CX, CY, LABEL_R, s.midDeg);
-        const anchor = labelAnchor(s.midDeg);
-        const stacked = anchor !== "middle";
+        const sliceR = Math.max(4, s.radiusRatio * R);
+        const labelR = sliceR >= R * 0.45 ? sliceR * 0.62 : R * 0.52;
+        const p = polarPoint(CX, CY, labelR, s.midDeg);
+        const onFill = labelR < sliceR - 10;
+        const fill = onFill ? LABEL_ON_FILL : s.labelColor;
         return (
           <text
             key={`${s.name}-lb`}
             x={p.x}
             y={p.y}
-            textAnchor={anchor}
+            textAnchor="middle"
             dominantBaseline="middle"
             fontFamily="'Noto Serif SC', 'Songti SC', serif"
+            fill={fill}
           >
-            <tspan fontSize={22} fontWeight={600} fill={s.labelColor}>
+            <tspan x={p.x} dy="-0.42em" fontSize={22} fontWeight={600}>
               {s.name}
             </tspan>
-            <tspan
-              fontSize={13}
-              fill={s.labelColor}
-              dx={stacked ? 0 : 4}
-              dy={stacked ? 16 : 0}
-              x={stacked ? p.x : undefined}
-            >
+            <tspan x={p.x} dy="1.28em" fontSize={14} fontWeight={500}>
               {s.percent}%
             </tspan>
           </text>
