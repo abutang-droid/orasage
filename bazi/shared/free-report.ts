@@ -157,10 +157,16 @@ function sectionMatrix(input: FreeReportInput, L: "zh" | "en"): FreeReportSectio
   return { title, body, classic: classicTermTail(classicMatrix(input), L) };
 }
 
-function patternTitle(primary: string, L: "zh" | "en"): string {
-  if (primary.includes("食神")) return L === "en" ? "You can produce, but you need a brake" : "能输出，但需要一道刹车";
-  if (primary.includes("伤官")) return L === "en" ? "What you produce has an edge" : "产出带锋芒，也耗自己";
-  if (primary.includes("印")) return L === "en" ? "Support is the main structure" : "支撑是这套配置的主结构";
+function patternTitle(primary: string, outputN: number, yinN: number, L: "zh" | "en"): string {
+  if (primary.includes("食神") || (outputN > 0 && yinN >= 1)) {
+    return L === "en" ? "You can produce, but you need a brake" : "能输出，但需要一道刹车";
+  }
+  if (primary.includes("伤官") || (outputN > 0 && yinN === 0)) {
+    return L === "en" ? "What you produce has an edge" : "产出带锋芒，也耗自己";
+  }
+  if (primary.includes("印") || (yinN > 0 && outputN === 0 && !primary)) {
+    return L === "en" ? "Support is the main structure" : "支撑是这套配置的主结构";
+  }
   if (primary.includes("财")) return L === "en" ? "This structure is about taking and exchanging" : "这套结构在讲取用与交换";
   if (primary.includes("杀") || primary.includes("官")) return L === "en" ? "Pressure is the main structure" : "压力是这套配置的主结构";
   return L === "en" ? "This is the main structure of the chart" : "这套配置的主要结构";
@@ -183,11 +189,11 @@ function classicPattern(input: FreeReportInput): string {
 
 function sectionPattern(input: FreeReportInput, L: "zh" | "en"): FreeReportSection {
   const primary = input.pattern?.primary ?? "";
-  const title = patternTitle(primary, L);
   const outputN = countGods(input, OUTPUT_GODS);
   const yinN = countGods(input, SUPPORT_GODS);
   const pressN = countGods(input, PRESSURE_GODS);
   const wealthN = countGods(input, WEALTH_GODS);
+  const title = patternTitle(primary, outputN, yinN, L);
   const monthGan = input.month.gan;
   const monthGod = input.shiShen[monthGan] ?? "";
   const monthGodFace = L === "en" ? (GOD_VERNACULAR_EN[monthGod] ?? "") : (GOD_VERNACULAR[monthGod] ?? "");

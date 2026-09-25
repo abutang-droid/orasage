@@ -25,7 +25,7 @@ import { WuXingPolarChart, pillarsFromBazi } from "@/components/WuXingPolarChart
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
-import { polarTag } from "@shared/vernacular";
+import { polarTag, GRID_CAPTION_ZH, GRID_CAPTION_EN } from "@shared/vernacular";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -372,11 +372,12 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
 }
 
 function PillarGridFooter({ dark }: { dark?: boolean }) {
-  const { t } = useT();
+  const { t, locale } = useT();
+  const fallback = locale.startsWith("zh") ? GRID_CAPTION_ZH : GRID_CAPTION_EN;
   return (
     <p className="text-[11px] leading-relaxed text-center mt-3 px-1"
       style={{ color: dark ? "rgba(255,255,255,0.45)" : "#6F6880" }}>
-      {t("pillar.grid_caption")}
+      {t("pillar.grid_caption", fallback)}
     </p>
   );
 }
