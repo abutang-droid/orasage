@@ -1,6 +1,6 @@
 /*
  * 八字排盘结果组件 v2
- * 墨金风格：命盘表格 + 五行柱状图 + 身强弱 + 喜忌神 + 神煞 + 大运 + 双人合盘
+ * 墨金风格：命盘表格 + 五行图 + 结构标签 + 白话解读 + 双人合盘
  */
 import { useState, useRef, useMemo, useEffect } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProdu
 import { WuXingPolarChart, pillarsFromBazi } from "@/components/WuXingPolarChart";
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
+import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
+import { polarTag } from "@shared/vernacular";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -304,6 +306,12 @@ function ScoreDetailsPanel({ details }: { details: ScoreDimension[] }) {
 
 // ── 子组件 ────────────────────────────────────────────────────────────────────
 
+function strengthLabel(strength: string, term: (key: string) => string): string {
+  if (strength === "身强") return term("身强");
+  if (strength === "身弱") return term("身弱");
+  return term("身中和");
+}
+
 /** 通用信息卡片（用于命盘各区块展示） */
 function InfoCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -321,17 +329,22 @@ function InfoCard({ title, icon, children }: { title: string; icon: React.ReactN
 function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
   gan: string; zhi: string; label: string; isDay?: boolean; shiShen: Record<string, string>; dark?: boolean;
 }) {
-  const { t, term } = useT();
+  const { t, locale } = useT();
   const cangGan = DI_ZHI_CANG_GAN[zhi] ?? [];
+  const L = locale.startsWith("zh") ? "zh" : "en";
+  const tag = polarTag(gan, zhi, !!isDay, L);
   return (
     <div className={`flex flex-col items-center gap-1.5 flex-1 ${isDay ? "" : ""}`}>
+      <span className="text-[10px] text-center leading-tight px-0.5"
+        style={{ color: isDay ? (dark ? "#DBC47A" : "#C4A04E") : (dark ? "rgba(255,255,255,0.55)" : "#6F6880"), fontFamily: SERIF_F }}>
+        {tag}
+      </span>
       {isDay ? (
         <span className="text-xs font-bold mb-0.5 tracking-wider"
           style={{ color: dark ? "#DBC47A" : "#C4A04E", letterSpacing: "0.1em" }}>
           {t('pillar.day_master')}
         </span>
       ) : (
-        /* 保持日主行高度与其他列对齐 */
         <div style={{ height: "1.25rem" }} />
       )}
       {/* 天干 */}
@@ -344,7 +357,7 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
         style={{ background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.05)", color: dark ? "#EDE8D8" : GOLD, fontFamily: SERIF_F }}>
         {zhi}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap justify-center">
         <span className="text-[9px]" style={{ color: dark ? "rgba(255,255,255,0.3)" : "rgba(93,89,115,0.4)" }}>{t('pillar.hidden')}</span>
         {cangGan.map((cg, i) => (
           <span key={i} className="text-[11px] px-1.5 py-0.5 rounded"
@@ -358,12 +371,32 @@ function GanZhiCell({ gan, zhi, label, isDay, shiShen, dark }: {
   );
 }
 
+function PillarGridFooter({ dark }: { dark?: boolean }) {
+  const { t } = useT();
+  return (
+    <p className="text-[11px] leading-relaxed text-center mt-3 px-1"
+      style={{ color: dark ? "rgba(255,255,255,0.45)" : "#6F6880" }}>
+      {t("pillar.grid_caption")}
+    </p>
+  );
+}
+
+function SolarTimeNote({ result }: { result: SingleBaziResult }) {
+  const { locale } = useT();
+  const text = trueSolarCaption(result.trueSolarOffset, locale);
+  if (!text) return null;
+  return (
+    <p className="text-xs mt-1" style={{ color: "#78718B", fontSize: "0.67rem", letterSpacing: "0.04em", lineHeight: 1.6 }}>
+      {text}
+    </p>
+  );
+}
+
 // ── 单人结果预览（计费墙前展示的内容）────────────────────────────────────────
 function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
-  const { t, term } = useT();
+  const { t, term, locale } = useT();
   const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
   const pillars = [result.year, result.month, result.day, result.hour];
-  const shenshaCnt = Object.keys(result.shensha ?? {}).length;
   return (
     <div className="flex flex-col gap-4">
       {/* 命盘头部 */}
@@ -384,14 +417,15 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
                 {result.birthCity} · 东经{result.birthLng.toFixed(1)}°
                 {result.trueSolarOffset !== undefined && result.trueSolarOffset !== 0 && (
                   <span style={{ color: result.trueSolarOffset > 0 ? "rgba(96,165,250,0.7)" : "rgba(251,191,36,0.7)" }}>
-                    · 真太阳时{result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}分钟
+                    · {t('result.solar_corrected')} {result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}{locale.startsWith("zh") ? "分钟" : " min"}
                   </span>
                 )}
                 {result.trueSolarOffset === 0 && (
-                  <span style={{ color: "#6F6880" }}>· 无需修正</span>
+                  <span style={{ color: "#6F6880" }}>· {t('result.solar_none')}</span>
                 )}
               </p>
             )}
+            <SolarTimeNote result={result} />
           </div>
           <div className="text-right">
             <p className="text-xs" style={{ color: MUTED_CLR }}>{t('pillar.day_master')}</p>
@@ -412,6 +446,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
             <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} />
           ))}
         </div>
+        <PillarGridFooter />
       </InfoCard>
       {/* 命局分析 */}
       <InfoCard title={t('result.bazi_analysis', '命局分析')} icon={
@@ -427,15 +462,15 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
             style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '强弱')}</span>
+            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '结构')}</span>
             <span className="text-base font-bold" style={{ color: result.strength === "身强" ? "#4ade80" : result.strength === "身弱" ? "#f87171" : GOLD }}>
-              {result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : result.strength}
+              {strengthLabel(result.strength, term)}
             </span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
             style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.shensha', '神煞')}</span>
-            <span className="text-base font-bold" style={{ color: GOLD }}>{shenshaCnt > 0 ? `${shenshaCnt}${t('result.items', '项')}` : t('result.none', '无')}</span>
+            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.season')}</span>
+            <span className="text-base font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.month.zhi}</span>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -466,7 +501,8 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
 }
 // ── 计费墙组件 ────────────────────────────────────────────────────────────────
 function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => void; onStartDouble?: () => void; result: SingleBaziResult }) {
-  const { t, term } = useT();
+  const { t, locale } = useT();
+  const preview = composeFreeReport(result, locale);
   return (
     <div className="relative overflow-hidden rounded-sm" style={{ marginTop: -8 }}>
       {/* 模糊遮挡层 */}
@@ -499,7 +535,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           {t('paywall.title_overlay', '完整命盘待解锁')}
         </p>
         <p className="text-xs text-center mb-5" style={{ color: "#6F6880", lineHeight: 1.7 }}>
-          {t('paywall.subtitle_overlay', '大运排列、神煞分析、命理小结属于深度解读内容')}
+          {t('paywall.subtitle_overlay', '每十年一换的阶段与白话解读属于深度内容')}
           <br />{t('paywall.unlock_hint', '解锁后可查看完整命盘分析')}
         </p>
         {/* 解锁按钮 */}
@@ -560,10 +596,10 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           </div>
           {/* 命理小结预览 */}
           <div className="rounded-xl px-4 py-4" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
-            <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '命理小结')}</h3>
+            <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '白话解读')}</h3>
             <div className="space-y-2">
-              <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{result.mingLiSummary.overview}</p>
-              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>✨ {result.mingLiSummary.personality.slice(0, 40)}……</p>
+              <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{preview.sections[0]?.body ?? ""}</p>
+              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>{(preview.sections[2]?.body ?? "").slice(0, 48)}……</p>
             </div>
           </div>
         </div>
@@ -576,7 +612,6 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
   const { t, term, locale } = useT();
   const pillars = [result.year, result.month, result.day, result.hour];
   const pillarLabels = PILLAR_LABELS_KEYS.map(k => t(k));
-  const shenshaCnt = Object.keys(result.shensha).length;
 
   return (
     <div className="flex flex-col gap-3">
@@ -600,14 +635,15 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
                   {result.birthCity} · 东经{result.birthLng.toFixed(1)}°
                   {result.trueSolarOffset !== undefined && result.trueSolarOffset !== 0 && (
                     <span style={{ color: result.trueSolarOffset > 0 ? "rgba(96,165,250,0.7)" : "rgba(251,191,36,0.7)" }}>
-                      · 真太阳时{result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}分钟
+                      · {t('result.solar_corrected')} {result.trueSolarOffset > 0 ? '+' : ''}{result.trueSolarOffset}{locale.startsWith("zh") ? "分钟" : " min"}
                     </span>
                   )}
                   {result.trueSolarOffset === 0 && (
-                    <span style={{ color: "rgba(93,89,115,0.5)" }}>· 无需修正</span>
+                    <span style={{ color: "rgba(93,89,115,0.5)" }}>· {t('result.solar_none')}</span>
                   )}
                 </p>
               )}
+              <SolarTimeNote result={result} />
             </div>
             <div className="text-right">
               <p className="text-xs" style={{ color: MUTED_CLR }}>{t('pillar.day_master')}</p>
@@ -628,6 +664,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
             <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} />
           ))}
         </div>
+        <PillarGridFooter />
       </InfoCard>
 
       {/* 身强弱 + 喜忌神 */}
@@ -644,15 +681,15 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
             style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '强弱')}</span>
+            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.strength', '结构')}</span>
             <span className="text-base font-bold" style={{ color: result.strength === '身强' ? '#4ade80' : result.strength === '身弱' ? '#f87171' : GOLD }}>
-              {result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : result.strength}
+              {strengthLabel(result.strength, term)}
             </span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-lg py-2.5"
             style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.shensha', '神煞')}</span>
-            <span className="text-base font-bold" style={{ color: GOLD }}>{shenshaCnt > 0 ? `${shenshaCnt}${t('result.items', '项')}` : t('result.none', '无')}</span>
+            <span className="text-[10px]" style={{ color: "#78718B" }}>{t('result.season')}</span>
+            <span className="text-base font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.month.zhi}</span>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -680,27 +717,9 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
         <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </InfoCard>
 
-      {/* 神煞 */}
-      {shenshaCnt > 0 && (
-        <InfoCard title={t('result.shensha', '神煞')} icon={
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        }>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(result.shensha).map(([name, vals]) => (
-              <div key={name} className="rounded-lg px-3 py-2" style={{ background: "rgba(196,160,78,0.08)", border: `1px solid ${GOLD_FAINT}` }}>
-                <p className="text-[10px]" style={{ color: BODY_CLR }}>{name}</p>
-                <p className="text-sm font-bold" style={{ color: GOLD, fontFamily: SERIF_F }}>
-                  {vals.join(' ')}
-                </p>
-              </div>
-            ))}
-          </div>
-        </InfoCard>
-      )}
+      {/* 神煞不进入面向用户的文案（规范 B.1） */}
 
-      {/* 大运 */}
+      {/* 每十年一换的阶段 */}
       <InfoCard title={t('result.da_yun', '大运排列')} icon={
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -718,43 +737,16 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
         </div>
       </InfoCard>
 
-      {/* 命理小结 */}
-      <InfoCard title={t('result.summary', '命理小结')} icon={
+      {/* 白话命理小结 */}
+      <InfoCard title={t('result.summary', '白话解读')} icon={
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
         </svg>
       }>
-        <div className="space-y-4">
-          {/* 命局概述 */}
-          <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(196,160,78,0.07)', border: '1px solid rgba(196,160,78,0.2)' }}>
-            <p className="text-xs leading-relaxed" style={{ color: BODY_CLR }}>{result.mingLiSummary.overview}</p>
-          </div>
-          {/* 三维解读 */}
-          {([
-            { label: t('report.character', '性格特征'), icon: '✨', text: result.mingLiSummary.personality },
-            { label: t('report.career', '事业方向'), icon: '⛄', text: result.mingLiSummary.career },
-            { label: t('report.relationship', '感情倾向'), icon: '♥', text: result.mingLiSummary.relationship },
-          ] as const).map(({ label, icon, text }) => (
-            <div key={label}>
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="text-[10px]">{icon}</span>
-                <span className="text-[11px] font-semibold tracking-widest" style={{ color: GOLD }}>{label}</span>
-              </div>
-              <p className="text-xs leading-relaxed pl-4" style={{ color: GOLD_DIM, borderLeft: '2px solid rgba(196,160,78,0.22)' }}>{text}</p>
-            </div>
-          ))}
-          {/* 运势提示 */}
-          <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(196,160,78,0.05)', border: '1px solid rgba(196,160,78,0.12)' }}>
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <span className="text-[10px]">★</span>
-              <span className="text-[11px] font-semibold tracking-widest" style={{ color: 'rgba(196,160,78,0.8)' }}>{t('report.fortune_tip', '运势提示')}</span>
-            </div>
-            <p className="text-xs leading-relaxed" style={{ color: '#78718B' }}>{result.mingLiSummary.fortune}</p>
-          </div>
-          <p className="text-[10px] pt-0.5" style={{ color: 'rgba(93,89,115,0.45)' }}>
-            {t('report.disclaimer', '※ 以上分析仅供娱乐与自我探索参考，不构成医疗、财务或人生决策建议。')}
-          </p>
-        </div>
+        <FreeReportBody result={result} compact />
+        <p className="text-[10px] pt-3" style={{ color: 'rgba(93,89,115,0.45)' }}>
+          {t('report.disclaimer', '※ 以上分析仅供娱乐与自我探索参考，不构成医疗、财务或人生决策建议。')}
+        </p>
       </InfoCard>
     </div>
   );
@@ -1481,166 +1473,68 @@ function AIAnalysisPanel({
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  免费命理解读：日主分析 + 职业 + 合作 + 风险
+//  免费命理解读：现象 → 机制 → 术语
 // ════════════════════════════════════════════════════════════════════
 
-/** 从日柱天干提取日主五行 */
 function getWxFromRiZhu(riZhu: string): string {
   const WX: Record<string, string> = { 甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水' };
   return WX[riZhu] || riZhu;
 }
 
-/** 日主属性分析库（静态兜底，AI 返回后替换为个性化内容） */
-const RIZHU_PROFILE: Record<string, {
-  title: string; traits: string; career: string; partner: string; risk: string; lucky: string;
-}> = {
-  '甲木': { title:'参天大树，正直仁德', traits:'甲木日主为人刚正，心胸开阔，具有强大的领导力和组织力，善于从全局视角思考问题，是天生的领袖型人格。', career:'适合军政、公务员、教育、建筑、林业等需要长期积累的事业。', partner:'适合与丙火、己土日主合作，🔥火能照木、🏔土能稳木。避免与辛金过强的命局搭配。', risk:'⚠ 甲木过刚易折，需防因过于强势而树敌。2026年戊戌土旺克水，注意身心调节。', lucky:'幸运色: 深绿、黑色 ｜ 幸运方位: 东南' },
-  '乙木': { title:'藤萝柔韧，灵活变通', traits:'乙木日主温柔而坚毅，具有极强的适应力和审美感知力，善于在细节中找到突破点，是天生的艺术家和协调者。', career:'适合艺术设计、教育、咨询、美容、园林等创意性行业。', partner:'适合与丙火、甲木日主合作，🔥丙火为阳光、🌳甲木为支撑。避免与庚金过强的命局搭配。', risk:'⚠ 乙木柔顺易被人操控，需培养主动判断力。2026年财务需考虑项目回款压力。', lucky:'幸运色: 绿色、青色 ｜ 幸运方位: 东南' },
-  '丙火': { title:'炎炎太阳，热情奔放', traits:'丙火日主热烈明朗，充满感染力与自信心，是天生的传播者和激励者，走到哪里都是焦点。', career:'适合传媒、主持、自媒体、市场营销、公益事业等需要曝光度的工作。', partner:'适合与壬水、甲木日主合作，💧壬水为浩浩江河、🌳甲木为根基支撑。避免与己土过重的命局过度纠缠。', risk:'⚠ 丙火耀眼但易燃烧过度，需防身心透支。2026年家人健康需关注。', lucky:'幸运色: 红色、紫色 ｜ 幸运方位: 南' },
-  '丁火': { title:'灯烛之火，温暖细腻', traits:'丁火日主内心细腻明亮，洞察力惊人，善于捕捉他人的细微情绪变化，是天生的智者和心灵导师。', career:'适合心理咨询、文学创作、灯饰设计、教育辅导、医疗护理等行业。', partner:'适合与甲木、庚金日主合作，🌳甲木为灯油之源、⚔庚金为精雕细琢。避免与癸水过强的命局搭配。', risk:'⚠ 丁火微弱易被外界影响，需注意保护自己的能量场。2026年合同纠纷需谨慎。', lucky:'幸运色: 红色、金色 ｜ 幸运方位: 南' },
-  '戊土': { title:'厚重城墙，踏实坚韧', traits:'戊土日主诚实可靠，行动力强，具有天生的责任感和统筹能力，是团队中不可或缺的中流砥柱。', career:'适合金融、房地产、工程管理、审计、企业中层管理等需要稳健执行的工作。', partner:'适合与丙火、壬水日主合作，🔥丙火为阳光照临、💧壬水为滋养之源。避免与乙木过重的命局合作。', risk:'⚠ 戊土厚重需防过于保守，错失良机。2026年投资理财需控制杠杆率。', lucky:'幸运色: 金黄、褐色 ｜ 幸运方位: 中' },
-  '己土': { title:'田园沃土，温和包容', traits:'己土日主温润包容，具有天生的养育之力，善于调和人际关系，是天生的调解者和服务者。', career:'适合心理咨询、教育辅导、烹饪料理、社区服务、手工艺等行业。', partner:'适合与丙火、甲木日主合作，🔥丙火为阳光之力、🌳甲木为生发之机。避免与癸水过强的命局搭配。', risk:'⚠ 己土柔和易被人情束缚，需防因过度迁就而失去自我。2026年注意家庭财务理性规划。', lucky:'幸运色: 土黄、浅绿 ｜ 幸运方位: 中' },
-  '庚金': { title:'斧钺之金，果断刚强', traits:'庚金日主意志坚定，执行力卓越，具有天生的决断力和组织执行力，做事有魄力、有胆识，是天生的将才。', career:'适合军警、法律、金融投资、工程技术、制造业等需要决断力和专业度的行业。', partner:'适合与丁火、甲木日主合作，🔥丁火为锤炼之炉、🌳甲木为根基支撑。避免与丙火过重的命局正面交锋。', risk:'⚠ 庚金刚锐易得罪人，需注意言行。2026年注意合同条款细节，避免中途变数。', lucky:'幸运色: 白色、银色 ｜ 幸运方位: 西南' },
-  '辛金': { title:'珠宝之金，精致优雅', traits:'辛金日主精致细腻，追求完美，具有天生的审美力和专业精神，是天生的匠人和品味家。', career:'适合珠宝设计、银行金融、会计、医疗美容、高端定制等需要精细度的行业。', partner:'适合与壬水、丁火日主合作，💧壬水为淘洗之力、🔥丁火为精炼之温。避免与乙木过重的命局搭配。', risk:'⚠ 辛金追求完美易过度焦虑，需学会放下小节。2026年投资需分散风险。', lucky:'幸运色: 白色、粉色 ｜ 幸运方位: 西' },
-  '壬水': { title:'江河之水，智慧通达', traits:'壬水日主聪慧机敏、直觉力惊人，善于沟通和变通，具有天生的商业嗅觉和人际魅力，是天生的变通者。', career:'适合贸易、电商、传媒、影视制作、国际商务等需要快速应变和沟通力的行业。', partner:'适合与丙火、戊土日主合作，🔥丙火为江河映照、🏔戊土为堤坝护持。避免与己土过重的命局纠缠。', risk:'⚠ 壬水活跃容易分心，需聚焦省力。2026年注意行程安排突发变故。', lucky:'幸运色: 蓝色、黑色 ｜ 幸运方位: 北' },
-  '癸水': { title:'雨露之水，内秀深远', traits:'癸水日主内敛深沉，具有天生的精神力量和洞察力，善于在宁静中积蓄力量，是天生的思想者和战略家。', career:'适合学术研究、心理学、战略咨询、数据分析、艺术创作等需要深度思考的行业。', partner:'适合与甲木、庚金日主合作，🌳甲木为承载之基、⚔庚金为提炼之力。避免与戊土过重的命局搭配。', risk:'⚠ 癸水之寒需防内心深沉而自我封闭。2026年注意合同细节和财务外借风险。', lucky:'幸运色: 蓝色、白色 ｜ 幸运方位: 北' },
-};
+function FreeReportBody({ result, compact }: { result: SingleBaziResult; compact?: boolean }) {
+  const { locale } = useT();
+  const report = composeFreeReport(result, locale);
+  const fs = compact ? "text-xs" : "text-sm";
+  return (
+    <div className="flex flex-col gap-3">
+      {report.sections.map((s, i) => (
+        <div key={s.title} className="rounded-lg px-4 py-3.5" style={{
+          background: i === 3 ? "rgba(248,113,113,0.05)" : "rgba(196,160,78,0.05)",
+          border: i === 3 ? "1px solid rgba(248,113,113,0.14)" : "1px solid rgba(196,160,78,0.12)",
+        }}>
+          <p className={`${compact ? "text-xs" : "text-sm"} font-bold mb-1.5`} style={{ color: GOLD, fontFamily: SERIF_F }}>
+            {["一", "二", "三", "四"][i]}　{s.title}
+          </p>
+          <p className={`${fs} leading-relaxed`} style={{ color: BODY_CLR, lineHeight: 1.75 }}>{s.body}</p>
+          {s.classic && (
+            <p className="text-[11px] mt-2 leading-relaxed" style={{ color: MUTED_CLR }}>{s.classic}</p>
+          )}
+        </div>
+      ))}
+      <div className="rounded-lg px-4 py-3" style={{ background: "rgba(196,160,78,0.04)" }}>
+        <p className={`${fs} font-bold`} style={{ color: GOLD }}>{report.luckyLine}</p>
+        <p className="text-[11px] mt-1 leading-relaxed" style={{ color: MUTED_CLR }}>{report.luckyNote}</p>
+      </div>
+    </div>
+  );
+}
 
 function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
   const { t, term, locale } = useT();
   const wx = getWxFromRiZhu(result.riZhu);
-  const strengthLabel = result.strength === "身强" ? term('身强') : result.strength === "身弱" ? term('身弱') : term('身中和');
-
-  const [aiProfile, setAiProfile] = useState<null | {
-    title: string; matrix?: string; pattern?: string; personality?: string;
-    traits?: string; career?: string; partner?: string; risk: string; lucky: string;
-  }>(null);
-  const [aiLoaded, setAiLoaded] = useState(false);
-  const [aiError, setAiError] = useState(false);
-  const insightMutation = trpc.bazi.freeInsight.useMutation({
-    onSuccess: (data: any) => {
-      if (data && data.title) {
-        setAiProfile(data);
-      }
-      setAiLoaded(true);
-    },
-    onError: () => {
-      setAiError(true);
-      setAiLoaded(true);
-    },
-  });
-
-  // 组件挂载后触发 AI 解读
-  useEffect(() => {
-    if (!aiLoaded && !insightMutation.isPending) {
-      const timer = setTimeout(() => {
-        insightMutation.mutate({ lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData: result as unknown as Record<string, unknown> });
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const hasAi = !!aiProfile;
-  const strengthColor = result.strength === "身强" ? "#4ade80" : result.strength === "身弱" ? "#f87171" : GOLD;
-
+  const report = composeFreeReport(result, locale);
+  const structure = strengthLabel(result.strength, term);
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${CARD_BORDER}`, background: CARD_SURFACE }}>
-      {/* 标题栏 */}
       <div className="px-5 py-4" style={{ background: CARD_GRADIENT_SOFT, borderBottom: `1px solid ${GOLD_FAINT}` }}>
         <div className="flex items-center gap-3">
-          <span style={{ fontSize: "1.25rem" }}>🔮</span>
           <div>
             <p className="text-base font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>
-              {t('insight.title').replace('{name}', result.name)}
+              {t("insight.title").replace("{name}", result.name)}
             </p>
-            <p className="text-xs" style={{ color: MUTED_CLR }}>
-              {t('insight.day_master').replace('{riZhu}', result.riZhu).replace('{wx}', wx).replace('{strength}', strengthLabel)}
+            <p className="text-xs mt-1" style={{ color: MUTED_CLR }}>
+              {report.dayMasterLine || t("insight.day_master").replace("{riZhu}", result.riZhu).replace("{wx}", wx).replace("{strength}", structure)}
             </p>
           </div>
           <div className="ml-auto text-right">
             <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: "rgba(196,160,78,0.1)", color: GOLD, fontFamily: SANS }}>
-              {wx} · {result.riZhu}
+              {wx} · {structure}
             </span>
           </div>
         </div>
       </div>
-
-      {/* 内容区 */}
-      <div className="px-5 py-4 flex flex-col gap-4">
-        {/* AI 加载中：动画骨架 */}
-        {!hasAi && !aiError && insightMutation.isPending && (
-          <div className="flex flex-col items-center justify-center py-8 gap-4">
-            <div className="relative" style={{ width: 44, height: 44 }}>
-              <svg width="44" height="44" viewBox="0 0 100 100" fill="none"
-                className="animate-spin" style={{ animationDuration: "3s" }}>
-                <circle cx="50" cy="50" r="44" stroke="rgba(196,160,78,0.15)" strokeWidth="1.5"/>
-                <path d="M50 6 A44 44 0 0 1 50 94 A22 22 0 0 1 50 50 A22 22 0 0 0 50 6Z" fill="rgba(196,160,78,0.15)"/>
-                <circle cx="50" cy="28" r="4" fill="#C4A04E" opacity="0.8"/>
-                <circle cx="50" cy="72" r="4" fill="rgba(196,160,78,0.2)"/>
-              </svg>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm" style={{ color: "rgba(196,160,78,0.7)", fontFamily: SERIF_F, letterSpacing: "0.12em" }}>
-                {t('insight.loading')}
-              </span>
-              <span className="text-xs" style={{ color: "rgba(93,89,115,0.4)", letterSpacing: "0.05em" }}>
-                {t('insight.subtitle')}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* AI 加载失败 + 重试 */}
-        {aiError && !hasAi && (
-          <div className="flex flex-col items-center gap-3 py-5">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(248,113,113,0.5)" strokeWidth="1.5">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <span className="text-sm" style={{ color: "#6F6880", letterSpacing: "0.04em" }}>
-              {t('insight.error')}
-            </span>
-            <button type="button" onClick={() => {
-              setAiError(false);
-              setAiLoaded(false);
-              insightMutation.mutate({ lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR", resultData: result as unknown as Record<string, unknown> });
-            }}
-              className="text-sm px-5 py-2 rounded-lg transition-colors"
-              style={{ background: "rgba(196,160,78,0.1)", color: "#C4A04E", border: "none", cursor: "pointer" }}>
-              {t('insight.retry')}
-            </button>
-          </div>
-        )}
-
-        {/* AI 内容 */}
-        {hasAi && aiProfile && (
-          <>
-            <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(196,160,78,0.06)", border: `1px solid rgba(196,160,78,0.12)` }}>
-              <p className="text-sm font-bold mb-1.5" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.riZhu} · {aiProfile.title}</p>
-              <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.75 }}>{aiProfile.matrix || aiProfile.traits}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.15)" }}>
-                <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🏛</span><span className="text-sm font-bold" style={{ color: "#60a5fa" }}>{t('insight.pattern')}</span></div>
-                <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.pattern || ''}</p>
-              </div>
-              <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.15)" }}>
-                <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🧬</span><span className="text-sm font-bold" style={{ color: "#4ade80" }}>{t('insight.personality')}</span></div>
-                <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.personality || aiProfile.career || ''}</p>
-              </div>
-            </div>
-
-            <div className="rounded-lg px-4 py-3.5" style={{ background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.15)" }}>
-              <div className="flex items-center gap-1.5 mb-1.5"><span style={{ fontSize: "0.875rem" }}>🛡</span><span className="text-sm font-bold" style={{ color: "#f87171" }}>{t('insight.risk')}</span></div>
-              <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.7 }}>{aiProfile.risk}</p>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg px-4 py-2.5" style={{ background: "rgba(196,160,78,0.04)" }}>
-              <p className="text-sm" style={{ color: GOLD, flex: 1 }}>{aiProfile.lucky}</p>
-              <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: GOLD, color: "#ffffff", fontFamily: SANS }}>{wx}</span>
-            </div>
-          </>
-        )}
+      <div className="px-5 py-4">
+        <FreeReportBody result={result} />
       </div>
     </div>
   );
@@ -1762,6 +1656,7 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
             <GanZhiCell key={i} gan={p.gan} zhi={p.zhi} label={pillarLabels[i]} isDay={i === 2} shiShen={result.shiShen} dark />
           ))}
         </div>
+        <PillarGridFooter dark />
       </div>
 
       {/* 五行极坐标图 — 免费结果即展示 */}

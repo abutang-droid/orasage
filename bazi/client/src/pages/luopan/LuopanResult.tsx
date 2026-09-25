@@ -1,6 +1,8 @@
 import type { SingleBaziResult } from '@/lib/bazi';
 import { BRANCH_WU_XING, DI_ZHI_CANG_GAN, WU_XING_MAP } from '@/lib/bazi';
 import { WuXingPolarChart, pillarsFromBazi } from '@/components/WuXingPolarChart';
+import { polarTag, GRID_CAPTION_ZH, GOD_VERNACULAR } from '@shared/vernacular';
+import { trueSolarCaption } from '@shared/free-report';
 
 const WX_VAR: Record<string, string> = {
   木: 'var(--wx-wood)',
@@ -52,30 +54,34 @@ export function LuopanResult({
       <div className="bamboo-row">
         {PILLAR_ORDER.map((p, i) => {
           const pl = result[p.key];
-          const ss = p.key === 'day' ? '日主' : (result.shiShen[pl.gan] ?? '');
+          const rawSs = p.key === 'day' ? '日主' : (result.shiShen[pl.gan] ?? '');
+          const ss = p.key === 'day' ? '日主' : (GOD_VERNACULAR[rawSs] ?? rawSs);
           const cang = (DI_ZHI_CANG_GAN[pl.zhi] ?? []).join(' ');
           const zw = BRANCH_WU_XING[pl.zhi] ?? '土';
+          const tag = polarTag(pl.gan, pl.zhi, p.key === 'day');
           return (
             <div key={p.key} className={`bb${p.key === 'day' ? ' day' : ''}`} style={{ animationDelay: `${i * 0.13}s` }}>
               <div className="fib" />
               <div className="cap">{p.cap}</div>
+              <div className="wxlab">{tag}</div>
               <div className="gan">{pl.gan}</div>
               <div className="ss">{ss}</div>
               <div className="line" />
               <div className="zhi">{pl.zhi}</div>
               <div className="wxtag" style={{ background: WX_VAR[zw] }} />
-              <div className="cang">{cang ? `藏 ${cang}` : ''}</div>
+              <div className="cang">{cang ? `内含 ${cang}` : ''}</div>
             </div>
           );
         })}
       </div>
+      <p className="grid-cap">{GRID_CAPTION_ZH}</p>
       <div className="ink-sec">
         <div className="ink-h">五 行</div>
         <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
       </div>
       <div className="creed">知结构，不问吉凶</div>
       <div className="fine">
-        已按出生城市校正真太阳时。本盘只呈现干支结构，不判吉凶，不构成任何医疗、法律、财务或人生决策建议。
+        {trueSolarCaption(result.trueSolarOffset) || '已按你出生地的经度校正过时间。'}本盘只呈现干支结构，不判吉凶，不构成任何医疗、法律、财务或人生决策建议。
       </div>
       <div className="res-foot">
         <button type="button" className="b-sec" onClick={onBack}>重 排</button>

@@ -250,6 +250,7 @@ export type BaziResult = SingleBaziResult;
 
 // ==================== 本地农历数据模块（替换 lunar-javascript CDN）====================
 import { getLunarData, getShiZhu, preloadCommonDecades } from './lunarData';
+import { composeFreeReport } from '@shared/free-report';
 
 // 兼容旧接口：首次调用时预加载常用年代数据
 let _lunarReady = false;
@@ -488,109 +489,38 @@ function calcDaYunNew(
 
 // ==================== 命理小结生成 ====================
 /**
- * 根据日主天干、身强弱、喜忌神生成段落式命理小结
+ * 白话命理小结：与免费报告同一套规范译法，供模糊预览等仍读 mingLiSummary 的位置使用。
  */
 function generateMingLiSummary(
   riZhu: string,
   strength: string,
   favorable: string[],
   unfavorable: string[],
-  wuXing: WuXingCount,
-  gender: 'male' | 'female',
-  shiShen: Record<string, string>
+  _wuXing: WuXingCount,
+  _gender: 'male' | 'female',
+  shiShen: Record<string, string>,
+  pillars: { year: { gan: string; zhi: string }; month: { gan: string; zhi: string }; day: { gan: string; zhi: string }; hour: { gan: string; zhi: string } },
+  pattern?: { primary?: string; secondary?: string[]; keyStems?: string[] },
 ): MingLiSummary {
-  const wx = WU_XING_MAP[riZhu] ?? '未知';
-  const favStr = favorable.join('、') || '未确定';
-  const unfavStr = unfavorable.join('、') || '未确定';
-
-  // 日主五行性格库
-  const personalityBase: Record<string, string> = {
-    '木': '木日主天生仁善，具有强烈的开拓欲与上进心，内心充满创造力与弹性。为人正直、重义气，对事业有执着与将心比心的赤诚感。然而木性有时易固守主观，遇到退让时内心容易较为曲折。',
-    '火': '火日主热情活泼，思维敏锐且具有感染力，容易吸引他人目光。表达欲强，善于社交，对美好事物充满激情。但火性易情绪迅速降落，如不加以沉淀，小心过于冲动行事。',
-    '土': '土日主安静实干，为人忠厚、包容力强，具有天生的信任感与责任心。做事踏实、不急不躁，善于统筹全局。不足之处在于有时过于守成，面对变化时决断力稍弱。',
-    '金': '金日主意志坚定，执行力强，做事雷厉风行、求精求全。为人直接、重竞争，具有强烈的自尊心与原则性。需要注意的是，金性过刚则易折，学会柔中带刚方能走得更远。',
-    '水': '水日主聪慧机智，适应力极强，善于审时度势。内心丰富、想象力层次丰富，具有天生的直觉与感知力。不足之处在于有时过于多虑，小心优犹豫豫而失去主动性。',
-  };
-
-  // 身强弱修正语
-  const strengthMod: Record<string, string> = {
-    '身强': `命局身强，日主气势旺盛，具备独当一面的能力与信心。喜用神为${favStr}，宜多与${favStr}行相关的领域发展。`,
-    '身中': `命局阴阳较为均衡，日主气势平和，适应能力强。喜用神为${favStr}，运势平稳中将逐步上升。`,
-    '身弱': `命局身弱，日主气势较薄，需要喜用神${favStr}来扶助。建议多借助他人力量，合作共赢方为上策。`,
-  };
-
-  // 事业方向库（日主五行 + 身强弱）
-  const careerMap: Record<string, Record<string, string>> = {
-    '木': {
-      '身强': '木日身强者适合独立创业或主导管理，教育、法律、文化创意类行业尤为适合。喜用神得力之年事业发展迅速，建议投资自身技能提升。',
-      '身中': '木日身中者注重平衡发展，教育、媒体、公益、设计类行业均可考虑。建议建立稳定的人脉资源，合作共赢效果佳。',
-      '身弱': '木日身弱者适合在有组织支撑的环境中发展，建议从事小范围教育、辅助类工作。少独个创业，多借力平台和团队。',
-    },
-    '火': {
-      '身强': '火日身强者适合于演艺、传媒、市场营销、公共关系等展现型行业。领导力强，适合担任高曝光度职位，事业高峰期将带来事业局面大幅扩展。',
-      '身中': '火日身中者在娱乐、媒体、餐饮、旅游等行业均可发展。建议建立个人品牌，利用社交影响力拓展事业版图。',
-      '身弱': '火日身弱者建议选择较为稳定的服务行业，避免过度曝光带来的压力。内容创作、广告设计等适合岗位小而精的方向可考虑。',
-    },
-    '土': {
-      '身强': '土日身强者适合房地产、金融、建筑、农业等与土地相关的行业。管理能力出众，适合担任中高层管理职位，事业发展将带来可观的物质回报。',
-      '身中': '土日身中者在行政、中介、服务管理等行业均能发展。建议建立实实在在的人脉网络，平稳积累是最大优势。',
-      '身弱': '土日身弱者适合在大机构内从事行政或后勤工作，避免过度负责带来的压力。建议将精力集中在少数几个小目标上逐步稳定。',
-    },
-    '金': {
-      '身强': '金日身强者适合金融投资、法律、军事、工程技术等需要决断力的行业。具有天生的领导气质，建议尽早建立自己的专业地盘。',
-      '身中': '金日身中者在机械制造、工程、会计、媒体等行业均可发展。建议利用执行力强的优势，将想法切实落地。',
-      '身弱': '金日身弱者适合在有规则、有保障的环境中工作，如公务员、会计、质检等。避免过度冒险，稳健第一。',
-    },
-    '水': {
-      '身强': '水日身强者适合媒体、资讯、学术研究、心理和咨询等行业。思维深度与广度均优于常人，建议将智慧转化为具体的专业能力。',
-      '身中': '水日身中者在娱乐、商贸、媒体、心理和咨询等行业均可发展。建议建立多元收入渠道，利用适应力强的优势拓展边界。',
-      '身弱': '水日身弱者适合在安静的环境中工作，如写作、研究、设计等。避免高压力的销售或客服岗位，保持内心平静方能发挥最大潜能。',
-    },
-  };
-
-  // 感情倾向库
-  const relationshipMap: Record<string, Record<string, string>> = {
-    '木': {
-      '身强': '感情上主动且直接，对伴侣充满保护欲与责任心。身强木日有时过于强势，建议学会尊重伴侣的意愿与边界。喜用神为${favStr}得力时，感情运将有较大突破。',
-      '身中': '感情温和而稳定，对伴侣忠诚且具包容心。建议多与伴侣分享内心感受，避免将工作压力带入感情。',
-      '身弱': '感情上需要对方的理解与支持，建议选择能够给予安全感的伴侣。小心过度依赖或过度付出而忘记自我。',
-    },
-    '火': {
-      '身强': '感情热烈且直接，易一见钟情。身强火日在感情中容易占主导地位，建议学会尊重伴侣的独立性。喜用神得力时感情运佳。',
-      '身中': '感情中充满活力与浪漫感，对伴侣有天生的吸引力。建议在感情中保持适度的独立空间，不要将全部精力投入其中。',
-      '身弱': '感情上需要稳定的伴侣来平衡内心的波动。建议选择成熟、包容的伴侣，避免将全部情绪寄托于对方。',
-    },
-    '土': {
-      '身强': '感情忠诚且长久，对伴侣充满包容与安全感。身强土日有时过于守成，建议学会主动表达感情。喜用神得力时感情运将有实质性进展。',
-      '身中': '感情平和而实质，对伴侣忠心耐心。建议在感情中多一些惊喜与新鲜感，避免过于平淡而失去活力。',
-      '身弱': '感情上希望得到对方的安慰与支持，建议选择强大、包容的伴侣。小心在感情中过于负面思考。',
-    },
-    '金': {
-      '身强': '感情上直接且具原则性，认就不认。身强金日在感情中容易过于强势，建议学会表达柔性的一面。喜用神得力时感情运将得到改善。',
-      '身中': '感情中充满责任心与保护欲，对伴侣忠诚且可靠。建议在感情中多一些贴心与温柔，避免过于理性化。',
-      '身弱': '感情上需要对方的包容与理解，建议选择成熟稳定的伴侣。小心因完美主义而对感情要求过高。',
-    },
-    '水': {
-      '身强': '感情丰富且善解人意，具有天生的魅力与吸引力。身强水日有时感情过于复杂，建议学会直接表达感受。喜用神得力时感情运将得到实质性进展。',
-      '身中': '感情中充满细腻与温柔，对伴侣具有天生的包容与理解。建议建立明确的感情边界，避免过度付出。',
-      '身弱': '感情上需要对方的安全感与鼓励，建议选择强大、实干的伴侣。小心因过于敏感而将对方的无心之语过度解读。',
-    },
-  };
-
-  // 运势提示
-  const wxEntries = Object.entries(wuXing) as [string, number][];
-  const maxWxEntry = wxEntries.reduce((a, b) => b[1] > a[1] ? b : a);
-  const minWxEntry = wxEntries.reduce((a, b) => b[1] < a[1] ? b : a);
-  const fortune = `就目前命局而言，${maxWxEntry[0]}行最旺，${minWxEntry[0]}行最弱。喜用神为${favStr}，忌神为${unfavStr}，建议在日常生活中多接触${favStr}行相关的事物与环境，避免${unfavStr}行的负面影响，方能将运势小宇宙持续向好。`;
-
-  const strengthKey = strength as '身强' | '身中' | '身弱';
-
+  const report = composeFreeReport({
+    name: "",
+    riZhu,
+    strength,
+    favorable,
+    unfavorable,
+    year: pillars.year,
+    month: pillars.month,
+    day: pillars.day,
+    hour: pillars.hour,
+    shiShen,
+    pattern,
+  });
   return {
-    overview: `命主${gender === 'male' ? '为男' : '为女'}，日主天干为${riZhu}（${wx}行），${strengthMod[strengthKey] ?? ''}喜用神为${favStr}，忌神为${unfavStr}。`,
-    personality: personalityBase[wx] ?? `${wx}日主天干，性格内外兼备，具有天生的平衡感。`,
-    career: careerMap[wx]?.[strengthKey] ?? `${wx}日主注重平衡发展，建议建立稳定的事业基础。`,
-    relationship: relationshipMap[wx]?.[strengthKey] ?? `${wx}日主感情中充满责任心，对伴侣忠诚且包容。`,
-    fortune,
+    overview: report.sections[0]?.body ?? "",
+    personality: report.sections[2]?.body ?? "",
+    career: report.sections[1]?.body ?? "",
+    relationship: report.sections[2]?.body ?? "",
+    fortune: `${report.sections[3]?.body ?? ""} ${report.luckyNote}`.trim(),
   };
 }
 
@@ -1267,7 +1197,7 @@ export async function calcSingleBazi(person: PersonInput): Promise<SingleBaziRes
     const eot = getEquationOfTime(month, day, year);
     trueSolarOffset = Math.round((lng - stdLng) * 4 + eot); // 经度偏移 + 均时差
     if (tst.hour !== hour || tst.minute !== minute) {
-      trueSolarNote = `（真太阳时 ${String(tst.hour).padStart(2,'0')}:${String(tst.minute).padStart(2,'0')}）`;
+      trueSolarNote = `（已按出生地经度校正为 ${String(tst.hour).padStart(2,'0')}:${String(tst.minute).padStart(2,'0')}）`;
     }
     hour = tst.hour;
     minute = tst.minute;
@@ -1347,7 +1277,9 @@ export async function calcSingleBazi(person: PersonInput): Promise<SingleBaziRes
     unfavorable,
     wuXing,
     gender,
-    shiShen
+    shiShen,
+    pillars,
+    pattern,
   );
 
   return {
