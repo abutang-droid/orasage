@@ -45,7 +45,7 @@ function pick<K extends string>(map: Record<K, string>, lang: string, fallback: 
 export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-CN"): string {
   const {
     name, gender, birthStr, riZhu, strength, favorable, unfavorable,
-    wuXing, daYun, shensha, shiShen, birthCity, trueSolarNote,
+    wuXing, daYun, shiShen, birthCity, trueSolarNote,
     year, month, day, hour,
   } = data as Record<string, unknown>;
 
@@ -59,8 +59,6 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
   const pillarStr = pillars.map((p, i) => p ? pillarLabels[i] + "：" + p.gan + p.zhi + "（" + (p.naYin ?? "") + "）" : "").filter(Boolean).join("，");
   const dyArr = Array.isArray(daYun) ? (daYun as Array<{ age: number; ganzhi: string; startYear: number }>) : [];
   const dyStr = dyArr.slice(0, 6).map(d => d.age + "岁起 " + d.ganzhi + "（" + d.startYear + "年）").join("；");
-  const ssObj = shensha as Record<string, string[]> | undefined;
-  const ssStr = ssObj ? Object.entries(ssObj).filter(([, v]) => v.length > 0).map(([k, v]) => k + "：" + v.join("、")).join("；") : "";
   const stObj = shiShen as Record<string, string> | undefined;
   const stStr = stObj ? Object.entries(stObj).map(([k, v]) => k + "→" + v).join("、") : "";
 
@@ -68,10 +66,10 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
   const solarNote = trueSolarNote ? "（" + trueSolarNote + "）" : "";
 
   const systemPrompt: Record<string, string> = {
-    "zh-CN": "你是一位铁口直断派八字命理顾问，名为 OraSage。严格按照《铁口直断》手册的 4 层过滤 + 裁决引擎进行分析，每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」）。输出 7 章节的完整命理报告。当前年份是 2026 年。\n\n报告的每个章节必须用简体中文撰寫，不要使用英文或其他语言。\n\n",
-    "zh-TW": "你是一位鐵口直斷派八字命理顧問，名為 OraSage。嚴格按照《鐵口直斷》手冊的 4 層過濾 + 裁決引擎進行分析，每句結論須注明 OraSage 依據（正文中寫「OraSage」或「[OraSage：…]」，不要使用「演算法依據」）。輸出 7 章節的完整命理報告。當前年份是 2026 年。\n\n報告的每個章節必須用繁體中文撰寫，不要使用英文或其他語言。\n\n",
-    en: "You are a BaZi consultant named OraSage, Tie Kou Zhi Duan school. Follow 4-layer filtering + verdict engine. Every conclusion should cite OraSage basis (use 'OraSage' in text, not 'algorithm basis'). Output 7-chapter report. Current year is 2026.\n\nEvery single chapter of this report MUST be written entirely in English. Even though the birth data contains Chinese characters, you must write the analysis and narrative in English. Do not write any part of the report in Chinese.\n\n",
-    "pt-BR": "Você é um consultor BaZi chamado OraSage, escola Tie Kou Zhi Duan. Siga 4 camadas de filtragem + mecanismo de veredito. Cada conclusão deve citar base OraSage (use 'OraSage' no texto). Gere relatório de 7 capítulos. Ano atual é 2026.\n\nCada capítulo deste relatório deve ser escrito inteiramente em Português (Brasil). Embora os dados de nascimento contenham caracteres chineses, você deve escrever a análise e a narrativa em Português. Não escreva nenhuma parte do relatório em Chinês.\n\n",
+    "zh-CN": "你是一位八字结构顾问，名为 OraSage。分析必须准确，但面向用户的正文必须遵守术语白话化规范：现象 → 机制 → 术语后移。每句结论可注明 [OraSage：…]，不要使用「算法依据」。输出 7 章节报告。当前年份是 2026 年。\n\n报告的每个章节必须用简体中文撰写。\n\n",
+    "zh-TW": "你是一位八字結構顧問，名為 OraSage。正文必須遵守術語白話化規範：現象 → 機制 → 術語後移。輸出 7 章節報告。當前年份是 2026 年。\n\n必須用繁體中文撰寫。\n\n",
+    en: "You are a BaZi structure consultant named OraSage. User-facing prose must follow vernacular rules: phenomenon → mechanism → term last. Output a 7-chapter report. Current year is 2026.\n\nWrite every chapter in English. Do not write the narrative in Chinese.\n\n",
+    "pt-BR": "Você é um consultor de estrutura BaZi chamado OraSage. Fenômeno → mecanismo → termo no final. Relatório de 7 capítulos. Ano atual: 2026.\n\nEscreva em Português (Brasil).\n\n",
   };
 
   const dataHeader: Record<string, string> = {
@@ -81,33 +79,70 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 
   const labels: Record<string, Record<string, string>> = {
     birth:  { "zh-CN": "出生", "zh-TW": "出生", en: "Birth", "pt-BR": "Nascimento" },
-    pillars:{ "zh-CN": "四柱", "zh-TW": "四柱", en: "Four Pillars", "pt-BR": "Quatro Pilares" },
-    riZhu:  { "zh-CN": "日柱", "zh-TW": "日柱", en: "Day Master", "pt-BR": "Day Master" },
-    wuXing: { "zh-CN": "五行", "zh-TW": "五行", en: "WuXing", "pt-BR": "WuXing" },
-    fav:    { "zh-CN": "喜用神", "zh-TW": "喜用神", en: "Favorable", "pt-BR": "Favorável" },
-    unfav:  { "zh-CN": "忌神", "zh-TW": "忌神", en: "Unfavorable", "pt-BR": "Desfavorável" },
-    shiShen:{ "zh-CN": "十神", "zh-TW": "十神", en: "10 Spirits", "pt-BR": "10 Espíritos" },
-    shenSha:{ "zh-CN": "神煞", "zh-TW": "神煞", en: "Gods & Demons", "pt-BR": "Deuses & Demônios" },
-    daYun:  { "zh-CN": "大运", "zh-TW": "大運", en: "DaYun", "pt-BR": "DaYun" },
+    pillars:{ "zh-CN": "四组时间坐标", "zh-TW": "四組時間座標", en: "Four Pillars", "pt-BR": "Quatro Pilares" },
+    riZhu:  { "zh-CN": "代表你的那个字", "zh-TW": "代表你的那個字", en: "Day Master", "pt-BR": "Day Master" },
+    wuXing: { "zh-CN": "五行", "zh-TW": "五行", en: "Five Elements", "pt-BR": "Cinco Elementos" },
+    fav:    { "zh-CN": "对你最有用的那一项", "zh-TW": "對你最有用的那一項", en: "Favourable Element", "pt-BR": "Elemento favorável" },
+    unfav:  { "zh-CN": "最容易让你失衡的那一项", "zh-TW": "最容易讓你失衡的那一項", en: "Unfavourable Element", "pt-BR": "Elemento desfavorável" },
+    shiShen:{ "zh-CN": "十神（仅供你写「体系里叫」）", "zh-TW": "十神（僅供你寫「體系裡叫」）", en: "Ten Gods (term-last only)", "pt-BR": "Dez Deuses (só no final)" },
+    daYun:  { "zh-CN": "每十年一换的阶段", "zh-TW": "每十年一換的階段", en: "10-year Pillar", "pt-BR": "Pilar de 10 anos" },
+  };
+
+  const vernacularRules: Record<string, string> = {
+    "zh-CN": `## 写作硬规则（必须遵守）
+
+1. 一对一：身弱只写「支持你的力量少于消耗你的力量」（短标签写「偏耗」）；身强写「偏补」。不得写成身体弱、体质差、命薄。
+2. 每段固定顺序：先现象，再机制，最后一句「体系里叫「……」」把术语放在句尾。禁止用术语起句。
+3. 术语后移，不删除。删掉术语那一句，读者仍应完全理解。
+4. 断言不得升格：只说「在体系里怎么归」，不说「现实里会怎样」。禁止医疗、财务、法律或人生决策建议。
+5. 禁用：投资失利、破财、漏财、心脑、疾病、器官、体质、凶煞、血光、刑伤、克夫、有救、开运、转运、贵人（作为承诺）、旺/相/休/囚/死、神煞、纳音、旬空。
+6. 用神 → 「对你最有用的那一项」；忌神 → 「最容易让你失衡的那一项」；大运 → 「每十年一换的阶段」；流年 → 「2026 年（丙午）」这种「公历年（干支）」写法。
+7. 年份不得写成「2026丙午年」或「火马年」。
+
+`,
+    "zh-TW": `## 寫作硬規則（必須遵守）
+
+1. 身弱只寫「支持你的力量少於消耗你的力量」（短標籤「偏耗」）。
+2. 每段：現象 → 機制 → 最後一句「體系裡叫「……」」。
+3. 禁止醫療、財務、法律建議；禁止凶煞、有救、開運、神煞、納音。
+4. 年份寫成「2026 年（丙午）」。
+
+`,
+    en: `## Writing rules (mandatory)
+
+1. One term, one gloss. 身弱 / Weak = Drain-heavy ("support is less than drain"). Never "weak body".
+2. Each paragraph: phenomenon → mechanism → last sentence "In the system this is called …".
+3. Do not escalate system statements into medical, financial, or life-decision claims.
+4. Forbidden: disease, organs, investment loss, luck-changing charms, Seven Killings / Hurting Officer in titles.
+5. Favourable Element / Unfavourable Element. 10-year Pillar (not "good luck arriving"). Year: "2026 (Bing Wu)".
+
+`,
+    "pt-BR": `## Regras de escrita
+
+1. 身弱 = Drain-heavy, nunca "corpo fraco".
+2. Fenômeno → mecanismo → "no sistema isso se chama …".
+3. Sem conselhos médicos, financeiros ou de sorte.
+
+`,
   };
 
   const sections: Record<string, string> = {
-    "zh-CN": "## 报告结构（7 章节，用 ### 分隔）\n\n### 命盘总览\n综合四层分析：日主能量、格局类型、季节调候、原局冲合。\n\n### 性格与天赋\n格局+调候解释性格，每句话标注[OraSage：xxx]。\n\n### 事业与财富\n财星（现金流）、官杀（压力/市场）、印星（平台/背书）。\n\n### 感情与关系\n夫妻宫（日支）+ 感情星 + 合冲判断。\n\n### 健康与能量管理\n五行偏颇 + 季节熵值。\n\n### 大运流年推演\n岁运并临/天克地冲 + 死锁点判定。\n\n### 开运建议\n方位、颜色、日常行为对冲方案。\n\n---\n注：本报告由 OraSage 生成，仅供参考。",
-    "zh-TW": "## 報告結構（7 章節，用 ### 分隔）\n\n### 命盤總覽\n綜合四層分析：日主能量、格局類型、季節調候、原局沖合。\n\n### 性格與天賦\n格局+調候解釋性格。\n\n### 事業與財富\n財星（現金流）、官殺（壓力/市場）、印星（平台/背書）。\n\n### 感情與關係\n夫妻宮（日支）+ 感情星 + 合沖判斷。\n\n### 健康與能量管理\n五行偏頗 + 季節熵值。\n\n### 大運流年推演\n歲運並臨/天剋地沖 + 死鎖點判定。\n\n### 開運建議\n方位、顏色、日常行為。\n\n---\n註：本報告由 OraSage 生成，僅供參考。",
-    en: "## Report Structure (7 chapters, use ###)\n\n### 1. Destiny Overview\n4-layer analysis: Day Master energy, Pattern type, seasonal climate, original chart conflicts.\n\n### 2. Character & Talents\nPattern + climate explains personality. Mark [Basis: xxx].\n\n### 3. Career & Wealth\nWealth Star (cash flow), Officer Star (pressure), Seal Star (platform).\n\n### 4. Relationships & Love\nSpouse Palace + Relationship Stars + Combination/Clash.\n\n### 5. Health & Energy\nWuXing imbalance + seasonal entropy.\n\n### 6. DaYun & Yearly Forecast\nYear-Destiny conjunction, Heaven/Earth Clash threshold + Deadlock.\n\n### 7. Lucky Tips\nDirections, colors, daily habits remedies.\n\n---\nNote: By OraSage. For reference only.",
-    "pt-BR": "## Estrutura do Relatório (7 capítulos, use ###)\n\n### 1. Visão Geral\nAnálise de 4 camadas: energia Day Master, tipo de Padrão, clima sazonal, conflitos do mapa.\n\n### 2. Caráter & Talentos\nPadrão + clima explica personalidade. Marque [Base: xxx].\n\n### 3. Carreira & Riqueza\nEstrela da Riqueza (fluxo de caixa), Oficial (pressão), Selo (plataforma).\n\n### 4. Relacionamentos\nPalácio do Cônjuge + Estrelas + Combinação/Conflito.\n\n### 5. Saúde & Energia\nDesequilíbrio WuXing + entropia sazonal.\n\n### 6. Previsão Anual\nConjunção Ano-Destino, Conflito Celeste/Terrestre + Deadlock.\n\n### 7. Dicas da Sorte\nDireções, cores, hábitos.\n\n---\nNota: Por OraSage. Apenas para referência.",
+    "zh-CN": "## 报告结构（7 章节，用 ### 分隔）\n\n### 这套配置在说什么\n代表你的那个字、出生时的节气、支持与消耗哪边更多。先现象再机制，句尾「体系里叫」。\n\n### 性格与手感\n用十神的白话（自然产出 / 带锋芒的产出 / 硬来的压力 / 偏门来的支撑）写性格。保留代价的一面，但写成配置的自然结果，不要写成批评。\n\n### 做事与收获的节奏\n取用、产出、支撑如何分配力气。不要写成「财」「官」起句，更不要给出投资结论。\n\n### 关系里你怎么站\n写你在关系里习惯站的位置（并列、取用、被压、被托），不要承诺会遇到贵人。\n\n### 节奏与注意力\n只写行为层面：分心、同时开太多条线、被带快。禁止器官、疾病、身心诊断。\n\n### 每十年一换的阶段\n写阶段切换带来的节奏变化。禁止「大运来了」「走好运」。\n\n### 顺的方向\n颜色与方位对应「对你最有用的那一项」。必须补一句：它们不代表运势，只是让你在日常里有一个顺的方向。\n\n---\n注：本报告由 OraSage 生成，仅供自我探索参考，不构成医疗、财务、法律或人生决策建议。",
+    "zh-TW": "## 報告結構（7 章節，用 ### 分隔）\n\n### 這套配置在說什麼\n\n### 性格與手感\n\n### 做事與收穫的節奏\n\n### 關係裡你怎麼站\n\n### 節奏與注意力\n禁止疾病與器官。\n\n### 每十年一換的階段\n\n### 順的方向\n顏色與方位不代表運勢。\n\n---\n註：僅供自我探索參考，不構成醫療、財務、法律或人生決策建議。",
+    en: "## Report Structure (7 chapters, use ###)\n\n### What this chart is saying\nThe character that stands for you, the season of birth, support vs drain. Phenomenon → mechanism → term-last.\n\n### Feel and cost\nUse Ten-God vernacular. Keep the cost, as a result of the configuration, not a judgement.\n\n### Pace of work and gains\nNo investment conclusions.\n\n### How you stand in relation\nNo promised saviours.\n\n### Pace and attention\nBehaviour only — no organs, no disease.\n\n### The stage that changes every ten years\nNot \"good luck arriving\".\n\n### A direction that fits\nColors and directions map to the Favourable Element. They do not mean luck.\n\n---\nNote: By OraSage. For self-inquiry only. Not medical, financial, legal, or life-decision advice.",
+    "pt-BR": "## Estrutura (7 capítulos, use ###)\n\n### O que este mapa diz\n\n### Jeito e custo\n\n### Ritmo de trabalho e ganhos\n\n### Como você se posiciona\n\n### Ritmo e atenção\n\n### A etapa que muda a cada dez anos\n\n### Uma direção que cabe\n\n---\nNota: Por OraSage. Apenas referência. Não é conselho médico, financeiro ou jurídico.",
   };
 
   let r = pick(systemPrompt, lang, "zh-CN");
   r += "## " + name + "（" + genderStr + "）" + pick(dataHeader, lang, "zh-CN") + "\n\n";
   r += "- **" + pick(labels.birth, lang, "zh-CN") + "**：" + birthStr + birthNote + solarNote + "\n";
   r += "- **" + pick(labels.pillars, lang, "zh-CN") + "**：" + pillarStr + "\n";
-  r += "- **" + pick(labels.riZhu, lang, "zh-CN") + "**：" + riZhu + "，日主" + strength + "\n";
+  r += "- **" + pick(labels.riZhu, lang, "zh-CN") + "**：" + riZhu + "（" + strength + "；面向用户写偏耗/偏补，不要写身弱/身强）\n";
   r += "- **" + pick(labels.wuXing, lang, "zh-CN") + "**：" + wxStr + "\n";
   r += "- **" + pick(labels.fav, lang, "zh-CN") + "**：" + favStr + "　**" + pick(labels.unfav, lang, "zh-CN") + "**：" + unfavStr + "\n";
   r += "- **" + pick(labels.shiShen, lang, "zh-CN") + "**：" + stStr + "\n";
-  r += "- **" + pick(labels.shenSha, lang, "zh-CN") + "**：" + ssStr + "\n";
   r += "- **" + pick(labels.daYun, lang, "zh-CN") + "**：" + dyStr + "\n\n";
+  r += pick(vernacularRules, lang, "zh-CN");
   r += sections[lang] || sections["zh-CN"];
   return r;
 }
@@ -138,21 +173,27 @@ export function buildDoubleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 
   return `${langLine[lang] ?? langLine["zh-CN"]}
 
-你是一位融合传统命理与现代心理学的东方神秘学顾问，擅长将合盘分析转化为温暖、有洞察力的关系指引。
+你是一位八字结构顾问，名为 OraSage。合盘正文必须遵守术语白话化规范：现象 → 机制 → 术语后移（句尾「体系里叫……」）。
+
+硬规则：
+1. 身弱只写「支持你的力量少于消耗你的力量」（短标签「偏耗」）；身强写「偏补」。不得写成身体弱。
+2. 用神 → 「对你最有用的那一项」；忌神 → 「最容易让你失衡的那一项」。
+3. 禁止医疗、财务、法律建议；禁止投资失利、疾病、器官、有救、开运、神煞、贵人承诺。
+4. 术语后移，不删除。
 
 请根据以下双人合盘数据，撰写一份**个性化合盘解读报告**。
 
 ## 合盘数据
 
 **${p1.name}（${p1.gender === "male" ? "男" : "女"}）**
-- 日柱：${p1.riZhu}，日主强弱：${p1.strength}
+- 代表你的那个字：${p1.riZhu}（${p1.strength}；面向用户写偏耗/偏补）
 - 五行：${p1.wuXing ? Object.entries(p1.wuXing as Record<string, number>).map(([k, v]) => `${k}${v}`).join("、") : ""}
-- 喜用神：${Array.isArray(p1.favorable) ? (p1.favorable as string[]).join("、") : ""}
+- 对你最有用的那一项：${Array.isArray(p1.favorable) ? (p1.favorable as string[]).join("、") : ""}
 
 **${p2.name}（${p2.gender === "male" ? "男" : "女"}）**
-- 日柱：${p2.riZhu}，日主强弱：${p2.strength}
+- 代表你的那个字：${p2.riZhu}（${p2.strength}；面向用户写偏耗/偏补）
 - 五行：${p2.wuXing ? Object.entries(p2.wuXing as Record<string, number>).map(([k, v]) => `${k}${v}`).join("、") : ""}
-- 喜用神：${Array.isArray(p2.favorable) ? (p2.favorable as string[]).join("、") : ""}
+- 对你最有用的那一项：${Array.isArray(p2.favorable) ? (p2.favorable as string[]).join("、") : ""}
 
 **合盘总分**：${score}分（${rating}）
 
@@ -193,7 +234,7 @@ export function buildDoubleBaziPrompt(data: Record<string, unknown>, lang = "zh-
 export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh-CN"): string {
   const {
     name, gender, birthStr, riZhu, strength, wuXing, favorable, unfavorable,
-    year, month, day, hour, shiShen, shensha
+    year, month, day, hour, shiShen,
   } = data;
 
   const genderStr = gender === "male" ? "男" : "女";
@@ -208,10 +249,10 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
   const stStr = stObj ? Object.entries(stObj).map(([k, v]) => `${k}→${v}`).join("、") : "";
 
   const langHeaders: Record<string, string> = {
-    "zh-CN": "你是铁口直断派八字命理顾问。根据排盘数据做两层分析，输出 JSON。当前年份是 2026 年。\n\n",
-    "zh-TW": "你是鐵口直斷派八字命理顧問。根據排盤數據做兩層分析，輸出 JSON。當前年份是 2026 年。\n\n",
-    en: "You are a Tie Kou Zhi Duan BaZi consultant. Analyze the data in 2 layers and output JSON. Current year is 2026.\n\nAll JSON field values must be written in English.\n\n",
-    "pt-BR": "Você é um consultor BaZi Tie Kou Zhi Duan. Analise os dados em 2 camadas e gere JSON. Ano atual é 2026.\n\nTodos os valores dos campos JSON devem ser escritos em Português.\n\n",
+    "zh-CN": "你是八字结构顾问。根据排盘数据写白话解读，输出 JSON。当前年份是 2026 年。\n\n硬规则：每段现象→机制→句尾「体系里叫」。身弱只写「支持你的力量少于消耗你的力量」或短标签「偏耗」。禁止投资、疾病、器官、有救、开运、神煞。不得写成身体弱。\n\n",
+    "zh-TW": "你是八字結構顧問。輸出 JSON。身弱寫「偏耗」。禁止疾病、投資、有救、開運。每段最後一句「體系裡叫」。\n\n",
+    en: "You are a BaZi structure consultant. Output JSON. Current year is 2026. Phenomenon → mechanism → term last. Drain-heavy, never weak body. No disease, investment, luck charms.\n\nAll JSON field values must be written in English.\n\n",
+    "pt-BR": "Você é um consultor de estrutura BaZi. Gere JSON. Fenômeno → mecanismo → termo no final. Sem doença, investimento ou amuletos.\n\nTodos os valores dos campos JSON devem ser escritos em Português.\n\n",
   };
 
   const fieldLabels: Record<string, string> = {
@@ -229,36 +270,36 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
 
   const jsonDesc: Record<string, Record<string, string>> = {
     "zh-CN": {
-      title: "4字标题，'格局特征+定性'，如'财旺身弱'或'印绶护身'",
-      matrix: "20-40字，说明日主强弱+五行喜忌的简要判断，准确描述能量状态",
-      pattern: "15-30字，说明是什么格局、成败如何、有无相神（补丁）",
-      personality: "25-45字，基于格局和五行解释性格核心特质",
-      risk: "20-40字，一句话风险提示，结合流年（2026年）给出关键预警",
-      lucky: "幸运色: XX、XX ｜ 幸运方位: XX",
+      title: "白话标题，如'你需要的不是继续输出，而是先补回来'。禁止'身弱''财旺'",
+      matrix: "现象+机制：代表你的那个字的取象、出生时的节气、支持少于/多于消耗。句尾必须有体系里叫「……」",
+      pattern: "这套配置的主要结构用白话写（能输出但需要刹车 / 立得住）。句尾体系里叫",
+      personality: "手感与代价。不要批评人格。句尾体系里叫",
+      risk: "2026 年（丙午）：机会变多、注意力变散。只写行为，禁止疾病与投资。句尾体系里叫",
+      lucky: "幸运色: XX、XX ｜ 幸运方位: XX（并说明对应最有用的五行，不代表运势）",
     },
     "zh-TW": {
-      title: "4字標題，'格局特徵+定性'，如'財旺身弱'或'印綬護身'",
-      matrix: "20-40字，說明日主強弱+五行喜忌的簡要判斷",
-      pattern: "15-30字，說明什麼格局、成敗如何、有無相神（補丁）",
-      personality: "25-45字，基於格局和五行解釋性格核心特質",
-      risk: "20-40字，一句話風險提示，結合流年（2026年）給出關鍵預警",
-      lucky: "幸運色: XX、XX ｜ 幸運方位: XX",
+      title: "白話標題，禁止「身弱」",
+      matrix: "現象+機制，句尾體系裡叫",
+      pattern: "主要結構白話，句尾體系裡叫",
+      personality: "手感與代價，句尾體系裡叫",
+      risk: "2026 年（丙午）只寫注意力與節奏，禁止疾病投資",
+      lucky: "幸運色與方位，不代表運勢",
     },
     en: {
-      title: "4-word title, 'Pattern+Characteristic', e.g. 'Wealth Strong Body Weak'",
-      matrix: "20-40 words, Day Master strength + WuXing preference summary",
-      pattern: "15-30 words, pattern type, success/fail, supporting element",
-      personality: "25-45 words, character core based on pattern and WuXing",
-      risk: "20-40 words, one-sentence risk alert based on 2026 yearly analysis",
-      lucky: "Lucky Color: XX, XX | Lucky Direction: XX",
+      title: "Vernacular title, e.g. 'Refill first, do not keep outputting'. Never 'weak body'",
+      matrix: "Phenomenon + mechanism of Day Master and birth season; term last",
+      pattern: "Main structure in plain words; this structure holds; term last",
+      personality: "Feel and cost, not a judgement; term last",
+      risk: "2026 (Bing Wu): more openings, scattered attention. No disease, no investing",
+      lucky: "Colors and directions mapped to Favourable Element; they do not mean luck",
     },
     "pt-BR": {
-      title: "Título de 4 palavras, 'Padrão+Característica', ex: 'Riqueza Forte Corpo Fraco'",
-      matrix: "20-40 palavras, resumo da força do Day Master + preferência WuXing",
-      pattern: "15-30 palavras, tipo de padrão, sucesso/falha, elemento de suporte",
-      personality: "25-45 palavras, núcleo do caráter baseado no padrão e WuXing",
-      risk: "20-40 palavras, alerta de risco de uma frase com base em 2026",
-      lucky: "Cor da Sorte: XX, XX | Direção da Sorte: XX",
+      title: "Título em linguagem comum. Nunca 'corpo fraco'",
+      matrix: "Fenômeno + mecanismo; termo no final",
+      pattern: "Estrutura principal em linguagem comum",
+      personality: "Jeito e custo, sem julgamento",
+      risk: "2026 (Bing Wu): mais aberturas, atenção dispersa. Sem doença nem investimento",
+      lucky: "Cores e direções; não significam sorte",
     },
   };
 
@@ -273,12 +314,12 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
     + `## ${name}（${genderStr}）的排盘\n\n`
     + `- ${fields}：${birthStr}\n`
     + `- ${pz}：${pillarStr}\n`
-    + `- 日柱：${riZhu}\n`
-    + `- ${st}：${strength}\n`
+    + `- 代表你的那个字：${riZhu}\n`
+    + `- ${st}：${strength}（面向用户写偏耗/偏补）\n`
     + `- ${wx}：${wxStr}\n`
-    + `- 喜用神：${favStr}，忌神：${unfavStr}\n`
-    + `- 十神：${stStr}\n\n`
-    + `## 分析层级\n\n### Layer A — 静态矩阵\n根据日主强弱和五行分布，判断基础能量状态。\n\n### Layer B — 格局定型\n根据月令和透干情况，判断格局类型（财格/官格/印格/食伤格等）及成败。\n\n`
+    + `- 对你最有用的那一项：${favStr}；最容易让你失衡的那一项：${unfavStr}\n`
+    + `- 十神（只用于句尾「体系里叫」）：${stStr}\n\n`
+    + `## 分析层级\n\n### 现象\n读者能观察到什么（取象、节气、支持与消耗）。\n\n### 机制\n为什么会这样（五行往哪边走）。不要写成现实因果。\n\n### 术语\n句尾「体系里叫「……」」。\n\n`
     + `## 输出 JSON\n\n{\n`
     + `  "title": "${desc.title}",\n`
     + `  "matrix": "${desc.matrix}",\n`

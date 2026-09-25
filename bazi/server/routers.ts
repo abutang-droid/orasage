@@ -18,6 +18,8 @@ import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
 import { buildReportPageHtml } from "./reportHtml";
 import { fetchReportProductRecommend } from "./reportRecommend";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
+import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
+import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
@@ -183,7 +185,7 @@ export const appRouter = router({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
+              content: langGuide + "你是八字结构顾问 OraSage。正文必须现象→机制→句尾「体系里叫」。身弱只写「支持你的力量少于消耗你的力量」或「偏耗」。禁止医疗、财务、法律建议，禁止有救、开运、神煞、疾病、投资失利。当前年份是 2026 年，年份写成「2026 年（丙午）」。",
             },
             { role: "user", content: prompt },
           ],
@@ -191,11 +193,11 @@ export const appRouter = router({
 
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error("LLM 返回内容为空");
-        const content = sanitizeReportBrandText(
+        const content = sanitizeVernacularText(sanitizeReportBrandText(
           typeof rawContent === "string"
             ? rawContent
             : (rawContent as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join(""),
-        );
+        ));
 
         // 解析 Markdown 章节：按 ### 标题分割
         const sections = parseSections(content);
@@ -216,7 +218,7 @@ export const appRouter = router({
 
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: langGuide + "你是铁口直断派的专业东方命理顾问。根据用户的实际排盘数据，生成个性化的简短命理解读。当前年份是 2026 年，所有分析以 2026 年为基准，不要提及 2025 年或更早的年份。只返回 JSON，不要 markdown 代码块。" },
+            { role: "system", content: langGuide + "你是八字结构顾问。输出白话 JSON：现象→机制→体系里叫。身弱写偏耗。禁止疾病、投资、有救、开运。只返回 JSON。" },
             { role: "user", content: prompt },
           ],
         });
@@ -227,15 +229,16 @@ export const appRouter = router({
         try {
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (!jsonMatch) throw new Error("No JSON found");
-          return JSON.parse(jsonMatch[0]);
+          return sanitizeInsightJson(JSON.parse(jsonMatch[0]) as Record<string, unknown>);
         } catch {
+          const composed = composeFreeReport(input.resultData as Parameters<typeof composeFreeReport>[0], input.lang);
           return {
-            title: "命格不凡，自有天机",
-            traits: "您的八字蕴含独特能量，建议深入解读以了解完整命理格局。",
-            career: "适合发挥自身五行优势的行业方向。",
-            partner: "根据五行互补原则选择合作伙伴。",
-            risk: `2026年需关注自身五行平衡，注意身心调节。`,
-            lucky: "幸运色: 金色、紫色 ｜ 幸运方位: 东南",
+            title: composed.sections[0]?.title ?? "",
+            matrix: composed.sections[0]?.body ?? "",
+            pattern: composed.sections[1]?.body ?? "",
+            personality: composed.sections[2]?.body ?? "",
+            risk: composed.sections[3]?.body ?? "",
+            lucky: composed.luckyLine,
           };
         }
       }),

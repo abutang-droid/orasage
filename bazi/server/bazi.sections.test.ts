@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSections } from "./routers";
+import { parseSections } from "./prompts";
 
 describe("parseSections", () => {
   it("should parse a standard 7-section single report", () => {
