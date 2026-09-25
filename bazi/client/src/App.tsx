@@ -36,7 +36,8 @@ function LocaleRootRedirect() {
 function RedirectTo({ href }: { href: string }) {
   const [, setLocation] = useLocation();
   useEffect(() => {
-    setLocation(href);
+    const search = window.location.search;
+    setLocation(search ? `${href}${search}` : href);
   }, [href, setLocation]);
   return null;
 }
