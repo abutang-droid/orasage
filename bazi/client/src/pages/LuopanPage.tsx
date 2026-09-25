@@ -1,16 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { loadCityCatalog, matchLocalCity, toCityCoords } from '@orasage/city';
 import { CityProvider, CitySearchInput } from '@orasage/city/react';
 import type { BirthplaceValue } from '@orasage/city';
-import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi';
+import { calcSingleBazi, loadLunarLib } from '@/lib/bazi';
 import { cityApi } from '@/lib/city-client';
+import { saveCheckoutSnapshot } from '@/lib/checkout-session';
+import { BaziEntryChrome } from '@/components/BaziEntryChrome';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
-import { LuopanResult } from './luopan/LuopanResult';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
+
+function classicRestorePath(): string {
+  const params = new URLSearchParams(window.location.search);
+  params.set('restore', '1');
+  const q = params.toString();
+  return q ? `/classic?${q}` : '/classic?restore=1';
+}
 
 export default function LuopanPage() {
   const [, setLocation] = useLocation();
@@ -23,7 +31,13 @@ export default function LuopanPage() {
   placeRef.current = place;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<SingleBaziResult | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1' || params.get('restore') === '1') {
+      setLocation(classicRestorePath());
+    }
+  }, [setLocation]);
 
   const onGo = useCallback(async (s: LuopanDialState) => {
     const city = placeRef.current;
@@ -68,15 +82,15 @@ export default function LuopanPage() {
         cityName: city.city,
         ...(lng != null ? { lng, lat: lat ?? 0, timezone } : {}),
       });
-      setResult(data);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      saveCheckoutSnapshot({ type: 'single', data }, 'single');
+      setLocation(classicRestorePath());
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : '排盘失败，请核对日期后再试。');
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [setLocation]);
 
   const onTranscript = useCallback(async (text: string) => {
     try {
@@ -101,24 +115,17 @@ export default function LuopanPage() {
     const host = hostRef.current;
     if (!host) return;
     host.innerHTML = markup;
-    const back = host.querySelector('[data-luopan-back]');
-    const onBackClick = (e: Event) => {
-      e.preventDefault();
-      setLocation('/');
-    };
-    back?.addEventListener('click', onBackClick);
     const api = initLuopan(host, { onGo, onTranscript });
     apiRef.current = api;
     setCitySlot(host.querySelector('#luopan-city-slot') as HTMLElement | null);
     setErrSlot(host.querySelector('#luopan-err-slot') as HTMLElement | null);
     return () => {
-      back?.removeEventListener('click', onBackClick);
       api.destroy();
       apiRef.current = null;
       setCitySlot(null);
       setErrSlot(null);
     };
-  }, [onGo, onTranscript, setLocation]);
+  }, [onGo, onTranscript]);
 
   const messages = (
     <>
@@ -129,11 +136,11 @@ export default function LuopanPage() {
 
   return (
     <div className={`luopan-root${busy ? ' luopan-busy' : ''}`}>
+      <BaziEntryChrome active="luopan" />
       <div
         ref={hostRef}
         className="luopan-host"
-        hidden={!!result}
-        style={{ width: '100%', display: result ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center' }}
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
       />
       {citySlot
         ? createPortal(
@@ -153,15 +160,6 @@ export default function LuopanPage() {
           )
         : null}
       {errSlot ? createPortal(messages, errSlot) : messages}
-      {result ? (
-        <LuopanResult result={result} onBack={() => setResult(null)} />
-      ) : (
-        <p className="stage-foot">
-          <Link href="/">返回经典填写页</Link>
-          {'　·　'}
-          八字罗盘 · 竹简命盘
-        </p>
-      )}
     </div>
   );
 }

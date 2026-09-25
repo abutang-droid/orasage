@@ -12,7 +12,6 @@ import { OraSageAppShell } from "./components/OraSageAppShell";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
-import XuanYinScenePage from "./pages/XuanYinScene";
 import LuopanPage from "./pages/LuopanPage";
 import { DICTIONARIES } from "./lib/i18n";
 
@@ -34,13 +33,22 @@ function LocaleRootRedirect() {
   return null;
 }
 
+function RedirectTo({ href }: { href: string }) {
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    setLocation(href);
+  }, [href, setLocation]);
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+      <Route path={"/"} component={LuopanPage} />
+      <Route path={"/classic"} component={Home} />
       <Route path={"/history"} component={HistoryPage} />
-      <Route path={"/scene"} component={XuanYinScenePage} />
-      <Route path={"/luopan"} component={LuopanPage} />
+      <Route path={"/luopan"}>{() => <RedirectTo href="/" />}</Route>
+      <Route path={"/scene"}>{() => <RedirectTo href="/" />}</Route>
       <Route path={"/404"} component={NotFound} />
       <Route path="/:locale">{(params) =>
         PORTAL_LOCALES.has(params.locale) ? <LocaleRootRedirect /> : <NotFound />
@@ -54,9 +62,7 @@ function AppBody() {
   const { locale } = useI18n();
   const [pathname] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const isImmersive =
-    pathname === "/scene" || pathname.startsWith("/scene?") ||
-    pathname === "/luopan" || pathname.startsWith("/luopan?");
+  const isImmersive = pathname === "/" || pathname === "/luopan";
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {
