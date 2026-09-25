@@ -7,6 +7,7 @@
 import type { CoreLocale } from "@orasage/i18n";
 import { LOCALE_LABELS as SHARED_LABELS } from "@orasage/i18n";
 import { useI18n, type Dictionaries } from "@orasage/i18n/react";
+import { useCallback } from "react";
 import { termData } from "./terms";
 import zhCN from "./zh-CN";
 
@@ -28,13 +29,14 @@ export const DICTIONARIES: Dictionaries = {
 
 export function useT() {
   const { locale, messages } = useI18n();
-  return {
-    t: (key: string, fallback?: string) => messages[key] ?? fallback ?? key,
-    term: (key: string) => {
-      const m = termData[key];
-      if (!m) return key;
-      return m[locale as Locale] ?? m["zh-CN"] ?? key;
-    },
-    locale: locale as Locale,
-  };
+  const t = useCallback(
+    (key: string, fallback?: string) => messages[key] ?? fallback ?? key,
+    [messages],
+  );
+  const term = useCallback((key: string) => {
+    const m = termData[key];
+    if (!m) return key;
+    return m[locale as Locale] ?? m["zh-CN"] ?? key;
+  }, [locale]);
+  return { t, term, locale: locale as Locale };
 }

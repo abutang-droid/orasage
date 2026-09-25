@@ -353,7 +353,8 @@ export default function Home() {
     void loadCityCatalog();
   }, []);
 
-  // 支付回跳 / 罗盘起盘：恢复排盘结果页。?couple=1 打开双人表单。
+  // 支付回跳 / 罗盘起盘：只恢复一次。t 每次 render 都是新函数，
+  // 若依赖 [t] 会反复 setResult + scrollTo(0)，报告页就滚不动。
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -374,8 +375,7 @@ export default function Home() {
     setResult(snapshot.result);
     setMode(snapshot.mode);
     setView('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     if (result) {
