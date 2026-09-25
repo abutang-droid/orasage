@@ -21,7 +21,7 @@ import type { PlanType } from "@shared/types";
 import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
-import { WuXingPolarChart, pillarsFromBazi } from "@/components/WuXingPolarChart";
+import { WuXingPolarChart } from "@/components/WuXingPolarChart";
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
@@ -495,7 +495,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
       }>
-        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
+        <WuXingPolarChart wuXing={result.wuXing} />
       </InfoCard>
     </div>
   );
@@ -715,7 +715,7 @@ function SingleResultBody({ result, compact }: { result: SingleBaziResult; compa
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
       }>
-        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
+        <WuXingPolarChart wuXing={result.wuXing} />
       </InfoCard>
 
       {/* 神煞不进入面向用户的文案（规范 B.1） */}
@@ -1661,11 +1661,11 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
       </div>
 
       {/* 五行极坐标图 — 免费结果即展示 */}
-      <div className="rounded-xl px-4 py-5" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
+      <div className="rounded-xl px-1 py-3" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
         <h3 className="text-sm mb-1 text-center" style={{ color: BODY_CLR, fontFamily: SERIF_F, letterSpacing: "0.24em" }}>
           {t('result.wuxing', '五行分析')}
         </h3>
-        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
+        <WuXingPolarChart wuXing={result.wuXing} />
       </div>
 
       {/* 免费命理解读：日主分析 + 职业 + 合作 + 风险 */}

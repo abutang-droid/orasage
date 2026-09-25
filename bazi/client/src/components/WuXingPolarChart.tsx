@@ -2,13 +2,13 @@ import {
   buildWxPolarModel,
   polarPoint,
   slicePath,
-  type WxPolarPillars,
 } from "@/lib/wuxingPolar";
 
-const VB = 400;
-const CX = 200;
-const CY = 206;
-const R = 112;
+const VB = 420;
+const CX = 210;
+const CY = 210;
+const R = 158;
+const LABEL_R = R + 36;
 const RINGS = 5;
 const SPOKES = 12;
 
@@ -21,11 +21,9 @@ function labelAnchor(deg: number): "start" | "middle" | "end" {
 
 export function WuXingPolarChart({
   wuXing,
-  pillars,
   className,
 }: {
   wuXing: { 木?: number; 火?: number; 土?: number; 金?: number; 水?: number };
-  pillars?: WxPolarPillars;
   className?: string;
 }) {
   const slices = buildWxPolarModel(wuXing);
@@ -38,7 +36,7 @@ export function WuXingPolarChart({
       width="100%"
       role="img"
       aria-label={`五行分布 ${summary}`}
-      style={{ maxWidth: 360, overflow: "visible", display: "block", margin: "0 auto" }}
+      style={{ overflow: "visible", display: "block" }}
     >
       {slices.map((s) => {
         const r = Math.max(4, s.radiusRatio * R);
@@ -77,45 +75,10 @@ export function WuXingPolarChart({
         );
       })}
 
-      {pillars && (
-        <>
-          <rect
-            x={CX - 56}
-            y={CY - 30}
-            width={112}
-            height={60}
-            rx={10}
-            fill="rgba(255,255,255,0.94)"
-          />
-          <text
-            x={CX}
-            y={CY - 6}
-            textAnchor="middle"
-            fontFamily="'Noto Serif SC', 'Songti SC', serif"
-            fontSize={16}
-            fontWeight={600}
-            fill="#1a1a1a"
-          >
-            {pillars.year}　{pillars.month}
-          </text>
-          <text
-            x={CX}
-            y={CY + 16}
-            textAnchor="middle"
-            fontFamily="'Noto Serif SC', 'Songti SC', serif"
-            fontSize={16}
-            fontWeight={600}
-            fill="#1a1a1a"
-          >
-            {pillars.day}　{pillars.hour}
-          </text>
-        </>
-      )}
-
       {slices.map((s) => {
-        const p = polarPoint(CX, CY, R + 44, s.midDeg);
+        const p = polarPoint(CX, CY, LABEL_R, s.midDeg);
         const anchor = labelAnchor(s.midDeg);
-        const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
+        const dx = anchor === "start" ? 4 : anchor === "end" ? -4 : 0;
         return (
           <text
             key={`${s.name}-lb`}
@@ -125,10 +88,10 @@ export function WuXingPolarChart({
             dominantBaseline="middle"
             fontFamily="'Noto Serif SC', 'Songti SC', serif"
           >
-            <tspan fontSize={22} fontWeight={600} fill={s.labelColor}>
+            <tspan fontSize={24} fontWeight={600} fill={s.labelColor}>
               {s.name}
             </tspan>
-            <tspan fontSize={13} fill={s.labelColor} dx={4}>
+            <tspan fontSize={14} fill={s.labelColor} dx={4}>
               {s.percent}%
             </tspan>
           </text>
@@ -136,18 +99,4 @@ export function WuXingPolarChart({
       })}
     </svg>
   );
-}
-
-export function pillarsFromBazi(result: {
-  year: { gan: string; zhi: string };
-  month: { gan: string; zhi: string };
-  day: { gan: string; zhi: string };
-  hour: { gan: string; zhi: string };
-}): WxPolarPillars {
-  return {
-    year: `${result.year.gan}${result.year.zhi}`,
-    month: `${result.month.gan}${result.month.zhi}`,
-    day: `${result.day.gan}${result.day.zhi}`,
-    hour: `${result.hour.gan}${result.hour.zhi}`,
-  };
 }
