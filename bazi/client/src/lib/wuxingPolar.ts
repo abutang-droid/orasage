@@ -93,10 +93,3 @@ export function buildWxPolarModel(wuXing: {
     };
   });
 }
-
-export type WxPolarPillars = {
-  year: string;
-  month: string;
-  day: string;
-  hour: string;
-};
