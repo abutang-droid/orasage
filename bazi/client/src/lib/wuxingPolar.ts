@@ -97,8 +97,8 @@ export function buildWxPolarModel(wuXing: {
 /** 海报饼图：等半径，圆心角 ∝ 占比；从正上方顺时针 金 → 木 → 水 → 火 → 土。 */
 export const WX_PIE_ORDER = WX_POLAR_ORDER;
 export const WX_PIE_START_DEG = WX_POLAR_START_DEG;
-/** 低于此百分比的扇区向外炸开并拉出引导线（参考图 火 4%）。 */
-export const WX_PIE_EXPLODE_PCT = 8;
+/** 低于此百分比的扇区向外炸开并拉出引导线（参考图 火 4%；9% 的土也会挤在缝里）。 */
+export const WX_PIE_EXPLODE_PCT = 12;
 
 export const WX_PIE_COLORS: Record<WxPolarName, string> = {
   金: "#C9A84A",

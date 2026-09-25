@@ -70,6 +70,10 @@ describe("buildWxPieModel", () => {
     expect(slices.find((s) => s.name === "水")!.endDeg - slices.find((s) => s.name === "水")!.startDeg).toBeCloseTo(129.6);
     expect(slices.find((s) => s.name === "火")!.explode).toBe(true);
     expect(slices.filter((s) => s.name !== "火").every((s) => !s.explode)).toBe(true);
+
+    const cramped = buildWxPieModel({ 金: 21, 木: 25, 水: 29, 火: 16, 土: 9 });
+    expect(cramped.find((s) => s.name === "土")!.explode).toBe(true);
+    expect(cramped.find((s) => s.name === "火")!.explode).toBe(false);
   });
 
   it("does not explode mid-size slices", () => {

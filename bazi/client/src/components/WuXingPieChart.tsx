@@ -5,12 +5,12 @@ import {
   type WxPieSlice,
 } from "@/lib/wuxingPolar";
 
-const VB_W = 460;
-const VB_H = 400;
-const CX = 230;
-const CY = 196;
-const R = 148;
-const EXPLODE = 20;
+const VB_W = 480;
+const VB_H = 420;
+const CX = 240;
+const CY = 210;
+const R = 142;
+const EXPLODE = 26;
 const CREAM = "#FBF7EE";
 
 function sliceCenter(s: WxPieSlice): { x: number; y: number } {
