@@ -4,18 +4,18 @@ import {
   slicePath,
 } from "@/lib/wuxingPolar";
 
-const VB = 420;
-const CX = 210;
-const CY = 210;
-const R = 158;
-const LABEL_R = R + 36;
+const VB = 400;
+const CX = 200;
+const CY = 200;
+const R = 172;
+const LABEL_R = R + 20;
 const RINGS = 5;
 const SPOKES = 12;
 
 function labelAnchor(deg: number): "start" | "middle" | "end" {
   const c = Math.cos((deg * Math.PI) / 180);
-  if (c > 0.35) return "start";
-  if (c < -0.35) return "end";
+  if (c > 0.45) return "start";
+  if (c < -0.45) return "end";
   return "middle";
 }
 
@@ -78,20 +78,26 @@ export function WuXingPolarChart({
       {slices.map((s) => {
         const p = polarPoint(CX, CY, LABEL_R, s.midDeg);
         const anchor = labelAnchor(s.midDeg);
-        const dx = anchor === "start" ? 4 : anchor === "end" ? -4 : 0;
+        const stacked = anchor !== "middle";
         return (
           <text
             key={`${s.name}-lb`}
-            x={p.x + dx}
+            x={p.x}
             y={p.y}
             textAnchor={anchor}
             dominantBaseline="middle"
             fontFamily="'Noto Serif SC', 'Songti SC', serif"
           >
-            <tspan fontSize={24} fontWeight={600} fill={s.labelColor}>
+            <tspan fontSize={22} fontWeight={600} fill={s.labelColor}>
               {s.name}
             </tspan>
-            <tspan fontSize={14} fill={s.labelColor} dx={4}>
+            <tspan
+              fontSize={13}
+              fill={s.labelColor}
+              dx={stacked ? 0 : 4}
+              dy={stacked ? 16 : 0}
+              x={stacked ? p.x : undefined}
+            >
               {s.percent}%
             </tspan>
           </text>
