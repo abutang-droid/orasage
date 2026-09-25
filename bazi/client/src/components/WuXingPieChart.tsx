@@ -8,14 +8,27 @@ import {
 const VB_W = 480;
 const VB_H = 420;
 const CX = 240;
-const CY = 210;
-const R = 142;
-const EXPLODE = 26;
+const CY = 214;
+const R = 138;
+const EXPLODE = 18;
 const CREAM = "#FBF7EE";
 
 function sliceCenter(s: WxPieSlice): { x: number; y: number } {
   if (!s.explode) return { x: CX, y: CY };
   return polarPoint(CX, CY, EXPLODE, s.midDeg);
+}
+
+function explodeCallout(s: WxPieSlice, c: { x: number; y: number }) {
+  const edge = polarPoint(c.x, c.y, R + 2, s.midDeg);
+  let elbow = polarPoint(c.x, c.y, R + 18, s.midDeg);
+  let lab = polarPoint(c.x, c.y, R + 44, s.midDeg);
+  // 北侧扇区若沿半径外推，字会叠到「五行分布」副标题上，改为左右拉线。
+  if (lab.y < 52) {
+    const dir = c.x < CX || ((s.midDeg % 360) + 360) % 360 > 180 ? -1 : 1;
+    elbow = { x: edge.x + dir * 14, y: Math.max(edge.y, 48) };
+    lab = { x: edge.x + dir * 46, y: Math.max(edge.y + 6, 44) };
+  }
+  return { edge, elbow, lab };
 }
 
 function overlayFor(name: WxPieSlice["name"], clipId: string) {
@@ -105,9 +118,7 @@ export function WuXingPieChart({
         if (s.percent <= 0) return null;
         const c = sliceCenter(s);
         if (s.explode) {
-          const edge = polarPoint(c.x, c.y, R + 2, s.midDeg);
-          const elbow = polarPoint(c.x, c.y, R + 22, s.midDeg);
-          const lab = polarPoint(c.x, c.y, R + 48, s.midDeg);
+          const { edge, elbow, lab } = explodeCallout(s, c);
           return (
             <g key={`${s.name}-lb`}>
               <polyline
