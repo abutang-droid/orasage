@@ -64,12 +64,18 @@
       </g>
     </svg>
 
-    <div class="seal" id="seal" role="button" tabindex="0" aria-label="按住，口述你的生辰">
+    <div class="seal" id="seal" role="button" tabindex="0" aria-label="点一下开始口述生辰，再点一次结束">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
         <rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>
       </svg>
     </div>
   </div>
+</div>
+
+<div class="live" id="live" hidden role="status" aria-live="polite">
+  <div class="st" id="liveSt">正在听你说</div>
+  <div class="tx" id="liveTx"></div>
+  <div class="sub" id="liveSub" hidden></div>
 </div>
 
 <!-- ══════ 历制 · 性别（同排） ══════ -->
@@ -132,7 +138,5 @@
 
 <div class="act"><button class="btn-main" id="btnGo">起 盘</button></div>
 
-<div class="live" id="live" hidden><div class="st" id="liveSt">听着呢…</div><div class="tx" id="liveTx"></div></div>
-
-<div class="hint">外圈拨分、其内拨时（0–23）· 点中央印章口述，如「一九六二年八月十四，下午三点二十分，北京」</div>
+<div class="hint">点中央印章开始口述，再说完后点一次结束。也可拨盘。例：一九六二年八月十四，下午三点二十分，北京</div>
 </div><!-- /dialScreen -->
