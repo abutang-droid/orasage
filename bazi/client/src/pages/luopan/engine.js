@@ -641,15 +641,45 @@ root.querySelectorAll(".mini").forEach(b=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const HAS_MEDIA=typeof MediaRecorder!=="undefined" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
 const MAX_REC_MS=16000;
-const seal=$("#seal"), live=$("#live"), liveTx=$("#liveTx"), liveSt=$("#liveSt");
+const HEARD_HOLD_MS=window.matchMedia("(prefers-reduced-motion: reduce)").matches?400:1600;
+const seal=$("#seal"), live=$("#live"), liveTx=$("#liveTx"), liveSt=$("#liveSt"), liveSub=$("#liveSub");
+const dialBox=$(".dial");
 function sealHTML(svg,s1,s3){
   seal.innerHTML=svg+ (s1?`<div class="s1">${s1}</div>`:"") + (s3?`<div class="s3">${s3}</div>`:"");
 }
 const MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>';
+const IDLE_SEAL_LABEL="点一下开始口述生辰，再点一次结束";
 let rec=null,recording=false,lastTranscript="",speechApplied=false,commitBusy=false;
-let mediaRec=null, mediaStream=null, mediaChunks=[], mediaBlob=null, recTimer=null, usingMedia=false;
+let mediaRec=null, mediaStream=null, mediaChunks=[], mediaBlob=null, recTimer=null, usingMedia=false, liveHideTimer=null;
 function preferServerStt(){
   return Boolean(hooks && typeof hooks.preferAudio==="function" && hooks.preferAudio());
+}
+function waitMs(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
+function setLiveMode(mode){
+  live.classList.remove("live-listen","live-heard","live-applied");
+  if(mode) live.classList.add("live-"+mode);
+}
+function showLive(mode, title, text, sub){
+  if(liveHideTimer){ clearTimeout(liveHideTimer); liveHideTimer=null; }
+  live.hidden=false;
+  setLiveMode(mode);
+  liveSt.textContent=title||"";
+  liveTx.textContent=text||"";
+  if(liveSub){
+    if(sub){ liveSub.hidden=false; liveSub.innerHTML=sub; }
+    else { liveSub.hidden=true; liveSub.textContent=""; }
+  }
+}
+function hideLiveLater(ms){
+  if(liveHideTimer) clearTimeout(liveHideTimer);
+  liveHideTimer=setTimeout(()=>{
+    if(!recording) live.hidden=true;
+  }, ms);
+}
+function setListeningChrome(on){
+  seal.classList.toggle("listening",on);
+  if(dialBox) dialBox.classList.toggle("listening-dial",on);
+  seal.setAttribute("aria-label", on ? "正在听，再点一下结束" : IDLE_SEAL_LABEL);
 }
 function pickRecorderMime(){
   if(typeof MediaRecorder==="undefined" || !MediaRecorder.isTypeSupported) return "";
@@ -688,20 +718,21 @@ if(SR){
     let text="";
     for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
     lastTranscript=text;
-    liveTx.textContent=text||"…";
+    if(recording){
+      liveTx.textContent=text||"正在听…";
+    }
   };
   rec.onerror=e=>{
     if(e.error==="aborted"||e.error==="no-speech") return;
     if(usingMedia) return;
-    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
-    live.hidden=false; liveSt.textContent="未识别";
-    liveTx.textContent = (e.error==="not-allowed") ? "未获麦克风授权，可用罗盘拨选。" : "未能识别，请再说一次，或拨动罗盘。";
-    setTimeout(()=>{ if(!recording) live.hidden=true; },4200);
+    recording=false; setListeningChrome(false); sealHTML(MIC,"","");
+    showLive("","未听清", (e.error==="not-allowed") ? "未获麦克风授权，可用罗盘拨选。" : "未能识别，请再说一次，或拨动罗盘。");
+    hideLiveLater(4200);
   };
   rec.onend=()=>{
     if(usingMedia) return;
     const was=recording;
-    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
+    recording=false; setListeningChrome(false); sealHTML(MIC,"","");
     if(was) commitSpeech();
   };
 }
@@ -715,31 +746,28 @@ async function startMediaCapture(){
 }
 function beginListeningUi(){
   lastTranscript=""; speechApplied=false; mediaBlob=null; usingMedia=false;
-  recording=true; seal.classList.add("listening");
-  live.hidden=false; liveSt.textContent="聆听中"; liveTx.textContent="";
-  sealHTML(MIC,"聆听…","");
+  recording=true; setListeningChrome(true);
+  showLive("listen","正在听你说","请口述姓名、生辰、出生城市。说完后再点一次中央印章。");
+  sealHTML(MIC,"正在听","再点结束");
   if(recTimer){ clearTimeout(recTimer); recTimer=null; }
   recTimer=setTimeout(()=>{ if(recording) stopRec(); }, MAX_REC_MS);
 }
 function startWebSpeech(){
   if(!SR || !rec){
-    live.hidden=false; liveSt.textContent="此浏览器不支持语音";
-    liveTx.textContent="可用罗盘拨选。";
-    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
+    showLive("","此浏览器不支持语音","可用罗盘拨选。");
+    recording=false; setListeningChrome(false); sealHTML(MIC,"","");
     return;
   }
   usingMedia=false;
   try{ rec.start(); }catch(err){
-    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
-    liveSt.textContent="未识别";
-    liveTx.textContent="麦克风正忙，请再点一次中央印章。";
+    recording=false; setListeningChrome(false); sealHTML(MIC,"","");
+    showLive("","未听清","麦克风正忙，请再点一次中央印章。");
   }
 }
 function startRec(){
   const canAudio=HAS_MEDIA && preferServerStt();
   if(!canAudio && !SR){
-    live.hidden=false; liveSt.textContent="此浏览器不支持语音";
-    liveTx.textContent="可用罗盘拨选。";
+    showLive("","此浏览器不支持语音","可用罗盘拨选。");
     return;
   }
   beginListeningUi();
@@ -755,11 +783,16 @@ function startRec(){
   startWebSpeech();
 }
 function stopRec(){
-  recording=false; seal.classList.remove("listening");
+  recording=false; setListeningChrome(false);
   sealHTML(MIC,"","");
   if(recTimer){ clearTimeout(recTimer); recTimer=null; }
   try{ rec && rec.stop(); }catch(_){}
   commitSpeech();
+}
+async function revealHeard(text){
+  const heard=(text||"").trim();
+  showLive("heard","我们听到了", heard);
+  await waitMs(HEARD_HOLD_MS);
 }
 async function commitSpeech(){
   if(speechApplied || commitBusy) return;
@@ -773,35 +806,38 @@ async function commitSpeech(){
   const hasAudio=Boolean(blob && blob.size>=800);
   if(!t && !hasAudio){
     commitBusy=false;
-    live.hidden=false;
-    liveSt.textContent="未听清";
-    liveTx.textContent="请再说一次年月日时和城市，或拨动罗盘。";
-    setTimeout(()=>{ if(!recording) live.hidden=true; },3500);
+    showLive("","未听清","请再说一次年月日时和城市，或拨动罗盘。");
+    hideLiveLater(3500);
     return;
   }
   speechApplied=true;
-  live.hidden=false;
-  liveSt.textContent="正在辨认";
-  liveTx.textContent=t||"已录音，正在转写…";
-  if(hooks && typeof hooks.onVoice==="function"){
-    try{
-      const parsed=await hooks.onVoice({transcript:t, audio:hasAudio?blob:null});
-      if(parsed){
-        applyParsed(parsed, parsed.raw||t);
-        commitBusy=false;
-        return;
-      }
-    }catch(err){
-      console.warn("luopan onVoice", err);
-    }
-  }
-  commitBusy=false;
-  if(t) handle(t);
-  else {
-    liveSt.textContent="未听清";
-    liveTx.textContent="请再说一次年月日时和城市，或拨动罗盘。";
+  if(t) showLive("heard","我们听到了", t);
+  else showLive("listen","正在听写","已录音，正在转成文字…");
+  const nluPromise = (hooks && typeof hooks.onVoice==="function")
+    ? hooks.onVoice({transcript:t, audio:hasAudio?blob:null}).catch(err=>{
+        console.warn("luopan onVoice", err);
+        return null;
+      })
+    : Promise.resolve(null);
+  const holdPromise = t ? waitMs(HEARD_HOLD_MS) : Promise.resolve();
+  let parsed=null;
+  try{ parsed=await nluPromise; }catch(_){ parsed=null; }
+  let heard=t;
+  if(parsed && parsed.raw) heard=String(parsed.raw).trim()||heard;
+  if(!heard && parsed) heard=(parsed.raw||"").trim();
+  if(!heard && !parsed){
+    commitBusy=false;
     speechApplied=false;
+    showLive("","未听清","请再说一次年月日时和城市，或拨动罗盘。");
+    hideLiveLater(3500);
+    return;
   }
+  if(heard && heard!==t) showLive("heard","我们听到了", heard);
+  await holdPromise;
+  if(!t && heard) await waitMs(HEARD_HOLD_MS);
+  commitBusy=false;
+  if(parsed) applyParsed(parsed, heard);
+  else if(heard) handle(heard);
 }
 function applyParsed(o, heardText){
   const t=(heardText||o.raw||lastTranscript||"").trim();
@@ -825,8 +861,6 @@ function applyParsed(o, heardText){
   if(o.hh!==null && o.hh!==undefined){ S.hh=o.hh; S.mi=o.mi||0; }
   if(o.sex){ S.sex=o.sex; paintSex(); }
   ["year","month","day","hour","min"].forEach(x=>syncTheta(x,true));
-  live.hidden=false;
-  liveSt.textContent="已记下";
   let miss=[];
   if(!o.y) miss.push("年");
   if(!o.m) miss.push("月");
@@ -836,13 +870,14 @@ function applyParsed(o, heardText){
   const yShow=o.lunar?L.y:S.y, mShow=o.lunar?((L.lp?"闰":"")+LU_MN[L.m-1]):S.m, dShow=o.lunar?LU_DN[L.d-1]:S.d;
   const hm=pad2(S.hh)+":"+pad2(S.mi);
   const heard=t.replace(/[<>&]/g,"");
-  const nameBit=o.name?`　${String(o.name).replace(/[<>&]/g,"")}`:"";
-  const cityBit=o.city?`　${String(o.city).replace(/[<>&]/g,"")}`:"";
-  liveTx.innerHTML=miss.length
-    ? `${calLabel}${nameBit} ${yShow} 年 ${mShow} ${o.lunar?"":"月"} ${dShow}　${hm}${cityBit}<br><span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span><br><span style="opacity:.7">听到：${heard}</span>`
-    : `${calLabel}${nameBit} ${yShow} 年 ${mShow} ${o.lunar?"":"月"} ${dShow}　${hm}${cityBit}<br><span style="opacity:.7">听到：${heard}</span>`;
-  if(hooks && typeof hooks.onTranscript==="function") hooks.onTranscript(t);
-  setTimeout(()=>{ if(!recording) live.hidden=true; },6000);
+  const nameBit=o.name?String(o.name).replace(/[<>&]/g,""):"";
+  const cityBit=o.city?String(o.city).replace(/[<>&]/g,""):"";
+  const filled=[calLabel, nameBit, `${yShow}年`, `${mShow}${o.lunar?"":"月"}`, dShow, hm, cityBit].filter(Boolean).join("　");
+  const missHtml=miss.length? `<span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span>` : "已按这句话填入罗盘，可再核对。";
+  showLive("applied","已填入罗盘", heard?`听到：${heard}`:"", `${filled}<br>${missHtml}`);
+  if(hooks && typeof hooks.onApply==="function") hooks.onApply(o, t);
+  else if(hooks && typeof hooks.onTranscript==="function") hooks.onTranscript(t);
+  hideLiveLater(8000);
 }
 function handle(t){
   applyParsed(parseLuopanSpeech(t), t);
@@ -1008,6 +1043,8 @@ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
       recording=false;
       commitBusy=false;
       if(recTimer){ clearTimeout(recTimer); recTimer=null; }
+      if(liveHideTimer){ clearTimeout(liveHideTimer); liveHideTimer=null; }
+      setListeningChrome(false);
       try { rec && rec.abort && rec.abort(); } catch (_) {}
       try { mediaRec && mediaRec.state!=="inactive" && mediaRec.stop(); } catch (_) {}
       stopMediaTracks();

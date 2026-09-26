@@ -25,6 +25,7 @@ export function initLuopan(
     onGo?: (state: LuopanDialState) => void;
     onTranscript?: (text: string) => void;
     onVoice?: (payload: LuopanVoicePayload) => Promise<LuopanSpeechFields | null | void>;
+    onApply?: (fields: LuopanSpeechFields, transcript: string) => void;
     preferAudio?: () => boolean;
   },
 ): {

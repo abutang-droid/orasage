@@ -61,11 +61,13 @@
   border:2.5px solid rgba(255,253,248,.9);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
   color:#FFF9F3;cursor:pointer;user-select:none;transition:transform .18s, box-shadow .25s;
-  font-family:var(--serif);}.luopan-root .seal:active{transform:translate(-50%,-50%) scale(.95);}.luopan-root .seal.listening{animation:luopan-pulse 1.3s ease-in-out infinite;}
+  font-family:var(--serif);}.luopan-root .seal:active{transform:translate(-50%,-50%) scale(.95);}.luopan-root .seal.listening{animation:luopan-pulse 1.3s ease-in-out infinite;background:linear-gradient(165deg,#C45A4F,#8C3229);}
 @keyframes luopan-pulse{0%,100%{box-shadow:0 8px 22px rgba(140,50,41,.32),inset 0 1px 0 rgba(255,255,255,.22),0 0 0 0 rgba(168,67,58,.42);}
-  50%{box-shadow:0 8px 22px rgba(140,50,41,.32),inset 0 1px 0 rgba(255,255,255,.22),0 0 0 16px rgba(168,67,58,0);}}.luopan-root .seal .s1{font-size:15px;letter-spacing:.34em;text-indent:.34em;opacity:.96;}.luopan-root .seal .s3{font-size:11px;opacity:.72;letter-spacing:.14em;}
-/* 静息态只有 mic 一枚，放大居中；录音态多了「聆听…」，mic 收一档给文字让位 */.luopan-root .seal svg{width:42px;height:42px;transition:width .18s ease,height .18s ease;}.luopan-root .seal.listening svg{width:34px;height:34px;}
-@media (prefers-reduced-motion:reduce){.luopan-root .seal.listening{animation:none}.luopan-root .ring-g.snapping{transition:none}}
+  50%{box-shadow:0 8px 22px rgba(140,50,41,.32),inset 0 1px 0 rgba(255,255,255,.22),0 0 0 18px rgba(168,67,58,0);}}.luopan-root .seal .s1{font-size:15px;letter-spacing:.18em;text-indent:.18em;opacity:.96;}.luopan-root .seal .s3{font-size:11px;opacity:.82;letter-spacing:.08em;}
+/* 静息态只有 mic 一枚，放大居中；录音态多了「正在听」，mic 收一档给文字让位 */.luopan-root .seal svg{width:42px;height:42px;transition:width .18s ease,height .18s ease;}.luopan-root .seal.listening svg{width:28px;height:28px;}
+.luopan-root .dial.listening-dial{filter:drop-shadow(0 0 0 rgba(168,67,58,0));animation:luopan-dial-listen 1.3s ease-in-out infinite;}
+@keyframes luopan-dial-listen{0%,100%{filter:drop-shadow(0 0 0 rgba(168,67,58,0))}50%{filter:drop-shadow(0 0 14px rgba(168,67,58,.28))}}
+@media (prefers-reduced-motion:reduce){.luopan-root .seal.listening{animation:none}.luopan-root .ring-g.snapping{transition:none}.luopan-root .dial.listening-dial{animation:none}}
 
 /* ── 设置行：历制与性别同排（性别不写字，靠分组语义标注） ── */.luopan-root .topbar{width:100%;max-width:430px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;}.luopan-root .topbar .grp{display:flex;align-items:center;gap:6px;}.luopan-root .topbar .sep{width:1px;height:22px;background:var(--line-200);flex:0 0 1px;}.luopan-root .cal{min-height:38px;padding:0 16px;border:1px solid var(--line-200);background:var(--paper-2);
   border-radius:19px;font-family:var(--serif);font-size:14.5px;letter-spacing:.1em;text-indent:.1em;
@@ -83,9 +85,21 @@
   color:#FFFDF8;font-family:var(--serif);font-size:19px;letter-spacing:.42em;text-indent:.42em;font-weight:600;
   cursor:pointer;box-shadow:0 6px 18px rgba(34,56,77,.24), inset 0 1px 0 rgba(255,255,255,.14);}.luopan-root .btn-main:active{background:linear-gradient(165deg,#2E4A63,#1B2E40);}.luopan-root .btn-main[disabled]{opacity:.42;box-shadow:none;cursor:not-allowed;}.luopan-root .hint{width:100%;max-width:430px;margin-top:12px;text-align:center;font-size:12.5px;color:var(--ink-500);line-height:1.75;}.luopan-root .hint b{color:var(--dai-700);font-weight:600;}
 
-/* 实时字幕 */.luopan-root .live{width:100%;max-width:430px;margin-top:12px;min-height:44px;background:var(--paper-2);
-  border:1px dashed var(--zhu-100);border-radius:14px;padding:12px 14px;font-size:16px;
-  color:var(--ink-900);line-height:1.6;text-align:center;}.luopan-root .live .st{font-size:12.5px;color:var(--zhu);font-weight:600;margin-bottom:4px;letter-spacing:.06em;}.luopan-root .live .tx{color:var(--ink-700);}
+/* 语音提示：听 / 听到原文 / 已填入。紧贴罗盘下方，避免沉到起盘按钮后面。 */
+.luopan-root .live{width:100%;max-width:430px;margin-top:14px;min-height:64px;background:var(--paper-2);
+  border:1px solid var(--line-200);border-radius:16px;padding:14px 16px;font-size:16px;
+  color:var(--ink-900);line-height:1.6;text-align:center;}
+.luopan-root .live .st{font-size:13px;color:var(--zhu);font-weight:700;margin-bottom:6px;letter-spacing:.12em;}
+.luopan-root .live .tx{color:var(--ink-700);font-size:16.5px;}
+.luopan-root .live .sub{margin-top:8px;font-size:13.5px;color:var(--ink-500);line-height:1.55;}
+.luopan-root .live.live-listen{background:var(--zhu-50);border:2px solid var(--zhu);box-shadow:0 8px 22px rgba(140,50,41,.12);}
+.luopan-root .live.live-listen .st{font-size:17px;letter-spacing:.18em;}
+.luopan-root .live.live-listen .tx{color:var(--ink-900);font-size:15px;}
+.luopan-root .live.live-heard{background:#F4F7FA;border:2px solid var(--dai-600);}
+.luopan-root .live.live-heard .st{color:var(--dai-700);font-size:15px;}
+.luopan-root .live.live-heard .tx{color:var(--ink-900);font-size:18px;font-weight:650;}
+.luopan-root .live.live-applied{border-color:var(--zhu-100);}
+.luopan-root .live.live-applied .tx{color:var(--ink-900);}
 
 /* ══════ 结果屏 ══════ */.luopan-root .res{width:100%;max-width:430px;animation:luopan-fade .5s ease both;}
 @keyframes luopan-fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.luopan-root .res-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}.luopan-root .res-top .bk{width:40px;height:40px;border:1px solid var(--line-200);background:var(--paper-2);border-radius:50%;

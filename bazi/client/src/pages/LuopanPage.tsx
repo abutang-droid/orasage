@@ -172,16 +172,13 @@ export default function LuopanPage() {
         ...(t ? { transcript: t } : {}),
         ...(audioBase64 ? { audioBase64, mimeType: audio?.type || 'audio/webm' } : {}),
       });
-      await applyPlaceAndName(res.fields, res.transcript || t);
-      return res.fields;
+      return { ...res.fields, raw: res.transcript || t };
     } catch (err) {
       console.warn('luopan voice api', err);
       if (!t) return null;
-      const fields = parseLuopanSpeech(t);
-      await applyPlaceAndName(fields, t);
-      return fields;
+      return parseLuopanSpeech(t);
     }
-  }, [applyPlaceAndName]);
+  }, []);
 
   const onGoRef = useRef(onGo);
   onGoRef.current = onGo;
@@ -189,6 +186,11 @@ export default function LuopanPage() {
   onTranscriptRef.current = onTranscript;
   const onVoiceRef = useRef(onVoice);
   onVoiceRef.current = onVoice;
+  const onApply = useCallback((fields: LuopanSpeechFields, transcript: string) => {
+    void applyPlaceAndName(fields, transcript);
+  }, [applyPlaceAndName]);
+  const onApplyRef = useRef(onApply);
+  onApplyRef.current = onApply;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -198,6 +200,7 @@ export default function LuopanPage() {
       onGo: (s) => { void onGoRef.current(s); },
       onTranscript: (text) => { void onTranscriptRef.current(text); },
       onVoice: (payload) => onVoiceRef.current(payload),
+      onApply: (fields, text) => onApplyRef.current(fields, text),
       preferAudio: () => preferAudioRef.current,
     });
     apiRef.current = api;
