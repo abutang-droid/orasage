@@ -40,6 +40,45 @@ function productLabel(products: AdminProduct[], sku: string) {
   return p ? `${p.name}（${p.sku}）` : sku;
 }
 
+function usdField(entry?: AdminBillingSlot) {
+  if (!entry) return '';
+  if (entry.priceOverrideUsdCents != null) return (entry.priceOverrideUsdCents / 100).toFixed(2);
+  if (entry.priceOverrideCents != null) return (entry.priceOverrideCents / 100).toFixed(2);
+  return '';
+}
+
+function SlotHideToggle({
+  app,
+  slotKey,
+  entries,
+  hidden,
+}: {
+  app: string;
+  slotKey: string;
+  entries: AdminBillingSlot[];
+  hidden: boolean;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <form action={saveBillingSlotAction} className="billing-slot-hide-form">
+      <input type="hidden" name="app" value={app} />
+      <input type="hidden" name="key" value={slotKey} />
+      {entries.map((entry, i) => (
+        <span key={`${entry.sku}-${i}`}>
+          <input type="hidden" name={`entry_sku_${i}`} value={entry.sku} />
+          {usdField(entry) ? (
+            <input type="hidden" name={`entry_usd_${i}`} value={usdField(entry)} />
+          ) : null}
+        </span>
+      ))}
+      {hidden ? null : <input type="hidden" name="slot_hidden" value="1" />}
+      <AdminSubmitButton size="sm" variant={hidden ? 'secondary' : 'ghost'}>
+        {hidden ? '取消隐藏' : '隐藏此位置'}
+      </AdminSubmitButton>
+    </form>
+  );
+}
+
 function SlotEditor({
   app,
   slotKey,
@@ -53,78 +92,89 @@ function SlotEditor({
 }) {
   const boundLabels = entries.map((e) => productLabel(products, e.sku));
   const slotHidden = entries.length > 0 && entries.every((e) => !e.active);
+  const extraBound = entries.length > 1;
   return (
-    <details className={slotHidden ? 'billing-slot billing-slot--hidden' : 'billing-slot'}>
-      <summary>
-        <code>{slotKey}</code>
-        <span className="muted"> · {SLOT_KEY_HINTS[slotKey] ?? '自定义槽位'}</span>
-        {slotHidden ? <span className="billing-slot-hidden-badge">已隐藏</span> : null}
-        <span className="billing-slot-summary">
-          {boundLabels.join('、') || '未绑定商品'}
-        </span>
-      </summary>
+    <article className={slotHidden ? 'billing-slot billing-slot--hidden' : 'billing-slot'}>
+      <header className="billing-slot-head">
+        <div className="billing-slot-title">
+          <code>{slotKey}</code>
+          <span className="muted"> · {SLOT_KEY_HINTS[slotKey] ?? '自定义槽位'}</span>
+          {slotHidden ? <span className="billing-slot-hidden-badge">已隐藏</span> : null}
+        </div>
+        <div className="billing-slot-head-actions">
+          <span className="billing-slot-summary">{boundLabels.join('、') || '未绑定商品'}</span>
+          <SlotHideToggle app={app} slotKey={slotKey} entries={entries} hidden={slotHidden} />
+        </div>
+      </header>
       <form action={saveBillingSlotAction} className="form-grid billing-slot-form">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
-        <p className="muted full-width billing-slot-help">
-          换 SKU 即改绑定。勾选「隐藏此位置」后，八字/紫微/塔罗不再售卖或推荐此槽位，绑定商品保留，可随时改回。
-        </p>
-        {Array.from({ length: ENTRY_ROWS }, (_, i) => {
-          const entry = entries[i];
-          return (
-            <div key={i} className="full-width billing-entry-row">
-              <label>
-                绑定商品 {i + 1}{entries.length > 1 || i > 0 ? '（多行=轮换）' : ''}
-                <select name={`entry_sku_${i}`} defaultValue={entry?.sku ?? ''}>
-                  <option value="">— 不绑定 —</option>
-                  {products.map((p) => (
-                    <option key={p.sku} value={p.sku}>
-                      {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                覆盖价 USD
-                <input
-                  name={`entry_usd_${i}`}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  defaultValue={
-                    entry?.priceOverrideUsdCents != null
-                      ? (entry.priceOverrideUsdCents / 100).toFixed(2)
-                      : entry?.priceOverrideCents != null
-                        ? (entry.priceOverrideCents / 100).toFixed(2)
-                        : ''
-                  }
-                  placeholder="留空=目录价"
-                />
-              </label>
-              <label className="checkbox-label billing-entry-hide">
-                <input
-                  type="checkbox"
-                  name={`entry_hidden_${i}`}
-                  value="1"
-                  defaultChecked={entry ? !entry.active : false}
-                />
-                隐藏此商品
-              </label>
-            </div>
-          );
-        })}
-        <label className="checkbox-label full-width billing-slot-hide">
-          <input type="checkbox" name="slot_hidden" value="1" defaultChecked={slotHidden} />
-          隐藏此位置（App 端不再解析、不展示购买入口）
-        </label>
-        <AdminSubmitButton size="sm">保存绑定</AdminSubmitButton>
+        {slotHidden ? <input type="hidden" name="slot_hidden" value="1" /> : null}
+        <div className="full-width billing-entry-row">
+          <label>
+            绑定商品
+            <select name="entry_sku_0" defaultValue={entries[0]?.sku ?? ''}>
+              <option value="">— 不绑定 —</option>
+              {products.map((p) => (
+                <option key={p.sku} value={p.sku}>
+                  {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            覆盖价 USD
+            <input
+              name="entry_usd_0"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={usdField(entries[0])}
+              placeholder="留空=目录价"
+            />
+          </label>
+          <AdminSubmitButton size="sm">保存绑定</AdminSubmitButton>
+        </div>
+        <details className="full-width billing-slot-more" open={extraBound}>
+          <summary>轮换商品（可选，同一位置多 SKU 按 seed 轮换）</summary>
+          {Array.from({ length: ENTRY_ROWS - 1 }, (_, n) => {
+            const i = n + 1;
+            const entry = entries[i];
+            return (
+              <div key={i} className="billing-entry-row">
+                <label>
+                  绑定商品 {i + 1}
+                  <select name={`entry_sku_${i}`} defaultValue={entry?.sku ?? ''}>
+                    <option value="">— 不绑定 —</option>
+                    {products.map((p) => (
+                      <option key={p.sku} value={p.sku}>
+                        {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  覆盖价 USD
+                  <input
+                    name={`entry_usd_${i}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={usdField(entry)}
+                    placeholder="留空=目录价"
+                  />
+                </label>
+              </div>
+            );
+          })}
+        </details>
       </form>
       <form action={deleteBillingSlotAction} className="billing-slot-delete">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
         <AdminSubmitButton size="sm" variant="ghost">删除整个槽位</AdminSubmitButton>
       </form>
-    </details>
+    </article>
   );
 }
 
