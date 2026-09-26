@@ -1021,7 +1021,11 @@ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
 }
 
   try {
-    const say = new URLSearchParams(window.location.search).get("say");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("listen") === "1" && !params.get("say")) {
+      setTimeout(() => beginListeningUi(), 200);
+    }
+    const say = params.get("say");
     if (say) setTimeout(() => {
       lastTranscript = say;
       speechApplied = false;
