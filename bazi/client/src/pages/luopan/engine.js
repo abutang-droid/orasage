@@ -413,9 +413,46 @@ function uprightLabel(t, angle){
   t.setAttribute("transform", `rotate(${angle} ${x} ${y})`);
   t.style.transform="";
 }
+/* 整环同样走 SVG 用户坐标，绕盘心 (C,C) 转。
+   CSS rotate + 子级 SVG rotate 叠在一起，窄屏缩放后数字会甩到盘外。 */
+function spinRing(R){
+  R.g.setAttribute("transform", `rotate(${R.th} ${C} ${C})`);
+  R.g.style.transform="";
+}
+function cancelSnap(R){
+  R.snapId=(R.snapId||0)+1;
+  R.g.classList.remove("snapping");
+}
+/* cubic-bezier(.3,1.34,.44,1) —— 与原先 .ring-g.snapping 的回弹同形 */
+function snapEase(t){
+  const x1=.3, y1=1.34, x2=.44, y2=1;
+  let u=t;
+  for(let i=0;i<8;i++){
+    const cx=3*x1, bx=3*(x2-x1)-cx, ax=1-cx-bx;
+    const f=((ax*u+bx)*u+cx)*u-t;
+    const df=(3*ax*u+2*bx)*u+cx;
+    if(Math.abs(df)<1e-6) break;
+    u-=f/df;
+  }
+  const cy=3*y1, by=3*(y2-y1)-cy, ay=1-cy-by;
+  return ((ay*u+by)*u+cy)*u;
+}
+function animateSpin(k, from, to){
+  const R=RI[k], id=(R.snapId=(R.snapId||0)+1), dur=500, t0=performance.now();
+  R.g.classList.add("snapping");
+  function frame(now){
+    if(R.snapId!==id) return;
+    const p=Math.min(1,(now-t0)/dur);
+    R.th=from+(to-from)*snapEase(p);
+    render(k);
+    if(p<1) requestAnimationFrame(frame);
+    else { R.th=to; render(k); R.g.classList.remove("snapping"); }
+  }
+  requestAnimationFrame(frame);
+}
 function render(k){
   const R=RI[k];
-  R.g.style.transform=`rotate(${R.th}deg)`;
+  spinRing(R);
   if(k==="year"||k==="month"||k==="day"){
     R.g.querySelectorAll(".tick-t").forEach(t=>{
       const v=+t.getAttribute("data-v");
@@ -442,13 +479,15 @@ function renderAll(){["year","month","day","hour","min"].forEach(render);}
 
 function syncTheta(k,animate){
   const R=RI[k], target=-idxOf(k)*R.step;
-  const base=target;
-  R.th = base + 360*Math.round((R.th-base)/360);
-  const g=R.g, tf=`rotate(${R.th}deg)`;
-  if(animate){ g.classList.add("snapping"); requestAnimationFrame(()=>{g.style.transform=tf;}); }
-  else { g.classList.remove("snapping"); g.style.transform=tf; }
-  render(k);
-  if(animate) setTimeout(()=>g.classList.remove("snapping"),460);
+  const from=R.th;
+  const to=target + 360*Math.round((from-target)/360);
+  if(animate && Math.abs(to-from)>0.05){
+    animateSpin(k, from, to);
+  } else {
+    cancelSnap(R);
+    R.th=to;
+    render(k);
+  }
 }
 
 /* ── 读数区 ── */
@@ -534,7 +573,7 @@ dialEl.addEventListener("pointerdown",e=>{
   const k=ringAt(e); if(!k||act) return;
   const R=RI[k];
   act={k:k,last:dialGeom(e).ang,lastV:idxOf(k),x0:e.clientX,y0:e.clientY,moved:0};
-  R.g.classList.remove("snapping");
+  cancelSnap(R);
   dialEl.classList.add("focus");
   focusRing(k,true);
   setRingFocus(k,true);                 /* 带加粗 + 抬高层级，一次性做完 */
@@ -552,7 +591,6 @@ dialEl.addEventListener("pointermove",e=>{
   let v=Math.round(-R.th/R.step); v=((v%R.count)+R.count)%R.count;
   if(v!==act.lastV){ act.lastV=v; pulse(act.k); }
   applyValue(act.k,v);
-  R.g.style.transform=`rotate(${R.th}deg)`;
   render(act.k);
 });
 function endDrag(e){
@@ -1017,10 +1055,10 @@ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
     ["min","hour","day","month","year"].forEach((k,i)=>{
       setTimeout(()=>{
         const R=RI[k];
-        R.g.classList.add("snapping");
-        R.th += (i%2?-1:1)*Math.min(8,R.step*0.28);   /* 只改变转角，不改变读数 */
+        const from=R.th;
+        const to=from+(i%2?-1:1)*Math.min(8,R.step*0.28);   /* 只改变转角，不改变读数 */
         setRingFocus(k,true);
-        R.g.style.transform=`rotate(${R.th}deg)`;
+        animateSpin(k, from, to);
         setTimeout(()=>{ setRingFocus(k,false); syncTheta(k,true); },240);
       }, i*170);
     });
