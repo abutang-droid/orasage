@@ -35,6 +35,11 @@ const SLOT_KEY_HINTS: Record<string, string> = {
 
 const ENTRY_ROWS = 6;
 
+function productLabel(products: AdminProduct[], sku: string) {
+  const p = products.find((item) => item.sku === sku);
+  return p ? `${p.name}（${p.sku}）` : sku;
+}
+
 function SlotEditor({
   app,
   slotKey,
@@ -46,26 +51,32 @@ function SlotEditor({
   entries: AdminBillingSlot[];
   products: AdminProduct[];
 }) {
+  const boundLabels = entries.map((e) => productLabel(products, e.sku));
+  const slotHidden = entries.length > 0 && entries.every((e) => !e.active);
   return (
-    <details className="billing-slot">
+    <details className={slotHidden ? 'billing-slot billing-slot--hidden' : 'billing-slot'}>
       <summary>
         <code>{slotKey}</code>
         <span className="muted"> · {SLOT_KEY_HINTS[slotKey] ?? '自定义槽位'}</span>
+        {slotHidden ? <span className="billing-slot-hidden-badge">已隐藏</span> : null}
         <span className="billing-slot-summary">
-          {entries.map((e) => e.sku).join(', ') || '未配置'}
+          {boundLabels.join('、') || '未绑定商品'}
         </span>
       </summary>
       <form action={saveBillingSlotAction} className="form-grid billing-slot-form">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
+        <p className="muted full-width billing-slot-help">
+          换 SKU 即改绑定。勾选「隐藏此位置」后，八字/紫微/塔罗不再售卖或推荐此槽位，绑定商品保留，可随时改回。
+        </p>
         {Array.from({ length: ENTRY_ROWS }, (_, i) => {
           const entry = entries[i];
           return (
             <div key={i} className="full-width billing-entry-row">
               <label>
-                SKU {i + 1}{entries.length > 1 || i > 0 ? '（多行=轮换）' : ''}
+                绑定商品 {i + 1}{entries.length > 1 || i > 0 ? '（多行=轮换）' : ''}
                 <select name={`entry_sku_${i}`} defaultValue={entry?.sku ?? ''}>
-                  <option value="">— 空 —</option>
+                  <option value="">— 不绑定 —</option>
                   {products.map((p) => (
                     <option key={p.sku} value={p.sku}>
                       {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
@@ -90,10 +101,23 @@ function SlotEditor({
                   placeholder="留空=目录价"
                 />
               </label>
+              <label className="checkbox-label billing-entry-hide">
+                <input
+                  type="checkbox"
+                  name={`entry_hidden_${i}`}
+                  value="1"
+                  defaultChecked={entry ? !entry.active : false}
+                />
+                隐藏此商品
+              </label>
             </div>
           );
         })}
-        <AdminSubmitButton size="sm">保存槽位</AdminSubmitButton>
+        <label className="checkbox-label full-width billing-slot-hide">
+          <input type="checkbox" name="slot_hidden" value="1" defaultChecked={slotHidden} />
+          隐藏此位置（App 端不再解析、不展示购买入口）
+        </label>
+        <AdminSubmitButton size="sm">保存绑定</AdminSubmitButton>
       </form>
       <form action={deleteBillingSlotAction} className="billing-slot-delete">
         <input type="hidden" name="app" value={app} />
@@ -140,12 +164,12 @@ export default async function BillingPage({
       <header className="page-header">
         <h1>应用计费槽位</h1>
         <p className="muted">
-          紫微/八字/塔罗付费与推荐统一走计费槽位：App 传 <code>app + key</code>，返回后台配置的商品（前台商城目录不展示 <code>app_only</code> 商品）。同一槽位多行 SKU = 按 seed 轮换。
+          每个位置可绑定商品、改绑，或隐藏（不删除）。App 传 <code>app + key</code> 取当前绑定；隐藏后前台不再售卖/推荐，已购用户仍按原 SKU 核销。同一位置多行 SKU = 按 seed 轮换。
         </p>
       </header>
 
       {sp.saved === 'ok' ? (
-        <p className="muted panel-notice">槽位已保存。</p>
+        <p className="muted panel-notice">绑定已保存。</p>
       ) : null}
       {sp.err ? (
         <p className="muted panel-notice panel-notice--error">保存失败：{decodeURIComponent(sp.err)}</p>
@@ -179,9 +203,9 @@ export default async function BillingPage({
             <input name="key" required placeholder="recommend.element.wood" />
           </label>
           <label>
-            SKU
+            绑定商品
             <select name="entry_sku_0" required defaultValue="">
-              <option value="">— 选择商品 —</option>
+              <option value="">— 选择要绑定的商品 —</option>
               {products.map((p) => (
                 <option key={p.sku} value={p.sku}>{p.name} ({p.sku})</option>
               ))}

@@ -897,8 +897,35 @@ details summary {
   color: var(--orasage-secondary, #6b7280);
 }
 
+.billing-slot--hidden {
+  border-style: dashed;
+  background: #fafaf8;
+}
+
+.billing-slot-hidden-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+
+.billing-slot-help {
+  margin: 0.25rem 0 0.5rem;
+}
+
 .billing-slot-form {
   margin-top: 1rem;
+}
+
+.billing-slot-hide,
+.billing-entry-hide {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
 }
 
 .billing-entry-row {

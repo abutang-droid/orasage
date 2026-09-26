@@ -389,17 +389,21 @@ export async function saveBillingSlotAction(formData: FormData) {
     sku: string;
     priceOverrideCents: number | null;
     priceOverrideUsdCents: number | null;
+    active: boolean;
   }> = [];
+  const slotHidden = String(formData.get('slot_hidden') ?? '') === '1';
   for (let i = 0; i < SLOT_ENTRY_ROWS; i += 1) {
     const sku = String(formData.get(`entry_sku_${i}`) ?? '').trim();
     if (!sku) continue;
     const usd = String(formData.get(`entry_usd_${i}`) ?? formData.get(`entry_cny_${i}`) ?? '').trim();
     const usdCents = usd ? Math.round(Number(usd) * 100) : null;
+    const rowHidden = String(formData.get(`entry_hidden_${i}`) ?? '') === '1';
     entries.push({
       sku,
       // Mirror USD into both columns for legacy readers.
       priceOverrideCents: usdCents,
       priceOverrideUsdCents: usdCents,
+      active: slotHidden ? false : !rowHidden,
     });
   }
 
