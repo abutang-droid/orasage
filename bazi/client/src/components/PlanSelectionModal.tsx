@@ -4,6 +4,7 @@ import type { PlanType } from "@shared/types";
 import { PLAN_OPTIONS, COUPLE_PLAN_OPTIONS } from "@shared/types";
 import { useT } from "@/lib/i18n";
 import { usePriceFetcher } from "@/lib/priceFetcher";
+import { fetchBaziPlanProducts } from "@/lib/plan-products";
 
 import {
   GOLD, GOLD_LIGHT, GOLD_DIM, GOLD_FAINT, GOLD_GHOST,
@@ -25,16 +26,29 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
   const { prices } = usePriceFetcher();
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [visibleTypes, setVisibleTypes] = useState<PlanType[] | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    void fetchBaziPlanProducts(mode).then((list) => {
+      if (!cancelled) setVisibleTypes(list.map((item) => item.type));
+    });
+    return () => { cancelled = true; };
+  }, [open, mode]);
 
   // 根据 mode 选择基础方案数组，并用 fetched prices 合并动态价格
   const baseOptions = mode === "couple" ? COUPLE_PLAN_OPTIONS : PLAN_OPTIONS;
   const displayOptions = useMemo(() => {
-    if (!prices) return baseOptions;
-    return baseOptions.map(p => ({
-      ...p,
-      priceLabel: prices[p.type]?.[mode] ?? p.priceLabel,
-    }));
-  }, [prices, mode, baseOptions]);
+    const priced = !prices
+      ? baseOptions
+      : baseOptions.map(p => ({
+          ...p,
+          priceLabel: prices[p.type]?.[mode] ?? p.priceLabel,
+        }));
+    if (!visibleTypes) return priced;
+    return priced.filter((p) => visibleTypes.includes(p.type));
+  }, [prices, mode, baseOptions, visibleTypes]);
 
   const WP_HOST_DOMAIN = "https://www.c2.pub";
   const WP_HOST_DOMAINS = ["https://www.c2.pub", "https://c2.pub", "http://www.c2.pub"];
@@ -110,6 +124,10 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
   if (!open) return null;
 
   const handlePurchase = (planType: PlanType) => {
+    if (visibleTypes && !visibleTypes.includes(planType)) {
+      toast.error(t('paywall.slot_hidden', '此方案暂未开放购买'));
+      return;
+    }
     setSelectedPlan(planType);
     setPurchasing(true);
     const id = (productIdMap[planType] || 342).toString();
@@ -180,6 +198,11 @@ export function PlanSelectionModal({ open, onClose, onSelectPlan, mode = "single
 
         {/* 方案列表 */}
         <div className="flex flex-col px-5 py-4" style={{ gap: "0.75rem" }}>
+          {displayOptions.length === 0 ? (
+            <p className="text-xs text-center" style={{ color: MUTED_CLR }}>
+              {t('paywall.slot_hidden', '此位置暂未开放购买。')}
+            </p>
+          ) : null}
           {displayOptions.map((plan) => (
             <div
               key={plan.type}
