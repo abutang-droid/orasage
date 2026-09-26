@@ -6,6 +6,7 @@ import {
   parseLuopanSpeech,
 } from "../client/src/pages/luopan/speechParse";
 import { extractLuopanBirth, luopanVoiceCapabilities } from "./luopanSpeech";
+import { appRouter } from "./routers";
 import { pickCityFromSpeech } from "../client/src/pages/luopan/speechPlace";
 
 describe("parseLuopanSpeech", () => {
@@ -108,5 +109,45 @@ describe("extractLuopanBirth without LLM keys", () => {
     expect(fields.hh).toBe(15);
     expect(fields.mi).toBe(20);
     expect(fields.sex).toBe("女");
+  });
+});
+
+describe("bazi.luopanVoice caller", () => {
+  function ctx() {
+    return {
+      user: null,
+      req: {
+        protocol: "http",
+        headers: {},
+        socket: { remoteAddress: "127.0.0.1" },
+        ip: "127.0.0.1",
+      },
+      res: {},
+    } as any;
+  }
+
+  it("exposes capabilities without requiring AI keys", async () => {
+    const caps = await appRouter.createCaller(ctx()).bazi.voiceCapabilities();
+    expect(caps).toEqual({
+      stt: Boolean(caps.stt),
+      nlu: Boolean(caps.nlu),
+    });
+    expect(typeof caps.stt).toBe("boolean");
+    expect(typeof caps.nlu).toBe("boolean");
+  });
+
+  it("fills birth fields from a transcript", async () => {
+    const res = await appRouter.createCaller(ctx()).bazi.luopanVoice({
+      transcript: "我叫张三公历一九九零年八月十五日下午三点二十分北京女",
+    });
+    expect(res.transcript).toContain("张三");
+    expect(res.fields.y).toBe(1990);
+    expect(res.fields.m).toBe(8);
+    expect(res.fields.d).toBe(15);
+    expect(res.fields.hh).toBe(15);
+    expect(res.fields.mi).toBe(20);
+    expect(res.fields.sex).toBe("女");
+    expect(res.fields.name).toBe("张三");
+    expect(res.stt).toBe("client");
   });
 });
