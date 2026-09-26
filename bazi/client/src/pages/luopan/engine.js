@@ -1,3 +1,5 @@
+import { parseLuopanSpeech } from "./speechParse";
+
 /** 八字罗盘拨盘（从竹简命盘原型抽出，由 React 页挂载） */
 export function initLuopan(root, hooks) {
   const $ = (s) => root.querySelector(s);
@@ -38,81 +40,7 @@ const SEG = [
   {n:"中午",   h:12, s:"午"},   {n:"下午",   h:15, s:"未申"},
   {n:"傍晚",   h:18, s:"酉"},   {n:"晚上",   h:21, s:"戌亥"}
 ];
-const SEGKEYS = [
-  [/半夜|深夜|子夜|零点|凌晨/,1],[/天快亮|蒙蒙亮|快天亮|拂晓/,4],
-  [/天刚亮|天亮|清晨|早上|早晨|早起|日出/,6],[/上午|早饭|晌午前/,9],
-  [/中午|晌午|正午/,12],[/下午|过晌/,15],
-  [/傍晚|快天黑|太阳落|日落|黄昏/,18],[/晚上|夜里|掌灯|天黑/,21]
-];
-const CNMAP={"零":0,"〇":0,"一":1,"壹":1,"二":2,"两":2,"贰":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9};
-function isNum(ch){return CNMAP[ch]!==undefined||/[0-9]/.test(ch);}
-function toDigits(s){let r="";for(const c of s){if(CNMAP[c]!==undefined)r+=CNMAP[c];else if(/[0-9]/.test(c))r+=c;}return r;}
-function cnNum(s){
-  if(/^\d+$/.test(s))return parseInt(s,10);
-  let n=0,cur=0,seen=false;
-  for(const ch of s){
-    if(CNMAP[ch]!==undefined){cur=CNMAP[ch];seen=true;}
-    else if(ch==="十"){n+=(cur||1)*10;cur=0;seen=true;}
-  }
-  return n+cur;
-}
-/* 「半 / 一刻 / 三刻 / 二十分 / 零五分」→ 分钟数 */
-function minuteOf(q){
-  if(!q) return 0;
-  if(q==="半") return 30;
-  if(q==="一刻") return 15;
-  if(q==="两刻") return 30;
-  if(q==="三刻") return 45;
-  const s=q.replace(/分/g,"").trim();
-  let v = /^\d+$/.test(s) ? parseInt(s,10) : cnNum(s);   /* 必须先走 cnNum，否则「二十」被拆成 2 */
-  return (isFinite(v)&&v>=0&&v<=59)?v:0;
-}
 const pad2=n=>String(n).padStart(2,"0");
-/* ── 中文口语 → 结构化生辰 ── */
-function parseSpeech(text){
-  const t=text.replace(/\s+/g,"");
-  const o={y:null,m:null,d:null,hh:null,mi:0,sex:null,lunar:false,raw:text};
-
-  /* 年份：4 位逐位读，或 2 位补 19 */
-  let m=t.match(new RegExp("([〇零一二三四五六七八九十两0-9]{1,6})年"));
-  if(m){
-    const dg=toDigits(m[1]);
-    if(dg.length===4) o.y=parseInt(dg,10);
-    else if(dg.length===2){ const v=parseInt(dg,10); o.y = v>=30?1900+v:2000+v; }
-    else { const v=cnNum(m[1]); if(v>=1900&&v<=2030) o.y=v; else if(v<100) o.y=v>=30?1900+v:2000+v; }
-  }
-  /* 月份 */
-  m=t.match(new RegExp("([〇零一二三四五六七八九十两0-9]{1,3})月"));
-  if(m){ o.m=cnNum(m[1])||parseInt(toDigits(m[1]),10); }
-  else if(/腊月/.test(t)) o.m=12;
-  else if(/冬月/.test(t)) o.m=11;
-  else if(/正月/.test(t)) o.m=1;
-  /* 日 */
-  m=t.match(new RegExp("([〇零一二三四五六七八九十两0-9]{1,3})[日号]"));
-  if(m){ o.d=cnNum(m[1])||parseInt(toDigits(m[1]),10); }
-  else {
-    m=t.match(new RegExp("初([〇零一二三四五六七八九十0-9]{1,2})"));
-    if(m) o.d=cnNum(m[1]);
-    else { m=t.match(new RegExp("月([〇零一二三四五六七八九十两0-9]{1,3})"));
-      if(m) o.d=cnNum(m[1])||parseInt(toDigits(m[1]),10); }
-  }
-  /* 具体钟点：优先于时段词，可带分（三点半 / 三点二十 / 十五点零五分 / 三点一刻） */
-  m=t.match(new RegExp("([0-9]{1,2}|[一二三四五六七八九十两]{1,3})\\s*[点时](半|一刻|两刻|三刻|([〇零一二三四五六七八九十两0-9]{1,3})\\s*分?)?"));
-  if(m){ let h=/[0-9]/.test(m[1])?parseInt(m[1],10):cnNum(m[1]);
-         const isPM=/(下午|过晌)/.test(t);
-         const isNight=/(晚上|夜里|黄昏|掌灯|半宿|傍晚)/.test(t);
-         if(isPM && h<12) h+=12;
-         else if(isNight && h>=6 && h<12) h+=12;   /* 晚上两点=凌晨2点，不加12 */
-         if(h>=0&&h<=23){ o.hh=h; o.mi=minuteOf(m[2]||m[3]); } }
-  if(o.hh===null){ for(const [re,h] of SEGKEYS){ if(re.test(t)){ o.hh=h; o.mi=0; break; } } }
-  o.lunar=/(腊月|冬月|正月|初一|初二|初三|初四|初五|初六|初七|初八|初九|初十|十五|廿|闰)/.test(t);
-  /* 性别 */
-  if(/(女的|女性|女士|女孩|女儿|我妈|我婆婆|我奶奶|我姥姥|我媳妇|姑娘)/.test(t)) o.sex="女";
-  else if(/(男的|男性|男士|男孩|儿子|我爸|我爷爷|我姥爷|我老公|小子)/.test(t)) o.sex="男";
-  else if(/女/.test(t) && !/男女|子女/.test(t)) o.sex="女";
-  else if(/男/.test(t) && !/男女/.test(t)) o.sex="男";
-  return o;
-}
 
 /* ══════ 状态 ══════ */
 /* ↑↑↑ 历法内核 ↑↑↑ */
@@ -708,15 +636,52 @@ root.querySelectorAll(".mini").forEach(b=>{
 });
 
 /* ══════════════════════════════════════════════
-   三、语音
+   三、语音：录音上云端转写+抽取，失败再走浏览器听写与正则
    ══════════════════════════════════════════════ */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const HAS_MEDIA=typeof MediaRecorder!=="undefined" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+const MAX_REC_MS=16000;
 const seal=$("#seal"), live=$("#live"), liveTx=$("#liveTx"), liveSt=$("#liveSt");
 function sealHTML(svg,s1,s3){
   seal.innerHTML=svg+ (s1?`<div class="s1">${s1}</div>`:"") + (s3?`<div class="s3">${s3}</div>`:"");
 }
 const MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>';
-let rec=null,recording=false,lastTranscript="",speechApplied=false;
+let rec=null,recording=false,lastTranscript="",speechApplied=false,commitBusy=false;
+let mediaRec=null, mediaStream=null, mediaChunks=[], mediaBlob=null, recTimer=null, usingMedia=false;
+function preferServerStt(){
+  return Boolean(hooks && typeof hooks.preferAudio==="function" && hooks.preferAudio());
+}
+function pickRecorderMime(){
+  if(typeof MediaRecorder==="undefined" || !MediaRecorder.isTypeSupported) return "";
+  const cands=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
+  return cands.find(t=>MediaRecorder.isTypeSupported(t))||"";
+}
+function stopMediaTracks(){
+  try{ mediaStream && mediaStream.getTracks().forEach(t=>t.stop()); }catch(_){}
+  mediaStream=null;
+}
+function stopMediaRecorder(){
+  return new Promise(resolve=>{
+    if(!mediaRec || mediaRec.state==="inactive"){
+      stopMediaTracks();
+      resolve(mediaBlob);
+      return;
+    }
+    mediaRec.onstop=()=>{
+      try{
+        mediaBlob=new Blob(mediaChunks,{type:mediaRec.mimeType||"audio/webm"});
+      }catch(_){ mediaBlob=null; }
+      stopMediaTracks();
+      mediaRec=null;
+      resolve(mediaBlob);
+    };
+    try{ mediaRec.stop(); }catch(_){
+      stopMediaTracks();
+      mediaRec=null;
+      resolve(mediaBlob);
+    }
+  });
+}
 if(SR){
   rec=new SR(); rec.lang="zh-CN"; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
   rec.onresult=e=>{
@@ -727,40 +692,87 @@ if(SR){
   };
   rec.onerror=e=>{
     if(e.error==="aborted"||e.error==="no-speech") return;
+    if(usingMedia) return;
     recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
     live.hidden=false; liveSt.textContent="未识别";
     liveTx.textContent = (e.error==="not-allowed") ? "未获麦克风授权，可用罗盘拨选。" : "未能识别，请再说一次，或拨动罗盘。";
     setTimeout(()=>{ if(!recording) live.hidden=true; },4200);
   };
   rec.onend=()=>{
+    if(usingMedia) return;
     const was=recording;
     recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
     if(was) commitSpeech();
   };
 }
-function startRec(){
-  if(!SR){ live.hidden=false; liveSt.textContent="此浏览器不支持语音";
-    liveTx.textContent="可用罗盘拨选。"; return; }
-  lastTranscript=""; speechApplied=false;
+async function startMediaCapture(){
+  mediaChunks=[]; mediaBlob=null;
+  mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const mime=pickRecorderMime();
+  mediaRec=mime ? new MediaRecorder(mediaStream,{mimeType:mime}) : new MediaRecorder(mediaStream);
+  mediaRec.ondataavailable=e=>{ if(e.data && e.data.size) mediaChunks.push(e.data); };
+  mediaRec.start(250);
+}
+function beginListeningUi(){
+  lastTranscript=""; speechApplied=false; mediaBlob=null; usingMedia=false;
   recording=true; seal.classList.add("listening");
   live.hidden=false; liveSt.textContent="聆听中"; liveTx.textContent="";
   sealHTML(MIC,"聆听…","");
+  if(recTimer){ clearTimeout(recTimer); recTimer=null; }
+  recTimer=setTimeout(()=>{ if(recording) stopRec(); }, MAX_REC_MS);
+}
+function startWebSpeech(){
+  if(!SR || !rec){
+    live.hidden=false; liveSt.textContent="此浏览器不支持语音";
+    liveTx.textContent="可用罗盘拨选。";
+    recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
+    return;
+  }
+  usingMedia=false;
   try{ rec.start(); }catch(err){
     recording=false; seal.classList.remove("listening"); sealHTML(MIC,"","");
     liveSt.textContent="未识别";
     liveTx.textContent="麦克风正忙，请再点一次中央印章。";
   }
 }
+function startRec(){
+  const canAudio=HAS_MEDIA && preferServerStt();
+  if(!canAudio && !SR){
+    live.hidden=false; liveSt.textContent="此浏览器不支持语音";
+    liveTx.textContent="可用罗盘拨选。";
+    return;
+  }
+  beginListeningUi();
+  if(canAudio){
+    usingMedia=true;
+    startMediaCapture().catch(err=>{
+      console.warn("luopan mediarecorder", err);
+      usingMedia=false;
+      startWebSpeech();
+    });
+    return;
+  }
+  startWebSpeech();
+}
 function stopRec(){
   recording=false; seal.classList.remove("listening");
   sealHTML(MIC,"","");
+  if(recTimer){ clearTimeout(recTimer); recTimer=null; }
   try{ rec && rec.stop(); }catch(_){}
   commitSpeech();
 }
-function commitSpeech(){
+async function commitSpeech(){
+  if(speechApplied || commitBusy) return;
+  commitBusy=true;
+  let blob=mediaBlob;
+  if(usingMedia){
+    try{ blob=await stopMediaRecorder(); }catch(_){ blob=null; }
+    usingMedia=false;
+  }
   const t=(lastTranscript||"").trim();
-  if(speechApplied) return;
-  if(!t){
+  const hasAudio=Boolean(blob && blob.size>=800);
+  if(!t && !hasAudio){
+    commitBusy=false;
     live.hidden=false;
     liveSt.textContent="未听清";
     liveTx.textContent="请再说一次年月日时和城市，或拨动罗盘。";
@@ -768,28 +780,72 @@ function commitSpeech(){
     return;
   }
   speechApplied=true;
-  handle(t);
+  live.hidden=false;
+  liveSt.textContent="正在辨认";
+  liveTx.textContent=t||"已录音，正在转写…";
+  if(hooks && typeof hooks.onVoice==="function"){
+    try{
+      const parsed=await hooks.onVoice({transcript:t, audio:hasAudio?blob:null});
+      if(parsed){
+        applyParsed(parsed, parsed.raw||t);
+        commitBusy=false;
+        return;
+      }
+    }catch(err){
+      console.warn("luopan onVoice", err);
+    }
+  }
+  commitBusy=false;
+  if(t) handle(t);
+  else {
+    liveSt.textContent="未听清";
+    liveTx.textContent="请再说一次年月日时和城市，或拨动罗盘。";
+    speechApplied=false;
+  }
 }
-function handle(t){
+function applyParsed(o, heardText){
+  const t=(heardText||o.raw||lastTranscript||"").trim();
   lastTranscript=t;
-  const o=parseSpeech(t);
-  let miss=[];
-  if(o.y){S.y=o.y;} else miss.push("年");
-  if(o.m){S.m=o.m;} else miss.push("月");
-  if(o.d){S.d=o.d;} else miss.push("日");
-  if(o.hh!==null){ S.hh=o.hh; S.mi=o.mi||0; } else miss.push("时");
+  const hasDate=Boolean(o.y||o.m||o.d);
+  if(hasDate && o.lunar){
+    setCal("lunar");
+    if(o.y) L.y=o.y;
+    if(o.m) L.m=o.m;
+    if(o.d) L.d=o.d;
+    L.lp=!!o.leap;
+    luClamp(); retune(); syncS();
+  }else if(hasDate){
+    if(CAL==="lunar") setCal("solar");
+    if(o.y) S.y=o.y;
+    if(o.m) S.m=o.m;
+    if(o.d) S.d=o.d;
+    const mx=maxDay(); if(S.d>mx) S.d=mx;
+    syncL();
+  }
+  if(o.hh!==null && o.hh!==undefined){ S.hh=o.hh; S.mi=o.mi||0; }
   if(o.sex){ S.sex=o.sex; paintSex(); }
-  const mx=maxDay(); if(S.d>mx) S.d=mx;
-  syncL();
   ["year","month","day","hour","min"].forEach(x=>syncTheta(x,true));
   live.hidden=false;
   liveSt.textContent="已记下";
+  let miss=[];
+  if(!o.y) miss.push("年");
+  if(!o.m) miss.push("月");
+  if(!o.d) miss.push("日");
+  if(o.hh===null || o.hh===undefined) miss.push("时");
+  const calLabel=o.lunar?"农历":"公历";
+  const yShow=o.lunar?L.y:S.y, mShow=o.lunar?((L.lp?"闰":"")+LU_MN[L.m-1]):S.m, dShow=o.lunar?LU_DN[L.d-1]:S.d;
   const hm=pad2(S.hh)+":"+pad2(S.mi);
   const heard=t.replace(/[<>&]/g,"");
-  liveTx.innerHTML=miss.length? `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}<br><span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span><br><span style="opacity:.7">听到：${heard}</span>`
-                             : `${S.y} 年 ${S.m} 月 ${S.d} 日　${hm}<br><span style="opacity:.7">听到：${heard}</span>`;
+  const nameBit=o.name?`　${String(o.name).replace(/[<>&]/g,"")}`:"";
+  const cityBit=o.city?`　${String(o.city).replace(/[<>&]/g,"")}`:"";
+  liveTx.innerHTML=miss.length
+    ? `${calLabel}${nameBit} ${yShow} 年 ${mShow} ${o.lunar?"":"月"} ${dShow}　${hm}${cityBit}<br><span style="color:#A8433A">${miss.join(" · ")} 未辨，可拨盘补正</span><br><span style="opacity:.7">听到：${heard}</span>`
+    : `${calLabel}${nameBit} ${yShow} 年 ${mShow} ${o.lunar?"":"月"} ${dShow}　${hm}${cityBit}<br><span style="opacity:.7">听到：${heard}</span>`;
   if(hooks && typeof hooks.onTranscript==="function") hooks.onTranscript(t);
   setTimeout(()=>{ if(!recording) live.hidden=true; },6000);
+}
+function handle(t){
+  applyParsed(parseLuopanSpeech(t), t);
 }
 seal.addEventListener("pointerdown",e=>{ e.stopPropagation(); });
 seal.addEventListener("click",e=>{
@@ -936,16 +992,25 @@ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
 
   try {
     const say = new URLSearchParams(window.location.search).get("say");
-    if (say) setTimeout(() => handle(say), 500);
+    if (say) setTimeout(() => {
+      lastTranscript = say;
+      speechApplied = false;
+      commitSpeech();
+    }, 500);
   } catch (_) {}
 
   return {
     getState,
     applyTranscript: handle,
+    applyParsed: (o, heard) => applyParsed(o, heard),
     destroy() {
       window.removeEventListener("resize", onWinResize);
       recording=false;
+      commitBusy=false;
+      if(recTimer){ clearTimeout(recTimer); recTimer=null; }
       try { rec && rec.abort && rec.abort(); } catch (_) {}
+      try { mediaRec && mediaRec.state!=="inactive" && mediaRec.stop(); } catch (_) {}
+      stopMediaTracks();
     }
   };
 }
