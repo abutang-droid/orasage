@@ -910,6 +910,28 @@ details summary {
   margin: 0;
 }
 
+.billing-slot-hide-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.85rem 0 0.35rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.billing-slot-hide-opt input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  accent-color: #b45309;
+}
+
 .billing-slot-more {
   margin-top: 0.35rem;
 }

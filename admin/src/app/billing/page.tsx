@@ -72,7 +72,7 @@ function SlotHideToggle({
         </span>
       ))}
       {hidden ? null : <input type="hidden" name="slot_hidden" value="1" />}
-      <AdminSubmitButton size="sm" variant={hidden ? 'secondary' : 'ghost'}>
+      <AdminSubmitButton size="sm" variant="secondary">
         {hidden ? '取消隐藏' : '隐藏此位置'}
       </AdminSubmitButton>
     </form>
@@ -109,7 +109,15 @@ function SlotEditor({
       <form action={saveBillingSlotAction} className="form-grid billing-slot-form">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
-        {slotHidden ? <input type="hidden" name="slot_hidden" value="1" /> : null}
+        {entries.length > 0 ? (
+          <label className="full-width billing-slot-hide-opt">
+            <input type="checkbox" name="slot_hidden" value="1" defaultChecked={slotHidden} />
+            <span>
+              <strong>隐藏此位置</strong>
+              <span className="muted"> 勾选后前台不再售卖/推荐，绑定商品保留，不算删除</span>
+            </span>
+          </label>
+        ) : null}
         <div className="full-width billing-entry-row">
           <label>
             绑定商品
@@ -214,7 +222,7 @@ export default async function BillingPage({
       <header className="page-header">
         <h1>应用计费槽位</h1>
         <p className="muted">
-          每个位置可绑定商品、改绑，或隐藏（不删除）。App 传 <code>app + key</code> 取当前绑定；隐藏后前台不再售卖/推荐，已购用户仍按原 SKU 核销。同一位置多行 SKU = 按 seed 轮换。
+          每个位置可绑定商品、改绑。隐藏开关在每个槽位标题右侧，以及绑定区的「隐藏此位置」勾选；隐藏不删除绑定。App 传 <code>app + key</code> 取当前绑定；隐藏后前台不再售卖/推荐，已购用户仍按原 SKU 核销。同一位置多行 SKU = 按 seed 轮换。
         </p>
       </header>
 
