@@ -789,11 +789,6 @@ function stopRec(){
   try{ rec && rec.stop(); }catch(_){}
   commitSpeech();
 }
-async function revealHeard(text){
-  const heard=(text||"").trim();
-  showLive("heard","我们听到了", heard);
-  await waitMs(HEARD_HOLD_MS);
-}
 async function commitSpeech(){
   if(speechApplied || commitBusy) return;
   commitBusy=true;
@@ -877,7 +872,7 @@ function applyParsed(o, heardText){
   showLive("applied","已填入罗盘", heard?`听到：${heard}`:"", `${filled}<br>${missHtml}`);
   if(hooks && typeof hooks.onApply==="function") hooks.onApply(o, t);
   else if(hooks && typeof hooks.onTranscript==="function") hooks.onTranscript(t);
-  hideLiveLater(8000);
+  hideLiveLater(16000);
 }
 function handle(t){
   applyParsed(parseLuopanSpeech(t), t);
