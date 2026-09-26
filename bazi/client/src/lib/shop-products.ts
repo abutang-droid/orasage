@@ -54,7 +54,7 @@ const ELEMENT_TO_SLOT_CODE: Record<string, string> = {
 };
 
 type BillingSlotsResponse = {
-  slots?: Record<string, Array<{ sku: string; product?: BaziRecommendProduct | null }>>;
+  slots?: Record<string, Array<{ sku: string; product?: BaziRecommendProduct | null; active?: boolean }>>;
 };
 
 async function loadRecommendData(): Promise<RecommendCache> {
@@ -69,14 +69,14 @@ async function loadRecommendData(): Promise<RecommendCache> {
       for (const [key, entries] of Object.entries(data.slots ?? {})) {
         const code = key.startsWith('recommend.element.') ? key.slice('recommend.element.'.length) : null;
         const element = code ? SLOT_CODE_TO_ELEMENT[code] : undefined;
-        if (!element || !entries[0]) continue;
-        map[element] = entries[0].sku;
-        products[element] = entries[0].product ?? null;
+        if (!element) continue;
+        const visible = entries.find((entry) => entry.active !== false && entry.product);
+        if (!visible) continue;
+        map[element] = visible.sku;
+        products[element] = visible.product ?? null;
       }
-      if (Object.keys(map).length > 0) {
-        cache = { map, products, expiry: Date.now() + 60_000 };
-        return cache;
-      }
+      cache = { map, products, expiry: Date.now() + 60_000 };
+      return cache;
     }
   } catch { /* use defaults */ }
   cache = {

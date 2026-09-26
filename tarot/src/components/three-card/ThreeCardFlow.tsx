@@ -27,6 +27,7 @@ type BillingPayload = {
   threeCardReport: TarotBillingProduct | null;
   threeCardBundle: TarotBillingProduct | null;
   skus: { threeCardReportSku: string; threeCardBundleSku: string };
+  hidden?: { threeCardReport?: boolean; threeCardBundle?: boolean };
 };
 
 type SessionPayload = {
@@ -233,6 +234,9 @@ export function ThreeCardFlow() {
 
   const reportProduct = session?.billing.threeCardReport;
   const bundleProduct = session?.billing.threeCardBundle;
+  const reportHidden = Boolean(session?.billing.hidden?.threeCardReport);
+  const bundleHidden = Boolean(session?.billing.hidden?.threeCardBundle);
+  const offersHidden = reportHidden && bundleHidden;
   const readingReturnPath = readingId
     ? `/reading?readingId=${encodeURIComponent(readingId)}`
     : '/reading';
@@ -372,18 +376,24 @@ export function ThreeCardFlow() {
           </div>
 
           <div className="card three-card-unlock-cta">
-            <p>{copy.unlockLead}</p>
-            {!isLoggedIn ? (
-              <a
-                href={loginHref}
-                className={cn(buttonVariants(), 'w-full block text-center no-underline')}
-              >
-                {copy.loginUnlock}
-              </a>
+            {offersHidden ? (
+              <p>此位置暂未开放购买。</p>
             ) : (
-              <Button type="button" className="w-full" onClick={goToPaywall}>
-                {copy.viewPlans}
-              </Button>
+              <>
+                <p>{copy.unlockLead}</p>
+                {!isLoggedIn ? (
+                  <a
+                    href={loginHref}
+                    className={cn(buttonVariants(), 'w-full block text-center no-underline')}
+                  >
+                    {copy.loginUnlock}
+                  </a>
+                ) : (
+                  <Button type="button" className="w-full" onClick={goToPaywall}>
+                    {copy.viewPlans}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -400,8 +410,11 @@ export function ThreeCardFlow() {
               ctaLabel={copy.paywallCta}
               returnPath={readingReturnPath}
             />
+          ) : offersHidden ? (
+            <p>此位置暂未开放购买。</p>
           ) : (
             <>
+              {!reportHidden ? (
               <div className="card three-card-tier">
                 <h2 className="daily-fortune-section-title">{copy.tier1Title}</h2>
                 {reportProduct ? (
@@ -428,7 +441,9 @@ export function ThreeCardFlow() {
                     : copy.buyReport}
                 </Button>
               </div>
+              ) : null}
 
+              {!bundleHidden ? (
               <div className="card three-card-tier three-card-tier--bundle">
                 <h2 className="daily-fortune-section-title">{copy.tier2Title}</h2>
                 {bundleProduct ? (
@@ -456,6 +471,7 @@ export function ThreeCardFlow() {
                     : copy.buyBundle}
                 </Button>
               </div>
+              ) : null}
 
               {pendingOrderNo && readingId && (
                 <Button

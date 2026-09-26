@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import type { PlanType } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
-import { buildShopCheckoutUrl, baziSkusForMode } from "@/lib/plan-products";
+import { buildShopCheckoutUrl, resolveBaziPlanSku } from "@/lib/plan-products";
 
 const READING_ID_KEY = "bazi:lastReadingId";
 const PLAN_KEY = "bazi:lastPurchasedPlan";
@@ -140,21 +140,28 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
 
   const openShopCheckout = useCallback((plan: PlanType) => {
     if (shopPayments) {
-      setState(prev => ({ ...prev, purchasedPlan: plan }));
-      const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
-      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1`;
-      sessionStorage.setItem(PLAN_KEY, plan);
-      const sku = baziSkusForMode(mode)[plan];
-      sessionStorage.setItem('bazi:lastCheckoutSku', sku);
-      const checkoutUrl = buildShopCheckoutUrl({
-        sku,
-        returnUrl: returnBase,
-        readingId,
-        planType: plan,
-        mode,
-        context: `八字${planNameMap[plan] || plan}报告`,
-      });
-      window.location.assign(checkoutUrl);
+      void (async () => {
+        const sku = await resolveBaziPlanSku(mode, plan);
+        if (!sku) {
+          setPayLoading(false);
+          toast.error(t('paywall.slot_hidden', '此方案暂未开放购买'));
+          return;
+        }
+        setState(prev => ({ ...prev, purchasedPlan: plan }));
+        const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
+        const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1`;
+        sessionStorage.setItem(PLAN_KEY, plan);
+        sessionStorage.setItem('bazi:lastCheckoutSku', sku);
+        const checkoutUrl = buildShopCheckoutUrl({
+          sku,
+          returnUrl: returnBase,
+          readingId,
+          planType: plan,
+          mode,
+          context: `八字${planNameMap[plan] || plan}报告`,
+        });
+        window.location.assign(checkoutUrl);
+      })();
       return;
     }
 
@@ -166,7 +173,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         window.top.postMessage({ action: 'OPEN_WP_PAYMENT', productId: pid }, '*');
       }
     } catch { /* ignore */ }
-  }, [mode, shopPayments, planNameMap]);
+  }, [mode, shopPayments, planNameMap, t]);
 
   const handlePaySelected = useCallback((plan?: PlanType) => {
     const target = plan ?? selectedPlanRef.current;
