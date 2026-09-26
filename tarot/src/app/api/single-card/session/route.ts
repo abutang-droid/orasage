@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
     billing: {
       destinySliceUnlock: billing.destinySliceUnlock,
       skus: { destinySliceUnlockSku: billing.skus.destinySliceUnlockSku },
+      hidden: { destinySliceUnlock: billing.hidden.destinySliceUnlock },
     },
     record,
   });

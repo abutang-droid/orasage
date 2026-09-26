@@ -32,6 +32,7 @@ type SessionPayload = {
   billing: {
     destinySliceUnlock: TarotBillingProduct | null;
     skus: { destinySliceUnlockSku: string };
+    hidden?: { destinySliceUnlock?: boolean };
   };
   record: SingleCardRecordDto | null;
 };
@@ -112,6 +113,14 @@ function PaywallPanel({
           ctaLabel={copy.paywallCta}
           returnPath={returnPath}
         />
+      </div>
+    );
+  }
+
+  if (session.billing.hidden?.destinySliceUnlock) {
+    return (
+      <div className="paywall-actions">
+        <p className="daily-fortune-paywall-desc">此位置暂未开放购买。</p>
       </div>
     );
   }
@@ -281,6 +290,10 @@ export function SingleCardFlow() {
       session.billing.destinySliceUnlock?.sku
       ?? session.billing.skus.destinySliceUnlockSku
       ?? 'tarot-destiny-slice';
+    if (session.billing.hidden?.destinySliceUnlock) {
+      setError(copy.checkoutFailed);
+      return;
+    }
     setCheckoutSku(sku);
     setError('');
     try {

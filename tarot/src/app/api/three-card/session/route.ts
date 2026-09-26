@@ -28,6 +28,10 @@ export async function GET(req: NextRequest) {
       threeCardReport: billing.threeCardReport,
       threeCardBundle: billing.threeCardBundle,
       skus: billing.skus,
+      hidden: {
+        threeCardReport: billing.hidden.threeCardReport,
+        threeCardBundle: billing.hidden.threeCardBundle,
+      },
     },
     record,
   });
