@@ -406,6 +406,13 @@ function inPillar(R,v){
   const a=((v*R.step+R.th)%360+540)%360-180;      /* 归一到 -180..180，0 = 12 点 */
   return Math.abs(a)<half;
 }
+/* 刻度正向：绕字自己的 SVG 坐标转。不要用 CSS rotate——
+   窄屏上 SVG 被缩放后，fill-box / 210px 原点都对不准，字会飞出环。 */
+function uprightLabel(t, angle){
+  const x=t.getAttribute("x"), y=t.getAttribute("y");
+  t.setAttribute("transform", `rotate(${angle} ${x} ${y})`);
+  t.style.transform="";
+}
 function render(k){
   const R=RI[k];
   R.g.style.transform=`rotate(${R.th}deg)`;
@@ -413,19 +420,19 @@ function render(k){
     R.g.querySelectorAll(".tick-t").forEach(t=>{
       const v=+t.getAttribute("data-v");
       t.classList.toggle("sel",inPillar(R,v));
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
+      uprightLabel(t, -(R.th+v*R.step));
     });
   }else if(k==="hour"){
     R.g.querySelectorAll(".hour-t").forEach(t=>{
       const v=+t.getAttribute("data-v");
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
+      uprightLabel(t, -(R.th+v*R.step));
       t.classList.toggle("sel",inPillar(R,v));
       t.removeAttribute("opacity");              /* 字色已按本格对比度选定，不再整体压暗 */
     });
   }else{
     R.g.querySelectorAll(".min-t").forEach(t=>{
       const v=+t.getAttribute("data-v");
-      t.style.transform=`rotate(${-(R.th+v*R.step)}deg)`;
+      uprightLabel(t, -(R.th+v*R.step));
       t.classList.toggle("sel",inPillar(R,v));
     });
   }
