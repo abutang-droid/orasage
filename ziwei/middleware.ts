@@ -1,9 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { LOCALE_COOKIE, normalizeLocale } from '@orasage/i18n';
+import { stampPromoChannelCookie } from '../shared/promo-channel/index';
 
 /** Persist ?lang= into the shared locale cookie before SSR reads it.
  *  P0-4: `/en` (and other portal locale prefixes) → `/` with locale cookie so subdomains return 200. */
 export function middleware(request: NextRequest) {
+  const stamp = (response: NextResponse) => {
+    stampPromoChannelCookie(request.nextUrl.hostname, request.nextUrl.searchParams, response.cookies);
+    return response;
+  };
+
   const pathname = request.nextUrl.pathname.replace(/\/$/, '') || '/';
   const localePrefix = pathname.match(/^\/(zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar)(\/.*)?$/);
   if (localePrefix) {
@@ -18,11 +24,11 @@ export function middleware(request: NextRequest) {
       maxAge: 31536000,
       sameSite: 'lax',
     });
-    return response;
+    return stamp(response);
   }
 
   const lang = request.nextUrl.searchParams.get('lang');
-  if (!lang) return NextResponse.next();
+  if (!lang) return stamp(NextResponse.next());
 
   const locale = normalizeLocale(lang);
   const response = NextResponse.next();
@@ -31,7 +37,7 @@ export function middleware(request: NextRequest) {
     maxAge: 31536000,
     sameSite: 'lax',
   });
-  return response;
+  return stamp(response);
 }
 
 export const config = {

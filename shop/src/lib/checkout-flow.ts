@@ -24,6 +24,7 @@ import {
   isValidTempleDonationQuantity,
   TEMPLE_DONATION,
 } from '../../../shared/tarot-merit/donation';
+import { promoCodeFromRequest } from '../../../shared/promo-channel/index';
 
 export const cartCheckoutLineSchema = z.object({
   sku: z.string().min(1),
@@ -90,6 +91,14 @@ export type StartCheckoutResult = {
   needsShipping: boolean;
   shippingMode?: 'single' | 'couple';
 };
+
+export function promoChannelCodeFromCheckoutRequest(req: NextRequest): string | null {
+  return promoCodeFromRequest({
+    searchParams: req.nextUrl.searchParams,
+    cookies: req.cookies,
+    cookieHeader: req.headers.get('cookie'),
+  });
+}
 
 export function localeFromCheckoutRequest(req: NextRequest, explicit?: string | null): string {
   if (explicit) return detectShopLocale({ queryLocale: explicit });
@@ -167,6 +176,7 @@ export async function createCheckoutOrder(
     appSource: input.appSource ?? 'shop',
     recommendationContext: input.recommendationContext,
     readingId: input.readingId,
+    promoChannelCode: promoChannelCodeFromCheckoutRequest(req) ?? undefined,
   });
 
   const successUrl = input.successUrl
@@ -296,6 +306,7 @@ export async function createCartCheckoutOrder(
     status: 'pending',
     appSource: input.appSource ?? 'shop',
     recommendationContext: lines.length === 1 ? undefined : cartContext,
+    promoChannelCode: promoChannelCodeFromCheckoutRequest(req) ?? undefined,
   });
 
   const successUrl = input.successUrl

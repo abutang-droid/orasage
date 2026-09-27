@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from './i18n/navigation';
 import { ORASAGE_PATHNAME_HEADER, stripLocalePrefix } from './lib/portal-pathname';
 import { externalUrls } from './lib/urls';
+import { stampPromoChannelCookie } from '../../shared/promo-channel/index';
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -87,19 +88,24 @@ function applyHtmlCacheHeaders(request: NextRequest, response: NextResponse) {
 }
 
 export default function middleware(request: NextRequest) {
+  const stamp = (response: NextResponse) => {
+    stampPromoChannelCookie(request.nextUrl.hostname, request.nextUrl.searchParams, response.cookies);
+    return response;
+  };
+
   const deprecatedRedirect = redirectDeprecatedLocale(request);
-  if (deprecatedRedirect) return deprecatedRedirect;
+  if (deprecatedRedirect) return stamp(deprecatedRedirect);
 
   const templeRedirect = redirectTemple(request);
-  if (templeRedirect) return templeRedirect;
+  if (templeRedirect) return stamp(templeRedirect);
 
   const zhRedirect = redirectZhAlias(request);
-  if (zhRedirect) return zhRedirect;
+  if (zhRedirect) return stamp(zhRedirect);
 
   const response = intlMiddleware(request);
   response.headers.set(ORASAGE_PATHNAME_HEADER, stripLocalePrefix(request.nextUrl.pathname));
   applyHtmlCacheHeaders(request, response);
-  return response;
+  return stamp(response);
 }
 
 export const config = {

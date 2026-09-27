@@ -38,7 +38,7 @@ export const STAFF_PERMISSION_LABELS: Record<StaffPermission, string> = {
   'shop.orders': '订单履约',
   'shop.diy': 'DIY 物料',
   'shop.shipping': '运费模板',
-  'shop.promotions': '促销券',
+  'shop.promotions': '促销与推广',
   'shop.reviews': '评价管理',
   'billing.slots': '应用计费槽位',
   'content.cms': 'CMS 全部内容',

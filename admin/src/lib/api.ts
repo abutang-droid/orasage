@@ -594,6 +594,94 @@ export function saveCoupons(coupons: Array<Omit<AdminCoupon, 'id' | 'usedCount' 
   });
 }
 
+/* ── 推广渠道分佣 ──────────────────────────────────── */
+
+export type AdminPromoLegKind = 'gold' | 'silver' | 'standard';
+export type AdminPromoLegStatus = 'pending' | 'settled' | 'void';
+
+export interface AdminPromoChannelStats {
+  paidOrders: number;
+  pendingCents: number;
+  settledCents: number;
+  voidCents: number;
+}
+
+export interface AdminPromoChannel {
+  id: number;
+  code: string;
+  name: string;
+  contact: string | null;
+  commissionBps: number;
+  commissionPercent: number;
+  leg: AdminPromoLegKind;
+  notes: string | null;
+  active: boolean;
+  shareUrl: string;
+  shareLinks: { portal: string; bazi: string; shop: string };
+  stats: AdminPromoChannelStats;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminPromoCommissionLeg {
+  id: number;
+  channelId: number;
+  orderNo: string;
+  orderCents: number;
+  rateBps: number;
+  commissionCents: number;
+  status: AdminPromoLegStatus;
+  settledAt: string | null;
+  createdAt: string;
+}
+
+export function getPromoChannels() {
+  return adminFetch<{ channels: AdminPromoChannel[] }>('/promo-channels');
+}
+
+export function getPromoChannel(id: number) {
+  return adminFetch<{ channel: AdminPromoChannel; legs: AdminPromoCommissionLeg[] }>(`/promo-channels/${id}`);
+}
+
+export function createPromoChannel(payload: {
+  code: string;
+  name: string;
+  contact?: string | null;
+  commissionPercent: number;
+  leg: AdminPromoLegKind;
+  notes?: string | null;
+  active: boolean;
+}) {
+  return adminFetch<{ channel: AdminPromoChannel }>('/promo-channels', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updatePromoChannel(id: number, payload: {
+  name?: string;
+  contact?: string | null;
+  commissionPercent?: number;
+  leg?: AdminPromoLegKind;
+  notes?: string | null;
+  active?: boolean;
+}) {
+  return adminFetch<{ channel: AdminPromoChannel }>(`/promo-channels/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function settlePromoChannel(id: number, legIds?: number[]) {
+  return adminFetch<{ channel: AdminPromoChannel; legs: AdminPromoCommissionLeg[] }>(
+    `/promo-channels/${id}/settle`,
+    {
+      method: 'POST',
+      body: JSON.stringify(legIds ? { legIds } : {}),
+    },
+  );
+}
+
 /* ── 数据统计（7b）──────────────────────────────────── */
 
 export interface AdminAnalyticsSummary {
