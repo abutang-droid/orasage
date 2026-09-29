@@ -529,8 +529,9 @@ export function VibeBaziReport({
         <button
           type="button"
           role="tab"
-          className="vr-tab"
+          className={`vr-tab${tab === "preview" ? " is-active" : ""}`}
           aria-selected={tab === "preview"}
+          data-testid="vibe-tab-preview"
           onClick={() => setTab("preview")}
         >
           免费预览
@@ -538,8 +539,9 @@ export function VibeBaziReport({
         <button
           type="button"
           role="tab"
-          className="vr-tab"
+          className={`vr-tab${tab === "detailed" ? " is-active" : ""}`}
           aria-selected={tab === "detailed"}
+          data-testid="vibe-tab-detailed"
           onClick={() => setTab("detailed")}
         >
           详细报告

@@ -93,7 +93,8 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.bazi-report-vibe .vr-tab[aria-selected="true"] {
+.bazi-report-vibe .vr-tab[aria-selected="true"],
+.bazi-report-vibe .vr-tab.is-active {
   background: var(--vibe-primary);
   color: var(--vibe-primary-foreground);
 }
