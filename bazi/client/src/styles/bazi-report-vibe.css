@@ -1,0 +1,228 @@
+/**
+ * Bazi report — Vibe Camp skin (scoped).
+ * Only applies under .bazi-report-vibe; does not change global OraSage tokens.
+ */
+
+.bazi-report-vibe {
+  --vibe-brand-50: #fff4ee;
+  --vibe-brand-500: #f7663c;
+  --vibe-brand-600: #f1481e;
+  --vibe-background: #e3dfd9;
+  --vibe-muted: #ece7e1;
+  --vibe-card: #f3f0eb;
+  --vibe-foreground: #211d1a;
+  --vibe-muted-foreground: #5c5650;
+  --vibe-primary: #f1481e;
+  --vibe-primary-foreground: #fff7f3;
+  --vibe-secondary: #1d1e20;
+  --vibe-border: #cbc3ba;
+  --vibe-input: #d7d1c9;
+  --vibe-accent: #ded7cf;
+  --vibe-chart-1: #f7663c;
+  --vibe-chart-2: #aea4fd;
+  --vibe-chart-3: #13b15a;
+  --vibe-chart-4: #84776e;
+  --vibe-chart-5: #fe9a45;
+  --vibe-radius: 18px;
+  --vibe-radius-sm: 8px;
+  --vibe-radius-md: 12px;
+  --vibe-font-serif: "Playfair Display", "Noto Serif SC", "Source Han Serif SC", serif;
+  --vibe-font-sans: "Noto Sans SC", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --vibe-font-mono: "Roboto Mono", ui-monospace, monospace;
+
+  background: var(--vibe-background);
+  color: var(--vibe-foreground);
+  font-family: var(--vibe-font-sans);
+  border-radius: 0;
+  margin: -0.5rem -1rem 0;
+  padding: 1.25rem 1rem 2.5rem;
+  min-height: 100%;
+}
+
+@media (min-width: 640px) {
+  .bazi-report-vibe {
+    margin: -0.5rem auto 0;
+    max-width: 480px;
+    border-radius: var(--vibe-radius);
+  }
+}
+
+.bazi-report-vibe .vr-card {
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-card);
+  border-radius: var(--vibe-radius);
+  padding: 1.25rem;
+}
+
+.bazi-report-vibe .vr-muted-box {
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-muted);
+  border-radius: var(--vibe-radius-md);
+}
+
+.bazi-report-vibe .vr-label {
+  font-family: var(--vibe-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vibe-muted-foreground);
+}
+
+.bazi-report-vibe .vr-serif {
+  font-family: var(--vibe-font-serif);
+}
+
+.bazi-report-vibe .vr-tabbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-muted);
+  border-radius: calc(var(--vibe-radius) + 6px);
+}
+
+.bazi-report-vibe .vr-tab {
+  border: none;
+  background: transparent;
+  border-radius: var(--vibe-radius);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--vibe-muted-foreground);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bazi-report-vibe .vr-tab[aria-selected="true"] {
+  background: var(--vibe-primary);
+  color: var(--vibe-primary-foreground);
+}
+
+.bazi-report-vibe .vr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-muted);
+  color: var(--vibe-muted-foreground);
+}
+
+.bazi-report-vibe .vr-chip-primary {
+  border-color: transparent;
+  background: var(--vibe-primary);
+  color: var(--vibe-primary-foreground);
+}
+
+.bazi-report-vibe .vr-chip-soft {
+  border-color: color-mix(in srgb, var(--vibe-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--vibe-primary) 10%, transparent);
+  color: var(--vibe-primary);
+}
+
+.bazi-report-vibe .vr-bar-track {
+  height: 0.625rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--vibe-muted);
+}
+
+.bazi-report-vibe .vr-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.bazi-report-vibe .vr-btn-primary {
+  border: none;
+  border-radius: var(--vibe-radius);
+  background: var(--vibe-primary);
+  color: var(--vibe-primary-foreground);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.65rem 1.25rem;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.bazi-report-vibe .vr-btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.bazi-report-vibe .vr-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.bazi-report-vibe .vr-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bazi-report-vibe .vr-btn-ghost {
+  border: 1px solid var(--vibe-border);
+  border-radius: var(--vibe-radius);
+  background: transparent;
+  color: var(--vibe-muted-foreground);
+  font-size: 0.875rem;
+  padding: 0.55rem 1rem;
+}
+
+.bazi-report-vibe .vr-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--vibe-radius-sm);
+  background: var(--vibe-primary);
+  color: var(--vibe-primary-foreground);
+}
+
+.bazi-report-vibe .vr-paywall {
+  overflow: hidden;
+  border: 1px solid var(--vibe-primary);
+  background: var(--vibe-card);
+  border-radius: var(--vibe-radius);
+}
+
+.bazi-report-vibe .vr-paywall-head {
+  background: var(--vibe-primary);
+  color: var(--vibe-primary-foreground);
+  padding: 1.25rem;
+}
+
+.bazi-report-vibe .vr-chapter {
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-card);
+  border-radius: var(--vibe-radius);
+  overflow: hidden;
+}
+
+.bazi-report-vibe .vr-chapter-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+.bazi-report-vibe .vr-chapter-body {
+  border-top: 1px solid var(--vibe-border);
+  padding: 0 1.25rem 1.25rem;
+}
+
+.bazi-report-vibe .vr-fade-in {
+  animation: vibe-fade-in 0.35s ease both;
+}
+
+@keyframes vibe-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
