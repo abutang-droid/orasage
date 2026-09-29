@@ -250,6 +250,7 @@ function VibePaywall({
         <div className="mt-4 space-y-2" role="radiogroup" aria-label={t("paywall.choose_tier", "选择报告方案")}>
           {plans.map((plan) => {
             const active = (selectedPlan ?? selected?.type) === plan.type;
+            const label = t(`plan.${plan.type}.name`, plan.name || plan.type);
             return (
               <button
                 key={plan.type}
@@ -267,7 +268,7 @@ function VibePaywall({
                   color: "var(--vibe-foreground)",
                 }}
               >
-                <span className="font-medium">{plan.name || plan.type}</span>
+                <span className="font-medium">{label}</span>
                 <span className="font-semibold" style={{ color: "var(--vibe-primary)" }}>
                   {loading ? "…" : plan.priceDisplay}
                 </span>
