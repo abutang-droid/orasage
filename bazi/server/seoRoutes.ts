@@ -37,11 +37,13 @@ ${urls}
 }
 
 function buildRobotsTxt(): string {
+  // /reports/* 需允许爬虫读取 OG/Twitter 元数据，否则分享预览空白；
+  // 报告本身不进 sitemap，避免被当作站点索引入口。
   return `User-agent: *
 Allow: /
+Allow: /reports/
 Disallow: /history
 Disallow: /api/
-Disallow: /reports/
 
 Sitemap: ${BASE}/sitemap.xml
 `;
