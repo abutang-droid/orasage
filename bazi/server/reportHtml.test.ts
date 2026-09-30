@@ -80,13 +80,17 @@ describe("renderMarkdown", () => {
     });
     expect(html).toContain("你的命局解读");
     expect(html).toContain("命盘总览");
-    expect(html).toContain('class="kw"');
+    expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
     expect(html).toContain("Orasage");
     expect(html).toContain("share-card");
     expect(html).toContain("data-share-open");
     expect(html).toContain("og:title");
     expect(html).toContain("五行分布");
+    expect(html).toContain("elements-donut");
+    expect(html).toContain("balance-gauge");
+    expect(html).toContain("weekly-timeline");
+    expect(html).toContain("core-insight-body");
     expect(html).toContain("解锁完整命局报告");
   });
 

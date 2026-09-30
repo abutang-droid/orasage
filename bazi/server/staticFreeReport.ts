@@ -30,7 +30,7 @@ export type ChartFingerprintInput = {
 };
 
 /** 模板大版本变化时递增，强制同盘重新物化 HTML（分享卡 / 详情版式） */
-export const STATIC_REPORT_TEMPLATE_VERSION = "detail-share-v1";
+export const STATIC_REPORT_TEMPLATE_VERSION = "detail-share-v2";
 
 /** 稳定盘面指纹 → chart_<16hex>，同盘同语言始终同一文件 */
 export function chartReportId(input: ChartFingerprintInput): string {
@@ -186,6 +186,7 @@ export function ensureStaticFreeReport(
       dayMasterLine: free.dayMasterLine,
       gridCaption: free.gridCaption,
       luckyLine: free.luckyLine,
+      favorable: input.favorable,
     },
   });
   fs.writeFileSync(absolutePath, html, "utf-8");

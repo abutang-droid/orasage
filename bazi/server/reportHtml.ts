@@ -7,7 +7,6 @@ import { extractSectionKeywords } from "../shared/section-keywords.ts";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { REPORT_PAGE_CSS } from "./reportHtmlStyles.ts";
 
-const CHAPTER_NUMERALS = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"];
 const WX_ORDER = ["木", "火", "土", "金", "水"] as const;
 const WX_EN: Record<string, string> = { 木: "Wood", 火: "Fire", 土: "Earth", 金: "Metal", 水: "Water" };
 const WX_CLASS: Record<string, string> = { 木: "wood", 火: "fire", 土: "earth", 金: "metal", 水: "water" };
@@ -48,6 +47,7 @@ export type ReportChartMeta = {
   dayMasterLine?: string;
   gridCaption?: string;
   luckyLine?: string;
+  favorable?: string[];
 };
 
 export type ReportPageOptions = {
@@ -193,15 +193,56 @@ function buildShareCopy(opts: {
   return { text, title, description };
 }
 
-function renderWuXingBlock(wuXing: Record<string, number>, locale: string): string {
+const WX_DONUT_COLOR: Record<string, string> = {
+  木: "#5B8C5A",
+  火: "#C96442",
+  土: "#CD7F32",
+  金: "#8A8A8A",
+  水: "#4A90B8",
+};
+
+type SectionKind = "insight" | "personality" | "talent" | "caution" | "action" | "default";
+
+function classifySection(title: string): SectionKind {
+  const t = title.toLowerCase();
+  if (/注意|风险|薄弱|caution|risk|weak/.test(t)) return "caution";
+  if (/天赋|优势|talent|strength|适合/.test(t)) return "talent";
+  if (/性格|日主|personality|character/.test(t)) return "personality";
+  if (/行动|建议|本周|action|week/.test(t)) return "action";
+  if (/需要|洞察|格局|矩阵|输出|补|insight|matrix|pattern/.test(t)) return "insight";
+  return "default";
+}
+
+function splitParagraphs(content: string): string[] {
+  return content
+    .split(/\n{2,}/)
+    .map((p) => p.replace(/\n/g, " ").trim())
+    .filter(Boolean);
+}
+
+function renderWuXingBlock(wuXing: Record<string, number>, locale: string, sectionNum: string): string {
   const total = WX_ORDER.reduce((s, k) => s + (Number(wuXing[k]) || 0), 0) || 1;
   const zh = locale.startsWith("zh");
-  const items = WX_ORDER.map((wx) => {
-    const val = Number(wuXing[wx]) || 0;
-    const pct = Math.round((val / total) * 100);
+  const pcts = WX_ORDER.map((wx) => Math.round(((Number(wuXing[wx]) || 0) / total) * 100));
+  // conic-gradient stops
+  let deg = 0;
+  const stops: string[] = [];
+  WX_ORDER.forEach((wx, i) => {
+    const next = deg + (pcts[i] / 100) * 360;
+    stops.push(`${WX_DONUT_COLOR[wx]} ${deg}deg ${next}deg`);
+    deg = next;
+  });
+  const conic = `conic-gradient(${stops.join(",")})`;
+
+  // balance: 100 - mean absolute deviation from 20%
+  const mad = pcts.reduce((s, p) => s + Math.abs(p - 20), 0) / 5;
+  const balance = Math.max(0, Math.min(100, Math.round(100 - mad * 2.2)));
+  const topWx = WX_ORDER.slice().sort((a, b) => (wuXing[b] || 0) - (wuXing[a] || 0)).slice(0, 2);
+
+  const items = WX_ORDER.map((wx, i) => {
+    const pct = pcts[i];
     const cls = WX_CLASS[wx];
     const name = zh ? `${wx} · ${WX_EN[wx]}` : `${WX_EN[wx]} · ${wx}`;
-    const desc = zh ? WX_DESC_ZH[wx] : WX_EN[wx];
     return `
 <div class="element-item">
   <div class="element-symbol ${cls}">${escapeHtml(wx)}</div>
@@ -210,18 +251,190 @@ function renderWuXingBlock(wuXing: Record<string, number>, locale: string): stri
     <div class="element-bar"><div class="element-bar-fill ${cls}" style="width:${pct}%"></div></div>
   </div>
   <div class="element-percent">${pct}%</div>
-  <div class="element-desc">${escapeHtml(desc)}</div>
+  <div class="element-desc">${escapeHtml(zh ? WX_DESC_ZH[wx] : WX_EN[wx])}</div>
+</div>`;
+  }).join("\n");
+
+  const insight = zh
+    ? `你的五行平衡度为 ${balance} 分，能量偏重于<strong>${topWx.join("、")}</strong>。这决定了你行动与表达的主调；补足偏弱的一面，能让节奏更稳。`
+    : `Balance score ${balance}/100, led by <strong>${topWx.map((w) => WX_EN[w]).join(" & ")}</strong>. Reinforcing weaker elements steadies the chart.`;
+
+  return `
+<section class="section" id="section-${sectionNum}" data-toc="${zh ? "五行分布" : "Elements"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "五行分布" : "Five Elements"}</h2>
+    <p class="section-subtitle">${zh ? "金木水火土在你命局中的能量占比与平衡度" : "Elemental weight and balance in this chart"}</p>
+  </div>
+  <div class="elements-grid">
+    <div class="elements-chart-wrapper">
+      <div class="elements-donut">
+        <div class="donut-ring" style="background:${conic}">
+          <div class="donut-inner">
+            <div class="donut-center-label">${zh ? "五行总量" : "Elements"}</div>
+            <div class="donut-center-value">100%</div>
+            <div class="donut-center-unit">Balance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="elements-list">${items}</div>
+  </div>
+  <div class="balance-section">
+    <div class="balance-gauge">
+      <div class="gauge-circle">
+        <div class="gauge-bg">
+          <div class="gauge-value">${balance}</div>
+          <div class="gauge-label">${zh ? "平衡度 / 100" : "Balance / 100"}</div>
+        </div>
+      </div>
+    </div>
+    <div class="balance-insight">
+      <h4>${zh ? "五行平衡解读" : "Balance reading"}</h4>
+      <p>${insight}</p>
+    </div>
+  </div>
+</section>`;
+}
+
+function renderTraitCards(keywords: string[]): string {
+  if (keywords.length === 0) return "";
+  const cards = keywords.slice(0, 6).map((kw, i) => `
+<div class="trait-card">
+  <div class="trait-card-num">${String(i + 1).padStart(2, "0")}</div>
+  <div class="trait-card-word">${escapeHtml(kw)}</div>
+  <div class="trait-card-desc"></div>
+</div>`).join("\n");
+  return `<div class="trait-cards-grid">${cards}</div>`;
+}
+
+function renderPersonalityBlock(section: ReportSection, num: string, keywords: string[]): string {
+  const paras = splitParagraphs(section.content);
+  const textHtml = paras.map((p) => `<p>${escapeHtml(p)}</p>`).join("\n");
+  const badges = ["木", "火", "↑", "◇"];
+  const traits = keywords.slice(0, 4).map((kw, i) => `
+<div class="trait-item">
+  <div class="trait-badge">${badges[i] || "◇"}</div>
+  <div class="trait-content">
+    <h5>${escapeHtml(kw)}</h5>
+    <p>${escapeHtml(paras[i + 1] || paras[0] || "").slice(0, 80)}</p>
+  </div>
+</div>`).join("\n");
+
+  return `
+<section class="section" id="section-${num}" data-toc="${escapeAttr(section.title)}">
+  <div class="section-header">
+    <div class="section-number">${num}</div>
+    <h2 class="section-title">${escapeHtml(section.title)}</h2>
+    <p class="section-subtitle">日主性格特质与行为模式</p>
+  </div>
+  <div class="personality-grid">
+    <div class="personality-text">${textHtml}</div>
+    <div class="personality-traits-list">${traits || `<div class="trait-item"><div class="trait-badge">◇</div><div class="trait-content"><h5>日主</h5><p>${escapeHtml(paras[0] || "").slice(0, 100)}</p></div></div>`}</div>
+  </div>
+  ${renderTraitCards(keywords)}
+</section>`;
+}
+
+function renderTalentBlock(section: ReportSection, num: string, keywords: string[]): string {
+  const paras = splitParagraphs(section.content);
+  const icons = ["木", "火", "土"];
+  const cards = (paras.length ? paras : [section.content]).slice(0, 3).map((p, i) => {
+    const title = keywords[i] || `优势 ${i + 1}`;
+    const tags = keywords.slice(i * 2, i * 2 + 3);
+    return `
+<div class="talent-card">
+  <div class="talent-icon">${icons[i] || "◇"}</div>
+  <h4>${escapeHtml(title)}</h4>
+  <p>${escapeHtml(p)}</p>
+  ${tags.length ? `<div class="talent-tag-label">关键词</div><div class="talent-tags">${tags.map((t) => `<span class="talent-tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
 </div>`;
   }).join("\n");
 
   return `
-<section class="section" id="section-wuxing" data-toc="五行分布">
+<section class="section" id="section-${num}" data-toc="${escapeAttr(section.title)}">
   <div class="section-header">
-    <div class="section-number">WX</div>
-    <h2 class="section-title">${zh ? "五行分布" : "Five Elements"}</h2>
-    <p class="section-subtitle">${zh ? "金木水火土在你命局中的能量占比" : "Relative elemental weight in this chart"}</p>
+    <div class="section-number">${num}</div>
+    <h2 class="section-title">${escapeHtml(section.title)}</h2>
+    <p class="section-subtitle">与生俱来的才华与容易取得成就的领域</p>
   </div>
-  <div class="elements-list">${items}</div>
+  <div class="talent-cards">${cards}</div>
+</section>`;
+}
+
+function renderCautionBlock(section: ReportSection, num: string): string {
+  const paras = splitParagraphs(section.content);
+  const head = paras[0] || section.title;
+  const rest = paras.slice(1);
+  const items = (rest.length ? rest : paras).slice(0, 3).map((p, i) => `
+<div class="caution-item">
+  <div class="caution-num">${i + 1}</div>
+  <div class="caution-content">
+    <h5>${escapeHtml(p.slice(0, 24))}${p.length > 24 ? "…" : ""}</h5>
+    <p>${escapeHtml(p)}</p>
+  </div>
+</div>`).join("\n");
+
+  return `
+<section class="section" id="section-${num}" data-toc="${escapeAttr(section.title)}">
+  <div class="section-header">
+    <div class="section-number">${num}</div>
+    <h2 class="section-title">${escapeHtml(section.title)}</h2>
+    <p class="section-subtitle">命局中的薄弱环节与需要警惕的倾向</p>
+  </div>
+  <div class="caution-callout">
+    <div class="caution-box">
+      <h3 class="caution-box-title">${escapeHtml(head.slice(0, 40))}</h3>
+      <p class="caution-box-desc">${escapeHtml(head)}</p>
+    </div>
+  </div>
+  <div class="caution-items">${items}</div>
+</section>`;
+}
+
+function renderWeeklyBlock(locale: string, favorable: string[] | undefined, sectionNum: string): string {
+  const zh = locale.startsWith("zh");
+  const cycle = (favorable && favorable.length ? favorable : ["木", "火", "土", "金", "水"]);
+  const tipsZh: Record<string, string> = {
+    木: "宜规划布局，开启新项目",
+    火: "宜创意表达，社交拓展",
+    土: "宜务实推进，财务整理",
+    金: "宜复盘总结，优化流程",
+    水: "宜学习充电，深度思考",
+  };
+  const tipsEn: Record<string, string> = {
+    木: "Plan & start",
+    火: "Create & connect",
+    土: "Execute & organize",
+    金: "Review & refine",
+    水: "Study & reflect",
+  };
+  const dayNames = zh
+    ? ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const today = new Date();
+  const cards = dayNames.map((name, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const wx = cycle[i % cycle.length];
+    const active = i === 0 ? " active" : "";
+    return `
+<div class="day-card${active}">
+  <div class="day-name">${name}</div>
+  <div class="day-date">${String(d.getDate()).padStart(2, "0")}</div>
+  <div class="day-icon">${escapeHtml(wx)}</div>
+  <div class="day-suggestion">${escapeHtml(zh ? (tipsZh[wx] || "宜顺应节奏") : (tipsEn[wx] || "Follow the flow"))}</div>
+</div>`;
+  }).join("\n");
+
+  return `
+<section class="section" id="section-${sectionNum}" data-toc="${zh ? "行动建议" : "Actions"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "本周行动建议" : "This week"}</h2>
+    <p class="section-subtitle">${zh ? "根据五行流转为你定制的每日能量指南" : "Daily cues from your elemental tilt"}</p>
+  </div>
+  <div class="weekly-timeline">${cards}</div>
 </section>`;
 }
 
@@ -231,39 +444,37 @@ function renderSectionBlock(
   opts?: { classic?: string; isFirst?: boolean },
 ): string {
   const num = String(index + 1).padStart(2, "0");
-  const numeral = CHAPTER_NUMERALS[index + 1] ?? String(index + 1);
   const keywords = extractSectionKeywords(section.content, section.title);
+  const kind = opts?.isFirst ? "insight" : classifySection(section.title);
+
+  if (kind === "personality") return renderPersonalityBlock(section, num, keywords);
+  if (kind === "talent") return renderTalentBlock(section, num, keywords);
+  if (kind === "caution") return renderCautionBlock(section, num);
+
   const bodyHtml = renderMarkdown(section.content);
-  const keywordHtml = keywords.length > 0
-    ? `<div class="kw-row">${keywords.map((kw) => `<span class="kw">${escapeHtml(kw)}</span>`).join("")}</div>`
+  const classicHtml = opts?.classic
+    ? `<div class="pull-quote"><p class="pull-quote-text">${escapeHtml(opts.classic)}</p></div>`
     : "";
-
-  let classicHtml = "";
-  if (opts?.isFirst && opts.classic) {
-    classicHtml = `
-<div class="pull-quote">
-  <p class="pull-quote-text">${escapeHtml(opts.classic)}</p>
-</div>`;
-  } else if (opts?.isFirst && keywords.length > 0) {
-    classicHtml = "";
-  }
-
-  const takeaway = keywords.length > 0 && opts?.isFirst
+  const takeaway = keywords.length > 0
     ? `<div class="key-takeaway"><div class="key-takeaway-box">
-        <div class="key-takeaway-label">Key Signals · 关键信号</div>
+        <div class="key-takeaway-label">${opts?.isFirst ? "你的核心能量" : "Key Signals"}</div>
         <ul class="key-takeaway-list">${keywords.slice(0, 5).map((kw) => `<li><strong>${escapeHtml(kw)}</strong></li>`).join("")}</ul>
       </div></div>`
     : "";
 
+  const bodyWrap = kind === "insight" || opts?.isFirst
+    ? `<div class="core-insight-body">${bodyHtml}</div>`
+    : `<div class="section-body">${bodyHtml}</div>`;
+
   return `
 <section class="section" id="section-${num}" data-toc="${escapeAttr(section.title)}">
   <div class="section-header">
-    <div class="section-number">${num} · ${numeral}</div>
+    <div class="section-number">${num}</div>
     <h2 class="section-title">${escapeHtml(section.title)}</h2>
+    ${opts?.isFirst ? `<p class="section-subtitle">你命局中最本质的能量特质与人生基调</p>` : ""}
   </div>
   ${classicHtml}
-  ${keywordHtml}
-  <div class="section-body">${bodyHtml}</div>
+  ${bodyWrap}
   ${takeaway}
 </section>`;
 }
@@ -397,6 +608,12 @@ function renderShareScript(payload: {
     }
   });
   onScroll();
+  document.querySelectorAll('.day-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      document.querySelectorAll('.day-card').forEach(function(c){ c.classList.remove('active'); });
+      card.classList.add('active');
+    });
+  });
 })();
 </script>`;
 }
@@ -451,7 +668,9 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
     }));
   }
   if (chart.wuXing && Object.keys(chart.wuXing).length > 0) {
-    contentSections.push(renderWuXingBlock(chart.wuXing, locale));
+    const n = String(sectionIdx + 1).padStart(2, "0");
+    sectionIdx++;
+    contentSections.push(renderWuXingBlock(chart.wuXing, locale, n));
   }
   for (let i = 1; i < sections.length; i++) {
     contentSections.push(renderSectionBlock(sections[i], sectionIdx++));
@@ -465,17 +684,24 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   </div>
   <div class="section-body">${renderMarkdown(brandedContent)}</div>
 </section>`);
+    sectionIdx = Math.max(sectionIdx, 1);
   }
   if (chart.luckyLine) {
     const n = String(sectionIdx + 1).padStart(2, "0");
+    sectionIdx++;
     contentSections.push(`
 <section class="section" id="section-${n}" data-toc="${zh ? "方向提示" : "Direction"}">
   <div class="section-header">
     <div class="section-number">${n}</div>
     <h2 class="section-title">${zh ? "方向提示" : "Direction"}</h2>
+    <p class="section-subtitle">${zh ? "顺着喜用走，比硬扛更省力" : "Lean into what supports this chart"}</p>
   </div>
-  <div class="section-body"><p>${escapeHtml(chart.luckyLine)}</p>${chart.gridCaption ? "" : ""}</div>
+  <div class="section-body"><p>${escapeHtml(chart.luckyLine)}</p></div>
 </section>`);
+  }
+  {
+    const n = String(sectionIdx + 1).padStart(2, "0");
+    contentSections.push(renderWeeklyBlock(locale, chart.favorable, n));
   }
 
   const tocItems = contentSections
@@ -574,7 +800,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
     <div class="star-compass">
       <span class="compass-n">☰</span><span class="compass-s">☷</span>
       <span class="compass-e">☲</span><span class="compass-w">☵</span>
-      <div class="compass-center"></div>
+      <div class="compass-center"><div class="compass-center-inner"></div></div>
     </div>
   </div>
   <div class="scroll-indicator"><span>Scroll</span><div class="scroll-indicator-line"></div></div>
