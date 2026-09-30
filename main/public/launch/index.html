@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OraSage · 上线倒计时</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #171717;
+    --deep: #6B7280;
+    --mid: #A1A1AA;
+    --line: #E7E5E4;
+    --paper: #FAFAF8;
+    --white: #FFFFFF;
+    --cinnabar: #A63F33;
+    --cinnabar-soft: #F6E8E4;
+    --ok: #16A34A;
+    --warn: #D97706;
+    --info: #2563EB;
+    --brand: #6366f1;
+    --product: #059669;
+    --package: #B45309;
+    --visual: #BE185D;
+    --digital: #0E7490;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Atmosphere: ink wash + paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -10%, rgba(23, 23, 23, 0.06), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 30%, rgba(166, 63, 51, 0.04), transparent 55%),
+      radial-gradient(ellipse 40% 35% at 0% 70%, rgba(23, 23, 23, 0.035), transparent 50%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    min-height: min(92vh, 820px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 72px 0 48px;
+    animation: rise 0.9s var(--ease) both;
+  }
+
+  .mark {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 28px;
+    animation: soft-in 1.1s var(--ease) 0.1s both;
+  }
+
+  .brand {
+    font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+    font-weight: 700;
+    font-size: clamp(42px, 8vw, 72px);
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .hero-tag {
+    font-size: 15px;
+    color: var(--deep);
+    letter-spacing: 0.04em;
+    margin-bottom: 40px;
+    max-width: 28em;
+  }
+
+  .countdown {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(72px, 110px));
+    gap: 12px;
+    margin-bottom: 28px;
+    animation: soft-in 1s var(--ease) 0.25s both;
+  }
+
+  .count-unit {
+    background: var(--white);
+    border: 1px solid var(--line);
+    padding: 18px 8px 14px;
+    position: relative;
+  }
+
+  .count-unit::after {
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 0;
+    height: 2px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: rule-draw 0.8s var(--ease) 0.5s both;
+  }
+
+  .count-num {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 600;
+    font-size: clamp(28px, 6vw, 44px);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .count-label {
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--deep);
+  }
+
+  .deadline {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--deep);
+    letter-spacing: 0.06em;
+  }
+
+  .deadline strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .hero-cta {
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    appearance: none;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 12px 22px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+  }
+
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  .launched .count-num { color: var(--cinnabar); }
+  .launched .deadline { color: var(--cinnabar); }
+
+  /* ===== Pulse strip ===== */
+  .pulse {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-bottom: 56px;
+    animation: rise 0.8s var(--ease) 0.35s both;
+  }
+
+  .pulse-item {
+    background: var(--white);
+    padding: 22px 16px;
+    text-align: center;
+  }
+
+  .pulse-value {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .pulse-label {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--deep);
+  }
+
+  .pulse-value.accent { color: var(--cinnabar); }
+
+  /* ===== Sections ===== */
+  section { margin-bottom: 56px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .section-meta {
+    font-size: 12px;
+    color: var(--deep);
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== Progress ring + current week ===== */
+  .now-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .ring-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+  }
+
+  .ring-wrap svg { transform: rotate(-90deg); }
+
+  .ring-track { fill: none; stroke: var(--line); stroke-width: 8; }
+  .ring-fill {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 502.65;
+    stroke-dashoffset: 502.65;
+    transition: stroke-dashoffset 1s var(--ease);
+  }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .ring-sub { font-size: 11px; color: var(--deep); letter-spacing: 0.12em; }
+
+  .now-copy h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .now-copy p {
+    font-size: 14px;
+    color: var(--deep);
+    margin-bottom: 16px;
+    max-width: 40em;
+  }
+
+  .focus-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .focus-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px solid var(--line);
+  }
+
+  .prio {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .prio.p0 { background: #DC2626; }
+  .prio.p1 { background: var(--warn); }
+  .prio.p2 { background: var(--info); }
+
+  .cat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ===== Milestones ===== */
+  .milestones {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .milestones::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: var(--line);
+    z-index: 0;
+  }
+
+  .ms {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 0 8px 8px;
+  }
+
+  .ms-dot {
+    width: 14px;
+    height: 14px;
+    margin: 16px auto 14px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    border-radius: 50%;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .ms.done .ms-dot { background: var(--ink); }
+  .ms.current .ms-dot {
+    background: var(--cinnabar);
+    border-color: var(--cinnabar);
+    box-shadow: 0 0 0 4px var(--cinnabar-soft);
+  }
+
+  .ms-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .ms.current .ms-code { color: var(--cinnabar); }
+
+  .ms-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .ms-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--deep);
+    margin-bottom: 8px;
+  }
+
+  .ms-deliver {
+    font-size: 12px;
+    color: var(--deep);
+    line-height: 1.45;
+  }
+
+  .ms-status {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+  }
+
+  .ms.done .ms-status { color: var(--ok); }
+  .ms.current .ms-status { color: var(--cinnabar); }
+
+  /* ===== Weeks ===== */
+  .weeks { display: flex; flex-direction: column; gap: 16px; }
+
+  .week {
+    background: var(--white);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .week.current { border-color: var(--ink); }
+
+  .week-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    background: transparent;
+    border: none;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+  }
+
+  .week.current .week-head { background: var(--ink); color: var(--paper); }
+
+  .week-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .week-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    min-width: 36px;
+  }
+
+  .week-range {
+    font-size: 13px;
+    opacity: 0.75;
+  }
+
+  .week-title { font-weight: 600; font-size: 14px; }
+
+  .week-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border: 1px solid currentColor;
+    opacity: 0.7;
+  }
+
+  .week.current .week-badge { opacity: 1; border-color: rgba(250,250,248,0.45); }
+
+  .week-body {
+    display: none;
+    padding: 4px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .week.open .week-body,
+  .week.current .week-body { display: block; }
+
+  .task {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 12px 18px;
+    border-bottom: 1px solid #f3f2f0;
+  }
+
+  .task:last-child { border-bottom: none; }
+
+  .task input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ink);
+    cursor: pointer;
+  }
+
+  .task-main { min-width: 0; }
+
+  .task-name {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .task.done .task-name {
+    text-decoration: line-through;
+    color: var(--mid);
+  }
+
+  .task-desc {
+    font-size: 12px;
+    color: var(--deep);
+    margin-top: 2px;
+  }
+
+  .task-meta {
+    font-size: 11px;
+    color: var(--mid);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ===== Legend + legend cats ===== */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 20px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--deep);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===== Budget compact ===== */
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .budget-cell {
+    background: var(--white);
+    border: 1px solid var(--line);
+    padding: 16px 14px;
+  }
+
+  .budget-cell .label {
+    font-size: 12px;
+    color: var(--deep);
+    margin-bottom: 6px;
+  }
+
+  .budget-cell .amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .budget-total {
+    text-align: center;
+    padding: 24px;
+    border: 1px solid var(--line);
+    background: var(--white);
+  }
+
+  .budget-total .label {
+    font-size: 12px;
+    color: var(--deep);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .budget-total .amount {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .budget-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--mid);
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--deep);
+  }
+
+  .footer .seal {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--cinnabar);
+    border: 1px solid var(--cinnabar);
+    padding: 4px 10px;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes soft-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes rule-draw {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @media (max-width: 860px) {
+    .pulse { grid-template-columns: repeat(2, 1fr); }
+    .now-grid { grid-template-columns: 1fr; }
+    .milestones { grid-template-columns: 1fr; gap: 16px; }
+    .milestones::before { display: none; }
+    .ms { text-align: left; display: grid; grid-template-columns: 14px 1fr; gap: 0 14px; }
+    .ms-dot { margin: 4px 0 0; grid-row: 1 / span 4; }
+    .budget-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 520px) {
+    .page { padding: 0 16px 64px; }
+    .hero { padding: 56px 0 36px; min-height: auto; }
+    .countdown { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .count-unit { padding: 14px 4px 12px; }
+    .budget-grid { grid-template-columns: 1fr; }
+    .task { grid-template-columns: 28px 1fr; }
+    .task-meta { grid-column: 2; text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Hero: brand + countdown -->
+    <header class="hero" id="hero">
+      <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355"
+              stroke="#171717" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="4.5" fill="#171717"/>
+      </svg>
+      <h1 class="brand">OraSage</h1>
+      <p class="hero-tag">手串品牌全链路产品开发 · 包装物料 · 数字交互 · 上线倒计时</p>
+
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="count-unit">
+          <div class="count-num" id="d">--</div>
+          <div class="count-label">Days</div>
+        </div>
+        <div class="count-unit">
+          <div class="count-num" id="h">--</div>
+          <div class="count-label">Hours</div>
+        </div>
+        <div class="count-unit">
+          <div class="count-num" id="m">--</div>
+          <div class="count-label">Mins</div>
+        </div>
+        <div class="count-unit">
+          <div class="count-num" id="s">--</div>
+          <div class="count-label">Secs</div>
+        </div>
+      </div>
+
+      <p class="deadline" id="deadline-line">
+        上线截止 <strong>2026-10-31</strong> · 启动 <strong>2026-10-01</strong> · 周期 4.5 周
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#now">本周焦点</a>
+        <a class="btn btn-ghost" href="#roadmap">完整排期</a>
+      </div>
+    </header>
+
+    <!-- Pulse -->
+    <div class="pulse" aria-label="项目概览">
+      <div class="pulse-item">
+        <div class="pulse-value accent" id="pulse-days">—</div>
+        <div class="pulse-label">距上线（天）</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" id="pulse-week">—</div>
+        <div class="pulse-label">当前周次</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" id="pulse-done">0/0</div>
+        <div class="pulse-label">清单勾选</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" id="pulse-ms">0/5</div>
+        <div class="pulse-label">里程碑达成</div>
+      </div>
+    </div>
+
+    <!-- Now -->
+    <section id="now">
+      <div class="section-head">
+        <h2 class="section-title">此刻进度</h2>
+        <span class="section-meta" id="now-meta">—</span>
+      </div>
+      <div class="now-grid">
+        <div class="ring-wrap" aria-hidden="true">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle class="ring-track" cx="90" cy="90" r="80"/>
+            <circle class="ring-fill" id="ring-fill" cx="90" cy="90" r="80"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="ring-pct">0%</div>
+            <div class="ring-sub">时间轴</div>
+          </div>
+        </div>
+        <div class="now-copy">
+          <h3 id="now-title">加载中…</h3>
+          <p id="now-desc"></p>
+          <ul class="focus-list" id="focus-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Milestones -->
+    <section id="milestones">
+      <div class="section-head">
+        <h2 class="section-title">关键里程碑</h2>
+        <span class="section-meta">M1 → M5 不可断裂的关键路径</span>
+      </div>
+      <div class="milestones" id="ms-track"></div>
+    </section>
+
+    <!-- Roadmap -->
+    <section id="roadmap">
+      <div class="section-head">
+        <h2 class="section-title">周排期与工作项</h2>
+        <span class="section-meta">勾选完成状态会保存在本机</span>
+      </div>
+
+      <div class="legend">
+        <span><i class="prio p0">P0</i> 核心路径，不可延期</span>
+        <span><i class="prio p1">P1</i> 紧跟核心路径</span>
+        <span><i class="prio p2">P2</i> 增值体验，可弹性</span>
+        <span><span class="cat-dot" style="background:var(--brand)"></span> 品牌</span>
+        <span><span class="cat-dot" style="background:var(--product)"></span> 产品</span>
+        <span><span class="cat-dot" style="background:var(--package)"></span> 包装</span>
+        <span><span class="cat-dot" style="background:var(--visual)"></span> 视觉</span>
+        <span><span class="cat-dot" style="background:var(--digital)"></span> 数字</span>
+      </div>
+
+      <div class="weeks" id="weeks"></div>
+    </section>
+
+    <!-- Budget -->
+    <section id="budget">
+      <div class="section-head">
+        <h2 class="section-title">预算快览</h2>
+        <span class="section-meta">来自进度表默认估值 · 可线下调</span>
+      </div>
+      <div class="budget-grid" id="budget-grid"></div>
+      <div class="budget-total">
+        <div class="label">项目总预算</div>
+        <div class="amount" id="budget-total">¥0</div>
+        <div class="budget-hint">明细与可编辑输入见原进度表；本页仅作上线冲刺看板</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>OraSage 上线倒计时 · 启动 2026-10-01 · 截止 2026-10-31</p>
+      <p style="margin-top:6px;opacity:0.75">建议每周一同步关键路径；勾选状态仅存于本浏览器 localStorage。</p>
+      <div class="seal">十月上线</div>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  const LAUNCH = new Date('2026-10-31T23:59:59+08:00');
+  const START = new Date('2026-10-01T00:00:00+08:00');
+  const STORAGE_KEY = 'orasage-launch-tasks-v1';
+
+  const CAT = {
+    brand:   { label: '品牌基础', color: 'var(--brand)' },
+    product: { label: '产品设计', color: 'var(--product)' },
+    package: { label: '包装物料', color: 'var(--package)' },
+    visual:  { label: '视觉内容', color: 'var(--visual)' },
+    digital: { label: '数字交互', color: 'var(--digital)' }
+  };
+
+  const MILESTONES = [
+    {
+      id: 'M1', name: '品牌定稿', date: '2026-10-07',
+      deliver: '商标查询、品牌故事、VI 视觉系统'
+    },
+    {
+      id: 'M2', name: '产品定稿', date: '2026-10-21',
+      deliver: '手串成品定稿 + BOM 清单'
+    },
+    {
+      id: 'M3', name: '包装完成', date: '2026-10-28',
+      deliver: '全套包装物料大货确认'
+    },
+    {
+      id: 'M4', name: '视觉完成', date: '2026-10-31',
+      deliver: '商品图全套 + 产品画册'
+    },
+    {
+      id: 'M5', name: '数字交付', date: '2026-10-31',
+      deliver: '展示架、互动屏、软件首页与报告页'
+    }
+  ];
+
+  const WEEKS = [
+    {
+      id: 'W1',
+      title: '品牌奠基',
+      start: '2026-10-01',
+      end: '2026-10-07',
+      summary: '品牌名保护、故事与 VI 必须在本周锁死，否则后续全部延误。',
+      tasks: [
+        { id: 'b1', cat: 'brand', prio: 0, name: '品牌名：OraSage', desc: '商标注册查询与保护', budget: 4000 },
+        { id: 'b2', cat: 'brand', prio: 0, name: '品牌故事', desc: '定位、理念、文案、调性确立', budget: 6000 },
+        { id: 'b3', cat: 'brand', prio: 0, name: '品牌视觉系统', desc: 'Logo、色系、字体、VI 基础规范', budget: 10000 },
+        { id: 'p1', cat: 'product', prio: 0, name: '珠子选型启动', desc: '材质/尺寸/供应商打样启动', budget: 0, note: true },
+        { id: 'p2', cat: 'product', prio: 0, name: '隔片 · 绳启动', desc: '造型与绳材方案启动', budget: 0, note: true }
+      ]
+    },
+    {
+      id: 'W2',
+      title: '产品成型 · 包装启动',
+      start: '2026-10-08',
+      end: '2026-10-14',
+      summary: '隔片/绳定稿推进，手串整体打样启动；吊牌·说明卡·证书进入设计。',
+      tasks: [
+        { id: 'p3', cat: 'product', prio: 0, name: '隔片定稿', desc: '材质工艺确定、开模或定制', budget: 4500 },
+        { id: 'p4', cat: 'product', prio: 0, name: '绳定稿', desc: '弹力/编织、配色、耐久测试', budget: 3000 },
+        { id: 'p5', cat: 'product', prio: 0, name: '手串整体设计打样', desc: '编织工艺、配色、首轮打样', budget: 7500 },
+        { id: 'k1', cat: 'package', prio: 1, name: '吊牌', desc: 'Logo + 产品信息、印刷工艺', budget: 3000 },
+        { id: 'k2', cat: 'package', prio: 1, name: '说明卡片', desc: '说明/保养/品牌介绍', budget: 2200 },
+        { id: 'k3', cat: 'package', prio: 1, name: '证书启动', desc: '鉴定/质保书、防伪、烫金', budget: 4500 }
+      ]
+    },
+    {
+      id: 'W3',
+      title: '产品锁版 · 包装深化',
+      start: '2026-10-15',
+      end: '2026-10-21',
+      summary: '手串成品定稿（M2）；绒布袋/飞机盒启动；商品图开拍；展示架进场。',
+      tasks: [
+        { id: 'p6', cat: 'product', prio: 0, name: '珠子定稿', desc: '打样对比完成，写入 BOM', budget: 15000 },
+        { id: 'p7', cat: 'product', prio: 0, name: '手串二轮定稿', desc: '第二轮打样快速定稿', budget: 0, note: true },
+        { id: 'k4', cat: 'package', prio: 1, name: '绒布袋', desc: '尺寸、绒色、Logo 刺绣/烫印', budget: 4000 },
+        { id: 'k5', cat: 'package', prio: 1, name: '飞机盒', desc: '盒型结构、克数、外印', budget: 5500 },
+        { id: 'k6', cat: 'package', prio: 1, name: '飞机盒贴纸', desc: '封口贴纸设计与印刷', budget: 1500 },
+        { id: 'v1', cat: 'visual', prio: 1, name: '商品图拍摄', desc: '多角度/场景/细节 + 修图', budget: 8000 },
+        { id: 'd1', cat: 'digital', prio: 2, name: '展示架', desc: '结构、材质、互动屏嵌入位', budget: 8000 }
+      ]
+    },
+    {
+      id: 'W4',
+      title: '包装收口 · 数字攻坚',
+      start: '2026-10-22',
+      end: '2026-10-28',
+      summary: '包装大货确认（M3）；画册与互动屏系统全面推进。',
+      tasks: [
+        { id: 'k7', cat: 'package', prio: 1, name: '包装大货确认', desc: '吊牌/卡/证书/袋/盒/贴纸齐套', budget: 0, note: true },
+        { id: 'v2', cat: 'visual', prio: 1, name: '产品画册', desc: '策划、版式、文案、印刷', budget: 12000 },
+        { id: 'd2', cat: 'digital', prio: 2, name: '互动屏', desc: '硬件选型、交互内容、UI 动效', budget: 22000 },
+        { id: 'd3', cat: 'digital', prio: 2, name: '软件首页', desc: 'UI、前端、品牌呈现、响应式', budget: 15000 },
+        { id: 'd4', cat: 'digital', prio: 2, name: '报告页', desc: '数据可视化、图表、接口', budget: 12000 }
+      ]
+    },
+    {
+      id: 'W5',
+      title: '视觉收尾 · 上线交付',
+      start: '2026-10-29',
+      end: '2026-10-31',
+      summary: '最终 72 小时：画册印刷、数字系统上线、全链路验收。',
+      tasks: [
+        { id: 'v3', cat: 'visual', prio: 1, name: '画册印刷交付', desc: '印刷完成并验收', budget: 0, note: true },
+        { id: 'd5', cat: 'digital', prio: 2, name: '数字系统上线', desc: '展示架成品 + 互动屏/软件交付', budget: 0, note: true },
+        { id: 'x1', cat: 'brand', prio: 0, name: '上线验收', desc: '全链路走查：产品·包装·视觉·数字', budget: 0, note: true }
+      ]
+    }
+  ];
+
+  /* —— helpers —— */
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function parseDay(iso) {
+    return new Date(iso + 'T12:00:00+08:00');
+  }
+
+  function startOfDay(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function formatYuan(n) {
+    return '¥' + Number(n).toLocaleString('zh-CN');
+  }
+
+  function loadDone() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveDone(map) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  }
+
+  function currentWeekIndex(now) {
+    const t = startOfDay(now).getTime();
+    if (t < parseDay(WEEKS[0].start).getTime()) return -1; // pre-start
+    for (let i = 0; i < WEEKS.length; i++) {
+      const s = startOfDay(parseDay(WEEKS[i].start)).getTime();
+      const e = startOfDay(parseDay(WEEKS[i].end)).getTime();
+      if (t >= s && t <= e) return i;
+    }
+    if (t > parseDay(WEEKS[WEEKS.length - 1].end).getTime()) return WEEKS.length; // past end
+    return WEEKS.length - 1;
+  }
+
+  /* —— countdown —— */
+  function tick() {
+    const now = new Date();
+    let diff = LAUNCH.getTime() - now.getTime();
+    const hero = document.getElementById('hero');
+    const line = document.getElementById('deadline-line');
+
+    if (diff <= 0) {
+      diff = 0;
+      hero.classList.add('launched');
+      line.innerHTML = '<strong>已到上线日</strong> · 2026-10-31 · 请完成最终验收';
+    }
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById('d').textContent = pad(days);
+    document.getElementById('h').textContent = pad(hours);
+    document.getElementById('m').textContent = pad(mins);
+    document.getElementById('s').textContent = pad(secs);
+    document.getElementById('pulse-days').textContent = String(days);
+  }
+
+  /* —— timeline progress —— */
+  function updateTimeline(now) {
+    const total = LAUNCH.getTime() - START.getTime();
+    const elapsed = Math.min(Math.max(now.getTime() - START.getTime(), 0), total);
+    const pct = Math.round((elapsed / total) * 100);
+    const circ = 2 * Math.PI * 80;
+    const ring = document.getElementById('ring-fill');
+    ring.style.strokeDasharray = String(circ);
+    ring.style.strokeDashoffset = String(circ * (1 - pct / 100));
+    document.getElementById('ring-pct').textContent = pct + '%';
+
+    const wi = currentWeekIndex(now);
+    let weekLabel = '筹备期';
+    if (wi < 0) weekLabel = '启动前';
+    else if (wi >= WEEKS.length) weekLabel = '已截止';
+    else weekLabel = WEEKS[wi].id;
+    document.getElementById('pulse-week').textContent = weekLabel;
+
+    const meta = document.getElementById('now-meta');
+    const title = document.getElementById('now-title');
+    const desc = document.getElementById('now-desc');
+    const list = document.getElementById('focus-list');
+    list.innerHTML = '';
+
+    if (wi < 0) {
+      meta.textContent = '距启动 ' + Math.ceil((START - now) / 86400000) + ' 天';
+      title.textContent = '项目即将启动';
+      desc.textContent = '2026-10-01 进入 W1：品牌名、故事与 VI 必须本周锁死。提前对齐商标代理与品牌设计师。';
+      WEEKS[0].tasks.slice(0, 3).forEach(function (t) {
+        list.appendChild(focusItem(t));
+      });
+    } else if (wi >= WEEKS.length) {
+      meta.textContent = '上线日已过';
+      title.textContent = '进入验收与复盘';
+      desc.textContent = '对照里程碑与工作项勾选，确认未关闭项并归档预算。';
+    } else {
+      const w = WEEKS[wi];
+      meta.textContent = w.id + ' · ' + w.start.slice(5).replace('-', '/') + '–' + w.end.slice(5).replace('-', '/');
+      title.textContent = w.id + ' · ' + w.title;
+      desc.textContent = w.summary;
+      w.tasks.filter(function (t) { return t.prio === 0; }).concat(
+        w.tasks.filter(function (t) { return t.prio !== 0; })
+      ).slice(0, 4).forEach(function (t) {
+        list.appendChild(focusItem(t));
+      });
+    }
+  }
+
+  function focusItem(t) {
+    const li = document.createElement('li');
+    li.innerHTML =
+      '<span class="prio p' + t.prio + '">P' + t.prio + '</span>' +
+      '<span class="cat-dot" style="background:' + CAT[t.cat].color + '"></span>' +
+      '<span>' + t.name + '</span>';
+    return li;
+  }
+
+  /* —— milestones —— */
+  function renderMilestones(now) {
+    const track = document.getElementById('ms-track');
+    track.innerHTML = '';
+    let doneCount = 0;
+    let currentSet = false;
+
+    MILESTONES.forEach(function (ms, idx) {
+      const due = startOfDay(parseDay(ms.date));
+      const today = startOfDay(now);
+      const el = document.createElement('div');
+      el.className = 'ms';
+
+      let status = '待开始';
+      if (today > due) {
+        el.classList.add('done');
+        status = '已过节点';
+        doneCount++;
+      } else if (!currentSet) {
+        el.classList.add('current');
+        status = '当前目标';
+        currentSet = true;
+      }
+
+      // If multiple share same date at end, mark remaining current siblings lightly
+      if (idx > 0 && ms.date === MILESTONES[idx - 1].date && el.classList.contains('done') === false &&
+          MILESTONES[idx - 1].date === ms.date && today <= due) {
+        // keep as pending if previous already current — allow dual current on launch day
+        const prev = track.children[idx - 1];
+        if (prev && prev.classList.contains('current')) {
+          el.classList.add('current');
+          status = '当前目标';
+        }
+      }
+
+      el.innerHTML =
+        '<div class="ms-dot"></div>' +
+        '<div class="ms-code">' + ms.id + '</div>' +
+        '<div class="ms-name">' + ms.name + '</div>' +
+        '<div class="ms-date">' + ms.date.slice(5).replace('-', '/') + '</div>' +
+        '<div class="ms-deliver">' + ms.deliver + '</div>' +
+        '<div class="ms-status">' + status + '</div>';
+      track.appendChild(el);
+    });
+
+    document.getElementById('pulse-ms').textContent = doneCount + '/' + MILESTONES.length;
+  }
+
+  /* —— weeks / tasks —— */
+  function allTaskIds() {
+    const ids = [];
+    WEEKS.forEach(function (w) {
+      w.tasks.forEach(function (t) { ids.push(t.id); });
+    });
+    return ids;
+  }
+
+  function renderWeeks(now) {
+    const done = loadDone();
+    const wrap = document.getElementById('weeks');
+    wrap.innerHTML = '';
+    const wi = currentWeekIndex(now);
+
+    WEEKS.forEach(function (w, idx) {
+      const week = document.createElement('div');
+      week.className = 'week';
+      if (idx === wi) week.classList.add('current', 'open');
+      else if (wi < 0 && idx === 0) week.classList.add('open');
+      else if (wi >= WEEKS.length && idx === WEEKS.length - 1) week.classList.add('open');
+
+      let badge = '未开始';
+      if (idx < wi) badge = '应完成';
+      else if (idx === wi) badge = '进行中';
+      else if (wi >= WEEKS.length) badge = '已截止';
+
+      const doneInWeek = w.tasks.filter(function (t) { return done[t.id]; }).length;
+
+      const head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'week-head';
+      head.innerHTML =
+        '<div class="week-left">' +
+          '<span class="week-id">' + w.id + '</span>' +
+          '<span class="week-title">' + w.title + '</span>' +
+          '<span class="week-range">' +
+            w.start.slice(5).replace('-', '/') + ' – ' + w.end.slice(5).replace('-', '/') +
+          '</span>' +
+        '</div>' +
+        '<span class="week-badge">' + badge + ' · ' + doneInWeek + '/' + w.tasks.length + '</span>';
+      head.addEventListener('click', function () {
+        week.classList.toggle('open');
+      });
+
+      const body = document.createElement('div');
+      body.className = 'week-body';
+
+      w.tasks.forEach(function (t) {
+        const row = document.createElement('div');
+        row.className = 'task' + (done[t.id] ? ' done' : '');
+        row.dataset.id = t.id;
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!done[t.id];
+        cb.setAttribute('aria-label', '标记完成：' + t.name);
+        cb.addEventListener('change', function () {
+          const map = loadDone();
+          if (cb.checked) map[t.id] = true;
+          else delete map[t.id];
+          saveDone(map);
+          row.classList.toggle('done', cb.checked);
+          refreshDoneCounts();
+          // refresh badge
+          const d2 = loadDone();
+          const n = w.tasks.filter(function (x) { return d2[x.id]; }).length;
+          head.querySelector('.week-badge').textContent = badge + ' · ' + n + '/' + w.tasks.length;
+        });
+
+        const main = document.createElement('div');
+        main.className = 'task-main';
+        main.innerHTML =
+          '<div class="task-name">' +
+            '<span class="prio p' + t.prio + '">P' + t.prio + '</span>' +
+            '<span class="cat-dot" style="background:' + CAT[t.cat].color + '"></span>' +
+            t.name +
+          '</div>' +
+          '<div class="task-desc">' + t.desc + '</div>';
+
+        const meta = document.createElement('div');
+        meta.className = 'task-meta';
+        meta.textContent = t.note ? CAT[t.cat].label : (t.budget ? formatYuan(t.budget) : CAT[t.cat].label);
+
+        row.appendChild(cb);
+        row.appendChild(main);
+        row.appendChild(meta);
+        body.appendChild(row);
+      });
+
+      week.appendChild(head);
+      week.appendChild(body);
+      wrap.appendChild(week);
+    });
+
+    refreshDoneCounts();
+  }
+
+  function refreshDoneCounts() {
+    const done = loadDone();
+    const ids = allTaskIds();
+    const n = ids.filter(function (id) { return done[id]; }).length;
+    document.getElementById('pulse-done').textContent = n + '/' + ids.length;
+  }
+
+  /* —— budget —— */
+  function renderBudget() {
+    const totals = { brand: 0, product: 0, package: 0, visual: 0, digital: 0 };
+    // Use canonical budgets from original table (ignore note rows with 0)
+    const canon = {
+      brand: 4000 + 6000 + 10000,
+      product: 15000 + 4500 + 3000 + 7500,
+      package: 3000 + 2200 + 4500 + 4000 + 5500 + 1500,
+      visual: 8000 + 12000,
+      digital: 8000 + 22000 + 15000 + 12000
+    };
+    Object.assign(totals, canon);
+
+    const grid = document.getElementById('budget-grid');
+    grid.innerHTML = '';
+    let grand = 0;
+    Object.keys(CAT).forEach(function (key) {
+      grand += totals[key];
+      const cell = document.createElement('div');
+      cell.className = 'budget-cell';
+      cell.innerHTML =
+        '<div class="label"><span class="cat-dot" style="background:' + CAT[key].color + ';display:inline-block;margin-right:6px"></span>' +
+        CAT[key].label + '</div>' +
+        '<div class="amount">' + formatYuan(totals[key]) + '</div>';
+      grid.appendChild(cell);
+    });
+    document.getElementById('budget-total').textContent = formatYuan(grand);
+  }
+
+  /* —— boot —— */
+  function refreshAll() {
+    const now = new Date();
+    tick();
+    updateTimeline(now);
+    renderMilestones(now);
+  }
+
+  renderWeeks(new Date());
+  renderBudget();
+  refreshAll();
+  setInterval(refreshAll, 1000);
+})();
+</script>
+</body>
+</html>
