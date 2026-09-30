@@ -174,3 +174,39 @@ export async function patchReadingReportUrl(readingId: string, reportUrl: string
     console.warn("[staticFreeReport] patch reading error", err);
   }
 }
+
+/** 将测试报告 upsert 到 auth user_readings，供后台「测试报告」列表展示 */
+export async function upsertReadingWithReport(opts: {
+  userId?: number | null;
+  readingId: string;
+  title: string;
+  summary?: string;
+  reportUrl: string;
+  payloadJson?: string;
+}): Promise<boolean> {
+  if (!opts.readingId?.trim() || !opts.reportUrl) return false;
+  try {
+    const res = await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: opts.userId && opts.userId > 0 ? opts.userId : 0,
+        appSource: "bazi",
+        readingId: opts.readingId,
+        title: opts.title,
+        summary: opts.summary,
+        reportUrl: opts.reportUrl,
+        payloadJson: opts.payloadJson,
+      }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      console.warn("[staticFreeReport] upsert reading failed", res.status, text.slice(0, 200));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn("[staticFreeReport] upsert reading error", err);
+    return false;
+  }
+}

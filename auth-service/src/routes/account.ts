@@ -606,19 +606,23 @@ accountRouter.post("/profiles/sync", async (req, res) => {
 });
 
 const readingSchema = z.object({
-  userId: z.number().int().positive(),
+  /** 0 = 游客/未登录测试报告 */
+  userId: z.number().int().nonnegative(),
   appSource: z.enum(["bazi", "ziwei", "tarot"]),
   readingId: z.string().min(1).max(100),
   title: z.string().min(1).max(200),
   summary: z.string().max(2000).optional(),
   recommendationReason: z.string().max(500).optional(),
   crystalSku: z.string().max(100).optional(),
+  reportUrl: z.string().url().max(512).optional(),
+  payloadJson: z.string().max(50000).optional(),
 });
 
 const readingUpdateSchema = z.object({
   reportUrl: z.string().url().max(512).optional(),
   title: z.string().max(200).optional(),
   summary: z.string().max(2000).optional(),
+  payloadJson: z.string().max(50000).optional(),
 });
 
 const orderSchema = z.object({
@@ -649,7 +653,24 @@ internalRouter.post("/readings", async (req, res) => {
     const body = readingSchema.parse(req.body);
     const existing = await db.select().from(userReadings).where(eq(userReadings.readingId, body.readingId)).limit(1);
     if (existing.length > 0) {
-      res.json({ success: true, id: existing[0].id, duplicate: true });
+      // upsert：同 readingId 补写报告 URL / 摘要（测试报告落库后台）
+      const updates: Record<string, unknown> = {};
+      if (body.title) updates.title = body.title;
+      if (body.summary !== undefined) updates.summary = body.summary ?? null;
+      if (body.recommendationReason !== undefined) {
+        updates.recommendationReason = body.recommendationReason ?? null;
+      }
+      if (body.crystalSku !== undefined) updates.crystalSku = body.crystalSku ?? null;
+      if (body.reportUrl !== undefined) updates.reportUrl = body.reportUrl ?? null;
+      if (body.payloadJson !== undefined) updates.payloadJson = body.payloadJson ?? null;
+      // 游客记录后续登录用户同步时，允许把 userId 从 0 升为真实用户
+      if (body.userId > 0 && existing[0].userId === 0) {
+        updates.userId = body.userId;
+      }
+      if (Object.keys(updates).length > 0) {
+        await db.update(userReadings).set(updates).where(eq(userReadings.id, existing[0].id));
+      }
+      res.json({ success: true, id: existing[0].id, duplicate: true, updated: Object.keys(updates).length > 0 });
       return;
     }
     const [row] = await db.insert(userReadings).values({
@@ -660,8 +681,10 @@ internalRouter.post("/readings", async (req, res) => {
       summary: body.summary,
       recommendationReason: body.recommendationReason,
       crystalSku: body.crystalSku,
+      reportUrl: body.reportUrl,
+      payloadJson: body.payloadJson,
     }).returning();
-    if (body.recommendationReason && body.crystalSku) {
+    if (body.recommendationReason && body.crystalSku && body.userId > 0) {
       await db.insert(userRecommendations).values({
         userId: body.userId,
         appSource: body.appSource,
@@ -715,6 +738,7 @@ internalRouter.patch("/readings/:readingId", async (req, res) => {
     if (body.reportUrl !== undefined) updates.reportUrl = body.reportUrl;
     if (body.title !== undefined) updates.title = body.title;
     if (body.summary !== undefined) updates.summary = body.summary;
+    if (body.payloadJson !== undefined) updates.payloadJson = body.payloadJson;
     if (Object.keys(updates).length === 0) {
       res.status(400).json({ error: "没有需要更新的字段" });
       return;
