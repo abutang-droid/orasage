@@ -169,8 +169,8 @@ function RadarChart({
       ))}
       <polygon
         points={dataPts}
-        fill="color-mix(in srgb, var(--vibe-primary) 18%, transparent)"
-        stroke="var(--vibe-primary)"
+        fill="color-mix(in srgb, var(--vibe-brand) 18%, transparent)"
+        stroke="var(--vibe-brand)"
         strokeWidth="2"
         strokeLinejoin="round"
       />
@@ -346,9 +346,9 @@ function VibeChapters({
       <div className="vr-card flex flex-col items-center gap-3 py-10">
         <div
           className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
-          style={{ borderColor: "var(--vibe-primary)", borderTopColor: "transparent" }}
+          style={{ borderColor: "var(--vibe-brand)", borderTopColor: "transparent" }}
         />
-        <p className="vr-serif text-sm" style={{ color: "var(--vibe-primary)" }}>
+        <p className="vr-serif text-sm" style={{ color: "var(--vibe-brand)" }}>
           {t("report.loading.main", "正在生成解读…")}
         </p>
       </div>
@@ -634,27 +634,27 @@ export function VibeBaziReport({
                   style={
                     p.day
                       ? {
-                          borderColor: "var(--vibe-primary)",
-                          background: "color-mix(in srgb, var(--vibe-primary) 10%, transparent)",
+                          borderColor: "var(--vibe-brand)",
+                          background: "var(--vibe-brand-faded)",
                         }
                       : undefined
                   }
                 >
                   <p
-                    className="text-[10px]"
-                    style={{ color: p.day ? "var(--vibe-primary)" : "var(--vibe-muted-foreground)" }}
+                    className="vr-sans text-[10px]"
+                    style={{ color: p.day ? "var(--vibe-brand-deep)" : "var(--vibe-text-light)" }}
                   >
                     {p.day ? `${p.label} · 日主` : p.label}
                   </p>
                   <p
-                    className="mt-1 text-lg font-semibold"
-                    style={{ color: p.day ? "var(--vibe-primary)" : "var(--vibe-foreground)" }}
+                    className="vr-display mt-1 text-lg font-medium"
+                    style={{ color: p.day ? "var(--vibe-brand-deep)" : "var(--vibe-foreground)" }}
                   >
                     {p.gan}
                   </p>
                   <p
-                    className="text-sm"
-                    style={{ color: p.day ? "var(--vibe-primary)" : "var(--vibe-muted-foreground)" }}
+                    className="vr-serif text-sm"
+                    style={{ color: p.day ? "var(--vibe-brand)" : "var(--vibe-muted-foreground)" }}
                   >
                     {p.zhi}
                   </p>

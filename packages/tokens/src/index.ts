@@ -8,12 +8,15 @@ export const CONTROL_HEIGHT_PX: Record<OrasageControlSize, number> = {
 };
 
 export const ORASAGE_COLORS = {
-  background: '#fafaf8',
+  background: '#faf9f5',
   surface: '#ffffff',
-  primary: '#171717',
-  secondary: '#6b7280',
-  muted: '#9ca3af',
-  border: '#e7e5e4',
-  gold: '#b8943f',
-  goldLight: '#d4b86a',
+  primary: '#3d3929',
+  secondary: '#6e6d68',
+  muted: '#9b988c',
+  border: '#dad9d4',
+  gold: '#c96442',
+  goldLight: '#e0a892',
+  brand: '#c96442',
+  cream: '#faf9f5',
+  creamCard: '#f5f4ef',
 } as const;
