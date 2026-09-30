@@ -569,57 +569,7 @@
     gap: 6px;
   }
 
-  /* ===== Budget compact ===== */
-  .budget-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .budget-cell {
-    background: var(--white);
-    border: 1px solid var(--line);
-    padding: 16px 14px;
-  }
-
-  .budget-cell .label {
-    font-size: 12px;
-    color: var(--deep);
-    margin-bottom: 6px;
-  }
-
-  .budget-cell .amount {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .budget-total {
-    text-align: center;
-    padding: 24px;
-    border: 1px solid var(--line);
-    background: var(--white);
-  }
-
-  .budget-total .label {
-    font-size: 12px;
-    color: var(--deep);
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-  }
-
-  .budget-total .amount {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 36px;
-    font-weight: 700;
-  }
-
-  .budget-hint {
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--mid);
-  }
+  /* ===== Footer ===== */
 
   /* ===== Footer ===== */
   .footer {
@@ -663,7 +613,6 @@
     .milestones::before { display: none; }
     .ms { text-align: left; display: grid; grid-template-columns: 14px 1fr; gap: 0 14px; }
     .ms-dot { margin: 4px 0 0; grid-row: 1 / span 4; }
-    .budget-grid { grid-template-columns: 1fr 1fr; }
   }
 
   @media (max-width: 520px) {
@@ -671,7 +620,6 @@
     .hero { padding: 56px 0 36px; min-height: auto; }
     .countdown { grid-template-columns: repeat(4, 1fr); gap: 6px; }
     .count-unit { padding: 14px 4px 12px; }
-    .budget-grid { grid-template-columns: 1fr; }
     .task { grid-template-columns: 28px 1fr; }
     .task-meta { grid-column: 2; text-align: left; }
   }
@@ -801,20 +749,6 @@
       <div class="weeks" id="weeks"></div>
     </section>
 
-    <!-- Budget -->
-    <section id="budget">
-      <div class="section-head">
-        <h2 class="section-title">预算快览</h2>
-        <span class="section-meta">来自进度表默认估值 · 可线下调</span>
-      </div>
-      <div class="budget-grid" id="budget-grid"></div>
-      <div class="budget-total">
-        <div class="label">项目总预算</div>
-        <div class="amount" id="budget-total">¥0</div>
-        <div class="budget-hint">明细与可编辑输入见原进度表；本页仅作上线冲刺看板</div>
-      </div>
-    </section>
-
     <footer class="footer">
       <p>OraSage 上线倒计时 · 启动 2026-10-01 · 截止 2026-10-31</p>
       <p style="margin-top:6px;opacity:0.75">建议每周一同步关键路径；勾选状态仅存于本浏览器 localStorage。</p>
@@ -867,11 +801,11 @@
       end: '2026-10-07',
       summary: '品牌名保护、故事与 VI 必须在本周锁死，否则后续全部延误。',
       tasks: [
-        { id: 'b1', cat: 'brand', prio: 0, name: '品牌名：OraSage', desc: '商标注册查询与保护', budget: 4000 },
-        { id: 'b2', cat: 'brand', prio: 0, name: '品牌故事', desc: '定位、理念、文案、调性确立', budget: 6000 },
-        { id: 'b3', cat: 'brand', prio: 0, name: '品牌视觉系统', desc: 'Logo、色系、字体、VI 基础规范', budget: 10000 },
-        { id: 'p1', cat: 'product', prio: 0, name: '珠子选型启动', desc: '材质/尺寸/供应商打样启动', budget: 0, note: true },
-        { id: 'p2', cat: 'product', prio: 0, name: '隔片 · 绳启动', desc: '造型与绳材方案启动', budget: 0, note: true }
+        { id: 'b1', cat: 'brand', prio: 0, name: '品牌名：OraSage', desc: '商标注册查询与保护' },
+        { id: 'b2', cat: 'brand', prio: 0, name: '品牌故事', desc: '定位、理念、文案、调性确立' },
+        { id: 'b3', cat: 'brand', prio: 0, name: '品牌视觉系统', desc: 'Logo、色系、字体、VI 基础规范' },
+        { id: 'p1', cat: 'product', prio: 0, name: '珠子选型启动', desc: '材质/尺寸/供应商打样启动', note: true },
+        { id: 'p2', cat: 'product', prio: 0, name: '隔片 · 绳启动', desc: '造型与绳材方案启动', note: true }
       ]
     },
     {
@@ -881,12 +815,12 @@
       end: '2026-10-14',
       summary: '隔片/绳定稿推进，手串整体打样启动；吊牌·说明卡·证书进入设计。',
       tasks: [
-        { id: 'p3', cat: 'product', prio: 0, name: '隔片定稿', desc: '材质工艺确定、开模或定制', budget: 4500 },
-        { id: 'p4', cat: 'product', prio: 0, name: '绳定稿', desc: '弹力/编织、配色、耐久测试', budget: 3000 },
-        { id: 'p5', cat: 'product', prio: 0, name: '手串整体设计打样', desc: '编织工艺、配色、首轮打样', budget: 7500 },
-        { id: 'k1', cat: 'package', prio: 1, name: '吊牌', desc: 'Logo + 产品信息、印刷工艺', budget: 3000 },
-        { id: 'k2', cat: 'package', prio: 1, name: '说明卡片', desc: '说明/保养/品牌介绍', budget: 2200 },
-        { id: 'k3', cat: 'package', prio: 1, name: '证书启动', desc: '鉴定/质保书、防伪、烫金', budget: 4500 }
+        { id: 'p3', cat: 'product', prio: 0, name: '隔片定稿', desc: '材质工艺确定、开模或定制' },
+        { id: 'p4', cat: 'product', prio: 0, name: '绳定稿', desc: '弹力/编织、配色、耐久测试' },
+        { id: 'p5', cat: 'product', prio: 0, name: '手串整体设计打样', desc: '编织工艺、配色、首轮打样' },
+        { id: 'k1', cat: 'package', prio: 1, name: '吊牌', desc: 'Logo + 产品信息、印刷工艺' },
+        { id: 'k2', cat: 'package', prio: 1, name: '说明卡片', desc: '说明/保养/品牌介绍' },
+        { id: 'k3', cat: 'package', prio: 1, name: '证书启动', desc: '鉴定/质保书、防伪、烫金' }
       ]
     },
     {
@@ -896,13 +830,13 @@
       end: '2026-10-21',
       summary: '手串成品定稿（M2）；绒布袋/飞机盒启动；商品图开拍；展示架进场。',
       tasks: [
-        { id: 'p6', cat: 'product', prio: 0, name: '珠子定稿', desc: '打样对比完成，写入 BOM', budget: 15000 },
-        { id: 'p7', cat: 'product', prio: 0, name: '手串二轮定稿', desc: '第二轮打样快速定稿', budget: 0, note: true },
-        { id: 'k4', cat: 'package', prio: 1, name: '绒布袋', desc: '尺寸、绒色、Logo 刺绣/烫印', budget: 4000 },
-        { id: 'k5', cat: 'package', prio: 1, name: '飞机盒', desc: '盒型结构、克数、外印', budget: 5500 },
-        { id: 'k6', cat: 'package', prio: 1, name: '飞机盒贴纸', desc: '封口贴纸设计与印刷', budget: 1500 },
-        { id: 'v1', cat: 'visual', prio: 1, name: '商品图拍摄', desc: '多角度/场景/细节 + 修图', budget: 8000 },
-        { id: 'd1', cat: 'digital', prio: 2, name: '展示架', desc: '结构、材质、互动屏嵌入位', budget: 8000 }
+        { id: 'p6', cat: 'product', prio: 0, name: '珠子定稿', desc: '打样对比完成，写入 BOM' },
+        { id: 'p7', cat: 'product', prio: 0, name: '手串二轮定稿', desc: '第二轮打样快速定稿', note: true },
+        { id: 'k4', cat: 'package', prio: 1, name: '绒布袋', desc: '尺寸、绒色、Logo 刺绣/烫印' },
+        { id: 'k5', cat: 'package', prio: 1, name: '飞机盒', desc: '盒型结构、克数、外印' },
+        { id: 'k6', cat: 'package', prio: 1, name: '飞机盒贴纸', desc: '封口贴纸设计与印刷' },
+        { id: 'v1', cat: 'visual', prio: 1, name: '商品图拍摄', desc: '多角度/场景/细节 + 修图' },
+        { id: 'd1', cat: 'digital', prio: 2, name: '展示架', desc: '结构、材质、互动屏嵌入位' }
       ]
     },
     {
@@ -912,11 +846,11 @@
       end: '2026-10-28',
       summary: '包装大货确认（M3）；画册与互动屏系统全面推进。',
       tasks: [
-        { id: 'k7', cat: 'package', prio: 1, name: '包装大货确认', desc: '吊牌/卡/证书/袋/盒/贴纸齐套', budget: 0, note: true },
-        { id: 'v2', cat: 'visual', prio: 1, name: '产品画册', desc: '策划、版式、文案、印刷', budget: 12000 },
-        { id: 'd2', cat: 'digital', prio: 2, name: '互动屏', desc: '硬件选型、交互内容、UI 动效', budget: 22000 },
-        { id: 'd3', cat: 'digital', prio: 2, name: '软件首页', desc: 'UI、前端、品牌呈现、响应式', budget: 15000 },
-        { id: 'd4', cat: 'digital', prio: 2, name: '报告页', desc: '数据可视化、图表、接口', budget: 12000 }
+        { id: 'k7', cat: 'package', prio: 1, name: '包装大货确认', desc: '吊牌/卡/证书/袋/盒/贴纸齐套', note: true },
+        { id: 'v2', cat: 'visual', prio: 1, name: '产品画册', desc: '策划、版式、文案、印刷' },
+        { id: 'd2', cat: 'digital', prio: 2, name: '互动屏', desc: '硬件选型、交互内容、UI 动效' },
+        { id: 'd3', cat: 'digital', prio: 2, name: '软件首页', desc: 'UI、前端、品牌呈现、响应式' },
+        { id: 'd4', cat: 'digital', prio: 2, name: '报告页', desc: '数据可视化、图表、接口' }
       ]
     },
     {
@@ -926,9 +860,9 @@
       end: '2026-10-31',
       summary: '最终 72 小时：画册印刷、数字系统上线、全链路验收。',
       tasks: [
-        { id: 'v3', cat: 'visual', prio: 1, name: '画册印刷交付', desc: '印刷完成并验收', budget: 0, note: true },
-        { id: 'd5', cat: 'digital', prio: 2, name: '数字系统上线', desc: '展示架成品 + 互动屏/软件交付', budget: 0, note: true },
-        { id: 'x1', cat: 'brand', prio: 0, name: '上线验收', desc: '全链路走查：产品·包装·视觉·数字', budget: 0, note: true }
+        { id: 'v3', cat: 'visual', prio: 1, name: '画册印刷交付', desc: '印刷完成并验收', note: true },
+        { id: 'd5', cat: 'digital', prio: 2, name: '数字系统上线', desc: '展示架成品 + 互动屏/软件交付', note: true },
+        { id: 'x1', cat: 'brand', prio: 0, name: '上线验收', desc: '全链路走查：产品·包装·视觉·数字', note: true }
       ]
     }
   ];
@@ -944,9 +878,6 @@
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
-  function formatYuan(n) {
-    return '¥' + Number(n).toLocaleString('zh-CN');
-  }
 
   function loadDone() {
     try {
@@ -1031,7 +962,7 @@
     } else if (wi >= WEEKS.length) {
       meta.textContent = '上线日已过';
       title.textContent = '进入验收与复盘';
-      desc.textContent = '对照里程碑与工作项勾选，确认未关闭项并归档预算。';
+      desc.textContent = '对照里程碑与工作项勾选，确认未关闭项并做交付复盘。';
     } else {
       const w = WEEKS[wi];
       meta.textContent = w.id + ' · ' + w.start.slice(5).replace('-', '/') + '–' + w.end.slice(5).replace('-', '/');
@@ -1184,7 +1115,7 @@
 
         const meta = document.createElement('div');
         meta.className = 'task-meta';
-        meta.textContent = t.note ? CAT[t.cat].label : (t.budget ? formatYuan(t.budget) : CAT[t.cat].label);
+        meta.textContent = CAT[t.cat].label;
 
         row.appendChild(cb);
         row.appendChild(main);
@@ -1207,35 +1138,6 @@
     document.getElementById('pulse-done').textContent = n + '/' + ids.length;
   }
 
-  /* —— budget —— */
-  function renderBudget() {
-    const totals = { brand: 0, product: 0, package: 0, visual: 0, digital: 0 };
-    // Use canonical budgets from original table (ignore note rows with 0)
-    const canon = {
-      brand: 4000 + 6000 + 10000,
-      product: 15000 + 4500 + 3000 + 7500,
-      package: 3000 + 2200 + 4500 + 4000 + 5500 + 1500,
-      visual: 8000 + 12000,
-      digital: 8000 + 22000 + 15000 + 12000
-    };
-    Object.assign(totals, canon);
-
-    const grid = document.getElementById('budget-grid');
-    grid.innerHTML = '';
-    let grand = 0;
-    Object.keys(CAT).forEach(function (key) {
-      grand += totals[key];
-      const cell = document.createElement('div');
-      cell.className = 'budget-cell';
-      cell.innerHTML =
-        '<div class="label"><span class="cat-dot" style="background:' + CAT[key].color + ';display:inline-block;margin-right:6px"></span>' +
-        CAT[key].label + '</div>' +
-        '<div class="amount">' + formatYuan(totals[key]) + '</div>';
-      grid.appendChild(cell);
-    });
-    document.getElementById('budget-total').textContent = formatYuan(grand);
-  }
-
   /* —— boot —— */
   function refreshAll() {
     const now = new Date();
@@ -1245,7 +1147,6 @@
   }
 
   renderWeeks(new Date());
-  renderBudget();
   refreshAll();
   setInterval(refreshAll, 1000);
 })();
