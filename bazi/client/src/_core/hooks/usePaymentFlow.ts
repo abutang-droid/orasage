@@ -43,6 +43,8 @@ export interface PushReportParams {
   readingId?: string;
   reportContent: string;
   name: string;
+  /** 命盘摘要，写入付费固定页 chart 区 */
+  inputSummary?: Record<string, unknown>;
 }
 
 export function usePaymentFlow(mode: "single" | "couple" = "single") {
@@ -87,6 +89,18 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
   const buyPlanMutation = trpc.bazi.buyPlan.useMutation({
     onSuccess: (data) => {
       console.log("[OraSage] buyPlan SUCCESS:", data);
+      if (data && typeof data === "object" && "report_url" in data && data.report_url) {
+        try {
+          sessionStorage.setItem("bazi:staticReportUrl", String(data.report_url));
+          const pathMatch = String(data.report_url).match(/\/reports\/[^?#]+/);
+          if (pathMatch) sessionStorage.setItem("bazi:staticReportPath", pathMatch[0]);
+        } catch { /* ignore */ }
+        window.dispatchEvent(
+          new CustomEvent("bazi:static-report-upgraded", {
+            detail: { reportUrl: data.report_url },
+          }),
+        );
+      }
     },
     onError: (err) => {
       console.error("[OraSage] buyPlan failed:", err.message);
@@ -204,6 +218,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       reportContent: params.reportContent,
       email: state.buyerEmail,
       name: state.buyerName || params.name,
+      inputSummary: params.inputSummary,
     } as any);
   }, [buyPlanMutation, state.buyerEmail, state.buyerName, state.wooOrderId, state.shopOrderNo]);
 

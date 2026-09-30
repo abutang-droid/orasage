@@ -63,6 +63,8 @@ export type ReportPageOptions = {
   showUpgrade?: boolean;
   upgradeUrl?: string;
   locale?: string;
+  /** free = 排盘速览；paid = 付费全文。详情页与固定页共用同一文件，用此标记防降级覆盖 */
+  tier?: "free" | "paid";
 };
 
 /** 将一段 Markdown 文本转为安全的 HTML 片段 */
@@ -752,8 +754,10 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   const pageTitle = `OraSage · ${options.planLabel} · ${name}`;
   const ogImage = "https://bazi.orasage.com/brand/og.png";
 
+  const tier = options.tier ?? (options.showUpgrade ? "free" : "paid");
+
   return `<!doctype html>
-<html lang="${escapeAttr(locale)}">
+<html lang="${escapeAttr(locale)}" data-report-tier="${tier}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
