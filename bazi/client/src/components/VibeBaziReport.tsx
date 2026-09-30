@@ -10,18 +10,15 @@ import {
   BarChart3,
   Brain,
   Briefcase,
-  Calendar,
   Check,
   ChevronDown,
   Grid2x2,
   Heart,
   Lock,
   ShieldCheck,
-  Sparkles,
   Target,
   TrendingUp,
   Users,
-  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -227,21 +224,23 @@ function VibePaywall({
 
   return (
     <article className="vr-paywall" data-testid="bazi-paywall" data-dom-id="paywall-card">
-      <div className="vr-paywall-head">
-        <div className="flex items-center gap-2">
-          <Lock className="h-4 w-4" />
-          <p className="vr-label" style={{ color: "inherit", opacity: 0.9 }}>
-            完整报告
-          </p>
+      <div className="vr-paywall-glow" aria-hidden />
+      <div className="vr-paywall-body">
+        <div className="vr-diamond mb-3">
+          <span className="vr-diamond-dot" />
         </div>
-        <h3 className="mt-2 text-xl font-semibold">解锁完整命理报告</h3>
-        <p className="mt-1 text-sm opacity-90">七大章节 · 深度解读 · 大运流年推演</p>
-      </div>
-      <div className="p-5">
-        <div className="grid grid-cols-2 gap-2 text-sm" style={{ color: "var(--vibe-foreground)" }}>
+        <p className="vr-eyebrow mb-2">Unlock Full Report</p>
+        <h3 className="vr-display text-2xl font-medium" style={{ color: "var(--vibe-foreground)" }}>
+          解锁完整八字报告
+        </h3>
+        <p className="vr-serif mt-2 text-xs italic" style={{ color: "var(--vibe-muted-foreground)" }}>
+          七大章节深度解析 · 终身运程详细推演
+        </p>
+
+        <div className="mt-4 grid grid-cols-2 gap-2 text-left text-xs" style={{ color: "var(--vibe-foreground)" }}>
           {["命盘总览", "性格天赋", "事业财富", "感情关系", "健康管理", "大运流年", "开运建议"].map((label) => (
-            <span key={label} className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5" style={{ color: "var(--vibe-primary)" }} />
+            <span key={label} className="vr-sans flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5" style={{ color: "var(--vibe-brand)" }} />
               {label}
             </span>
           ))}
@@ -259,17 +258,15 @@ function VibePaywall({
                 aria-checked={active}
                 data-plan={plan.type}
                 onClick={() => onSelectPlan(plan.type)}
-                className="flex w-full items-center justify-between rounded-[var(--vibe-radius-md)] border px-3 py-2.5 text-left text-sm transition-colors"
+                className="vr-sans flex w-full items-center justify-between rounded-full border px-4 py-2.5 text-left text-sm transition-colors"
                 style={{
-                  borderColor: active ? "var(--vibe-primary)" : "var(--vibe-border)",
-                  background: active
-                    ? "color-mix(in srgb, var(--vibe-primary) 10%, transparent)"
-                    : "var(--vibe-muted)",
-                  color: "var(--vibe-foreground)",
+                  borderColor: active ? "var(--vibe-brand)" : "var(--vibe-border)",
+                  background: active ? "var(--vibe-brand-faded)" : "var(--vibe-surface)",
+                  color: active ? "var(--vibe-brand-deep)" : "var(--vibe-foreground)",
                 }}
               >
                 <span className="font-medium">{label}</span>
-                <span className="font-semibold" style={{ color: "var(--vibe-primary)" }}>
+                <span className="font-semibold" style={{ color: "var(--vibe-brand)" }}>
                   {loading ? "…" : plan.priceDisplay}
                 </span>
               </button>
@@ -277,28 +274,30 @@ function VibePaywall({
           })}
         </div>
 
-        <div className="mt-5 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-2xl font-semibold" style={{ color: "var(--vibe-foreground)" }}>
-              {loading ? "…" : selected?.priceDisplay ?? "—"}
-            </p>
+        <div className="mt-5 flex items-end justify-center gap-3">
+          <div className="vr-price">
+            {loading ? "…" : selected?.priceDisplay ?? "—"}
           </div>
-          <button
-            type="button"
-            className="vr-btn-primary"
-            data-testid="bazi-paywall-unlock"
-            disabled={!selected || payLoading}
-            onClick={() => {
-              if (!selected) return;
-              onSelectPlan(selected.type);
-              onPay(selected.type);
-            }}
-          >
-            {payLoading ? t("paywall.unlocking", "正在解锁…") : "立即解锁"}
-          </button>
         </div>
+        <p className="vr-sans mt-1 text-[11px]" style={{ color: "var(--vibe-text-light)" }}>
+          / 完整报告
+        </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs" style={{ color: "var(--vibe-muted-foreground)" }}>
+        <button
+          type="button"
+          className="vr-btn-primary mt-4"
+          data-testid="bazi-paywall-unlock"
+          disabled={!selected || payLoading}
+          onClick={() => {
+            if (!selected) return;
+            onSelectPlan(selected.type);
+            onPay(selected.type);
+          }}
+        >
+          {payLoading ? t("paywall.unlocking", "正在解锁…") : "立即解锁 →"}
+        </button>
+
+        <div className="vr-sans mt-4 flex flex-wrap items-center justify-center gap-3 text-[11px]" style={{ color: "var(--vibe-muted-foreground)" }}>
           <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" />安全支付</span>
           <span className="flex items-center gap-1"><Archive className="h-3 w-3" />永久保存</span>
           <span className="flex items-center gap-1"><Users className="h-3 w-3" />3万+用户</span>
@@ -385,8 +384,10 @@ function VibeChapters({
               }}
             >
               <div>
-                <p className="vr-label">Chapter {String(index + 1).padStart(2, "0")}</p>
-                <h3 className="mt-1 text-base font-semibold" style={{ color: "var(--vibe-foreground)" }}>
+                <p className="vr-display text-sm italic" style={{ color: "var(--vibe-brand)", opacity: 0.6 }}>
+                  Chapter {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="vr-display mt-1 text-base font-medium" style={{ color: "var(--vibe-foreground)" }}>
                   {section.title}
                 </h3>
               </div>
@@ -501,27 +502,19 @@ export function VibeBaziReport({
 
   return (
     <div className="bazi-report-vibe vr-fade-in" data-dom-id="vibe-bazi-report">
-      <header className="mb-5" data-dom-id="report-header">
+      <header className="mb-6" data-dom-id="report-header">
         <div className="flex items-center justify-between gap-2">
-          <button type="button" onClick={onBack} className="vr-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5">
+          <button type="button" onClick={onBack} className="vr-btn-ghost">
             <ArrowLeft className="h-4 w-4" />
             {t("result.back", "返回")}
           </button>
-          <span className="vr-chip">OraSage</span>
+          <span className="vr-chip-soft">OraSage</span>
         </div>
-        <div className="mt-4 flex items-center gap-2">
-          <span
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--vibe-radius)]"
-            style={{ background: "var(--vibe-primary)", color: "var(--vibe-primary-foreground)" }}
-          >
-            <Calendar className="h-4 w-4" />
-          </span>
-          <span className="vr-label">Bazi Report</span>
-        </div>
-        <h1 className="vr-serif mt-3 text-[28px] leading-tight" style={{ color: "var(--vibe-foreground)" }}>
+        <p className="vr-eyebrow mt-5">Bazi Report · Design Spec</p>
+        <h1 className="vr-display mt-2 text-[32px] font-medium leading-tight" style={{ color: "var(--vibe-foreground)" }}>
           八字命盘报告
         </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
+        <p className="vr-serif mt-2 text-sm italic" style={{ color: "var(--vibe-muted-foreground)" }}>
           为{result.name || "你"}生成的专业命理分析
         </p>
       </header>
@@ -551,43 +544,40 @@ export function VibeBaziReport({
 
       {tab === "preview" ? (
         <section className="space-y-5" data-dom-id="section-preview">
-          <article className="vr-card" data-dom-id="hero-summary-card">
-            <div className="flex items-center gap-5">
-              <div
-                className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[var(--vibe-radius)] border"
-                style={{
-                  borderColor: "var(--vibe-primary)",
-                  background: "color-mix(in srgb, var(--vibe-primary) 10%, transparent)",
-                }}
-              >
-                <span className="vr-serif text-6xl leading-none" style={{ color: "var(--vibe-primary)" }}>
+          <article className="vr-card vr-card--soft" data-dom-id="hero-summary-card">
+            <div className="vr-hero-glow" aria-hidden />
+            <div className="vr-hero relative z-[1]">
+              <div className="flex flex-col items-center gap-2">
+                <span className="vr-hero-char">{result.riZhu}</span>
+                <span className="vr-label">Daymaster</span>
+                <span className="vr-display text-sm italic" style={{ color: "var(--vibe-muted-foreground)" }}>
                   {result.riZhu}
-                </span>
-                <span
-                  className="absolute -bottom-1.5 rounded-full px-2 py-0.5 text-[9px] font-medium"
-                  style={{ background: "var(--vibe-primary)", color: "var(--vibe-primary-foreground)" }}
-                >
-                  日主
+                  {wx}
                 </span>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="vr-chip-primary inline-flex">
-                  <Sparkles className="h-3 w-3" />
-                  <span>
-                    {result.riZhu}
-                    {wx}日主 · {strengthLabel}
-                  </span>
-                </div>
-                <h2 className="vr-serif mt-2 text-xl leading-tight" style={{ color: "var(--vibe-foreground)" }}>
-                  {result.name}的命盘解读
+              <div className="min-w-0">
+                <p className="vr-eyebrow">Your Daymaster</p>
+                <h2 className="vr-display mt-1 text-[22px] font-medium leading-tight" style={{ color: "var(--vibe-foreground)" }}>
+                  {result.riZhu}
+                  {wx}日主 · {strengthLabel}
                 </h2>
-                <p className="mt-1 text-xs" style={{ color: "var(--vibe-muted-foreground)" }}>
+                <p className="vr-quote-line mt-2">{free.dayMasterLine}</p>
+                <p className="vr-sans mt-2 text-xs" style={{ color: "var(--vibe-text-light)" }}>
                   {birthMeta}
                 </p>
               </div>
+              <div className="hidden flex-col gap-2 min-[420px]:flex">
+                {result.favorable?.length ? (
+                  <span className="vr-chip-success">喜用 · {result.favorable.join("")}</span>
+                ) : null}
+                {result.unfavorable?.length ? (
+                  <span className="vr-chip-danger">忌 · {result.unfavorable.join("")}</span>
+                ) : null}
+                <span className="vr-chip-purple">格局 · {strengthShortLabel}</span>
+              </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-4 gap-2 text-center text-sm">
+            <div className="relative z-[1] mt-5 grid grid-cols-4 gap-2 text-center text-sm">
               {pillars.map((p) => (
                 <div
                   key={p.key}
@@ -595,21 +585,21 @@ export function VibeBaziReport({
                   style={
                     p.day
                       ? {
-                          borderColor: "var(--vibe-primary)",
-                          background: "color-mix(in srgb, var(--vibe-primary) 10%, transparent)",
+                          borderColor: "var(--vibe-brand)",
+                          background: "var(--vibe-brand-faded)",
                         }
                       : undefined
                   }
                 >
                   <p
-                    className="text-[10px]"
-                    style={{ color: p.day ? "var(--vibe-primary)" : "var(--vibe-muted-foreground)" }}
+                    className="vr-sans text-[10px]"
+                    style={{ color: p.day ? "var(--vibe-brand-deep)" : "var(--vibe-text-light)" }}
                   >
                     {p.label}
                   </p>
                   <p
-                    className="mt-0.5 font-semibold"
-                    style={{ color: p.day ? "var(--vibe-primary)" : "var(--vibe-foreground)" }}
+                    className="vr-display mt-0.5 font-medium"
+                    style={{ color: p.day ? "var(--vibe-brand-deep)" : "var(--vibe-foreground)" }}
                   >
                     {p.gan}
                     {p.zhi}
@@ -618,21 +608,23 @@ export function VibeBaziReport({
               ))}
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              <span className="vr-chip">{free.dayMasterLine}</span>
+            <div className="relative z-[1] mt-3 flex flex-wrap gap-2 min-[420px]:hidden">
               {result.favorable?.length ? (
-                <span className="vr-chip-soft">喜用：{result.favorable.join("、")}</span>
+                <span className="vr-chip-success">喜用 · {result.favorable.join("")}</span>
               ) : null}
               {result.unfavorable?.length ? (
-                <span className="vr-chip">忌神：{result.unfavorable.join("、")}</span>
+                <span className="vr-chip-danger">忌 · {result.unfavorable.join("")}</span>
               ) : null}
             </div>
           </article>
 
           <article className="vr-card" data-dom-id="pillars-card">
             <div className="mb-4 flex items-center justify-between">
-              <p className="vr-label">四柱命盘</p>
-              <Grid2x2 className="h-4 w-4" style={{ color: "var(--vibe-muted-foreground)" }} />
+              <div>
+                <p className="vr-eyebrow-muted">Four Pillars</p>
+                <p className="vr-display mt-1 text-xl font-medium">四柱命盘</p>
+              </div>
+              <Grid2x2 className="h-4 w-4" style={{ color: "var(--vibe-text-light)" }} />
             </div>
             <div className="grid grid-cols-4 gap-2 text-center">
               {pillars.map((p) => (
@@ -673,8 +665,11 @@ export function VibeBaziReport({
 
           <article className="vr-card" data-dom-id="elements-card">
             <div className="mb-4 flex items-center justify-between">
-              <p className="vr-label">五行分布</p>
-              <BarChart3 className="h-4 w-4" style={{ color: "var(--vibe-muted-foreground)" }} />
+              <div>
+                <p className="vr-eyebrow-muted">Five Elements</p>
+                <p className="vr-display mt-1 text-xl font-medium">五行能量分布</p>
+              </div>
+              <BarChart3 className="h-4 w-4" style={{ color: "var(--vibe-text-light)" }} />
             </div>
             <div className="mb-5">
               <DonutChart slices={barSlices} />
@@ -704,85 +699,85 @@ export function VibeBaziReport({
             </div>
 
             <div
-              className="mt-4 flex flex-wrap items-center gap-2 rounded-[var(--vibe-radius-md)] border p-3"
+              className="mt-4 flex flex-wrap items-center gap-2 rounded-[var(--vibe-radius-sm)] border p-3"
               style={{
-                borderColor: "color-mix(in srgb, var(--vibe-primary) 30%, transparent)",
-                background: "color-mix(in srgb, var(--vibe-primary) 10%, transparent)",
+                borderColor: "var(--vibe-brand-faded)",
+                background: "var(--vibe-brand-faded)",
               }}
             >
               <span
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px]"
-                style={{ background: "var(--vibe-primary)", color: "var(--vibe-primary-foreground)" }}
+                className="vr-sans inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold"
+                style={{ background: "var(--vibe-brand)", color: "#fff" }}
               >
                 衡
               </span>
-              <p className="text-sm">
+              <p className="vr-sans text-sm">
                 <span className="font-medium">五行旺相：</span>
-                <span style={{ color: "var(--vibe-primary)" }}>
+                <span style={{ color: "var(--vibe-brand-deep)" }}>
                   {(balance.wang.length ? balance.wang : balance.ci).join("、") || "均衡"}
                 </span>
                 {balance.ruo.length ? (
                   <span style={{ color: "var(--vibe-muted-foreground)" }}> · {balance.ruo.join("、")}弱</span>
                 ) : null}
               </p>
-              <p className="w-full text-xs" style={{ color: "var(--vibe-muted-foreground)" }}>
+              <p className="vr-serif w-full text-xs italic" style={{ color: "var(--vibe-muted-foreground)" }}>
                 {free.luckyLine}
               </p>
             </div>
 
             <div className="mt-6">
               <div className="mb-3 flex items-center justify-between">
-                <p className="vr-label">五行雷达图</p>
-                <Target className="h-4 w-4" style={{ color: "var(--vibe-muted-foreground)" }} />
+                <p className="vr-eyebrow-muted">Radar</p>
+                <Target className="h-4 w-4" style={{ color: "var(--vibe-text-light)" }} />
               </div>
               <RadarChart slices={barSlices} />
             </div>
           </article>
 
           <article className="vr-card" data-dom-id="energy-card">
-            <div className="mb-4 flex items-center gap-2">
-              <Zap className="h-4 w-4" style={{ color: "var(--vibe-primary)" }} />
-              <p className="vr-label">日主能量层</p>
+            <div className="mb-4">
+              <p className="vr-eyebrow">Energy Layer</p>
+              <p className="vr-display mt-1 text-xl font-medium">日主能量等级</p>
             </div>
             <div className="flex items-center gap-5">
               <div className="relative h-28 w-28 shrink-0">
                 <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" aria-hidden>
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--vibe-muted)" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--vibe-card)" strokeWidth="8" />
                   <circle
                     cx="50"
                     cy="50"
                     r="42"
                     fill="none"
-                    stroke="var(--vibe-primary)"
+                    stroke="var(--vibe-brand)"
                     strokeWidth="8"
                     strokeLinecap="round"
                     strokeDasharray={energyDash}
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-semibold">{pct}%</span>
-                  <span className="text-[10px]" style={{ color: "var(--vibe-muted-foreground)" }}>
+                  <span className="vr-display text-2xl font-medium">{pct}%</span>
+                  <span className="vr-sans text-[10px]" style={{ color: "var(--vibe-muted-foreground)" }}>
                     {strengthShortLabel}
                   </span>
                 </div>
               </div>
-              <p className="flex-1 text-sm leading-relaxed" style={{ color: "var(--vibe-foreground)" }}>
+              <p className="vr-serif flex-1 text-sm leading-relaxed" style={{ color: "var(--vibe-foreground)" }}>
                 {free.sections[0]?.body ?? free.dayMasterLine}
               </p>
             </div>
           </article>
 
           <article className="vr-card" data-dom-id="insight-card">
-            <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4" style={{ color: "var(--vibe-primary)" }} />
-              <p className="vr-label">核心洞察</p>
-            </div>
-            <p className="text-[15px] leading-relaxed" style={{ color: "var(--vibe-foreground)" }}>
+            <p className="vr-eyebrow mb-2">Core Insight · 核心洞察</p>
+            <h3 className="vr-display text-[22px] font-medium" style={{ color: "var(--vibe-foreground)" }}>
+              你的日主性格
+            </h3>
+            <p className="vr-drop-cap vr-serif mt-4 text-[15px] leading-[1.8]" style={{ color: "var(--vibe-foreground)" }}>
               {free.sections[1]?.body ?? free.sections[0]?.body}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {[strengthShortLabel, wx, ...(result.favorable ?? []).slice(0, 2)].filter(Boolean).map((tag) => (
-                <span key={tag} className="vr-chip-primary">
+                <span key={tag} className="vr-chip-soft">
                   {tag}
                 </span>
               ))}
@@ -790,16 +785,9 @@ export function VibeBaziReport({
           </article>
 
           <article className="vr-card" data-dom-id="ai-reading-card">
-            <div className="mb-3 flex items-center gap-2">
-              <span
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px]"
-                style={{ background: "var(--vibe-primary)", color: "var(--vibe-primary-foreground)" }}
-              >
-                <Sparkles className="h-3 w-3" />
-              </span>
-              <p className="vr-label">白话速读</p>
-            </div>
-            <p className="text-[15px] leading-relaxed" style={{ color: "var(--vibe-foreground)" }}>
+            <p className="vr-eyebrow mb-2">Vernacular Brief</p>
+            <h3 className="vr-display text-xl font-medium">白话速读</h3>
+            <p className="vr-serif mt-3 text-[15px] leading-[1.8]" style={{ color: "var(--vibe-foreground)" }}>
               {free.sections[2]?.body ?? free.sections[0]?.body}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -812,7 +800,10 @@ export function VibeBaziReport({
           </article>
 
           <section className="space-y-3" data-dom-id="chapter-teasers">
-            <p className="vr-label">章节速览</p>
+            <div>
+              <p className="vr-eyebrow-muted">Chapters</p>
+              <p className="vr-display mt-1 text-xl font-medium">章节速览</p>
+            </div>
             {teasers.map((teaser) => (
               <article key={teaser.title} className="vr-card flex items-start gap-3 !rounded-[var(--vibe-radius-md)] !p-3">
                 <span className="vr-icon-box">
@@ -855,8 +846,10 @@ export function VibeBaziReport({
                   <article key={title} className="vr-chapter opacity-70">
                     <div className="vr-chapter-toggle">
                       <div>
-                        <p className="vr-label">Chapter {String(i + 1).padStart(2, "0")}</p>
-                        <h3 className="mt-1 text-base font-semibold">{title}</h3>
+                        <p className="vr-display text-sm italic" style={{ color: "var(--vibe-brand)", opacity: 0.6 }}>
+                          Chapter {String(i + 1).padStart(2, "0")}
+                        </p>
+                        <h3 className="vr-display mt-1 text-base font-medium">{title}</h3>
                       </div>
                       <Lock className="h-4 w-4" style={{ color: "var(--vibe-muted-foreground)" }} />
                     </div>
@@ -896,12 +889,15 @@ export function VibeBaziReport({
         </section>
       )}
 
-      <footer className="mt-10 border-t pt-6 text-center" style={{ borderColor: "var(--vibe-border)" }}>
-        <p className="text-xs" style={{ color: "var(--vibe-muted-foreground)" }}>
-          八字排盘报告 · OraSage
+      <footer className="mt-10 border-t pt-6 text-center" style={{ borderColor: "var(--vibe-border-light)" }}>
+        <div className="vr-diamond mb-3">
+          <span className="vr-diamond-dot" />
+        </div>
+        <p className="vr-display text-sm italic" style={{ color: "var(--vibe-foreground)" }}>
+          OraSage
         </p>
-        <p className="mt-1 text-[10px]" style={{ color: "var(--vibe-muted-foreground)" }}>
-          仅作参考，不作为人生决策依据
+        <p className="vr-sans mt-1 text-[11px]" style={{ color: "var(--vibe-text-light)" }}>
+          八字报告设计规范 · 仅作参考，不作为人生决策依据
         </p>
       </footer>
 
