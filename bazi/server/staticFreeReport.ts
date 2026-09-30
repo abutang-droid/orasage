@@ -29,6 +29,9 @@ export type ChartFingerprintInput = {
   lang: string;
 };
 
+/** 模板大版本变化时递增，强制同盘重新物化 HTML（分享卡 / 详情版式） */
+export const STATIC_REPORT_TEMPLATE_VERSION = "detail-share-v1";
+
 /** 稳定盘面指纹 → chart_<16hex>，同盘同语言始终同一文件 */
 export function chartReportId(input: ChartFingerprintInput): string {
   const raw = [
@@ -40,6 +43,7 @@ export function chartReportId(input: ChartFingerprintInput): string {
     `${input.day.gan}${input.day.zhi}`,
     `${input.hour.gan}${input.hour.zhi}`,
     input.lang.startsWith("zh") ? "zh" : "en",
+    STATIC_REPORT_TEMPLATE_VERSION,
   ].join("|");
   const hash = crypto.createHash("sha256").update(raw, "utf8").digest("hex").slice(0, 16);
   return `chart_${hash}`;
@@ -47,19 +51,25 @@ export function chartReportId(input: ChartFingerprintInput): string {
 
 export function freeReportToMarkdown(free: FreeReport, opts?: { name?: string; birthStr?: string }): string {
   const lines: string[] = [];
-  lines.push(`### ${free.dayMasterLine}`);
-  lines.push("");
-  if (opts?.birthStr) {
-    lines.push(`${opts.name ? `${opts.name} · ` : ""}${opts.birthStr}`);
-    lines.push("");
-  }
-  if (free.gridCaption) {
-    lines.push(free.gridCaption);
-    lines.push("");
-  }
-  for (const section of free.sections) {
+  // 日主行 / 四柱说明已在详情页 hero 展示，正文从结构化章节开始
+  for (let i = 0; i < free.sections.length; i++) {
+    const section = free.sections[i];
     lines.push(`### ${section.title}`);
     lines.push("");
+    if (i === 0) {
+      if (opts?.birthStr) {
+        lines.push(`${opts.name ? `${opts.name} · ` : ""}${opts.birthStr}`);
+        lines.push("");
+      }
+      if (free.gridCaption) {
+        lines.push(free.gridCaption);
+        lines.push("");
+      }
+      if (free.dayMasterLine) {
+        lines.push(free.dayMasterLine);
+        lines.push("");
+      }
+    }
     lines.push(section.body);
     if (section.classic) {
       lines.push("");
@@ -149,11 +159,34 @@ export function ensureStaticFreeReport(
     birthStr: String(resultData.birthStr ?? ""),
   });
   const planLabel = lang.startsWith("zh") ? "结构速览" : "Structure Brief";
+  const wuXing = (resultData.wuXing && typeof resultData.wuXing === "object")
+    ? (resultData.wuXing as Record<string, number>)
+    : undefined;
   const html = buildReportPageHtml({
     planLabel,
     reportContent: markdown,
     subjectName: input.name || undefined,
     generatedAt: new Date(),
+    shareUrl: reportUrl,
+    showUpgrade: true,
+    upgradeUrl: `${BAZI_PUBLIC_URL.replace(/\/$/, "")}/`,
+    locale: lang,
+    chart: {
+      name: input.name,
+      birthStr: String(resultData.birthStr ?? ""),
+      birthplace: String(resultData.birthplace ?? resultData.cityName ?? ""),
+      gender: String(resultData.gender ?? ""),
+      riZhu: input.riZhu,
+      strength: input.strength,
+      year: input.year,
+      month: input.month,
+      day: input.day,
+      hour: input.hour,
+      wuXing,
+      dayMasterLine: free.dayMasterLine,
+      gridCaption: free.gridCaption,
+      luckyLine: free.luckyLine,
+    },
   });
   fs.writeFileSync(absolutePath, html, "utf-8");
   return { reportId, fileName, reportUrl, reportPath, reused: false, absolutePath };

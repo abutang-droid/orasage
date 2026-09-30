@@ -433,16 +433,34 @@ export const appRouter = router({
                 })
               : null;
 
+            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
             const staticHtml = buildReportPageHtml({
               planLabel,
               reportContent: brandedReport,
               subjectName: input.name || buyerName || undefined,
               productRecommend,
+              shareUrl: reportUrl,
+              showUpgrade: false,
+              locale: "zh-CN",
+              chart: summary
+                ? {
+                    name: input.name || buyerName || undefined,
+                    birthStr: String(summary.birthStr ?? summary.birth ?? ""),
+                    birthplace: String(summary.birthplace ?? summary.cityName ?? ""),
+                    gender: String(summary.gender ?? ""),
+                    riZhu: String(summary.riZhu ?? ""),
+                    strength: String(summary.strength ?? ""),
+                    year: summary.year as { gan: string; zhi: string } | undefined,
+                    month: summary.month as { gan: string; zhi: string } | undefined,
+                    day: summary.day as { gan: string; zhi: string } | undefined,
+                    hour: summary.hour as { gan: string; zhi: string } | undefined,
+                    wuXing,
+                  }
+                : null,
             });
 
             const filePath = path.join(reportsDir, fileName);
             fs.writeFileSync(filePath, staticHtml, 'utf-8');
-            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
             console.log('[StaticReport] Saved to:', filePath, 'size:', fs.statSync(filePath).size, 'URL:', reportUrl);
 
             // 更新 purchase 记录：设置 reportUrl，标记 push 状态初始为 pending
