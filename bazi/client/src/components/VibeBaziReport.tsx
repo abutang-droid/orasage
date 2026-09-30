@@ -11,27 +11,23 @@ import {
   Brain,
   Briefcase,
   Check,
-  ChevronDown,
   ExternalLink,
   Grid2x2,
   Heart,
-  Lock,
   ShieldCheck,
   Target,
   TrendingUp,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Streamdown } from "streamdown";
 import { trpc } from "@/lib/trpc";
 import type { SingleBaziResult } from "@/lib/bazi";
 import { recommendBracelet } from "@/lib/bazi";
 import { useT } from "@/lib/i18n";
-import { getLastReadingId, usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
+import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import { composeFreeReport } from "@shared/free-report";
 import { STEM_WX, strengthKind, strengthShort } from "@shared/vernacular";
-import { sanitizeReportBrandText } from "@shared/report-brand";
 import { fetchBaziPlanProducts, type PlanProductInfo } from "@/lib/plan-products";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { BaziConfiguredProductRecommend } from "@/components/BaziConfiguredProductRecommend";
@@ -40,7 +36,11 @@ import {
   classifyWxBalance,
   type WxPolarName,
 } from "@/lib/wuxingPolar";
-import { getStaticReportHref, materializeStaticReport } from "@/lib/static-report";
+import {
+  ensureReadingId,
+  getStaticReportHref,
+  materializeStaticReport,
+} from "@/lib/static-report";
 import "@/styles/bazi-report-vibe.css";
 
 const WX_BAR_ORDER: WxPolarName[] = ["金", "火", "土", "水", "木"];
@@ -309,112 +309,45 @@ function VibePaywall({
   );
 }
 
-function VibeChapters({
+/** 付费解锁后后台生成 LLM 全文，写入同一 reading 固定页（详情 iframe 与外链共用） */
+function PaidReportWriter({
   result,
   onReportReady,
+  onStatus,
 }: {
   result: SingleBaziResult;
   onReportReady?: (reportContent: string, sections: Array<{ title: string; content: string }>) => void;
+  onStatus?: (status: "loading" | "ready" | "error") => void;
 }) {
   const { t, locale } = useT();
-  const [openSections, setOpenSections] = useState<Set<number>>(new Set([0]));
   const [hasTriggered, setHasTriggered] = useState(false);
   const analyzeMutation = trpc.bazi.analyze.useMutation({
     onSuccess: (data) => {
+      onStatus?.("ready");
       if (onReportReady && data?.report) {
         onReportReady(data.report, data.sections ?? []);
       }
     },
     onError: (err) => {
+      onStatus?.("error");
       toast.error(t("report.error_prefix", "解读报告生成失败：") + err.message);
     },
   });
 
   useEffect(() => {
-    if (!hasTriggered && !analyzeMutation.data && !analyzeMutation.isPending) {
-      setHasTriggered(true);
-      analyzeMutation.mutate({
-        type: "single",
-        lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR",
-        resultData: result as unknown as Record<string, unknown>,
-      });
-    }
-  }, [hasTriggered, analyzeMutation.data, analyzeMutation.isPending, locale, result]);
+    if (hasTriggered) return;
+    setHasTriggered(true);
+    onStatus?.("loading");
+    analyzeMutation.mutate({
+      type: "single",
+      lang: locale as "zh-CN" | "zh-TW" | "en" | "pt-BR",
+      resultData: result as unknown as Record<string, unknown>,
+    });
+    // 仅触发一次全文生成
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const sections = analyzeMutation.data?.sections ?? [];
-
-  if (analyzeMutation.isPending || (!analyzeMutation.data && !analyzeMutation.error)) {
-    return (
-      <div className="vr-card flex flex-col items-center gap-3 py-10">
-        <div
-          className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
-          style={{ borderColor: "var(--vibe-brand)", borderTopColor: "transparent" }}
-        />
-        <p className="vr-serif text-sm" style={{ color: "var(--vibe-brand)" }}>
-          {t("report.loading.main", "正在生成解读…")}
-        </p>
-      </div>
-    );
-  }
-
-  if (!sections.length) {
-    return (
-      <div className="vr-card text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
-        {t("report.error_prefix", "解读报告生成失败：")}暂无章节
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {sections.map((section, index) => {
-        const open = openSections.has(index);
-        const paragraphs = section.content.split(/\n\s*\n/).filter(Boolean);
-        return (
-          <article key={`${section.title}-${index}`} className="vr-chapter" data-dom-id={`chapter-${index + 1}`}>
-            <button
-              type="button"
-              className="vr-chapter-toggle"
-              aria-expanded={open}
-              onClick={() => {
-                setOpenSections((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(index)) next.delete(index);
-                  else next.add(index);
-                  return next;
-                });
-              }}
-            >
-              <div>
-                <p className="vr-display text-sm italic" style={{ color: "var(--vibe-brand)", opacity: 0.6 }}>
-                  Chapter {String(index + 1).padStart(2, "0")}
-                </p>
-                <h3 className="vr-display mt-1 text-base font-medium" style={{ color: "var(--vibe-foreground)" }}>
-                  {section.title}
-                </h3>
-              </div>
-              <ChevronDown
-                className="h-5 w-5 shrink-0 transition-transform"
-                style={{
-                  color: "var(--vibe-muted-foreground)",
-                  transform: open ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-            </button>
-            {open ? (
-              <div className="vr-chapter-body space-y-3 text-sm" style={{ color: "var(--vibe-foreground)" }}>
-                {paragraphs.map((para, pi) => (
-                  <div key={pi} className="vr-muted-box mt-4 p-3 leading-relaxed">
-                    <Streamdown>{sanitizeReportBrandText(para)}</Streamdown>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </article>
-        );
-      })}
-    </div>
-  );
+  return null;
 }
 
 export function VibeBaziReport({
@@ -432,6 +365,8 @@ export function VibeBaziReport({
   const [tab, setTab] = useState<"preview" | "detailed">("preview");
   const [showPlans, setShowPlans] = useState(false);
   const [staticReportUrl, setStaticReportUrl] = useState<string | null>(() => getStaticReportHref());
+  const [iframeNonce, setIframeNonce] = useState(0);
+  const [paidGenStatus, setPaidGenStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const captureRef = useRef<HTMLDivElement>(null);
   const braceletRec = useMemo(
     () => recommendBracelet(result.wuXing as unknown as Record<string, number>),
@@ -440,13 +375,14 @@ export function VibeBaziReport({
 
   const free = useMemo(() => composeFreeReport(result, locale), [result, locale]);
 
-  // 进入报告页即确保静态 HTML 已落盘（排盘路径未跑完 / 罗盘 restore 时补一次）
+  // 进入报告页即确保静态 HTML 已落盘（每 readingId 一份；详情与外链共用）
   useEffect(() => {
     let cancelled = false;
+    const readingId = ensureReadingId();
     void materializeStaticReport({
       result,
       lang: locale,
-      readingId: getLastReadingId(),
+      readingId,
       mutateAsync: materializeReport.mutateAsync,
     }).then((res) => {
       if (!cancelled && res?.reportPath) setStaticReportUrl(res.reportPath);
@@ -458,6 +394,19 @@ export function VibeBaziReport({
     // 仅随盘面变化重跑；mutation 引用稳定
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result.birthStr, result.riZhu, result.year.gan, result.day.gan, result.hour.gan, locale]);
+
+  useEffect(() => {
+    const onUpgraded = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ reportUrl?: string }>).detail;
+      const href = getStaticReportHref() || detail?.reportUrl || null;
+      if (href) setStaticReportUrl(href);
+      setIframeNonce((n) => n + 1);
+      setPaidGenStatus("ready");
+    };
+    window.addEventListener("bazi:static-report-upgraded", onUpgraded);
+    return () => window.removeEventListener("bazi:static-report-upgraded", onUpgraded);
+  }, []);
+
   const wx = STEM_WX[result.riZhu] ?? result.riZhu;
   const strengthLabel =
     strengthKind(result.strength) === "身强"
@@ -510,8 +459,10 @@ export function VibeBaziReport({
       planType: payment.purchasedPlan,
       wooOrderId: payment.wooOrderId || undefined,
       shopOrderNo: payment.shopOrderNo || undefined,
+      readingId: ensureReadingId(),
       reportContent,
       name: result.name,
+      inputSummary: result as unknown as Record<string, unknown>,
     });
   };
 
@@ -872,36 +823,56 @@ export function VibeBaziReport({
         </section>
       ) : (
         <section className="space-y-4" data-dom-id="section-detailed" ref={captureRef}>
-          {!payment.unlocked ? (
-            <>
-              <div className="vr-card text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
-                详细报告需解锁后查看。以下为章节目录预览。
-              </div>
-              {["命盘总览", "性格与天赋", "事业与财富", "感情关系", "健康管理", "大运流年推演", "开运建议"].map(
-                (title, i) => (
-                  <article key={title} className="vr-chapter opacity-70">
-                    <div className="vr-chapter-toggle">
-                      <div>
-                        <p className="vr-display text-sm italic" style={{ color: "var(--vibe-brand)", opacity: 0.6 }}>
-                          Chapter {String(i + 1).padStart(2, "0")}
-                        </p>
-                        <h3 className="vr-display mt-1 text-base font-medium">{title}</h3>
-                      </div>
-                      <Lock className="h-4 w-4" style={{ color: "var(--vibe-muted-foreground)" }} />
-                    </div>
-                  </article>
-                ),
-              )}
-              <VibePaywall
-                selectedPlan={payment.selectedPlan}
-                onSelectPlan={payment.setSelectedPlan}
-                onPay={(plan) => payment.handlePaySelected(plan)}
-                payLoading={payment.payLoading}
+          <p className="vr-serif text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
+            {payment.unlocked
+              ? "以下内容与「打开固定报告页」为同一份个人报告；付费全文写入后会自动刷新。"
+              : "以下为排盘后的结构速览（与固定报告页相同）。付费解锁后同一页将更新为完整解读。"}
+          </p>
+
+          {payment.unlocked ? (
+            <PaidReportWriter
+              result={result}
+              onReportReady={handleReportReady}
+              onStatus={(s) => setPaidGenStatus(s)}
+            />
+          ) : null}
+
+          {payment.unlocked && paidGenStatus === "loading" ? (
+            <div className="vr-card flex flex-col items-center gap-3 py-8">
+              <div
+                className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
+                style={{ borderColor: "var(--vibe-brand)", borderTopColor: "transparent" }}
               />
-            </>
+              <p className="vr-serif text-sm" style={{ color: "var(--vibe-brand)" }}>
+                {t("report.loading.main", "正在生成解读…")}
+              </p>
+            </div>
+          ) : null}
+
+          {staticReportUrl ? (
+            <iframe
+              key={`${staticReportUrl}-${iframeNonce}`}
+              title="bazi-fixed-report"
+              src={`${staticReportUrl}${staticReportUrl.includes("?") ? "&" : "?"}v=${iframeNonce}`}
+              className="w-full min-h-[70vh] rounded-[var(--vibe-radius-md)] border-0 bg-transparent"
+              data-testid="static-report-iframe"
+              style={{ border: "1px solid var(--vibe-border-light)" }}
+            />
+          ) : (
+            <div className="vr-card text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
+              正在准备固定报告页…
+            </div>
+          )}
+
+          {!payment.unlocked ? (
+            <VibePaywall
+              selectedPlan={payment.selectedPlan}
+              onSelectPlan={payment.setSelectedPlan}
+              onPay={(plan) => payment.handlePaySelected(plan)}
+              payLoading={payment.payLoading}
+            />
           ) : (
             <>
-              <VibeChapters result={result} onReportReady={handleReportReady} />
               {payment.purchasedPlan === "basic" && braceletRec?.deficiencyWx ? (
                 <BaziConfiguredProductRecommend
                   chart={{

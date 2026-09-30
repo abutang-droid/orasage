@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { resolveReportsDir } from "./_core/reportsDir";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { saveBaziRecord, getUserBaziRecords, deleteBaziRecord, getDb } from "./db";
@@ -11,17 +10,19 @@ import { invokeLLM } from "./_core/llm";
 import { ENV } from "./_core/env";
 import { PLAN_OPTIONS } from "@shared/types";
 import fs from "fs";
-import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
 import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
-import { buildReportPageHtml } from "./reportHtml";
 import { fetchReportProductRecommend } from "./reportRecommend";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
-import { ensureStaticFreeReport, upsertReadingWithReport } from "./staticFreeReport";
+import {
+  ensureStaticFreeReport,
+  upsertReadingWithReport,
+  writePaidReadingReport,
+} from "./staticFreeReport";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -246,27 +247,26 @@ export const appRouter = router({
 
     /**
      * 排盘完成后物化免费结构速览为固定静态 HTML（REPORTS_DIR）。
-     * 文件名由盘面指纹决定；同盘再次调用直接复用已有页面。
+     * 每条 readingId 一份；详情页与「打开固定报告页」共用。
      */
     materializeReport: publicProcedure
       .input(z.object({
         lang: z.enum(["zh-CN", "zh-TW", "en", "pt-BR"]).default("zh-CN"),
         resultData: z.record(z.string(), z.unknown()),
-        readingId: z.string().max(128).optional(),
+        readingId: z.string().min(1).max(128),
       }))
       .mutation(async ({ ctx, input }) => {
-        const result = ensureStaticFreeReport(input.resultData, input.lang);
+        const readingId = input.readingId.trim();
+        const result = ensureStaticFreeReport(input.resultData, input.lang, { readingId });
         const name = String(input.resultData.name ?? "").trim() || "访客";
-        const readingId = input.readingId?.trim() || `bazi:${result.reportId}`;
         const riZhu = String(input.resultData.riZhu ?? "");
         const strength = String(input.resultData.strength ?? "");
         const summary = [
           riZhu ? `日主 ${riZhu}` : null,
           strength || null,
-          result.reused ? "复用静态页" : "新生成静态页",
+          result.reused ? "已有固定页" : "新生成固定页",
         ].filter(Boolean).join(" · ");
 
-        // 落库到 auth user_readings，后台「测试报告」可查看
         const saved = await upsertReadingWithReport({
           userId: ctx.user?.id ?? 0,
           readingId,
@@ -279,14 +279,16 @@ export const appRouter = router({
             resultData: input.resultData,
             reportId: result.reportId,
             reportPath: result.reportPath,
+            tier: result.tier,
           }),
         });
 
         console.log(
           "[StaticReport] materialize",
-          result.reused ? "reuse" : "write",
+          result.reused ? "keep" : "write",
           result.fileName,
           result.reportUrl,
+          `tier=${result.tier}`,
           saved ? "saved-to-admin" : "admin-save-failed",
         );
         return {
@@ -297,6 +299,7 @@ export const appRouter = router({
           reportPath: result.reportPath,
           reused: result.reused,
           readingId,
+          tier: result.tier,
           savedToAdmin: saved,
         };
       }),
@@ -406,16 +409,11 @@ export const appRouter = router({
         let email = ctx.user?.email || input.email || '';
         let buyerName = input.name || ctx.user?.name || '';
 
-        // ── ② 生成静态 HTML 报告（不依赖 email，有报告内容就执行） ──
+        // ── ② 付费全文覆盖同一 reading 固定页（与免费速览同 URL；无 readingId 时降级独立文件） ──
         let reportUrl = '';
 
         if (input.reportContent) {
           try {
-            const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-            const fileName = `${reportId}.html`;
-            const reportsDir = resolveReportsDir();
-            console.log('[StaticReport] reportsDir:', reportsDir, 'exists:', fs.existsSync(reportsDir));
-
             const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '水晶手串', premium: '终极能量礼盒' };
             const planLabel = planLabelMap[input.planType] || input.planType;
             const summary = input.inputSummary as Record<string, unknown> | undefined;
@@ -433,37 +431,29 @@ export const appRouter = router({
                 })
               : null;
 
-            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
-            const staticHtml = buildReportPageHtml({
-              planLabel,
+            const readingId =
+              (input.readingId && input.readingId.trim()) ||
+              `anon_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+            const written = writePaidReadingReport({
+              readingId,
               reportContent: brandedReport,
+              planLabel,
               subjectName: input.name || buyerName || undefined,
-              productRecommend,
-              shareUrl: reportUrl,
-              showUpgrade: false,
               locale: "zh-CN",
-              chart: summary
-                ? {
-                    name: input.name || buyerName || undefined,
-                    birthStr: String(summary.birthStr ?? summary.birth ?? ""),
-                    birthplace: String(summary.birthplace ?? summary.cityName ?? ""),
-                    gender: String(summary.gender ?? ""),
-                    riZhu: String(summary.riZhu ?? ""),
-                    strength: String(summary.strength ?? ""),
-                    year: summary.year as { gan: string; zhi: string } | undefined,
-                    month: summary.month as { gan: string; zhi: string } | undefined,
-                    day: summary.day as { gan: string; zhi: string } | undefined,
-                    hour: summary.hour as { gan: string; zhi: string } | undefined,
-                    wuXing,
-                  }
-                : null,
+              resultData: summary,
+              productRecommend,
             });
+            reportUrl = written.reportUrl;
+            console.log(
+              '[StaticReport] Paid overwrite',
+              written.fileName,
+              'size:',
+              fs.statSync(written.absolutePath).size,
+              'URL:',
+              reportUrl,
+            );
 
-            const filePath = path.join(reportsDir, fileName);
-            fs.writeFileSync(filePath, staticHtml, 'utf-8');
-            console.log('[StaticReport] Saved to:', filePath, 'size:', fs.statSync(filePath).size, 'URL:', reportUrl);
-
-            // 更新 purchase 记录：设置 reportUrl，标记 push 状态初始为 pending
             if (purchaseId && db) {
               try {
                 await db.update(purchases)

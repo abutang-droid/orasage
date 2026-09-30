@@ -6,8 +6,10 @@ import {
   chartReportId,
   ensureStaticFreeReport,
   freeReportToMarkdown,
+  writePaidReadingReport,
 } from "./staticFreeReport.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
+import { readingReportFileId, readReportTier } from "./readingReport.ts";
 
 const sample = {
   name: "测试",
@@ -41,21 +43,16 @@ describe("staticFreeReport", () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("chartReportId is stable for the same chart", () => {
+  it("chartReportId is stable for the same chart (legacy helper)", () => {
     const a = chartReportId({ ...sample, lang: "zh-CN" });
     const b = chartReportId({ ...sample, lang: "zh-CN" });
     expect(a).toBe(b);
     expect(a).toMatch(/^chart_[a-f0-9]{16}$/);
   });
 
-  it("chartReportId changes when pillars change", () => {
-    const a = chartReportId({ ...sample, lang: "zh-CN" });
-    const b = chartReportId({
-      ...sample,
-      hour: { gan: "己", zhi: "巳" },
-      lang: "zh-CN",
-    });
-    expect(a).not.toBe(b);
+  it("readingReportFileId is unique per readingId", () => {
+    expect(readingReportFileId("bazi_aaa")).not.toBe(readingReportFileId("bazi_bbb"));
+    expect(readingReportFileId("bazi_aaa")).toMatch(/^reading_/);
   });
 
   it("freeReportToMarkdown emits ### chapters", () => {
@@ -65,18 +62,43 @@ describe("staticFreeReport", () => {
     expect(md.split("### ").length).toBeGreaterThan(3);
   });
 
-  it("ensureStaticFreeReport writes then reuses", () => {
-    const first = ensureStaticFreeReport(sample, "zh-CN");
-    expect(first.reused).toBe(false);
-    expect(fs.existsSync(first.absolutePath)).toBe(true);
-    const html = fs.readFileSync(first.absolutePath, "utf-8");
-    expect(html).toContain("OraSage");
-    expect(html).toContain("#C96442");
+  it("same chart different readingIds write separate files", () => {
+    const a = ensureStaticFreeReport(sample, "zh-CN", { readingId: "user-a-1" });
+    const b = ensureStaticFreeReport(sample, "zh-CN", { readingId: "user-b-1" });
+    expect(a.fileName).not.toBe(b.fileName);
+    expect(a.reportUrl).not.toBe(b.reportUrl);
+    expect(fs.existsSync(a.absolutePath)).toBe(true);
+    expect(fs.existsSync(b.absolutePath)).toBe(true);
+    expect(a.fileName).toMatch(/^reading_/);
+    expect(readReportTier(a.absolutePath)).toBe("free");
+  });
 
-    const second = ensureStaticFreeReport(sample, "zh-CN");
-    expect(second.reused).toBe(true);
-    expect(second.fileName).toBe(first.fileName);
-    expect(second.reportUrl).toBe(first.reportUrl);
-    expect(second.reportPath).toBe(`/reports/${first.fileName}`);
+  it("requires readingId", () => {
+    expect(() => ensureStaticFreeReport(sample, "zh-CN")).toThrow(/readingId/);
+  });
+
+  it("paid overwrite keeps same path and upgrades tier", () => {
+    const free = ensureStaticFreeReport(sample, "zh-CN", { readingId: "pay-1" });
+    expect(readReportTier(free.absolutePath)).toBe("free");
+    const htmlFree = fs.readFileSync(free.absolutePath, "utf-8");
+    expect(htmlFree).toContain("data-report-tier=\"free\"");
+
+    const paid = writePaidReadingReport({
+      readingId: "pay-1",
+      reportContent: "### 深度解读\n\n付费全文内容。",
+      planLabel: "深度解读",
+      resultData: sample,
+    });
+    expect(paid.fileName).toBe(free.fileName);
+    expect(paid.reportUrl).toBe(free.reportUrl);
+    expect(readReportTier(paid.absolutePath)).toBe("paid");
+    const htmlPaid = fs.readFileSync(paid.absolutePath, "utf-8");
+    expect(htmlPaid).toContain("付费全文内容");
+    expect(htmlPaid).toContain("data-report-tier=\"paid\"");
+
+    const again = ensureStaticFreeReport(sample, "zh-CN", { readingId: "pay-1" });
+    expect(again.reused).toBe(true);
+    expect(readReportTier(again.absolutePath)).toBe("paid");
+    expect(fs.readFileSync(again.absolutePath, "utf-8")).toContain("付费全文内容");
   });
 });
