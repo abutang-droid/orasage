@@ -488,7 +488,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                         height={h.toFixed(1)}
                         rx={(w / 2).toFixed(1)}
                         fill={`url(#diy-g-${bead.material})`}
-                        stroke={sel ? '#171717' : c.line}
+                        stroke={sel ? '#3d3929' : c.line}
                         strokeWidth={sel ? 2.5 : 1}
                       />
                     </g>
@@ -502,7 +502,7 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
                       cy={y.toFixed(1)}
                       r={r.toFixed(1)}
                       fill={`url(#diy-g-${bead.material})`}
-                      stroke={sel ? '#171717' : c.line}
+                      stroke={sel ? '#3d3929' : c.line}
                       strokeWidth={sel ? 2.5 : 1}
                     />
                     <ellipse

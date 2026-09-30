@@ -71,7 +71,7 @@ export function authPageLayout(title: string, body: string, locale: string): str
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-  <meta name="theme-color" content="#fafaf8">
+  <meta name="theme-color" content="#faf9f5">
   <title>${title} — OraSage</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" type="image/svg+xml" href="/assets/brand/icon.svg">

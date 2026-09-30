@@ -46,8 +46,9 @@
   --radius-xl: var(--os-radius-xl);
 
   --font-sans: var(--os-font-sans);
-  --font-serif: var(--os-font-serif-zh);
+  --font-serif: var(--os-font-display, var(--os-font-serif-zh));
   --font-serif-latin: var(--os-font-serif-latin);
+  --font-display: var(--os-font-display);
   --font-numeric: var(--os-font-numeric);
   --font-mono: var(--os-font-mono);
 
