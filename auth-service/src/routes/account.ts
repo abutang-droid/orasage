@@ -60,6 +60,8 @@ const readingSyncSchema = z.object({
   summary: z.string().max(2000).optional(),
   recommendationReason: z.string().max(500).optional(),
   crystalSku: z.string().max(100).optional(),
+  /** 静态测试报告 URL（排盘物化后关联到用户测试记录） */
+  reportUrl: z.string().url().max(512).optional(),
   payloadJson: z.string().max(50000).optional(),
 });
 
@@ -75,29 +77,52 @@ accountRouter.post("/readings/sync", async (req, res) => {
       .limit(1);
     if (existing.length > 0) {
       const row = existing[0];
-      if (row.userId !== user.id) {
+      // 游客记录（userId=0）允许登录用户认领；其它用户的记录仍拒绝
+      if (row.userId !== user.id && row.userId !== 0) {
         res.status(403).json({ error: "无权更新该记录" });
         return;
       }
       const updates: {
+        userId?: number;
         title?: string;
         summary?: string | null;
         recommendationReason?: string | null;
         crystalSku?: string | null;
+        reportUrl?: string | null;
         payloadJson?: string | null;
       } = {};
+      if (row.userId === 0) updates.userId = user.id;
       if (body.title) updates.title = body.title;
       if (body.summary !== undefined) updates.summary = body.summary ?? null;
       if (body.recommendationReason !== undefined) {
         updates.recommendationReason = body.recommendationReason ?? null;
       }
       if (body.crystalSku !== undefined) updates.crystalSku = body.crystalSku ?? null;
+      if (body.reportUrl !== undefined) updates.reportUrl = body.reportUrl ?? null;
       if (body.payloadJson) updates.payloadJson = body.payloadJson;
 
       if (Object.keys(updates).length > 0) {
         await db.update(userReadings).set(updates).where(eq(userReadings.id, row.id));
       }
-      res.json({ success: true, id: row.id, duplicate: true });
+      if (
+        body.recommendationReason &&
+        body.crystalSku &&
+        (row.userId === 0 || !row.recommendationReason)
+      ) {
+        await db.insert(userRecommendations).values({
+          userId: user.id,
+          appSource: body.appSource,
+          crystalSku: body.crystalSku,
+          reason: body.recommendationReason,
+          readingId: body.readingId,
+        });
+      }
+      res.json({
+        success: true,
+        id: row.id,
+        duplicate: true,
+        claimed: row.userId === 0,
+      });
       return;
     }
     const [row] = await db
@@ -110,6 +135,7 @@ accountRouter.post("/readings/sync", async (req, res) => {
         summary: body.summary,
         recommendationReason: body.recommendationReason,
         crystalSku: body.crystalSku,
+        reportUrl: body.reportUrl,
         payloadJson: body.payloadJson,
       })
       .returning();

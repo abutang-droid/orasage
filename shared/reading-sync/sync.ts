@@ -7,6 +7,8 @@ export type ReadingSyncPayload = {
   summary?: string;
   recommendationReason?: string;
   crystalSku?: string;
+  /** 静态测试报告 URL，关联到用户中心「占卜记录」 */
+  reportUrl?: string;
   payloadJson?: string;
 };
 
