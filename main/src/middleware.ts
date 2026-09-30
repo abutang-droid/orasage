@@ -106,7 +106,7 @@ export const config = {
   matcher: [
     '/',
     '/(zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar)/:path*',
-    // 排除静态资源：Next 内部、API、品牌图标（VI v1.0 §6.1）与 public 下的分享图
-    '/((?!_next|api|favicon.ico|icon.svg|apple-icon.png|og.png|robots.txt|sitemap.xml).*)',
+    // 排除静态资源：Next 内部、API、品牌图标（VI v1.0 §6.1）、public 分享图、上线倒计时看板
+    '/((?!_next|api|favicon.ico|icon.svg|apple-icon.png|og.png|robots.txt|sitemap.xml|launch).*)',
   ],
 };
