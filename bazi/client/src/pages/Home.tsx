@@ -26,6 +26,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
+import { getStaticReportAbsoluteUrl, materializeStaticReport } from "@/lib/static-report";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -347,6 +348,7 @@ export default function Home() {
       toast.error(t('toast.save_error'));
     },
   });
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
 
   useEffect(() => {
     loadLunarLib();
@@ -383,13 +385,21 @@ export default function Home() {
     }
   }, [result, mode]);
 
-  // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
+  // 登录后补同步占卜记录（认领游客报告 + 关联静态 reportUrl）
   useEffect(() => {
     if (!isAuthenticated || !result) return;
     const existingId = getLastReadingId() ?? undefined;
+    const reportUrl = getStaticReportAbsoluteUrl();
     if (result.type === "single") {
       const braceletRec = recommendBracelet(result.data.wuXing as unknown as Record<string, number>);
-      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId, locale);
+      const readingId = syncBaziSingleReading(
+        result.data.name,
+        result.data,
+        braceletRec,
+        existingId,
+        locale,
+        reportUrl,
+      );
       saveLastReadingId(readingId);
     } else {
       const readingId = syncBaziDoubleReading(
@@ -398,6 +408,7 @@ export default function Home() {
         result.data,
         existingId,
         locale,
+        reportUrl,
       );
       saveLastReadingId(readingId);
     }
@@ -492,16 +503,31 @@ export default function Home() {
           const input0 = await toInput(resolvedF0);
           const data = await calcSingleBazi(input0);
           setResult({ type: "single", data });
-          if (isAuthenticated) {
-            saveRecord.mutate({
-              type: "single", name1: resolvedF0.name, inputData: input0,
-              resultSummary: { riZhu: data.riZhu, strength: data.strength, wuXing: data.wuXing, favorable: data.favorable, unfavorable: data.unfavorable },
-            });
-          }
           void syncPersonProfile(resolvedF0);
           const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
           const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec, undefined, locale);
           saveLastReadingId(readingId);
+          // 排盘完成后立即物化固定静态 HTML，并关联到用户测试记录
+          const materialized = await materializeStaticReport({
+            result: data,
+            lang: locale,
+            readingId,
+            mutateAsync: materializeReport.mutateAsync,
+          });
+          if (isAuthenticated) {
+            saveRecord.mutate({
+              type: "single", name1: resolvedF0.name, inputData: input0,
+              resultSummary: {
+                riZhu: data.riZhu,
+                strength: data.strength,
+                wuXing: data.wuXing,
+                favorable: data.favorable,
+                unfavorable: data.unfavorable,
+                ...(materialized?.reportUrl ? { reportUrl: materialized.reportUrl } : {}),
+                ...(materialized?.reportPath ? { reportPath: materialized.reportPath } : {}),
+              },
+            });
+          }
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);

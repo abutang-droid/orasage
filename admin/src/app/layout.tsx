@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body
         className="orasage-app-shell"
         data-theme="light"
-        style={{ background: 'var(--orasage-background, #fafaf8)', color: 'var(--orasage-primary, #171717)' }}
+        style={{ background: 'var(--orasage-background, #faf9f5)', color: 'var(--orasage-primary, #3d3929)' }}
       >
         <AdminPlatformShell showSidebar={!!admin} staffUser={admin ?? undefined}>{children}</AdminPlatformShell>
       </body>

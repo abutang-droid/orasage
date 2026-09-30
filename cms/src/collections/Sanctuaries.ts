@@ -103,9 +103,9 @@ export const Sanctuaries: CollectionConfig = {
       name: 'color',
       label: '主题色',
       type: 'text',
-      defaultValue: '#b8943f',
+      defaultValue: '#c96442',
       admin: {
-        description: '十六进制色值，如 #b8943f（品牌金色）',
+        description: '十六进制色值，如 #c96442（品牌金色）',
       },
     },
     {

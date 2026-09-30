@@ -59,7 +59,7 @@ describe("renderMarkdown", () => {
     expect(out).toContain("<li>优势二</li>");
   });
 
-  it("buildReportPageHtml renders styled sections with keywords", () => {
+  it("buildReportPageHtml renders magazine detail layout with keywords", () => {
     const html = buildReportPageHtml({
       planLabel: "深度解读",
       reportContent: `### 命盘总览
@@ -68,12 +68,30 @@ describe("renderMarkdown", () => {
 ### 性格与天赋
 格局正印格，聪慧稳重。`,
       subjectName: "张三",
+      shareUrl: "https://bazi.orasage.com/reports/demo.html",
+      showUpgrade: true,
+      chart: {
+        riZhu: "乙",
+        strength: "身强",
+        dayMasterLine: "代表你的字：乙（木）　·　身强",
+        year: { gan: "庚", zhi: "午" },
+        wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
+      },
     });
-    expect(html).toContain("OraSage 命理报告");
+    expect(html).toContain("你的命局解读");
     expect(html).toContain("命盘总览");
-    expect(html).toContain("class=\"kw\"");
+    expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
     expect(html).toContain("Orasage");
+    expect(html).toContain("share-card");
+    expect(html).toContain("data-share-open");
+    expect(html).toContain("og:title");
+    expect(html).toContain("五行分布");
+    expect(html).toContain("elements-donut");
+    expect(html).toContain("balance-gauge");
+    expect(html).toContain("weekly-timeline");
+    expect(html).toContain("core-insight-body");
+    expect(html).toContain("解锁完整命局报告");
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {
@@ -90,5 +108,19 @@ describe("renderMarkdown", () => {
     expect(html).toContain("绿幽灵手串");
     expect(html).toContain("$88.00");
     expect((html.match(/class="product-rec"/g) || []).length).toBe(1);
+  });
+
+  it("buildReportPageHtml embeds share caption with report URL", () => {
+    const html = buildReportPageHtml({
+      planLabel: "结构速览",
+      reportContent: "### 开篇\n身强用食伤。",
+      subjectName: "李四",
+      shareUrl: "https://bazi.orasage.com/reports/chart_abc.html",
+      chart: { dayMasterLine: "代表你的字：甲（木）　·　身强" },
+    });
+    expect(html).toContain("https://bazi.orasage.com/reports/chart_abc.html");
+    expect(html).toContain("分享我的八字速览");
+    expect(html).toContain("shareWeibo");
+    expect(html).toContain("shareWechat");
   });
 });

@@ -21,6 +21,7 @@ import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
+import { ensureStaticFreeReport, upsertReadingWithReport } from "./staticFreeReport";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -243,6 +244,63 @@ export const appRouter = router({
         }
       }),
 
+    /**
+     * 排盘完成后物化免费结构速览为固定静态 HTML（REPORTS_DIR）。
+     * 文件名由盘面指纹决定；同盘再次调用直接复用已有页面。
+     */
+    materializeReport: publicProcedure
+      .input(z.object({
+        lang: z.enum(["zh-CN", "zh-TW", "en", "pt-BR"]).default("zh-CN"),
+        resultData: z.record(z.string(), z.unknown()),
+        readingId: z.string().max(128).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = ensureStaticFreeReport(input.resultData, input.lang);
+        const name = String(input.resultData.name ?? "").trim() || "访客";
+        const readingId = input.readingId?.trim() || `bazi:${result.reportId}`;
+        const riZhu = String(input.resultData.riZhu ?? "");
+        const strength = String(input.resultData.strength ?? "");
+        const summary = [
+          riZhu ? `日主 ${riZhu}` : null,
+          strength || null,
+          result.reused ? "复用静态页" : "新生成静态页",
+        ].filter(Boolean).join(" · ");
+
+        // 落库到 auth user_readings，后台「测试报告」可查看
+        const saved = await upsertReadingWithReport({
+          userId: ctx.user?.id ?? 0,
+          readingId,
+          title: `八字结构速览 · ${name}`,
+          summary,
+          reportUrl: result.reportUrl,
+          payloadJson: JSON.stringify({
+            type: "single",
+            lang: input.lang,
+            resultData: input.resultData,
+            reportId: result.reportId,
+            reportPath: result.reportPath,
+          }),
+        });
+
+        console.log(
+          "[StaticReport] materialize",
+          result.reused ? "reuse" : "write",
+          result.fileName,
+          result.reportUrl,
+          saved ? "saved-to-admin" : "admin-save-failed",
+        );
+        return {
+          success: true as const,
+          reportId: result.reportId,
+          fileName: result.fileName,
+          reportUrl: result.reportUrl,
+          reportPath: result.reportPath,
+          reused: result.reused,
+          readingId,
+          savedToAdmin: saved,
+        };
+      }),
+
     /** 保存排盘记录（需登录） */
     saveRecord: protectedProcedure
       .input(z.object({
@@ -375,16 +433,34 @@ export const appRouter = router({
                 })
               : null;
 
+            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
             const staticHtml = buildReportPageHtml({
               planLabel,
               reportContent: brandedReport,
               subjectName: input.name || buyerName || undefined,
               productRecommend,
+              shareUrl: reportUrl,
+              showUpgrade: false,
+              locale: "zh-CN",
+              chart: summary
+                ? {
+                    name: input.name || buyerName || undefined,
+                    birthStr: String(summary.birthStr ?? summary.birth ?? ""),
+                    birthplace: String(summary.birthplace ?? summary.cityName ?? ""),
+                    gender: String(summary.gender ?? ""),
+                    riZhu: String(summary.riZhu ?? ""),
+                    strength: String(summary.strength ?? ""),
+                    year: summary.year as { gan: string; zhi: string } | undefined,
+                    month: summary.month as { gan: string; zhi: string } | undefined,
+                    day: summary.day as { gan: string; zhi: string } | undefined,
+                    hour: summary.hour as { gan: string; zhi: string } | undefined,
+                    wuXing,
+                  }
+                : null,
             });
 
             const filePath = path.join(reportsDir, fileName);
             fs.writeFileSync(filePath, staticHtml, 'utf-8');
-            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
             console.log('[StaticReport] Saved to:', filePath, 'size:', fs.statSync(filePath).size, 'URL:', reportUrl);
 
             // 更新 purchase 记录：设置 reportUrl，标记 push 状态初始为 pending

@@ -122,7 +122,7 @@
 }
 
 .onboarding-bubble--user {
-  background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%);
+  background: linear-gradient(135deg, #e0a892 0%, #c96442 100%);
   color: #fff;
   border-bottom-right-radius: 6px;
 }
@@ -169,7 +169,7 @@
   padding: 12px 22px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #c9a84c 0%, #b8943f 100%);
+  background: linear-gradient(135deg, #e0a892 0%, #c96442 100%);
   color: #fff;
   font-size: 15px;
   font-weight: 600;

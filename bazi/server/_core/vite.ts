@@ -21,6 +21,16 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // 开发环境也挂载 /reports/*，与生产 serveStatic 一致
+  const reportsDir = resolveReportsDir();
+  app.use("/reports", (req, res, next) => {
+    const filePath = path.join(reportsDir, path.basename(req.path));
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    next();
+  });
+
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
