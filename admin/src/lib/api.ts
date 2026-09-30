@@ -148,6 +148,40 @@ export function getOrders(params?: {
   );
 }
 
+export interface AdminReading {
+  id: number;
+  userId: number;
+  userLabel: string;
+  userEmail?: string | null;
+  appSource: string;
+  appLabel: string;
+  readingId: string;
+  title: string;
+  summary?: string | null;
+  reportUrl?: string | null;
+  crystalSku?: string | null;
+  createdAt: string;
+}
+
+export function getReadings(params?: {
+  app?: string;
+  q?: string;
+  hasReport?: boolean;
+  offset?: number;
+  limit?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params?.app) sp.set('app', params.app);
+  if (params?.q) sp.set('q', params.q);
+  if (params?.hasReport) sp.set('hasReport', '1');
+  if (params?.offset != null) sp.set('offset', String(params.offset));
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  return adminFetch<{ readings: AdminReading[]; total: number; limit: number; offset: number }>(
+    `/readings${qs ? `?${qs}` : ''}`,
+  );
+}
+
 /** since 之后创建的订单数（后台导航角标用） */
 export function getNewOrdersCount(since?: string) {
   const query = since ? `?since=${encodeURIComponent(since)}` : '';

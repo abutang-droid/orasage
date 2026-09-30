@@ -22,10 +22,10 @@
   --font-mono:  'SF Mono', 'Menlo', 'Noto Sans Mono', monospace;
 
   /* ── DS v1.1 语义色（via orasage-tokens）── */
-  --gold:           var(--orasage-gold, #b8943f);
-  --gold-light:     var(--orasage-gold-light, #d4b86a);
-  --gold-pale:      var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
-  --gold-border:    var(--orasage-gold-border, rgba(184, 148, 63, 0.22));
+  --gold:           var(--orasage-gold, #c96442);
+  --gold-light:     var(--orasage-gold-light, #e0a892);
+  --gold-pale:      var(--orasage-gold-pale, rgba(201, 100, 66, 0.08));
+  --gold-border:    var(--orasage-gold-border, rgba(201, 100, 66, 0.22));
   /* VI v1.0 §5.3: 子品牌无独立配色 — accent 收敛为灰度 */
   --ac:             var(--orasage-brand-gold, #6b7280);
   --ac-dim:         var(--orasage-gold-light, #a1a1aa);
@@ -33,10 +33,10 @@
   --ac-bdr:         rgba(107, 114, 128, 0.22);
 
   /* ── 文字色 ── */
-  --heading:    var(--orasage-primary, #171717);
+  --heading:    var(--orasage-primary, #3d3929);
   --body-text:  var(--orasage-secondary, #6b7280);
   --muted:      var(--orasage-muted, #9ca3af);
-  --tx-0:       var(--orasage-primary, #171717);
+  --tx-0:       var(--orasage-primary, #3d3929);
   --tx-1:       #262626;
   --tx-2:       var(--orasage-secondary, #6b7280);
   --tx-3:       var(--orasage-muted, #9ca3af);
@@ -44,11 +44,11 @@
   --tx-inv2:    rgba(253,252,255,0.65);
 
   /* ── 背景色 ── */
-  --bg-page:    var(--orasage-background, #fafaf8);
+  --bg-page:    var(--orasage-background, #faf9f5);
   --bg-card:    var(--orasage-surface, #ffffff);
   --bg-input:   #FFFFFF;
   --bg-hover:   #f5f5f4;
-  --bg-0:       var(--orasage-background, #fafaf8);
+  --bg-0:       var(--orasage-background, #faf9f5);
   --bg-1:       #f5f5f4;
   --bg-2:       #ececea;
   --bg-inv:     #2E295B;
@@ -355,7 +355,7 @@ a:hover { color: var(--gold-light); }
   appearance: none;
 }
 .input-base:focus {
-  border-color: var(--heading, #171717);
+  border-color: var(--heading, #3d3929);
   box-shadow: none;
 }
 .input-base::placeholder { color: var(--placeholder, #A89DB5); }
