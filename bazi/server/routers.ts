@@ -21,7 +21,7 @@ import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
-import { ensureStaticFreeReport, patchReadingReportUrl } from "./staticFreeReport";
+import { ensureStaticFreeReport, upsertReadingWithReport } from "./staticFreeReport";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -254,21 +254,40 @@ export const appRouter = router({
         resultData: z.record(z.string(), z.unknown()),
         readingId: z.string().max(128).optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
         const result = ensureStaticFreeReport(input.resultData, input.lang);
-        if (input.readingId) {
-          const name = String(input.resultData.name ?? "").trim() || "访客";
-          void patchReadingReportUrl(
-            input.readingId,
-            result.reportUrl,
-            `八字结构速览 · ${name}`,
-          );
-        }
+        const name = String(input.resultData.name ?? "").trim() || "访客";
+        const readingId = input.readingId?.trim() || `bazi:${result.reportId}`;
+        const riZhu = String(input.resultData.riZhu ?? "");
+        const strength = String(input.resultData.strength ?? "");
+        const summary = [
+          riZhu ? `日主 ${riZhu}` : null,
+          strength || null,
+          result.reused ? "复用静态页" : "新生成静态页",
+        ].filter(Boolean).join(" · ");
+
+        // 落库到 auth user_readings，后台「测试报告」可查看
+        const saved = await upsertReadingWithReport({
+          userId: ctx.user?.id ?? 0,
+          readingId,
+          title: `八字结构速览 · ${name}`,
+          summary,
+          reportUrl: result.reportUrl,
+          payloadJson: JSON.stringify({
+            type: "single",
+            lang: input.lang,
+            resultData: input.resultData,
+            reportId: result.reportId,
+            reportPath: result.reportPath,
+          }),
+        });
+
         console.log(
           "[StaticReport] materialize",
           result.reused ? "reuse" : "write",
           result.fileName,
           result.reportUrl,
+          saved ? "saved-to-admin" : "admin-save-failed",
         );
         return {
           success: true as const,
@@ -277,6 +296,8 @@ export const appRouter = router({
           reportUrl: result.reportUrl,
           reportPath: result.reportPath,
           reused: result.reused,
+          readingId,
+          savedToAdmin: saved,
         };
       }),
 
