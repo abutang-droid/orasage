@@ -21,6 +21,7 @@ import { sanitizeReportBrandText } from "../shared/report-brand.ts";
 import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
+import { ensureStaticFreeReport, patchReadingReportUrl } from "./staticFreeReport";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -241,6 +242,42 @@ export const appRouter = router({
             lucky: composed.luckyLine,
           };
         }
+      }),
+
+    /**
+     * 排盘完成后物化免费结构速览为固定静态 HTML（REPORTS_DIR）。
+     * 文件名由盘面指纹决定；同盘再次调用直接复用已有页面。
+     */
+    materializeReport: publicProcedure
+      .input(z.object({
+        lang: z.enum(["zh-CN", "zh-TW", "en", "pt-BR"]).default("zh-CN"),
+        resultData: z.record(z.string(), z.unknown()),
+        readingId: z.string().max(128).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = ensureStaticFreeReport(input.resultData, input.lang);
+        if (input.readingId) {
+          const name = String(input.resultData.name ?? "").trim() || "访客";
+          void patchReadingReportUrl(
+            input.readingId,
+            result.reportUrl,
+            `八字结构速览 · ${name}`,
+          );
+        }
+        console.log(
+          "[StaticReport] materialize",
+          result.reused ? "reuse" : "write",
+          result.fileName,
+          result.reportUrl,
+        );
+        return {
+          success: true as const,
+          reportId: result.reportId,
+          fileName: result.fileName,
+          reportUrl: result.reportUrl,
+          reportPath: result.reportPath,
+          reused: result.reused,
+        };
       }),
 
     /** 保存排盘记录（需登录） */

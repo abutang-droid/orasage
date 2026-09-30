@@ -26,6 +26,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
+import { materializeStaticReport } from "@/lib/static-report";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -347,6 +348,7 @@ export default function Home() {
       toast.error(t('toast.save_error'));
     },
   });
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
 
   useEffect(() => {
     loadLunarLib();
@@ -502,6 +504,13 @@ export default function Home() {
           const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
           const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec, undefined, locale);
           saveLastReadingId(readingId);
+          // 排盘完成后立即物化固定静态 HTML（同盘下次直接复用）
+          void materializeStaticReport({
+            result: data,
+            lang: locale,
+            readingId,
+            mutateAsync: materializeReport.mutateAsync,
+          });
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
