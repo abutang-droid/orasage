@@ -171,36 +171,36 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 <title>${escapeHtml(options.planLabel)} - OraSage 命理报告</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#C4A04E;--gold-light:#D9B86A;--ink:#2E295B;--body:#4A4560;--muted:#7B7488;--bg:#F3F0F7;--card:#FFFFFF;--border:rgba(196,160,78,0.18)}
+:root{--gold:#C96442;--gold-light:#E0A892;--ink:#3D3929;--body:#3D3929;--muted:#6E6D68;--bg:#FAF9F5;--card:#FFFFFF;--border:#DAD9D4}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC 0%,var(--bg) 40%,#EDE8F4 100%);color:var(--body);line-height:1.85;min-height:100vh}
+body{font-family:"Noto Serif SC",Newsreader,Georgia,serif;background:linear-gradient(180deg,#FAF9F5 0%,#F5F4EF 55%,#F0EDE4 100%);color:var(--body);line-height:1.85;min-height:100vh}
 .wrap{max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem}
-.hero{text-align:center;padding:2.5rem 1rem 1.75rem;background:radial-gradient(ellipse at 50% 0%,rgba(196,160,78,0.12) 0%,transparent 70%)}
-.badge{display:inline-block;background:rgba(196,160,78,0.12);color:var(--gold);padding:0.25rem 0.9rem;border-radius:999px;font-size:0.75rem;font-weight:600;letter-spacing:0.12em;margin-bottom:0.75rem;border:1px solid var(--border)}
-.hero h1{font-size:1.75rem;color:var(--ink);font-weight:900;letter-spacing:0.06em}
+.hero{text-align:center;padding:2.5rem 1rem 1.75rem;background:radial-gradient(ellipse at 50% 0%,rgba(201,100,66,0.10) 0%,transparent 70%)}
+.badge{display:inline-block;background:rgba(201,100,66,0.10);color:var(--gold);padding:0.25rem 0.9rem;border-radius:999px;font-size:0.75rem;font-weight:600;letter-spacing:0.12em;margin-bottom:0.75rem;border:1px solid var(--border)}
+.hero h1{font-size:1.75rem;color:var(--ink);font-weight:700;letter-spacing:0.04em}
 .subject{margin-top:0.35rem;font-size:0.95rem;color:var(--gold)}
-.meta{margin-top:0.5rem;font-size:0.8rem;color:var(--muted);font-family:"Noto Sans SC",sans-serif}
-.report-card{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 8px 40px rgba(46,41,91,0.07);overflow:hidden}
-.section{padding:1.75rem 1.75rem 1.5rem;border-bottom:1px solid rgba(196,160,78,0.1)}
+.meta{margin-top:0.5rem;font-size:0.8rem;color:var(--muted);font-family:"Noto Sans SC",Poppins,sans-serif}
+.report-card{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(201,100,66,0.12);overflow:hidden}
+.section{padding:1.75rem 1.75rem 1.5rem;border-bottom:1px solid #E3E0D4}
 .section:last-child{border-bottom:none}
 .section-head{display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.75rem}
 .chapter{font-size:0.7rem;color:var(--gold);letter-spacing:0.2em;font-weight:700;flex-shrink:0}
 .section-title{font-size:1.15rem;color:var(--ink);font-weight:700;letter-spacing:0.04em}
 .kw-row{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem}
-.kw{font-size:0.65rem;color:var(--gold);padding:0.15rem 0.55rem;border-radius:999px;background:rgba(196,160,78,0.08);border:1px solid var(--border);font-family:"Noto Sans SC",sans-serif}
+.kw{font-size:0.65rem;color:#934828;padding:0.15rem 0.55rem;border-radius:999px;background:#F4E0D5;border:1px solid var(--border);font-family:"Noto Sans SC",Poppins,sans-serif}
 .section-body{font-size:0.95rem;color:var(--body)}
 .section-body h2,.section-body h3{font-size:1rem;color:var(--ink);margin:1rem 0 0.5rem}
 .section-body p{margin-bottom:0.75rem}
 .section-body ul{padding-left:1.25rem;margin:0.5rem 0 0.75rem}
 .section-body li{margin-bottom:0.35rem}
 .section-body strong{color:var(--ink)}
-.product-rec{margin:0 1.75rem 1.75rem;padding:1.25rem 1.5rem;border-radius:16px;border:1px solid var(--border);background:linear-gradient(135deg,rgba(196,160,78,0.08),rgba(196,160,78,0.02))}
-.product-rec-label{font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;font-weight:700;margin-bottom:0.5rem;font-family:"Noto Sans SC",sans-serif}
+.product-rec{margin:0 1.75rem 1.75rem;padding:1.25rem 1.5rem;border-radius:16px;border:1px solid var(--border);background:linear-gradient(135deg,rgba(201,100,66,0.08),rgba(201,100,66,0.02))}
+.product-rec-label{font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;font-weight:700;margin-bottom:0.5rem;font-family:"Noto Sans SC",Poppins,sans-serif}
 .product-rec-name{font-size:1.05rem;color:var(--ink);font-weight:700;margin-bottom:0.35rem}
 .product-rec-desc{font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6}
 .product-rec-price{font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:1rem}
-.product-rec-btn{display:inline-block;padding:0.55rem 1.25rem;border-radius:999px;background:var(--gold);color:#1a1528;text-decoration:none;font-size:0.85rem;font-weight:600;font-family:"Noto Sans SC",sans-serif}
-.footer{text-align:center;padding:2rem 1rem 0;font-size:0.7rem;color:var(--muted);font-family:"Noto Sans SC",sans-serif;line-height:1.8}
+.product-rec-btn{display:inline-block;padding:0.55rem 1.25rem;border-radius:999px;background:var(--gold);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:600;font-family:"Noto Sans SC",Poppins,sans-serif;box-shadow:0 4px 12px rgba(201,100,66,0.3)}
+.footer{text-align:center;padding:2rem 1rem 0;font-size:0.7rem;color:var(--muted);font-family:"Noto Sans SC",Poppins,sans-serif;line-height:1.8}
 .footer a{color:var(--gold);text-decoration:none}
 @media(max-width:640px){.wrap{padding:1rem 0.75rem 2rem}.section{padding:1.25rem 1rem}.hero h1{font-size:1.4rem}}
 </style>

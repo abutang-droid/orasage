@@ -12,6 +12,7 @@ import {
   Briefcase,
   Check,
   ChevronDown,
+  ExternalLink,
   Grid2x2,
   Heart,
   Lock,
@@ -26,7 +27,7 @@ import { trpc } from "@/lib/trpc";
 import type { SingleBaziResult } from "@/lib/bazi";
 import { recommendBracelet } from "@/lib/bazi";
 import { useT } from "@/lib/i18n";
-import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
+import { getLastReadingId, usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import { composeFreeReport } from "@shared/free-report";
 import { STEM_WX, strengthKind, strengthShort } from "@shared/vernacular";
@@ -39,6 +40,7 @@ import {
   classifyWxBalance,
   type WxPolarName,
 } from "@/lib/wuxingPolar";
+import { getStaticReportHref, materializeStaticReport } from "@/lib/static-report";
 import "@/styles/bazi-report-vibe.css";
 
 const WX_BAR_ORDER: WxPolarName[] = ["金", "火", "土", "水", "木"];
@@ -426,8 +428,10 @@ export function VibeBaziReport({
 }) {
   const { t, term, locale } = useT();
   const payment = usePaymentFlow();
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
   const [tab, setTab] = useState<"preview" | "detailed">("preview");
   const [showPlans, setShowPlans] = useState(false);
+  const [staticReportUrl, setStaticReportUrl] = useState<string | null>(() => getStaticReportHref());
   const captureRef = useRef<HTMLDivElement>(null);
   const braceletRec = useMemo(
     () => recommendBracelet(result.wuXing as unknown as Record<string, number>),
@@ -435,6 +439,25 @@ export function VibeBaziReport({
   );
 
   const free = useMemo(() => composeFreeReport(result, locale), [result, locale]);
+
+  // 进入报告页即确保静态 HTML 已落盘（排盘路径未跑完 / 罗盘 restore 时补一次）
+  useEffect(() => {
+    let cancelled = false;
+    void materializeStaticReport({
+      result,
+      lang: locale,
+      readingId: getLastReadingId(),
+      mutateAsync: materializeReport.mutateAsync,
+    }).then((res) => {
+      if (!cancelled && res?.reportPath) setStaticReportUrl(res.reportPath);
+      else if (!cancelled && res?.reportUrl) setStaticReportUrl(res.reportUrl);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // 仅随盘面变化重跑；mutation 引用稳定
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.birthStr, result.riZhu, result.year.gan, result.day.gan, result.hour.gan, locale]);
   const wx = STEM_WX[result.riZhu] ?? result.riZhu;
   const strengthLabel =
     strengthKind(result.strength) === "身强"
@@ -517,6 +540,19 @@ export function VibeBaziReport({
         <p className="vr-serif mt-2 text-sm italic" style={{ color: "var(--vibe-muted-foreground)" }}>
           为{result.name || "你"}生成的专业命理分析
         </p>
+        {staticReportUrl ? (
+          <a
+            href={staticReportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="vr-btn-ghost mt-3 inline-flex items-center gap-1.5 text-sm"
+            data-testid="static-report-link"
+            style={{ color: "var(--vibe-brand)" }}
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            {t("report.static_page", "打开固定报告页")}
+          </a>
+        ) : null}
       </header>
 
       <nav className="vr-tabbar mb-5" role="tablist" aria-label="视图切换" data-dom-id="tab-switcher">
