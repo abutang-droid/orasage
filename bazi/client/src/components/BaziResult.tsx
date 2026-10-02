@@ -1479,6 +1479,11 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
         </div>
       </div>
       <div className="px-5 py-4 flex flex-col gap-3">
+        {verdict ? (
+          <p className="text-sm font-bold" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.08em" }}>
+            {verdict.title}
+          </p>
+        ) : null}
         {verdict?.meta ? (
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(verdict.meta).map(([k, v]) => (
