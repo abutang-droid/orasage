@@ -53,6 +53,18 @@
 - **未经明确批准**，不要改动全局布局或增删产品功能。
 - 大规模 UI 变更前先与任务方确认范围与例外。
 
+## 反复回归坑：八字铁口直断被白话化盖掉
+
+**症状**：排盘结果只有白话「现象→机制→体系里叫」，不见格局/调候/死锁点/一句击中；付费报告也不再按铁口直断四层过滤写。
+
+**根因**：`f41505c0` 白话化改写把 LLM system/user prompt 从铁口改为结构顾问，并加了 `sanitizeVernacularText` 把身弱/喜用神等术语降级；罗盘结果页也拿掉了引擎裁决区块。
+
+**正确做法**：
+- 付费/免费 LLM：`prompts.ts` 必须自称铁口直断派，且 `formatEngineVerdict()` 把 `pattern/climate/flowIssues/deadPoint/oneLineHit` 写入 prompt。
+- 输出清洗：只做 `sanitizeReportBrandText`，**不要**对铁口正文跑白话降级 sanitizer。
+- 罗盘结果页：展示一句击中、格局强弱喜忌、调候、死锁点、大运、神煞（见 `LuopanResult.tsx`）。
+- 回归：`bazi/server/tiekou-engine.test.ts`。
+
 ## 反复回归坑：八字罗盘手机刻度数字
 
 **症状（手机浏览器）**：罗盘环上的年/月/日/时/分数字不在环上、飞出盘外或叠层错乱。

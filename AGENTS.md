@@ -114,6 +114,10 @@ units, and remote deploy scripts targeting a single production VPS.
 
 ### Testing / gotchas
 
+- **Bazi 铁口直断 (recurring):** do not replace Tie Kou prompts with vernacular-only
+  "现象→机制→体系里叫". Always feed engine verdict fields into prompts via
+  `formatEngineVerdict`, and keep LuopanResult engine sections. Guard:
+  `bazi/server/tiekou-engine.test.ts`.
 - **Bazi luopan mobile ticks (recurring):** never CSS-rotate `.ring-g` / tick
   labels, and never lock `.dial { height:340px }` on narrow screens — numbers
   fly off the rings. Use SVG `spinRing` / `uprightLabel` + `aspect-ratio:1/1`.
