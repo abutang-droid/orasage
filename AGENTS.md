@@ -114,9 +114,19 @@ units, and remote deploy scripts targeting a single production VPS.
 
 ### Testing / gotchas
 
+- **Bazi 铁口直断 (recurring):** do not replace Tie Kou prompts / free result with
+  vernacular-only "现象→机制→体系里叫". Feed engine verdicts via
+  `formatEngineVerdict`; classic free UI must use `buildTieKouFreeInsight`
+  (luopan redirects to `/classic`). Guard: `bazi/server/tiekou-engine.test.ts`.
+- **Bazi luopan mobile ticks (recurring):** never CSS-rotate `.ring-g` / tick
+  labels, and never lock `.dial { height:340px }` on narrow screens — numbers
+  fly off the rings. Use SVG `spinRing` / `uprightLabel` + `aspect-ratio:1/1`.
+  See `docs/AGENT-RULES.md` § 反复回归坑 and
+  `bazi/server/luopan-mobile-ticks.test.ts`. Overlaying a
+  `bazi/dist` built without this fix will re-break production.
 - No repo-wide automated test suite. Per app: `npx tsc --noEmit` (auth-service,
-  shop, admin) or `npm run build` (main, cms) are the main programmatic
-  checks. There is no ESLint config committed for any app.
+ shop, admin) or `npm run build` (main, cms) are the main programmatic
+ checks. There is no ESLint config committed for any app.
 - `deploy/` scripts assume a single production VPS reachable over SSH; they
   are not meant to run inside this sandbox. Use them for review/editing, not
   execution.

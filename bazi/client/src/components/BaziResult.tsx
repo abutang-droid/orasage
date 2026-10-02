@@ -25,8 +25,9 @@ import { BaziMingpanCard, WuXingDistributionSection } from "@/components/BaziPos
 import { WuXingPieChart } from "@/components/WuXingPieChart";
 import type { BraceletRecommendation } from "@/lib/bazi";
 import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
-import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
+import { trueSolarCaption } from "@shared/free-report";
 import { polarTag, GRID_CAPTION_ZH, GRID_CAPTION_EN } from "@shared/vernacular";
+import { buildTieKouFreeInsight } from "@/lib/tiekou-insight";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -483,7 +484,7 @@ function SingleResultBodyPreview({ result }: { result: SingleBaziResult }) {
 // ── 计费墙组件 ────────────────────────────────────────────────────────────────
 function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => void; onStartDouble?: () => void; result: SingleBaziResult }) {
   const { t, locale } = useT();
-  const preview = composeFreeReport(result, locale);
+  const preview = buildTieKouFreeInsight(result);
   return (
     <div className="relative overflow-hidden rounded-sm" style={{ marginTop: -8 }}>
       {/* 模糊遮挡层 */}
@@ -516,7 +517,7 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           {t('paywall.title_overlay', '完整命盘待解锁')}
         </p>
         <p className="text-xs text-center mb-5" style={{ color: "#6F6880", lineHeight: 1.7 }}>
-          {t('paywall.subtitle_overlay', '每十年一换的阶段与白话解读属于深度内容')}
+          {t('paywall.subtitle_overlay', '大运细排与完整铁口直断报告属于深度内容')}
           <br />{t('paywall.unlock_hint', '解锁后可查看完整命盘分析')}
         </p>
         {/* 解锁按钮 */}
@@ -577,10 +578,12 @@ function PaywallOverlay({ onUnlock, onStartDouble, result }: { onUnlock: () => v
           </div>
           {/* 命理小结预览 */}
           <div className="rounded-xl px-4 py-4" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
-            <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '白话解读')}</h3>
+            <h3 className="text-sm mb-3" style={{ color: BODY_CLR }}>{t('result.summary', '命理小结')}</h3>
             <div className="space-y-2">
-              <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{preview.sections[0]?.body ?? ""}</p>
-              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>{(preview.sections[2]?.body ?? "").slice(0, 48)}……</p>
+              <p className="text-xs" style={{ color: "#78718B", lineHeight: 1.8 }}>{preview.headline}</p>
+              <p className="text-xs" style={{ color: "#6F6880", lineHeight: 1.8 }}>
+                {(preview.blocks.find((b) => b.kind === "summary")?.body ?? "").slice(0, 48)}……
+              </p>
             </div>
           </div>
         </div>
@@ -1433,7 +1436,7 @@ function AIAnalysisPanel({
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  免费命理解读：现象 → 机制 → 术语
+//  免费命理解读：铁口直断四层过滤引擎裁决（非白话 composeFreeReport）
 // ════════════════════════════════════════════════════════════════════
 
 function getWxFromRiZhu(riZhu: string): string {
@@ -1441,60 +1444,77 @@ function getWxFromRiZhu(riZhu: string): string {
   return WX[riZhu] || riZhu;
 }
 
-function FreeReportBody({ result, compact }: { result: SingleBaziResult; compact?: boolean }) {
-  const { locale } = useT();
-  const report = composeFreeReport(result, locale);
-  const fs = compact ? "text-xs" : "text-sm";
-  return (
-    <div className="flex flex-col gap-3">
-      {report.sections.map((s, i) => (
-        <div key={s.title} className="rounded-lg px-4 py-3.5" style={{
-          background: i === 3 ? "rgba(248,113,113,0.05)" : "rgba(196,160,78,0.05)",
-          border: i === 3 ? "1px solid rgba(248,113,113,0.14)" : "1px solid rgba(196,160,78,0.12)",
-        }}>
-          <p className={`${compact ? "text-xs" : "text-sm"} font-bold mb-1.5`} style={{ color: GOLD, fontFamily: SERIF_F }}>
-            {["一", "二", "三", "四"][i]}　{s.title}
-          </p>
-          <p className={`${fs} leading-relaxed`} style={{ color: BODY_CLR, lineHeight: 1.75 }}>{s.body}</p>
-          {s.classic && (
-            <p className="text-[11px] mt-2 leading-relaxed" style={{ color: MUTED_CLR }}>{s.classic}</p>
-          )}
-        </div>
-      ))}
-      <div className="rounded-lg px-4 py-3" style={{ background: "rgba(196,160,78,0.04)" }}>
-        <p className={`${fs} font-bold`} style={{ color: GOLD }}>{report.luckyLine}</p>
-        <p className="text-[11px] mt-1 leading-relaxed" style={{ color: MUTED_CLR }}>{report.luckyNote}</p>
-      </div>
-    </div>
-  );
-}
-
 function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
-  const { t, term, locale } = useT();
+  const { t, term } = useT();
   const wx = getWxFromRiZhu(result.riZhu);
-  const report = composeFreeReport(result, locale);
   const structure = strengthLabel(result.strength, term);
+  const insight = buildTieKouFreeInsight(result);
+  const verdict = insight.blocks.find((b) => b.kind === "verdict");
+
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${CARD_BORDER}`, background: CARD_SURFACE }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${CARD_BORDER}`, background: CARD_SURFACE }} data-tiekou="engine">
       <div className="px-5 py-4" style={{ background: CARD_GRADIENT_SOFT, borderBottom: `1px solid ${GOLD_FAINT}` }}>
         <div className="flex items-center gap-3">
           <div>
             <p className="text-base font-bold" style={{ color: HEADING_CLR, fontFamily: SERIF_F }}>
-              {t("insight.title").replace("{name}", result.name)}
+              {t("insight.title", "{name}的铁口直断").replace("{name}", result.name)}
             </p>
             <p className="text-xs mt-1" style={{ color: MUTED_CLR }}>
-              {report.dayMasterLine || t("insight.day_master").replace("{riZhu}", result.riZhu).replace("{wx}", wx).replace("{strength}", structure)}
+              {t("insight.day_master", "日主 {riZhu}（{wx}）　·　{strength}")
+                .replace("{riZhu}", result.riZhu)
+                .replace("{wx}", wx)
+                .replace("{strength}", structure)}
             </p>
+            {insight.headline ? (
+              <p className="text-sm mt-2 font-bold" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.06em" }}>
+                {insight.headline}{insight.subline ? ` · ${insight.subline}` : ""}
+              </p>
+            ) : null}
           </div>
           <div className="ml-auto text-right">
             <span className="text-sm px-2.5 py-1 rounded-full" style={{ background: "rgba(196,160,78,0.1)", color: GOLD, fontFamily: SANS }}>
-              {wx} · {structure}
+              {insight.patternLabel} · {structure}
             </span>
           </div>
         </div>
       </div>
-      <div className="px-5 py-4">
-        <FreeReportBody result={result} />
+      <div className="px-5 py-4 flex flex-col gap-3">
+        {verdict ? (
+          <p className="text-sm font-bold" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.08em" }}>
+            {verdict.title}
+          </p>
+        ) : null}
+        {verdict?.meta ? (
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(verdict.meta).map(([k, v]) => (
+              <div key={k} className="rounded-lg px-3 py-2.5" style={{ background: "rgba(196,160,78,0.06)", border: "1px solid rgba(196,160,78,0.14)" }}>
+                <p className="text-[10px] mb-1" style={{ color: MUTED_CLR }}>{k}</p>
+                <p className="text-sm font-bold" style={{
+                  color: k === "喜用" ? "#4ade80" : k === "忌神" ? "#f87171" : GOLD,
+                  fontFamily: SERIF_F,
+                }}>{v}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {verdict?.body ? (
+          <p className="text-sm leading-relaxed" style={{ color: BODY_CLR, lineHeight: 1.75 }}>{verdict.body}</p>
+        ) : null}
+        {insight.blocks.filter((b) => b.kind !== "verdict" && b.kind !== "hit").map((block) => (
+          <div
+            key={`${block.kind}-${block.title}`}
+            className="rounded-lg px-4 py-3.5"
+            style={{
+              background: block.kind === "dead" ? "rgba(248,113,113,0.05)" : "rgba(196,160,78,0.05)",
+              border: block.kind === "dead" ? "1px solid rgba(248,113,113,0.14)" : "1px solid rgba(196,160,78,0.12)",
+            }}
+          >
+            <p className="text-sm font-bold mb-1.5" style={{ color: GOLD, fontFamily: SERIF_F }}>{block.title}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: block.kind === "creed" ? MUTED_CLR : BODY_CLR, lineHeight: 1.75 }}>
+              {block.body}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

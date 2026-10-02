@@ -100,8 +100,8 @@ describe("sanitizeVernacularText", () => {
   });
 });
 
-describe("LLM prompts follow the spec", () => {
-  it("free insight prompt forbids health/finance claims and requires term-last order", () => {
+describe("LLM prompts follow 铁口直断", () => {
+  it("free insight prompt is Tie Kou school with JSON fields", () => {
     const p = buildFreeInsightPrompt({
       name: "Test",
       gender: "male",
@@ -115,14 +115,13 @@ describe("LLM prompts follow the spec", () => {
       day: { gan: "癸", zhi: "未" },
       hour: { gan: "乙", zhi: "卯" },
     }, "zh-CN");
-    expect(p).toContain("现象");
-    expect(p).toContain("体系里叫");
-    expect(p).toContain("偏耗");
-    expect(p).toContain("不得");
-    expect(p).toMatch(/投资|疾病|心脑/);
+    expect(p).toContain("铁口直断");
+    expect(p).toContain("格局");
+    expect(p).toContain('"title"');
+    expect(p).toContain("喜用神");
   });
 
-  it("paid report prompt uses vernacular chapter titles", () => {
+  it("paid report prompt uses 铁口 chapters and engine binding", () => {
     const p = buildSingleBaziPrompt({
       name: "Test",
       gender: "male",
@@ -131,9 +130,13 @@ describe("LLM prompts follow the spec", () => {
       strength: "身弱",
       favorable: ["金"],
       unfavorable: ["木"],
+      pattern: { primary: "伤官格", description: "伤官见官需制" },
+      oneLineHit: { headline: "伤官泄秀", subline: "先制再发" },
     }, "zh-CN");
-    expect(p).toContain("顺的方向");
-    expect(p).toContain("每十年一换的阶段");
-    expect(p).toContain("支持你的力量少于消耗你的力量");
+    expect(p).toContain("铁口直断");
+    expect(p).toContain("命盘总览");
+    expect(p).toContain("开运建议");
+    expect(p).toContain("伤官格");
+    expect(p).toContain("伤官泄秀");
   });
 });

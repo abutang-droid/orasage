@@ -14,10 +14,11 @@ const termData: Record<string, Record<string, string>> = {
   火: { "zh-CN": "火", "zh-TW": "火", en: "Fire", "pt-BR": "Fogo" },
   土: { "zh-CN": "土", "zh-TW": "土", en: "Earth", "pt-BR": "Terra" },
 
-  /* 身强/弱 — 短版：偏补 / 偏耗（规范 7.1） */
-  身强: { "zh-CN": "偏补", "zh-TW": "偏補", en: "Support-heavy", "pt-BR": "Mais apoio" },
-  身弱: { "zh-CN": "偏耗", "zh-TW": "偏耗", en: "Drain-heavy", "pt-BR": "Mais drenagem" },
-  身中和: { "zh-CN": "均衡", "zh-TW": "均衡", en: "Balanced", "pt-BR": "Equilibrado" },
+  /* 身强/弱 — 铁口直断术语（勿再降级为偏补/偏耗） */
+  身强: { "zh-CN": "身强", "zh-TW": "身強", en: "Strong", "pt-BR": "Forte" },
+  身弱: { "zh-CN": "身弱", "zh-TW": "身弱", en: "Weak", "pt-BR": "Fraco" },
+  身中和: { "zh-CN": "身中", "zh-TW": "身中", en: "Balanced", "pt-BR": "Equilibrado" },
+  身中: { "zh-CN": "身中", "zh-TW": "身中", en: "Balanced", "pt-BR": "Equilibrado" },
 
   /* 十神 */
   比肩: { "zh-CN": "比肩", "zh-TW": "比肩", en: "Friend", "pt-BR": "Amigo" },

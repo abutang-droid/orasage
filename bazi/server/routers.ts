@@ -18,8 +18,6 @@ import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
 import { buildReportPageHtml } from "./reportHtml";
 import { fetchReportProductRecommend } from "./reportRecommend";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
-import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
-import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
@@ -185,7 +183,7 @@ export const appRouter = router({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是八字结构顾问 OraSage。正文必须现象→机制→句尾「体系里叫」。身弱只写「支持你的力量少于消耗你的力量」或「偏耗」。禁止医疗、财务、法律建议，禁止有救、开运、神煞、疾病、投资失利。当前年份是 2026 年，年份写成「2026 年（丙午）」。",
+              content: langGuide + "你是铁口直断派八字命理顾问 OraSage。必须严格按照《铁口直断》4 层过滤 + 裁决引擎（用户消息中的引擎裁决）写报告，不得另起炉灶改判喜忌/格局。每句结论注明 [OraSage：…]。当前年份是 2026 年。",
             },
             { role: "user", content: prompt },
           ],
@@ -193,11 +191,12 @@ export const appRouter = router({
 
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error("LLM 返回内容为空");
-        const content = sanitizeVernacularText(sanitizeReportBrandText(
+        // 铁口正文保留术语；只做品牌清洗，不做白话降级替换
+        const content = sanitizeReportBrandText(
           typeof rawContent === "string"
             ? rawContent
             : (rawContent as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join(""),
-        ));
+        );
 
         // 解析 Markdown 章节：按 ### 标题分割
         const sections = parseSections(content);
@@ -218,7 +217,7 @@ export const appRouter = router({
 
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: langGuide + "你是八字结构顾问。输出白话 JSON：现象→机制→体系里叫。身弱写偏耗。禁止疾病、投资、有救、开运。只返回 JSON。" },
+            { role: "system", content: langGuide + "你是铁口直断派八字命理顾问。根据排盘与四层引擎裁决输出 JSON。不得改判引擎喜忌/格局。只返回 JSON。" },
             { role: "user", content: prompt },
           ],
         });
@@ -229,16 +228,22 @@ export const appRouter = router({
         try {
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (!jsonMatch) throw new Error("No JSON found");
-          return sanitizeInsightJson(JSON.parse(jsonMatch[0]) as Record<string, unknown>);
+          // 铁口 JSON 不做白话降级
+          return JSON.parse(jsonMatch[0]) as Record<string, unknown>;
         } catch {
-          const composed = composeFreeReport(input.resultData as Parameters<typeof composeFreeReport>[0], input.lang);
+          const d = input.resultData;
+          const pattern = d.pattern as { primary?: string; description?: string } | undefined;
+          const hit = d.oneLineHit as { headline?: string; subline?: string } | undefined;
+          const climate = d.climate as { active?: boolean; description?: string } | undefined;
+          const fav = Array.isArray(d.favorable) ? (d.favorable as string[]).join("、") : "";
+          const unfav = Array.isArray(d.unfavorable) ? (d.unfavorable as string[]).join("、") : "";
           return {
-            title: composed.sections[0]?.title ?? "",
-            matrix: composed.sections[0]?.body ?? "",
-            pattern: composed.sections[1]?.body ?? "",
-            personality: composed.sections[2]?.body ?? "",
-            risk: composed.sections[3]?.body ?? "",
-            lucky: composed.luckyLine,
+            title: pattern?.primary || hit?.headline || String(d.strength ?? "排盘"),
+            matrix: `日主${d.riZhu}，${d.strength}；喜用${fav || "—"}，忌神${unfav || "—"}。`,
+            pattern: pattern?.description || pattern?.primary || "",
+            personality: hit?.headline || "",
+            risk: climate?.active ? (climate.description || "") : (hit?.subline || ""),
+            lucky: fav ? `喜用方向：${fav}` : "",
           };
         }
       }),
