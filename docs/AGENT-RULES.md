@@ -62,8 +62,8 @@
 **正确做法**：
 - 付费/免费 LLM：`prompts.ts` 必须自称铁口直断派，且 `formatEngineVerdict()` 把 `pattern/climate/flowIssues/deadPoint/oneLineHit` 写入 prompt。
 - 输出清洗：只做 `sanitizeReportBrandText`，**不要**对铁口正文跑白话降级 sanitizer。
-- 罗盘结果页：展示一句击中、格局强弱喜忌、调候、死锁点、大运、神煞（见 `LuopanResult.tsx`）。
-- 回归：`bazi/server/tiekou-engine.test.ts`。
+- **经典结果页（用户真实落地）**：罗盘起盘会 `saveCheckoutSnapshot` 后跳 `/classic?restore=1`，免费解读必须走 `buildTieKouFreeInsight` / `FreeBaziInsight`（`BaziResult.tsx`），**禁止**再用 `composeFreeReport` 盖掉四层裁决。`LuopanResult.tsx` 仅在罗盘内嵌结果时使用，勿以为改它就够了。
+- 回归：`bazi/server/tiekou-engine.test.ts`（含 `buildTieKouFreeInsight`）。
 
 ## 反复回归坑：八字罗盘手机刻度数字
 

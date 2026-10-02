@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSingleBaziPrompt, buildFreeInsightPrompt, formatEngineVerdict } from "./prompts.ts";
+import { buildTieKouFreeInsight } from "../client/src/lib/tiekou-insight.ts";
 
 const sample = {
   name: "测试",
@@ -16,7 +17,7 @@ const sample = {
   hour: { gan: "戊", zhi: "辰", naYin: "大林木" },
   shiShen: { 庚: "正财", 辛: "偏财", 甲: "比肩", 戊: "偏印" },
   shensha: { 天乙贵人: ["丑", "未"] },
-  daYun: [{ age: 8, ganzhi: "壬午", startYear: 1998 }],
+  daYun: [{ startAge: 8, gan: "壬", zhi: "午", endAge: 17 }],
   pattern: {
     primary: "食神格",
     secondary: ["印绶格"],
@@ -70,5 +71,19 @@ describe("铁口直断 prompt wiring", () => {
     expect(prompt).toContain("铁口直断");
     expect(prompt).toContain("食神格");
     expect(prompt).toContain("死锁点");
+  });
+
+  it("classic free result builder applies four-layer engine (not vernacular)", () => {
+    const insight = buildTieKouFreeInsight(sample as any);
+    expect(insight.headline).toBe("火重水亏");
+    expect(insight.patternLabel).toContain("食神格");
+    const titles = insight.blocks.map((b) => b.title).join("|");
+    expect(titles).toContain("铁口直断 · 格局强弱喜忌");
+    expect(titles).toContain("调候（L2）");
+    expect(titles).toContain("死锁点（L4）");
+    expect(titles).toContain("气机（L3）");
+    expect(insight.blocks.some((b) => b.kind === "creed")).toBe(true);
+    expect(JSON.stringify(insight)).not.toContain("现象");
+    expect(JSON.stringify(insight)).not.toContain("体系里叫");
   });
 });

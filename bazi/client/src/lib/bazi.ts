@@ -487,7 +487,7 @@ function calcDaYunNew(
 
 // ==================== 命理小结生成 ====================
 /**
- * 根据日主天干、身强弱、喜忌神生成段落式命理小结
+ * 根据日主天干、身强弱、喜忌神 + 四层引擎裁决生成段落式命理小结
  */
 function generateMingLiSummary(
   riZhu: string,
@@ -496,11 +496,25 @@ function generateMingLiSummary(
   unfavorable: string[],
   wuXing: WuXingCount,
   gender: 'male' | 'female',
-  shiShen: Record<string, string>
+  shiShen: Record<string, string>,
+  engine?: {
+    pattern?: PatternResult;
+    climate?: ClimateAlert;
+    deadPoint?: DeadPoint;
+    oneLineHit?: OneLineHit;
+  },
 ): MingLiSummary {
   const wx = WU_XING_MAP[riZhu] ?? '未知';
   const favStr = favorable.join('、') || '未确定';
   const unfavStr = unfavorable.join('、') || '未确定';
+  const patternLabel = engine?.pattern?.fullLabel || engine?.pattern?.primary || '';
+  const hitLine = engine?.oneLineHit?.headline
+    ? `${engine.oneLineHit.headline}${engine.oneLineHit.subline ? `（${engine.oneLineHit.subline}）` : ''}`
+    : '';
+  const climateLine = engine?.climate?.active && engine.climate.description
+    ? engine.climate.description
+    : '';
+  const deadLine = engine?.deadPoint?.insight || engine?.deadPoint?.mechanism || '';
 
   // 日主五行性格库
   const personalityBase: Record<string, string> = {
@@ -583,9 +597,15 @@ function generateMingLiSummary(
   const fortune = `就目前命局而言，${maxWxEntry[0]}行最旺，${minWxEntry[0]}行最弱。喜用神为${favStr}，忌神为${unfavStr}，建议在日常生活中多接触${favStr}行相关的事物与环境，避免${unfavStr}行的负面影响，方能将运势小宇宙持续向好。`;
 
   const strengthKey = strength as '身强' | '身中' | '身弱';
+  const engineBits = [
+    patternLabel ? `格局定型为${patternLabel}` : '',
+    hitLine ? `一句击中：${hitLine}` : '',
+    climateLine ? `调候：${climateLine}` : '',
+    deadLine ? `死锁点：${deadLine}` : '',
+  ].filter(Boolean).join('；');
 
   return {
-    overview: `命主${gender === 'male' ? '为男' : '为女'}，日主天干为${riZhu}（${wx}行），${strengthMod[strengthKey] ?? ''}喜用神为${favStr}，忌神为${unfavStr}。`,
+    overview: `命主${gender === 'male' ? '为男' : '为女'}，日主天干为${riZhu}（${wx}行），${strengthMod[strengthKey] ?? ''}喜用神为${favStr}，忌神为${unfavStr}。${engineBits ? engineBits + '。' : ''}`,
     personality: personalityBase[wx] ?? `${wx}日主天干，性格内外兼备，具有天生的平衡感。`,
     career: careerMap[wx]?.[strengthKey] ?? `${wx}日主注重平衡发展，建议建立稳定的事业基础。`,
     relationship: relationshipMap[wx]?.[strengthKey] ?? `${wx}日主感情中充满责任心，对伴侣忠诚且包容。`,
@@ -1347,6 +1367,7 @@ export async function calcSingleBazi(person: PersonInput): Promise<SingleBaziRes
     wuXing,
     gender,
     shiShen,
+    { pattern, climate, deadPoint, oneLineHit },
   );
 
   return {
