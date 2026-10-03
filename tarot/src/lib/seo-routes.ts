@@ -4,16 +4,17 @@ export function tarotPageMeta(
   path: string,
   title: string,
   description: string,
-  opts?: { noindex?: boolean },
+  opts?: { noindex?: boolean; locale?: string | null },
 ) {
   const canonical = path === '/' ? ORASAGE_URLS.tarot : `${ORASAGE_URLS.tarot}${path.startsWith('/') ? path : `/${path}`}`;
   return buildOrasageMetadata({
     title,
     description,
+    locale: opts?.locale,
     metadataBase: new URL(ORASAGE_URLS.tarot),
     canonical,
     robots: opts?.noindex ? { index: false, follow: true } : undefined,
-    openGraph: { title, description, url: canonical },
+    openGraph: { title, description, url: canonical, locale: opts?.locale ?? undefined },
     ogImage: `${ORASAGE_URLS.tarot}/og.png`,
   });
 }

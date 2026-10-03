@@ -2,13 +2,16 @@ import type { Metadata } from "next"
 import { TarotHomeV2 } from '@/components/home/TarotHomeV2';
 import { resolveServerLang } from '@/lib/i18n/request-lang';
 import { siteMetadataForLang } from '@/lib/i18n/site-metadata';
+import { localeFromTarotLang } from '@orasage/i18n';
 import { tarotPageMeta } from '@/lib/seo-routes';
 import './tarot-home.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await resolveServerLang();
   const meta = siteMetadataForLang(lang);
-  return tarotPageMeta('/', meta.title, meta.description);
+  return tarotPageMeta('/', meta.title, meta.description, {
+    locale: localeFromTarotLang(lang),
+  });
 }
 
 export default function TarotHomePage() {
