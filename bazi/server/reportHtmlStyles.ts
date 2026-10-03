@@ -696,9 +696,117 @@ export const REPORT_PAGE_CSS = `
         }
 
         /* ============================================================
-           Section 02 — Five Elements
+           Section — Four Pillars board
            ============================================================ */
-        #section-02 {
+        .section-mingpan {
+            background: var(--ivory);
+        }
+
+        .mingpan-board {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .mp-pillar {
+            background: var(--ivory-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 36px 16px 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .mp-pillar.is-day-master {
+            background: var(--ivory);
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 1px var(--terracotta);
+        }
+
+        .mp-label {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-bottom: 16px;
+        }
+
+        .mp-dm {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-family: var(--font-ui);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--terracotta);
+            border: 1px solid var(--terracotta);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .mp-gan,
+        .mp-zhi {
+            font-family: 'Noto Serif SC', var(--font-display), serif;
+            line-height: 1;
+        }
+
+        .mp-gan {
+            font-size: 56px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .mp-zhi {
+            font-size: 40px;
+            font-weight: 500;
+            margin-bottom: 18px;
+        }
+
+        .mp-gan.wood, .mp-zhi.wood { color: #5B8C5A; }
+        .mp-gan.fire, .mp-zhi.fire { color: #C96442; }
+        .mp-gan.earth, .mp-zhi.earth { color: #CD7F32; }
+        .mp-gan.metal, .mp-zhi.metal { color: #8A8A8A; }
+        .mp-gan.water, .mp-zhi.water { color: #4A90B8; }
+
+        .mp-meta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mp-wx {
+            font-family: 'Noto Serif SC', var(--font-display), serif;
+            font-size: 13px;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+
+        .mp-wx.wood { background: #E8F0E8; color: #5B8C5A; }
+        .mp-wx.fire { background: #F8EBE4; color: #C96442; }
+        .mp-wx.earth { background: #F5E6D3; color: #CD7F32; }
+        .mp-wx.metal { background: #EDEDED; color: #8A8A8A; }
+        .mp-wx.water { background: #E3EEF5; color: #4A90B8; }
+
+        .mp-polar {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            color: var(--ink-muted);
+        }
+
+        /* ============================================================
+           Section — Five Elements
+           ============================================================ */
+        .section-elements {
             background: var(--ivory-dark);
         }
 
@@ -716,6 +824,29 @@ export const REPORT_PAGE_CSS = `
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 36px;
+        }
+
+        .wx-radar-wrap {
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .wx-radar {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .wx-radar-caption {
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-top: 8px;
         }
 
         .elements-donut {
@@ -1279,7 +1410,7 @@ export const REPORT_PAGE_CSS = `
         /* ============================================================
            Section 06 — Weekly Action
            ============================================================ */
-        #section-06 {
+        .section-weekly {
             background: var(--ivory-dark);
         }
 
@@ -1599,6 +1730,7 @@ export const REPORT_PAGE_CSS = `
             .core-insight-body,
             .key-takeaway,
             .elements-grid,
+            .mingpan-board,
             .balance-section,
             .personality-grid,
             .trait-cards-grid,
@@ -1674,6 +1806,23 @@ export const REPORT_PAGE_CSS = `
 
             .core-insight-body {
                 columns: 1;
+            }
+
+            .mingpan-board {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .mp-gan {
+                font-size: 44px;
+            }
+
+            .mp-zhi {
+                font-size: 30px;
+            }
+
+            .mp-pillar {
+                padding: 28px 12px 20px;
             }
 
             .elements-grid {
