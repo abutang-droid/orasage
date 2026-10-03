@@ -93,7 +93,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     },
   });
 
-  // Shop 支付回跳 ?paid=1&order=OS-xxx
+  // Shop 支付回跳 ?paid=1&order=OS-xxx — 只处理一次，避免 t 引用变化时反复 toast。
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -115,7 +115,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     url.searchParams.delete("order");
     url.searchParams.delete("restore");
     window.history.replaceState({}, "", url.pathname + url.search);
-  }, [t]);
+  }, []);
 
   // Legacy WooCommerce postMessage
   useEffect(() => {

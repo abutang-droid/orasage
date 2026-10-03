@@ -5,11 +5,10 @@ import { formatCityLabel } from "../i18n";
 type Props = {
   result: CityLookupResult;
   locale: string;
-  onConfirm: () => void;
-  onReject: () => void;
+  onRevise: () => void;
 };
 
-export function CityConfirmCard({ result, locale, onConfirm, onReject }: Props) {
+export function CityConfirmCard({ result, locale, onRevise }: Props) {
   const t = getCityMessages(locale);
   const lowConfidence = result.confidence < 0.85;
   const region = result.country === "中国" ? result.province : result.country;
@@ -23,6 +22,9 @@ export function CityConfirmCard({ result, locale, onConfirm, onReject }: Props) 
           {label}
           {region ? `（${region}）` : ""}
         </strong>
+        <button type="button" className="orasage-city-change" onClick={onRevise}>
+          {t.confirmNo}
+        </button>
       </p>
       {lowConfidence ? (
         <p className="orasage-city-hint orasage-city-hint--warn">
@@ -30,14 +32,6 @@ export function CityConfirmCard({ result, locale, onConfirm, onReject }: Props) 
           {result.suggestion ? ` — ${result.suggestion}` : ` — ${t.parentHint}`}
         </p>
       ) : null}
-      <div className="orasage-city-confirm-actions">
-        <button type="button" className="orasage-city-btn orasage-city-btn--primary" onClick={onConfirm}>
-          {t.confirmYes}
-        </button>
-        <button type="button" className="orasage-city-btn" onClick={onReject}>
-          {t.confirmNo}
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,0 +1,83 @@
+.bazi-entry-chrome {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  margin: 0 auto 8px;
+  position: sticky;
+  top: 0;
+  z-index: 8;
+}
+.bazi-entry-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.bazi-entry-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 2px;
+}
+.bazi-entry-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bazi-entry-chrome--luopan {
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: blur(8px);
+}
+.bazi-entry-chrome--luopan .bazi-entry-back {
+  color: #2e4a63;
+}
+.bazi-entry-chrome--luopan .bazi-entry-switch {
+  background: #fffdf8;
+  border: 1px solid #e5dfd3;
+}
+.bazi-entry-chrome--luopan .bazi-entry-switch-btn {
+  color: #6e685c;
+}
+.bazi-entry-chrome--luopan .bazi-entry-switch-btn.is-active {
+  background: #a8433a;
+  color: #fff9f3;
+}
+
+.bazi-entry-chrome--classic {
+  max-width: none;
+  background: rgba(247, 244, 250, 0.94);
+  backdrop-filter: blur(8px);
+  padding: 4px 0;
+}
+.bazi-entry-chrome--classic .bazi-entry-back {
+  color: #5d5973;
+}
+.bazi-entry-chrome--classic .bazi-entry-switch {
+  background: #ffffff;
+  border: 1px solid #e8e2f0;
+}
+.bazi-entry-chrome--classic .bazi-entry-switch-btn {
+  color: #5d5973;
+}
+.bazi-entry-chrome--classic .bazi-entry-switch-btn.is-active {
+  background: #d9a441;
+  color: #ffffff;
+}

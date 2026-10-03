@@ -1,5 +1,6 @@
 import type { SingleBaziResult } from '@/lib/bazi';
-import { BRANCH_WU_XING, DI_ZHI_CANG_GAN, WU_XING_MAP } from '@/lib/bazi';
+import { BRANCH_WU_XING, DI_ZHI_CANG_GAN, SHI_SHEN_MAP, WU_XING_MAP } from '@/lib/bazi';
+import { WuXingPolarChart } from '@/components/WuXingPolarChart';
 
 const WX_VAR: Record<string, string> = {
   木: 'var(--wx-wood)',
@@ -16,8 +17,9 @@ const PILLAR_ORDER = [
   { key: 'hour' as const, cap: '时柱' },
 ];
 
-function formatWx(n: number) {
-  return n % 1 === 0 ? String(n) : n.toFixed(1);
+function pillarShiShen(result: SingleBaziResult, gan: string, isDay: boolean) {
+  if (isDay) return '日主';
+  return SHI_SHEN_MAP[result.day.gan]?.[gan] ?? result.shiShen[gan] ?? '';
 }
 
 export function LuopanResult({
@@ -29,9 +31,12 @@ export function LuopanResult({
 }) {
   const dayGan = result.day.gan;
   const dmWx = WU_XING_MAP[dayGan] ?? '';
-  const counts = [result.wuXing.木, result.wuXing.火, result.wuXing.土, result.wuXing.金, result.wuXing.水];
-  const max = Math.max(1, ...counts);
-  const names = ['木', '火', '土', '金', '水'] as const;
+  const genderLabel = result.gender === 'female' ? '女命' : '男命';
+  const shenshaEntries = Object.entries(result.shensha ?? {}).filter(([, vals]) => vals?.length);
+  const daYun = result.daYun ?? [];
+  const hit = result.oneLineHit;
+  const flowIssues = result.flowIssues ?? [];
+  const dead = result.deadPoint;
 
   return (
     <div className="res">
@@ -50,15 +55,18 @@ export function LuopanResult({
           <div className="wx">五行属 {dmWx}</div>
         </div>
         <div className="cap">
-          {result.birthStr}
+          {genderLabel} · {result.birthStr}
           {result.birthCity && !result.birthStr.includes(result.birthCity) ? `　${result.birthCity}` : ''}
         </div>
+        {hit?.headline ? (
+          <p className="hit">{hit.headline}{hit.subline ? ` · ${hit.subline}` : ''}</p>
+        ) : null}
       </div>
       <div className="bamboo-hint">自右向左 · 年 月 日 时</div>
       <div className="bamboo-row">
         {PILLAR_ORDER.map((p, i) => {
           const pl = result[p.key];
-          const ss = p.key === 'day' ? '日主' : (result.shiShen[pl.gan] ?? '');
+          const ss = pillarShiShen(result, pl.gan, p.key === 'day');
           const cang = (DI_ZHI_CANG_GAN[pl.zhi] ?? []).join(' ');
           const zw = BRANCH_WU_XING[pl.zhi] ?? '土';
           return (
@@ -75,26 +83,96 @@ export function LuopanResult({
           );
         })}
       </div>
+
       <div className="ink-sec">
         <div className="ink-h">五 行</div>
-        <div className="ink-row">
-          {names.map((nm, i) => {
-            const n = counts[i];
-            const d = Math.round(30 + (n / max) * 34);
-            const o = (0.3 + 0.55 * (n / max)).toFixed(2);
-            return (
-              <div key={nm} className="ink">
-                <div className="drop" style={{ ['--c' as string]: WX_VAR[nm], ['--d' as string]: `${d}px`, ['--o' as string]: o }} />
-                <div className="nm">{nm}</div>
-                <div className="ct">{formatWx(n)}</div>
-              </div>
-            );
-          })}
-        </div>
+        <WuXingPolarChart wuXing={result.wuXing} />
       </div>
-      <div className="creed">知结构，不问吉凶</div>
+
+      <section className="ora-sec" aria-label="铁口直断·格局强弱喜忌">
+        <div className="ora-h">铁口直断 · 格局强弱喜忌</div>
+        <div className="ora-grid">
+          <div className="ora-cell">
+            <div className="ora-k">格局</div>
+            <div className="ora-v">{result.pattern?.primary ?? '—'}</div>
+          </div>
+          <div className="ora-cell">
+            <div className="ora-k">强弱</div>
+            <div className="ora-v">{result.strength || '—'}</div>
+          </div>
+          <div className="ora-cell">
+            <div className="ora-k">喜用</div>
+            <div className="ora-v fav">{result.favorable?.length ? result.favorable.join(' / ') : '均衡'}</div>
+          </div>
+          <div className="ora-cell">
+            <div className="ora-k">忌神</div>
+            <div className="ora-v unfav">{result.unfavorable?.length ? result.unfavorable.join(' / ') : '均衡'}</div>
+          </div>
+        </div>
+        {result.pattern?.description ? <p className="ora-p">{result.pattern.description}</p> : null}
+        {result.climate?.active && result.climate.description ? (
+          <p className="ora-p climate">调候：{result.climate.description}</p>
+        ) : null}
+        {dead?.insight || dead?.mechanism ? (
+          <p className="ora-p">
+            死锁点：{dead.target ? `${dead.target}←${dead.attacker} — ` : ''}
+            {dead.insight || dead.mechanism}
+          </p>
+        ) : null}
+        {flowIssues.length > 0 ? (
+          <ul className="sha-list" style={{ marginTop: 10 }}>
+            {flowIssues.slice(0, 4).map((issue, i) => (
+              <li key={`${issue.label}-${i}`}>
+                <span className="sha-n">{issue.label || issue.severity || '气机'}</span>
+                <span className="sha-v">{issue.description || ''}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
+      {result.mingLiSummary?.overview ? (
+        <section className="ora-sec" aria-label="命理小结">
+          <div className="ora-h">命理小结</div>
+          <p className="ora-p">{result.mingLiSummary.overview}</p>
+          {result.mingLiSummary.personality ? <p className="ora-p">{result.mingLiSummary.personality}</p> : null}
+          {result.mingLiSummary.career ? <p className="ora-p">{result.mingLiSummary.career}</p> : null}
+        </section>
+      ) : null}
+
+      {daYun.length > 0 ? (
+        <section className="ora-sec" aria-label="大运">
+          <div className="ora-h">大 运</div>
+          <div className="yun-row">
+            {daYun.map((dy, i) => (
+              <div key={`${dy.startAge}-${dy.gan}${dy.zhi}-${i}`} className="yun">
+                <div className="yun-gz">{dy.gan}{dy.zhi}</div>
+                <div className="yun-age">{dy.startAge}岁起</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {shenshaEntries.length > 0 ? (
+        <section className="ora-sec" aria-label="神煞">
+          <div className="ora-h">神 煞</div>
+          <ul className="sha-list">
+            {shenshaEntries.map(([name, vals]) => (
+              <li key={name}>
+                <span className="sha-n">{name}</span>
+                <span className="sha-v">{vals.join('、')}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <div className="creed">铁口直断 · 四层过滤</div>
       <div className="fine">
-        已按出生城市校正真太阳时。本盘只呈现干支结构，不判吉凶，不构成任何医疗、法律、财务或人生决策建议。
+        四柱、藏干加权五行、格局、调候、气机、死锁点、喜忌、大运、神煞均来自 OraSage 排盘引擎
+        {result.trueSolarNote ? `；${result.trueSolarNote.replace(/[（）]/g, '')}` : '；已按出生城市校正真太阳时'}。
+        本盘不构成任何医疗、法律、财务或人生决策建议。
       </div>
       <div className="res-foot">
         <button type="button" className="b-sec" onClick={onBack}>重 排</button>
