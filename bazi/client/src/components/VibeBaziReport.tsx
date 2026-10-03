@@ -66,6 +66,8 @@ function strengthKind(strength: string): "身强" | "身弱" | "身中" {
   return "身中";
 }
 
+const TEASER_ICONS = [Brain, Briefcase, Heart, Activity, TrendingUp] as const;
+
 function strengthPct(strength: string): number {
   const k = strengthKind(strength);
   if (k === "身强") return 84;

@@ -94,5 +94,6 @@ describe("铁口直断 prompt wiring", () => {
     expect(src).toContain("铁口直断 · 格局强弱喜忌");
     expect(src).not.toContain("composeFreeReport");
     expect(src).not.toContain("白话速读");
+    expect(src).toContain("TEASER_ICONS");
   });
 });
