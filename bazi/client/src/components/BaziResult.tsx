@@ -28,6 +28,7 @@ import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 import { trueSolarCaption } from "@shared/free-report";
 import { polarTag, GRID_CAPTION_ZH, GRID_CAPTION_EN } from "@shared/vernacular";
 import { buildTieKouFreeInsight } from "@/lib/tiekou-insight";
+import { VibeBaziReport } from "@/components/VibeBaziReport";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -1553,133 +1554,7 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
 //  单人结果页
 // ════════════════════════════════════════════════════════════════════
 export function SingleBaziResultView({ result, onBack, onStartDouble }: SingleProps) {
-  const { t, term } = useT();
-  const payment = usePaymentFlow();
-  const [showPlans, setShowPlans] = useState(false);
-  const captureRef = useRef<HTMLDivElement>(null);
-  const dailyFortune = useMemo(() => calcDailyFortune(result), [result]);
-  const braceletRec = useMemo(() => recommendBracelet(result.wuXing as unknown as Record<string, number>), [result]);
-
-  const planNameMap: Record<string, string> = {
-    basic: t('plan.basic.name'),
-    advanced: t('plan.advanced.name'),
-    premium: t('plan.premium.name'),
-  };
-
-  // 报告生成完毕 → 推送到用户中心（WC 或 shop 订单）
-  const handleReportReady = (reportContent: string, sections: Array<{ title: string; content: string }>) => {
-    if (!payment.purchasedPlan) return;
-    if (!payment.shopOrderNo && !payment.wooOrderId) return;
-    payment.pushReportToWordPress({
-      planType: payment.purchasedPlan,
-      wooOrderId: payment.wooOrderId || undefined,
-      shopOrderNo: payment.shopOrderNo || undefined,
-      reportContent,
-      name: result.name,
-    });
-  };
-
-  return (
-    <div style={{ minHeight: "auto" }} className="flex flex-col gap-4 animate-fade-in-up">
-      {/* 顶部操作栏 */}
-      <div className="flex items-center justify-between">
-        <button type="button" onClick={onBack}
-        className="flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 active:scale-95"
-        style={{ color: BODY_CLR }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-          {t('result.back')}
-        </button>
-        {onStartDouble && (
-          <button type="button" onClick={onStartDouble}
-            className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-80 active:scale-95 px-3 py-1.5 rounded-full"
-            style={{ color: GOLD, border: `1px solid ${BORDER_CLR}`, background: "rgba(196,160,78,0.07)" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            {t('result.double')}
-          </button>
-        )}
-      </div>
-
-      {/* ── 免费展示：八字命盘 + 命理简析 ── */}
-      {/* 姓名 + 日主 */}
-      <div className="rounded-xl px-5 py-5" style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}` }}>
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xl font-bold" style={{ color: GOLD, fontFamily: SERIF_F, letterSpacing: "0.05em" }}>{result.name}</p>
-            <p className="text-xs mt-1" style={{ color: BODY_CLR }}>
-              {result.gender === "male" ? term('男命') : term('女命')} · {result.birthStr}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px]" style={{ color: MUTED_CLR, letterSpacing: "0.08em" }}>{t('pillar.day_master')}</p>
-            <p className="text-3xl font-black" style={{ color: GOLD, fontFamily: SERIF_F }}>{result.riZhu}</p>
-          </div>
-        </div>
-      </div>
-
-      <BaziMingpanCard result={result} />
-
-      <WuXingDistributionSection wuXing={result.wuXing} />
-
-      {/* 免费命理解读：日主分析 + 职业 + 合作 + 风险 */}
-      <FreeBaziInsight result={result} />
-
-      {/* 计费墙：未付费时展示 */}
-      {!payment.unlocked && (
-        <PaywallCard
-          selectedPlan={payment.selectedPlan}
-          onSelectPlan={payment.setSelectedPlan}
-          onPay={payment.handlePaySelected}
-          payLoading={payment.payLoading}
-        />
-      )}
-
-      {/* 已解锁内容 */}
-      {payment.unlocked && (
-        <UnlockedContent result={result} purchasedPlan={payment.purchasedPlan} braceletRec={braceletRec} captureRef={captureRef} onReportReady={handleReportReady} />
-      )}
-
-      {/* 付费后操作区 */}
-      {payment.unlocked && (
-        <div className="flex flex-col gap-3 pt-2">
-          {onStartDouble && (
-            <button type="button" onClick={onStartDouble}
-              className="w-full py-3 rounded-2xl text-sm font-bold tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
-              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`, color: "#ffffff", fontFamily: SERIF_F, letterSpacing: "0.18em", boxShadow: `0 4px 16px rgba(196,160,78,0.35)` }}>
-              {t('result.double')}
-            </button>
-          )}
-          <button type="button" onClick={onBack}
-            className="w-full py-2.5 rounded-2xl text-sm tracking-widest transition-all active:scale-95"
-            style={{ background: "transparent", color: GOLD_DIM, border: `1px solid ${BORDER_CLR}`, fontFamily: SERIF_F, letterSpacing: "0.12em" }}>
-            {t('result.back')}
-          </button>
-        </div>
-      )}
-
-      {/* 付费方案选择弹窗：保留供升级按钮复用 */}
-      {showPlans && (
-        <PlanSelectionModal
-          open={showPlans}
-          onClose={() => setShowPlans(false)}
-          mode="single"
-          onSelectPlan={(plan, orderId) => {
-            payment.setUnlocked(true);
-            payment.setPurchasedPlan(plan);
-            if (orderId) payment.setWooOrderId(orderId);
-            setShowPlans(false);
-          }}
-        />
-      )}
-      <div className="h-4" />
-    </div>
-  );
+  return <VibeBaziReport result={result} onBack={onBack} onStartDouble={onStartDouble} />;
 }
 
 // ── 双人合盘结果页 ────────────────────────────────────────────────────────────

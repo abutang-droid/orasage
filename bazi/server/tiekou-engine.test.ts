@@ -86,4 +86,13 @@ describe("铁口直断 prompt wiring", () => {
     expect(JSON.stringify(insight)).not.toContain("现象");
     expect(JSON.stringify(insight)).not.toContain("体系里叫");
   });
+
+  it("VibeBaziReport binds Tie Kou insight, not composeFreeReport", async () => {
+    const { readFileSync } = await import("fs");
+    const src = readFileSync(new URL("../client/src/components/VibeBaziReport.tsx", import.meta.url), "utf8");
+    expect(src).toContain("buildTieKouFreeInsight");
+    expect(src).toContain("铁口直断 · 格局强弱喜忌");
+    expect(src).not.toContain("composeFreeReport");
+    expect(src).not.toContain("白话速读");
+  });
 });

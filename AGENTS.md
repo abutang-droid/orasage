@@ -116,7 +116,7 @@ units, and remote deploy scripts targeting a single production VPS.
 
 - **Bazi 铁口直断 (recurring):** do not replace Tie Kou prompts / free result with
   vernacular-only "现象→机制→体系里叫". Feed engine verdicts via
-  `formatEngineVerdict`; classic free UI must use `buildTieKouFreeInsight`
+  `formatEngineVerdict`; classic free UI is `VibeBaziReport` + `buildTieKouFreeInsight`
   (luopan redirects to `/classic`). Guard: `bazi/server/tiekou-engine.test.ts`.
 - **Bazi luopan mobile ticks (recurring):** never CSS-rotate `.ring-g` / tick
   labels, and never lock `.dial { height:340px }` on narrow screens — numbers
