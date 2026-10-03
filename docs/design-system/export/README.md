@@ -8,4 +8,4 @@
 | [OraSage-Brand-Design-Spec.html](./OraSage-Brand-Design-Spec.html) | 网页版 |
 | [OraSage-Brand-Design-Spec.zip](./OraSage-Brand-Design-Spec.zip) | 完整包 |
 
-英文 **OraSage** · 中文 locale **海棠未眠** · 其它语言不用汉字 · 壳层灰度 + Vibe 赭石。
+中文 locale **双品牌：海棠未眠为主、OraSage 为辅** · 其它语言仅 OraSage、不用汉字 · 壳层灰度 + Vibe 赭石。
