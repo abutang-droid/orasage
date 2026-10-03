@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { resolveReportsDir } from "./_core/reportsDir";
@@ -13,6 +14,7 @@ import { PLAN_OPTIONS } from "@shared/types";
 import fs from "fs";
 import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
+import { extractLuopanBirth, luopanVoiceCapabilities, transcribeLuopanAudio } from "./luopanSpeech";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
 import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
 import { buildReportPageHtml } from "./reportHtml";
@@ -202,6 +204,53 @@ export const appRouter = router({
         // 解析 Markdown 章节：按 ### 标题分割
         const sections = parseSections(content);
         return { report: content, sections };
+      }),
+
+    /** 罗盘语音：是否可走服务端 Whisper / LLM 抽取 */
+    voiceCapabilities: publicProcedure.query(() => luopanVoiceCapabilities()),
+
+    /**
+     * 罗盘语音输入。优先 Whisper 转写（有 Forge 时），再用 LLM 抽出生辰字段；
+     * 模型失败或未配置时回退正则。限流与 analyze 相同。
+     */
+    luopanVoice: publicProcedure
+      .use(llmRateLimit)
+      .input(z.object({
+        transcript: z.string().max(800).optional(),
+        audioBase64: z.string().max(1_200_000).optional(),
+        mimeType: z.string().max(80).optional(),
+      }).refine((v) => Boolean(v.transcript?.trim() || v.audioBase64), {
+        message: "需要录音或文字",
+      }))
+      .mutation(async ({ input }) => {
+        let transcript = (input.transcript || "").trim();
+        let stt: "whisper" | "client" | "none" = transcript ? "client" : "none";
+        const caps = luopanVoiceCapabilities();
+        if (input.audioBase64 && caps.stt) {
+          try {
+            const buf = Buffer.from(input.audioBase64, "base64");
+            const heard = await transcribeLuopanAudio(buf, input.mimeType || "audio/webm");
+            if (heard) {
+              transcript = heard;
+              stt = "whisper";
+            }
+          } catch (err) {
+            console.warn("luopan stt", err instanceof Error ? err.message : err);
+          }
+        }
+        if (!transcript) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "没有听清，请再说一次年月日时和城市",
+          });
+        }
+        const extracted = await extractLuopanBirth(transcript);
+        return {
+          transcript,
+          fields: extracted.fields,
+          stt,
+          parse: extracted.parse,
+        };
       }),
 
     /** 免费命理解读（轻量，只返回 6 个字段） */
