@@ -168,7 +168,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escapeHtml(options.planLabel)} - OraSage 命理报告</title>
+<title>${escapeHtml(options.planLabel)} - 海棠未眠 命理报告</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C4A04E;--gold-light:#D9B86A;--ink:#2E295B;--body:#4A4560;--muted:#7B7488;--bg:#F3F0F7;--card:#FFFFFF;--border:rgba(196,160,78,0.18)}
@@ -209,13 +209,13 @@ body{font-family:"Noto Serif SC",serif;background:linear-gradient(180deg,#F8F5FC
 <div class="wrap">
   <header class="hero">
     <div class="badge">${escapeHtml(options.planLabel)}</div>
-    <h1>OraSage 命理报告</h1>
+    <h1>海棠未眠 命理报告</h1>
     ${subjectLine}
     <p class="meta">生成于 ${escapeHtml(dateStr)}</p>
   </header>
   <main class="report-card">${sectionHtml}${productHtml}</main>
   <footer class="footer">
-    <p>本报告由 OraSage 八字命理系统生成，内容仅供文化娱乐与自我探索参考。</p>
+    <p>本报告由 海棠未眠 OraSage 八字命理系统生成，内容仅供文化娱乐与自我探索参考。</p>
     <p><a href="https://orasage.com">orasage.com</a> · <a href="https://bazi.orasage.com">八字排盘</a></p>
   </footer>
 </div>

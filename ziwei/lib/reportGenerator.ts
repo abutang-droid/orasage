@@ -36,7 +36,7 @@ ${JSON.stringify(chart, null, 2)}
 ## 事业财运
 ## 感情人际
 ## 健康能量
-## OraSage 建议
+## 海棠未眠建议
 
 ${aiLanguageReplyRule(locale)}`;
 }
@@ -65,7 +65,7 @@ function buildCouplePrompt(chartA: ZiweiChart, chartB: ZiweiChart, planType: str
 ## 事业合作
 ## 相处建议
 ## 关键流年
-## OraSage 建议
+## 海棠未眠建议
 
 ${aiLanguageReplyRule(locale)}`;
 }

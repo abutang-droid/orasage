@@ -59,7 +59,7 @@ export const INSIGHTS_PILLAR_INTROS: InsightsPillarIntro[] = [
     paragraphs: [
       {
         en: 'Crystal Companion essays describe OraSage bracelets as intention objects: material facts, craft choices, and prompts you assign yourself. Jewelry can remind; it cannot guarantee outcomes.',
-        zh: '水晶志短文把 OraSage 手串描述为意图物件：材质事实、工艺选择与你自己指定的提示。器物可以提醒，不能担保结果。',
+        zh: '水晶志短文把 海棠未眠 手串描述为意图物件：材质事实、工艺选择与你自己指定的提示。器物可以提醒，不能担保结果。',
       },
       {
         en: 'Specs and pricing live on Shop; longer craft narratives live in The Making. Cross-read those pages when you want verifiable details.',

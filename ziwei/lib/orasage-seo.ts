@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
+import {
+  LATIN_BRAND,
+  isChineseLocale,
+  siteDisplayName,
+  titleTemplate,
+  withSiteTitle,
+} from '@/lib/orasage-app-shell/brand';
 
-export const ORASAGE_SITE_NAME = 'OraSage';
+export const ORASAGE_SITE_NAME = LATIN_BRAND;
+export { isChineseLocale, siteDisplayName, titleTemplate };
 
 export const ORASAGE_URLS = {
   main: 'https://orasage.com',
@@ -10,10 +18,9 @@ export const ORASAGE_URLS = {
   shop: 'https://shop.orasage.com',
 } as const;
 
-/** UI keeps product brands; SEO titles end with | OraSage */
-export function orasageTitle(pageTitle: string): string {
-  if (/OraSage/i.test(pageTitle)) return pageTitle;
-  return `${pageTitle} | OraSage`;
+/** SEO titles: 中文 | 海棠未眠；其它语言 | OraSage */
+export function orasageTitle(pageTitle: string, locale?: string | null): string {
+  return withSiteTitle(pageTitle, locale);
 }
 
 export const ORASAGE_DEFAULT_KEYWORDS = [
@@ -35,12 +42,13 @@ export function orasageOpenGraph(opts: {
   url?: string;
   locale?: string;
   type?: 'website' | 'article';
-  /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
+  /** Absolute URL of a 1200x630 share card */
   image?: string;
 }) {
+  const loc = opts.locale?.replace('_', '-');
   return {
-    siteName: ORASAGE_SITE_NAME,
-    title: orasageTitle(opts.title),
+    siteName: siteDisplayName(loc),
+    title: orasageTitle(opts.title, loc),
     description: opts.description,
     type: opts.type ?? 'website',
     ...(opts.url ? { url: opts.url } : {}),
@@ -49,10 +57,15 @@ export function orasageOpenGraph(opts: {
   };
 }
 
-export function orasageTwitter(title: string, description: string, image?: string) {
+export function orasageTwitter(
+  title: string,
+  description: string,
+  image?: string,
+  locale?: string | null,
+) {
   return {
     card: 'summary_large_image' as const,
-    title: orasageTitle(title),
+    title: orasageTitle(title, locale),
     description,
     ...(image ? { images: [image] } : {}),
   };
@@ -64,17 +77,18 @@ export function buildOrasageMetadata(opts: {
   keywords?: string | string[];
   metadataBase?: URL;
   canonical?: string;
+  locale?: string | null;
   openGraph?: Parameters<typeof orasageOpenGraph>[0];
   robots?: Metadata['robots'];
-  /** Absolute URL of a 1200x630 share card (VI v1.0 §6.2) */
   ogImage?: string;
 }): Metadata {
   const keywords = opts.keywords
     ? (Array.isArray(opts.keywords) ? opts.keywords : opts.keywords.split(',').map((k) => k.trim()))
     : [...ORASAGE_DEFAULT_KEYWORDS];
+  const loc = opts.locale ?? opts.openGraph?.locale?.replace('_', '-');
 
   return {
-    title: orasageTitle(opts.title),
+    title: orasageTitle(opts.title, loc),
     description: opts.description,
     keywords,
     ...(opts.metadataBase ? { metadataBase: opts.metadataBase } : {}),
@@ -82,8 +96,9 @@ export function buildOrasageMetadata(opts: {
     openGraph: orasageOpenGraph({
       ...(opts.openGraph ?? { title: opts.title, description: opts.description }),
       ...(opts.ogImage ? { image: opts.ogImage } : {}),
+      ...(loc ? { locale: loc.replace('-', '_') } : {}),
     }),
-    twitter: orasageTwitter(opts.title, opts.description, opts.ogImage),
+    twitter: orasageTwitter(opts.title, opts.description, opts.ogImage, loc),
     ...(opts.robots ? { robots: opts.robots } : {}),
   };
 }

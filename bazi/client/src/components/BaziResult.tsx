@@ -1309,8 +1309,19 @@ function AIAnalysisPanel({
                   lineHeight: 1.3,
                   textAlign: "center",
                 }}>
-                  OraSage
+                  {t('brand.name')}
                 </p>
+                {locale.startsWith('zh') ? (
+                  <p style={{
+                    color: "rgba(93,89,115,0.55)",
+                    fontFamily: "'Noto Serif SC', serif",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.12em",
+                    textAlign: "center",
+                  }}>
+                    OraSage
+                  </p>
+                ) : null}
                 <p style={{
                   color: "rgba(93,89,115,0.5)",
                   fontFamily: "'Noto Serif SC', serif",

@@ -15,7 +15,7 @@ export const ShopHomeHero: GlobalConfig = {
       '配置 shop.orasage.com 商城首页顶部 Hero。顶栏品牌名「能量商城」不受此配置影响。',
   },
   fields: homeHeroFields({
-    eyebrow: 'OraSage',
+    eyebrow: '海棠未眠',
     headline: '能量商城',
     subtitle: '命理解读推荐 · 水晶手串 · 数字报告',
   }),

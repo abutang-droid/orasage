@@ -5,6 +5,7 @@ import {
   type MappedHeroContent,
 } from '../../../shared/hero/map-cms-hero';
 import { resolveHeroWithFallback } from '../../../shared/hero/resolve-hero';
+import { heroEyebrow, isChineseLocale, localizeBrandEyebrow } from '@/lib/orasage-app-shell/brand';
 
 const CMS_INTERNAL_URL =
   process.env.CMS_URL || process.env.CMS_INTERNAL_URL || 'http://127.0.0.1:3120/cms';
@@ -40,7 +41,7 @@ function mapHomeHero(data: CmsHeroRaw): HomeHeroContent | null {
 const CJK_RE = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]/;
 
 function isZhLocale(locale: string) {
-  return locale === 'zh-CN' || locale === 'zh-TW' || locale.startsWith('zh');
+  return isChineseLocale(locale);
 }
 
 /**
@@ -53,7 +54,12 @@ function localizeHeroText(
   fallback: HomeHeroContent,
 ): HomeHeroContent {
   if (!hero.enabled) return hero;
-  if (isZhLocale(locale)) return hero;
+  if (isZhLocale(locale)) {
+    return {
+      ...hero,
+      eyebrow: localizeBrandEyebrow(hero.eyebrow, locale),
+    };
+  }
 
   const headline = hero.headline?.trim() ?? '';
   const subtitle = hero.subtitle?.trim() ?? '';
@@ -63,6 +69,9 @@ function localizeHeroText(
   }
   if (!subtitle || CJK_RE.test(subtitle)) {
     patch.subtitle = fallback.subtitle;
+  }
+  if (hero.eyebrow) {
+    patch.eyebrow = localizeBrandEyebrow(hero.eyebrow, locale);
   }
   return Object.keys(patch).length ? { ...hero, ...patch } : hero;
 }
@@ -88,12 +97,15 @@ export async function fetchHomeHero(
   }
 }
 
-export function fallbackHomeHero(messages: {
-  hero: { title: string; subtitle: string };
-}): HomeHeroContent {
+export function fallbackHomeHero(
+  messages: {
+    hero: { title: string; subtitle: string };
+  },
+  locale = 'zh-CN',
+): HomeHeroContent {
   return {
     enabled: true,
-    eyebrow: 'OraSage',
+    eyebrow: heroEyebrow(locale),
     headline: messages.hero.title,
     subtitle: messages.hero.subtitle,
     displayMode: 'text',

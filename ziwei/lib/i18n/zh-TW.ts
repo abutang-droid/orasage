@@ -145,7 +145,7 @@ const zhTW: Record<string, string> = {
   'common.error': '發生錯誤',
   'common.retry': '重試',
   'common.close': '關閉',
-  'footer.portal.copyright': '© 2026 OraSage. 保留所有權利。',
+  'footer.portal.copyright': '© 2026 海棠未眠 OraSage. 保留所有權利。',
   'footer.portal.privacy': '隱私政策',
   'footer.portal.terms': '服務條款',
 };

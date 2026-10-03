@@ -33,7 +33,7 @@ export function ResultExitLinks({ locale = 'en', readingId = null, className = '
     {
       id: 'home' as const,
       href: base,
-      label: zh ? '← 返回 OraSage 首页' : '← Back to OraSage home',
+      label: zh ? '← 返回 海棠未眠 首页' : '← Back to OraSage home',
     },
   ];
 

@@ -7,6 +7,7 @@ import { getPrimaryNavCategories, getUtilityNav, type NavCategory, type NavLink 
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { OrasageAuthChip } from './OrasageAuthChip';
 import { pickLabel, SHELL_LABELS } from './labels';
+import { isChineseLocale, siteAuxName, siteDisplayName, siteSignature } from './brand';
 
 function NavDropdown({ category }: { category: NavCategory }) {
   const children = category.children ?? [];
@@ -131,7 +132,7 @@ function MobileNavPanel({
 
 export type SiteTopNavProps = {
   locale?: string;
-  /** portal = OraSage；子应用 = 独立品牌（BaZi / ZiWei / Manto） */
+  /** portal = 母品牌；子应用非中文 = 独立产品名（BaZi / ZiWei / Manto）；中文全站母品牌双锁定 */
   context?: NavContext;
   /** 导航右侧、工具位前的插槽（如 shop 本地购物车覆盖） */
   trailing?: ReactNode;
@@ -152,8 +153,14 @@ export function SiteTopNav({
 }: SiteTopNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isPortal = context === 'portal';
-  const brandLabel = isPortal ? 'OraSage' : appBrandLabel(context, locale);
+  const showMotherLockup = isPortal || isChineseLocale(locale);
+  const brandPrimary =
+    context !== 'portal' && !isChineseLocale(locale)
+      ? appBrandLabel(context, locale)
+      : siteDisplayName(locale);
+  const brandAux = showMotherLockup ? siteAuxName(locale) : null;
   const brandHref = isPortal ? mainPortalUrl(locale) : appHomeUrl(context);
+  const brandAria = showMotherLockup ? siteSignature(locale) : brandPrimary;
   const categories = getPrimaryNavCategories(locale);
   const util = getUtilityNav(locale);
   const menuLabel = pickLabel(SHELL_LABELS.menu, locale);
@@ -177,8 +184,16 @@ export function SiteTopNav({
     <>
       <header className="orasage-site-topnav">
         <div className="orasage-site-topnav-inner">
-          <a href={brandHref} className="orasage-site-topnav-brand">
-            {brandLabel}
+          <a href={brandHref} className="orasage-site-topnav-brand" aria-label={brandAria}>
+            <span className="orasage-brand-lockup">
+              <span
+                className="orasage-brand-lockup-primary"
+                data-script={isChineseLocale(locale) && showMotherLockup ? 'zh' : 'latin'}
+              >
+                {brandPrimary}
+              </span>
+              {brandAux ? <span className="orasage-brand-lockup-aux">{brandAux}</span> : null}
+            </span>
           </a>
 
           <nav className="orasage-site-topnav-menu orasage-site-topnav-menu--desktop" aria-label="Site navigation">

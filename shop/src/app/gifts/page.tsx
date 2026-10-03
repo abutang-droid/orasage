@@ -9,10 +9,14 @@ import { isCrystalGiftSku } from '../../../../shared/shop-crystal/index';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerShopLocale();
+  const zh = locale.toLowerCase().startsWith('zh');
   return buildOrasageMetadata({
-    title: 'Gifts | OraSage',
-    description:
-      'Five Elements gift sets — crystal bracelets as mindful jewelry and intention reminders. Not fortune or outcome guarantees.',
+    locale,
+    title: zh ? '礼赠' : 'Gifts',
+    description: zh
+      ? '五行礼赠 — 水晶手串作为意图提醒的器物，不构成运势或结果承诺。'
+      : 'Five Elements gift sets — crystal bracelets as mindful jewelry and intention reminders. Not fortune or outcome guarantees.',
     canonical: `${ORASAGE_URLS.shop}/gifts`,
   });
 }

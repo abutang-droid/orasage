@@ -40,7 +40,7 @@ export default async function OriginsPage({ params }: Props) {
     {
       href: '/origins/our-story',
       title: t('Our Story', '缘起'),
-      desc: t('Why OraSage builds content commerce this way.', 'OraSage 为何这样做内容电商。'),
+      desc: t('Why OraSage builds content commerce this way.', '海棠未眠为何这样做内容电商。'),
     },
   ];
 

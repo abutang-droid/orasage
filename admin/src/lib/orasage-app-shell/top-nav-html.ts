@@ -1,6 +1,7 @@
 import { mainPortalUrl, ORASAGE_URLS } from './config';
 import { pickLabel, SHELL_LABELS } from './labels';
 import { getPrimaryNavCategories } from './primary-nav';
+import { motherBrandLockupHtml, siteSignature } from './brand';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -37,7 +38,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
   return `
 <header class="orasage-site-topnav">
   <div class="orasage-site-topnav-inner">
-    <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
+    <a href="${main}" class="orasage-site-topnav-brand" aria-label="${esc(siteSignature(locale))}">${motherBrandLockupHtml(locale)}</a>
     <nav class="orasage-site-topnav-menu orasage-site-topnav-menu--desktop" aria-label="Site navigation">
           ${desktopLinks}
       <a href="${main}/search" class="orasage-site-topnav-link">${esc(search)}</a>

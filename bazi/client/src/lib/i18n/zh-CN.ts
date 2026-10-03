@@ -2,7 +2,7 @@ import type { TranslationDict } from "./index";
 
 const ui: TranslationDict = {
   /* ── 品牌 ── */
-  "brand.name": "OraSage",
+  "brand.name": "海棠未眠",
   "brand.tagline": "输入出生信息，开启您的命理之旅",
 
   /* ── 首页 Hero ── */
@@ -107,7 +107,7 @@ const ui: TranslationDict = {
   "plan.tier.basic": "基础版",
   "plan.tier.advanced": "进阶版",
   "plan.tier.premium": "尊享版",
-  "plan.basic.name": "OraSage 深度解读",
+  "plan.basic.name": "海棠未眠 深度解读",
   "plan.basic.desc": "完整命理解读报告",
   "plan.advanced.name": "定制专属水晶手串",
   "plan.advanced.desc": "根据五行定制专属手串",
@@ -194,8 +194,8 @@ const ui: TranslationDict = {
   "report.title": "命 · 理 · 报 · 告",
   "report.click_hint": "点击每章标题展开详细解读",
   "report.progress": "{open}/{total}",
-  "report.footer": "以上解读由 OraSage 完成\n融合传统命理与现代心理学\n仅供参考，不构成任何决策依据",
-  "report.footer.couple": "本报告由 OraSage 严格按照铁口直断体系生成，仅供参考。",
+  "report.footer": "以上解读由 海棠未眠 OraSage 完成\n融合传统命理与现代心理学\n仅供参考，不构成任何决策依据",
+  "report.footer.couple": "本报告由 海棠未眠 OraSage 严格按照铁口直断体系生成，仅供参考。",
   "report.error": "报告生成失败，请重试",
   "report.retry": "重新生成",
   "report.view_full": "查看完整报告",
@@ -252,7 +252,7 @@ const ui: TranslationDict = {
   "footer.social.wechat": "微信",
   "footer.social.weibo": "微博",
   "footer.social.douyin": "抖音",
-  "footer.social.email": "联系 OraSage",
+  "footer.social.email": "联系 海棠未眠",
   "footer.nav.calculator": "八字计算器",
   "footer.nav.history": "历史记录",
   "footer.heading.nav": "快速导航",
@@ -272,7 +272,7 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "隐私政策",
   "footer.support_desc": "支持多种安全支付方式，数据加密保护您的隐私。",
   "footer.copyright": "保留所有权利。",
-  "footer.portal.copyright": "© 2026 OraSage. 保留所有权利。",
+  "footer.portal.copyright": "© 2026 海棠未眠 OraSage. 保留所有权利。",
   "footer.portal.privacy": "隐私政策",
   "footer.portal.terms": "服务条款",
 };

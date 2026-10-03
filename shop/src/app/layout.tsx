@@ -4,23 +4,32 @@ import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { ShopShell } from '@/components/ShopShell';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
+import { isChineseLocale } from '@/lib/orasage-app-shell/brand';
 
-const PAGE_TITLE = 'OraSage Crystal Shop';
-const PAGE_DESCRIPTION = 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.';
-
-export const metadata: Metadata = buildOrasageMetadata({
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  keywords: ['OraSage', 'crystal shop', 'crystal bracelet', 'divination report', '水晶商城', '水晶手串'],
-  metadataBase: new URL(ORASAGE_URLS.shop),
-  openGraph: {
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    url: ORASAGE_URLS.shop,
-    locale: 'zh_CN',
-  },
-  ogImage: `${ORASAGE_URLS.shop}/og.png`,
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const zh = isChineseLocale(locale);
+  return buildOrasageMetadata({
+    locale,
+    title: zh ? '能量商城' : 'Crystal Shop',
+    description: zh
+      ? '水晶手串、数字报告与能量咨询 — 海棠未眠 OraSage。'
+      : 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
+    keywords: zh
+      ? ['海棠未眠', 'OraSage', '水晶商城', '水晶手串']
+      : ['OraSage', 'crystal shop', 'crystal bracelet', 'divination report'],
+    metadataBase: new URL(ORASAGE_URLS.shop),
+    openGraph: {
+      title: zh ? '能量商城' : 'Crystal Shop',
+      description: zh
+        ? '水晶手串、数字报告与能量咨询 — 海棠未眠 OraSage。'
+        : 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
+      url: ORASAGE_URLS.shop,
+      locale: locale.replace('-', '_'),
+    },
+    ogImage: `${ORASAGE_URLS.shop}/og.png`,
+  });
+}
 
 export const viewport: Viewport = {
   width: 'device-width',

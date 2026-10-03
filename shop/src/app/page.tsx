@@ -15,9 +15,14 @@ import { isCrystalGiftSku } from '../../../shared/shop-crystal/index';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerShopLocale();
+  const zh = locale.toLowerCase().startsWith('zh');
   return buildOrasageMetadata({
-    title: 'OraSage Crystal Shop',
-    description: 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
+    locale,
+    title: zh ? '能量商城' : 'Crystal Shop',
+    description: zh
+      ? '水晶手串、数字报告与能量咨询 — 海棠未眠 OraSage。'
+      : 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.',
     canonical: ORASAGE_URLS.shop,
   });
 }

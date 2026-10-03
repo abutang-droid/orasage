@@ -17,6 +17,20 @@ export type { DisclaimerVariant, DisclaimerLocale } from './disclaimer-copy';
 export { ResultExitLinks } from './ResultExitLinks';
 export { setLocaleCookie, applyLocaleChange, CORE_LOCALES, LOCALE_COOKIE } from './locale-cookie';
 export { pickLabel, SHELL_LABELS } from './labels';
+export {
+  LATIN_BRAND,
+  ZH_PRIMARY_BRAND,
+  isChineseLocale,
+  siteDisplayName,
+  siteAuxName,
+  siteSignature,
+  titleTemplate,
+  withSiteTitle,
+  copyrightLine,
+  heroEyebrow,
+  localizeBrandEyebrow,
+  motherBrandLockupHtml,
+} from './brand';
 export type { AppId, NavContext } from './config';
 export {
   appBrandLabel,

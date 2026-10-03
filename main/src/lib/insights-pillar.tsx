@@ -55,7 +55,7 @@ export function buildPillarPage(pillar: Pillar) {
     return buildPortalPageMeta({
       locale,
       pathname: meta.path,
-      title: `${isZh ? meta.titleZh : meta.titleEn} | OraSage`,
+      title: isZh ? meta.titleZh : meta.titleEn,
       description: isZh ? meta.leadZh : meta.leadEn,
     });
   }

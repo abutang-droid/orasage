@@ -1,5 +1,6 @@
 import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
 import { getDisclaimerCopy } from '../../../shared/app-shell/disclaimer-copy.ts';
+import { copyrightLine, siteDisplayName } from '../../../shared/app-shell/brand.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
@@ -8,10 +9,10 @@ const LOCALES = EXTENDED_LOCALES;
 type FooterStrings = { login: string; copyright: string; privacy: string; terms: string };
 
 const FOOTER_STRINGS: Record<string, FooterStrings> = {
-  'zh-CN': { login: '登录', copyright: '© 2026 OraSage. 保留所有权利。', privacy: '隐私政策', terms: '服务条款' },
-  'zh-TW': { login: '登入', copyright: '© 2026 OraSage. 保留所有權利。', privacy: '隱私政策', terms: '服務條款' },
-  en: { login: 'Login', copyright: '© 2026 OraSage. All rights reserved.', privacy: 'Privacy Policy', terms: 'Terms of Service' },
-  'pt-BR': { login: 'Entrar', copyright: '© 2026 OraSage. Todos os direitos reservados.', privacy: 'Política de Privacidade', terms: 'Termos de Serviço' },
+  'zh-CN': { login: '登录', copyright: copyrightLine('zh-CN'), privacy: '隐私政策', terms: '服务条款' },
+  'zh-TW': { login: '登入', copyright: copyrightLine('zh-TW'), privacy: '隱私政策', terms: '服務條款' },
+  en: { login: 'Login', copyright: copyrightLine('en'), privacy: 'Privacy Policy', terms: 'Terms of Service' },
+  'pt-BR': { login: 'Entrar', copyright: copyrightLine('pt-BR'), privacy: 'Política de Privacidade', terms: 'Termos de Serviço' },
 };
 
 const normalizeLocale = toCoreLocale;
@@ -72,7 +73,7 @@ export function authPageLayout(title: string, body: string, locale: string): str
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="theme-color" content="#fafaf8">
-  <title>${title} — OraSage</title>
+  <title>${title} — ${siteDisplayName(locale)}</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" type="image/svg+xml" href="/assets/brand/icon.svg">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">

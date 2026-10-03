@@ -9,21 +9,25 @@ import { siteMetadataForLang } from "@/lib/i18n/site-metadata"
 import { UserProvider } from "@/lib/user"
 import { ORASAGE_URLS } from "@/lib/orasage-seo"
 import { localeFromTarotLang } from "@orasage/i18n"
+import { isChineseLocale, siteDisplayName, titleTemplate } from "@/lib/orasage-app-shell/brand"
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await resolveServerLang()
+  const htmlLang = localeFromTarotLang(lang)
   const meta = siteMetadataForLang(lang)
 
   return {
     metadataBase: new URL(ORASAGE_URLS.tarot),
     title: {
       default: meta.title,
-      template: '%s | OraSage',
+      template: titleTemplate(htmlLang),
     },
     description: meta.description,
-    keywords: ["OraSage", "tarot", "塔罗", "占卜", "daily worship", "crystal", "spiritual", "命理"],
+    keywords: isChineseLocale(htmlLang)
+      ? ["海棠未眠", "OraSage", "塔罗", "占卜"]
+      : ["OraSage", "tarot", "daily worship", "crystal", "spiritual"],
     openGraph: {
-      siteName: 'OraSage',
+      siteName: siteDisplayName(htmlLang),
       title: meta.title,
       description: meta.description,
       url: ORASAGE_URLS.tarot,

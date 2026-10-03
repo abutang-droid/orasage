@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
   const data = getKnowledge(star, topic as TopicKey);
   if (!data.exists) return {};
 
-  const title = orasageTitle(`${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`);
+  const title = orasageTitle(`${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`, 'zh-CN');
   const description = data.parsed.dingdiao
     || `${star}入${data.palaceName}宫的紫微斗数解读 — 基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
   const pageUrl = `${SITE_URL}/knowledge/${slug}/${topic}`;
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
       description,
       type: 'article',
       url: pageUrl,
-      siteName: 'OraSage',
+      siteName: '海棠未眠',
     },
     alternates: {
       canonical: pageUrl,
@@ -92,10 +92,10 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
     '@type': 'Article',
     headline: `${star}入${data.palaceName}宫 · ${data.topicLabel}`,
     description: data.parsed.dingdiao,
-    author: { '@type': 'Organization', name: 'OraSage · 倪海夏紫微体系' },
+    author: { '@type': 'Organization', name: '海棠未眠 OraSage · 倪海夏紫微体系' },
     publisher: {
       '@type': 'Organization',
-      name: 'OraSage',
+      name: '海棠未眠',
       url: ORASAGE_URLS.main,
     },
     datePublished: '2026-04-28',

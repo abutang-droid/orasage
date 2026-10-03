@@ -13,7 +13,7 @@ npm run app-shell:check
 ```bash
 for app in tarot/src/lib/orasage-app-shell ziwei/lib/orasage-app-shell bazi/client/src/lib/orasage-app-shell main/src/lib/orasage-app-shell shop/src/lib/orasage-app-shell admin/src/lib/orasage-app-shell cms/src/lib/orasage-app-shell; do
   mkdir -p "$app"
-  cp shared/app-shell/{AppShell.tsx,AppBrandMark.tsx,OrasageAuthChip.tsx,SiteTopNav.tsx,BottomNav.tsx,config.ts,labels.ts,app-shell.css,index.ts} "$app/"
+  cp shared/app-shell/{AppShell.tsx,AppBrandMark.tsx,OrasageAuthChip.tsx,SiteTopNav.tsx,BottomNav.tsx,config.ts,labels.ts,brand.ts,app-shell.css,index.ts} "$app/"
 done
 cp shared/app-shell/app-shell.css auth-service/public/assets/app-shell.css
 ```
@@ -35,5 +35,6 @@ CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断�
 
 - 子应用使用共享 `PortalFooter`（`shared/app-shell/PortalFooter.tsx`）+ `.orasage-portal-footer*`（`app-shell.css`）
 - 文案来自 `SHELL_LABELS.copyright|privacy|terms`，**必须传入与顶栏相同的 `locale`**（勿单独依赖可能滞后的 i18n provider）
+- 中文版权行主语为 **海棠未眠 OraSage**；其它语言仅 OraSage
 - 仅展示版权 / 隐私政策 / 用户协议，**禁止**展示登录用户名或邮箱
 - 法律链接统一指向主站 `/{locale}/privacy` 与 `/{locale}/terms`

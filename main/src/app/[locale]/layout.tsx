@@ -8,7 +8,7 @@ import { PortalChrome } from '@/components/PortalChrome';
 import { AnalyticsPageView } from '@/components/AnalyticsPageView';
 import { PlausibleScript } from '@orasage/analytics/react';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
-import { ORASAGE_URLS, orasageOpenGraph, orasageTwitter } from '@/lib/orasage-seo';
+import { ORASAGE_URLS, orasageOpenGraph, orasageTwitter, titleTemplate } from '@/lib/orasage-seo';
 import { buildHreflangAlternates } from '@/lib/seo';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(ORASAGE_URLS.main),
     title: {
       default: title,
-      template: '%s | OraSage',
+      template: titleTemplate(locale),
     },
     description,
     keywords: keywords.split(',').map((k: string) => k.trim()),

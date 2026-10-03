@@ -3,12 +3,12 @@
  */
 export function sanitizeReportBrandText(text: string): string {
   return text
-    .replace(/演算法依據/g, 'Orasage')
-    .replace(/算法依据/g, 'Orasage')
-    .replace(/算法推薦/g, 'Orasage')
-    .replace(/算法推荐/g, 'Orasage')
-    .replace(/\[依据[：:]/g, '[Orasage：')
-    .replace(/\[依據[：:]/g, '[Orasage：')
-    .replace(/依据[：:]/g, 'Orasage：')
-    .replace(/依據[：:]/g, 'Orasage：');
+    .replace(/演算法依據/g, '海棠未眠')
+    .replace(/算法依据/g, '海棠未眠')
+    .replace(/算法推薦/g, '海棠未眠')
+    .replace(/算法推荐/g, '海棠未眠')
+    .replace(/\[依据[：:]/g, '[海棠未眠：')
+    .replace(/\[依據[：:]/g, '[海棠未眠：')
+    .replace(/依据[：:]/g, '海棠未眠：')
+    .replace(/依據[：:]/g, '海棠未眠：');
 }

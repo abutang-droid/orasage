@@ -69,11 +69,11 @@ describe("renderMarkdown", () => {
 格局正印格，聪慧稳重。`,
       subjectName: "张三",
     });
-    expect(html).toContain("OraSage 命理报告");
+    expect(html).toContain("海棠未眠 命理报告");
     expect(html).toContain("命盘总览");
     expect(html).toContain("class=\"kw\"");
     expect(html).not.toContain("算法依据");
-    expect(html).toContain("Orasage");
+    expect(html).toContain("海棠未眠");
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {

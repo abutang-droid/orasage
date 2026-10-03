@@ -1,7 +1,7 @@
 import type { TranslationDict } from "./index";
 
 const ui: TranslationDict = {
-  "brand.name": "OraSage",
+  "brand.name": "海棠未眠",
   "brand.tagline": "輸入出生資訊，開啟您的命理之旅",
   "home.eyebrow": "八字命理",
   "home.title": "精準排盤，洞察五行",
@@ -83,7 +83,7 @@ const ui: TranslationDict = {
   "paywall.couple.subtitle": "選擇方案，立即查看完整合盤分析",
   "paywall.couple.hook": "評分只顯示了表面契合度，真正的緣分密碼藏在五行氣的微觀互動中——誰在關係中消耗能量、誰在滋養對方？完整合盤報告將逐層剖析這些看不見但決定關係品質的關鍵因素。",
   "paywall.couple.hook_label": "解鎖完整合盤 · 了解真正的緣分",
-  "plan.basic.name": "OraSage 深度解讀",
+  "plan.basic.name": "海棠未眠 深度解讀",
   "plan.basic.desc": "完整命理解讀報告",
   "plan.advanced.name": "定製專屬水晶手串",
   "plan.advanced.desc": "根據五行定製專屬手串",
@@ -164,7 +164,7 @@ const ui: TranslationDict = {
   "report.title": "命 · 理 · 報 · 告",
   "report.click_hint": "點擊每章標題展開詳細解讀",
   "report.progress": "{open}/{total}",
-  "report.footer": "以上解讀由 OraSage 完成\n融合傳統命理與現代心理學\n僅供參考，不構成任何決策依據",
+  "report.footer": "以上解讀由 海棠未眠 OraSage 完成\n融合傳統命理與現代心理學\n僅供參考，不構成任何決策依據",
   "report.error": "報告生成失敗，請重試",
   "report.retry": "重新生成",
   "report.view_full": "查看完整報告",
@@ -205,7 +205,7 @@ const ui: TranslationDict = {
   "footer.social.wechat": "微信",
   "footer.social.weibo": "微博",
   "footer.social.douyin": "抖音",
-  "footer.social.email": "聯絡 OraSage",
+  "footer.social.email": "聯絡 海棠未眠",
   "footer.nav.calculator": "八字計算器",
   "footer.nav.history": "歷史記錄",
   "footer.heading.nav": "快速導航",
@@ -225,7 +225,7 @@ const ui: TranslationDict = {
   "footer.legal.privacy": "隱私政策",
   "footer.support_desc": "支援多種安全支付方式，資料加密保護您的隱私。",
   "footer.copyright": "保留所有權利。",
-  "footer.portal.copyright": "© 2026 OraSage. 保留所有權利。",
+  "footer.portal.copyright": "© 2026 海棠未眠 OraSage. 保留所有權利。",
   "footer.portal.privacy": "隱私政策",
   "footer.portal.terms": "服務條款",
 

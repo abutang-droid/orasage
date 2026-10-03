@@ -29,9 +29,10 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
 
   const tHero = await getTranslations('hero');
-  const fallback = fallbackHomeHero({
-    hero: { title: tHero('title'), subtitle: tHero('subtitle') },
-  });
+  const fallback = fallbackHomeHero(
+    { hero: { title: tHero('title'), subtitle: tHero('subtitle') } },
+    locale,
+  );
 
   const [homepageCatalog, hero] = await Promise.all([
     fetchHomepageCatalog(locale),
