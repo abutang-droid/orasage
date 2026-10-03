@@ -31,7 +31,7 @@ CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断�
 
 ## PC 页脚
 
-见 [`docs/design-system/OraSage-Design-System-v1.1-Revised.md`](../../docs/design-system/OraSage-Design-System-v1.1-Revised.md) §7。
+见 [`docs/design-system/OraSage-Brand-Spec.md`](../../docs/design-system/OraSage-Brand-Spec.md) §6.5。
 
 - 子应用使用共享 `PortalFooter`（`shared/app-shell/PortalFooter.tsx`）+ `.orasage-portal-footer*`（`app-shell.css`）
 - 文案来自 `SHELL_LABELS.copyright|privacy|terms`，**必须传入与顶栏相同的 `locale`**（勿单独依赖可能滞后的 i18n provider）

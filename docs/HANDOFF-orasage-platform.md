@@ -3,7 +3,7 @@
 > 写给下一任 Agent / 开发者。  
 > 最后更新：**2026-07-08**  
 > **最新会话交接（塔罗 i18n + ziwei @orasage/ui 全量 + 部署）：** [`HANDOFF-agent-2026-07-08.md`](./HANDOFF-agent-2026-07-08.md) ← **优先读这个**  
-> **全站 UI 现状审查：** [`design-system/ui-status-2026-07.md`](./design-system/ui-status-2026-07.md)  
+> **全站视觉规范：** [`design-system/OraSage-Brand-Spec.md`](./design-system/OraSage-Brand-Spec.md)  
 > **塔罗区全量交接（P4–P7）：** [`HANDOFF-tarot.md`](./HANDOFF-tarot.md)  
 > **地理旅程 / 祈福改版（2026-07-06）：** [`HANDOFF-tarot-geo-temple-2026-07-06.md`](./HANDOFF-tarot-geo-temple-2026-07-06.md)  
 > **E2E 冒烟 / P0 安全：** [`HANDOFF-e2e-p0-2026-07-03.md`](./HANDOFF-e2e-p0-2026-07-03.md)  
@@ -127,7 +127,7 @@ LLM 生成 Markdown → 写 public/reports/*.html → PATCH reading.report_url +
 
 ### 设计规范
 
-参考：`uploads/OraSage-Design-System-Minimal-Refinement_1d35.md`（浅色纸感、克制金色、无五行色块泛滥）
+唯一现行：[`docs/design-system/OraSage-Brand-Spec.md`](./design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠；壳层灰度 + Vibe 赭石报告层）。
 
 ---
 
@@ -200,7 +200,7 @@ PR: https://github.com/abutang-droid/orasage/pull/21 (draft)
 ## 8. 联系人 / 资源
 
 - 仓库：`https://github.com/abutang-droid/orasage`
-- 设计稿 MD：工作区 `uploads/OraSage-Design-System-Minimal-Refinement_1d35.md`
+- 设计规范：[`docs/design-system/OraSage-Brand-Spec.md`](./design-system/OraSage-Brand-Spec.md)
 - Tarot 独立交接（另一项目）：`tarot/HANDOFF.md`（Manto，非本 monorepo 主线）
 
 ---

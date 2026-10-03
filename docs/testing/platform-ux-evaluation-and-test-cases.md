@@ -1,7 +1,7 @@
 # OraSage（orasage.com）产品体验评估与测试用例设计
 
 > **文档版本：** 2026-07-03  
-> **依据：** `README.md`、`PRODUCT_PLAN_v3.md`（若存在）、`docs/mobile-first.md`、`docs/HANDOFF-orasage-platform.md` 及核心代码  
+> **依据：** `README.md`、[`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)、`docs/AGENT-RULES.md` 及核心代码  
 > **范围：** 8 个子域模块全平台 UX 评估 + 可执行测试用例  
 > **自动化入口：** `scripts/e2e/`（见 [§4 自动化映射](#4-自动化脚本与用例映射)）
 
@@ -87,7 +87,7 @@ flowchart TD
 
 ### 1.3 易用性与直观性优化建议
 
-**移动端（首要，见 `docs/mobile-first.md`）**
+**移动端（首要，见 `docs/design-system/OraSage-Brand-Spec.md` §6.7 与 AGENT-RULES）**
 
 | 建议 | 针对模块 | 具体措施 |
 |------|----------|----------|
@@ -365,7 +365,7 @@ npm run test:smoke-all
 ## 相关文档
 
 - [`docs/HANDOFF-orasage-platform.md`](../HANDOFF-orasage-platform.md)
-- [`docs/mobile-first.md`](../mobile-first.md)
-- [`docs/design-system/ui-phase-2.md`](../design-system/ui-phase-2.md)
+- [`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)
+- [`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)
 - [`docs/plans/design-unify-backlog.md`](../plans/design-unify-backlog.md)
 - [`AGENTS.md`](../../AGENTS.md) — 本地运行与环境变量

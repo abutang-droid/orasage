@@ -5,9 +5,9 @@
  */
 
 /**
- * OraSage Design Tokens v1.1 (Revised)
- * Monochrome system — black / white / gray only.
- * Authority: OraSage Design System v1.1 (Revised)
+ * OraSage / 海棠未眠 Design Tokens
+ * Authority: docs/design-system/OraSage-Brand-Spec.md
+ * Chrome = monochrome + cinnabar seal; editorial reports = --os-vibe-*
  */
 :root {
   color-scheme: light;
@@ -89,11 +89,31 @@
   --os-color-element-metal: #b0b5b2;
   --os-color-element-water: #9ca3af;
 
-  /* Cinnabar seal color (VI v1.0 §3.2) — seal/blessing accents only, <=5% area, never buttons/links/nav */
+  /* Cinnabar seal color — seal/blessing accents only, <=5% area, never buttons/links/nav */
   --os-color-cinnabar-600: #a63f33;
   --os-color-cinnabar-700: #8c3529;
   --os-color-cinnabar-100: #f6e8e4;
   --os-rgb-cinnabar-600: 166 63 51;
+
+  /* Vibe editorial (命理报告内容区) — OraSage-Brand-Spec.md §3.2 / §7 */
+  --os-vibe-brand: #c96442;
+  --os-vibe-brand-light: #e0a892;
+  --os-vibe-brand-faded: #f4e0d5;
+  --os-vibe-brand-deep: #934828;
+  --os-vibe-background: #faf9f5;
+  --os-vibe-surface: #ffffff;
+  --os-vibe-card: #f5f4ef;
+  --os-vibe-card-hover: #f0ede4;
+  --os-vibe-foreground: #3d3929;
+  --os-vibe-muted-foreground: #6e6d68;
+  --os-vibe-text-light: #9b988c;
+  --os-vibe-border: #dad9d4;
+  --os-vibe-border-light: #e3e0d4;
+  --os-vibe-success: #788c5d;
+  --os-vibe-error: #d64545;
+  --os-vibe-warn: #d4872c;
+  --os-vibe-purple: #9c87f5;
+  --os-rgb-vibe-brand: 201 100 66;
 
   --os-color-status-success: #16a34a;
   --os-color-status-warning: #d97706;

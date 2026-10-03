@@ -2,14 +2,14 @@
 
 > 写给下一任 Cloud Agent / 开发者（含「未来的自己」）。  
 > 覆盖本轮多轮对话主线：**塔罗 i18n 补全 → ziwei `@orasage/ui` 三批 + 扫尾 → 合并部署**。  
-> 平台总览仍见 [`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)（§2 部分已过期，**以本文 + `ui-status-2026-07.md` 为准**）。
+> 平台总览仍见 [`HANDOFF-orasage-platform.md`](./HANDOFF-orasage-platform.md)（§2 部分已过期，**以本文 + `design-system/OraSage-Brand-Spec.md` 为准**）。
 
 **关联文档（按优先级）：**
 
 | 文档 | 用途 |
 |------|------|
 | [`docs/AGENT-RULES.md`](./AGENT-RULES.md) | **最高宪法**：关联分支穿透、全站范围、导航规范 |
-| [`docs/design-system/ui-status-2026-07.md`](./design-system/ui-status-2026-07.md) | 全站 UI / TW4 / `@orasage/ui` 接入矩阵（最新） |
+| [`docs/design-system/OraSage-Brand-Spec.md`](./design-system/OraSage-Brand-Spec.md) | 全站唯一品牌 / UI 规范（OraSage / 海棠未眠） |
 | [`docs/plans/platform-roadmap-2026-07.md`](./plans/platform-roadmap-2026-07.md) | 六大工作项长期路线（DB 合一、i18n 基座等） |
 | [`docs/plans/design-unify-backlog.md`](./plans/design-unify-backlog.md) | 设计统一待办（部分已完成，读前核对日期） |
 | [`docs/HANDOFF-tarot.md`](./HANDOFF-tarot.md) | 塔罗专项（P4–P7、功德、CMS 圣地等） |
@@ -92,7 +92,7 @@
 #222 feat(tarot): secondary pages i18n（前序）
 ```
 
-更早背景（同系列但未在本轮重复部署）：#216 ziwei lucide、#217–#218 shop TW4、#220+ TW4 全站收敛与 UI 风险修复（见 `ui-status-2026-07.md`）。
+更早背景（同系列但未在本轮重复部署）：#216 ziwei lucide、#217–#218 shop TW4、#220+ TW4 全站收敛与 UI 风险修复（见 `OraSage-Brand-Spec.md`）。
 
 ---
 
@@ -167,7 +167,7 @@ App Shell 按钮需压掉默认样式，保留 `orasage-app-*` / `orasage-page-b
 | 用途 | 路径 |
 |------|------|
 | Agent 规则 | `docs/AGENT-RULES.md` |
-| UI 现状审查 | `docs/design-system/ui-status-2026-07.md` |
+| 视觉规范 | `docs/design-system/OraSage-Brand-Spec.md` |
 | `@orasage/ui` 组件 | `packages/ui/src/components/*.tsx` |
 | UI exports | `packages/ui/package.json` → `exports` |
 | Tarot i18n | `tarot/src/lib/i18n/` |
@@ -255,7 +255,7 @@ npm run app-shell:check
 
 ## 10. 快速状态一句话
 
-> **2026-07-08：`main` 上 tarot 核心用户流程四语 i18n 已铺完一轮；ziwei 业务组件 `@orasage/ui`（Button/Card/Input/Badge/Checkbox）已全部接入且无原生 button/input；ziwei + tarot 生产已部署。下一任优先读 `ui-status-2026-07.md` 挑 tarot/shop/bazi 余量或平台级任务。**
+> **2026-07-08：`main` 上 tarot 核心用户流程四语 i18n 已铺完一轮；ziwei 业务组件 `@orasage/ui`（Button/Card/Input/Badge/Checkbox）已全部接入且无原生 button/input；ziwei + tarot 生产已部署。视觉规范见 `docs/design-system/OraSage-Brand-Spec.md`。**
 
 ---
 

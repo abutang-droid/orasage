@@ -28,4 +28,4 @@ npm run tokens:check
 - `@orasage/tokens/css` — CSS variables
 - `@orasage/tokens/tailwind-preset` — Tailwind v3 preset
 
-Spec baseline: `docs/design-system/ui-phase-1.md` and brand token v1.1.
+Spec baseline: [`docs/design-system/OraSage-Brand-Spec.md`](../../docs/design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠 · 唯一规范）。

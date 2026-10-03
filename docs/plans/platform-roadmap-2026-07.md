@@ -1,7 +1,7 @@
 # OraSage 平台六大工作项 — 分析与方案（2026-07）
 
 > 基于 2026-07-07 对仓库全量调研（UI/i18n 现状、数据库全貌、shop 架构与对外能力）。
-> 关联文档：`docs/design-system/ui-phase-2.md`、`docs/plans/design-unify-backlog.md`。
+> 关联文档：[`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)、`docs/plans/design-unify-backlog.md`。
 
 ## 现状速览
 
@@ -28,7 +28,7 @@
 
 ## 1. 全站统一 UI（符号、组件）
 
-**目标架构不变**（`ui-phase-2.md` 已定）：`shared/design-tokens` → `@orasage/tokens` → `@orasage/ui` → 各 App，禁止第二套 shadcn。缺的是"铺开"。
+**目标架构不变**（`OraSage-Brand-Spec.md` §9）：`shared/design-tokens` → `@orasage/tokens` → `@orasage/ui` → 各 App，禁止第二套 shadcn。缺的是"铺开"。
 
 ### 工作项（按序）
 
