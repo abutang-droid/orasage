@@ -107,6 +107,12 @@ export const SHOP_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/shop/promotions'),
   },
   {
+    label: '推广渠道',
+    href: '/shop/channels',
+    permission: 'shop.promotions',
+    isActive: (p) => p.startsWith('/shop/channels'),
+  },
+  {
     label: '水晶专题',
     href: '/shop/crystal-home',
     permission: 'shop.products',

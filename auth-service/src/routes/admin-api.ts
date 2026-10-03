@@ -67,6 +67,18 @@ import {
   type CouponInput,
 } from "../lib/coupons.ts";
 import {
+  createPromoChannel,
+  formatPromoChannel,
+  formatPromoLeg,
+  getPromoChannelById,
+  listPromoChannels,
+  listPromoLegs,
+  settlePromoChannelLegs,
+  statsForChannels,
+  syncPromoCommissionForOrder,
+  updatePromoChannel,
+} from "../lib/promo-channels.ts";
+import {
   getAnalyticsSummary,
   listRecentAnalyticsEvents,
   type AnalyticsApp,
@@ -1156,6 +1168,7 @@ adminApiRouter.patch("/orders/:orderNo", P.orders, async (req, res) => {
       return;
     }
     await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, orderNo));
+    await syncPromoCommissionForOrder({ ...existing[0], status: body.status });
     res.json({ success: true, orderNo, status: body.status });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -1363,6 +1376,156 @@ adminApiRouter.put("/coupons", P.promotions, async (req, res) => {
       return;
     }
     console.error("[admin] coupons put:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+/* ── 推广渠道分佣（金腿/银腿）─────────────────────────── */
+
+const promoChannelCreateSchema = z.object({
+  code: z.string().min(2).max(32),
+  name: z.string().min(1).max(120),
+  contact: z.string().max(200).nullable().optional(),
+  commissionPercent: z.number().min(0).max(100).optional(),
+  commissionBps: z.number().int().min(0).max(10_000).optional(),
+  leg: z.enum(["gold", "silver", "standard"]).optional(),
+  notes: z.string().max(2000).nullable().optional(),
+  active: z.boolean().optional(),
+});
+
+const promoChannelPatchSchema = promoChannelCreateSchema.omit({ code: true }).partial();
+
+function commissionBpsFromBody(body: { commissionPercent?: number; commissionBps?: number }, fallback = 1000): number {
+  if (body.commissionBps !== undefined) return body.commissionBps;
+  if (body.commissionPercent !== undefined) return Math.round(body.commissionPercent * 100);
+  return fallback;
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  return typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505";
+}
+
+adminApiRouter.get("/promo-channels", P.promotions, async (_req, res) => {
+  try {
+    const rows = await listPromoChannels();
+    const stats = await statsForChannels(rows.map((row) => row.id));
+    res.json({ channels: rows.map((row) => formatPromoChannel(row, stats.get(row.id))) });
+  } catch (err) {
+    console.error("[admin] promo-channels:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.get("/promo-channels/:id", P.promotions, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const row = await getPromoChannelById(id);
+    if (!row) {
+      res.status(404).json({ error: "渠道不存在" });
+      return;
+    }
+    const stats = await statsForChannels([row.id]);
+    const legs = await listPromoLegs(row.id, 100);
+    res.json({
+      channel: formatPromoChannel(row, stats.get(row.id)),
+      legs: legs.map(formatPromoLeg),
+    });
+  } catch (err) {
+    console.error("[admin] promo-channel get:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.post("/promo-channels", P.promotions, async (req, res) => {
+  try {
+    const body = promoChannelCreateSchema.parse(req.body);
+    const row = await createPromoChannel({
+      code: body.code,
+      name: body.name,
+      contact: body.contact,
+      commissionBps: commissionBpsFromBody(body),
+      leg: body.leg ?? "gold",
+      notes: body.notes,
+      active: body.active ?? true,
+    });
+    res.status(201).json({ channel: formatPromoChannel(row) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    if (isUniqueViolation(err)) {
+      res.status(409).json({ error: "渠道码已存在" });
+      return;
+    }
+    const message = err instanceof Error ? err.message : "服务器内部错误";
+    if (message.includes("渠道码") || message.includes("渠道名称")) {
+      res.status(400).json({ error: message });
+      return;
+    }
+    console.error("[admin] promo-channel create:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.patch("/promo-channels/:id", P.promotions, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const body = promoChannelPatchSchema.parse(req.body);
+    const patch: Parameters<typeof updatePromoChannel>[1] = {};
+    if (body.name !== undefined) patch.name = body.name;
+    if (body.contact !== undefined) patch.contact = body.contact;
+    if (body.leg !== undefined) patch.leg = body.leg;
+    if (body.notes !== undefined) patch.notes = body.notes;
+    if (body.active !== undefined) patch.active = body.active;
+    if (body.commissionPercent !== undefined || body.commissionBps !== undefined) {
+      patch.commissionBps = commissionBpsFromBody({
+        commissionPercent: body.commissionPercent,
+        commissionBps: body.commissionBps,
+      });
+    }
+    const row = await updatePromoChannel(id, patch);
+    const stats = await statsForChannels([row.id]);
+    res.json({ channel: formatPromoChannel(row, stats.get(row.id)) });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    const message = err instanceof Error ? err.message : "服务器内部错误";
+    if (message === "渠道不存在" || message.includes("渠道名称")) {
+      res.status(message === "渠道不存在" ? 404 : 400).json({ error: message });
+      return;
+    }
+    console.error("[admin] promo-channel patch:", err);
+    res.status(500).json({ error: "服务器内部错误" });
+  }
+});
+
+adminApiRouter.post("/promo-channels/:id/settle", P.promotions, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const row = await getPromoChannelById(id);
+    if (!row) {
+      res.status(404).json({ error: "渠道不存在" });
+      return;
+    }
+    const body = z.object({
+      legIds: z.array(z.number().int().positive()).optional(),
+    }).parse(req.body ?? {});
+    await settlePromoChannelLegs(id, body.legIds);
+    const stats = await statsForChannels([id]);
+    const legs = await listPromoLegs(id, 100);
+    res.json({
+      channel: formatPromoChannel(row, stats.get(id)),
+      legs: legs.map(formatPromoLeg),
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "参数错误", details: err.errors });
+      return;
+    }
+    console.error("[admin] promo-channel settle:", err);
     res.status(500).json({ error: "服务器内部错误" });
   }
 });

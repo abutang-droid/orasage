@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveShopConfig, saveCrystalContent, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, type AdminShippingZone, type AdminCoupon } from '@/lib/api';
+import { createProduct, updateProduct, deleteProduct, updateOrderStatus, createOrderShipment, batchCreateOrderShipments, saveHomepageProducts, saveShopConfig, saveCrystalContent, saveBillingSlotEntries, deleteBillingSlot, saveTagGroup, saveTag, saveCategory, saveProductLinks, createDiyBead, updateDiyBead, saveDiyConfig, updateContactMessage, saveShippingZones, updateProductReviewStatus, saveCoupons, createPromoChannel, updatePromoChannel, settlePromoChannel, type AdminShippingZone, type AdminCoupon, type AdminPromoLegKind } from '@/lib/api';
 import { parseProductFormPayload, parseAttachmentsFromFormAsync } from '@/lib/product-form-parse';
 import { upsertProductImage } from '@/lib/cms-api';
 import { uploadCmsMediaFile } from '@/lib/cms-content-api';
@@ -309,6 +309,78 @@ export async function saveCouponsAction(
 ) {
   await saveCoupons(coupons);
   revalidatePath('/shop/promotions');
+}
+
+function promoReturnPath(id?: string | number | null, extra?: Record<string, string>) {
+  const params = new URLSearchParams(extra);
+  if (id) params.set('id', String(id));
+  const qs = params.toString();
+  return qs ? `/shop/channels?${qs}` : '/shop/channels';
+}
+
+export async function createPromoChannelAction(formData: FormData) {
+  const code = String(formData.get('code') ?? '').trim();
+  const name = String(formData.get('name') ?? '').trim();
+  const contact = String(formData.get('contact') ?? '').trim();
+  const notes = String(formData.get('notes') ?? '').trim();
+  const percent = Number(formData.get('commissionPercent') ?? 10);
+  const leg = String(formData.get('leg') ?? 'gold') as AdminPromoLegKind;
+  const active = formData.get('active') === 'on';
+  try {
+    await createPromoChannel({
+      code,
+      name,
+      contact: contact || null,
+      commissionPercent: Number.isFinite(percent) ? percent : 10,
+      leg: ['gold', 'silver', 'standard'].includes(leg) ? leg : 'gold',
+      notes: notes || null,
+      active,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '保存失败';
+    redirect(promoReturnPath(null, { err: message }));
+  }
+  revalidatePath('/shop/channels');
+  redirect(promoReturnPath(null, { saved: 'ok' }));
+}
+
+export async function updatePromoChannelAction(formData: FormData) {
+  const id = Number(formData.get('id') ?? 0);
+  const name = String(formData.get('name') ?? '').trim();
+  const contact = String(formData.get('contact') ?? '').trim();
+  const notes = String(formData.get('notes') ?? '').trim();
+  const percent = Number(formData.get('commissionPercent') ?? 10);
+  const leg = String(formData.get('leg') ?? 'gold') as AdminPromoLegKind;
+  const active = formData.get('active') === 'on';
+  if (!id) redirect(promoReturnPath(null, { err: '渠道不存在' }));
+  try {
+    await updatePromoChannel(id, {
+      name,
+      contact: contact || null,
+      commissionPercent: Number.isFinite(percent) ? percent : 10,
+      leg: ['gold', 'silver', 'standard'].includes(leg) ? leg : 'standard',
+      notes: notes || null,
+      active,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '保存失败';
+    redirect(promoReturnPath(id, { err: message }));
+  }
+  revalidatePath('/shop/channels');
+  redirect(promoReturnPath(id, { saved: 'ok' }));
+}
+
+export async function settlePromoChannelAction(formData: FormData) {
+  const id = Number(formData.get('id') ?? 0);
+  if (!id) redirect(promoReturnPath(null, { err: '渠道不存在' }));
+  try {
+    await settlePromoChannel(id);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '结算失败';
+    redirect(promoReturnPath(id, { err: message }));
+  }
+  revalidatePath('/shop/channels');
+  redirect(promoReturnPath(id, { saved: 'ok' }));
 }
 
 export async function saveHomepageProductsAction(formData: FormData) {

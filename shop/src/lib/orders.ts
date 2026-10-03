@@ -15,6 +15,7 @@ export interface SyncOrderInput {
   recommendationContext?: string;
   readingId?: string;
   shippingAddress?: string;
+  promoChannelCode?: string | null;
 }
 
 export function makeOrderNo() {

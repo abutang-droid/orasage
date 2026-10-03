@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import HistoryPage from "./pages/HistoryPage";
 import LuopanPage from "./pages/LuopanPage";
 import { DICTIONARIES } from "./lib/i18n";
+import { capturePromoChannelInBrowser } from "../../../shared/promo-channel";
 
 const PORTAL_LOCALES = new Set([
   "zh-CN", "en", "pt-BR", "zh-TW", "es", "fr", "de", "ja", "ko", "vi", "th", "ar",
@@ -64,6 +65,10 @@ function AppBody() {
   const [pathname] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const isImmersive = pathname === "/" || pathname === "/luopan";
+
+  useEffect(() => {
+    capturePromoChannelInBrowser();
+  }, [pathname]);
 
   // ── iframe 高度自适应：内容变化时通知父页面调整高度 ──
   useEffect(() => {

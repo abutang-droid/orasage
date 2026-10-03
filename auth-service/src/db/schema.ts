@@ -108,6 +108,8 @@ export const userOrders = pgTable("user_orders", {
   readingId: varchar("reading_id", { length: 100 }),
   couponCode: varchar("coupon_code", { length: 50 }),
   subtotalCents: integer("subtotal_cents"),
+  promoChannelId: integer("promo_channel_id"),
+  promoChannelCode: varchar("promo_channel_code", { length: 32 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -584,6 +586,35 @@ export const walletLedgerEntries = pgTable("wallet_ledger_entries", {
   /** 运营手动调整时记录 admin 用户 id */
   createdBy: integer("created_by"),
   idempotencyKey: varchar("idempotency_key", { length: 120 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** 推广渠道：分佣比例 + 金腿/银腿 */
+export const promoChannels = pgTable("promo_channels", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 32 }).notNull().unique(),
+  name: varchar("name", { length: 120 }).notNull(),
+  contact: varchar("contact", { length: 200 }),
+  /** 分佣万分比，1000 = 10% */
+  commissionBps: integer("commission_bps").notNull().default(1000),
+  /** gold 金腿 / silver 银腿 / standard 普通 */
+  leg: varchar("leg", { length: 16 }).notNull().default("gold"),
+  notes: text("notes"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 分佣腿：每笔已支付订单一条，线下结算 */
+export const promoCommissionLegs = pgTable("promo_commission_legs", {
+  id: serial("id").primaryKey(),
+  channelId: integer("channel_id").notNull(),
+  orderNo: varchar("order_no", { length: 64 }).notNull().unique(),
+  orderCents: integer("order_cents").notNull(),
+  rateBps: integer("rate_bps").notNull(),
+  commissionCents: integer("commission_cents").notNull(),
+  status: varchar("status", { length: 16 }).notNull().default("pending"),
+  settledAt: timestamp("settled_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

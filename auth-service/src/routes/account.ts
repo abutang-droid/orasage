@@ -12,6 +12,7 @@ import {
   removeCouponFromOrder,
 } from "../lib/order-coupon.ts";
 import { notifyOrderEvent } from "../lib/order-notify.ts";
+import { resolvePromoStamp, syncPromoCommissionForOrder } from "../lib/promo-channels.ts";
 import { notifyNewTicket } from "../lib/ticket-notify.ts";
 import {
   listLedgerForUser,
@@ -633,6 +634,7 @@ const orderSchema = z.object({
   shippingAddress: z.string().max(2000).optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
+  promoChannelCode: z.string().max(32).optional(),
 });
 
 const orderUpdateSchema = z.object({
@@ -734,15 +736,24 @@ internalRouter.patch("/readings/:readingId", async (req, res) => {
 internalRouter.post("/orders", async (req, res) => {
   try {
     const body = orderSchema.parse(req.body);
+    const promoStamp = await resolvePromoStamp(body.promoChannelCode);
     const dup = await db.select().from(userOrders).where(eq(userOrders.orderNo, body.orderNo)).limit(1);
     if (dup.length > 0) {
-      if (body.status && body.status !== dup[0].status) {
-        await db.update(userOrders).set({ status: body.status }).where(eq(userOrders.orderNo, body.orderNo));
-        if (body.status === "paid" && dup[0].status !== "paid") {
-          notifyOrderEvent("paid", { ...dup[0], status: "paid" });
-        }
+      const dupUpdates: Record<string, unknown> = {};
+      if (body.status && body.status !== dup[0].status) dupUpdates.status = body.status;
+      if (!dup[0].promoChannelId && promoStamp.promoChannelId) {
+        dupUpdates.promoChannelId = promoStamp.promoChannelId;
+        dupUpdates.promoChannelCode = promoStamp.promoChannelCode;
       }
-      res.json({ success: true, id: dup[0].id, duplicate: true, updated: Boolean(body.status) });
+      if (Object.keys(dupUpdates).length > 0) {
+        await db.update(userOrders).set(dupUpdates).where(eq(userOrders.orderNo, body.orderNo));
+      }
+      const merged = { ...dup[0], ...dupUpdates } as typeof dup[0];
+      if (body.status === "paid" && dup[0].status !== "paid") {
+        notifyOrderEvent("paid", { ...dup[0], status: "paid" });
+      }
+      await syncPromoCommissionForOrder(merged);
+      res.json({ success: true, id: dup[0].id, duplicate: true, updated: Object.keys(dupUpdates).length > 0 });
       return;
     }
     const [row] = await db.insert(userOrders).values({
@@ -757,9 +768,12 @@ internalRouter.post("/orders", async (req, res) => {
       shippingAddress: body.shippingAddress,
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
+      promoChannelId: promoStamp.promoChannelId,
+      promoChannelCode: promoStamp.promoChannelCode,
     }).returning();
     notifyOrderEvent("created", row);
     if (row.status === "paid") notifyOrderEvent("paid", row);
+    await syncPromoCommissionForOrder(row);
     res.status(201).json({ success: true, id: row.id });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -913,10 +927,12 @@ internalRouter.patch("/orders/:orderNo", async (req, res) => {
       return;
     }
     await db.update(userOrders).set(updates).where(eq(userOrders.orderNo, orderNo));
+    const merged = { ...existing[0], ...updates } as typeof existing[0];
     if (body.status === "paid" && existing[0].status !== "paid") {
       await finalizeCouponOnPaid(orderNo);
       notifyOrderEvent("paid", { ...existing[0], status: "paid" });
     }
+    await syncPromoCommissionForOrder(merged);
     res.json({ success: true, orderNo, ...updates });
   } catch (err) {
     if (err instanceof z.ZodError) {

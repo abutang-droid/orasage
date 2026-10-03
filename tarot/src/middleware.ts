@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { stampPromoChannelCookie } from "../../shared/promo-channel/index"
 
 const MAIN_PROFILE = "https://orasage.com/zh-CN/profile"
 const MAIN_SETTINGS = "https://orasage.com/zh-CN/profile/settings"
@@ -35,30 +36,34 @@ function redirectLocaleRoot(request: NextRequest): NextResponse | null {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/"
+  const stamp = (response: NextResponse) => {
+    stampPromoChannelCookie(request.nextUrl.hostname, request.nextUrl.searchParams, response.cookies)
+    return response
+  }
 
   const localeRoot = redirectLocaleRoot(request)
-  if (localeRoot) return localeRoot
+  if (localeRoot) return stamp(localeRoot)
 
   const localeTempleRedirect = redirectLocaleTemple(request)
-  if (localeTempleRedirect) return localeTempleRedirect
+  if (localeTempleRedirect) return stamp(localeTempleRedirect)
 
   if (pathname === "/fortune") {
-    return NextResponse.redirect(new URL("/daily-fortune", request.url))
+    return stamp(NextResponse.redirect(new URL("/daily-fortune", request.url)))
   }
 
   if (pathname === "/profile") {
-    return NextResponse.redirect(MAIN_PROFILE)
+    return stamp(NextResponse.redirect(MAIN_PROFILE))
   }
 
   if (pathname === "/profile/merit") {
-    return NextResponse.redirect(MAIN_MERIT)
+    return stamp(NextResponse.redirect(MAIN_MERIT))
   }
 
   if (pathname === "/profile/settings" || pathname === "/settings") {
-    return NextResponse.redirect(MAIN_SETTINGS)
+    return stamp(NextResponse.redirect(MAIN_SETTINGS))
   }
 
-  return NextResponse.next()
+  return stamp(NextResponse.next())
 }
 
 export const config = {
