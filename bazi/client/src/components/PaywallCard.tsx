@@ -18,7 +18,11 @@ const TIER_KEYS: Record<PlanType, string> = {
   premium: "plan.tier.premium",
 };
 
-const TIER_HINTS = ["数字报告", "报告 + 手串", "完整礼盒"] as const;
+const TIER_HINTS: Record<PlanType, string> = {
+  basic: "数字报告",
+  advanced: "报告 + 手串",
+  premium: "完整礼盒",
+};
 
 /** 卡片底色/边框 — 不依赖 surface 变量，确保三档都清晰可见 */
 const PLAN_CARD_BG = "rgb(var(--popover))";
@@ -58,6 +62,32 @@ export function PaywallCard({
     return () => { cancelled = true; };
   }, [mode]);
 
+  useEffect(() => {
+    if (loading || plans.length === 0) return;
+    if (!plans.some((plan) => plan.type === selectedPlan)) {
+      onSelectPlan(plans[0].type);
+    }
+  }, [loading, plans, selectedPlan, onSelectPlan]);
+
+  if (!loading && plans.length === 0) {
+    return (
+      <div
+        className={className}
+        data-testid="bazi-paywall"
+        style={{
+          borderRadius: 16,
+          padding: "1.25rem 1rem",
+          background: "rgb(var(--popover))",
+          border: "1px dashed rgba(184, 148, 63, 0.32)",
+        }}
+      >
+        <p style={{ color: MUTED_CLR, fontSize: "0.8125rem", textAlign: "center", margin: 0 }}>
+          {t("paywall.slot_hidden", "此位置暂未开放购买。")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={className}
@@ -86,7 +116,7 @@ export function PaywallCard({
       </p>
 
       <div role="radiogroup" aria-label={t("paywall.choose_tier", "选择报告方案")} style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-        {plans.map((plan, index) => {
+        {plans.map((plan) => {
           const isSelected = selectedPlan === plan.type;
           const isHighlight = plan.highlight;
           const tierLabel = t(TIER_KEYS[plan.type], plan.type);
@@ -203,7 +233,7 @@ export function PaywallCard({
                   {loading ? "…" : plan.priceDisplay}
                 </span>
                 <p style={{ color: MUTED_CLR, fontSize: "0.625rem", marginTop: "0.125rem" }}>
-                  {TIER_HINTS[index] ?? ""}
+                  {TIER_HINTS[plan.type] ?? ""}
                 </p>
               </div>
             </button>

@@ -35,6 +35,50 @@ const SLOT_KEY_HINTS: Record<string, string> = {
 
 const ENTRY_ROWS = 6;
 
+function productLabel(products: AdminProduct[], sku: string) {
+  const p = products.find((item) => item.sku === sku);
+  return p ? `${p.name}（${p.sku}）` : sku;
+}
+
+function usdField(entry?: AdminBillingSlot) {
+  if (!entry) return '';
+  if (entry.priceOverrideUsdCents != null) return (entry.priceOverrideUsdCents / 100).toFixed(2);
+  if (entry.priceOverrideCents != null) return (entry.priceOverrideCents / 100).toFixed(2);
+  return '';
+}
+
+function SlotHideToggle({
+  app,
+  slotKey,
+  entries,
+  hidden,
+}: {
+  app: string;
+  slotKey: string;
+  entries: AdminBillingSlot[];
+  hidden: boolean;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <form action={saveBillingSlotAction} className="billing-slot-hide-form">
+      <input type="hidden" name="app" value={app} />
+      <input type="hidden" name="key" value={slotKey} />
+      {entries.map((entry, i) => (
+        <span key={`${entry.sku}-${i}`}>
+          <input type="hidden" name={`entry_sku_${i}`} value={entry.sku} />
+          {usdField(entry) ? (
+            <input type="hidden" name={`entry_usd_${i}`} value={usdField(entry)} />
+          ) : null}
+        </span>
+      ))}
+      {hidden ? null : <input type="hidden" name="slot_hidden" value="1" />}
+      <AdminSubmitButton size="sm" variant="secondary">
+        {hidden ? '取消隐藏' : '隐藏此位置'}
+      </AdminSubmitButton>
+    </form>
+  );
+}
+
 function SlotEditor({
   app,
   slotKey,
@@ -46,61 +90,99 @@ function SlotEditor({
   entries: AdminBillingSlot[];
   products: AdminProduct[];
 }) {
+  const boundLabels = entries.map((e) => productLabel(products, e.sku));
+  const slotHidden = entries.length > 0 && entries.every((e) => !e.active);
+  const extraBound = entries.length > 1;
   return (
-    <details className="billing-slot">
-      <summary>
-        <code>{slotKey}</code>
-        <span className="muted"> · {SLOT_KEY_HINTS[slotKey] ?? '自定义槽位'}</span>
-        <span className="billing-slot-summary">
-          {entries.map((e) => e.sku).join(', ') || '未配置'}
-        </span>
-      </summary>
+    <article className={slotHidden ? 'billing-slot billing-slot--hidden' : 'billing-slot'}>
+      <header className="billing-slot-head">
+        <div className="billing-slot-title">
+          <code>{slotKey}</code>
+          <span className="muted"> · {SLOT_KEY_HINTS[slotKey] ?? '自定义槽位'}</span>
+          {slotHidden ? <span className="billing-slot-hidden-badge">已隐藏</span> : null}
+        </div>
+        <div className="billing-slot-head-actions">
+          <span className="billing-slot-summary">{boundLabels.join('、') || '未绑定商品'}</span>
+          <SlotHideToggle app={app} slotKey={slotKey} entries={entries} hidden={slotHidden} />
+        </div>
+      </header>
       <form action={saveBillingSlotAction} className="form-grid billing-slot-form">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
-        {Array.from({ length: ENTRY_ROWS }, (_, i) => {
-          const entry = entries[i];
-          return (
-            <div key={i} className="full-width billing-entry-row">
-              <label>
-                SKU {i + 1}{entries.length > 1 || i > 0 ? '（多行=轮换）' : ''}
-                <select name={`entry_sku_${i}`} defaultValue={entry?.sku ?? ''}>
-                  <option value="">— 空 —</option>
-                  {products.map((p) => (
-                    <option key={p.sku} value={p.sku}>
-                      {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                覆盖价 USD
-                <input
-                  name={`entry_usd_${i}`}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  defaultValue={
-                    entry?.priceOverrideUsdCents != null
-                      ? (entry.priceOverrideUsdCents / 100).toFixed(2)
-                      : entry?.priceOverrideCents != null
-                        ? (entry.priceOverrideCents / 100).toFixed(2)
-                        : ''
-                  }
-                  placeholder="留空=目录价"
-                />
-              </label>
-            </div>
-          );
-        })}
-        <AdminSubmitButton size="sm">保存槽位</AdminSubmitButton>
+        {entries.length > 0 ? (
+          <label className="full-width billing-slot-hide-opt">
+            <input type="checkbox" name="slot_hidden" value="1" defaultChecked={slotHidden} />
+            <span>
+              <strong>隐藏此位置</strong>
+              <span className="muted"> 勾选后前台不再售卖/推荐，绑定商品保留，不算删除</span>
+            </span>
+          </label>
+        ) : null}
+        <div className="full-width billing-entry-row">
+          <label>
+            绑定商品
+            <select name="entry_sku_0" defaultValue={entries[0]?.sku ?? ''}>
+              <option value="">— 不绑定 —</option>
+              {products.map((p) => (
+                <option key={p.sku} value={p.sku}>
+                  {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            覆盖价 USD
+            <input
+              name="entry_usd_0"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={usdField(entries[0])}
+              placeholder="留空=目录价"
+            />
+          </label>
+          <AdminSubmitButton size="sm">保存绑定</AdminSubmitButton>
+        </div>
+        <details className="full-width billing-slot-more" open={extraBound}>
+          <summary>轮换商品（可选，同一位置多 SKU 按 seed 轮换）</summary>
+          {Array.from({ length: ENTRY_ROWS - 1 }, (_, n) => {
+            const i = n + 1;
+            const entry = entries[i];
+            return (
+              <div key={i} className="billing-entry-row">
+                <label>
+                  绑定商品 {i + 1}
+                  <select name={`entry_sku_${i}`} defaultValue={entry?.sku ?? ''}>
+                    <option value="">— 不绑定 —</option>
+                    {products.map((p) => (
+                      <option key={p.sku} value={p.sku}>
+                        {p.name} ({p.sku}) {p.visibility === 'app_only' ? '· 仅计费' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  覆盖价 USD
+                  <input
+                    name={`entry_usd_${i}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={usdField(entry)}
+                    placeholder="留空=目录价"
+                  />
+                </label>
+              </div>
+            );
+          })}
+        </details>
       </form>
       <form action={deleteBillingSlotAction} className="billing-slot-delete">
         <input type="hidden" name="app" value={app} />
         <input type="hidden" name="key" value={slotKey} />
         <AdminSubmitButton size="sm" variant="ghost">删除整个槽位</AdminSubmitButton>
       </form>
-    </details>
+    </article>
   );
 }
 
@@ -140,12 +222,12 @@ export default async function BillingPage({
       <header className="page-header">
         <h1>应用计费槽位</h1>
         <p className="muted">
-          紫微/八字/塔罗付费与推荐统一走计费槽位：App 传 <code>app + key</code>，返回后台配置的商品（前台商城目录不展示 <code>app_only</code> 商品）。同一槽位多行 SKU = 按 seed 轮换。
+          每个位置可绑定商品、改绑。隐藏开关在每个槽位标题右侧，以及绑定区的「隐藏此位置」勾选；隐藏不删除绑定。App 传 <code>app + key</code> 取当前绑定；隐藏后前台不再售卖/推荐，已购用户仍按原 SKU 核销。同一位置多行 SKU = 按 seed 轮换。
         </p>
       </header>
 
       {sp.saved === 'ok' ? (
-        <p className="muted panel-notice">槽位已保存。</p>
+        <p className="muted panel-notice">绑定已保存。</p>
       ) : null}
       {sp.err ? (
         <p className="muted panel-notice panel-notice--error">保存失败：{decodeURIComponent(sp.err)}</p>
@@ -179,9 +261,9 @@ export default async function BillingPage({
             <input name="key" required placeholder="recommend.element.wood" />
           </label>
           <label>
-            SKU
+            绑定商品
             <select name="entry_sku_0" required defaultValue="">
-              <option value="">— 选择商品 —</option>
+              <option value="">— 选择要绑定的商品 —</option>
               {products.map((p) => (
                 <option key={p.sku} value={p.sku}>{p.name} ({p.sku})</option>
               ))}

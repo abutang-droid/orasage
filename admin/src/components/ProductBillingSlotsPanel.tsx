@@ -43,7 +43,7 @@ export function ProductBillingSlotsPanel({ sku, slots }: ProductBillingSlotsPane
               {rows.length > 1 ? (
                 <span className="muted">（{rows.length} 行轮换）</span>
               ) : null}
-              {!rows[0]?.active ? <span className="product-billing-slots-inactive">已停用</span> : null}
+              {!rows.some((row) => row.active) ? <span className="product-billing-slots-inactive">已隐藏</span> : null}
             </li>
           );
         })}

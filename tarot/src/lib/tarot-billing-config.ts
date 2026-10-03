@@ -22,12 +22,20 @@ export type TarotBillingProduct = {
   requiresShipping?: boolean;
 };
 
+export type TarotBillingHidden = {
+  dailyOverage: boolean;
+  threeCardReport: boolean;
+  threeCardBundle: boolean;
+  destinySliceUnlock: boolean;
+};
+
 export type TarotBillingConfig = {
   skus: TarotBillingSkus;
   dailyOverage: TarotBillingProduct | null;
   threeCardReport: TarotBillingProduct | null;
   threeCardBundle: TarotBillingProduct | null;
   destinySliceUnlock: TarotBillingProduct | null;
+  hidden: TarotBillingHidden;
 };
 
 function mapProduct(p: Record<string, unknown> | null | undefined): TarotBillingProduct | null {
@@ -41,9 +49,33 @@ function mapProduct(p: Record<string, unknown> | null | undefined): TarotBilling
   };
 }
 
-type SlotsResponse = {
-  slots?: Record<string, Array<{ sku: string; product?: Record<string, unknown> | null }>>;
+type SlotRow = {
+  sku: string;
+  product?: Record<string, unknown> | null;
+  active?: boolean;
 };
+
+type SlotsResponse = {
+  slots?: Record<string, SlotRow[]>;
+};
+
+const HIDDEN_NONE: TarotBillingHidden = {
+  dailyOverage: false,
+  threeCardReport: false,
+  threeCardBundle: false,
+  destinySliceUnlock: false,
+};
+
+function readSlot(data: SlotsResponse, key: string, fallbackSku: string) {
+  const rows = data.slots?.[key];
+  const configured = Array.isArray(rows);
+  const visible = rows?.find((row) => row.active !== false && row.product) ?? null;
+  return {
+    sku: visible?.sku || rows?.[0]?.sku || fallbackSku,
+    product: mapProduct(visible?.product),
+    hidden: configured && !visible,
+  };
+}
 
 let cachedSlots: { at: number; locale: string; value: SlotsResponse } | null = null;
 const CACHE_MS = 60_000;
@@ -63,18 +95,18 @@ async function fetchTarotSlots(locale = 'zh-CN'): Promise<SlotsResponse> {
   return data;
 }
 
-function firstEntry(data: SlotsResponse, key: string) {
-  return data.slots?.[key]?.[0] ?? null;
+function firstSku(data: SlotsResponse, key: string, fallback: string) {
+  return data.slots?.[key]?.[0]?.sku || fallback;
 }
 
 export async function fetchTarotBillingSkus(): Promise<TarotBillingSkus> {
   try {
     const data = await fetchTarotSlots();
     return {
-      dailyOverageSku: firstEntry(data, 'daily.overage')?.sku ?? FALLBACK.dailyOverageSku,
-      threeCardReportSku: firstEntry(data, 'threecard.report')?.sku ?? FALLBACK.threeCardReportSku,
-      threeCardBundleSku: firstEntry(data, 'threecard.bundle')?.sku ?? FALLBACK.threeCardBundleSku,
-      destinySliceUnlockSku: firstEntry(data, 'singlecard.unlock')?.sku ?? FALLBACK.destinySliceUnlockSku,
+      dailyOverageSku: firstSku(data, 'daily.overage', FALLBACK.dailyOverageSku),
+      threeCardReportSku: firstSku(data, 'threecard.report', FALLBACK.threeCardReportSku),
+      threeCardBundleSku: firstSku(data, 'threecard.bundle', FALLBACK.threeCardBundleSku),
+      destinySliceUnlockSku: firstSku(data, 'singlecard.unlock', FALLBACK.destinySliceUnlockSku),
     };
   } catch {
     return FALLBACK;
@@ -84,21 +116,27 @@ export async function fetchTarotBillingSkus(): Promise<TarotBillingSkus> {
 export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBillingConfig> {
   try {
     const data = await fetchTarotSlots(locale);
-    const overage = firstEntry(data, 'daily.overage');
-    const report = firstEntry(data, 'threecard.report');
-    const bundle = firstEntry(data, 'threecard.bundle');
-    const sliceUnlock = firstEntry(data, 'singlecard.unlock');
+    const overage = readSlot(data, 'daily.overage', FALLBACK.dailyOverageSku);
+    const report = readSlot(data, 'threecard.report', FALLBACK.threeCardReportSku);
+    const bundle = readSlot(data, 'threecard.bundle', FALLBACK.threeCardBundleSku);
+    const sliceUnlock = readSlot(data, 'singlecard.unlock', FALLBACK.destinySliceUnlockSku);
     return {
       skus: {
-        dailyOverageSku: overage?.sku ?? FALLBACK.dailyOverageSku,
-        threeCardReportSku: report?.sku ?? FALLBACK.threeCardReportSku,
-        threeCardBundleSku: bundle?.sku ?? FALLBACK.threeCardBundleSku,
-        destinySliceUnlockSku: sliceUnlock?.sku ?? FALLBACK.destinySliceUnlockSku,
+        dailyOverageSku: overage.sku,
+        threeCardReportSku: report.sku,
+        threeCardBundleSku: bundle.sku,
+        destinySliceUnlockSku: sliceUnlock.sku,
       },
-      dailyOverage: mapProduct(overage?.product),
-      threeCardReport: mapProduct(report?.product),
-      threeCardBundle: mapProduct(bundle?.product),
-      destinySliceUnlock: mapProduct(sliceUnlock?.product),
+      dailyOverage: overage.hidden ? null : overage.product,
+      threeCardReport: report.hidden ? null : report.product,
+      threeCardBundle: bundle.hidden ? null : bundle.product,
+      destinySliceUnlock: sliceUnlock.hidden ? null : sliceUnlock.product,
+      hidden: {
+        dailyOverage: overage.hidden,
+        threeCardReport: report.hidden,
+        threeCardBundle: bundle.hidden,
+        destinySliceUnlock: sliceUnlock.hidden,
+      },
     };
   } catch {
     return {
@@ -107,6 +145,7 @@ export async function fetchTarotBillingConfig(locale = 'zh-CN'): Promise<TarotBi
       threeCardReport: null,
       threeCardBundle: null,
       destinySliceUnlock: null,
+      hidden: HIDDEN_NONE,
     };
   }
 }

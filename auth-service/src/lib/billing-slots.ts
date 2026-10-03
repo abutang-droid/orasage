@@ -55,18 +55,16 @@ function seedHash(seed: string): number {
   return hash;
 }
 
-async function activeSlotRows(app: string, key: string): Promise<BillingSlotRow[]> {
+async function slotRows(app: string, key: string): Promise<BillingSlotRow[]> {
   return db
     .select()
     .from(appBillingSlots)
-    .where(
-      and(
-        eq(appBillingSlots.appSource, app),
-        eq(appBillingSlots.slotKey, key),
-        eq(appBillingSlots.active, true),
-      ),
-    )
+    .where(and(eq(appBillingSlots.appSource, app), eq(appBillingSlots.slotKey, key)))
     .orderBy(asc(appBillingSlots.sortOrder), asc(appBillingSlots.id));
+}
+
+async function activeSlotRows(app: string, key: string): Promise<BillingSlotRow[]> {
+  return (await slotRows(app, key)).filter((row) => row.active);
 }
 
 /**
@@ -103,12 +101,13 @@ export async function resolveBillingSlot(
   };
 }
 
-/** 一个 App 的全部槽位（含商品解析），供付费墙一次拉取 */
+/** 一个 App 的全部槽位（含商品解析），供付费墙一次拉取。
+ *  隐藏槽位仍出现在结果里（active=false、product=null），方便 App 区分「未配置」与「已隐藏」。 */
 export async function resolveBillingSlotsForApp(app: string, locale = "zh-CN") {
   const rows = await db
     .select()
     .from(appBillingSlots)
-    .where(and(eq(appBillingSlots.appSource, app), eq(appBillingSlots.active, true)))
+    .where(eq(appBillingSlots.appSource, app))
     .orderBy(asc(appBillingSlots.slotKey), asc(appBillingSlots.sortOrder), asc(appBillingSlots.id));
 
   const skus = [...new Set(rows.map((r) => r.sku))];
@@ -122,19 +121,21 @@ export async function resolveBillingSlotsForApp(app: string, locale = "zh-CN") {
     sku: string;
     priceOverrideCents: number | null;
     priceOverrideUsdCents: number | null;
+    active: boolean;
     product: ReturnType<typeof formatProduct> | null;
   }>> = {};
 
   for (const row of rows) {
     const raw = bySku.get(row.sku);
     const comboMeta = raw?.kind === "combo" ? comboMetaMap.get(raw.sku) ?? null : null;
-    const product = raw && raw.active
+    const product = row.active && raw && raw.active
       ? applyOverride(formatProduct(raw, { locale, comboMeta }), row, locale)
       : null;
     (slots[row.slotKey] ??= []).push({
       sku: row.sku,
       priceOverrideCents: row.priceOverrideCents,
       priceOverrideUsdCents: row.priceOverrideUsdCents,
+      active: row.active,
       product,
     });
   }
@@ -198,7 +199,7 @@ export async function setBillingSlotEntries(
     await db.insert(appBillingSlots).values(values);
   }
 
-  return activeSlotRows(app, key);
+  return slotRows(app, key);
 }
 
 /** admin：删除整个 (app, slotKey) */
