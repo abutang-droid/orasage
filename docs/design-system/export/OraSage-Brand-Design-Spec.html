@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OraSage 品牌设计规范 · VI v1.0 + DS v1.1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #171717;
+      --deep: #6B7280;
+      --mid: #A1A1AA;
+      --line: #E7E5E4;
+      --paper: #FAFAF8;
+      --white: #FFFFFF;
+      --cinnabar: #A63F33;
+      --cinnabar-deep: #8C3529;
+      --cinnabar-tint: #F6E8E4;
+      --ochre: #C96442;
+      --ochre-deep: #934828;
+      --ochre-bg: #FAF9F5;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--paper); color: var(--ink); }
+    body {
+      font-family: "Noto Sans SC", Inter, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 48px 28px 96px; }
+    header.cover {
+      padding: 48px 0 40px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 48px;
+    }
+    .mark { width: 64px; height: 64px; display: block; }
+    .wordmark {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: 28px;
+      margin: 20px 0 0;
+    }
+    .tag { color: var(--deep); letter-spacing: 0.18em; text-transform: uppercase; font-size: 11px; font-weight: 600; }
+    h1, h2, h3 { font-family: "Noto Serif SC", serif; font-weight: 700; line-height: 1.25; }
+    h1 { font-size: 36px; margin: 12px 0 8px; }
+    h2 { font-size: 24px; margin: 56px 0 16px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 18px; margin: 28px 0 10px; }
+    p { margin: 0 0 12px; }
+    .lede { color: var(--deep); font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0 24px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--deep); font-weight: 600; font-size: 12px; letter-spacing: 0.04em; }
+    code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 16px 0 28px; }
+    .swatch { background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .swatch .chip { height: 72px; }
+    .swatch .meta { padding: 10px 12px 12px; }
+    .swatch .name { font-size: 13px; font-weight: 600; }
+    .swatch .hex { color: var(--deep); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin: 16px 0 28px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px; text-align: center; }
+    .card.ink { background: var(--ink); color: var(--paper); }
+    .card.cin { background: var(--cinnabar); color: var(--paper); }
+    .card svg { width: 72px; height: 72px; margin: 0 auto 12px; display: block; }
+    .card .lbl { font-family: "Noto Serif SC", serif; font-weight: 600; }
+    .card .sub { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); margin-top: 4px; }
+    .card.ink .sub, .card.cin .sub { color: rgba(250,250,248,.7); }
+    .do { color: #166534; }
+    .dont { color: #991B1B; }
+    ul { margin: 8px 0 20px; padding-left: 1.2em; }
+    li { margin: 4px 0; }
+    .note {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--deep);
+      font-size: 14px;
+      margin: 12px 0 24px;
+    }
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--deep);
+    }
+    @media print {
+      .wrap { padding: 24px; }
+      h2 { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="cover">
+      <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355" stroke="#171717" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="4.5" fill="#171717"/>
+      </svg>
+      <p class="wordmark">OraSage</p>
+      <p class="tag">Oracle + Sage</p>
+      <h1>品牌设计规范</h1>
+      <p class="lede">VI 视觉识别 v1.0（已确认，2026-07-08）＋ Design System v1.1 Revised。品牌隐喻：铺在木质桌面上的一张宣纸 —— 界面是纸，命理内容是墨，品牌是纸角的一方钤印。</p>
+    </header>
+
+    <h2>1. 品牌核心</h2>
+    <table>
+      <tr><th>项</th><th>规范</th></tr>
+      <tr><td>品牌名</td><td><strong>OraSage</strong>（O、S 大写，其余小写）。禁止 Orasage / ORASAGE / oraSage</td></tr>
+      <tr><td>释义</td><td>Oracle + Sage —— 天启与智者</td></tr>
+      <tr><td>中文定位</td><td>命理与能量</td></tr>
+      <tr><td>代码 / 域名</td><td>全小写 <code>orasage</code></td></tr>
+      <tr><td>性格</td><td>静谧 · 秩序 · 人文 · 笃定</td></tr>
+    </table>
+
+    <h2>2. 标志 · 玄璧 Aperture</h2>
+    <p>图形标：带缺口的圆环 + 中心一点。缺口 = Oracle（东北 45°，紫气东来）；中心点 = Sage。圆环同时是字母 O。</p>
+    <p>字标：<code>OraSage</code>，思源宋体 SemiBold，字距 0.08em。界面顶栏只用字标；符号位只用图形。组合锁定仅限邮件页脚、报告封面封底、包装等正式署名场合。</p>
+
+    <div class="grid">
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355" stroke="#171717" stroke-width="4.5" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="#171717"/></svg>
+        <div class="lbl">墨版</div>
+        <div class="sub">Ink on paper</div>
+      </div>
+      <div class="card ink">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355" stroke="#FAFAF8" stroke-width="4.5" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="#FAFAF8"/></svg>
+        <div class="lbl">反白版</div>
+        <div class="sub">Paper on ink</div>
+      </div>
+      <div class="card cin">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355" stroke="#FAFAF8" stroke-width="4.5" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="#FAFAF8"/></svg>
+        <div class="lbl">朱砂底版</div>
+        <div class="sub">Festival / seal</div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M 41.645 12.226 A 22 22 0 1 0 51.774 22.355" stroke="#A63F33" stroke-width="4.5" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="#A63F33"/></svg>
+        <div class="lbl">朱砂印版</div>
+        <div class="sub">Seal only ≤5%</div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>几何</th><th>规格（viewBox 0 0 64 64，圆心 32,32）</th></tr>
+      <tr><td>圆环</td><td>半径 22，描边 4.5，round cap</td></tr>
+      <tr><td>缺口</td><td>圆心角 38°，中心方位 45°；弧自 64° 逆时针至 26°</td></tr>
+      <tr><td>中心点</td><td>半径 4.5 实心圆</td></tr>
+      <tr><td>最小尺寸</td><td>图形 ≥16px；组合宽 ≥88px；印刷直径 ≥6mm</td></tr>
+    </table>
+    <p class="dont">禁止：拉伸、旋转缺口、投影/渐变、改缺口、与其它图形拼合、复杂照片上直接放墨版。</p>
+
+    <h2>3. 色彩 · 灰度宪法 + 朱砂钤印</h2>
+    <p>核心理念：无色胜有色。朱砂是书画上的一方钤印，不是第二品牌色。单页面积 ≤5%；去掉朱砂后信息层级仍须完整。</p>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:#171717"></div><div class="meta"><div class="name">墨 Ink</div><div class="hex">#171717</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#6B7280"></div><div class="meta"><div class="name">深灰</div><div class="hex">#6B7280</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#A1A1AA"></div><div class="meta"><div class="name">中灰</div><div class="hex">#A1A1AA</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#E7E5E4"></div><div class="meta"><div class="name">浅灰</div><div class="hex">#E7E5E4</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FAFAF8;border-bottom:1px solid #E7E5E4"></div><div class="meta"><div class="name">纸 Paper</div><div class="hex">#FAFAF8</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #E7E5E4"></div><div class="meta"><div class="name">宣白</div><div class="hex">#FFFFFF</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#A63F33"></div><div class="meta"><div class="name">朱砂 600</div><div class="hex">#A63F33</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#8C3529"></div><div class="meta"><div class="name">朱砂 700</div><div class="hex">#8C3529</div></div></div>
+    </div>
+    <p class="dont">朱砂禁止用于按钮、链接、导航、大面积底色、正文强调。</p>
+    <p>功能色（仅校验/状态）：成功 <code>#16A34A</code> · 警告 <code>#D97706</code> · 错误 <code>#DC2626</code> · 信息 <code>#2563EB</code>。</p>
+
+    <h2>4. 字体</h2>
+    <table>
+      <tr><th>角色</th><th>字体</th><th>用法</th></tr>
+      <tr><td>品牌字标</td><td>Source Han Serif SC / Noto Serif SC 600</td><td>OraSage，字距 0.08em</td></tr>
+      <tr><td>中文标题</td><td>思源宋体 Bold</td><td>H1 40 / H2 32 / H3 24</td></tr>
+      <tr><td>中文正文</td><td>PingFang SC / Noto Sans SC</td><td>16px / 行高 1.6</td></tr>
+      <tr><td>拉丁 / 数字</td><td>Inter</td><td>日期、价格、域名</td></tr>
+      <tr><td>干支 / 数据</td><td>JetBrains Mono</td><td>四柱、时间码</td></tr>
+    </table>
+
+    <h2>5. 子品牌（统一网格，无独立配色）</h2>
+    <p>外环半径 22、描边 3、无缺口（缺口为母品牌专属）。子品牌个性只通过内芯图形、文案语气、线描插画表达。</p>
+    <div class="grid">
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="22" stroke="#171717" stroke-width="3"/><path d="M32 10 A22 22 0 0 1 32 54 A11 11 0 0 1 32 32 A11 11 0 0 0 32 10 Z" fill="#171717" fill-opacity="0.12"/><circle cx="32" cy="21" r="3" fill="#171717"/></svg>
+        <div class="lbl">BaZi</div><div class="sub">八字 · by orasage</div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="22" stroke="#171717" stroke-width="3"/><path d="M32 14 L35.4 28.6 L50 32 L35.4 35.4 L32 50 L28.6 35.4 L14 32 L28.6 28.6 Z" fill="#171717" fill-opacity="0.12" stroke="#171717" stroke-width="1.6"/></svg>
+        <div class="lbl">ZiWei</div><div class="sub">紫微 · by orasage</div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="22" stroke="#171717" stroke-width="3"/><rect x="24" y="22" width="16" height="22" rx="2" stroke="#171717" stroke-width="2.4" fill="#171717" fill-opacity="0.08"/><circle cx="32" cy="33" r="2.4" fill="#171717"/></svg>
+        <div class="lbl">Manto</div><div class="sub">塔罗 · by orasage</div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="22" stroke="#171717" stroke-width="3"/><path d="M32 20 L38 26 L38 42 L26 42 L26 26 Z" stroke="#171717" stroke-width="2.4" fill="#171717" fill-opacity="0.08"/><path d="M29 26 a3 3 0 0 1 6 0" stroke="#171717" stroke-width="2.4" fill="none"/></svg>
+        <div class="lbl">Energy</div><div class="sub">商城 · by orasage</div>
+      </div>
+    </div>
+
+    <h2>6. 界面层（DS v1.1）</h2>
+    <table>
+      <tr><th>组件</th><th>规范</th></tr>
+      <tr><td>主按钮</td><td>高 44px，圆角 12px，底 #171717 / 字 #FFFFFF；hover #333，translateY(-1px)</td></tr>
+      <tr><td>次按钮</td><td>白底、黑字、1px #E7E5E4</td></tr>
+      <tr><td>输入框</td><td>高 44px，圆角 12px；focus 黑边、无阴影</td></tr>
+      <tr><td>卡片</td><td>白底，圆角 16px，边框 1px #E7E5E4，阴影 0 1px 2px rgba(0,0,0,.04)</td></tr>
+      <tr><td>图标</td><td>lucide-react，导航 20px / stroke 1.6；chrome 禁止 emoji</td></tr>
+      <tr><td>顶栏</td><td>纯文字字标 OraSage，不加图形</td></tr>
+    </table>
+
+    <h2>7. 图像与印刷</h2>
+    <ul>
+      <li>插画：单色墨线描，至多一处朱砂点睛；禁止面性扁平 / 3D。</li>
+      <li>商品摄影：纸色背景、自然侧光、留白 ≥40%。</li>
+      <li>印刷：未涂布自然白；墨用四色黑或单黑；朱砂近似 C0 M62 Y69 K35。工艺白名单：单色、朱砂专色、压凹、局部 UV。禁止烫金、镭射、渐变堆叠。</li>
+    </ul>
+
+    <h2>8. 产品层附录 · 八字报告赭石编辑风</h2>
+    <div class="note">这是报告页（VibeBaziReport）的产品皮肤，<strong>不替代</strong>全站 VI。全站 chrome 仍遵守灰度宪法；赭石仅用于八字报告内容区。</div>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:#C96442"></div><div class="meta"><div class="name">赭石 Brand</div><div class="hex">#C96442</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#934828"></div><div class="meta"><div class="name">赭石深</div><div class="hex">#934828</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FAF9F5"></div><div class="meta"><div class="name">报告背景</div><div class="hex">#FAF9F5</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#3D3929"></div><div class="meta"><div class="name">报告正文</div><div class="hex">#3D3929</div></div></div>
+    </div>
+    <p>字体：Newsreader / Lora / Poppins（中文回退 Noto Serif SC / Noto Sans SC）。源：<code>bazi/client/src/styles/bazi-report-vibe.css</code>。</p>
+
+    <h2>9. 源文件位置</h2>
+    <table>
+      <tr><th>资产</th><th>路径</th></tr>
+      <tr><td>VI 全文</td><td><code>docs/design-system/OraSage-VI-v1.0.md</code></td></tr>
+      <tr><td>界面 DS</td><td><code>docs/design-system/OraSage-Design-System-v1.1-Revised.md</code></td></tr>
+      <tr><td>Token 源</td><td><code>shared/design-tokens/orasage-tokens.css</code></td></tr>
+      <tr><td>玄璧 / 子标 SVG</td><td><code>shared/brand/logo/</code> · <code>shared/brand/subbrands/</code></td></tr>
+    </table>
+
+    <footer>
+      © 2026 OraSage. All rights reserved. · 导出自仓库 canonical 文档，供设计与工程对照使用。
+    </footer>
+  </div>
+</body>
+</html>
