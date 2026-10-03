@@ -5,8 +5,9 @@ import { buildOrasageMetadata } from '@/lib/orasage-seo';
 import { getAdminUser } from '@/lib/auth';
 
 export const metadata: Metadata = buildOrasageMetadata({
+  locale: 'zh-CN',
   title: '管理后台',
-  description: 'OraSage 运营管理后台',
+  description: '海棠未眠 OraSage 运营管理后台',
   robots: { index: false, follow: false },
 });
 

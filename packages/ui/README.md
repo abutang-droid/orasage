@@ -54,4 +54,4 @@ import { Button } from '@orasage/ui/button';
 
 **消费 App 须声明传递依赖**：`lucide-react`（App Shell 图标）、`@radix-ui/react-slot`、`clsx`、`tailwind-merge`、`class-variance-authority`（窄导入 Button 时）。
 
-VPS 构建前须在 `packages/ui` 执行 `npm install`（见 `docs/design-system/ui-phase-2.md` §4）。修改 `shared/app-shell` 后执行 `npm run app-shell:sync`。
+VPS 构建前须在 `packages/ui` 执行 `npm install`。修改 `shared/app-shell` 后执行 `npm run app-shell:sync`。视觉规范：`docs/design-system/OraSage-Brand-Spec.md`。

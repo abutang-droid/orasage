@@ -17,7 +17,7 @@ export const DAY_MASTER_ARTICLES: InsightsArticle[] = [
       },
       {
         en: 'Jia does not tell you what will happen. It invites a question: when you commit, do you commit to a single axis and protect it? In readings on OraSage, Day Master language stays structural — pairing with pillars and seasons as context, not as a verdict on luck or outcomes.',
-        zh: '甲木不会告诉你「会发生什么」。它提出一个问题：当你投入时，是否会沿一条主轴坚守？在 OraSage 的解读里，日主语言保持结构性——与柱、季节等并读作语境，而不是对运气或结果的裁决。',
+        zh: '甲木不会告诉你「会发生什么」。它提出一个问题：当你投入时，是否会沿一条主轴坚守？在 海棠未眠 的解读里，日主语言保持结构性——与柱、季节等并读作语境，而不是对运气或结果的裁决。',
       },
       {
         en: 'Try a journal prompt: list one principle you will not bend this month, and one branch you are willing to trim. That exercise maps the archetype onto daily life without turning the chart into a prediction engine.',
@@ -109,7 +109,7 @@ export const DAY_MASTER_ARTICLES: InsightsArticle[] = [
       },
       {
         en: 'Wu is not “stubbornness” as judgment. It is a prompt about load: what weight you agreed to carry, and whether the base still fits your footing. BaZi on OraSage stays descriptive, not prescriptive.',
-        zh: '戊不是评判式的「固执」，而是关于负载的提示：你同意承载什么，地基是否仍合脚。OraSage 八字保持描述性，而非指令性。',
+        zh: '戊不是评判式的「固执」，而是关于负载的提示：你同意承载什么，地基是否仍合脚。海棠未眠 八字保持描述性，而非指令性。',
       },
       {
         en: 'Exercise: draw your week as terrain — peaks of demand, flats of maintenance. Wu language helps you see shape without naming destiny.',

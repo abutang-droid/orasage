@@ -64,7 +64,7 @@ function writeReportHtml(planType: string, reportContent: string): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${planLabel} - OraSage 紫微</title>
+<title>${planLabel} - 海棠未眠 紫微</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 body{font-family:"Noto Serif SC",serif;background:#FAFAF8;color:#3D3852;line-height:1.8;margin:0}

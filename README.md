@@ -35,7 +35,8 @@ cms.orasage.com       → cms     :3120   Payload CMS
 - 各 App **独立子域名**，无需 Next.js `basePath`
 - 所有 8 个 App 源码都在本仓库内（`main/` `auth-service/` `shop/` `admin/`
   `cms/` `bazi/` `ziwei/` `tarot/`），统一部署在同一台 VPS（`34.75.40.67`）
-- **移动优先**：手机显示优先，再兼容 PC（见 [`docs/mobile-first.md`](docs/mobile-first.md)）
+- **品牌规范（唯一）**：[`docs/design-system/OraSage-Brand-Spec.md`](docs/design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠）
+- **导航**：[`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（PC 顶栏；移动折叠菜单）
 - 跨 App 登录：`Cookie domain=.orasage.com`，auth 统一签发 JWT；bazi/ziwei/tarot
   各自新增了桥接逻辑，识别到该 cookie 时自动映射为已登录状态，**同时完全保留
   各自原有的登录方式**（bazi 的 Manus OAuth、ziwei 的匿名模式、tarot 的访客

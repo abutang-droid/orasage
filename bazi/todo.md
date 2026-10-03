@@ -1,5 +1,7 @@
 # 八字排盘 TODO
 
+> 视觉以 `docs/design-system/OraSage-Brand-Spec.md` 为准（OraSage / 海棠未眠）。下列历史勾选项中的「墨金 / 淡紫 / 金色按钮」已废止。
+
 ## 升级冲突修复
 - [x] 恢复原有 Home.tsx 八字排盘 UI（保留墨金设计）
 - [x] 集成 tRPC Provider（main.tsx 已自动合并完成）
@@ -58,6 +60,9 @@
 - [x] 23 测试用例全部通过
 
 ## OraSage 设计规范改造
+
+> 下列勾选项为 2026-06 历史记录。现行视觉见 `docs/design-system/OraSage-Brand-Spec.md`（灰度壳层 + Vibe 赭石）。淡紫 / 浅金 / 深紫 **已废止**。
+
 - [x] 全局 CSS：更新色板（淡紫薄雾背景 #F7F4FA、浅金 #D9A441、深紫 #2E295B、紫灰 #5D5973）
 - [x] 全局 CSS：更新字体（标题 Noto Serif SC、正文/按钮 Noto Sans SC）
 - [x] 全局 CSS：切换为亮色主题（ThemeProvider defaultTheme="light"）

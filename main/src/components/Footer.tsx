@@ -4,7 +4,7 @@ import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Disclaimer, pickLabel, SHELL_LABELS } from '@/lib/orasage-app-shell';
 
-/** 全站页脚标准组件 — 见 docs/design-system/OraSage-Design-System-v1.1-Revised.md §7 */
+/** 全站页脚标准组件 — 见 docs/design-system/OraSage-Brand-Spec.md §6.5 */
 export const SITE_FOOTER_LINK_CLASS =
   'flex min-h-11 items-center rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-primary active:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 

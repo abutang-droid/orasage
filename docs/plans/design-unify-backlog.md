@@ -1,7 +1,7 @@
 # OraSage 设计统一 & 平台 UI — 待完成计划
 
 > 最后更新：**2026-07-08**（TW4 全站收敛；UI 风险项 #1–#6 修复）  
-> 关联：`docs/design-system/ui-phase-2.md`
+> 关联：[`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)
 
 ---
 

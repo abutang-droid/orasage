@@ -6,33 +6,44 @@ import { CityProviderShell } from '@/components/CityProviderShell';
 import { OraSageAppShell } from '@/components/OraSageAppShell';
 import { ORASAGE_URLS } from '@/lib/orasage-seo';
 import { CORE_LOCALES, detectLocale, LOCALE_COOKIE, LOCALE_OVERRIDE_COOKIE } from '@orasage/i18n';
+import { isChineseLocale, siteDisplayName, titleTemplate } from '@/lib/orasage-app-shell/brand';
 
-const PAGE_TITLE = '紫微斗数排盘';
-const PAGE_DESCRIPTION = '基于倪海夏正宗紫微斗数体系，AI 深度解读命盘格局、大限流年、感情事业财富健康全方位解析。';
+const PAGE_TITLE_ZH = '紫微斗数排盘';
+const PAGE_TITLE_EN = 'Zi Wei Dou Shu';
+const PAGE_DESCRIPTION_ZH = '基于倪海夏正宗紫微斗数体系，AI 深度解读命盘格局、大限流年、感情事业财富健康全方位解析。';
+const PAGE_DESCRIPTION_EN = 'Zi Wei Dou Shu charts with structured readings — for cultural reference, not fortune-telling.';
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.ziwei),
-  title: {
-    default: PAGE_TITLE,
-    template: '%s | OraSage',
-  },
-  description: PAGE_DESCRIPTION,
-  keywords: '紫微斗数, 倪海夏, 命盘, 命理, AI解读, 紫微排盘, 合盘, OraSage',
-  openGraph: {
-    siteName: 'OraSage',
-    title: PAGE_TITLE,
-    description: '东方命理 × 现代心理学 · AI 深度解读您的紫微命盘',
-    url: ORASAGE_URLS.ziwei,
-    locale: 'zh_CN',
-    images: [{ url: `${ORASAGE_URLS.ziwei}/og.png`, width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    images: [`${ORASAGE_URLS.ziwei}/og.png`],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await resolveInitialLocale();
+  const zh = isChineseLocale(locale);
+  const title = zh ? PAGE_TITLE_ZH : PAGE_TITLE_EN;
+  const description = zh ? PAGE_DESCRIPTION_ZH : PAGE_DESCRIPTION_EN;
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || ORASAGE_URLS.ziwei),
+    title: {
+      default: title,
+      template: titleTemplate(locale),
+    },
+    description,
+    keywords: zh
+      ? '紫微斗数, 倪海夏, 命盘, 命理, 海棠未眠, OraSage'
+      : 'Zi Wei Dou Shu, natal chart, OraSage',
+    openGraph: {
+      siteName: siteDisplayName(locale),
+      title,
+      description,
+      url: ORASAGE_URLS.ziwei,
+      locale: locale.replace('-', '_'),
+      images: [{ url: `${ORASAGE_URLS.ziwei}/og.png`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${ORASAGE_URLS.ziwei}/og.png`],
+    },
+  };
+}
 
 async function resolveInitialLocale(): Promise<Locale> {
   const jar = await cookies();

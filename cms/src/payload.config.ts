@@ -62,7 +62,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
-      title: 'OraSage 内容管理',
+      title: '海棠未眠 内容管理',
       titleSuffix: ' · CMS',
       description: '全站 Hero（门户/八字/紫微/商城/塔罗）、内容页面、媒体库与塔罗祈福数据管理',
     },

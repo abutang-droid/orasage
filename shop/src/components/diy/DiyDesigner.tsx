@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { isChineseLocale } from '@/lib/orasage-app-shell/brand';
 import type { DiyBead, DiyConfig } from '@/lib/diy';
 import { ELEMENT_TO_FEED_MATERIAL, ELEMENT_TO_MAIN_MATERIAL } from '@/lib/diy';
 import { formatShopPrice, resolvePriceCents, type ShopCurrency } from '@/lib/currency';
@@ -54,6 +55,7 @@ function wristText(v: number): string {
 
 export function DiyDesigner({ beads, config, currency, initialMaterial, initialElement }: DiyDesignerProps) {
   const td = useTranslations('diy');
+  const locale = useLocale();
   const beadByCode = useMemo(() => new Map(beads.map((b) => [b.code, b])), [beads]);
 
   const [design, setDesign] = useState<string[]>([]);
@@ -666,7 +668,9 @@ export function DiyDesigner({ beads, config, currency, initialMaterial, initialE
       {baziOpen ? (
         <div className="shop-diy-modal-mask" onClick={(e) => { if (e.target === e.currentTarget) setBaziOpen(false); }}>
           <div className="shop-diy-modal">
-            <p className="shop-diy-modal-eyebrow">OraSage · Oracle + Sage</p>
+            <p className="shop-diy-modal-eyebrow">
+              {isChineseLocale(locale) ? '海棠未眠 · OraSage' : 'OraSage · Oracle + Sage'}
+            </p>
             <h3 className="shop-diy-modal-title">{td('modalTitle')}</h3>
             <p className="shop-diy-modal-sub">
               {td('modalHint')}

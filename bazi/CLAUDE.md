@@ -79,12 +79,9 @@ pnpm db:push            # Push Drizzle schema to database
 4. **Frontend**: Create/update components in `client/src/`, register routes in `client/src/App.tsx`
 5. **Tests**: Add specs in `server/*.test.ts`, run `pnpm test`
 
-### Design System: OraSage
+### Design System: OraSage / 海棠未眠
 
-- **Colors**: Lavender Mist background (#F7F4FA), Brand Gold (#D9A441), Ink Purple headings (#2E295B), Body Purple Gray (#5D5973)
-- **Fonts**: Noto Serif SC for headings, Noto Sans SC for body
-- **Pattern**: Light theme, white cards, gold accents, soft shadows
-- All CSS variables in `client/src/index.css` — use `var(--gold)`, `var(--heading)`, etc.
+唯一规范：`docs/design-system/OraSage-Brand-Spec.md`。壳层灰度 + 朱砂钤印；命理报告内容区走 Vibe 赭石（`.bazi-report-vibe`）。禁止薰衣草金 / 暗金独立体系。Token：`shared/design-tokens/orasage-tokens.css`。
 
 ### Critical Rules
 

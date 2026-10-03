@@ -2,7 +2,8 @@ import {
   fetchShopHomeHero,
   fallbackShopHomeHero,
 } from '@/lib/cms-shop-hero';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { localizeBrandEyebrow } from '@/lib/orasage-app-shell/brand';
 
 function HeroVideo({
   src,
@@ -35,12 +36,16 @@ type Props = {
 /** CMS 可配置的商城首页 Hero */
 export async function ShopHomeHero({ loggedIn }: Props) {
   const th = await getTranslations('home');
+  const locale = await getLocale();
   const fallback = fallbackShopHomeHero({
     eyebrow: th('heroEyebrow'),
     title: th('heroTitle'),
     subtitle: th('heroSubtitle'),
   });
   const hero = await fetchShopHomeHero(fallback);
+  if (hero.eyebrow) {
+    hero.eyebrow = localizeBrandEyebrow(hero.eyebrow, locale);
+  }
 
   if (!hero.enabled) return null;
 

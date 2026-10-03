@@ -29,11 +29,7 @@ TypeScript 编译零错误，`next build` 通过。所有核心页面已开发�
 
 ### 视觉系统
 
-- Web3 暗金主题：底色 #0D0D0D，主色 #C9954A（暗金），暖白文字 #E8E0D5
-- 字体：Playfair Display（衬线标题）+ Inter（无衬线正文）+ Noto Serif/Sans SC/TC
-- 底部 4 项导航（占卜/拜神/水晶/我），纯移动端，无桌面侧边栏
-- Canvas 星空粒子背景、Card 呼吸光动画、Halo 光环脉冲、粒子上升动画
-- 支持 `prefers-reduced-motion`，无障碍适配
+全站唯一规范：[`docs/design-system/OraSage-Brand-Spec.md`](../docs/design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠）。壳层灰度 + 朱砂钤印；禁止暗金独立体系与 Playfair Display。
 
 ### API 路由
 

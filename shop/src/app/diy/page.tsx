@@ -7,14 +7,17 @@ import { getServerShopLocale } from '@/lib/currency-server';
 import { currencyForLocale } from '@/lib/currency';
 import { DiyDesigner } from '@/components/diy/DiyDesigner';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
+import { isChineseLocale } from '@/lib/orasage-app-shell/brand';
 
 type PageProps = {
   searchParams: Promise<{ base?: string; element?: string }>;
 };
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerShopLocale();
   const t = await getTranslations('diy');
   return buildOrasageMetadata({
+    locale,
     title: t('metaTitle'),
     description: t('metaDescription'),
     canonical: `${ORASAGE_URLS.shop}/diy`,
@@ -41,7 +44,7 @@ export default async function DiyPage({ searchParams }: PageProps) {
         </Link>
 
         <header className="shop-diy-header">
-          <p className="shop-diy-eyebrow">OraSage Crystal Shop</p>
+          <p className="shop-diy-eyebrow">{isChineseLocale(locale) ? '海棠未眠' : 'OraSage'}</p>
           <h1 className="shop-diy-title">{t('title')}</h1>
           <p className="shop-diy-sub">{t('subtitle')}</p>
         </header>

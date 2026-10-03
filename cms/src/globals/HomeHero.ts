@@ -15,7 +15,7 @@ export const HomeHero: GlobalConfig = {
       '配置 orasage.com 门户首页顶部 Hero 区。保存后约 1 分钟内各前台生效；「启用」取消勾选可隐藏整段 Hero。',
   },
   fields: homeHeroFields({
-    eyebrow: 'OraSage',
+    eyebrow: '海棠未眠',
     headline: '探索命运，平衡能量',
     subtitle: '八字 · 紫微 · 塔罗 — 东方智慧与现代科技的融合',
   }),

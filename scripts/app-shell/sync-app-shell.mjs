@@ -33,6 +33,7 @@ const TS_FILES = [
   'labels.ts',
   'primary-nav.ts',
   'top-nav-html.ts',
+  'brand.ts',
   'index.ts',
 ];
 

@@ -12,8 +12,11 @@ export const ORASAGE_COLORS = {
   surface: '#ffffff',
   primary: '#171717',
   secondary: '#6b7280',
-  muted: '#9ca3af',
+  muted: '#a1a1aa',
   border: '#e7e5e4',
-  gold: '#b8943f',
-  goldLight: '#d4b86a',
+  cinnabar: '#a63f33',
+  vibe: '#c96442',
+  /** @deprecated 壳层无金色；保留别名指向深灰以免旧引用报错 */
+  gold: '#6b7280',
+  goldLight: '#a1a1aa',
 } as const;

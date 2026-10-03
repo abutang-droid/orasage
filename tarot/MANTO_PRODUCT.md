@@ -982,54 +982,11 @@ POST /api/deity/search  { query, language }
 
 ## 八、产品视觉语言
 
-### Web3 暗金美学
+**已废止独立暗金体系。** 视觉以全站唯一规范为准：
 
-```
-颜色系统：
-  底色        #0D0D0D 深黑（不刺眼，适合夜间使用）
-  主色        #C9954A 暗金（牌背、神像光环、强调元素）
-  辅色        #7E6FA8 暗紫（牌阵中的神秘元素、辅助 UI）
-  高亮        #D4A853 暖金（按钮、CTA、功德粒子）
-  文字        #E8E0D5 暖白（正文，不刺眼）
-  文字次级    rgba(232,224,213,0.6) 暖白半透
-  卡片底板    rgba(201,149,74,0.06) 暗金极透
-  卡片边框    rgba(201,149,74,0.12) 暗金微透
-  成功        #5B8C5A 墨绿（购买成功、功德增加）
-  错误        #C45B4A 暗红（支付失败、异常状态）
-```
+[`docs/design-system/OraSage-Brand-Spec.md`](../docs/design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠）
 
-```
-字体系统：
-  标题：Playfair Display（衬线，仪式感）
-  正文：Inter（无衬线，可读性，因 web3 用户多用英文界面）
-  中文：Noto Serif SC / Noto Serif TC（衬线，匹配标题）
-  中文正文：Noto Sans SC / Noto Sans TC
-  数字/代码：JetBrains Mono（功德数字，进度条百分比）
-```
-
-```
-动画规范：
-  微交互：200-300ms ease-out
-  页面过渡：300-400ms ease-in-out
-  牌面翻转：400ms cubic-bezier(0.4, 0, 0.2, 1)
-  粒子动画：持续循环，帧率 ≥30fps
-  呼吸光：周期 3-4s，ease-in-out 循环
-  页面滚动：平滑滚动，smooth scroll behavior
-```
-
-```
-间距系统（8px 基础）：
-  4px   极密间距（图标与文字）
-  8px   紧凑间距（卡片内元素）
-  12px  常规内边距（按钮内）
-  16px  模块间距（卡片之间）
-  20px  页面边距（移动端）
-  24px  段落间距
-  32px  大模块间距
-  48px  页面顶部留白
-```
-
-**为什么不用白色：** 教堂的白墙和白色圣母像让 web3 用户觉得那是「别人的地方」。暗底金光让他们觉得这是「凌晨三点还在刷的手机里出现的、属于自己的角落」。Manto 不需要看起来像教堂——它需要看起来像你不想退出的那个 App。
+壳层灰度 + 朱砂钤印；命理长文可用 Vibe 赭石。Playfair Display 与 `#C9954A` 暗金不得再作为品牌色。
 
 ---
 

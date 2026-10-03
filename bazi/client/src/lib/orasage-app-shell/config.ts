@@ -1,4 +1,5 @@
 import { pickLabel, SHELL_LABELS } from './labels';
+import { siteDisplayName } from './brand';
 
 export type AppId = 'bazi' | 'ziwei' | 'tarot' | 'shop';
 
@@ -238,7 +239,7 @@ export function resolveSecondNavSlot(
   }
 
   if (context === 'portal') {
-    return { href: mainPortalUrl(locale), label: 'OraSage', active: false, kind: 'orasage' };
+    return { href: mainPortalUrl(locale), label: siteDisplayName(locale), active: false, kind: 'orasage' };
   }
 
   const appId = context;

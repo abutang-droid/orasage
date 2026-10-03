@@ -11,7 +11,7 @@
 | [`docs/AGENT-RULES.md`](./AGENT-RULES.md) | 最高宪法：关联分支穿透、全站范围、导航规范 |
 | [`docs/plans/shop-admin-redesign-v2.md`](./plans/shop-admin-redesign-v2.md) | 商城后台 v2 分期（**文档内 Phase 状态表已滞后，以本文 §4 为准**） |
 | [`docs/plans/platform-roadmap-2026-07.md`](./plans/platform-roadmap-2026-07.md) | 平台六大工作项长期路线 |
-| [`docs/design-system/ui-status-2026-07.md`](./design-system/ui-status-2026-07.md) | 全站 UI / TW4 / `@orasage/ui` 矩阵 |
+| [`docs/design-system/OraSage-Brand-Spec.md`](./design-system/OraSage-Brand-Spec.md) | 全站唯一品牌 / UI 规范（OraSage / 海棠未眠） |
 
 ---
 

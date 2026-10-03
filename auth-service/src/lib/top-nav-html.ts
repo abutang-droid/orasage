@@ -1,5 +1,6 @@
 import { pickLabel, SHELL_LABELS } from '../../../shared/app-shell/labels.ts';
 import { getPrimaryNavCategories } from '../../../shared/app-shell/primary-nav.ts';
+import { motherBrandLockupHtml, siteSignature } from '../../../shared/app-shell/brand.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
 function esc(s: string): string {
@@ -39,7 +40,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
   return `
 <header class="orasage-site-topnav">
   <div class="orasage-site-topnav-inner">
-    <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
+    <a href="${main}" class="orasage-site-topnav-brand" aria-label="${esc(siteSignature(locale))}">${motherBrandLockupHtml(locale)}</a>
     <nav class="orasage-site-topnav-menu orasage-site-topnav-menu--desktop" aria-label="Site navigation">
           ${desktopLinks}
       <a href="${main}/search" class="orasage-site-topnav-link">${esc(search)}</a>

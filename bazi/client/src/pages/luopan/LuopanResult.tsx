@@ -1,6 +1,6 @@
 import type { SingleBaziResult } from '@/lib/bazi';
 import { BRANCH_WU_XING, DI_ZHI_CANG_GAN, WU_XING_MAP } from '@/lib/bazi';
-import { WuXingPolarChart, pillarsFromBazi } from '@/components/WuXingPolarChart';
+import { WuXingPolarChart } from '@/components/WuXingPolarChart';
 import { polarTag, GRID_CAPTION_ZH, GOD_VERNACULAR } from '@shared/vernacular';
 import { trueSolarCaption } from '@shared/free-report';
 
@@ -77,7 +77,7 @@ export function LuopanResult({
       <p className="grid-cap">{GRID_CAPTION_ZH}</p>
       <div className="ink-sec">
         <div className="ink-h">五 行</div>
-        <WuXingPolarChart wuXing={result.wuXing} pillars={pillarsFromBazi(result)} />
+        <WuXingPolarChart wuXing={result.wuXing} />
       </div>
       <div className="creed">知结构，不问吉凶</div>
       <div className="fine">

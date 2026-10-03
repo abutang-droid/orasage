@@ -15,7 +15,7 @@ const SECTIONS: { titleEn: string; titleZh: string; paragraphs: { en: string; zh
       paragraphs: [
         {
           en: 'OraSage pairs readable essays (Insights) with inspectable objects (Shop / The Making). The essays explain structure — Day Master, Five Elements, solar terms — as vocabulary for reflection. The objects carry intention frames you assign yourself. Neither side sells fortune or guaranteed outcomes.',
-          zh: 'OraSage 把可读短文（玄析）与可检视器物（商城 / 造物记）放在一起。短文讲结构——日主、五行、节气——作为内省词汇。器物承载你自己指定的意图框架。两边都不卖运势或结果保证。',
+          zh: '海棠未眠 OraSage 把可读短文（玄析）与可检视器物（商城 / 造物记）放在一起。短文讲结构——日主、五行、节气——作为内省词汇。器物承载你自己指定的意图框架。两边都不卖运势或结果保证。',
         },
       ],
     },
@@ -57,9 +57,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildPortalPageMeta({
     locale,
     pathname: '/origins/our-story',
-    title: isZh ? '缘起 | OraSage' : 'Our Story | OraSage',
+    title: isZh ? '缘起' : 'Our Story',
     description: isZh
-      ? 'OraSage 为何以内容电商讲述五行与器物 — 知结构，不问吉凶。'
+      ? '海棠未眠为何以内容电商讲述五行与器物 — 知结构，不问吉凶。'
       : 'Why OraSage builds content commerce around Five Elements and craft — structure, not fortune.',
   });
 }

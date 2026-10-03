@@ -26,6 +26,7 @@ import { RelatedProducts } from '@/components/RelatedProducts';
 import { TrustBar } from '@/components/TrustBar';
 import { formatShopPrice, resolvePriceCents, currencyForLocale } from '@/lib/currency';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
+import { isChineseLocale } from '@/lib/orasage-app-shell/brand';
 import { buildProductJsonLd, faqJsonLd } from '@/lib/product-jsonld';
 import { Disclaimer } from '@/lib/orasage-app-shell';
 import { makingSkuForProduct, makingUrl } from '@/lib/origins-making';
@@ -41,10 +42,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     fetchCmsProductPage(sku, locale),
   ]);
   if (!product) return { title: t('notFoundTitle') };
-  const title = cmsPage?.seoTitle?.trim() || `${product.name} · OraSage Crystal Shop`;
+  const title = cmsPage?.seoTitle?.trim() || `${product.name} · ${isChineseLocale(locale) ? '海棠未眠' : 'OraSage'}`;
   const description = cmsPage?.seoDescription?.trim() || product.desc;
   const ogImage = cmsPage?.heroImages[0]?.url;
   return buildOrasageMetadata({
+    locale,
     title,
     description,
     canonical: `${ORASAGE_URLS.shop}/product/${encodeURIComponent(sku)}`,

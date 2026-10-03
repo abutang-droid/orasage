@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ContentItem } from '@/lib/content';
 import { portalAbsoluteUrl } from '@/lib/content';
 import { locales } from '@/i18n/routing';
-import { orasageOpenGraph, orasageTwitter, ORASAGE_URLS } from '@/lib/orasage-seo';
+import { orasageOpenGraph, orasageTwitter, ORASAGE_URLS, orasageTitle } from '@/lib/orasage-seo';
 
 /** Self-referencing hreflang set for portal pages (apex canonical). */
 export function buildHreflangAlternates(pathname = ''): Record<string, string> {
@@ -12,6 +12,16 @@ export function buildHreflangAlternates(pathname = ''): Record<string, string> {
   }
   languages['x-default'] = portalAbsoluteUrl('en', pathname);
   return languages;
+}
+
+function localeFromCanonical(canonical: string): string | undefined {
+  try {
+    const u = new URL(canonical);
+    const parts = u.pathname.split('/').filter(Boolean);
+    return parts[0];
+  } catch {
+    return undefined;
+  }
 }
 
 function pathnameFromCanonical(canonical: string): string {
@@ -25,9 +35,10 @@ function pathnameFromCanonical(canonical: string): string {
   }
 }
 
-/** Build page metadata with self-referencing canonical. Title suffix is set explicitly for consistency. */
-export function buildPageMeta(item: ContentItem): Metadata {
-  const ogTitle = item.title.includes('OraSage') ? item.title : `${item.title} | OraSage`;
+/** Build page metadata with self-referencing canonical. Title suffix follows locale (zh: 海棠未眠). */
+export function buildPageMeta(item: ContentItem & { locale?: string }): Metadata {
+  const locale = item.locale ?? localeFromCanonical(item.canonical);
+  const ogTitle = orasageTitle(item.title, locale);
   const pageTitle = ogTitle;
   const pathname = pathnameFromCanonical(item.canonical);
 
@@ -46,9 +57,10 @@ export function buildPageMeta(item: ContentItem): Metadata {
       description: item.description ?? '',
       url: item.canonical,
       type: 'website',
+      locale: locale?.replace('-', '_'),
       image: `${ORASAGE_URLS.main}/og.png`,
     }),
-    twitter: orasageTwitter(ogTitle, item.description ?? '', `${ORASAGE_URLS.main}/og.png`),
+    twitter: orasageTwitter(ogTitle, item.description ?? '', `${ORASAGE_URLS.main}/og.png`, locale),
   };
 }
 
@@ -64,5 +76,6 @@ export function buildPortalPageMeta(opts: {
     title: opts.title,
     description: opts.description,
     noindex: opts.noindex,
+    locale: opts.locale,
   });
 }

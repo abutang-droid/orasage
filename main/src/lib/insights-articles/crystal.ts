@@ -85,7 +85,7 @@ export const CRYSTAL_ARTICLES: InsightsArticle[] = [
       },
       {
         en: 'No purification rituals or outcome language appear in OraSage copy. If cultural history mentions cleansing elsewhere, we separate museum notes from product claims.',
-        zh: 'OraSage 文案不出现净化仪式或结果语言。若别处文化史谈到清洁，我们将博物馆笔记与产品主张分开。',
+        zh: '海棠未眠 文案不出现净化仪式或结果语言。若别处文化史谈到清洁，我们将博物馆笔记与产品主张分开。',
       },
       {
         en: 'Before a hard edit, hold a thirty-second pause. The bracelet marks the pause, not the answer.',

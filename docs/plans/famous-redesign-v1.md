@@ -2,7 +2,7 @@
 
 > 状态：**P1–P3 已全部实施**
 > 范围：main 门户 `/{locale}/famous`（列表页）与 `/{locale}/famous/[slug]`（详情页）
-> 设计基线：`docs/design-system/OraSage-Design-System-v1.1-Revised.md`（黑白灰单色系）
+> 设计基线：[`docs/design-system/OraSage-Brand-Spec.md`](../design-system/OraSage-Brand-Spec.md)（OraSage / 海棠未眠 · 唯一规范）
 
 ---
 
