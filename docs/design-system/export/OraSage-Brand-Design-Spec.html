@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OraSage / 海棠未眠 · 品牌设计规范 v2.0</title>
+  <title>OraSage / 海棠未眠 · 品牌设计规范 v2.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -50,6 +50,7 @@
       font-size: 22px;
       margin: 6px 0 0;
     }
+    .tag { color: var(--deep); font-size: 12px; font-weight: 600; margin: 8px 0 0; }
     h1, h2, h3 { font-family: "Noto Serif SC", serif; font-weight: 700; line-height: 1.25; }
     h1 { font-size: 36px; margin: 12px 0 8px; }
     h2 { font-size: 24px; margin: 56px 0 16px; padding-top: 8px; border-top: 1px solid var(--line); }
@@ -109,26 +110,33 @@
       </svg>
       <p class="wordmark">OraSage</p>
       <p class="zh-name">海棠未眠</p>
-      <p class="tag">Oracle + Sage</p>
-      <h1>品牌设计规范 v2.0</h1>
-      <p class="lede">全站唯一现行规范。英文 OraSage，中文海棠未眠。壳层灰度 + 朱砂钤印；命理报告走 Vibe 赭石编辑层。品牌隐喻：铺在木质桌面上的一张宣纸 —— 界面是纸，命理内容是墨，海棠是未眠的暖色。</p>
+      <p class="tag">中文版署名 · 其它语言仅 OraSage</p>
+      <h1>品牌设计规范 v2.1</h1>
+      <p class="lede">全站唯一现行规范。中文版本用中文品牌名海棠未眠；其它语言只用 OraSage、不用汉字。壳层灰度 + 朱砂钤印；命理报告走 Vibe 赭石。品牌隐喻：铺在木质桌面上的一张宣纸。</p>
     </header>
 
-    <h2>1. 品牌核心</h2>
+    <h2>1. 适用范围与名称</h2>
+    <p><strong>总则：中文版本用中文；其它语言版本不用中文。</strong> 判定以当前界面 <code>locale</code> 为准（全站 8 应用）。视觉层（灰度壳层 + Vibe）不随语言换配色。</p>
+    <table>
+      <tr><th>版本</th><th>Locale</th><th>品牌名</th><th>用户可见文案</th></tr>
+      <tr><td>中文</td><td><code>zh-CN</code> 及所有归一为中文的 <code>zh*</code></td><td><strong>海棠未眠</strong>（可并列 OraSage）</td><td>中文。法律行、关于、报告封面须出现海棠未眠</td></tr>
+      <tr><td>其它语言</td><td>现行 <code>en</code>、<code>pt-BR</code> 及未来 es/fr/de/ja/ko 等</td><td><strong>仅 OraSage</strong></td><td>该语言（缺译回退英文）。<span class="dont">禁止任何汉字</span></td></tr>
+    </table>
     <table>
       <tr><th>项</th><th>规范</th></tr>
       <tr><td>英文名</td><td><strong>OraSage</strong>（O、S 大写，其余小写）。禁止 Orasage / ORASAGE / oraSage</td></tr>
-      <tr><td>中文名</td><td><strong>海棠未眠</strong>。禁止 海棠未名 / 海堂未眠 / 海棠未眠花</td></tr>
-      <tr><td>并列署名</td><td>中文正式场合：<strong>海棠未眠 OraSage</strong></td></tr>
+      <tr><td>中文名</td><td><strong>海棠未眠</strong>。仅中文 locale。禁止 海棠未名 / 海堂未眠 / 海棠未眠花</td></tr>
+      <tr><td>并列署名</td><td>仅中文正式场合：<strong>海棠未眠 OraSage</strong></td></tr>
       <tr><td>释义</td><td>Oracle + Sage —— 天启与智者。中文名：夜色里仍醒着的海棠</td></tr>
-      <tr><td>中文定位</td><td>命理与能量</td></tr>
-      <tr><td>代码 / 域名</td><td>全小写 <code>orasage</code></td></tr>
+      <tr><td>中文定位</td><td>命理与能量（仅中文版本）</td></tr>
+      <tr><td>代码 / 域名</td><td>全小写 <code>orasage</code>（各语言相同）</td></tr>
       <tr><td>性格</td><td>静谧 · 秩序 · 人文 · 笃定</td></tr>
     </table>
+    <p class="dont">非中文 locale 禁止：海棠未眠、命理与能量、首页/商城/玄析/造物/测算，以及任何汉字导航或法律行。</p>
 
     <h2>2. 标志 · 玄璧 Aperture</h2>
     <p>图形标：带缺口的圆环 + 中心一点。缺口 = Oracle（东北 45°，紫气东来）；中心点 = Sage。圆环同时是字母 O。</p>
-    <p>字标：<code>OraSage</code>，思源宋体 SemiBold，字距 0.08em。中文名 <code>海棠未眠</code> 同一套宋体，字距 0.12em。顶栏只用拉丁字标；中文名用于署名、品牌页、报告封面。符号位只用图形。组合锁定仅限正式署名场合。</p>
+    <p>字标：<code>OraSage</code>，思源宋体 SemiBold，字距 0.08em。中文名 <code>海棠未眠</code> 同一套宋体，字距 0.12em，<strong>仅中文版本</strong>用于署名、品牌页、报告封面。非中文锁定不得加汉字副行。顶栏拉丁字标各语言可用；符号位只用图形。</p>
 
     <div class="grid">
       <div class="card">
@@ -260,7 +268,7 @@
     </table>
 
     <footer>
-      © 2026 海棠未眠 OraSage. All rights reserved. · 唯一现行规范 v2.0
+      © 2026 海棠未眠 OraSage（中文版署名）· OraSage（其它语言）· 唯一现行规范 v2.1
     </footer>
   </div>
 </body>

@@ -1,7 +1,7 @@
 # OraSage / 海棠未眠 品牌资产（canonical）
 
-> 规范：[`docs/design-system/OraSage-Brand-Spec.md`](../../docs/design-system/OraSage-Brand-Spec.md)
-> **图形标与字标默认分开** —— 顶栏用纯文字 `OraSage`；符号位只用玄璧。中文品牌名 **海棠未眠** 用于署名、品牌页、报告封面，不替代顶栏拉丁字标。
+> 规范：[`docs/design-system/OraSage-Brand-Spec.md`](../../docs/design-system/OraSage-Brand-Spec.md) §1.0  
+> **图形标与字标默认分开** —— 顶栏用纯文字 `OraSage`；符号位只用玄璧。中文品牌名 **海棠未眠** 仅用于中文 locale 的署名、品牌页、报告封面；`en` / `pt-BR` 等不得出现汉字。
 
 ## 目录
 
