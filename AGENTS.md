@@ -1,6 +1,7 @@
 # AGENTS.md
 
-> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含 **最高宪法：关联分支穿透与影响评估**、**任务范围：未点名不改**、「全站」范围定义与导航规范）。
+> **Agent 规则**：执行任务前请阅读 [`docs/AGENT-RULES.md`](docs/AGENT-RULES.md)（含 **最高宪法：关联分支穿透与影响评估**、**任务范围：未点名不改**、「全站」范围定义与导航规范）。  
+> **最新会话交接**：[`docs/HANDOFF-agent-2026-10-03.md`](docs/HANDOFF-agent-2026-10-03.md)
 
 ## Cursor Cloud specific instructions
 
