@@ -53,6 +53,26 @@
 - **未经明确批准**，不要改动全局布局或增删产品功能。
 - 大规模 UI 变更前先与任务方确认范围与例外。
 
+## 反复回归坑：八字罗盘手机刻度数字
+
+**症状（手机浏览器）**：罗盘环上的年/月/日/时/分数字不在环上、飞出盘外或叠层错乱。
+
+**根因（已多次复现，含 2026-10-04 再次复发）**：
+
+1. 窄屏把 `.dial` 写死 `height:340px`（或任何固定高）→ SVG viewBox 被拉成长方形，刻度与色块错位。
+2. 用 **CSS** `transform: rotate(...)` 转整环（`.ring-g`）或刻度字，再叠 SVG 子级 `rotate` → 手机缩放后 CSS 盒坐标与 SVG 用户坐标对不上，数字甩出环。
+3. **分支未合入**：修复在 `cursor/bazi-luopan-mobile-ticks-cdf4`，后续工作从 `bazi-luopan-home` 分支出去时没带上该补丁；再 overlay `bazi/dist` 就会把生产盖回坏版本。
+
+**正确做法（改 `bazi/client/src/pages/luopan/` 时必守）**：
+
+- `.dial` 始终用 `aspect-ratio: 1/1` + `height: auto`；`@media (max-width:400px)` 只收 `max-width`，**禁止**再写死高度。
+- 整环旋转：`spinRing()` → SVG `transform="rotate(th Cx Cy)"`，并清空 `style.transform`。
+- 刻度正向：`uprightLabel()` → SVG `rotate(angle x y)`，**不要**给 `.tick-t` / `.hour-t` / `.min-t` / `.ring-g` 写 CSS rotate / `transform-origin: 210px`。
+- 合并其它分支 / overlay `bazi/dist` 前，跑 `pnpm exec vitest run server/luopan-mobile-ticks.test.ts`（源码 + **已构建 dist** 都扫）；测试失败则禁止 scp/tar 覆盖生产。`deploy/bazi/deploy-bazi.sh` 在 `pnpm run build` 后也会跑同一套测试。
+- 验收：线上 CSS 不得含 `height:340px` / `transform-origin:210px`；JS 不得含 `.style.transform=\`rotate(${…}deg)\``。当前复发就是 overlay 了报告样式分支的旧 dist（`index-r4bqeKPv.js` + `.dial{width:340px;height:340px}`）。
+
+回归测试：`bazi/server/luopan-mobile-ticks.test.ts`。
+
 ## 生产环境与 SSH（Cloudflare Tunnel）
 
 家用生产机经 **Cloudflare Tunnel** 对外；**GCP VPS `34.75.40.67` 是另一套环境，勿当作默认部署目标**。
