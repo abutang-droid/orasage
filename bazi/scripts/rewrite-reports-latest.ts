@@ -158,6 +158,7 @@ async function rewriteOne(row: ReadingRow): Promise<{ status: string; url?: stri
   const free = ensureStaticFreeReport(resultData, lang, {
     readingId,
     skipIfPaid: false,
+    force: FORCE,
   });
 
   if (legacyHtml && isPaidHtml(legacyHtml)) {

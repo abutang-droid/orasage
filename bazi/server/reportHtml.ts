@@ -898,7 +898,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   const tier = options.tier ?? (options.showUpgrade ? "free" : "paid");
 
   return `<!doctype html>
-<html lang="${escapeAttr(locale)}" data-report-tier="${tier}">
+<html lang="${escapeAttr(locale)}" class="report-longform" data-report-tier="${tier}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

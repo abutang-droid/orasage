@@ -82,6 +82,7 @@ describe("renderMarkdown", () => {
       },
     });
     expect(html).toContain("你的命局解读");
+    expect(html).toContain('class="report-longform"');
     expect(html).toContain("命盘总览");
     expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");

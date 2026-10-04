@@ -4,12 +4,21 @@ import { useLocation } from 'wouter';
 import { loadCityCatalog, matchLocalCity, toCityCoords } from '@orasage/city';
 import { CityProvider, CitySearchInput } from '@orasage/city/react';
 import type { BirthplaceValue } from '@orasage/city';
-import { calcSingleBazi, loadLunarLib } from '@/lib/bazi';
+import { calcSingleBazi, loadLunarLib, recommendBracelet } from '@/lib/bazi';
 import { cityApi } from '@/lib/city-client';
 import { saveCheckoutSnapshot } from '@/lib/checkout-session';
 import { BaziEntryChrome } from '@/components/BaziEntryChrome';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
+import { newReadingId, syncBaziSingleReading } from '@/lib/reading-sync';
+import { saveLastReadingId } from '@/_core/hooks/usePaymentFlow';
+import {
+  getStaticReportHref,
+  materializeStaticReport,
+  openFixedReportPage,
+  probeFixedReport,
+} from '@/lib/static-report';
+import { trpc } from '@/lib/trpc';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
 
@@ -35,6 +44,8 @@ export default function LuopanPage() {
   nameRef.current = personName;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [lastReport, setLastReport] = useState<string | null>(null);
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -42,6 +53,12 @@ export default function LuopanPage() {
       setLocation(classicRestorePath());
     }
   }, [setLocation]);
+
+  useEffect(() => {
+    void probeFixedReport(getStaticReportHref()).then((path) => {
+      if (path) setLastReport(path);
+    });
+  }, []);
 
   const onGo = useCallback(async (s: LuopanDialState) => {
     const city = placeRef.current;
@@ -87,6 +104,19 @@ export default function LuopanPage() {
         ...(lng != null ? { lng, lat: lat ?? 0, timezone } : {}),
       });
       saveCheckoutSnapshot({ type: 'single', data }, 'single');
+      const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
+      const readingId = syncBaziSingleReading(nameRef.current, data, braceletRec, newReadingId('bazi'), 'zh-CN');
+      saveLastReadingId(readingId);
+      const materialized = await materializeStaticReport({
+        result: data,
+        lang: 'zh-CN',
+        readingId,
+        mutateAsync: materializeReport.mutateAsync,
+      });
+      if (materialized?.reportPath) {
+        openFixedReportPage(materialized.reportPath);
+        return;
+      }
       setLocation(classicRestorePath());
     } catch (err) {
       console.error(err);
@@ -94,7 +124,7 @@ export default function LuopanPage() {
     } finally {
       setBusy(false);
     }
-  }, [setLocation]);
+  }, [setLocation, materializeReport.mutateAsync]);
 
   const onTranscript = useCallback(async (text: string) => {
     try {
@@ -143,6 +173,11 @@ export default function LuopanPage() {
   return (
     <div className={`luopan-root${busy ? ' luopan-busy' : ''}`}>
       <BaziEntryChrome active="luopan" />
+      {lastReport ? (
+        <a className="luopan-last-report" href={lastReport}>
+          查看上次报告
+        </a>
+      ) : null}
       <div
         ref={hostRef}
         className="luopan-host"

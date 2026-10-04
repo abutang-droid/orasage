@@ -96,6 +96,8 @@ export type MaterializeOpts = {
   readingId: string;
   /** 已付费文件上禁止用 free 覆盖（默认 true） */
   skipIfPaid?: boolean;
+  /** 已有 reading HTML 也重写；用户再次进入时不要传 */
+  force?: boolean;
 };
 
 /** 按 readingId 物化 / 刷新免费层固定报告（每用户每次排盘一份） */
@@ -132,6 +134,7 @@ export function ensureStaticFreeReport(
     subjectName: input.name || undefined,
     locale: lang,
     allowDowngrade: opts?.skipIfPaid === false,
+    force: opts?.force === true,
     chart: {
       name: input.name,
       birthStr: String(resultData.birthStr ?? ""),

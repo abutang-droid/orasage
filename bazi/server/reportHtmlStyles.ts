@@ -37,9 +37,14 @@ export const REPORT_PAGE_CSS = `
             box-sizing: border-box;
         }
 
+        html.report-longform,
         html {
             scroll-behavior: smooth;
             font-size: 16px;
+            height: auto;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body {
@@ -48,7 +53,10 @@ export const REPORT_PAGE_CSS = `
             color: var(--ink-black);
             line-height: 1.7;
             font-size: 17px;
+            height: auto;
+            min-height: 100%;
             overflow-x: hidden;
+            overflow-y: visible;
         }
 
         a {
@@ -1781,13 +1789,15 @@ export const REPORT_PAGE_CSS = `
             .caution-items,
             .weekly-timeline,
             .paywall-content,
-            .footer-content {
-                padding-left: 24px;
-                padding-right: 24px;
+            .footer-content,
+            .section-body,
+            .kw-row {
+                padding-left: 20px;
+                padding-right: 20px;
             }
 
             .top-nav-inner {
-                padding: 0 24px;
+                padding: 0 16px;
             }
 
             .nav-section-label {
@@ -1801,7 +1811,7 @@ export const REPORT_PAGE_CSS = `
             }
 
             .brand-lockup-primary {
-                font-size: 18px;
+                font-size: 17px;
             }
 
             .brand-lockup-aux {
@@ -1809,69 +1819,333 @@ export const REPORT_PAGE_CSS = `
             }
 
             .nav-logo-mark {
-                width: 28px;
-                height: 28px;
+                width: 26px;
+                height: 26px;
             }
 
+            /* ---- Hero: quieter first screen ---- */
             .hero {
-                padding: 100px 0 60px;
+                padding: 88px 0 36px;
                 min-height: auto;
             }
 
             .hero-issue {
-                top: 90px;
-                left: 24px;
-                font-size: 10px;
+                top: 72px;
+                left: 20px;
+                font-size: 9px;
+                letter-spacing: 0.18em;
+                opacity: 0.7;
+            }
+
+            .hero-issue::before {
+                width: 20px;
+                margin-right: 8px;
+            }
+
+            .hero-headline {
+                font-size: 30px;
+                line-height: 1.15;
+                margin-bottom: 16px;
+                word-break: keep-all;
+                text-wrap: pretty;
+            }
+
+            .hero-subhead {
+                font-size: 16px;
+                margin-bottom: 28px;
+                line-height: 1.45;
+            }
+
+            .hero-person-row {
+                margin-bottom: 28px;
+                font-size: 12px;
+                line-height: 1.55;
+                gap: 2px 6px;
             }
 
             .hero-decoration {
-                width: 300px;
-                height: 300px;
-                right: -150px;
-                opacity: 0.05;
+                width: 220px;
+                height: 220px;
+                right: -110px;
+                opacity: 0.04;
             }
 
+            .scroll-indicator {
+                display: none;
+            }
+
+            /* ---- TOC: tappable, no chrome ---- */
             .toc {
-                top: 56px;
-                padding: 12px 0;
+                top: 52px;
+                padding: 10px 0;
             }
 
             .toc-list {
-                padding: 0 24px;
-                gap: 20px;
+                gap: 8px;
+                padding: 0 12px;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .toc-list::-webkit-scrollbar {
+                display: none;
+                height: 0;
             }
 
             .toc-item .toc-num {
                 display: none;
             }
 
+            .toc-item a {
+                font-size: 14px;
+                line-height: 1.2;
+                padding: 10px 12px;
+                white-space: nowrap;
+                border: 1px solid var(--border-light);
+                background: rgba(255, 253, 248, 0.92);
+            }
+
+            .toc-item.active a,
+            .toc-item:hover a {
+                border-color: var(--terracotta);
+                color: var(--terracotta);
+            }
+
+            .toc-item.active::after {
+                display: none;
+            }
+
+            /* ---- Sections: content over decoration ---- */
+            main {
+                padding-bottom: 96px;
+            }
+
             .section {
-                padding: 80px 0;
+                padding: 56px 0;
             }
 
             .section-header {
-                margin-bottom: 40px;
+                margin-bottom: 28px;
+                padding-left: 20px;
+                padding-right: 20px;
             }
 
             .section-number {
-                font-size: 56px;
-                opacity: 0.12;
+                font-size: 40px;
+                opacity: 0.08;
+                letter-spacing: 0.02em;
             }
 
             .section-title {
-                font-size: 28px;
+                font-size: 24px;
+                line-height: 1.25;
                 text-wrap: pretty;
                 word-break: keep-all;
                 overflow-wrap: break-word;
             }
 
-            .section-header {
-                padding-left: 24px;
-                padding-right: 24px;
+            .section-subtitle {
+                font-size: 14px;
+                line-height: 1.55;
+            }
+
+            /* Drop-caps: stop crushing the text column */
+            .core-insight-body {
+                columns: 1;
+            }
+
+            .core-insight-body p,
+            .personality-text p,
+            .section-body p {
+                text-align: left;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+
+            .core-insight-body p:first-of-type::first-letter,
+            .personality-text p:first-of-type::first-letter {
+                font-size: 40px;
+                line-height: 0.95;
+                padding: 4px 8px 0 0;
+            }
+
+            .pull-quote-text {
+                font-size: 22px;
+                line-height: 1.4;
+                word-break: keep-all;
+            }
+
+            .key-takeaway {
+                margin-top: 36px;
+            }
+
+            .key-takeaway-box {
+                padding: 20px;
+            }
+
+            /* ---- Four pillars ---- */
+            .mingpan-board {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .mp-pillar {
+                min-width: 0;
+                padding: 20px 12px 16px;
+            }
+
+            .mp-gan {
+                font-size: 34px;
+            }
+
+            .mp-zhi {
+                font-size: 24px;
+            }
+
+            /* ---- Five elements ---- */
+            .elements-grid {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+
+            .elements-donut {
+                width: 200px;
+                height: 200px;
+                margin: 0 auto;
+            }
+
+            .donut-inner {
+                width: 132px;
+                height: 132px;
+            }
+
+            .wx-radar-wrap {
+                max-width: 280px;
+                margin: 0 auto;
+            }
+
+            .wx-radar {
+                width: 100%;
+                height: auto;
+            }
+
+            .balance-section {
+                grid-template-columns: 1fr;
+                gap: 28px;
+                text-align: center;
+            }
+
+            .personality-grid {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+
+            .trait-cards-grid,
+            .talent-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .caution-box {
+                padding: 28px 20px 20px;
+            }
+
+            .caution-box::before {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .caution-box-title,
+            .caution-box-desc {
+                padding-left: 0;
+                text-align: center;
+            }
+
+            .caution-box-title {
+                margin-top: 16px;
+            }
+
+            /* ---- Weekly: keep Chinese phrases intact ---- */
+            .weekly-timeline {
+                grid-template-columns: 1fr;
+                gap: 1px;
+            }
+
+            /* 4 children: name, date, icon, suggestion → named areas */
+            .day-card {
+                display: grid;
+                grid-template-columns: 52px 40px minmax(0, 1fr);
+                grid-template-rows: auto auto;
+                grid-template-areas:
+                    "date icon suggestion"
+                    "name icon suggestion";
+                align-items: center;
+                column-gap: 10px;
+                row-gap: 2px;
+                text-align: left;
+                padding: 14px 16px 14px 14px;
+            }
+
+            .day-date {
+                grid-area: date;
+                margin-bottom: 0;
+                text-align: center;
+                font-size: 22px;
+                line-height: 1.1;
+            }
+
+            .day-name {
+                grid-area: name;
+                font-size: 10px;
+                text-align: center;
+                margin-bottom: 0;
+                letter-spacing: 0.08em;
+            }
+
+            .day-icon {
+                grid-area: icon;
+                margin: 0;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                justify-self: center;
+            }
+
+            .day-suggestion {
+                grid-area: suggestion;
+                font-size: 13px;
+                line-height: 1.45;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+                text-wrap: pretty;
+                min-width: 0;
+            }
+
+            .paywall-section {
+                padding: 64px 0;
+            }
+
+            .paywall-features {
+                grid-template-columns: 1fr;
+            }
+
+            /* ---- FAB: compact round chip ---- */
+            .fab-share {
+                right: 14px;
+                bottom: 18px;
+                width: 48px;
+                height: 48px;
+                padding: 0;
+                font-size: 12px;
+                letter-spacing: 0;
+                justify-content: center;
+                box-shadow: 0 6px 18px rgba(201, 100, 66, 0.28);
             }
 
             .footer {
-                padding: 64px 20px 96px;
+                padding: 48px 16px 112px;
             }
 
             .footer-note,
@@ -1888,155 +2162,6 @@ export const REPORT_PAGE_CSS = `
             .footer-brand .brand-lockup {
                 justify-content: center;
                 align-items: center;
-            }
-
-            .toc-list {
-                gap: 16px;
-                padding: 0 16px;
-                scrollbar-width: none;
-            }
-
-            .toc-list::-webkit-scrollbar {
-                display: none;
-            }
-
-            .toc-item a {
-                font-size: 13px;
-                padding: 8px 0;
-            }
-
-            .fab-share {
-                right: 12px;
-                bottom: 16px;
-                padding: 10px 14px;
-                font-size: 12px;
-            }
-
-            .mingpan-board {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 10px;
-                width: 100%;
-                max-width: 100%;
-                overflow: hidden;
-            }
-
-            .mp-pillar {
-                min-width: 0;
-            }
-
-            .mp-gan {
-                font-size: 36px;
-            }
-
-            .mp-zhi {
-                font-size: 26px;
-            }
-
-            .hero-headline {
-                font-size: 40px;
-                word-break: keep-all;
-            }
-
-            .day-suggestion {
-                font-size: 13px;
-            }
-
-            .core-insight-body {
-                columns: 1;
-            }
-
-            .mp-pillar {
-                padding: 24px 10px 18px;
-            }
-
-            .elements-grid {
-                grid-template-columns: 1fr;
-                gap: 48px;
-            }
-
-            .elements-donut {
-                width: 260px;
-                height: 260px;
-            }
-
-            .donut-inner {
-                width: 180px;
-                height: 180px;
-            }
-
-            .balance-section {
-                grid-template-columns: 1fr;
-                gap: 32px;
-                text-align: center;
-            }
-
-            .personality-grid {
-                grid-template-columns: 1fr;
-                gap: 48px;
-            }
-
-            .trait-cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .talent-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .caution-box {
-                padding: 32px 24px 24px;
-            }
-
-            .caution-box::before {
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            .caution-box-title,
-            .caution-box-desc {
-                padding-left: 0;
-                text-align: center;
-            }
-
-            .caution-box-title {
-                margin-top: 20px;
-            }
-
-            .weekly-timeline {
-                grid-template-columns: 1fr;
-                gap: 1px;
-            }
-
-            .day-card {
-                display: grid;
-                grid-template-columns: 52px 40px minmax(0, 1fr);
-                align-items: center;
-                text-align: left;
-                padding: 14px 16px;
-                gap: 10px;
-            }
-
-            .day-icon {
-                margin: 0;
-                width: 36px;
-                height: 36px;
-            }
-
-            .day-date {
-                margin-bottom: 0;
-                text-align: center;
-            }
-
-            .paywall-section {
-                padding: 80px 0;
-            }
-
-            .paywall-features {
-                grid-template-columns: 1fr;
-            }
-
-            .key-takeaway-box {
-                padding: 24px;
             }
         }
 
@@ -2081,7 +2206,7 @@ export const REPORT_PAGE_CSS = `
 .footer-note{margin-top:1rem;font-size:12px;color:var(--ink-muted);line-height:1.7;max-width:min(480px,100%);margin-left:auto;margin-right:auto;padding:0 4px;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .footer-copyright{white-space:normal;overflow-wrap:anywhere}
 .section-title{text-wrap:pretty;word-break:keep-all;overflow-wrap:break-word}
-main{padding-bottom:72px}
+main{padding-bottom:96px}
 .mingpan-board{width:100%;max-width:100%;box-sizing:border-box;min-width:0}
 .mp-pillar{min-width:0;overflow:hidden}
 .toc-list{-webkit-overflow-scrolling:touch;scrollbar-width:none}

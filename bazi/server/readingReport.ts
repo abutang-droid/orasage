@@ -56,13 +56,24 @@ export type WriteReadingReportOpts = {
   productRecommend?: ReportProductRecommend | null;
   /** 已是 paid 时默认拒绝被 free 覆盖 */
   allowDowngrade?: boolean;
+  /** 已有文件也重写（迁移脚本）；默认跳过，避免用户再次进入时重新生成 */
+  force?: boolean;
 };
 
 export function writeReadingReportHtml(opts: WriteReadingReportOpts) {
   const paths = resolveReadingReportPaths(opts.readingId);
-  const existingTier = readReportTier(paths.absolutePath);
+  const exists = fs.existsSync(paths.absolutePath);
+  const existingTier = exists ? readReportTier(paths.absolutePath) : null;
   if (existingTier === "paid" && opts.tier === "free" && !opts.allowDowngrade) {
     return { ...paths, reused: true as const, skipped: true as const, tier: "paid" as const };
+  }
+  if (exists && opts.tier === "free" && !opts.force) {
+    return {
+      ...paths,
+      reused: true as const,
+      skipped: true as const,
+      tier: (existingTier ?? "free") as ReportTier,
+    };
   }
 
   const html = buildReportPageHtml({

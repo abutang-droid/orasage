@@ -260,11 +260,14 @@ export function saveLastReadingId(readingId: string) {
   try {
     sessionStorage.setItem(READING_ID_KEY, readingId);
   } catch { /* ignore */ }
+  try {
+    localStorage.setItem(READING_ID_KEY, readingId);
+  } catch { /* ignore */ }
 }
 
 export function getLastReadingId(): string | null {
   try {
-    return sessionStorage.getItem(READING_ID_KEY);
+    return sessionStorage.getItem(READING_ID_KEY) || localStorage.getItem(READING_ID_KEY);
   } catch {
     return null;
   }
