@@ -1651,8 +1651,10 @@ export const REPORT_PAGE_CSS = `
            Footer
            ============================================================ */
         .footer {
-            padding: 80px 0 40px;
+            padding: 80px 24px 100px;
             border-top: 1px solid var(--border-light);
+            text-align: center;
+            overflow-wrap: anywhere;
         }
 
         .footer-content {
@@ -1822,10 +1824,6 @@ export const REPORT_PAGE_CSS = `
                 font-size: 10px;
             }
 
-            .hero-headline {
-                font-size: 48px;
-            }
-
             .hero-decoration {
                 width: 300px;
                 height: 300px;
@@ -1856,32 +1854,105 @@ export const REPORT_PAGE_CSS = `
             }
 
             .section-number {
-                font-size: 80px;
+                font-size: 56px;
+                opacity: 0.12;
             }
 
             .section-title {
+                font-size: 28px;
+                text-wrap: pretty;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+
+            .section-header {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .footer {
+                padding: 64px 20px 96px;
+            }
+
+            .footer-note,
+            .footer-copyright,
+            .footer-tagline {
+                max-width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .footer-brand .brand-lockup {
+                justify-content: center;
+                align-items: center;
+            }
+
+            .toc-list {
+                gap: 16px;
+                padding: 0 16px;
+                scrollbar-width: none;
+            }
+
+            .toc-list::-webkit-scrollbar {
+                display: none;
+            }
+
+            .toc-item a {
+                font-size: 13px;
+                padding: 8px 0;
+            }
+
+            .fab-share {
+                right: 12px;
+                bottom: 16px;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+
+            .mingpan-board {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .mp-pillar {
+                min-width: 0;
+            }
+
+            .mp-gan {
                 font-size: 36px;
+            }
+
+            .mp-zhi {
+                font-size: 26px;
+            }
+
+            .hero-headline {
+                font-size: 40px;
+                word-break: keep-all;
+            }
+
+            .day-card {
+                grid-template-columns: 52px 40px 1fr;
+                padding: 14px 16px;
+                gap: 10px;
+            }
+
+            .day-suggestion {
+                font-size: 13px;
             }
 
             .core-insight-body {
                 columns: 1;
             }
 
-            .mingpan-board {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-
-            .mp-gan {
-                font-size: 44px;
-            }
-
-            .mp-zhi {
-                font-size: 30px;
-            }
-
             .mp-pillar {
-                padding: 28px 12px 20px;
+                padding: 24px 10px 18px;
             }
 
             .elements-grid {
@@ -2013,7 +2084,14 @@ export const REPORT_PAGE_CSS = `
 .product-rec-desc{font-size:.9rem;color:var(--ink-muted);margin-bottom:.75rem}
 .product-rec-price{font-size:1.1rem;color:var(--terracotta);font-weight:700;margin-bottom:1rem}
 .product-rec-btn{display:inline-block;padding:.55rem 1.25rem;background:var(--terracotta);color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:600}
-.footer-note{margin-top:1rem;font-size:12px;color:var(--ink-muted);line-height:1.7;max-width:480px;margin-left:auto;margin-right:auto}
+.footer-note{margin-top:1rem;font-size:12px;color:var(--ink-muted);line-height:1.7;max-width:min(480px,100%);margin-left:auto;margin-right:auto;padding:0 4px;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.footer-copyright{white-space:normal;overflow-wrap:anywhere}
+.section-title{text-wrap:pretty;word-break:keep-all;overflow-wrap:break-word}
+main{padding-bottom:72px}
+.mingpan-board{width:100%;max-width:100%;box-sizing:border-box;min-width:0}
+.mp-pillar{min-width:0;overflow:hidden}
+.toc-list{-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.toc-list::-webkit-scrollbar{display:none;height:0}
 @media(min-width:721px){.share-overlay{align-items:center}}
 button{font:inherit}
 
