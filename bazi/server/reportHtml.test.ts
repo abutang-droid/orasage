@@ -75,6 +75,9 @@ describe("renderMarkdown", () => {
         strength: "身强",
         dayMasterLine: "代表你的字：乙（木）　·　身强",
         year: { gan: "庚", zhi: "午" },
+        month: { gan: "己", zhi: "卯" },
+        day: { gan: "乙", zhi: "亥" },
+        hour: { gan: "丙", zhi: "子" },
         wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
       },
     });
@@ -88,6 +91,12 @@ describe("renderMarkdown", () => {
     expect(html).toContain("og:title");
     expect(html).toContain("五行分布");
     expect(html).toContain("elements-donut");
+    expect(html).toContain('class="wx-radar"');
+    expect(html).toContain("四柱命盘");
+    expect(html).toContain('class="mingpan-board"');
+    expect(html).toContain("is-day-master");
+    expect(html).toContain("庚");
+    expect(html).toContain("乙");
     expect(html).toContain("balance-gauge");
     expect(html).toContain("weekly-timeline");
     expect(html).toContain("core-insight-body");
@@ -108,6 +117,18 @@ describe("renderMarkdown", () => {
     expect(html).toContain("绿幽灵手串");
     expect(html).toContain("$88.00");
     expect((html.match(/class="product-rec"/g) || []).length).toBe(1);
+  });
+
+  it("buildReportPageHtml skips four-pillar board when no pillars are present", () => {
+    const html = buildReportPageHtml({
+      planLabel: "深度解读",
+      reportContent: "### 开运建议\n佩戴水晶。",
+      chart: { wuXing: { 木: 1, 火: 1, 土: 1, 金: 1, 水: 1 } },
+    });
+    expect(html).not.toContain('class="mingpan-board"');
+    expect(html).not.toContain("四柱命盘");
+    expect(html).toContain('class="wx-radar"');
+    expect(html).toContain("elements-donut");
   });
 
   it("buildReportPageHtml embeds share caption with report URL", () => {
