@@ -200,6 +200,33 @@ export const REPORT_PAGE_CSS = `
             color: var(--ink-black);
         }
 
+        .brand-lockup {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4em;
+            min-width: 0;
+            font-family: 'Noto Serif SC', var(--font-display), serif;
+            font-weight: 600;
+            color: var(--ink-black);
+            line-height: 1.15;
+        }
+
+        .brand-lockup-primary {
+            font-size: 22px;
+            letter-spacing: 0.08em;
+        }
+
+        .brand-lockup-primary[data-script='zh'] {
+            letter-spacing: 0.12em;
+        }
+
+        .brand-lockup-aux {
+            font-size: 0.62em;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--ink-muted);
+        }
+
         .nav-section-label {
             font-family: var(--font-ui);
             font-size: 11px;
@@ -1673,12 +1700,25 @@ export const REPORT_PAGE_CSS = `
             background: var(--terracotta);
         }
 
-        .footer-logo-wordmark {
-            font-family: var(--font-display);
+        .footer-logo-wordmark,
+        .footer-brand .brand-lockup-primary {
+            font-family: 'Noto Serif SC', var(--font-display), serif;
             font-size: 28px;
             font-weight: 600;
-            letter-spacing: -0.01em;
+            letter-spacing: 0.08em;
             color: var(--ink-black);
+        }
+
+        .footer-brand .brand-lockup-primary[data-script='zh'] {
+            letter-spacing: 0.12em;
+        }
+
+        .footer-brand .brand-lockup-aux {
+            font-size: 0.55em;
+        }
+
+        .share-card-brand .brand-lockup-primary {
+            font-size: 20px;
         }
 
         .footer-tagline {

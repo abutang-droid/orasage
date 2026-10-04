@@ -85,7 +85,10 @@ describe("renderMarkdown", () => {
     expect(html).toContain("命盘总览");
     expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
-    expect(html).toContain("Orasage");
+    expect(html).toContain("海棠未眠");
+    expect(html).toContain("brand-lockup-primary");
+    expect(html).toContain("brand-lockup-aux");
+    expect(html).toContain("OraSage");
     expect(html).toContain("share-card");
     expect(html).toContain("data-share-open");
     expect(html).toContain("og:title");
