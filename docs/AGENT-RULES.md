@@ -68,7 +68,8 @@
 - `.dial` 始终用 `aspect-ratio: 1/1` + `height: auto`；`@media (max-width:400px)` 只收 `max-width`，**禁止**再写死高度。
 - 整环旋转：`spinRing()` → SVG `transform="rotate(th Cx Cy)"`，并清空 `style.transform`。
 - 刻度正向：`uprightLabel()` → SVG `rotate(angle x y)`，**不要**给 `.tick-t` / `.hour-t` / `.min-t` / `.ring-g` 写 CSS rotate / `transform-origin: 210px`。
-- 合并其它分支 / overlay `bazi/dist` 前，跑 `pnpm exec vitest run server/luopan-mobile-ticks.test.ts`；勿把未含此修复的 dist 盖上生产。
+- 合并其它分支 / overlay `bazi/dist` 前，跑 `pnpm exec vitest run server/luopan-mobile-ticks.test.ts`（源码 + **已构建 dist** 都扫）；测试失败则禁止 scp/tar 覆盖生产。`deploy/bazi/deploy-bazi.sh` 在 `pnpm run build` 后也会跑同一套测试。
+- 验收：线上 CSS 不得含 `height:340px` / `transform-origin:210px`；JS 不得含 `.style.transform=\`rotate(${…}deg)\``。当前复发就是 overlay 了报告样式分支的旧 dist（`index-r4bqeKPv.js` + `.dial{width:340px;height:340px}`）。
 
 回归测试：`bazi/server/luopan-mobile-ticks.test.ts`。
 

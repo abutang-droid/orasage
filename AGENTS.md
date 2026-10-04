@@ -118,8 +118,9 @@ units, and remote deploy scripts targeting a single production VPS.
   labels, and never lock `.dial { height:340px }` on narrow screens — numbers
   fly off the rings. Use SVG `spinRing` / `uprightLabel` + `aspect-ratio:1/1`.
   See `docs/AGENT-RULES.md` § 反复回归坑 and
-  `bazi/server/luopan-mobile-ticks.test.ts`. Overlaying a
-  `bazi/dist` built without this fix will re-break production.
+  `bazi/server/luopan-mobile-ticks.test.ts` (source **and** built dist).
+  Overlaying a `bazi/dist` built without this fix will re-break production;
+  `deploy/bazi/deploy-bazi.sh` runs the same vitest after `pnpm run build`.
 - No repo-wide automated test suite. Per app: `npx tsc --noEmit` (auth-service,
   shop, admin) or `npm run build` (main, cms) are the main programmatic
   checks. There is no ESLint config committed for any app.

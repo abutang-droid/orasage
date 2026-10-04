@@ -76,6 +76,11 @@ deploy_native() {
 
   pnpm run build
 
+  # 手机罗盘刻度：禁止把带 height:340px / CSS rotate 的旧 dist 盖上生产。
+  # 见 docs/AGENT-RULES.md § 反复回归坑：八字罗盘手机刻度数字
+  log "校验罗盘手机刻度不变量..."
+  pnpm exec vitest run server/luopan-mobile-ticks.test.ts
+
   log "构建版本: $(git -C "$DEPLOY_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 
   # build 产物属主须与 systemd User= 一致。
