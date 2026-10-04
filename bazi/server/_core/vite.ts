@@ -21,14 +21,18 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
-  // 开发环境也挂载 /reports/*，与生产 serveStatic 一致
+  // 开发环境也挂载 /reports/*，与生产 serveStatic 一致（缺失则 404，不落到 SPA）
   const reportsDir = resolveReportsDir();
-  app.use("/reports", (req, res, next) => {
-    const filePath = path.join(reportsDir, path.basename(req.path));
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);
+  app.use("/reports", (req, res) => {
+    const base = path.basename(req.path);
+    if (!base || base === "." || base === ".." || !base.endsWith(".html")) {
+      return res.status(404).type("text/plain").send("Report not found");
     }
-    next();
+    const filePath = path.join(reportsDir, base);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).type("text/plain").send("Report not found");
+    }
+    return res.sendFile(filePath);
   });
 
   app.use(vite.middlewares);
@@ -75,13 +79,17 @@ export function serveStatic(app: Express) {
   const reportsDir = resolveReportsDir();
   console.log(`[serveStatic] reportsDir=${reportsDir}`);
 
-  // /reports/* 路由必须在 app.use(express.static) 之前注册，否则 SPA fallback 会吃掉它
-  app.use("/reports", (req, res, next) => {
-    const filePath = path.join(reportsDir, path.basename(req.path));
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);
+  // /reports/* 必须在 SPA fallback 之前；缺失文件返回 404，禁止落到排盘 SPA（否则旧链接看起来像「旧报告」）
+  app.use("/reports", (req, res) => {
+    const base = path.basename(req.path);
+    if (!base || base === "." || base === ".." || !base.endsWith(".html")) {
+      return res.status(404).type("text/plain").send("Report not found");
     }
-    next();
+    const filePath = path.join(reportsDir, base);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).type("text/plain").send("Report not found");
+    }
+    return res.sendFile(filePath);
   });
 
   app.use(express.static(distPath));

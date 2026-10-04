@@ -3,7 +3,6 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import {
-  chartReportId,
   ensureStaticFreeReport,
   freeReportToMarkdown,
   writePaidReadingReport,
@@ -23,6 +22,7 @@ const sample = {
   month: { gan: "辛", zhi: "巳" },
   day: { gan: "甲", zhi: "子" },
   hour: { gan: "戊", zhi: "辰" },
+  wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
   shiShen: { 庚: "正财", 辛: "偏财", 甲: "比肩", 戊: "偏印" },
   pattern: { primary: "食神格" },
 };
@@ -41,13 +41,6 @@ describe("staticFreeReport", () => {
     if (prevReportsDir === undefined) delete process.env.REPORTS_DIR;
     else process.env.REPORTS_DIR = prevReportsDir;
     fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
-
-  it("chartReportId is stable for the same chart (legacy helper)", () => {
-    const a = chartReportId({ ...sample, lang: "zh-CN" });
-    const b = chartReportId({ ...sample, lang: "zh-CN" });
-    expect(a).toBe(b);
-    expect(a).toMatch(/^chart_[a-f0-9]{16}$/);
   });
 
   it("readingReportFileId is unique per readingId", () => {
@@ -71,6 +64,10 @@ describe("staticFreeReport", () => {
     expect(fs.existsSync(b.absolutePath)).toBe(true);
     expect(a.fileName).toMatch(/^reading_/);
     expect(readReportTier(a.absolutePath)).toBe("free");
+    const html = fs.readFileSync(a.absolutePath, "utf-8");
+    expect(html).toContain("mingpan-board");
+    expect(html).toContain("wx-radar");
+    expect(html).toContain("elements-donut");
   });
 
   it("requires readingId", () => {

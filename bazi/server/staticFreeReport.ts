@@ -1,10 +1,15 @@
 /**
- * 排盘完成后物化免费结构速览为固定静态 HTML。
- * 每条 readingId 一份文件（用户各自生成）；付费解锁后覆盖同一文件为全文。
- * 目录：REPORTS_DIR（生产 /var/lib/orasage/bazi-reports）。
+ * 排盘完成后物化固定静态 HTML（唯一落盘入口）。
+ *
+ * 管线（只保留这一条）：
+ *   ensureStaticFreeReport / writePaidReadingReport
+ *     → writeReadingReportHtml
+ *     → buildReportPageHtml（magazine：四柱命盘 + 五行环形/雷达）
+ *     → REPORTS_DIR/reading_<id>.html
+ *
+ * 禁止再写 report_* / chart_* 文件名。付费与免费共用同一 reading 文件，付费覆盖免费。
  */
 
-import crypto from "crypto";
 import {
   composeFreeReport,
   type FreeReport,
@@ -13,37 +18,6 @@ import {
 import { writeReadingReportHtml, resolveReadingReportPaths } from "./readingReport.ts";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
-
-export type ChartFingerprintInput = {
-  birthStr: string;
-  gender: string;
-  riZhu: string;
-  year: { gan: string; zhi: string };
-  month: { gan: string; zhi: string };
-  day: { gan: string; zhi: string };
-  hour: { gan: string; zhi: string };
-  lang: string;
-};
-
-/** @deprecated 盘面指纹仅作元数据；文件名以 readingId 为准 */
-export const STATIC_REPORT_TEMPLATE_VERSION = "reading-unique-v1";
-
-/** @deprecated 保留给测试 / 兼容；不再用作静态文件名 */
-export function chartReportId(input: ChartFingerprintInput): string {
-  const raw = [
-    input.birthStr.trim(),
-    input.gender,
-    input.riZhu,
-    `${input.year.gan}${input.year.zhi}`,
-    `${input.month.gan}${input.month.zhi}`,
-    `${input.day.gan}${input.day.zhi}`,
-    `${input.hour.gan}${input.hour.zhi}`,
-    input.lang.startsWith("zh") ? "zh" : "en",
-    STATIC_REPORT_TEMPLATE_VERSION,
-  ].join("|");
-  const hash = crypto.createHash("sha256").update(raw, "utf8").digest("hex").slice(0, 16);
-  return `chart_${hash}`;
-}
 
 export function freeReportToMarkdown(free: FreeReport, opts?: { name?: string; birthStr?: string }): string {
   const lines: string[] = [];
