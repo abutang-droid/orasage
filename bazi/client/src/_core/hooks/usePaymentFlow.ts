@@ -112,7 +112,9 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("paid") !== "1") return;
-    const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder");
+    const readingId = params.get("readingId");
+    if (readingId) saveLastReadingId(readingId);
+    const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder") ?? localStorage.getItem("bazi:lastShopOrder");
     if (!orderNo) return;
     const storedPlan = sessionStorage.getItem(PLAN_KEY) as PlanType | null;
     setState((prev) => ({

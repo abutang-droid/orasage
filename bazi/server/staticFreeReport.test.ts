@@ -8,7 +8,7 @@ import {
   writePaidReadingReport,
 } from "./staticFreeReport.ts";
 import { composeFreeReport } from "../shared/free-report.ts";
-import { readingReportFileId, readReportTier } from "./readingReport.ts";
+import { readingReportFileId, readReportTier, buildUnlockCheckoutUrl } from "./readingReport.ts";
 
 const sample = {
   name: "测试",
@@ -68,6 +68,24 @@ describe("staticFreeReport", () => {
     expect(html).toContain("mingpan-board");
     expect(html).toContain("wx-radar");
     expect(html).toContain("elements-donut");
+    expect(html).toContain("你的结构速览");
+    expect(html).not.toContain("你的命局解读");
+    expect(html).not.toContain("weekly-timeline");
+    expect(html).toContain("shop.orasage.com/checkout");
+    expect(html).toContain("sku=report-bazi-basic");
+    expect(html).toContain("付费解锁详细解读");
+    expect(html).not.toMatch(/paywall-cta"[^>]*href="https:\/\/bazi\.orasage\.com\/?"/);
+    expect(html).not.toContain("2026：机会变多");
+  });
+
+  it("buildUnlockCheckoutUrl returns shop checkout, not luopan home", () => {
+    const url = buildUnlockCheckoutUrl("user-a-1", "zh-CN");
+    expect(url).toContain("https://shop.orasage.com/checkout?");
+    expect(url).toContain("sku=report-bazi-basic");
+    expect(url).toContain("readingId=user-a-1");
+    expect(url).toContain("planType=basic");
+    expect(url).toContain("/classic?paid=1");
+    expect(url).not.toMatch(/return=https%3A%2F%2Fbazi\.orasage\.com%2F(?!classic)/);
   });
 
   it("requires readingId", () => {

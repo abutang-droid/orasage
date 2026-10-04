@@ -11,6 +11,24 @@ import { buildReportPageHtml, type ReportChartMeta, type ReportProductRecommend 
 import { resolveReportsDir } from "./_core/reportsDir.ts";
 
 const BAZI_PUBLIC_URL = (process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com").replace(/\/$/, "");
+const SHOP_PUBLIC_URL = (process.env.SHOP_PUBLIC_URL ?? "https://shop.orasage.com").replace(/\/$/, "");
+/** 静态简版 CTA：只解锁详细解读（数字报告），不绑水晶发货。 */
+const BAZI_UNLOCK_SKU = "report-bazi-basic";
+
+/** 简版报告「付费解锁」→ shop 结账，支付成功回 classic 生成详版，禁止链回罗盘首页。 */
+export function buildUnlockCheckoutUrl(readingId: string, locale = "zh-CN"): string {
+  const lang = locale.startsWith("zh") ? "zh-CN" : locale === "pt-BR" ? "pt-BR" : "en";
+  const returnUrl = `${BAZI_PUBLIC_URL}/classic?paid=1&restore=1&lang=${encodeURIComponent(lang)}&readingId=${encodeURIComponent(readingId)}`;
+  const qs = new URLSearchParams({
+    sku: BAZI_UNLOCK_SKU,
+    return: returnUrl,
+    appSource: "bazi",
+    planType: "basic",
+    readingId,
+    context: locale.startsWith("zh") ? "八字深度解读" : "Bazi full reading",
+  });
+  return `${SHOP_PUBLIC_URL}/checkout?${qs.toString()}`;
+}
 
 export type ReportTier = "free" | "paid";
 
@@ -83,8 +101,9 @@ export function writeReadingReportHtml(opts: WriteReadingReportOpts) {
     generatedAt: new Date(),
     shareUrl: paths.reportUrl,
     showUpgrade: opts.tier === "free",
-    upgradeUrl: `${BAZI_PUBLIC_URL}/`,
+    upgradeUrl: opts.tier === "free" ? buildUnlockCheckoutUrl(opts.readingId, opts.locale || "zh-CN") : undefined,
     locale: opts.locale || "zh-CN",
+    readingId: opts.readingId,
     chart: opts.chart ?? null,
     productRecommend: opts.productRecommend ?? null,
     tier: opts.tier,

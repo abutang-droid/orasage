@@ -59,17 +59,21 @@ describe("renderMarkdown", () => {
     expect(out).toContain("<li>优势二</li>");
   });
 
-  it("buildReportPageHtml renders magazine detail layout with keywords", () => {
+  it("free magazine page is a brief preview with shop unlock, not luopan home", () => {
     const html = buildReportPageHtml({
-      planLabel: "深度解读",
+      planLabel: "结构速览",
       reportContent: `### 命盘总览
 算法依据：日主乙木，生于卯月，身强。
 
 ### 性格与天赋
-格局正印格，聪慧稳重。`,
+格局正印格，聪慧稳重。
+
+### 2026：机会变多，注意力变散
+流年细拆不应出现在免费页。`,
       subjectName: "张三",
       shareUrl: "https://bazi.orasage.com/reports/demo.html",
       showUpgrade: true,
+      tier: "free",
       chart: {
         riZhu: "乙",
         strength: "身强",
@@ -81,11 +85,15 @@ describe("renderMarkdown", () => {
         wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
       },
     });
-    expect(html).toContain("你的命局解读");
+    expect(html).toContain("你的结构速览");
+    expect(html).not.toContain("你的命局解读");
+    expect(html).toContain('data-report-tier="free"');
     expect(html).toContain('class="report-longform"');
     expect(html).toContain("命盘总览");
     expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
+    expect(html).not.toContain("2026：机会变多");
+    expect(html).not.toContain("weekly-timeline");
     expect(html).toContain("海棠未眠");
     expect(html).toContain("brand-lockup-primary");
     expect(html).toContain("brand-lockup-aux");
@@ -102,9 +110,42 @@ describe("renderMarkdown", () => {
     expect(html).toContain("庚");
     expect(html).toContain("乙");
     expect(html).toContain("balance-gauge");
-    expect(html).toContain("weekly-timeline");
     expect(html).toContain("core-insight-body");
     expect(html).toContain("解锁完整命局报告");
+    expect(html).toContain("付费解锁详细解读");
+    expect(html).toContain("shop.orasage.com/checkout");
+    expect(html).toContain("sku=report-bazi-basic");
+    expect(html).not.toMatch(/paywall-cta"[^>]*href="https:\/\/bazi\.orasage\.com\/?"/);
+  });
+
+  it("paid magazine page is the full reading without paywall", () => {
+    const html = buildReportPageHtml({
+      planLabel: "深度解读",
+      reportContent: `### 命盘总览
+日主乙木，生于卯月，身强。
+
+### 性格与天赋
+格局正印格，聪慧稳重。`,
+      subjectName: "张三",
+      shareUrl: "https://bazi.orasage.com/reports/demo.html",
+      showUpgrade: false,
+      tier: "paid",
+      chart: {
+        riZhu: "乙",
+        strength: "身强",
+        dayMasterLine: "代表你的字：乙（木）　·　身强",
+        year: { gan: "庚", zhi: "午" },
+        month: { gan: "己", zhi: "卯" },
+        day: { gan: "乙", zhi: "亥" },
+        hour: { gan: "丙", zhi: "子" },
+        wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
+      },
+    });
+    expect(html).toContain("你的命局解读");
+    expect(html).toContain('data-report-tier="paid"');
+    expect(html).toContain("weekly-timeline");
+    expect(html).not.toContain("解锁完整命局报告");
+    expect(html).not.toContain("paywall-cta");
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {

@@ -70,6 +70,8 @@ export type ReportPageOptions = {
   showUpgrade?: boolean;
   upgradeUrl?: string;
   locale?: string;
+  /** 用于付费回跳 / checkout 的 readingId */
+  readingId?: string;
   /** free = 排盘速览；paid = 付费全文。详情页与固定页共用同一文件，用此标记防降级覆盖 */
   tier?: "free" | "paid";
 };
@@ -777,6 +779,10 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   const subhead = dayMasterLine
     || chart.gridCaption
     || (zh ? `${options.planLabel} · 命局结构速览` : `${options.planLabel} · Structure brief`);
+  const isFree = (options.tier ?? (options.showUpgrade ? "free" : "paid")) === "free";
+  const heroHeadline = isFree
+    ? (zh ? "你的结构速览" : "Your chart brief")
+    : (zh ? "你的命局解读" : "Your Bazi Reading");
 
   const shareUrl = options.shareUrl || "https://bazi.orasage.com";
   const share = buildShareCopy({
@@ -796,8 +802,9 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 
   let sectionIdx = 0;
   const contentSections: string[] = [];
-  if (sections.length > 0) {
-    contentSections.push(renderSectionBlock(sections[0], sectionIdx++, {
+  const narrativeSections = isFree ? sections.slice(0, 2) : sections;
+  if (narrativeSections.length > 0) {
+    contentSections.push(renderSectionBlock(narrativeSections[0], sectionIdx++, {
       isFirst: true,
       classic: classicFromFirst,
     }));
@@ -815,10 +822,10 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
     sectionIdx++;
     contentSections.push(renderWuXingBlock(chart.wuXing, locale, n));
   }
-  for (let i = 1; i < sections.length; i++) {
-    contentSections.push(renderSectionBlock(sections[i], sectionIdx++));
+  for (let i = 1; i < narrativeSections.length; i++) {
+    contentSections.push(renderSectionBlock(narrativeSections[i], sectionIdx++));
   }
-  if (sections.length === 0) {
+  if (narrativeSections.length === 0) {
     contentSections.push(`
 <section class="section" id="section-01" data-toc="${zh ? "报告正文" : "Report"}">
   <div class="section-header">
@@ -842,7 +849,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   <div class="section-body"><p>${escapeHtml(chart.luckyLine)}</p></div>
 </section>`);
   }
-  {
+  if (!isFree) {
     const n = String(sectionIdx + 1).padStart(2, "0");
     contentSections.push(renderWeeklyBlock(locale, chart.favorable, n));
   }
@@ -862,7 +869,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
     ? renderProductRecommendBlock(options.productRecommend)
     : "";
 
-  const upgradeUrl = options.upgradeUrl || "https://bazi.orasage.com/";
+  const upgradeUrl = options.upgradeUrl || "https://shop.orasage.com/checkout?sku=report-bazi-basic&appSource=bazi&planType=basic";
   const paywallHtml = options.showUpgrade
     ? `
 <section class="paywall-section">
@@ -878,7 +885,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
       <li>${zh ? "感情婚姻匹配指南" : "Relationship guidance"}</li>
       <li>${zh ? "方位颜色数字提示" : "Timing & direction cues"}</li>
     </ul>
-    <a class="paywall-cta" href="${escapeAttr(upgradeUrl)}">${zh ? "升级专业版" : "Upgrade"} <span>→</span></a>
+    <a class="paywall-cta" href="${escapeAttr(upgradeUrl)}">${zh ? "付费解锁详细解读" : "Unlock the full reading"} <span>→</span></a>
     <a class="paywall-secondary" href="#" data-share-open>${zh ? "分享给朋友" : "Share with a friend"}</a>
   </div>
 </section>`
@@ -922,7 +929,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 <body>
 <nav class="top-nav" id="topNav">
   <div class="top-nav-inner">
-    <a class="nav-logo" href="https://orasage.com" rel="noopener">
+    <a class="nav-logo" href="${zh ? "https://orasage.com/zh-CN" : "https://orasage.com/en"}" rel="noopener">
       <div class="nav-logo-mark"><div class="diamond-shape"></div><div class="diamond-inner"></div></div>
       ${brandLockup}
     </a>
@@ -937,7 +944,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 <section class="hero" id="hero">
   <div class="hero-issue">${escapeHtml(issue)}</div>
   <div class="hero-content">
-    <h1 class="hero-headline">${zh ? "你的命局解读" : "Your Bazi Reading"}</h1>
+    <h1 class="hero-headline">${escapeHtml(heroHeadline)}</h1>
     <p class="hero-subhead">${escapeHtml(subhead)}</p>
     <div class="hero-person-row">${personBits}</div>
   </div>
@@ -964,8 +971,8 @@ ${paywallHtml}
   <div class="footer-brand">${brandLockup}</div>
   <p class="footer-tagline">${zh ? "命理与能量" : "The Art of Timing"}</p>
   <div class="footer-links">
-    <a class="footer-link" href="https://orasage.com" target="_blank" rel="noopener">orasage.com</a>
-    <a class="footer-link" href="https://bazi.orasage.com" target="_blank" rel="noopener">${zh ? "八字排盘" : "Bazi"}</a>
+    <a class="footer-link" href="${zh ? "https://orasage.com/zh-CN" : "https://orasage.com/en"}" target="_blank" rel="noopener">orasage.com</a>
+    <a class="footer-link" href="${zh ? "https://bazi.orasage.com/?lang=zh-CN" : "https://bazi.orasage.com/?lang=en"}" target="_blank" rel="noopener">${zh ? "八字排盘" : "Bazi"}</a>
     <a class="footer-link" href="#" data-share-open>${zh ? "分享报告" : "Share"}</a>
   </div>
   <p class="footer-copyright">${escapeHtml(copyrightLine(locale, date.getFullYear()))}</p>

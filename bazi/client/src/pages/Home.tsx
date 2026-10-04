@@ -26,7 +26,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
-import { getStaticReportAbsoluteUrl, materializeStaticReport, openFixedReportPage, probeFixedReport, getStaticReportHref } from "@/lib/static-report";
+import { getStaticReportAbsoluteUrl, materializeStaticReport, openFixedReportPage, probeFixedReport, getStaticReportHref, reportPathForReadingId } from "@/lib/static-report";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -367,14 +367,22 @@ export default function Home() {
     if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
 
     const snapshot = loadCheckoutSnapshot();
+    const readingId = params.get('readingId');
+    if (readingId) saveLastReadingId(readingId);
+
     if (params.get('paid') !== '1') {
-      void probeFixedReport(getStaticReportHref()).then((path) => {
+      const existingHref = getStaticReportHref() || (readingId ? reportPathForReadingId(readingId) : null);
+      void probeFixedReport(existingHref).then((path) => {
         if (path) openFixedReportPage(path);
       });
     }
     if (!snapshot) {
       if (params.get('paid') === '1') {
-        toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+        const href = readingId ? reportPathForReadingId(readingId) : getStaticReportHref();
+        void probeFixedReport(href).then((path) => {
+          if (path) openFixedReportPage(path);
+          else toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+        });
       }
       return;
     }
