@@ -1936,8 +1936,7 @@ export const REPORT_PAGE_CSS = `
                 overflow-wrap: break-word;
             }
 
-            .section-subtitle,
-            .section-desc {
+            .section-subtitle {
                 font-size: 14px;
                 line-height: 1.55;
             }
