@@ -88,15 +88,115 @@ export function rewriteStalePaywallHref(html: string, readingId: string, locale 
   );
 }
 
-/** 旧免费页 CTA 曾指向罗盘首页；打开或再次物化时改写到 shop checkout。 */
+const STRUCTURAL_TOC = /四柱命盘|Four Pillars|五行分布|Elements|方向提示|Direction/;
+const WEEKLY_TOC = /行动建议|Actions|本周/;
+
+function sectionToc(block: string): string {
+  return (block.match(/data-toc="([^"]*)"/) || [])[1] || "";
+}
+
+function isWeeklySection(block: string): boolean {
+  const head = block.slice(0, 900);
+  return (
+    head.includes("section-weekly") ||
+    head.includes('class="weekly-timeline"') ||
+    WEEKLY_TOC.test(sectionToc(block))
+  );
+}
+
+function isStructuralSection(block: string): boolean {
+  const head = block.slice(0, 500);
+  return (
+    head.includes("section-mingpan") ||
+    head.includes("section-elements") ||
+    STRUCTURAL_TOC.test(sectionToc(block))
+  );
+}
+
+function rebuildToc(sections: string[]): string {
+  const items: string[] = [];
+  let n = 0;
+  for (const block of sections) {
+    const id = (block.match(/id="(section-[^"]+)"/) || [])[1];
+    const toc = sectionToc(block);
+    if (!id || !toc) continue;
+    n += 1;
+    const num = String(n).padStart(2, "0");
+    const active = n === 1 ? " active" : "";
+    items.push(
+      `<li class="toc-item${active}" data-section="${id}"><a href="#${id}"><span class="toc-num">${num}</span>${toc}</a></li>`,
+    );
+  }
+  return items.join("\n");
+}
+
+/**
+ * 旧免费页曾按详版排版（标题「你的命局解读」+ 周运 + 额外章节）。
+ * 打开时裁成与现网简版一致：两条叙述 + 命盘/五行 + 一条方向提示。
+ */
+export function briefifyStaleFreeReportHtml(html: string): string {
+  const head = html.slice(0, 1600);
+  if (/data-report-tier=["']paid["']/.test(head)) return html;
+  const stale =
+    html.includes("你的命局解读") ||
+    html.includes("Your Bazi Reading") ||
+    html.includes('class="weekly-timeline"');
+  if (!stale) return html;
+
+  let out = html
+    .replaceAll("你的命局解读", "你的结构速览")
+    .replaceAll("Your Bazi Reading", "Your chart brief");
+
+  const mainMatch = out.match(/<main>([\s\S]*?)<\/main>/);
+  if (!mainMatch) return out;
+
+  const chunks = mainMatch[1].split(/(?=<section\b)/);
+  const kept: string[] = [];
+  let narratives = 0;
+  let keptDirection = false;
+  for (const chunk of chunks) {
+    if (!chunk.trim()) {
+      kept.push(chunk);
+      continue;
+    }
+    if (!chunk.startsWith("<section")) {
+      kept.push(chunk);
+      continue;
+    }
+    if (isWeeklySection(chunk)) continue;
+    const toc = sectionToc(chunk);
+    if (/方向提示|Direction/.test(toc)) {
+      if (keptDirection) continue;
+      keptDirection = true;
+      kept.push(chunk);
+      continue;
+    }
+    if (isStructuralSection(chunk)) {
+      kept.push(chunk);
+      continue;
+    }
+    narratives += 1;
+    if (narratives <= 2) kept.push(chunk);
+  }
+
+  out = out.replace(mainMatch[1], kept.join(""));
+  const tocHtml = rebuildToc(kept.filter((c) => c.startsWith("<section")));
+  if (tocHtml) {
+    out = out.replace(/<ul class="toc-list">[\s\S]*?<\/ul>/, `<ul class="toc-list">${tocHtml}</ul>`);
+  }
+  return out;
+}
+
+/** 旧免费页：详版正文裁成简版；CTA 曾指向罗盘首页时改写到 shop checkout。 */
 export function maybeRewriteServedReportHtml(fileName: string, html: string): string {
   const head = html.slice(0, 1600);
   if (/data-report-tier=["']paid["']/.test(head)) return html;
-  if (!html.includes("paywall-cta")) return html;
-  if (/shop\.orasage\.com\/checkout/.test(html)) return html;
+  let out = briefifyStaleFreeReportHtml(html);
+  if (!out.includes("paywall-cta")) return out;
+  if (/shop\.orasage\.com\/checkout/.test(out)) return out;
   const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
-  if (!stem) return html;
-  return rewriteStalePaywallHref(html, stem);
+  if (!stem) return out;
+  return rewriteStalePaywallHref(out, stem);
 }
 
 export function writeReadingReportHtml(opts: WriteReadingReportOpts) {

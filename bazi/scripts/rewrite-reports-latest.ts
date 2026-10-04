@@ -118,6 +118,11 @@ function hasLatestGraphics(html: string): boolean {
   );
 }
 
+function isStaleDetailedFree(html: string): boolean {
+  if (isPaidHtml(html)) return false;
+  return html.includes("你的命局解读") || html.includes('class="weekly-timeline"');
+}
+
 async function rewriteOne(row: ReadingRow): Promise<{ status: string; url?: string }> {
   const resultData = parseResultData(row.payload_json);
   if (!resultData) return { status: "skip-no-payload", url: row.report_url || undefined };
@@ -143,22 +148,27 @@ async function rewriteOne(row: ReadingRow): Promise<{ status: string; url?: stri
   const targetPath = path.join(REPORTS_DIR, `${targetId}.html`);
   const reportUrl = `${PUBLIC}/reports/${targetId}.html`;
 
-  if (!FORCE && fs.existsSync(targetPath) && hasLatestGraphics(fs.readFileSync(targetPath, "utf-8"))) {
-    // 已是最新版：仍确保 DB 指向 reading_* URL
-    if (!DRY && row.report_url !== reportUrl) {
-      await patchReadingReportUrl(readingId, reportUrl, row.title);
+  if (fs.existsSync(targetPath)) {
+    const existing = fs.readFileSync(targetPath, "utf-8");
+    if (!FORCE && hasLatestGraphics(existing) && !isStaleDetailedFree(existing)) {
+      // 已是最新简版：仍确保 DB 指向 reading_* URL
+      if (!DRY && row.report_url !== reportUrl) {
+        await patchReadingReportUrl(readingId, reportUrl, row.title);
+      }
+      return { status: row.report_url === reportUrl ? "ok-latest" : "ok-relink", url: reportUrl };
     }
-    return { status: row.report_url === reportUrl ? "ok-latest" : "ok-relink", url: reportUrl };
   }
 
   if (DRY) {
     return { status: "dry-rewrite", url: reportUrl };
   }
 
+  const staleOnDisk =
+    fs.existsSync(targetPath) && isStaleDetailedFree(fs.readFileSync(targetPath, "utf-8"));
   const free = ensureStaticFreeReport(resultData, lang, {
     readingId,
-    skipIfPaid: false,
-    force: FORCE,
+    skipIfPaid: !FORCE,
+    force: FORCE || staleOnDisk,
   });
 
   if (legacyHtml && isPaidHtml(legacyHtml)) {
