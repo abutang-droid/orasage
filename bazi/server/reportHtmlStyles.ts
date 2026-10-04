@@ -1792,6 +1792,25 @@ export const REPORT_PAGE_CSS = `
                 display: none;
             }
 
+            .brand-lockup {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0;
+            }
+
+            .brand-lockup-primary {
+                font-size: 18px;
+            }
+
+            .brand-lockup-aux {
+                font-size: 0.5em;
+            }
+
+            .nav-logo-mark {
+                width: 28px;
+                height: 28px;
+            }
+
             .hero {
                 padding: 100px 0 60px;
                 min-height: auto;
