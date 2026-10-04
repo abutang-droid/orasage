@@ -1,11 +1,13 @@
 /**
- * 将历史 report_*/chart_* 八字报告统一重写为最新 magazine 版（reading_*.html）。
+ * Rewrite legacy report_/chart_ Bazi HTML into the latest magazine reading_ files.
  *
- * 唯一写入管线：ensureStaticFreeReport / writePaidReadingReport → writeReadingReportHtml → buildReportPageHtml
+ * Sole write pipeline:
+ *   ensureStaticFreeReport / writePaidReadingReport
+ *     -> writeReadingReportHtml -> buildReportPageHtml
  *
- * 用法（VPS）:
+ * Usage on VPS:
  *   REPORTS_DIR=/var/lib/orasage/bazi-reports \
- *   AUTH_DATABASE_URL=postgresql://orasage:...@127.0.0.1/orasage_auth \
+ *   AUTH_DATABASE_URL=postgresql://.../orasage_auth \
  *   BAZI_PUBLIC_URL=https://bazi.orasage.com \
  *   npx tsx scripts/rewrite-reports-latest.ts [--dry-run] [--prune]
  */
