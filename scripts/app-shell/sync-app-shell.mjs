@@ -81,6 +81,23 @@ export function syncAppShell({ quiet = false } = {}) {
       if (!quiet) console.log(`[app-shell] synced ${file} → ${path.relative(ROOT, dest)}`);
     }
   }
+  assertMobileNavPanelOpaque();
+}
+
+function assertMobileNavPanelOpaque() {
+  const css = read(path.join(SOURCE_DIR, 'app-shell.css')) || '';
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const block = stripped.match(/\.orasage-site-mobile-nav-panel\s*\{[^}]*\}/);
+  if (!block) {
+    console.error('[app-shell] missing .orasage-site-mobile-nav-panel');
+    process.exit(1);
+  }
+  if (!/background:\s*#ffffff/.test(block[0]) || !/var\(--shell-menu-bg/.test(block[0])) {
+    console.error(
+      '[app-shell] mobile nav panel must declare opaque #ffffff then var(--shell-menu-bg) — otherwise the portal Header menu is transparent text',
+    );
+    process.exit(1);
+  }
 }
 
 export function checkAppShell() {
@@ -100,6 +117,7 @@ export function checkAppShell() {
   }
   if (drift.length === 0) {
     console.log('[app-shell] check ok — all copies match shared/app-shell');
+    assertMobileNavPanelOpaque();
     return;
   }
   console.error('[app-shell] drift detected:');
