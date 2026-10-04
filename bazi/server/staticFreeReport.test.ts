@@ -98,4 +98,23 @@ describe("staticFreeReport", () => {
     expect(readReportTier(again.absolutePath)).toBe("paid");
     expect(fs.readFileSync(again.absolutePath, "utf-8")).toContain("付费全文内容");
   });
+
+  it("re-entry reuses the same free html without rewriting", () => {
+    const first = ensureStaticFreeReport(sample, "zh-CN", { readingId: "reentry-1" });
+    expect(first.reused).toBe(false);
+    fs.appendFileSync(first.absolutePath, "<!--keep-->");
+    const second = ensureStaticFreeReport(sample, "zh-CN", { readingId: "reentry-1" });
+    expect(second.reused).toBe(true);
+    expect(second.fileName).toBe(first.fileName);
+    expect(fs.readFileSync(second.absolutePath, "utf-8")).toContain("<!--keep-->");
+  });
+
+  it("force=true rewrites an existing free html", () => {
+    const first = ensureStaticFreeReport(sample, "zh-CN", { readingId: "force-1" });
+    fs.appendFileSync(first.absolutePath, "<!--stale-->");
+    const second = ensureStaticFreeReport(sample, "zh-CN", { readingId: "force-1", force: true });
+    expect(second.reused).toBe(false);
+    expect(fs.readFileSync(second.absolutePath, "utf-8")).not.toContain("<!--stale-->");
+    expect(fs.readFileSync(second.absolutePath, "utf-8")).toContain("report-longform");
+  });
 });

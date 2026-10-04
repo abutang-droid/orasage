@@ -217,3 +217,16 @@
 .luopan-root {
   padding-top: 8px;
 }
+.luopan-last-report {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  margin: 0 auto 10px;
+  padding: 0 14px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--dai-700);
+  text-decoration: none;
+  border-bottom: 1px solid var(--dai-100);
+}

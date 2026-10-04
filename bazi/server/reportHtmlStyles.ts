@@ -37,9 +37,14 @@ export const REPORT_PAGE_CSS = `
             box-sizing: border-box;
         }
 
+        html.report-longform,
         html {
             scroll-behavior: smooth;
             font-size: 16px;
+            height: auto;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body {
@@ -48,7 +53,10 @@ export const REPORT_PAGE_CSS = `
             color: var(--ink-black);
             line-height: 1.7;
             font-size: 17px;
+            height: auto;
+            min-height: 100%;
             overflow-x: hidden;
+            overflow-y: visible;
         }
 
         a {

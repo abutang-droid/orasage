@@ -261,8 +261,6 @@ export default function HistoryPage() {
                               ? summary.reportPath
                               : summary.reportUrl
                           }
-                          target="_blank"
-                          rel="noopener noreferrer"
                           style={{
                             fontFamily: SERIF,
                             fontSize: "0.65rem",

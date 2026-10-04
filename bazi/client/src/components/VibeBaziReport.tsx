@@ -40,6 +40,9 @@ import {
   ensureReadingId,
   getStaticReportHref,
   materializeStaticReport,
+  openFixedReportPage,
+  probeFixedReport,
+  reportPathForReadingId,
 } from "@/lib/static-report";
 import "@/styles/bazi-report-vibe.css";
 
@@ -368,7 +371,7 @@ export function VibeBaziReport({
   );
   const [showPlans, setShowPlans] = useState(false);
   const [staticReportUrl, setStaticReportUrl] = useState<string | null>(() => getStaticReportHref());
-  const [iframeNonce, setIframeNonce] = useState(0);
+  const [openingLongform, setOpeningLongform] = useState(true);
   const [paidGenStatus, setPaidGenStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const captureRef = useRef<HTMLDivElement>(null);
   const braceletRec = useMemo(
@@ -378,25 +381,40 @@ export function VibeBaziReport({
 
   const free = useMemo(() => composeFreeReport(result, locale), [result, locale]);
 
-  // 进入报告页即确保静态 HTML 已落盘（每 readingId 一份；详情与外链共用）
+  // 进入报告页：已有固定 HTML 则直接打开长图；否则物化一次再跳转（支付回跳除外）
   useEffect(() => {
     let cancelled = false;
+    const paidRestore = new URLSearchParams(window.location.search).get("paid") === "1";
     const readingId = ensureReadingId();
-    void materializeStaticReport({
-      result,
-      lang: locale,
-      readingId,
-      mutateAsync: materializeReport.mutateAsync,
-    }).then((res) => {
+
+    const go = async () => {
+      if (!paidRestore) {
+        const existing = await probeFixedReport(reportPathForReadingId(readingId));
+        if (cancelled) return;
+        if (existing) {
+          openFixedReportPage(existing);
+          return;
+        }
+      }
+      const res = await materializeStaticReport({
+        result,
+        lang: locale,
+        readingId,
+        mutateAsync: materializeReport.mutateAsync,
+      });
       if (cancelled) return;
       if (res?.reportPath) {
         setStaticReportUrl(res.reportPath);
-        setTab("detailed");
-      } else if (res?.reportUrl) {
-        setStaticReportUrl(res.reportUrl);
+        if (!paidRestore) {
+          openFixedReportPage(res.reportPath);
+          return;
+        }
         setTab("detailed");
       }
-    });
+      setOpeningLongform(false);
+    };
+
+    void go();
     return () => {
       cancelled = true;
     };
@@ -408,8 +426,10 @@ export function VibeBaziReport({
     const onUpgraded = (ev: Event) => {
       const detail = (ev as CustomEvent<{ reportUrl?: string }>).detail;
       const href = getStaticReportHref() || detail?.reportUrl || null;
-      if (href) setStaticReportUrl(href);
-      setIframeNonce((n) => n + 1);
+      if (href) {
+        setStaticReportUrl(href);
+        openFixedReportPage(href);
+      }
       setPaidGenStatus("ready");
     };
     window.addEventListener("bazi:static-report-upgraded", onUpgraded);
@@ -482,6 +502,16 @@ export function VibeBaziReport({
   ]
     .filter(Boolean)
     .join(" · ");
+
+  if (openingLongform) {
+    return (
+      <div className="bazi-report-vibe vr-fade-in py-16 text-center" data-dom-id="vibe-bazi-report-opening">
+        <p className="vr-serif text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
+          {t("report.opening_longform", "正在打开报告…")}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bazi-report-vibe vr-fade-in" data-dom-id="vibe-bazi-report">
@@ -859,14 +889,17 @@ export function VibeBaziReport({
           ) : null}
 
           {staticReportUrl ? (
-            <iframe
-              key={`${staticReportUrl}-${iframeNonce}`}
-              title="bazi-fixed-report"
-              src={`${staticReportUrl}${staticReportUrl.includes("?") ? "&" : "?"}v=${iframeNonce}`}
-              className="w-full min-h-[70vh] rounded-[var(--vibe-radius-md)] border-0 bg-transparent"
+            <a
+              href={staticReportUrl}
+              className="vr-btn-primary w-full"
               data-testid="static-report-iframe"
-              style={{ border: "1px solid var(--vibe-border-light)" }}
-            />
+              onClick={(e) => {
+                e.preventDefault();
+                openFixedReportPage(staticReportUrl);
+              }}
+            >
+              {t("report.open_longform", "查看长图报告")}
+            </a>
           ) : (
             <div className="vr-card text-sm" style={{ color: "var(--vibe-muted-foreground)" }}>
               正在准备固定报告页…
