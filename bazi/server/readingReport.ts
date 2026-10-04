@@ -1,7 +1,8 @@
 /**
- * 每条占卜记录（readingId）对应一份固定报告 HTML。
+ * 每条占卜记录（readingId）对应一份固定报告 HTML —— 全站唯一静态报告文件名约定。
  * 免费排盘写入 free 层；付费解锁后在同一文件上覆盖为 paid 全文。
- * 详情页与「打开固定报告页」共用这一份内容。
+ * 详情页 / iframe / 用户中心 / 分享链接 全部指向这一份（reading_*.html）。
+ * 不再生成 report_* 或 chart_*。
  */
 
 import fs from "fs";

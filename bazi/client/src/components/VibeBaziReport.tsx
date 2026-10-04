@@ -362,7 +362,10 @@ export function VibeBaziReport({
   const { t, term, locale } = useT();
   const payment = usePaymentFlow();
   const materializeReport = trpc.bazi.materializeReport.useMutation();
-  const [tab, setTab] = useState<"preview" | "detailed">("preview");
+  // 默认进「详细报告」（magazine 静态页）；免费预览仅为交互速览，不再当作另一套报告
+  const [tab, setTab] = useState<"preview" | "detailed">(() =>
+    getStaticReportHref() ? "detailed" : "preview",
+  );
   const [showPlans, setShowPlans] = useState(false);
   const [staticReportUrl, setStaticReportUrl] = useState<string | null>(() => getStaticReportHref());
   const [iframeNonce, setIframeNonce] = useState(0);
@@ -385,8 +388,14 @@ export function VibeBaziReport({
       readingId,
       mutateAsync: materializeReport.mutateAsync,
     }).then((res) => {
-      if (!cancelled && res?.reportPath) setStaticReportUrl(res.reportPath);
-      else if (!cancelled && res?.reportUrl) setStaticReportUrl(res.reportUrl);
+      if (cancelled) return;
+      if (res?.reportPath) {
+        setStaticReportUrl(res.reportPath);
+        setTab("detailed");
+      } else if (res?.reportUrl) {
+        setStaticReportUrl(res.reportUrl);
+        setTab("detailed");
+      }
     });
     return () => {
       cancelled = true;
