@@ -78,6 +78,27 @@ export type WriteReadingReportOpts = {
   force?: boolean;
 };
 
+export function rewriteStalePaywallHref(html: string, readingId: string, locale = "zh-CN"): string {
+  const href = buildUnlockCheckoutUrl(readingId, locale)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;");
+  return html.replace(
+    /(<a class="paywall-cta" href=")[^"]*(")/,
+    `$1${href}$2`,
+  );
+}
+
+/** 旧免费页 CTA 曾指向罗盘首页；打开或再次物化时改写到 shop checkout。 */
+export function maybeRewriteServedReportHtml(fileName: string, html: string): string {
+  const head = html.slice(0, 1600);
+  if (/data-report-tier=["']paid["']/.test(head)) return html;
+  if (!html.includes("paywall-cta")) return html;
+  if (/shop\.orasage\.com\/checkout/.test(html)) return html;
+  const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
+  if (!stem) return html;
+  return rewriteStalePaywallHref(html, stem);
+}
+
 export function writeReadingReportHtml(opts: WriteReadingReportOpts) {
   const paths = resolveReadingReportPaths(opts.readingId);
   const exists = fs.existsSync(paths.absolutePath);
@@ -86,6 +107,15 @@ export function writeReadingReportHtml(opts: WriteReadingReportOpts) {
     return { ...paths, reused: true as const, skipped: true as const, tier: "paid" as const };
   }
   if (exists && opts.tier === "free" && !opts.force) {
+    const existingHtml = fs.readFileSync(paths.absolutePath, "utf8");
+    if (!/shop\.orasage\.com\/checkout/.test(existingHtml) && existingHtml.includes("paywall-cta")) {
+      fs.writeFileSync(
+        paths.absolutePath,
+        rewriteStalePaywallHref(existingHtml, opts.readingId, opts.locale || "zh-CN"),
+        "utf-8",
+      );
+      return { ...paths, reused: false as const, skipped: false as const, tier: "free" as const };
+    }
     return {
       ...paths,
       reused: true as const,

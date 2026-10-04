@@ -6,6 +6,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 import { resolveReportsDir } from "./reportsDir";
+import { maybeRewriteServedReportHtml } from "../readingReport";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -32,7 +33,8 @@ export async function setupVite(app: Express, server: Server) {
     if (!fs.existsSync(filePath)) {
       return res.status(404).type("text/plain").send("Report not found");
     }
-    return res.sendFile(filePath);
+    const html = maybeRewriteServedReportHtml(base, fs.readFileSync(filePath, "utf8"));
+    return res.type("html").send(html);
   });
 
   app.use(vite.middlewares);
@@ -89,7 +91,8 @@ export function serveStatic(app: Express) {
     if (!fs.existsSync(filePath)) {
       return res.status(404).type("text/plain").send("Report not found");
     }
-    return res.sendFile(filePath);
+    const html = maybeRewriteServedReportHtml(base, fs.readFileSync(filePath, "utf8"));
+    return res.type("html").send(html);
   });
 
   app.use(express.static(distPath));

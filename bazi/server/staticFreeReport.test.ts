@@ -135,4 +135,16 @@ describe("staticFreeReport", () => {
     expect(fs.readFileSync(second.absolutePath, "utf-8")).not.toContain("<!--stale-->");
     expect(fs.readFileSync(second.absolutePath, "utf-8")).toContain("report-longform");
   });
+
+  it("rewrites an old luopan-home paywall CTA on re-materialize", () => {
+    const first = ensureStaticFreeReport(sample, "zh-CN", { readingId: "stale-cta-1" });
+    const stale = fs.readFileSync(first.absolutePath, "utf-8")
+      .replace(/class="paywall-cta" href="[^"]*"/, 'class="paywall-cta" href="https://bazi.orasage.com/"');
+    fs.writeFileSync(first.absolutePath, stale, "utf-8");
+    const second = ensureStaticFreeReport(sample, "zh-CN", { readingId: "stale-cta-1" });
+    expect(second.reused).toBe(false);
+    const html = fs.readFileSync(second.absolutePath, "utf-8");
+    expect(html).toContain("shop.orasage.com/checkout");
+    expect(html).not.toMatch(/paywall-cta" href="https:\/\/bazi\.orasage\.com\/"/);
+  });
 });
