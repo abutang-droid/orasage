@@ -2065,38 +2065,54 @@ export const REPORT_PAGE_CSS = `
                 gap: 1px;
             }
 
+            /* 4 children: name, date, icon, suggestion → named areas */
             .day-card {
                 display: grid;
-                grid-template-columns: 48px 36px minmax(0, 1fr);
+                grid-template-columns: 52px 40px minmax(0, 1fr);
+                grid-template-rows: auto auto;
+                grid-template-areas:
+                    "date icon suggestion"
+                    "name icon suggestion";
                 align-items: center;
+                column-gap: 10px;
+                row-gap: 2px;
                 text-align: left;
-                padding: 14px 14px 14px 12px;
-                gap: 8px;
-            }
-
-            .day-icon {
-                margin: 0;
-                width: 34px;
-                height: 34px;
-                font-size: 16px;
+                padding: 14px 16px 14px 14px;
             }
 
             .day-date {
+                grid-area: date;
                 margin-bottom: 0;
                 text-align: center;
                 font-size: 22px;
+                line-height: 1.1;
             }
 
             .day-name {
+                grid-area: name;
                 font-size: 10px;
+                text-align: center;
+                margin-bottom: 0;
+                letter-spacing: 0.08em;
+            }
+
+            .day-icon {
+                grid-area: icon;
+                margin: 0;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                justify-self: center;
             }
 
             .day-suggestion {
+                grid-area: suggestion;
                 font-size: 13px;
                 line-height: 1.45;
                 word-break: keep-all;
                 overflow-wrap: break-word;
                 text-wrap: pretty;
+                min-width: 0;
             }
 
             .paywall-section {
