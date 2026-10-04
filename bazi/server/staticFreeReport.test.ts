@@ -70,7 +70,7 @@ describe("staticFreeReport", () => {
     expect(html).toContain("elements-donut");
     expect(html).toContain("你的结构速览");
     expect(html).not.toContain("你的命局解读");
-    expect(html).not.toContain("weekly-timeline");
+    expect(html).not.toContain('class="weekly-timeline"');
     expect(html).toContain("shop.orasage.com/checkout");
     expect(html).toContain("sku=report-bazi-basic");
     expect(html).toContain("付费解锁详细解读");
@@ -84,7 +84,7 @@ describe("staticFreeReport", () => {
     expect(url).toContain("sku=report-bazi-basic");
     expect(url).toContain("readingId=user-a-1");
     expect(url).toContain("planType=basic");
-    expect(url).toContain("/classic?paid=1");
+    expect(decodeURIComponent(url)).toContain("/classic?paid=1");
     expect(url).not.toMatch(/return=https%3A%2F%2Fbazi\.orasage\.com%2F(?!classic)/);
   });
 

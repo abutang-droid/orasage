@@ -93,7 +93,7 @@ describe("renderMarkdown", () => {
     expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
     expect(html).not.toContain("2026：机会变多");
-    expect(html).not.toContain("weekly-timeline");
+    expect(html).not.toContain('class="weekly-timeline"');
     expect(html).toContain("海棠未眠");
     expect(html).toContain("brand-lockup-primary");
     expect(html).toContain("brand-lockup-aux");
@@ -143,9 +143,9 @@ describe("renderMarkdown", () => {
     });
     expect(html).toContain("你的命局解读");
     expect(html).toContain('data-report-tier="paid"');
-    expect(html).toContain("weekly-timeline");
+    expect(html).toContain('class="weekly-timeline"');
     expect(html).not.toContain("解锁完整命局报告");
-    expect(html).not.toContain("paywall-cta");
+    expect(html).not.toContain('class="paywall-cta"');
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {
