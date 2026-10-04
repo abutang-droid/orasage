@@ -29,6 +29,7 @@ const AUTH_DATABASE_URL =
   "";
 const DRY = process.argv.includes("--dry-run");
 const PRUNE = process.argv.includes("--prune");
+const FORCE = process.argv.includes("--force");
 const PUBLIC = (process.env.BAZI_PUBLIC_URL || "https://bazi.orasage.com").replace(/\/$/, "");
 
 type ReadingRow = {
@@ -108,7 +109,13 @@ function legacyFileFromUrl(reportUrl: string | null): string | null {
 }
 
 function hasLatestGraphics(html: string): boolean {
-  return html.includes("mingpan-board") && html.includes("wx-radar") && html.includes("elements-donut");
+  return (
+    html.includes("mingpan-board") &&
+    html.includes("wx-radar") &&
+    html.includes("elements-donut") &&
+    html.includes("brand-lockup") &&
+    (html.includes("海棠未眠") || html.includes("OraSage"))
+  );
 }
 
 async function rewriteOne(row: ReadingRow): Promise<{ status: string; url?: string }> {
@@ -136,7 +143,7 @@ async function rewriteOne(row: ReadingRow): Promise<{ status: string; url?: stri
   const targetPath = path.join(REPORTS_DIR, `${targetId}.html`);
   const reportUrl = `${PUBLIC}/reports/${targetId}.html`;
 
-  if (fs.existsSync(targetPath) && hasLatestGraphics(fs.readFileSync(targetPath, "utf-8"))) {
+  if (!FORCE && fs.existsSync(targetPath) && hasLatestGraphics(fs.readFileSync(targetPath, "utf-8"))) {
     // 已是最新版：仍确保 DB 指向 reading_* URL
     if (!DRY && row.report_url !== reportUrl) {
       await patchReadingReportUrl(readingId, reportUrl, row.title);
@@ -200,7 +207,7 @@ async function main() {
   }
   process.env.REPORTS_DIR = REPORTS_DIR;
   process.env.BAZI_PUBLIC_URL = PUBLIC;
-  console.log(`[rewrite] REPORTS_DIR=${REPORTS_DIR} dry=${DRY} prune=${PRUNE}`);
+  console.log(`[rewrite] REPORTS_DIR=${REPORTS_DIR} dry=${DRY} prune=${PRUNE} force=${FORCE}`);
   fs.mkdirSync(REPORTS_DIR, { recursive: true });
 
   const sql = postgres(AUTH_DATABASE_URL, { max: 1 });

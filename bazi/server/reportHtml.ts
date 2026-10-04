@@ -5,6 +5,13 @@
 
 import { extractSectionKeywords } from "../shared/section-keywords.ts";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
+import {
+  brandLockupHtml,
+  copyrightLine,
+  isChineseLocale,
+  siteDisplayName,
+  siteSignature,
+} from "../shared/site-brand.ts";
 import { REPORT_PAGE_CSS } from "./reportHtmlStyles.ts";
 
 const WX_ORDER = ["木", "火", "土", "金", "水"] as const;
@@ -176,21 +183,21 @@ function buildShareCopy(opts: {
   url: string;
   locale: string;
 }): { text: string; title: string; description: string } {
-  const zh = opts.locale.startsWith("zh");
+  const zh = isChineseLocale(opts.locale);
+  const brand = siteDisplayName(opts.locale);
+  const title = `${brand} · ${opts.planLabel} · ${opts.name}`;
   if (zh) {
-    const title = `OraSage · ${opts.planLabel} · ${opts.name}`;
     const description = opts.dayMaster
-      ? `${opts.dayMaster}。在 OraSage 查看我的八字结构速览。`
-      : `我在 OraSage 完成了八字${opts.planLabel}，打开看看命局能量。`;
+      ? `${opts.dayMaster}。在${brand}查看我的八字结构速览。`
+      : `我在${brand}完成了八字${opts.planLabel}，打开看看命局能量。`;
     const text = opts.dayMaster
-      ? `我在 OraSage 测了八字「${opts.planLabel}」：${opts.dayMaster}\n打开看看你的命局能量 → ${opts.url}`
-      : `我在 OraSage 完成了八字「${opts.planLabel}」\n打开看看你的命局能量 → ${opts.url}`;
+      ? `我在${brand}测了八字「${opts.planLabel}」：${opts.dayMaster}\n打开看看你的命局能量 → ${opts.url}`
+      : `我在${brand}完成了八字「${opts.planLabel}」\n打开看看你的命局能量 → ${opts.url}`;
     return { text, title, description };
   }
-  const title = `OraSage · ${opts.planLabel} · ${opts.name}`;
   const description = opts.dayMaster
-    ? `${opts.dayMaster}. Explore my Bazi brief on OraSage.`
-    : `I just ran a Bazi ${opts.planLabel} on OraSage.`;
+    ? `${opts.dayMaster}. Explore my Bazi brief on ${brand}.`
+    : `I just ran a Bazi ${opts.planLabel} on ${brand}.`;
   const text = `${description}\n${opts.url}`;
   return { text, title, description };
 }
@@ -747,7 +754,10 @@ function renderShareScript(payload: {
 export function buildReportPageHtml(options: ReportPageOptions): string {
   const date = options.generatedAt ?? new Date();
   const locale = options.locale || "zh-CN";
-  const zh = locale.startsWith("zh");
+  const zh = isChineseLocale(locale);
+  const brandPrimary = siteDisplayName(locale);
+  const brandSignature = siteSignature(locale);
+  const brandLockup = brandLockupHtml(locale);
   const brandedContent = sanitizeReportBrandText(options.reportContent);
   const sections = parseReportSections(brandedContent);
   const chart = options.chart || {};
@@ -882,7 +892,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   ].filter(Boolean).join("\n");
 
   const avatarChar = name.slice(0, 1);
-  const pageTitle = `OraSage · ${options.planLabel} · ${name}`;
+  const pageTitle = `${brandPrimary} · ${options.planLabel} · ${name}`;
   const ogImage = "https://bazi.orasage.com/brand/og.png";
 
   const tier = options.tier ?? (options.showUpgrade ? "free" : "paid");
@@ -894,7 +904,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(pageTitle)}</title>
 <meta name="description" content="${escapeAttr(share.description)}">
-<meta property="og:site_name" content="OraSage">
+<meta property="og:site_name" content="${escapeAttr(brandSignature)}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="${escapeAttr(share.title)}">
 <meta property="og:description" content="${escapeAttr(share.description)}">
@@ -914,11 +924,11 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   <div class="top-nav-inner">
     <a class="nav-logo" href="https://orasage.com" rel="noopener">
       <div class="nav-logo-mark"><div class="diamond-shape"></div><div class="diamond-inner"></div></div>
-      <span class="nav-logo-wordmark">OraSage</span>
+      ${brandLockup}
     </a>
-    <span class="nav-section-label">Bazi Report · ${escapeHtml(options.planLabel)}</span>
+    <span class="nav-section-label">${zh ? "八字报告" : "Bazi Report"} · ${escapeHtml(options.planLabel)}</span>
     <div class="nav-actions">
-      <button type="button" class="nav-share-btn" data-share-open>Share</button>
+      <button type="button" class="nav-share-btn" data-share-open>${zh ? "分享" : "Share"}</button>
       <div class="nav-avatar" aria-hidden="true">${escapeHtml(avatarChar)}</div>
     </div>
   </div>
@@ -951,17 +961,17 @@ ${productHtml}
 ${paywallHtml}
 
 <footer class="footer">
-  <div class="footer-logo-wordmark">OraSage</div>
-  <p class="footer-tagline">The Art of Timing</p>
+  <div class="footer-brand">${brandLockup}</div>
+  <p class="footer-tagline">${zh ? "命理与能量" : "The Art of Timing"}</p>
   <div class="footer-links">
     <a class="footer-link" href="https://orasage.com" target="_blank" rel="noopener">orasage.com</a>
     <a class="footer-link" href="https://bazi.orasage.com" target="_blank" rel="noopener">${zh ? "八字排盘" : "Bazi"}</a>
     <a class="footer-link" href="#" data-share-open>${zh ? "分享报告" : "Share"}</a>
   </div>
-  <p class="footer-copyright">© ${date.getFullYear()} OraSage</p>
+  <p class="footer-copyright">${escapeHtml(copyrightLine(locale, date.getFullYear()))}</p>
   <p class="footer-note">${zh
-    ? "本报告由 OraSage 八字命理系统生成，内容仅供文化娱乐与自我探索参考。"
-    : "Generated by OraSage for cultural exploration and entertainment only."}</p>
+    ? `本报告由 ${brandSignature} 八字命理系统生成，内容仅供文化娱乐与自我探索参考。`
+    : `Generated by ${brandSignature} for cultural exploration and entertainment only.`}</p>
 </footer>
 
 <button type="button" class="fab-share" data-share-open aria-label="Share">${zh ? "分享" : "Share"}</button>
@@ -976,7 +986,7 @@ ${paywallHtml}
       <button type="button" class="share-close" data-share-close aria-label="Close">×</button>
     </div>
     <div class="share-card">
-      <div class="share-card-brand">OraSage</div>
+      <div class="share-card-brand">${brandLockup}</div>
       <div class="share-card-issue">${escapeHtml(issue)}</div>
       <div class="share-card-headline">${escapeHtml(name)}</div>
       <p class="share-card-line">${escapeHtml(dayMasterLine || subhead)}</p>
