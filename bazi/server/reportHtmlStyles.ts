@@ -2123,18 +2123,21 @@ export const REPORT_PAGE_CSS = `
                 grid-template-columns: 1fr;
             }
 
-            /* ---- FAB: compact, clear of copy ---- */
+            /* ---- FAB: compact round chip ---- */
             .fab-share {
-                right: 12px;
-                bottom: 14px;
-                padding: 10px 12px;
+                right: 14px;
+                bottom: 18px;
+                width: 48px;
+                height: 48px;
+                padding: 0;
                 font-size: 12px;
-                gap: 6px;
+                letter-spacing: 0;
+                justify-content: center;
                 box-shadow: 0 6px 18px rgba(201, 100, 66, 0.28);
             }
 
             .footer {
-                padding: 48px 16px 108px;
+                padding: 48px 16px 112px;
             }
 
             .footer-note,
