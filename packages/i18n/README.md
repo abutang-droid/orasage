@@ -9,7 +9,7 @@ mechanism** for all apps (platform roadmap §3, design system §10).
 
 - `CORE_LOCALES` / `EXTENDED_LOCALES` — T1 (4) and T2 (12) locale lists
 - `normalizeLocale()` / `toCoreLocale()` — BCP 47 normalization + T1 mapping
-- `detectLocale()` / `detectLocaleFromBrowser()` — `?lang` → cookie → Accept-Language
+- `detectLocale()` / `detectLocaleFromBrowser()` — `?lang` / `?locale` → portal referrer path → cookie → default `zh-CN` (browser Accept-Language is not used; it was flipping Chinese portal entries to English)
 - `LOCALE_COOKIE` / `setLocaleCookie()` / `cookieDomain()` — cross-subdomain cookie contract
 - `LOCALE_LABELS` / `localeLabel()` — display names for language switchers
 - `createTranslator()` / `formatMessage()` — message runtime (`{param}` interpolation)
