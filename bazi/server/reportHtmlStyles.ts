@@ -1937,12 +1937,6 @@ export const REPORT_PAGE_CSS = `
                 word-break: keep-all;
             }
 
-            .day-card {
-                grid-template-columns: 52px 40px 1fr;
-                padding: 14px 16px;
-                gap: 10px;
-            }
-
             .day-suggestion {
                 font-size: 13px;
             }
@@ -2015,17 +2009,17 @@ export const REPORT_PAGE_CSS = `
 
             .day-card {
                 display: grid;
-                grid-template-columns: 60px 48px 1fr;
+                grid-template-columns: 52px 40px minmax(0, 1fr);
                 align-items: center;
                 text-align: left;
-                padding: 16px 20px;
-                gap: 12px;
+                padding: 14px 16px;
+                gap: 10px;
             }
 
             .day-icon {
                 margin: 0;
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
             }
 
             .day-date {
