@@ -28,9 +28,8 @@ describe("detectLocale", () => {
     ).toBe("zh-CN");
   });
 
-  it("does not infer English from Accept-Language when no query/cookie/referrer", () => {
-    expect(detectLocale({ acceptLanguage: "en-US,en;q=0.9" })).toBe("en");
-    expect(detectLocale({})).toBe("zh-CN");
+  it("fortune-app browser detection stays zh-CN without ?lang=", () => {
+    expect(detectLocale({ queryLocale: null, referrerLocale: null })).toBe("zh-CN");
   });
 });
 

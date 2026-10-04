@@ -108,20 +108,24 @@ export function writeReadingReportHtml(opts: WriteReadingReportOpts) {
   }
   if (exists && opts.tier === "free" && !opts.force) {
     const existingHtml = fs.readFileSync(paths.absolutePath, "utf8");
-    if (!/shop\.orasage\.com\/checkout/.test(existingHtml) && existingHtml.includes("paywall-cta")) {
-      fs.writeFileSync(
-        paths.absolutePath,
-        rewriteStalePaywallHref(existingHtml, opts.readingId, opts.locale || "zh-CN"),
-        "utf-8",
-      );
-      return { ...paths, reused: false as const, skipped: false as const, tier: "free" as const };
+    const staleDetailedFree =
+      existingHtml.includes("你的命局解读") || existingHtml.includes('class="weekly-timeline"');
+    if (!staleDetailedFree) {
+      if (!/shop\.orasage\.com\/checkout/.test(existingHtml) && existingHtml.includes("paywall-cta")) {
+        fs.writeFileSync(
+          paths.absolutePath,
+          rewriteStalePaywallHref(existingHtml, opts.readingId, opts.locale || "zh-CN"),
+          "utf-8",
+        );
+        return { ...paths, reused: false as const, skipped: false as const, tier: "free" as const };
+      }
+      return {
+        ...paths,
+        reused: true as const,
+        skipped: true as const,
+        tier: (existingTier ?? "free") as ReportTier,
+      };
     }
-    return {
-      ...paths,
-      reused: true as const,
-      skipped: true as const,
-      tier: (existingTier ?? "free") as ReportTier,
-    };
   }
 
   const html = buildReportPageHtml({

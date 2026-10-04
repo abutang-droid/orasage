@@ -12,11 +12,12 @@ export type DetectLocaleOptions = {
 
 /**
  * Unified locale detection priority:
- * ?lang= / ?locale= > portal referrer path > cookie > default zh-CN
+ * ?lang= / ?locale= > portal referrer path > default zh-CN
  *
- * Browser detection does not use Accept-Language. Portal `localeCookie` is
- * off, so an English phone would otherwise flip 八字/紫微/塔罗 to English
- * after a Chinese /zh-CN visit.
+ * Browser detection does not use Accept-Language or leftover locale cookies.
+ * Cross-subdomain referrer from orasage.com is origin-only, so a Chinese
+ * /zh-CN visit cannot be inferred from document.referrer; fortune apps must
+ * receive ?lang= and otherwise stay on zh-CN.
  */
 export function detectLocale(options?: DetectLocaleOptions): string {
   if (options?.queryLocale) return normalizeLocale(options.queryLocale);
@@ -50,13 +51,13 @@ export function detectLocaleFromBrowser(): string {
   if (typeof window === 'undefined') return normalizeLocale(null);
   const params = new URLSearchParams(window.location.search);
   const queryLang = params.get('lang') ?? params.get('locale');
-  const cookies = document.cookie.split(';').map((c) => c.trim());
-  const readCookie = (name: string) =>
-    cookies.find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
+  // Do not read NEXT_LOCALE / orasage_shop_locale here. Portal localeCookie is
+  // off, cross-subdomain referrer is origin-only (path /zh-CN stripped), and
+  // shop/old Accept-Language leftover cookies were flipping 八字 to English.
+  // Persist English only via ?lang=en (language switcher writes that).
   return detectLocale({
     queryLocale: queryLang,
     referrerLocale: localeFromReferrerUrl(document.referrer),
-    cookieLocale: readCookie(LOCALE_OVERRIDE_COOKIE) ?? readCookie(LOCALE_COOKIE),
   });
 }
 

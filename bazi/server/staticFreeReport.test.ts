@@ -147,4 +147,19 @@ describe("staticFreeReport", () => {
     expect(html).toContain("shop.orasage.com/checkout");
     expect(html).not.toMatch(/paywall-cta" href="https:\/\/bazi\.orasage\.com\/"/);
   });
+
+  it("regenerates old detailed free html into a brief preview", () => {
+    const first = ensureStaticFreeReport(sample, "zh-CN", { readingId: "stale-detail-1" });
+    const detailed = fs.readFileSync(first.absolutePath, "utf-8")
+      .replaceAll("你的结构速览", "你的命局解读")
+      .replace("</main>", '<div class="weekly-timeline"></div></main>');
+    fs.writeFileSync(first.absolutePath, detailed, "utf-8");
+    const second = ensureStaticFreeReport(sample, "zh-CN", { readingId: "stale-detail-1" });
+    expect(second.reused).toBe(false);
+    const html = fs.readFileSync(second.absolutePath, "utf-8");
+    expect(html).toContain("你的结构速览");
+    expect(html).not.toContain("你的命局解读");
+    expect(html).not.toContain('class="weekly-timeline"');
+    expect(html).toContain("shop.orasage.com/checkout");
+  });
 });
