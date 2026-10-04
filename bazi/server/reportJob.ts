@@ -1,12 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { buildReportPageHtml } from './reportHtml.ts';
-import { resolveReportsDir } from './_core/reportsDir.ts';
 import { generateBaziReportContent } from './reportGenerator.ts';
 import { fetchReportProductRecommend } from './reportRecommend.ts';
+import { writePaidReadingReport } from './staticFreeReport.ts';
+import { readReportTier, resolveReadingReportPaths } from './readingReport.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
-const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? 'https://bazi.orasage.com';
 
 type ReportJobInput = {
   orderNo: string;
@@ -49,54 +46,18 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
-async function writeReportHtml(
-  planType: string,
-  reportContent: string,
-  resultData?: Record<string, unknown>,
-): Promise<string> {
-  const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const fileName = `${reportId}.html`;
-  const reportsDir = resolveReportsDir();
-
-  const planLabelMap: Record<string, string> = {
-    basic: '深度解读',
-    advanced: '水晶手串',
-    premium: '终极能量礼盒',
-  };
-  const planLabel = planLabelMap[planType] || planType || '深度解读';
-
-  const wuXing = resultData?.wuXing as Record<string, number> | undefined;
-  const productRecommend = planType === 'basic'
-    ? await fetchReportProductRecommend(wuXing, {
-        chart: resultData
-          ? {
-              birthStr: String(resultData.birthStr ?? ''),
-              gender: String(resultData.gender ?? 'male'),
-              name: typeof resultData.name === 'string' ? resultData.name : undefined,
-            }
-          : undefined,
-      })
-    : null;
-
-  const staticHtml = buildReportPageHtml({
-    planLabel,
-    reportContent,
-    generatedAt: new Date(),
-    productRecommend,
-  });
-
-  fs.writeFileSync(path.join(reportsDir, fileName), staticHtml, 'utf-8');
-  return `${BAZI_PUBLIC_URL}/reports/${fileName}`;
-}
-
 export async function runReportJob(input: ReportJobInput) {
   const reading = await fetchReading(input.readingId);
   if (!reading) throw new Error('reading not found');
   if (reading.userId !== input.userId) throw new Error('reading user mismatch');
-  if (reading.reportUrl) {
-    return { success: true, duplicate: true, reportUrl: reading.reportUrl };
-  }
   if (!reading.payloadJson) throw new Error('reading payload missing');
+
+  // 已有免费固定页时仍需升级为付费全文；仅 paid 才视为完成
+  const paths = resolveReadingReportPaths(input.readingId);
+  const existingTier = readReportTier(paths.absolutePath);
+  if (existingTier === 'paid') {
+    return { success: true, duplicate: true, reportUrl: paths.reportUrl };
+  }
 
   const payload = JSON.parse(reading.payloadJson) as {
     type?: 'single' | 'couple';
@@ -106,13 +67,42 @@ export async function runReportJob(input: ReportJobInput) {
   if (!payload.resultData || !payload.type) throw new Error('invalid reading payload');
 
   const planType = input.planType || 'advanced';
-  const { report } = await generateBaziReportContent(payload.type, payload.resultData, payload.lang ?? 'zh-CN');
-  const reportUrl = await writeReportHtml(planType, report, payload.resultData);
+  const planLabelMap: Record<string, string> = {
+    basic: '深度解读',
+    advanced: '水晶手串',
+    premium: '终极能量礼盒',
+  };
+  const planLabel = planLabelMap[planType] || planType || '深度解读';
 
-  await patchReading(input.readingId, { reportUrl, title: `${reading.title} · 报告` });
+  const { report } = await generateBaziReportContent(payload.type, payload.resultData, payload.lang ?? 'zh-CN');
+  const wuXing = payload.resultData.wuXing as Record<string, number> | undefined;
+  const productRecommend = planType === 'basic'
+    ? await fetchReportProductRecommend(wuXing, {
+        chart: {
+          birthStr: String(payload.resultData.birthStr ?? ''),
+          gender: String(payload.resultData.gender ?? 'male'),
+          name: typeof payload.resultData.name === 'string' ? payload.resultData.name : undefined,
+        },
+      })
+    : null;
+
+  const written = writePaidReadingReport({
+    readingId: input.readingId,
+    reportContent: report,
+    planLabel,
+    subjectName: typeof payload.resultData.name === 'string' ? payload.resultData.name : undefined,
+    locale: payload.lang ?? 'zh-CN',
+    resultData: payload.resultData,
+    productRecommend,
+  });
+
+  await patchReading(input.readingId, {
+    reportUrl: written.reportUrl,
+    title: `${reading.title} · 报告`,
+  });
   await patchOrderStatus(input.orderNo, 'completed');
 
-  return { success: true, reportUrl };
+  return { success: true, reportUrl: written.reportUrl };
 }
 
 export function registerReportJobRoute(app: import('express').Express) {

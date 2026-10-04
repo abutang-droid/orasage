@@ -63,6 +63,8 @@ export type ReportPageOptions = {
   showUpgrade?: boolean;
   upgradeUrl?: string;
   locale?: string;
+  /** free = 排盘速览；paid = 付费全文。详情页与固定页共用同一文件，用此标记防降级覆盖 */
+  tier?: "free" | "paid";
 };
 
 /** 将一段 Markdown 文本转为安全的 HTML 片段 */
@@ -201,6 +203,128 @@ const WX_DONUT_COLOR: Record<string, string> = {
   水: "#4A90B8",
 };
 
+const GAN_WX: Record<string, string> = {
+  甲: "木", 乙: "木", 丙: "火", 丁: "火", 戊: "土", 己: "土",
+  庚: "金", 辛: "金", 壬: "水", 癸: "水",
+};
+
+const ZHI_WX: Record<string, string> = {
+  子: "水", 丑: "土", 寅: "木", 卯: "木", 辰: "土", 巳: "火",
+  午: "火", 未: "土", 申: "金", 酉: "金", 戌: "土", 亥: "水",
+};
+
+const GAN_YANG = new Set(["甲", "丙", "戊", "庚", "壬"]);
+
+function wxClassOf(wx: string): string {
+  return WX_CLASS[wx] || "";
+}
+
+type MingPanCol = {
+  key: "year" | "month" | "day" | "hour";
+  labelZh: string;
+  labelEn: string;
+  pillar?: { gan: string; zhi: string };
+  dayMaster?: boolean;
+};
+
+function renderMingPanBlock(chart: ReportChartMeta, locale: string, sectionNum: string): string {
+  const zh = locale.startsWith("zh");
+  const cols: MingPanCol[] = [
+    { key: "year", labelZh: "年柱", labelEn: "Year", pillar: chart.year },
+    { key: "month", labelZh: "月柱", labelEn: "Month", pillar: chart.month },
+    { key: "day", labelZh: "日柱", labelEn: "Day", pillar: chart.day, dayMaster: true },
+    { key: "hour", labelZh: "时柱", labelEn: "Hour", pillar: chart.hour },
+  ];
+  const present = cols.filter((c) => c.pillar?.gan && c.pillar?.zhi);
+  if (present.length === 0) return "";
+
+  const cells = present.map((c) => {
+    const gan = c.pillar!.gan;
+    const zhi = c.pillar!.zhi;
+    const ganWx = GAN_WX[gan] || "";
+    const zhiWx = ZHI_WX[zhi] || "";
+    const polar = GAN_WX[gan]
+      ? (GAN_YANG.has(gan) ? (zh ? "阳" : "Yang") : (zh ? "阴" : "Yin"))
+      : "";
+    const dmClass = c.dayMaster ? " is-day-master" : "";
+    const dmBadge = c.dayMaster
+      ? `<span class="mp-dm">${zh ? "日主" : "Day Master"}</span>`
+      : "";
+    return `
+<div class="mp-pillar${dmClass}">
+  <div class="mp-label">${zh ? c.labelZh : c.labelEn}</div>
+  ${dmBadge}
+  <div class="mp-gan ${wxClassOf(ganWx)}">${escapeHtml(gan)}</div>
+  <div class="mp-zhi ${wxClassOf(zhiWx)}">${escapeHtml(zhi)}</div>
+  <div class="mp-meta">
+    ${ganWx ? `<span class="mp-wx ${wxClassOf(ganWx)}">${escapeHtml(ganWx)}</span>` : ""}
+    ${polar ? `<span class="mp-polar">${escapeHtml(polar)}</span>` : ""}
+    ${zhiWx ? `<span class="mp-wx ${wxClassOf(zhiWx)}">${escapeHtml(zhiWx)}</span>` : ""}
+  </div>
+</div>`;
+  }).join("\n");
+
+  return `
+<section class="section section-mingpan" id="section-${sectionNum}" data-toc="${zh ? "四柱命盘" : "Four Pillars"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "四柱命盘" : "Four Pillars"}</h2>
+    <p class="section-subtitle">${zh ? "年、月、日、时四柱干支与五行归属" : "Year, month, day and hour stems & branches"}</p>
+  </div>
+  <div class="mingpan-board" role="img" aria-label="${zh ? "四柱命盘" : "Four Pillars chart"}">${cells}
+  </div>
+</section>`;
+}
+
+function renderRadarSvg(wuXing: Record<string, number>, locale: string): string {
+  const zh = locale.startsWith("zh");
+  const CX = 130;
+  const CY = 118;
+  const R = 78;
+  const maxVal = Math.max(...WX_ORDER.map((k) => Number(wuXing[k]) || 0), 1);
+  const angles = WX_ORDER.map((_, i) => ((i * 72 - 90) * Math.PI) / 180);
+  const pt = (idx: number, ratio: number) => ({
+    x: CX + R * ratio * Math.cos(angles[idx]),
+    y: CY + R * ratio * Math.sin(angles[idx]),
+  });
+  const gridPolys = [1, 0.75, 0.5, 0.25].map((ratio) => {
+    const pts = WX_ORDER.map((_, i) => {
+      const p = pt(i, ratio);
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    }).join(" ");
+    return `<polygon points="${pts}" fill="none" stroke="${ratio === 1 ? "#DAD9D4" : "#E3E0D4"}" stroke-width="1"/>`;
+  }).join("");
+  const axes = angles.map((a) => {
+    const x2 = (CX + R * Math.cos(a)).toFixed(1);
+    const y2 = (CY + R * Math.sin(a)).toFixed(1);
+    return `<line x1="${CX}" y1="${CY}" x2="${x2}" y2="${y2}" stroke="#E3E0D4" stroke-width="1"/>`;
+  }).join("");
+  const dataPts = WX_ORDER.map((wx, i) => {
+    const p = pt(i, (Number(wuXing[wx]) || 0) / maxVal);
+    return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+  }).join(" ");
+  const dots = WX_ORDER.map((wx, i) => {
+    const p = pt(i, (Number(wuXing[wx]) || 0) / maxVal);
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${WX_DONUT_COLOR[wx]}" stroke="#F0EEE8" stroke-width="1.5"/>`;
+  }).join("");
+  const labels = WX_ORDER.map((wx, i) => {
+    const p = pt(i, 1.24);
+    return `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="${WX_DONUT_COLOR[wx]}" font-family="Noto Serif SC, Newsreader, serif">${wx}</text>`;
+  }).join("");
+
+  return `
+<div class="wx-radar-wrap">
+  <svg class="wx-radar" viewBox="0 0 260 240" role="img" aria-label="${zh ? "五行雷达图" : "Five-element radar"}">
+    ${gridPolys}
+    ${axes}
+    <polygon points="${dataPts}" fill="rgba(201,100,66,0.16)" stroke="#C96442" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}
+    ${labels}
+  </svg>
+  <p class="wx-radar-caption">${zh ? "五行雷达 · 相对强弱" : "Element radar · relative strength"}</p>
+</div>`;
+}
+
 type SectionKind = "insight" | "personality" | "talent" | "caution" | "action" | "default";
 
 function classifySection(title: string): SectionKind {
@@ -260,7 +384,7 @@ function renderWuXingBlock(wuXing: Record<string, number>, locale: string, secti
     : `Balance score ${balance}/100, led by <strong>${topWx.map((w) => WX_EN[w]).join(" & ")}</strong>. Reinforcing weaker elements steadies the chart.`;
 
   return `
-<section class="section" id="section-${sectionNum}" data-toc="${zh ? "五行分布" : "Elements"}">
+<section class="section section-elements" id="section-${sectionNum}" data-toc="${zh ? "五行分布" : "Elements"}">
   <div class="section-header">
     <div class="section-number">${sectionNum}</div>
     <h2 class="section-title">${zh ? "五行分布" : "Five Elements"}</h2>
@@ -277,6 +401,7 @@ function renderWuXingBlock(wuXing: Record<string, number>, locale: string, secti
           </div>
         </div>
       </div>
+      ${renderRadarSvg(wuXing, locale)}
     </div>
     <div class="elements-list">${items}</div>
   </div>
@@ -428,7 +553,7 @@ function renderWeeklyBlock(locale: string, favorable: string[] | undefined, sect
   }).join("\n");
 
   return `
-<section class="section" id="section-${sectionNum}" data-toc="${zh ? "行动建议" : "Actions"}">
+<section class="section section-weekly" id="section-${sectionNum}" data-toc="${zh ? "行动建议" : "Actions"}">
   <div class="section-header">
     <div class="section-number">${sectionNum}</div>
     <h2 class="section-title">${zh ? "本周行动建议" : "This week"}</h2>
@@ -667,6 +792,14 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
       classic: classicFromFirst,
     }));
   }
+  {
+    const n = String(sectionIdx + 1).padStart(2, "0");
+    const mingpan = renderMingPanBlock(chart, locale, n);
+    if (mingpan) {
+      sectionIdx++;
+      contentSections.push(mingpan);
+    }
+  }
   if (chart.wuXing && Object.keys(chart.wuXing).length > 0) {
     const n = String(sectionIdx + 1).padStart(2, "0");
     sectionIdx++;
@@ -752,8 +885,10 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   const pageTitle = `OraSage · ${options.planLabel} · ${name}`;
   const ogImage = "https://bazi.orasage.com/brand/og.png";
 
+  const tier = options.tier ?? (options.showUpgrade ? "free" : "paid");
+
   return `<!doctype html>
-<html lang="${escapeAttr(locale)}">
+<html lang="${escapeAttr(locale)}" data-report-tier="${tier}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

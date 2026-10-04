@@ -1,21 +1,17 @@
 /**
  * 排盘完成后物化免费结构速览为固定静态 HTML。
- * 文件名由盘面指纹决定：同一盘再次排盘直接复用已有文件。
+ * 每条 readingId 一份文件（用户各自生成）；付费解锁后覆盖同一文件为全文。
  * 目录：REPORTS_DIR（生产 /var/lib/orasage/bazi-reports）。
  */
 
 import crypto from "crypto";
-import fs from "fs";
-import path from "path";
 import {
   composeFreeReport,
   type FreeReport,
   type FreeReportInput,
 } from "../shared/free-report.ts";
-import { buildReportPageHtml } from "./reportHtml.ts";
-import { resolveReportsDir } from "./_core/reportsDir.ts";
+import { writeReadingReportHtml, resolveReadingReportPaths } from "./readingReport.ts";
 
-const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 
 export type ChartFingerprintInput = {
@@ -29,10 +25,10 @@ export type ChartFingerprintInput = {
   lang: string;
 };
 
-/** 模板大版本变化时递增，强制同盘重新物化 HTML（分享卡 / 详情版式） */
-export const STATIC_REPORT_TEMPLATE_VERSION = "detail-share-v2";
+/** @deprecated 盘面指纹仅作元数据；文件名以 readingId 为准 */
+export const STATIC_REPORT_TEMPLATE_VERSION = "reading-unique-v1";
 
-/** 稳定盘面指纹 → chart_<16hex>，同盘同语言始终同一文件 */
+/** @deprecated 保留给测试 / 兼容；不再用作静态文件名 */
 export function chartReportId(input: ChartFingerprintInput): string {
   const raw = [
     input.birthStr.trim(),
@@ -51,7 +47,6 @@ export function chartReportId(input: ChartFingerprintInput): string {
 
 export function freeReportToMarkdown(free: FreeReport, opts?: { name?: string; birthStr?: string }): string {
   const lines: string[] = [];
-  // 日主行 / 四柱说明已在详情页 hero 展示，正文从结构化章节开始
   for (let i = 0; i < free.sections.length; i++) {
     const section = free.sections[i];
     lines.push(`### ${section.title}`);
@@ -115,42 +110,34 @@ function asFreeInput(data: Record<string, unknown>): FreeReportInput {
 export type MaterializeResult = {
   reportId: string;
   fileName: string;
-  /** 绝对 URL（用户中心 / 邮件） */
   reportUrl: string;
-  /** 同域相对路径（前端打开静态页） */
   reportPath: string;
   reused: boolean;
   absolutePath: string;
+  readingId: string;
+  tier: "free" | "paid";
 };
 
-/** 若文件已存在则直接返回 URL；否则生成并写入 REPORTS_DIR */
+export type MaterializeOpts = {
+  readingId: string;
+  /** 已付费文件上禁止用 free 覆盖（默认 true） */
+  skipIfPaid?: boolean;
+};
+
+/** 按 readingId 物化 / 刷新免费层固定报告（每用户每次排盘一份） */
 export function ensureStaticFreeReport(
   resultData: Record<string, unknown>,
   lang = "zh-CN",
+  opts?: MaterializeOpts,
 ): MaterializeResult {
+  const readingId = opts?.readingId?.trim();
+  if (!readingId) {
+    throw new Error("readingId required — reports are unique per user generation");
+  }
+
   const input = asFreeInput(resultData);
   if (!input.riZhu || !input.year.gan) {
     throw new Error("invalid chart data for static report");
-  }
-
-  const reportId = chartReportId({
-    birthStr: String(resultData.birthStr ?? ""),
-    gender: String(resultData.gender ?? "male"),
-    riZhu: input.riZhu,
-    year: input.year,
-    month: input.month,
-    day: input.day,
-    hour: input.hour,
-    lang,
-  });
-  const fileName = `${reportId}.html`;
-  const reportsDir = resolveReportsDir();
-  const absolutePath = path.join(reportsDir, fileName);
-  const reportPath = `/reports/${fileName}`;
-  const reportUrl = `${BAZI_PUBLIC_URL.replace(/\/$/, "")}${reportPath}`;
-
-  if (fs.existsSync(absolutePath)) {
-    return { reportId, fileName, reportUrl, reportPath, reused: true, absolutePath };
   }
 
   const free = composeFreeReport(input, lang);
@@ -162,15 +149,15 @@ export function ensureStaticFreeReport(
   const wuXing = (resultData.wuXing && typeof resultData.wuXing === "object")
     ? (resultData.wuXing as Record<string, number>)
     : undefined;
-  const html = buildReportPageHtml({
+
+  const written = writeReadingReportHtml({
+    readingId,
+    tier: "free",
     planLabel,
     reportContent: markdown,
     subjectName: input.name || undefined,
-    generatedAt: new Date(),
-    shareUrl: reportUrl,
-    showUpgrade: true,
-    upgradeUrl: `${BAZI_PUBLIC_URL.replace(/\/$/, "")}/`,
     locale: lang,
+    allowDowngrade: opts?.skipIfPaid === false,
     chart: {
       name: input.name,
       birthStr: String(resultData.birthStr ?? ""),
@@ -189,9 +176,60 @@ export function ensureStaticFreeReport(
       favorable: input.favorable,
     },
   });
-  fs.writeFileSync(absolutePath, html, "utf-8");
-  return { reportId, fileName, reportUrl, reportPath, reused: false, absolutePath };
+
+  return {
+    reportId: written.reportId,
+    fileName: written.fileName,
+    reportUrl: written.reportUrl,
+    reportPath: written.reportPath,
+    reused: written.reused || written.skipped,
+    absolutePath: written.absolutePath,
+    readingId,
+    tier: written.tier,
+  };
 }
+
+/** 付费全文覆盖同一 reading 固定页 */
+export function writePaidReadingReport(opts: {
+  readingId: string;
+  reportContent: string;
+  planLabel: string;
+  subjectName?: string;
+  locale?: string;
+  resultData?: Record<string, unknown>;
+  productRecommend?: Parameters<typeof writeReadingReportHtml>[0]["productRecommend"];
+}) {
+  const data = opts.resultData || {};
+  const input = asFreeInput(data);
+  const wuXing = (data.wuXing && typeof data.wuXing === "object")
+    ? (data.wuXing as Record<string, number>)
+    : undefined;
+  return writeReadingReportHtml({
+    readingId: opts.readingId,
+    tier: "paid",
+    planLabel: opts.planLabel,
+    reportContent: opts.reportContent,
+    subjectName: opts.subjectName || input.name,
+    locale: opts.locale || "zh-CN",
+    productRecommend: opts.productRecommend,
+    chart: {
+      name: input.name,
+      birthStr: String(data.birthStr ?? ""),
+      birthplace: String(data.birthplace ?? data.cityName ?? ""),
+      gender: String(data.gender ?? ""),
+      riZhu: input.riZhu || undefined,
+      strength: input.strength || undefined,
+      year: input.year.gan ? input.year : undefined,
+      month: input.month.gan ? input.month : undefined,
+      day: input.day.gan ? input.day : undefined,
+      hour: input.hour.gan ? input.hour : undefined,
+      wuXing,
+      favorable: input.favorable,
+    },
+  });
+}
+
+export { resolveReadingReportPaths };
 
 export async function patchReadingReportUrl(readingId: string, reportUrl: string, title?: string) {
   if (!readingId?.trim()) return;
@@ -209,7 +247,6 @@ export async function patchReadingReportUrl(readingId: string, reportUrl: string
   }
 }
 
-/** 将测试报告 upsert 到 auth user_readings，供后台「测试报告」列表展示 */
 export async function upsertReadingWithReport(opts: {
   userId?: number | null;
   readingId: string;
