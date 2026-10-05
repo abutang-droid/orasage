@@ -877,10 +877,12 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
       sectionIdx++;
       contentSections.push(renderRadarOnlyBlock(chart.wuXing, locale, n));
     }
+    const fromSections = sections.map((s) => s.content).filter(Boolean).join(" ");
+    const body = fromSections || brandedContent;
+    const lucky = (chart.luckyLine || "").trim();
     const briefSource = [
-      ...sections.map((s) => s.content),
-      chart.luckyLine || "",
-      sections.length === 0 ? brandedContent : "",
+      body,
+      lucky && !body.includes(lucky) ? lucky : "",
     ].filter(Boolean).join(" ");
     const briefCopy = condenseBriefCopy(briefSource);
     {

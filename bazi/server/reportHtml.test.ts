@@ -121,6 +121,56 @@ describe("renderMarkdown", () => {
     expect(html).not.toMatch(/paywall-cta"[^>]*href="https:\/\/bazi\.orasage\.com\/?"/);
   });
 
+  it("free brief without ### keeps the AI paragraph and does not duplicate luckyLine", () => {
+    const paragraph = "日主乙木身强，支持多于消耗，适合把力气花在表达和行动上。体系里叫身强食伤有气。";
+    const lucky = "白色、黑色，西方、北方。颜色与方位不代表运势。";
+    const html = buildReportPageHtml({
+      planLabel: "结构速览",
+      reportContent: paragraph,
+      subjectName: "张三",
+      shareUrl: "https://bazi.orasage.com/reports/demo.html",
+      showUpgrade: true,
+      tier: "free",
+      chart: {
+        riZhu: "乙",
+        strength: "身强",
+        dayMasterLine: "代表你的字：乙（木）　·　身强",
+        year: { gan: "庚", zhi: "午" },
+        month: { gan: "己", zhi: "卯" },
+        day: { gan: "乙", zhi: "亥" },
+        hour: { gan: "丙", zhi: "子" },
+        wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
+        luckyLine: lucky,
+      },
+    });
+    const main = html.split("<main>")[1]?.split("</main>")[0] ?? "";
+    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(note).toContain("日主乙木身强");
+    expect(note).toContain("白色");
+    expect(note.split("白色").length - 1).toBe(1);
+    expect([...note].length).toBeLessThanOrEqual(200);
+
+    const dupHtml = buildReportPageHtml({
+      planLabel: "结构速览",
+      reportContent: `${paragraph}${lucky}`,
+      subjectName: "张三",
+      showUpgrade: true,
+      tier: "free",
+      chart: {
+        year: { gan: "庚", zhi: "午" },
+        month: { gan: "己", zhi: "卯" },
+        day: { gan: "乙", zhi: "亥" },
+        hour: { gan: "丙", zhi: "子" },
+        wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
+        luckyLine: lucky,
+      },
+    });
+    const dupMain = dupHtml.split("<main>")[1]?.split("</main>")[0] ?? "";
+    const dupNote = (dupMain.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(dupNote.split("白色").length - 1).toBe(1);
+    expect(dupNote).toContain("日主乙木身强");
+  });
+
   it("paid magazine page is the full reading without paywall", () => {
     const html = buildReportPageHtml({
       planLabel: "深度解读",
