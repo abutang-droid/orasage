@@ -100,6 +100,15 @@ export type MaterializeOpts = {
   force?: boolean;
   /** 简版正文（网络 AI）。缺省时才用本地模板，仅供单测。 */
   reportContent?: string;
+  /** 网络 AI 校准后的四柱 / 五行；有则覆盖本地盘作为页面输出。 */
+  chartOverride?: {
+    year: { gan: string; zhi: string };
+    month: { gan: string; zhi: string };
+    day: { gan: string; zhi: string };
+    hour: { gan: string; zhi: string };
+    wuXing: Record<string, number>;
+    riZhu: string;
+  };
 };
 
 function chartSource(data: Record<string, unknown>): Record<string, unknown> {
@@ -120,7 +129,9 @@ export function ensureStaticFreeReport(
   }
 
   const source = chartSource(resultData);
-  const input = asFreeInput(source);
+  const input = asFreeInput(opts?.chartOverride
+    ? { ...source, ...opts.chartOverride }
+    : source);
   if (!input.riZhu || !input.year.gan) {
     throw new Error("invalid chart data for static report");
   }
@@ -133,11 +144,12 @@ export function ensureStaticFreeReport(
       birthStr: String(source.birthStr ?? resultData.birthStr ?? ""),
     });
   const planLabel = lang.startsWith("zh") ? "结构速览" : "Structure Brief";
-  const wuXing = (source.wuXing && typeof source.wuXing === "object")
-    ? (source.wuXing as Record<string, number>)
-    : (resultData.wuXing && typeof resultData.wuXing === "object")
-      ? (resultData.wuXing as Record<string, number>)
-      : undefined;
+  const wuXing = opts?.chartOverride?.wuXing
+    ?? ((source.wuXing && typeof source.wuXing === "object")
+      ? (source.wuXing as Record<string, number>)
+      : (resultData.wuXing && typeof resultData.wuXing === "object")
+        ? (resultData.wuXing as Record<string, number>)
+        : undefined);
 
   const written = writeReadingReportHtml({
     readingId,
@@ -188,8 +200,11 @@ export function writePaidReadingReport(opts: {
   locale?: string;
   resultData?: Record<string, unknown>;
   productRecommend?: Parameters<typeof writeReadingReportHtml>[0]["productRecommend"];
+  chartOverride?: MaterializeOpts["chartOverride"];
 }) {
-  const data = opts.resultData || {};
+  const data = opts.chartOverride
+    ? { ...(opts.resultData || {}), ...opts.chartOverride }
+    : (opts.resultData || {});
   const input = asFreeInput(data);
   const wuXing = (data.wuXing && typeof data.wuXing === "object")
     ? (data.wuXing as Record<string, number>)

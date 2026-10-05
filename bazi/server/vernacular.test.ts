@@ -137,7 +137,7 @@ describe("LLM prompts follow the spec", () => {
     expect(p).toContain("支持你的力量少于消耗你的力量");
   });
 
-  it("brief prompt asks for one short paragraph and forbids the seven-chapter full reading", () => {
+  it("brief prompt asks the model to calibrate pillars and radar as JSON", () => {
     const p = buildBriefBaziPrompt({
       name: "Test",
       gender: "male",
@@ -147,8 +147,10 @@ describe("LLM prompts follow the spec", () => {
       favorable: ["金"],
       unfavorable: ["木"],
     }, "zh-CN");
-    expect(p).toContain("只要一段简单说明");
+    expect(p).toContain("校准");
+    expect(p).toContain("只返回 JSON");
     expect(p).toContain("200 个汉字");
     expect(p).toContain("不要七章详版");
+    expect(p).toContain("wuXing");
   });
 });

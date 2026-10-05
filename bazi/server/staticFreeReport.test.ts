@@ -176,4 +176,26 @@ describe("staticFreeReport", () => {
     expect(html).toContain("sku=report-bazi-basic");
     expect(html).not.toContain("2026：机会变多");
   });
+
+  it("renders AI-calibrated pillars and radar instead of the local chart", () => {
+    const written = ensureStaticFreeReport(sample, "zh-CN", {
+      readingId: "ai-calibrate-1",
+      reportContent: "校准后的简单说明。",
+      chartOverride: {
+        year: { gan: "甲", zhi: "子" },
+        month: { gan: "丙", zhi: "寅" },
+        day: { gan: "戊", zhi: "午" },
+        hour: { gan: "庚", zhi: "申" },
+        wuXing: { 木: 9, 火: 0.5, 土: 1, 金: 1, 水: 8 },
+        riZhu: "戊",
+      },
+    });
+    const html = fs.readFileSync(written.absolutePath, "utf-8");
+    expect(html).toContain("甲");
+    expect(html).toContain("戊");
+    expect(html).toContain("校准后的简单说明");
+    expect(html).toContain('class="mingpan-board is-single-row"');
+    expect(html).toContain('class="wx-radar"');
+    expect(html).not.toContain('class="elements-donut"');
+  });
 });

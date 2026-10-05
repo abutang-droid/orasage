@@ -290,6 +290,7 @@ export const appRouter = router({
           || "";
 
         let result;
+        let calibratedChart: Awaited<ReturnType<typeof generateBaziReportContent>>["chart"] | undefined;
         if (existingTier) {
           result = {
             ...paths,
@@ -298,22 +299,24 @@ export const appRouter = router({
             tier: existingTier,
           };
         } else {
-          const { report } = await generateBaziReportContent(
+          const generated = await generateBaziReportContent(
             kind,
             input.resultData,
             input.lang,
             "brief",
           );
+          calibratedChart = generated.chart;
           result = ensureStaticFreeReport(input.resultData, input.lang, {
             readingId,
-            reportContent: report,
+            reportContent: generated.report,
+            chartOverride: generated.chart,
           });
         }
 
         const name = kind === "couple"
           ? `${String((input.resultData.person1 as { name?: string } | undefined)?.name ?? "甲")} & ${String((input.resultData.person2 as { name?: string } | undefined)?.name ?? "乙")}`
           : (String(input.resultData.name ?? "").trim() || "访客");
-        const riZhu = String(input.resultData.riZhu ?? "");
+        const riZhu = String(calibratedChart?.riZhu || input.resultData.riZhu || "");
         const strength = String(input.resultData.strength ?? "");
         const summary = [
           kind === "couple" ? "合盘简版" : (riZhu ? `日主 ${riZhu}` : null),
@@ -331,6 +334,7 @@ export const appRouter = router({
             type: kind,
             lang: input.lang,
             resultData: input.resultData,
+            calibratedChart: calibratedChart ?? null,
             reportId: result.reportId,
             reportPath: result.reportPath,
             tier: result.tier,

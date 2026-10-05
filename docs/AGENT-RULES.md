@@ -98,7 +98,7 @@
 产品全文见 [`docs/BAZI-REPORT-PRODUCT.md`](BAZI-REPORT-PRODUCT.md)。改排盘 / 报告 / overlay `bazi/dist` 时必守：
 
 1. `/` 经典模式与 `/classic` 计算器模式共用 `calcSingleBazi`，禁止两套算法。
-2. 用户第一步看到的正文必须走 `generateBaziReportContent(..., 'brief')`（网络 AI）。禁止把本地 `composeFreeReport` 当作用户可见简版。
+2. 用户第一步看到的正文必须走 `generateBaziReportContent(..., 'brief')`（网络 AI）。禁止把本地 `composeFreeReport` 当作用户可见简版。四柱与雷达先本地 `calcSingleBazi`，再由同一网络 AI 校准，页面以校准结果为准。
 3. 先简版，再付费解锁详版；SKU `report-bazi-basic`，同一 `reading_*.html`。
 4. 排过即 upsert `user_readings` 并落静态 HTML。身份 = 输入指纹 + 账号或 `orasage:device-id`。已有文件禁止重生成。
 5. 付费回跳、语言、分享契约不变。

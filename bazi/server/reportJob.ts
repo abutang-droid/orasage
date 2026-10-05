@@ -3,6 +3,7 @@ import { fetchReportProductRecommend } from './reportRecommend.ts';
 import { writePaidReadingReport } from './staticFreeReport.ts';
 import { readReportTier, resolveReadingReportPaths } from './readingReport.ts';
 import { assertPayerMayUnlock } from './reportUnlock.ts';
+import { applyCalibratedChart } from './chartCalibrate.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
@@ -85,6 +86,14 @@ async function runReportJobInner(input: ReportJobInput) {
     type?: 'single' | 'couple';
     lang?: 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
     resultData?: Record<string, unknown>;
+    calibratedChart?: {
+      year: { gan: string; zhi: string };
+      month: { gan: string; zhi: string };
+      day: { gan: string; zhi: string };
+      hour: { gan: string; zhi: string };
+      wuXing: Record<string, number>;
+      riZhu: string;
+    } | null;
   };
   if (!payload.resultData || !payload.type) throw new Error('invalid reading payload');
 
@@ -95,20 +104,21 @@ async function runReportJobInner(input: ReportJobInput) {
     premium: '终极能量礼盒',
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';
+  const resultData = applyCalibratedChart(payload.resultData, payload.calibratedChart);
 
   const { report } = await generateBaziReportContent(
     payload.type,
-    payload.resultData,
+    resultData,
     payload.lang ?? 'zh-CN',
     'full',
   );
-  const wuXing = payload.resultData.wuXing as Record<string, number> | undefined;
+  const wuXing = resultData.wuXing as Record<string, number> | undefined;
   const productRecommend = planType === 'basic'
     ? await fetchReportProductRecommend(wuXing, {
         chart: {
-          birthStr: String(payload.resultData.birthStr ?? ''),
-          gender: String(payload.resultData.gender ?? 'male'),
-          name: typeof payload.resultData.name === 'string' ? payload.resultData.name : undefined,
+          birthStr: String(resultData.birthStr ?? ''),
+          gender: String(resultData.gender ?? 'male'),
+          name: typeof resultData.name === 'string' ? resultData.name : undefined,
         },
       })
     : null;
@@ -117,9 +127,10 @@ async function runReportJobInner(input: ReportJobInput) {
     readingId: input.readingId,
     reportContent: report,
     planLabel,
-    subjectName: typeof payload.resultData.name === 'string' ? payload.resultData.name : undefined,
+    subjectName: typeof resultData.name === 'string' ? resultData.name : undefined,
     locale: payload.lang ?? 'zh-CN',
-    resultData: payload.resultData,
+    resultData,
+    chartOverride: payload.calibratedChart ?? undefined,
     productRecommend,
   });
 

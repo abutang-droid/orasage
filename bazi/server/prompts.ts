@@ -339,19 +339,19 @@ export function buildBriefBaziPrompt(
   if (type === "couple") {
     const full = buildDoubleBaziPrompt(data, lang);
     const briefAsk: Record<string, string> = {
-      "zh-CN": "\n\n## 本次只要一段简单说明\n不要分章、不要 ###、不要七章详版。一段连续正文，不超过 200 个汉字：两人结构相遇时的现象与机制，句尾体系里叫。",
-      "zh-TW": "\n\n## 只要一段簡單說明，不超過 200 字。不要寫詳版。",
-      en: "\n\n## Brief only: one short paragraph, max 200 characters. Do not write the 7-chapter full reading.",
-      "pt-BR": "\n\n## Só um parágrafo curto (máx. 200 caracteres). Não escreva o relatório completo.",
+      "zh-CN": "\n\n## 本次输出（只返回 JSON，不要 Markdown，不要七章详版）\n本地已排出两人四柱与五行，请校准后作为最终输出标准：四柱必须是合法干支，本地无误则原样返回；五行给出金木水火土相对强弱（可小数）。note 一段说明不超过 200 个汉字：两人结构相遇时的现象与机制，句尾体系里叫。\n{\"year\":{\"gan\":\"\",\"zhi\":\"\"},\"month\":{\"gan\":\"\",\"zhi\":\"\"},\"day\":{\"gan\":\"\",\"zhi\":\"\"},\"hour\":{\"gan\":\"\",\"zhi\":\"\"},\"wuXing\":{\"木\":0,\"火\":0,\"土\":0,\"金\":0,\"水\":0},\"riZhu\":\"\",\"note\":\"\"}",
+      "zh-TW": "\n\n## 只返回 JSON。校准四柱與五行，note 不超過 200 字。不要寫詳版。",
+      en: "\n\n## Return JSON only. Calibrate four pillars and five-element scores; note max 200 characters. Do not write the 7-chapter full reading.",
+      "pt-BR": "\n\n## Só JSON. Calibre os quatro pilares e os cinco elementos; note máx. 200 caracteres.",
     };
     return full + (briefAsk[lang] || briefAsk["zh-CN"]);
   }
   const full = buildSingleBaziPrompt(data, lang);
   const briefAsk: Record<string, string> = {
-    "zh-CN": "\n\n## 本次只要一段简单说明\n不要分章、不要 ###、不要七章详版、不要本周行动。写成一段连续正文，不超过 200 个汉字（含标点）：日主、支持与消耗、一句方向。现象→机制→句尾体系里叫。颜色与方位若写到，必须写它们不代表运势。",
-    "zh-TW": "\n\n## 只要一段簡單說明\n不要分章、不要詳版。正文不超過 200 字。",
-    en: "\n\n## Brief only: one short paragraph\nNo ### chapters, no 7-chapter full reading, no weekly plan. At most 200 characters. Phenomenon → mechanism → term at the end.",
-    "pt-BR": "\n\n## Só um parágrafo curto (máx. 200 caracteres). Não escreva o relatório completo.",
+    "zh-CN": "\n\n## 本次输出（只返回 JSON，不要 Markdown，不要 ###，不要七章详版，不要本周行动）\n本地算法已排出四柱与五行雷达，请校准后作为页面输出标准：\n- 四柱：核对节气换月、真太阳时、日主。本地无误则原样返回合法干支。\n- 五行：金木水火土相对强弱（数字，可小数），五项都要有。\n- note：一段简单说明，不超过 200 个汉字（含标点）。现象→机制→句尾体系里叫。颜色与方位若写到，必须写它们不代表运势。\n{\"year\":{\"gan\":\"甲\",\"zhi\":\"子\"},\"month\":{\"gan\":\"乙\",\"zhi\":\"丑\"},\"day\":{\"gan\":\"丙\",\"zhi\":\"寅\"},\"hour\":{\"gan\":\"丁\",\"zhi\":\"卯\"},\"wuXing\":{\"木\":1,\"火\":1,\"土\":1,\"金\":1,\"水\":1},\"riZhu\":\"丙\",\"note\":\"\"}",
+    "zh-TW": "\n\n## 只返回 JSON。校准四柱與五行雷達，note 不超過 200 字。不要寫詳版。",
+    en: "\n\n## Return JSON only. Calibrate four pillars and the five-element radar after the local chart. note: one short paragraph, max 200 characters. No ###, no 7-chapter full reading.",
+    "pt-BR": "\n\n## Só JSON. Calibre os quatro pilares e o radar; note máx. 200 caracteres. Não escreva o relatório completo.",
   };
   return full + (briefAsk[lang] || briefAsk["zh-CN"]);
 }
