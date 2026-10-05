@@ -4,7 +4,7 @@
  * 管线（只保留这一条）：
  *   ensureStaticFreeReport / writePaidReadingReport
  *     → writeReadingReportHtml
- *     → buildReportPageHtml（magazine：四柱命盘 + 五行环形/雷达）
+ *     → buildReportPageHtml（免费 Vibe 卡片简版 / 付费杂志详版）
  *     → REPORTS_DIR/reading_<id>.html
  *
  * 禁止再写 report_* / chart_* 文件名。付费与免费共用同一 reading 文件，付费覆盖免费。
@@ -176,6 +176,7 @@ export function ensureStaticFreeReport(
       gridCaption: free.gridCaption,
       luckyLine: free.luckyLine,
       favorable: input.favorable,
+      unfavorable: input.unfavorable,
     },
   });
 
@@ -230,6 +231,7 @@ export function writePaidReadingReport(opts: {
       hour: input.hour.gan ? input.hour : undefined,
       wuXing,
       favorable: input.favorable,
+      unfavorable: input.unfavorable,
     },
   });
 }

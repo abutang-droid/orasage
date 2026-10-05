@@ -13,6 +13,7 @@ import {
   siteSignature,
 } from "../shared/site-brand.ts";
 import { REPORT_PAGE_CSS } from "./reportHtmlStyles.ts";
+import { buildBriefVibePageHtml, relayoutFreeBriefToVibe } from "./reportBriefVibe.ts";
 
 const WX_ORDER = ["木", "火", "土", "金", "水"] as const;
 const WX_EN: Record<string, string> = { 木: "Wood", 火: "Fire", 土: "Earth", 金: "Metal", 水: "Water" };
@@ -55,6 +56,7 @@ export type ReportChartMeta = {
   gridCaption?: string;
   luckyLine?: string;
   favorable?: string[];
+  unfavorable?: string[];
 };
 
 export type ReportPageOptions = {
@@ -851,6 +853,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
     || chart.gridCaption
     || (zh ? `${options.planLabel} · 命局结构速览` : `${options.planLabel} · Structure brief`);
   const isFree = (options.tier ?? (options.showUpgrade ? "free" : "paid")) === "free";
+  if (isFree) return buildBriefVibePageHtml(options);
   const heroHeadline = isFree
     ? (zh ? "你的结构速览" : "Your chart brief")
     : (zh ? "你的命局解读" : "Your Bazi Reading");
@@ -1141,84 +1144,7 @@ function extractBriefLeftoverCopy(mainHtml: string): string {
   return condenseBriefCopy(stripped.replace(/<[^>]+>/g, " "));
 }
 
-/** 已落盘的免费页：改成四柱一行 → 雷达 → 200 字说明。详版不碰。 */
+/** 已落盘的免费页：重排成 Vibe Camp 简版卡片。详版不碰。 */
 export function relayoutFreeBriefHtml(html: string): string {
-  const head = html.slice(0, 1200);
-  if (!/data-report-tier=["']free["']/.test(head)) return html;
-  if (/data-brief-layout=["']v2["']/.test(head)) return html;
-
-  const mainMatch = html.match(/<main>([\s\S]*?)<\/main>/);
-  if (!mainMatch) return html;
-
-  const locale = (html.match(/<html[^>]*\slang="([^"]+)"/) || [])[1] || "zh-CN";
-  const mingpan = html.match(/<section class="section section-mingpan"[\s\S]*?<\/section>/)?.[0] ?? "";
-  const radar = html.match(/<div class="wx-radar-wrap">[\s\S]*?<\/svg>\s*(?:<p class="wx-radar-caption">[\s\S]*?<\/p>\s*)?<\/div>/)?.[0] ?? "";
-  const product = mainMatch[1].match(/<section class="product-rec"[\s\S]*?<\/section>/)?.[0] ?? "";
-
-  const copy = extractBriefLeftoverCopy(mainMatch[1]);
-
-  const parts: string[] = [];
-  let n = 0;
-  if (mingpan) {
-    n += 1;
-    const num = String(n).padStart(2, "0");
-    parts.push(
-      mingpan
-        .replace(/id="section-[^"]+"/, `id="section-${num}"`)
-        .replace(/<div class="section-number">[^<]*<\/div>/, `<div class="section-number">${num}</div>`)
-        .replace(/class="mingpan-board"/, 'class="mingpan-board is-single-row"'),
-    );
-  }
-  if (radar) {
-    n += 1;
-    const num = String(n).padStart(2, "0");
-    parts.push(renderRadarOnlyBlockFromSvg(radar, locale, num));
-  }
-  n += 1;
-  parts.push(renderBriefNoteBlock(copy, locale, String(n).padStart(2, "0")));
-  if (product) parts.push(product);
-
-  const tocItems = parts
-    .map((block, i) => {
-      const idMatch = block.match(/id="(section-[^"]+)"/);
-      const tocMatch = block.match(/data-toc="([^"]+)"/);
-      if (!idMatch || !tocMatch) return "";
-      const num = String(i + 1).padStart(2, "0");
-      return `<li class="toc-item${i === 0 ? " active" : ""}" data-section="${idMatch[1]}"><a href="#${idMatch[1]}"><span class="toc-num">${num}</span>${tocMatch[1]}</a></li>`;
-    })
-    .filter(Boolean)
-    .join("\n");
-
-  let out = html.replace(/<main>[\s\S]*?<\/main>/, `<main>\n${parts.join("\n")}\n</main>`);
-  out = out.replace(/<html([^>]*)>/, (full, attrs: string) => {
-    if (/data-brief-layout=/.test(attrs)) return full;
-    return `<html${attrs} data-brief-layout="v2">`;
-  });
-  if (tocItems) {
-    if (/<div class="toc" id="toc">/.test(out)) {
-      out = out.replace(/<ul class="toc-list">[\s\S]*?<\/ul>/, `<ul class="toc-list">${tocItems}</ul>`);
-    }
-  }
-  if (!out.includes("BRIEF_FREE_LAYOUT") && !/mingpan-board\.is-single-row\{display:grid/.test(out)) {
-    const tag = `<style data-brief-layout-css="v2">/* BRIEF_FREE_LAYOUT */${BRIEF_FREE_LAYOUT_CSS}</style>`;
-    if (out.includes("</head>")) {
-      out = out.replace("</head>", `${tag}</head>`);
-    } else {
-      out = out.replace(/<html[^>]*>/, (m) => `${m}${tag}`);
-    }
-  }
-  return out;
-}
-
-function renderRadarOnlyBlockFromSvg(radarHtml: string, locale: string, sectionNum: string): string {
-  const zh = locale.startsWith("zh");
-  return `
-<section class="section section-elements section-radar-only" id="section-${sectionNum}" data-toc="${zh ? "五行雷达" : "Radar"}">
-  <div class="section-header">
-    <div class="section-number">${sectionNum}</div>
-    <h2 class="section-title">${zh ? "五行雷达" : "Element radar"}</h2>
-    <p class="section-subtitle">${zh ? "金木水火土的相对强弱" : "Relative strength of the five elements"}</p>
-  </div>
-  ${radarHtml}
-</section>`;
+  return relayoutFreeBriefToVibe(html);
 }

@@ -68,7 +68,8 @@ describe("staticFreeReport", () => {
     expect(html).toContain("mingpan-board");
     expect(html).toContain("wx-radar");
     expect(html).not.toContain('class="elements-donut"');
-    expect(html).toContain("简单说明");
+    expect(html).toContain('class="bv-donut"');
+    expect(html).toContain("核心洞察");
     expect(html).toContain("你的结构速览");
     expect(html).not.toContain("你的命局解读");
     expect(html).not.toContain('class="weekly-timeline"');
@@ -194,8 +195,9 @@ describe("staticFreeReport", () => {
     expect(html).toContain("甲");
     expect(html).toContain("戊");
     expect(html).toContain("校准后的简单说明");
-    expect(html).toContain('class="mingpan-board is-single-row"');
+    expect(html).toContain("mingpan-board is-single-row");
     expect(html).toContain('class="wx-radar"');
+    expect(html).toContain('class="bv-donut"');
     expect(html).not.toContain('class="elements-donut"');
   });
 });

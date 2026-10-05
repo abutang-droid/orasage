@@ -83,13 +83,15 @@ describe("renderMarkdown", () => {
         day: { gan: "乙", zhi: "亥" },
         hour: { gan: "丙", zhi: "子" },
         wuXing: { 木: 3, 火: 2, 土: 2, 金: 1, 水: 1 },
+        favorable: ["水", "木"],
+        unfavorable: ["火"],
       },
     });
     expect(html).toContain("你的结构速览");
     expect(html).not.toContain("你的命局解读");
     expect(html).toContain('data-report-tier="free"');
-    expect(html).toContain('data-brief-layout="v2"');
-    expect(html).toContain('class="report-longform"');
+    expect(html).toContain('data-brief-layout="v3"');
+    expect(html).toContain('class="report-longform brief-vibe"');
     expect(html).not.toContain("算法依据");
     expect(html).not.toContain("2026：机会变多");
     expect(html).not.toContain('class="weekly-timeline"');
@@ -104,21 +106,29 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain('class="balance-gauge"');
     expect(html).toContain('class="wx-radar"');
     expect(html).toContain("四柱命盘");
-    expect(html).toContain('class="mingpan-board is-single-row"');
+    expect(html).toContain("mingpan-board is-single-row");
     expect(html).toContain("is-day-master");
     expect(html).toContain("庚");
     expect(html).toContain("乙");
-    expect(html).toContain("简单说明");
-    const main = html.split("<main>")[1]?.split("</main>")[0] ?? "";
-    expect(main.indexOf("四柱命盘")).toBeLessThan(main.indexOf("五行雷达"));
-    expect(main.indexOf("五行雷达")).toBeLessThan(main.indexOf("简单说明"));
-    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(html).toContain("核心洞察");
+    expect(html).toContain('data-dom-id="simple-elements"');
+    expect(html).toContain('class="bv-donut"');
+    expect(html).not.toContain("tailwindcss");
+    expect(html).not.toContain("lucide");
+    expect(html).not.toContain("Vibe Camp");
+    expect(html).not.toContain("$0.99");
+    const main = html.split("<main")[1]?.split("</main>")[0] ?? "";
+    expect(main.indexOf("四柱命盘")).toBeLessThan(main.indexOf("五行分析"));
+    expect(main.indexOf("五行分析")).toBeLessThan(main.indexOf("核心洞察"));
+    const note = (main.match(/simple-insight[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect([...note.replace(/<[^>]+>/g, "")].length).toBeLessThanOrEqual(200);
-    expect(html).toContain("解锁完整命局报告");
+    expect(html).toContain("查看完整命理报告");
     expect(html).toContain("付费解锁详细解读");
     expect(html).toContain("shop.orasage.com/checkout");
     expect(html).toContain("sku=report-bazi-basic");
-    expect(html).not.toMatch(/paywall-cta"[^>]*href="https:\/\/bazi\.orasage\.com\/?"/);
+    expect(html).toContain("喜用：水、木");
+    expect(html).toContain("忌神：火");
+    expect(html).toContain("84%");
   });
 
   it("free brief without ### keeps the AI paragraph and does not duplicate luckyLine", () => {
@@ -143,11 +153,12 @@ describe("renderMarkdown", () => {
         luckyLine: lucky,
       },
     });
-    const main = html.split("<main>")[1]?.split("</main>")[0] ?? "";
-    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    const main = html.split("<main")[1]?.split("</main>")[0] ?? "";
+    const note = (main.match(/simple-insight[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect(note).toContain("日主乙木身强");
-    expect(note).toContain("白色");
-    expect(note.split("白色").length - 1).toBe(1);
+    expect(note).not.toContain("白色");
+    expect(html).toContain("白色");
+    expect(html.split("白色").length - 1).toBe(1);
     expect([...note].length).toBeLessThanOrEqual(200);
 
     const dupHtml = buildReportPageHtml({
@@ -165,10 +176,11 @@ describe("renderMarkdown", () => {
         luckyLine: lucky,
       },
     });
-    const dupMain = dupHtml.split("<main>")[1]?.split("</main>")[0] ?? "";
-    const dupNote = (dupMain.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    const dupMain = dupHtml.split("<main")[1]?.split("</main>")[0] ?? "";
+    const dupNote = (dupMain.match(/simple-insight[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect(dupNote.split("白色").length - 1).toBe(1);
     expect(dupNote).toContain("日主乙木身强");
+    expect(dupNote).toContain("白色");
   });
 
   it("paid magazine page is the full reading without paywall", () => {
@@ -200,7 +212,8 @@ describe("renderMarkdown", () => {
     expect(html).toContain('class="elements-donut"');
     expect(html).not.toContain("解锁完整命局报告");
     expect(html).not.toContain('class="paywall-cta"');
-    expect(html).not.toContain('data-brief-layout="v2"');
+    expect(html).not.toContain('data-brief-layout="v3"');
+    expect(html).not.toContain("brief-vibe");
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {
@@ -262,26 +275,39 @@ describe("condenseBriefCopy", () => {
 });
 
 describe("relayoutFreeBriefHtml", () => {
-  it("reorders an old free page to pillars, radar, then a short note", () => {
+  it("reorders an old free page to Vibe cards with pillars, elements, then insight", () => {
     const old = `<html lang="zh-CN" data-report-tier="free">
 <main>
 <section class="section" id="section-01" data-toc="开篇"><p>${"叙述".repeat(80)}</p></section>
-<section class="section section-mingpan" id="section-02" data-toc="四柱命盘"><div class="mingpan-board"></div></section>
+<section class="section section-mingpan" id="section-02" data-toc="四柱命盘"><div class="mingpan-board">
+  <div class="mp-pillar"><div class="mp-label">年柱</div><div class="mp-gan">庚</div><div class="mp-zhi">午</div></div>
+  <div class="mp-pillar"><div class="mp-label">月柱</div><div class="mp-gan">己</div><div class="mp-zhi">卯</div></div>
+  <div class="mp-pillar is-day-master"><div class="mp-label">日柱</div><div class="mp-gan">乙</div><div class="mp-zhi">亥</div></div>
+  <div class="mp-pillar"><div class="mp-label">时柱</div><div class="mp-gan">丙</div><div class="mp-zhi">子</div></div>
+</div></section>
 <section class="section section-elements" id="section-03" data-toc="五行分布">
   <div class="elements-donut"></div>
+  <div class="element-item"><div class="element-symbol">木</div><div class="element-percent">30%</div></div>
+  <div class="element-item"><div class="element-symbol">火</div><div class="element-percent">20%</div></div>
+  <div class="element-item"><div class="element-symbol">土</div><div class="element-percent">20%</div></div>
+  <div class="element-item"><div class="element-symbol">金</div><div class="element-percent">15%</div></div>
+  <div class="element-item"><div class="element-symbol">水</div><div class="element-percent">15%</div></div>
   <div class="wx-radar-wrap"><svg class="wx-radar"></svg><p class="wx-radar-caption">雷达</p></div>
 </section>
 </main>
 </html>`;
     const out = relayoutFreeBriefHtml(old);
-    expect(out).toContain('data-brief-layout="v2"');
-    const main = out.split("<main>")[1]?.split("</main>")[0] ?? "";
-    expect(main.indexOf("mingpan-board")).toBeLessThan(main.indexOf("wx-radar"));
-    expect(main.indexOf("wx-radar")).toBeLessThan(main.indexOf("简单说明"));
-    expect(main).not.toContain('class="elements-donut"');
-    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(out).toContain('data-brief-layout="v3"');
+    expect(out).toContain("brief-vibe");
+    const main = out.split("<main")[1]?.split("</main>")[0] ?? "";
+    expect(main.indexOf("四柱命盘")).toBeLessThan(main.indexOf("五行分析"));
+    expect(main.indexOf("五行分析")).toBeLessThan(main.indexOf("核心洞察"));
+    expect(main).toContain('class="bv-donut"');
+    expect(main).toContain("庚");
+    const note = (main.match(/simple-insight[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(note).toContain("叙述");
     expect([...note].length).toBeLessThanOrEqual(200);
-    expect(out).toContain("grid-template-columns:repeat(4");
+    expect(out).not.toContain("Vibe Camp");
   });
 
   it("relayout note uses body copy, not section chrome", () => {
@@ -302,7 +328,7 @@ describe("relayoutFreeBriefHtml", () => {
 </section>
 </main>
 </html>`;
-    const note = ((relayoutFreeBriefHtml(old).split("<main>")[1] || "").match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    const note = ((relayoutFreeBriefHtml(old).split("<main")[1] || "").match(/simple-insight[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect(note).toContain("你落地的那一段");
     expect(note).not.toContain("这套配置在说什么");
     expect(note).not.toContain("最本质的能量特质");
