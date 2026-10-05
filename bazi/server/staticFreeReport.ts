@@ -98,7 +98,15 @@ export type MaterializeOpts = {
   skipIfPaid?: boolean;
   /** 已有 reading HTML 也重写；用户再次进入时不要传 */
   force?: boolean;
+  /** 简版正文（网络 AI）。缺省时才用本地模板，仅供单测。 */
+  reportContent?: string;
 };
+
+function chartSource(data: Record<string, unknown>): Record<string, unknown> {
+  const p1 = data.person1;
+  if (p1 && typeof p1 === "object") return p1 as Record<string, unknown>;
+  return data;
+}
 
 /** 按 readingId 物化 / 刷新免费层固定报告（每用户每次排盘一份） */
 export function ensureStaticFreeReport(
@@ -111,20 +119,25 @@ export function ensureStaticFreeReport(
     throw new Error("readingId required — reports are unique per user generation");
   }
 
-  const input = asFreeInput(resultData);
+  const source = chartSource(resultData);
+  const input = asFreeInput(source);
   if (!input.riZhu || !input.year.gan) {
     throw new Error("invalid chart data for static report");
   }
 
   const free = composeFreeReport(input, lang);
-  const markdown = freeReportToMarkdown(free, {
-    name: input.name,
-    birthStr: String(resultData.birthStr ?? ""),
-  });
+  const markdown = opts?.reportContent?.trim()
+    ? opts.reportContent.trim()
+    : freeReportToMarkdown(free, {
+      name: input.name,
+      birthStr: String(source.birthStr ?? resultData.birthStr ?? ""),
+    });
   const planLabel = lang.startsWith("zh") ? "结构速览" : "Structure Brief";
-  const wuXing = (resultData.wuXing && typeof resultData.wuXing === "object")
-    ? (resultData.wuXing as Record<string, number>)
-    : undefined;
+  const wuXing = (source.wuXing && typeof source.wuXing === "object")
+    ? (source.wuXing as Record<string, number>)
+    : (resultData.wuXing && typeof resultData.wuXing === "object")
+      ? (resultData.wuXing as Record<string, number>)
+      : undefined;
 
   const written = writeReadingReportHtml({
     readingId,
@@ -137,9 +150,9 @@ export function ensureStaticFreeReport(
     force: opts?.force === true,
     chart: {
       name: input.name,
-      birthStr: String(resultData.birthStr ?? ""),
-      birthplace: String(resultData.birthplace ?? resultData.cityName ?? ""),
-      gender: String(resultData.gender ?? ""),
+      birthStr: String(source.birthStr ?? resultData.birthStr ?? ""),
+      birthplace: String(source.birthplace ?? source.cityName ?? ""),
+      gender: String(source.gender ?? ""),
       riZhu: input.riZhu,
       strength: input.strength,
       year: input.year,

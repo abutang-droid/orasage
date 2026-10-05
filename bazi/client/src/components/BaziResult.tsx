@@ -16,7 +16,7 @@ import {
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { PaywallCard } from "@/components/PaywallCard";
 import { useT } from "@/lib/i18n";
-import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
+import { saveLastReadingId, usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import { extractSectionKeywords } from "@shared/section-keywords";
 import { sanitizeReportBrandText } from "@shared/report-brand";
@@ -28,6 +28,12 @@ import { Disclaimer, ResultExitLinks } from "@/lib/orasage-app-shell";
 import { composeFreeReport, trueSolarCaption } from "@shared/free-report";
 import { polarTag, GRID_CAPTION_ZH, GRID_CAPTION_EN } from "@shared/vernacular";
 import { VibeBaziReport } from "@/components/VibeBaziReport";
+import {
+  materializeStaticReport,
+  openFixedReportPage,
+  probeFixedReport,
+  reportPathForReadingId,
+} from "@/lib/static-report";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
   try {
@@ -1539,11 +1545,65 @@ export function SingleBaziResultView({ result, onBack, onStartDouble }: SinglePr
 
 // ── 双人合盘结果页 ────────────────────────────────────────────────────────────
 export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
-  const { t, term } = useT();
+  const { t, term, locale } = useT();
   const payment = usePaymentFlow("couple");
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
+  const [openingLongform, setOpeningLongform] = useState(true);
   const [showPlans, setShowPlans] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
   const scoreColor = result.score >= 85 ? '#4ade80' : result.score >= 70 ? GOLD : '#f87171';
+
+  useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams(window.location.search);
+    const paidRestore = params.get("paid") === "1";
+    const urlReadingId = params.get("readingId")?.trim() || undefined;
+    if (urlReadingId) saveLastReadingId(urlReadingId);
+
+    const go = async () => {
+      if (urlReadingId && !paidRestore) {
+        const existing = await probeFixedReport(reportPathForReadingId(urlReadingId));
+        if (cancelled) return;
+        if (existing) {
+          openFixedReportPage(existing);
+          return;
+        }
+      }
+      const res = await materializeStaticReport({
+        result: result as unknown as Record<string, unknown>,
+        lang: locale,
+        readingId: paidRestore ? urlReadingId : undefined,
+        mutateAsync: materializeReport.mutateAsync,
+      });
+      if (cancelled) return;
+      if (res?.reportPath && (!paidRestore || res.tier === "paid")) {
+        openFixedReportPage(res.reportPath);
+        return;
+      }
+      if (!paidRestore && !res?.reportPath) {
+        toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+        onBack();
+        return;
+      }
+      setOpeningLongform(false);
+    };
+
+    void go();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.person1.birthStr, result.person2.birthStr, locale]);
+
+  if (openingLongform) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-sm" style={{ color: BODY_CLR }}>
+          {t("report.opening_longform", "正在打开报告…")}
+        </p>
+      </div>
+    );
+  }
 
   const planNameMap: Record<string, string> = {
     basic: t('plan.couple.basic.name'),

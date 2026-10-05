@@ -24,7 +24,7 @@ import { trpc } from "@/lib/trpc";
 import type { SingleBaziResult } from "@/lib/bazi";
 import { recommendBracelet } from "@/lib/bazi";
 import { useT } from "@/lib/i18n";
-import { usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
+import { saveLastReadingId, usePaymentFlow } from "@/_core/hooks/usePaymentFlow";
 import type { PlanType } from "@shared/types";
 import { composeFreeReport } from "@shared/free-report";
 import { STEM_WX, strengthKind, strengthShort } from "@shared/vernacular";
@@ -381,15 +381,17 @@ export function VibeBaziReport({
 
   const free = useMemo(() => composeFreeReport(result, locale), [result, locale]);
 
-  // 进入报告页：已有固定 HTML 则直接打开长图；否则物化一次再跳转（支付回跳除外）
+  // 第一步结果：网络 AI 简版静态 HTML。已有文件则原样打开，不走本地模板。
   useEffect(() => {
     let cancelled = false;
-    const paidRestore = new URLSearchParams(window.location.search).get("paid") === "1";
-    const readingId = ensureReadingId();
+    const params = new URLSearchParams(window.location.search);
+    const paidRestore = params.get("paid") === "1";
+    const urlReadingId = params.get("readingId")?.trim() || undefined;
+    if (urlReadingId) saveLastReadingId(urlReadingId);
 
     const go = async () => {
-      if (!paidRestore) {
-        const existing = await probeFixedReport(reportPathForReadingId(readingId));
+      if (urlReadingId && !paidRestore) {
+        const existing = await probeFixedReport(reportPathForReadingId(urlReadingId));
         if (cancelled) return;
         if (existing) {
           openFixedReportPage(existing);
@@ -399,17 +401,21 @@ export function VibeBaziReport({
       const res = await materializeStaticReport({
         result,
         lang: locale,
-        readingId,
+        readingId: paidRestore ? urlReadingId : undefined,
         mutateAsync: materializeReport.mutateAsync,
       });
       if (cancelled) return;
       if (res?.reportPath) {
         setStaticReportUrl(res.reportPath);
-        if (!paidRestore) {
+        if (!paidRestore || res.tier === "paid") {
           openFixedReportPage(res.reportPath);
           return;
         }
         setTab("detailed");
+      } else if (!paidRestore) {
+        toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+        onBack();
+        return;
       }
       setOpeningLongform(false);
     };

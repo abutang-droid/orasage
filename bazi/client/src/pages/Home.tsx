@@ -518,15 +518,16 @@ export default function Home() {
           setResult({ type: "single", data });
           void syncPersonProfile(resolvedF0);
           const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
-          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec, undefined, locale);
-          saveLastReadingId(readingId);
-          // 排盘完成后立即物化固定静态 HTML，并关联到用户测试记录
           const materialized = await materializeStaticReport({
             result: data,
             lang: locale,
-            readingId,
             mutateAsync: materializeReport.mutateAsync,
           });
+          const readingId = materialized?.readingId;
+          if (readingId) {
+            syncBaziSingleReading(resolvedF0.name, data, braceletRec, readingId, locale, materialized.reportUrl);
+            saveLastReadingId(readingId);
+          }
           if (isAuthenticated) {
             saveRecord.mutate({
               type: "single", name1: resolvedF0.name, inputData: input0,
@@ -545,6 +546,9 @@ export default function Home() {
             openFixedReportPage(materialized.reportPath);
             return;
           }
+          toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+          setView("form");
+          return;
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -558,11 +562,30 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0, "A");
           void syncPersonProfile(resolvedF1!, "B");
-          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
+          const materialized = await materializeStaticReport({
+            result: data as unknown as Record<string, unknown>,
+            lang: locale,
+            mutateAsync: materializeReport.mutateAsync,
+          });
+          const readingId = materialized?.readingId
+            ?? syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
           saveLastReadingId(readingId);
+          syncBaziDoubleReading(
+            resolvedF0.name,
+            resolvedF1!.name,
+            data,
+            readingId,
+            locale,
+            materialized?.reportUrl,
+          );
+          if (materialized?.reportPath) {
+            openFixedReportPage(materialized.reportPath);
+            return;
+          }
+          toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+          setView("form");
+          return;
         }
-        setView("result");
-        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         console.error(err);
         toast.error(t('toast.calc_error'));

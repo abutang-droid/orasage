@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { composeFreeReport } from "../shared/free-report.ts";
 import { polarTag, strengthShort, strengthLong } from "../shared/vernacular.ts";
 import { sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
-import { buildFreeInsightPrompt, buildSingleBaziPrompt } from "./prompts.ts";
+import { buildFreeInsightPrompt, buildSingleBaziPrompt, buildBriefBaziPrompt } from "./prompts.ts";
 
 const GUI_MAO = {
   name: "Test",
@@ -135,5 +135,20 @@ describe("LLM prompts follow the spec", () => {
     expect(p).toContain("顺的方向");
     expect(p).toContain("每十年一换的阶段");
     expect(p).toContain("支持你的力量少于消耗你的力量");
+  });
+
+  it("brief prompt asks for two chapters and forbids the seven-chapter full reading", () => {
+    const p = buildBriefBaziPrompt({
+      name: "Test",
+      gender: "male",
+      birthStr: "1991-03-14",
+      riZhu: "癸",
+      strength: "身弱",
+      favorable: ["金"],
+      unfavorable: ["木"],
+    }, "zh-CN");
+    expect(p).toContain("只要简版");
+    expect(p).toContain("不要输出 7 章详版");
+    expect(p).toContain("方向提示");
   });
 });

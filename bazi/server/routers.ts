@@ -23,6 +23,14 @@ import {
   upsertReadingWithReport,
   writePaidReadingReport,
 } from "./staticFreeReport";
+import { generateBaziReportContent } from "./reportGenerator";
+import { readReportTier, resolveReadingReportPaths } from "./readingReport";
+import {
+  chartInputFingerprint,
+  chartKindFromResult,
+  sanitizeDeviceId,
+  stableChartReadingId,
+} from "../shared/chart-identity";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -246,40 +254,88 @@ export const appRouter = router({
       }),
 
     /**
-     * 排盘完成后物化免费结构速览为固定静态 HTML（REPORTS_DIR）。
-     * 每条 readingId 一份；详情页与「打开固定报告页」共用。
+     * 排盘完成后：网络 AI 生成简版，落成固定静态 HTML，并写入 readings。
+     * 同一账号（或设备）+ 同一输入 → 同一 readingId，已有文件则不再调模型。
      */
     materializeReport: publicProcedure
+      .use(llmRateLimit)
       .input(z.object({
         lang: z.enum(["zh-CN", "zh-TW", "en", "pt-BR"]).default("zh-CN"),
         resultData: z.record(z.string(), z.unknown()),
-        readingId: z.string().min(1).max(128),
+        readingId: z.string().min(1).max(128).optional(),
+        deviceId: z.string().min(8).max(80).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const readingId = input.readingId.trim();
-        const result = ensureStaticFreeReport(input.resultData, input.lang, { readingId });
-        const name = String(input.resultData.name ?? "").trim() || "访客";
+        const fingerprint = chartInputFingerprint(input.resultData);
+        const deviceId = sanitizeDeviceId(input.deviceId);
+        const userId = ctx.user?.id ?? 0;
+        const computedId = stableChartReadingId({
+          userId,
+          deviceId: deviceId || "anon",
+          fingerprint,
+        });
+        // 支付回跳带来的已有 readingId：订单/文件绑的是那条，不能改成新指纹 ID。
+        const requestedId = input.readingId?.trim() || "";
+        const requestedExists = requestedId
+          ? Boolean(readReportTier(resolveReadingReportPaths(requestedId).absolutePath))
+          : false;
+        const readingId = requestedExists ? requestedId : computedId;
+        const kind = chartKindFromResult(input.resultData);
+        const paths = resolveReadingReportPaths(readingId);
+        const existingTier = readReportTier(paths.absolutePath);
+        const xf = ctx.req.headers["x-forwarded-for"];
+        const clientIp = (typeof xf === "string" ? xf.split(",")[0].trim() : "")
+          || ctx.req.ip
+          || "";
+
+        let result;
+        if (existingTier) {
+          result = {
+            ...paths,
+            reused: true as const,
+            skipped: true as const,
+            tier: existingTier,
+          };
+        } else {
+          const { report } = await generateBaziReportContent(
+            kind,
+            input.resultData,
+            input.lang,
+            "brief",
+          );
+          result = ensureStaticFreeReport(input.resultData, input.lang, {
+            readingId,
+            reportContent: report,
+          });
+        }
+
+        const name = kind === "couple"
+          ? `${String((input.resultData.person1 as { name?: string } | undefined)?.name ?? "甲")} & ${String((input.resultData.person2 as { name?: string } | undefined)?.name ?? "乙")}`
+          : (String(input.resultData.name ?? "").trim() || "访客");
         const riZhu = String(input.resultData.riZhu ?? "");
         const strength = String(input.resultData.strength ?? "");
         const summary = [
-          riZhu ? `日主 ${riZhu}` : null,
+          kind === "couple" ? "合盘简版" : (riZhu ? `日主 ${riZhu}` : null),
           strength || null,
           result.reused ? "已有固定页" : "新生成固定页",
         ].filter(Boolean).join(" · ");
 
         const saved = await upsertReadingWithReport({
-          userId: ctx.user?.id ?? 0,
+          userId,
           readingId,
-          title: `八字结构速览 · ${name}`,
+          title: kind === "couple" ? `八字合盘速览 · ${name}` : `八字结构速览 · ${name}`,
           summary,
           reportUrl: result.reportUrl,
           payloadJson: JSON.stringify({
-            type: "single",
+            type: kind,
             lang: input.lang,
             resultData: input.resultData,
             reportId: result.reportId,
             reportPath: result.reportPath,
             tier: result.tier,
+            deviceId,
+            clientIp,
+            inputFingerprint: fingerprint,
           }),
         });
 

@@ -10,7 +10,7 @@ import { saveCheckoutSnapshot } from '@/lib/checkout-session';
 import { BaziEntryChrome } from '@/components/BaziEntryChrome';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
-import { newReadingId, syncBaziSingleReading } from '@/lib/reading-sync';
+import { syncBaziSingleReading } from '@/lib/reading-sync';
 import { saveLastReadingId } from '@/_core/hooks/usePaymentFlow';
 import {
   getStaticReportHref,
@@ -105,19 +105,21 @@ export default function LuopanPage() {
       });
       saveCheckoutSnapshot({ type: 'single', data }, 'single');
       const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
-      const readingId = syncBaziSingleReading(nameRef.current, data, braceletRec, newReadingId('bazi'), 'zh-CN');
-      saveLastReadingId(readingId);
       const materialized = await materializeStaticReport({
         result: data,
         lang: 'zh-CN',
-        readingId,
         mutateAsync: materializeReport.mutateAsync,
       });
+      const readingId = materialized?.readingId;
+      if (readingId) {
+        syncBaziSingleReading(nameRef.current, data, braceletRec, readingId, 'zh-CN', materialized.reportUrl);
+        saveLastReadingId(readingId);
+      }
       if (materialized?.reportPath) {
         openFixedReportPage(materialized.reportPath);
         return;
       }
-      setLocation(classicRestorePath());
+      setError('简版解读生成失败，请稍后重试。');
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : '排盘失败，请核对日期后再试。');

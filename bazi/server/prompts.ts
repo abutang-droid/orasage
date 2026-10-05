@@ -329,3 +329,29 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
     + `  "lucky": "${desc.lucky}"\n`
     + `}\n\n只返回 JSON，不要其他文字。`;
 }
+
+/** 简版第一步结果：网络 AI 生成两段正文（不是本地模板）。 */
+export function buildBriefBaziPrompt(
+  data: Record<string, unknown>,
+  lang = "zh-CN",
+  type: "single" | "couple" = "single",
+): string {
+  if (type === "couple") {
+    const full = buildDoubleBaziPrompt(data, lang);
+    const briefAsk: Record<string, string> = {
+      "zh-CN": "\n\n## 本次只要简版（2 章，用 ### 分隔）\n\n### 这两套配置怎么碰上\n只写两人结构相遇时的现象与机制，句尾体系里叫。\n\n### 相处时最明显的节奏\n只写行为层面的配合与摩擦，禁止承诺、疾病、投资。\n\n不要写七章详版。",
+      "zh-TW": "\n\n## 只要簡版 2 章（用 ###）\n### 這兩套配置怎麼碰上\n### 相處時最明顯的節奏\n不要寫詳版。",
+      en: "\n\n## Brief only (2 chapters, ###)\n### How these two charts meet\n### The obvious rhythm together\nDo not write the 7-chapter full reading.",
+      "pt-BR": "\n\n## Só o resumo (2 capítulos, ###)\nNão escreva o relatório completo.",
+    };
+    return full + (briefAsk[lang] || briefAsk["zh-CN"]);
+  }
+  const full = buildSingleBaziPrompt(data, lang);
+  const briefAsk: Record<string, string> = {
+    "zh-CN": "\n\n## 本次只要简版（2 章 + 一句方向，用 ### 分隔）\n\n### 这套配置在说什么\n代表你的那个字、出生时的节气、支持与消耗。现象→机制→句尾体系里叫。\n\n### 这套结构在讲取用与交换\n主结构白话。不要写十年阶段、不要写逐日建议。\n\n### 方向提示\n颜色与方位对应最有用的那一项，必须写它们不代表运势。\n\n不要输出 7 章详版，不要「本周行动建议」。",
+    "zh-TW": "\n\n## 只要簡版 2 章（用 ###）\n### 這套配置在說什麼\n### 這套結構在講取用與交換\n### 方向提示\n不要寫詳版與本週建議。",
+    en: "\n\n## Brief only (2 chapters + direction, ###)\n### What this chart is saying\n### What this structure is exchanging\n### Direction\nDo not write the 7-chapter full reading or a weekly plan.",
+    "pt-BR": "\n\n## Só o resumo (2 capítulos, ###)\nNão escreva o relatório completo nem o plano da semana.",
+  };
+  return full + (briefAsk[lang] || briefAsk["zh-CN"]);
+}

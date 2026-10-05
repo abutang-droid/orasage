@@ -1,6 +1,7 @@
 import type { SingleBaziResult } from "@/lib/bazi";
 import { attachBaziReportUrl, newReadingId } from "@/lib/reading-sync";
 import { getLastReadingId, saveLastReadingId } from "@/_core/hooks/usePaymentFlow";
+import { getDeviceId } from "@/lib/device-id";
 
 const STATIC_URL_KEY = "bazi:staticReportUrl";
 const STATIC_PATH_KEY = "bazi:staticReportPath";
@@ -10,7 +11,8 @@ const LAST_PATH_KEY = "bazi:lastReportPath";
 type MaterializeFn = (input: {
   lang: "zh-CN" | "zh-TW" | "en" | "pt-BR";
   resultData: Record<string, unknown>;
-  readingId: string;
+  deviceId: string;
+  readingId?: string;
 }) => Promise<{
   reportUrl: string;
   reportPath: string;
@@ -139,9 +141,9 @@ export function openFixedReportPage(href: string) {
   window.location.replace(path);
 }
 
-/** 排盘完成后物化固定静态 HTML；按 readingId 一人一份，付费后覆盖同一文件 */
+/** 排盘完成后物化固定静态 HTML；同一账号/设备 + 同一输入复用同一文件 */
 export async function materializeStaticReport(opts: {
-  result: SingleBaziResult;
+  result: SingleBaziResult | Record<string, unknown>;
   lang: string;
   readingId?: string | null;
   mutateAsync: MaterializeFn;
@@ -157,21 +159,26 @@ export async function materializeStaticReport(opts: {
     const lang = (["zh-CN", "zh-TW", "en", "pt-BR"].includes(opts.lang)
       ? opts.lang
       : "zh-CN") as "zh-CN" | "zh-TW" | "en" | "pt-BR";
-    const readingId = ensureReadingId(opts.readingId);
     const data = await opts.mutateAsync({
       lang,
       resultData: opts.result as unknown as Record<string, unknown>,
-      readingId,
+      deviceId: getDeviceId(),
+      readingId: opts.readingId?.trim() || undefined,
     });
+    const readingId = (data.readingId || "").trim();
+    if (readingId) saveLastReadingId(readingId);
     saveStaticReportUrl(data.reportUrl, data.reportPath, data.reportId);
-    if (data.reportUrl) {
-      const name = String(opts.result.name ?? "").trim() || "访客";
+    if (data.reportUrl && readingId) {
+      const raw = opts.result as Record<string, unknown>;
+      const name = String(raw.name ?? "").trim() || "访客";
+      const riZhu = String(raw.riZhu ?? "");
+      const strength = String(raw.strength ?? "");
       attachBaziReportUrl(readingId, data.reportUrl, {
         name,
-        summary: `日主 ${opts.result.riZhu} · ${opts.result.strength}`,
+        summary: riZhu ? `日主 ${riZhu} · ${strength}` : undefined,
       });
     }
-    return { ...data, readingId };
+    return { ...data, readingId: readingId || data.reportId };
   } catch (err) {
     console.warn("[static-report] materialize failed", err);
     return null;

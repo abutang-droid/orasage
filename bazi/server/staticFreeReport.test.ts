@@ -162,4 +162,17 @@ describe("staticFreeReport", () => {
     expect(html).not.toContain('class="weekly-timeline"');
     expect(html).toContain("shop.orasage.com/checkout");
   });
+
+  it("uses injected AI reportContent instead of the local template body", () => {
+    const marker = "NETWORK-AI-BRIEF-UNIQUE-SENTENCE";
+    const written = ensureStaticFreeReport(sample, "zh-CN", {
+      readingId: "ai-brief-1",
+      reportContent: `### 这套配置在说什么\n\n${marker}\n`,
+    });
+    const html = fs.readFileSync(written.absolutePath, "utf-8");
+    expect(html).toContain(marker);
+    expect(html).toContain("你的结构速览");
+    expect(html).toContain("sku=report-bazi-basic");
+    expect(html).not.toContain("2026：机会变多");
+  });
 });

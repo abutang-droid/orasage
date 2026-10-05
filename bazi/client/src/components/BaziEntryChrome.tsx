@@ -41,14 +41,14 @@ export function BaziEntryChrome({ active }: { active: Mode }) {
           className={`bazi-entry-switch-btn${active === "luopan" ? " is-active" : ""}`}
           aria-current={active === "luopan" ? "page" : undefined}
         >
-          {t("nav.mode.luopan", "罗盘")}
+          {t("nav.mode.luopan", "经典模式")}
         </Link>
         <Link
           href={classicHref}
           className={`bazi-entry-switch-btn${active === "classic" ? " is-active" : ""}`}
           aria-current={active === "classic" ? "page" : undefined}
         >
-          {t("nav.mode.classic", "计算器")}
+          {t("nav.mode.classic", "计算器模式")}
         </Link>
       </div>
     </div>

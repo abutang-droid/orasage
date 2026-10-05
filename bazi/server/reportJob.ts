@@ -74,7 +74,12 @@ export async function runReportJob(input: ReportJobInput) {
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';
 
-  const { report } = await generateBaziReportContent(payload.type, payload.resultData, payload.lang ?? 'zh-CN');
+  const { report } = await generateBaziReportContent(
+    payload.type,
+    payload.resultData,
+    payload.lang ?? 'zh-CN',
+    'full',
+  );
   const wuXing = payload.resultData.wuXing as Record<string, number> | undefined;
   const productRecommend = planType === 'basic'
     ? await fetchReportProductRecommend(wuXing, {

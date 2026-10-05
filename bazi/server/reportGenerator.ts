@@ -1,5 +1,5 @@
 import { invokeLLM } from './_core/llm.ts';
-import { buildSingleBaziPrompt, buildDoubleBaziPrompt, parseSections } from './prompts.ts';
+import { buildSingleBaziPrompt, buildDoubleBaziPrompt, buildBriefBaziPrompt, parseSections } from './prompts.ts';
 import { sanitizeReportBrandText } from '../shared/report-brand.ts';
 import { sanitizeVernacularText } from '../shared/vernacular-sanitize.ts';
 import { aiSystemLanguagePrefix } from '../../shared/ai-locale/index.ts';
@@ -8,10 +8,13 @@ export async function generateBaziReportContent(
   type: 'single' | 'couple',
   resultData: Record<string, unknown>,
   lang: 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR' = 'zh-CN',
+  kind: 'brief' | 'full' = 'full',
 ) {
-  const prompt = type === 'single'
-    ? buildSingleBaziPrompt(resultData, lang)
-    : buildDoubleBaziPrompt(resultData, lang);
+  const prompt = kind === 'brief'
+    ? buildBriefBaziPrompt(resultData, lang, type)
+    : type === 'single'
+      ? buildSingleBaziPrompt(resultData, lang)
+      : buildDoubleBaziPrompt(resultData, lang);
 
   const langGuide = aiSystemLanguagePrefix(lang);
 

@@ -58,8 +58,8 @@ const ui: TranslationDict = {
   "form.mode.couple": "双人合盘",
   "nav.back": "返回",
   "nav.mode_switch": "排盘方式",
-  "nav.mode.luopan": "罗盘",
-  "nav.mode.classic": "计算器",
+  "nav.mode.luopan": "经典模式",
+  "nav.mode.classic": "计算器模式",
   "form.person.editing": "编辑",
   "form.person.first": "第一位",
   "form.person.second": "第二位",
@@ -237,6 +237,7 @@ const ui: TranslationDict = {
   /* ── 提示 ── */
   "toast.save_error": "排盘记录保存失败，请稍后重试",
   "toast.calc_error": "排盘计算出错，请检查输入信息",
+  "toast.report_error": "简版解读生成失败，请稍后重试",
 
   /* ── 加载 ── */
   "loading.calculating": "正在排盘...",
