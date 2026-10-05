@@ -281,6 +281,7 @@ describe("relayoutFreeBriefHtml", () => {
     expect(main).not.toContain('class="elements-donut"');
     const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect([...note].length).toBeLessThanOrEqual(200);
+    expect(out).toContain("grid-template-columns:repeat(4");
   });
 
   it("relayout note uses body copy, not section chrome", () => {

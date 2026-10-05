@@ -2212,7 +2212,7 @@ main{padding-bottom:96px}
 .toc-list{-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .toc-list::-webkit-scrollbar{display:none;height:0}
 html[data-report-tier="free"] .mingpan-board,
-html[data-report-tier="free"] .mingpan-board.is-single-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,1.2vw,16px);width:100%;max-width:100%;box-sizing:border-box}
+html[data-report-tier="free"] .mingpan-board.is-single-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,1.2vw,16px);width:100%;max-width:100%;box-sizing:border-box;padding-left:12px;padding-right:12px}
 html[data-report-tier="free"] .mingpan-board.is-single-row .mp-pillar{padding:16px 4px 12px}
 html[data-report-tier="free"] .mingpan-board.is-single-row .mp-gan{font-size:clamp(16px,5.6vw,56px);margin-bottom:4px}
 html[data-report-tier="free"] .mingpan-board.is-single-row .mp-zhi{font-size:clamp(12px,4.2vw,40px);margin-bottom:8px}

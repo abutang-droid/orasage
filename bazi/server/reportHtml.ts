@@ -158,6 +158,16 @@ export function parseReportSections(markdown: string): ReportSection[] {
 
 const BRIEF_COPY_MAX = 200;
 
+/** 旧免费页内联 CSS 仍是窄屏 2 列；重排时补上四柱一行。 */
+const BRIEF_FREE_LAYOUT_CSS = `html[data-report-tier="free"] .mingpan-board,html[data-report-tier="free"] .mingpan-board.is-single-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,1.2vw,16px);width:100%;max-width:100%;box-sizing:border-box;padding-left:12px;padding-right:12px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-pillar{padding:16px 4px 12px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-gan{font-size:clamp(16px,5.6vw,56px);margin-bottom:4px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-zhi{font-size:clamp(12px,4.2vw,40px);margin-bottom:8px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-label{font-size:9px;letter-spacing:.06em;margin-bottom:8px}
+html[data-report-tier="free"] .section-radar-only .wx-radar-wrap{margin:0 auto;max-width:420px}
+html[data-report-tier="free"] .section-brief-note .section-body{max-width:40rem}
+@media(max-width:480px){html[data-report-tier="free"] .mingpan-board.is-single-row .mp-meta{display:none}html[data-report-tier="free"] .mingpan-board.is-single-row .mp-dm{position:static;display:block;margin:0 auto 6px;width:fit-content}}`;
+
 /** 简版第三段：把剩余叙述压到 max 个字，尽量在句号处截断。 */
 export function condenseBriefCopy(source: string, max = BRIEF_COPY_MAX): string {
   const plain = source
@@ -1187,6 +1197,14 @@ export function relayoutFreeBriefHtml(html: string): string {
   if (tocItems) {
     if (/<div class="toc" id="toc">/.test(out)) {
       out = out.replace(/<ul class="toc-list">[\s\S]*?<\/ul>/, `<ul class="toc-list">${tocItems}</ul>`);
+    }
+  }
+  if (!out.includes("BRIEF_FREE_LAYOUT") && !/mingpan-board\.is-single-row\{display:grid/.test(out)) {
+    const tag = `<style data-brief-layout-css="v2">/* BRIEF_FREE_LAYOUT */${BRIEF_FREE_LAYOUT_CSS}</style>`;
+    if (out.includes("</head>")) {
+      out = out.replace("</head>", `${tag}</head>`);
+    } else {
+      out = out.replace(/<html[^>]*>/, (m) => `${m}${tag}`);
     }
   }
   return out;
