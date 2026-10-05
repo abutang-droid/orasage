@@ -51,9 +51,10 @@ describe("readingReport", () => {
     expect(out).not.toContain("你的命局解读");
     expect(out).not.toContain('class="weekly-timeline"');
     expect(out).not.toContain("2026：机会变多");
-    expect(out).toContain("开篇");
-    expect(out).toContain("这套配置的主要结构");
     expect(out).toContain("四柱命盘");
+    expect(out).toContain("简单说明");
+    expect(out).toContain("简版该留");
+    expect(out).toContain('data-brief-layout="v2"');
     expect(out).toContain("shop.orasage.com/checkout");
     expect(briefifyStaleFreeReportHtml(stale)).toContain("你的结构速览");
   });

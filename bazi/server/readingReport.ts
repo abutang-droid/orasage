@@ -10,6 +10,7 @@ import path from "path";
 import { buildReportPageHtml, type ReportChartMeta, type ReportProductRecommend } from "./reportHtml.ts";
 import { resolveReportsDir } from "./_core/reportsDir.ts";
 import { parseReportTierFromHtml } from "./reportUnlock.ts";
+import { relayoutFreeBriefHtml } from "./reportHtml.ts";
 
 const BAZI_PUBLIC_URL = (process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com").replace(/\/$/, "");
 const SHOP_PUBLIC_URL = (process.env.SHOP_PUBLIC_URL ?? "https://shop.orasage.com").replace(/\/$/, "");
@@ -189,11 +190,11 @@ export function maybeRewriteServedReportHtml(fileName: string, html: string): st
   const head = html.slice(0, 1600);
   if (/data-report-tier=["']paid["']/.test(head)) return html;
   let out = briefifyStaleFreeReportHtml(html);
-  if (!out.includes("paywall-cta")) return out;
-  if (/shop\.orasage\.com\/checkout/.test(out)) return out;
-  const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
-  if (!stem) return out;
-  return rewriteStalePaywallHref(out, stem);
+  if (out.includes("paywall-cta") && !/shop\.orasage\.com\/checkout/.test(out)) {
+    const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
+    if (stem) out = rewriteStalePaywallHref(out, stem);
+  }
+  return relayoutFreeBriefHtml(out);
 }
 
 export function writeReadingReportHtml(opts: WriteReadingReportOpts) {

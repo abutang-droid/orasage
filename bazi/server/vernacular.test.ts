@@ -137,7 +137,7 @@ describe("LLM prompts follow the spec", () => {
     expect(p).toContain("支持你的力量少于消耗你的力量");
   });
 
-  it("brief prompt asks for two chapters and forbids the seven-chapter full reading", () => {
+  it("brief prompt asks for one short paragraph and forbids the seven-chapter full reading", () => {
     const p = buildBriefBaziPrompt({
       name: "Test",
       gender: "male",
@@ -147,8 +147,8 @@ describe("LLM prompts follow the spec", () => {
       favorable: ["金"],
       unfavorable: ["木"],
     }, "zh-CN");
-    expect(p).toContain("只要简版");
-    expect(p).toContain("不要输出 7 章详版");
-    expect(p).toContain("方向提示");
+    expect(p).toContain("只要一段简单说明");
+    expect(p).toContain("200 个汉字");
+    expect(p).toContain("不要七章详版");
   });
 });

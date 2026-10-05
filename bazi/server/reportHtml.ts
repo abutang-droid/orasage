@@ -156,6 +156,34 @@ export function parseReportSections(markdown: string): ReportSection[] {
   return sections;
 }
 
+const BRIEF_COPY_MAX = 200;
+
+/** 简版第三段：把剩余叙述压到 max 个字，尽量在句号处截断。 */
+export function condenseBriefCopy(source: string, max = BRIEF_COPY_MAX): string {
+  const plain = source
+    .replace(/#{1,6}\s+/g, "")
+    .replace(/\*\*?/g, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, "\"")
+    .replace(/\s+/g, " ")
+    .trim();
+  const chars = [...plain];
+  if (chars.length <= max) return plain;
+  const head = chars.slice(0, max).join("");
+  const marks = ["。", "！", "？", "；", ".", "!", "?"];
+  let best = -1;
+  for (const mark of marks) {
+    const i = head.lastIndexOf(mark);
+    if (i > best) best = i;
+  }
+  if (best >= 24) return head.slice(0, best + 1);
+  return `${head.replace(/[，、,\s]+$/u, "")}…`;
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -236,7 +264,12 @@ type MingPanCol = {
   dayMaster?: boolean;
 };
 
-function renderMingPanBlock(chart: ReportChartMeta, locale: string, sectionNum: string): string {
+function renderMingPanBlock(
+  chart: ReportChartMeta,
+  locale: string,
+  sectionNum: string,
+  opts?: { singleRow?: boolean },
+): string {
   const zh = locale.startsWith("zh");
   const cols: MingPanCol[] = [
     { key: "year", labelZh: "年柱", labelEn: "Year", pillar: chart.year },
@@ -280,8 +313,36 @@ function renderMingPanBlock(chart: ReportChartMeta, locale: string, sectionNum: 
     <h2 class="section-title">${zh ? "四柱命盘" : "Four Pillars"}</h2>
     <p class="section-subtitle">${zh ? "年、月、日、时四柱干支与五行归属" : "Year, month, day and hour stems & branches"}</p>
   </div>
-  <div class="mingpan-board" role="img" aria-label="${zh ? "四柱命盘" : "Four Pillars chart"}">${cells}
+  <div class="mingpan-board${opts?.singleRow ? " is-single-row" : ""}" role="img" aria-label="${zh ? "四柱命盘" : "Four Pillars chart"}">${cells}
   </div>
+</section>`;
+}
+
+function renderRadarOnlyBlock(wuXing: Record<string, number>, locale: string, sectionNum: string): string {
+  const zh = locale.startsWith("zh");
+  return `
+<section class="section section-elements section-radar-only" id="section-${sectionNum}" data-toc="${zh ? "五行雷达" : "Radar"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "五行雷达" : "Element radar"}</h2>
+    <p class="section-subtitle">${zh ? "金木水火土的相对强弱" : "Relative strength of the five elements"}</p>
+  </div>
+  ${renderRadarSvg(wuXing, locale)}
+</section>`;
+}
+
+function renderBriefNoteBlock(copy: string, locale: string, sectionNum: string): string {
+  const zh = locale.startsWith("zh");
+  const body = copy.trim()
+    ? `<p>${escapeHtml(copy.trim())}</p>`
+    : `<p>${zh ? "这套四柱给出了你眼下的结构轮廓。" : "These four pillars sketch the structure of this chart."}</p>`;
+  return `
+<section class="section section-brief-note" id="section-${sectionNum}" data-toc="${zh ? "简单说明" : "Brief"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "简单说明" : "A short note"}</h2>
+  </div>
+  <div class="section-body">${body}</div>
 </section>`;
 }
 
@@ -802,31 +863,57 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
 
   let sectionIdx = 0;
   const contentSections: string[] = [];
-  const narrativeSections = isFree ? sections.slice(0, 2) : sections;
-  if (narrativeSections.length > 0) {
-    contentSections.push(renderSectionBlock(narrativeSections[0], sectionIdx++, {
-      isFirst: true,
-      classic: classicFromFirst,
-    }));
-  }
-  {
-    const n = String(sectionIdx + 1).padStart(2, "0");
-    const mingpan = renderMingPanBlock(chart, locale, n);
-    if (mingpan) {
-      sectionIdx++;
-      contentSections.push(mingpan);
+  if (isFree) {
+    {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      const mingpan = renderMingPanBlock(chart, locale, n, { singleRow: true });
+      if (mingpan) {
+        sectionIdx++;
+        contentSections.push(mingpan);
+      }
     }
-  }
-  if (chart.wuXing && Object.keys(chart.wuXing).length > 0) {
-    const n = String(sectionIdx + 1).padStart(2, "0");
-    sectionIdx++;
-    contentSections.push(renderWuXingBlock(chart.wuXing, locale, n));
-  }
-  for (let i = 1; i < narrativeSections.length; i++) {
-    contentSections.push(renderSectionBlock(narrativeSections[i], sectionIdx++));
-  }
-  if (narrativeSections.length === 0) {
-    contentSections.push(`
+    if (chart.wuXing && Object.keys(chart.wuXing).length > 0) {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      sectionIdx++;
+      contentSections.push(renderRadarOnlyBlock(chart.wuXing, locale, n));
+    }
+    const briefSource = [
+      ...sections.map((s) => s.content),
+      chart.luckyLine || "",
+      sections.length === 0 ? brandedContent : "",
+    ].filter(Boolean).join(" ");
+    const briefCopy = condenseBriefCopy(briefSource);
+    {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      sectionIdx++;
+      contentSections.push(renderBriefNoteBlock(briefCopy, locale, n));
+    }
+  } else {
+    const narrativeSections = sections;
+    if (narrativeSections.length > 0) {
+      contentSections.push(renderSectionBlock(narrativeSections[0], sectionIdx++, {
+        isFirst: true,
+        classic: classicFromFirst,
+      }));
+    }
+    {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      const mingpan = renderMingPanBlock(chart, locale, n);
+      if (mingpan) {
+        sectionIdx++;
+        contentSections.push(mingpan);
+      }
+    }
+    if (chart.wuXing && Object.keys(chart.wuXing).length > 0) {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      sectionIdx++;
+      contentSections.push(renderWuXingBlock(chart.wuXing, locale, n));
+    }
+    for (let i = 1; i < narrativeSections.length; i++) {
+      contentSections.push(renderSectionBlock(narrativeSections[i], sectionIdx++));
+    }
+    if (narrativeSections.length === 0) {
+      contentSections.push(`
 <section class="section" id="section-01" data-toc="${zh ? "报告正文" : "Report"}">
   <div class="section-header">
     <div class="section-number">01</div>
@@ -834,12 +921,12 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   </div>
   <div class="section-body">${renderMarkdown(brandedContent)}</div>
 </section>`);
-    sectionIdx = Math.max(sectionIdx, 1);
-  }
-  if (chart.luckyLine) {
-    const n = String(sectionIdx + 1).padStart(2, "0");
-    sectionIdx++;
-    contentSections.push(`
+      sectionIdx = Math.max(sectionIdx, 1);
+    }
+    if (chart.luckyLine) {
+      const n = String(sectionIdx + 1).padStart(2, "0");
+      sectionIdx++;
+      contentSections.push(`
 <section class="section" id="section-${n}" data-toc="${zh ? "方向提示" : "Direction"}">
   <div class="section-header">
     <div class="section-number">${n}</div>
@@ -848,6 +935,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   </div>
   <div class="section-body"><p>${escapeHtml(chart.luckyLine)}</p></div>
 </section>`);
+    }
   }
   if (!isFree) {
     const n = String(sectionIdx + 1).padStart(2, "0");
@@ -905,7 +993,7 @@ export function buildReportPageHtml(options: ReportPageOptions): string {
   const tier = options.tier ?? (options.showUpgrade ? "free" : "paid");
 
   return `<!doctype html>
-<html lang="${escapeAttr(locale)}" class="report-longform" data-report-tier="${tier}">
+<html lang="${escapeAttr(locale)}" class="report-longform" data-report-tier="${tier}"${isFree ? ' data-brief-layout="v2"' : ""}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1021,4 +1109,82 @@ ${paywallHtml}
 ${renderShareScript({ shareUrl, shareText: share.text, shareTitle: share.title })}
 </body>
 </html>`;
+}
+
+/** 已落盘的免费页：改成四柱一行 → 雷达 → 200 字说明。详版不碰。 */
+export function relayoutFreeBriefHtml(html: string): string {
+  const head = html.slice(0, 1200);
+  if (!/data-report-tier=["']free["']/.test(head)) return html;
+  if (/data-brief-layout=["']v2["']/.test(head)) return html;
+
+  const mainMatch = html.match(/<main>([\s\S]*?)<\/main>/);
+  if (!mainMatch) return html;
+
+  const locale = (html.match(/<html[^>]*\slang="([^"]+)"/) || [])[1] || "zh-CN";
+  const mingpan = html.match(/<section class="section section-mingpan"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const radar = html.match(/<div class="wx-radar-wrap">[\s\S]*?<\/svg>\s*(?:<p class="wx-radar-caption">[\s\S]*?<\/p>\s*)?<\/div>/)?.[0] ?? "";
+  const product = mainMatch[1].match(/<section class="product-rec"[\s\S]*?<\/section>/)?.[0] ?? "";
+
+  let leftover = mainMatch[1]
+    .replace(/<section class="section section-mingpan"[\s\S]*?<\/section>/g, " ")
+    .replace(/<div class="wx-radar-wrap">[\s\S]*?<\/svg>\s*(?:<p class="wx-radar-caption">[\s\S]*?<\/p>\s*)?<\/div>/g, " ")
+    .replace(/<section class="product-rec"[\s\S]*?<\/section>/g, " ");
+  const copy = condenseBriefCopy(leftover.replace(/<[^>]+>/g, " "));
+
+  const parts: string[] = [];
+  let n = 0;
+  if (mingpan) {
+    n += 1;
+    const num = String(n).padStart(2, "0");
+    parts.push(
+      mingpan
+        .replace(/id="section-[^"]+"/, `id="section-${num}"`)
+        .replace(/<div class="section-number">[^<]*<\/div>/, `<div class="section-number">${num}</div>`)
+        .replace(/class="mingpan-board"/, 'class="mingpan-board is-single-row"'),
+    );
+  }
+  if (radar) {
+    n += 1;
+    const num = String(n).padStart(2, "0");
+    parts.push(renderRadarOnlyBlockFromSvg(radar, locale, num));
+  }
+  n += 1;
+  parts.push(renderBriefNoteBlock(copy, locale, String(n).padStart(2, "0")));
+  if (product) parts.push(product);
+
+  const tocItems = parts
+    .map((block, i) => {
+      const idMatch = block.match(/id="(section-[^"]+)"/);
+      const tocMatch = block.match(/data-toc="([^"]+)"/);
+      if (!idMatch || !tocMatch) return "";
+      const num = String(i + 1).padStart(2, "0");
+      return `<li class="toc-item${i === 0 ? " active" : ""}" data-section="${idMatch[1]}"><a href="#${idMatch[1]}"><span class="toc-num">${num}</span>${tocMatch[1]}</a></li>`;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  let out = html.replace(/<main>[\s\S]*?<\/main>/, `<main>\n${parts.join("\n")}\n</main>`);
+  out = out.replace(/<html([^>]*)>/, (full, attrs: string) => {
+    if (/data-brief-layout=/.test(attrs)) return full;
+    return `<html${attrs} data-brief-layout="v2">`;
+  });
+  if (tocItems) {
+    if (/<div class="toc" id="toc">/.test(out)) {
+      out = out.replace(/<ul class="toc-list">[\s\S]*?<\/ul>/, `<ul class="toc-list">${tocItems}</ul>`);
+    }
+  }
+  return out;
+}
+
+function renderRadarOnlyBlockFromSvg(radarHtml: string, locale: string, sectionNum: string): string {
+  const zh = locale.startsWith("zh");
+  return `
+<section class="section section-elements section-radar-only" id="section-${sectionNum}" data-toc="${zh ? "五行雷达" : "Radar"}">
+  <div class="section-header">
+    <div class="section-number">${sectionNum}</div>
+    <h2 class="section-title">${zh ? "五行雷达" : "Element radar"}</h2>
+    <p class="section-subtitle">${zh ? "金木水火土的相对强弱" : "Relative strength of the five elements"}</p>
+  </div>
+  ${radarHtml}
+</section>`;
 }

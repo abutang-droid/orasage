@@ -339,19 +339,19 @@ export function buildBriefBaziPrompt(
   if (type === "couple") {
     const full = buildDoubleBaziPrompt(data, lang);
     const briefAsk: Record<string, string> = {
-      "zh-CN": "\n\n## 本次只要简版（2 章，用 ### 分隔）\n\n### 这两套配置怎么碰上\n只写两人结构相遇时的现象与机制，句尾体系里叫。\n\n### 相处时最明显的节奏\n只写行为层面的配合与摩擦，禁止承诺、疾病、投资。\n\n不要写七章详版。",
-      "zh-TW": "\n\n## 只要簡版 2 章（用 ###）\n### 這兩套配置怎麼碰上\n### 相處時最明顯的節奏\n不要寫詳版。",
-      en: "\n\n## Brief only (2 chapters, ###)\n### How these two charts meet\n### The obvious rhythm together\nDo not write the 7-chapter full reading.",
-      "pt-BR": "\n\n## Só o resumo (2 capítulos, ###)\nNão escreva o relatório completo.",
+      "zh-CN": "\n\n## 本次只要一段简单说明\n不要分章、不要 ###、不要七章详版。一段连续正文，不超过 200 个汉字：两人结构相遇时的现象与机制，句尾体系里叫。",
+      "zh-TW": "\n\n## 只要一段簡單說明，不超過 200 字。不要寫詳版。",
+      en: "\n\n## Brief only: one short paragraph, max 200 characters. Do not write the 7-chapter full reading.",
+      "pt-BR": "\n\n## Só um parágrafo curto (máx. 200 caracteres). Não escreva o relatório completo.",
     };
     return full + (briefAsk[lang] || briefAsk["zh-CN"]);
   }
   const full = buildSingleBaziPrompt(data, lang);
   const briefAsk: Record<string, string> = {
-    "zh-CN": "\n\n## 本次只要简版（2 章 + 一句方向，用 ### 分隔）\n\n### 这套配置在说什么\n代表你的那个字、出生时的节气、支持与消耗。现象→机制→句尾体系里叫。\n\n### 这套结构在讲取用与交换\n主结构白话。不要写十年阶段、不要写逐日建议。\n\n### 方向提示\n颜色与方位对应最有用的那一项，必须写它们不代表运势。\n\n不要输出 7 章详版，不要「本周行动建议」。",
-    "zh-TW": "\n\n## 只要簡版 2 章（用 ###）\n### 這套配置在說什麼\n### 這套結構在講取用與交換\n### 方向提示\n不要寫詳版與本週建議。",
-    en: "\n\n## Brief only (2 chapters + direction, ###)\n### What this chart is saying\n### What this structure is exchanging\n### Direction\nDo not write the 7-chapter full reading or a weekly plan.",
-    "pt-BR": "\n\n## Só o resumo (2 capítulos, ###)\nNão escreva o relatório completo nem o plano da semana.",
+    "zh-CN": "\n\n## 本次只要一段简单说明\n不要分章、不要 ###、不要七章详版、不要本周行动。写成一段连续正文，不超过 200 个汉字（含标点）：日主、支持与消耗、一句方向。现象→机制→句尾体系里叫。颜色与方位若写到，必须写它们不代表运势。",
+    "zh-TW": "\n\n## 只要一段簡單說明\n不要分章、不要詳版。正文不超過 200 字。",
+    en: "\n\n## Brief only: one short paragraph\nNo ### chapters, no 7-chapter full reading, no weekly plan. At most 200 characters. Phenomenon → mechanism → term at the end.",
+    "pt-BR": "\n\n## Só um parágrafo curto (máx. 200 caracteres). Não escreva o relatório completo.",
   };
   return full + (briefAsk[lang] || briefAsk["zh-CN"]);
 }

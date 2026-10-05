@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderMarkdown, buildReportPageHtml } from "./reportHtml.ts";
+import { renderMarkdown, buildReportPageHtml, condenseBriefCopy, relayoutFreeBriefHtml } from "./reportHtml.ts";
 
 describe("renderMarkdown", () => {
   it("escapes raw HTML", () => {
@@ -88,9 +88,8 @@ describe("renderMarkdown", () => {
     expect(html).toContain("你的结构速览");
     expect(html).not.toContain("你的命局解读");
     expect(html).toContain('data-report-tier="free"');
+    expect(html).toContain('data-brief-layout="v2"');
     expect(html).toContain('class="report-longform"');
-    expect(html).toContain("命盘总览");
-    expect(html).toContain("key-takeaway");
     expect(html).not.toContain("算法依据");
     expect(html).not.toContain("2026：机会变多");
     expect(html).not.toContain('class="weekly-timeline"');
@@ -101,16 +100,20 @@ describe("renderMarkdown", () => {
     expect(html).toContain("share-card");
     expect(html).toContain("data-share-open");
     expect(html).toContain("og:title");
-    expect(html).toContain("五行分布");
-    expect(html).toContain("elements-donut");
+    expect(html).not.toContain('class="elements-donut"');
+    expect(html).not.toContain('class="balance-gauge"');
     expect(html).toContain('class="wx-radar"');
     expect(html).toContain("四柱命盘");
-    expect(html).toContain('class="mingpan-board"');
+    expect(html).toContain('class="mingpan-board is-single-row"');
     expect(html).toContain("is-day-master");
     expect(html).toContain("庚");
     expect(html).toContain("乙");
-    expect(html).toContain("balance-gauge");
-    expect(html).toContain("core-insight-body");
+    expect(html).toContain("简单说明");
+    const main = html.split("<main>")[1]?.split("</main>")[0] ?? "";
+    expect(main.indexOf("四柱命盘")).toBeLessThan(main.indexOf("五行雷达"));
+    expect(main.indexOf("五行雷达")).toBeLessThan(main.indexOf("简单说明"));
+    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect([...note.replace(/<[^>]+>/g, "")].length).toBeLessThanOrEqual(200);
     expect(html).toContain("解锁完整命局报告");
     expect(html).toContain("付费解锁详细解读");
     expect(html).toContain("shop.orasage.com/checkout");
@@ -144,8 +147,10 @@ describe("renderMarkdown", () => {
     expect(html).toContain("你的命局解读");
     expect(html).toContain('data-report-tier="paid"');
     expect(html).toContain('class="weekly-timeline"');
+    expect(html).toContain('class="elements-donut"');
     expect(html).not.toContain("解锁完整命局报告");
     expect(html).not.toContain('class="paywall-cta"');
+    expect(html).not.toContain('data-brief-layout="v2"');
   });
 
   it("buildReportPageHtml renders single admin product recommend", () => {
@@ -173,7 +178,7 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain('class="mingpan-board"');
     expect(html).not.toContain("四柱命盘");
     expect(html).toContain('class="wx-radar"');
-    expect(html).toContain("elements-donut");
+    expect(html).toContain('class="elements-donut"');
   });
 
   it("buildReportPageHtml embeds share caption with report URL", () => {
@@ -188,5 +193,43 @@ describe("renderMarkdown", () => {
     expect(html).toContain("分享我的八字速览");
     expect(html).toContain("shareWeibo");
     expect(html).toContain("shareWechat");
+  });
+});
+
+describe("condenseBriefCopy", () => {
+  it("keeps short text and caps long text at 200 characters", () => {
+    expect(condenseBriefCopy("日主乙木，身强。")).toBe("日主乙木，身强。");
+    const long = "甲".repeat(250);
+    expect([...condenseBriefCopy(long)].length).toBeLessThanOrEqual(201);
+  });
+
+  it("cuts on a sentence boundary when possible", () => {
+    const src = `${"甲".repeat(80)}。${"乙".repeat(150)}`;
+    const out = condenseBriefCopy(src);
+    expect(out.endsWith("。")).toBe(true);
+    expect(out).not.toContain("乙");
+  });
+});
+
+describe("relayoutFreeBriefHtml", () => {
+  it("reorders an old free page to pillars, radar, then a short note", () => {
+    const old = `<html lang="zh-CN" data-report-tier="free">
+<main>
+<section class="section" id="section-01" data-toc="开篇"><p>${"叙述".repeat(80)}</p></section>
+<section class="section section-mingpan" id="section-02" data-toc="四柱命盘"><div class="mingpan-board"></div></section>
+<section class="section section-elements" id="section-03" data-toc="五行分布">
+  <div class="elements-donut"></div>
+  <div class="wx-radar-wrap"><svg class="wx-radar"></svg><p class="wx-radar-caption">雷达</p></div>
+</section>
+</main>
+</html>`;
+    const out = relayoutFreeBriefHtml(old);
+    expect(out).toContain('data-brief-layout="v2"');
+    const main = out.split("<main>")[1]?.split("</main>")[0] ?? "";
+    expect(main.indexOf("mingpan-board")).toBeLessThan(main.indexOf("wx-radar"));
+    expect(main.indexOf("wx-radar")).toBeLessThan(main.indexOf("简单说明"));
+    expect(main).not.toContain('class="elements-donut"');
+    const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect([...note].length).toBeLessThanOrEqual(200);
   });
 });

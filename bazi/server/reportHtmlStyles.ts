@@ -2211,6 +2211,15 @@ main{padding-bottom:96px}
 .mp-pillar{min-width:0;overflow:hidden}
 .toc-list{-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .toc-list::-webkit-scrollbar{display:none;height:0}
+html[data-report-tier="free"] .mingpan-board,
+html[data-report-tier="free"] .mingpan-board.is-single-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,1.2vw,16px);width:100%;max-width:100%;box-sizing:border-box}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-pillar{padding:16px 4px 12px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-gan{font-size:clamp(16px,5.6vw,56px);margin-bottom:4px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-zhi{font-size:clamp(12px,4.2vw,40px);margin-bottom:8px}
+html[data-report-tier="free"] .mingpan-board.is-single-row .mp-label{font-size:9px;letter-spacing:.06em;margin-bottom:8px}
+html[data-report-tier="free"] .section-radar-only .wx-radar-wrap{margin:0 auto;max-width:420px}
+html[data-report-tier="free"] .section-brief-note .section-body{max-width:40rem}
+@media(max-width:480px){html[data-report-tier="free"] .mingpan-board.is-single-row .mp-meta{display:none}html[data-report-tier="free"] .mingpan-board.is-single-row .mp-dm{position:static;display:block;margin:0 auto 6px;width:fit-content}}
 @media(min-width:721px){.share-overlay{align-items:center}}
 button{font:inherit}
 
