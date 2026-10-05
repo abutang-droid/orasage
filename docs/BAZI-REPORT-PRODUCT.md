@@ -1,0 +1,261 @@
+# 八字报告：产品逻辑
+
+> 依据当前代码（`bazi/`、`shop/`、`auth-service/`、`main/`）梳理。这是**产品该怎么走**，不是部署手册。
+> 日期：2026-10-05。入口域名：`https://bazi.orasage.com`。
+
+---
+
+## 1. 一句话
+
+用户排一次盘，得到**一份永远对应这次排盘的 HTML 报告**。先看**免费结构速览**；付钱之后，**同一条链接**变成**付费全文**。不要再生成第二套报告，也不要把付费按钮送回路盘首页。
+
+---
+
+## 2. 正确用户流程（单人 · 主路径）
+
+```
+门户中文站（orasage.com/zh-CN）
+    → 八字（带 ?lang=zh-CN）
+    → 罗盘 / 或经典表单 起盘
+    → 立刻生成免费静态页
+    → 整页打开「你的结构速览」
+    → 点「付费解锁详细解读」
+    → shop 结账（数字报告 SKU）
+    → 支付成功
+    → 同一份 HTML 覆盖成「你的命局解读」
+    → 用户再打开还是这一份，不再排盘、不再生成
+```
+
+合盘（双人）目前**不走**这条静态长图，见 §8。
+
+---
+
+## 3. 两层内容：免费 vs 付费
+
+同一套杂志长图模板（四柱命盘、五行环/雷达、品牌锁）。差别只在**写进去多少正文**和**有没有付费墙**。
+
+| | 免费（`data-report-tier="free"`） | 付费（`data-report-tier="paid"`） |
+|---|---|---|
+| 标题 | 你的结构速览 | 你的命局解读 |
+| 正文从哪来 | 本地模板 `composeFreeReport`，**不调模型** | LLM 七章 `generateBaziReportContent` |
+| 页面上留哪些叙述 | 模板四段里只渲染**前两段** + 命盘 + 五行 + 一条方向提示 | 七章全文 + 命盘 + 五行 + 周运时间轴 |
+| 底部 | 「付费解锁详细解读」→ 商城结账 | 无付费墙；basic 档可带水晶推荐块 |
+| 能否被覆盖 | 付费成功后**同一文件**覆盖为 paid | 之后免费流程**不得降级覆盖** |
+
+免费四段模板（白话：现象 → 机制 → 「体系里叫」）在 `bazi/shared/free-report.ts`：
+
+1. 结构总览（支持/消耗、日主）
+2. 主结构 / 格局
+3. 性格与手感（免费 HTML **不展示**）
+4. 当年节奏（免费 HTML **不展示**）
+
+付费七章（`bazi/server/prompts.ts`，用 `###` 分隔）：
+
+1. 这套配置在说什么
+2. 性格与手感
+3. 做事与收获的节奏
+4. 关系里你怎么站
+5. 节奏与注意力
+6. 每十年一换的阶段
+7. 顺的方向
+
+写作硬规则两端共用：禁止医疗/财务/法律建议；身弱只写「偏耗」；术语放句尾。
+
+---
+
+## 4. 一份报告 = 一个 readingId = 一个文件
+
+| 约定 | 值 |
+|---|---|
+| ID | 每次起盘生成 `bazi:<uuid>`（浏览器里会写成文件安全名） |
+| 文件 | `REPORTS_DIR/reading_<safeId>.html` |
+| 公网 | `https://bazi.orasage.com/reports/reading_….html` |
+| 生产目录 | `/var/lib/orasage/bazi-reports`（**不在** `dist/` 里，避免部署冲掉） |
+| 权限 | URL 本身不登录也可打开（分享链接） |
+
+**禁止**再写 `report_*.html` / `chart_*.html`。详情页、iframe、用户中心、分享、支付回跳，全部指向这一份。
+
+再进入同一 `readingId`：
+
+- 已是 **paid** → 原样打开，免费物化直接跳过。
+- 已是合格 **free** 简版 → 不重新生成。
+- 旧 free 却长得像详版（标题「你的命局解读」或带周运）→ 允许重写成简版。
+- 打开时若 CTA 仍指向罗盘首页 → 服务端改写成 shop 结账，不改 paid 页。
+
+---
+
+## 5. 两条起盘入口（单人）
+
+首页 `/` 是**罗盘**；`/classic` 是**经典表单**。`/luopan`、`/scene` 都重定向到 `/`。
+
+### 5.1 罗盘（主入口）
+
+1. 填城市、性别、拨盘。
+2. 前端排盘 → 新 `readingId` → 调 `bazi.materializeReport`。
+3. 成功则 `window.location.replace` 打开静态 HTML，**不再停在罗盘或 SPA 结果页**。
+4. 失败才退回 `/classic?restore=1`。
+
+罗盘上的「上次报告」打开浏览器里记下的那份 HTML，不会重新排盘。
+
+### 5.2 经典表单 `/classic`
+
+单人提交后同样物化并整页跳到静态 HTML。只有物化失败时才留在 SPA 结果页（Vibe 皮肤），那里仍应尽快打开同一份长图。
+
+支付回跳也落在 `/classic?paid=1&restore=1&lang=&readingId=`：
+
+- 有本地排盘快照 → 进结果页，触发付费全文写入（见 §7）。
+- 没有快照但有 `readingId` → 直接打开已有 `/reports/reading_….html`（此时 report-job 多半已经写成 paid）。
+- 都没有 → 提示重新排盘。**不允许**把用户丢回 `/`。
+
+---
+
+## 6. 付费商品：简版解锁 vs 手串套餐
+
+### 6.1 静态报告页上的按钮（产品主 CTA）
+
+只卖**数字详版**，不绑发货：
+
+- SKU：`report-bazi-basic`（八字深度解读）
+- 结账：`shop.orasage.com/checkout?sku=report-bazi-basic&return=…&appSource=bazi&planType=basic&readingId=…`
+- `return` 必须是 `/classic?paid=1&restore=1&lang=…&readingId=…`
+- **禁止** `href="https://bazi.orasage.com/"`（那是回罗盘，流程错误）
+- 不需要收货地址（`report-bazi-basic` 不含 `-advanced`/`-premium`）
+
+### 6.2 商城里还有的套餐（SPA 付费墙仍会露出）
+
+| SKU | 名称 | 含义 |
+|---|---|---|
+| `report-bazi-basic` | 八字深度解读 | 只要 HTML 全文 |
+| `report-bazi-advanced` | 报告 + 水晶手串 | 全文 + 实体，要地址/腕围 |
+| `report-bazi-premium` | 终极水晶礼盒 | 全文 + 礼盒发货 |
+| `report-bazi-couple-*` | 合盘三档 | 同上，双人 |
+
+静态长图的解锁**不要**误用 advanced（手串）。用户从报告页付钱，买的是「看详细解读」。
+
+支付成功后，不论 basic / advanced / premium，**报告层做的是同一件事**：把该 `readingId` 的 HTML 写成 paid。手串只走商城履约，不另生成一套报告。
+
+---
+
+## 7. 付钱之后全文怎么写进去
+
+两条通道，写的是**同一文件**。
+
+### 通道 A（主）：商城支付完成 → 后台任务
+
+`mock` 或 Stripe webhook 把订单标 paid 后，shop 调八字内网：
+
+`POST http://127.0.0.1:3110/internal/report-job`
+
+带上 `orderNo`、`userId`、`readingId`、由 SKU 推出的 `planType`。
+
+任务侧：
+
+1. 从 auth 取出这次排盘的 `payloadJson`（排盘数据）。
+2. 若文件已是 paid → 直接当成功（幂等）。
+3. 否则 LLM 生成七章 → `writePaidReadingReport` 覆盖 HTML。
+4. 回写 `user_readings.report_url`，订单标 completed。
+
+### 通道 B（回跳兜底）：浏览器还在 `/classic`
+
+用户带着排盘快照回到经典页且 `paid=1` 时，SPA 再调 `bazi.analyze`（同样七章 LLM），再 `bazi.buyPlan` 把正文写进同一文件。
+
+通道 A 先完成时，用户打开的已经是详版，不必等 B。
+
+---
+
+## 8. 合盘（例外，尚未并进长图主路径）
+
+`/classic` 切到双人：排盘后**停在 SPA 结果页**（分数、雷达），**不**物化 `reading_*.html`。
+
+付费墙是合盘三档 SKU。付费后在结果页内生成 AI 合盘解读。若订单带了 `readingId` 且 auth 里有 payload，report-job 仍可写出静态 HTML；但起盘当下没有「先看简版长图」这一步。
+
+产品上：单人报告 = 长图主路径；合盘 = 仍以 SPA 结果页为主。不要拿合盘页去验收「排盘完看简版」。
+
+---
+
+## 9. 语言
+
+中文是默认。门户 `localeCookie` 关闭；跨子域 referrer 只有 `https://orasage.com/`，看不到 `/zh-CN`。
+
+因此：
+
+- 中文门户进八字必须带 `?lang=zh-CN`（导航已如此）。
+- 八字检测顺序：`?lang=` / `?locale=` → 门户 referrer 路径 → **默认 zh-CN**。
+- **不要**用浏览器 `Accept-Language` 或残留的 `NEXT_LOCALE` / `orasage_shop_locale` 把人切到英文。
+- 英文门户应带 `?lang=en`。
+
+报告 HTML 的 `lang` 跟这次排盘的 locale；付费回跳 URL 里也带同一 `lang`。
+
+---
+
+## 10. 报告会出现在哪
+
+| 表面 | 行为 |
+|---|---|
+| `bazi.orasage.com/reports/reading_*.html` | 唯一展示页（Express 读文件；缺失 404，不回 SPA） |
+| 罗盘「上次报告」 | 打开浏览器记下的路径 |
+| `orasage.com/{locale}/profile/readings` | 登录后列表，链到 `reportUrl` |
+| 八字 `/history` | 本机保存的排盘记录，有则链到报告 |
+| `admin.orasage.com` 测试报告 | `user_readings`，含 `report_url` |
+| 分享 | 报告页内分享卡 / 复制链接，还是这一份 URL |
+
+游客排盘：`userId=0` 也会 upsert 一条 readings（给后台看见测试报告）。登录后用同一 `readingId` 认领并补上 `reportUrl`。
+
+---
+
+## 11. 数据落在哪（关联穿透）
+
+```
+浏览器排盘
+  ├─ session/localStorage：readingId、报告路径、结账快照
+  ├─ POST auth /auth/me/readings/sync     → orasage_auth.user_readings
+  └─ tRPC bazi.materializeReport
+        ├─ 写 REPORTS_DIR/reading_*.html
+        └─ POST auth /internal/readings   → 同上表（含 payloadJson，供 report-job）
+
+shop 结账
+  └─ orasage_auth.user_orders（sku、readingId、status）
+        └─ 支付成功 → bazi /internal/report-job → 覆盖同一 HTML
+```
+
+八字自己的 Postgres（`orasage_bazi`）还记 `purchases`，与商城订单是两套账；**报告文件**才是用户看见的产品。
+
+---
+
+## 12. 产品上明确禁止的事
+
+1. 排盘结束后直接给**详版全文**，却还挂着付费按钮。
+2. 付费按钮跳回 `https://bazi.orasage.com/` 或罗盘，让人重新拨盘。
+3. 简版解锁去买 `report-bazi-advanced`（手串发货）。
+4. 每次打开都重新生成 HTML（付费页会被免费稿盖掉，或闪「正在生成」）。
+5. 详情页、分享、用户中心各拿一份不同的 `report_*` / `chart_*`。
+6. 把报告写进 `bazi/dist/public/reports`（下次 overlay dist 会丢）。
+7. 从中文门户进八字却落到英文界面。
+
+---
+
+## 13. 和「全站」其它块的边界
+
+- **导航 / 页脚 / 品牌**：跟全站 app-shell，不在报告正文里再做一套顶栏主导航。
+- **商城**：只负责下单、收款、手串履约；数字报告的「解锁」由八字写 HTML。
+- **紫微 / 塔罗**：各自的 `report-*` SKU 和 report-job，**不是**八字这份 `reading_*.html`。
+- **罗盘刻度**：与报告无关；改罗盘或 overlay `bazi/dist` 前必须过手机刻度测试（见 `docs/AGENT-RULES.md`）。
+
+---
+
+## 14. 关键代码入口（给改代码的人）
+
+| 职责 | 位置 |
+|---|---|
+| 免费模板 | `bazi/shared/free-report.ts` |
+| 写 HTML / 免费·付费分层 / 结账 URL | `bazi/server/readingReport.ts`、`reportHtml.ts`、`staticFreeReport.ts` |
+| 物化 API | `bazi/server/routers.ts` → `materializeReport` |
+| 付费 LLM | `bazi/server/reportGenerator.ts`、`prompts.ts` |
+| 支付后覆盖 | `bazi/server/reportJob.ts`；shop `shop/src/lib/reportJob.ts` |
+| 罗盘起盘跳报告 | `bazi/client/src/pages/LuopanPage.tsx` |
+| 经典起盘 / 支付回跳 | `bazi/client/src/pages/Home.tsx` |
+| 打开/探测固定页 | `bazi/client/src/lib/static-report.ts` |
+| 静态页解锁 SKU | `BAZI_UNLOCK_SKU = report-bazi-basic` |
+| 语言 | `packages/i18n/src/detect.ts`；门户 `withAppLocale` |
+
+改免费/付费分层或 CTA 时：必须同时看罗盘、经典回跳、serve `/reports`、shop return URL、用户中心链接。停在其中一个页面上改，线上就会再出现「没改」。
