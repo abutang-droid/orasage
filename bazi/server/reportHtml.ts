@@ -1113,6 +1113,24 @@ ${renderShareScript({ shareUrl, shareText: share.text, shareTitle: share.title }
 </html>`;
 }
 
+/** 从旧免费页抽出说明正文：丢掉章节标题、命盘、五行图，只留叙述。 */
+function extractBriefLeftoverCopy(mainHtml: string): string {
+  const leftover = mainHtml
+    .replace(/<section class="section section-mingpan"[\s\S]*?<\/section>/g, " ")
+    .replace(/<section class="section section-elements[^"]*"[\s\S]*?<\/section>/g, " ")
+    .replace(/<section class="product-rec"[\s\S]*?<\/section>/g, " ")
+    .replace(/<section class="paywall-section"[\s\S]*?<\/section>/g, " ");
+  const bodies = [...leftover.matchAll(/<div class="section-body">([\s\S]*?)<\/div>/g)]
+    .map((m) => m[1])
+    .join(" ");
+  if (bodies.trim()) return condenseBriefCopy(bodies.replace(/<[^>]+>/g, " "));
+  const stripped = leftover
+    .replace(/<h[1-3][^>]*>[\s\S]*?<\/h[1-3]>/g, " ")
+    .replace(/<p class="section-subtitle">[\s\S]*?<\/p>/g, " ")
+    .replace(/<div class="section-number">[\s\S]*?<\/div>/g, " ");
+  return condenseBriefCopy(stripped.replace(/<[^>]+>/g, " "));
+}
+
 /** 已落盘的免费页：改成四柱一行 → 雷达 → 200 字说明。详版不碰。 */
 export function relayoutFreeBriefHtml(html: string): string {
   const head = html.slice(0, 1200);
@@ -1127,11 +1145,7 @@ export function relayoutFreeBriefHtml(html: string): string {
   const radar = html.match(/<div class="wx-radar-wrap">[\s\S]*?<\/svg>\s*(?:<p class="wx-radar-caption">[\s\S]*?<\/p>\s*)?<\/div>/)?.[0] ?? "";
   const product = mainMatch[1].match(/<section class="product-rec"[\s\S]*?<\/section>/)?.[0] ?? "";
 
-  let leftover = mainMatch[1]
-    .replace(/<section class="section section-mingpan"[\s\S]*?<\/section>/g, " ")
-    .replace(/<div class="wx-radar-wrap">[\s\S]*?<\/svg>\s*(?:<p class="wx-radar-caption">[\s\S]*?<\/p>\s*)?<\/div>/g, " ")
-    .replace(/<section class="product-rec"[\s\S]*?<\/section>/g, " ");
-  const copy = condenseBriefCopy(leftover.replace(/<[^>]+>/g, " "));
+  const copy = extractBriefLeftoverCopy(mainMatch[1]);
 
   const parts: string[] = [];
   let n = 0;

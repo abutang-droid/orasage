@@ -282,4 +282,28 @@ describe("relayoutFreeBriefHtml", () => {
     const note = (main.match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
     expect([...note].length).toBeLessThanOrEqual(200);
   });
+
+  it("relayout note uses body copy, not section chrome", () => {
+    const old = `<html lang="zh-CN" data-report-tier="free">
+<main>
+<section class="section" id="section-01" data-toc="这套配置在说什么">
+  <div class="section-header">
+    <div class="section-number">01</div>
+    <h2 class="section-title">这套配置在说什么</h2>
+    <p class="section-subtitle">你命局中最本质的能量特质与人生基调</p>
+  </div>
+  <div class="section-body"><p>你落地的那一段，是一年里火气刚抬头的夏初。</p></div>
+</section>
+<section class="section section-mingpan"><div class="mingpan-board"></div></section>
+<section class="section section-elements">
+  <div class="elements-donut"><span>木 3</span></div>
+  <div class="wx-radar-wrap"><svg class="wx-radar"></svg></div>
+</section>
+</main>
+</html>`;
+    const note = ((relayoutFreeBriefHtml(old).split("<main>")[1] || "").match(/section-brief-note[\s\S]*?<p>([\s\S]*?)<\/p>/) || [])[1] || "";
+    expect(note).toContain("你落地的那一段");
+    expect(note).not.toContain("这套配置在说什么");
+    expect(note).not.toContain("最本质的能量特质");
+  });
 });
