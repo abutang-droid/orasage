@@ -25,6 +25,7 @@ import {
 } from "./staticFreeReport";
 import { generateBaziReportContent } from "./reportGenerator";
 import { readReportTier, resolveReadingReportPaths } from "./readingReport";
+import { runReportJob } from "./reportJob";
 import {
   chartInputFingerprint,
   chartKindFromResult,
@@ -651,6 +652,53 @@ export const appRouter = router({
           throw new Error("PDF not yet generated");
         }
         return { pdfUrl: report[0].pdfUrl };
+      }),
+
+    /**
+     * 支付回跳兜底：订单已付但 HTML 仍是 free 时，再跑一次同一份详版任务。
+     * 游客盘（userId=0）由任务认领给付款人；已是 paid 则幂等返回。
+     */
+    ensurePaidReport: publicProcedure
+      .use(paymentRateLimit)
+      .input(z.object({
+        readingId: z.string().min(1).max(128),
+        shopOrderNo: z.string().min(1).max(64),
+      }))
+      .mutation(async ({ input }) => {
+        const res = await fetch(`${AUTH_INTERNAL}/internal/orders/${encodeURIComponent(input.shopOrderNo)}`);
+        if (!res.ok) throw new Error("order not found");
+        const data = await res.json() as {
+          order?: {
+            userId: number;
+            status: string;
+            sku?: string | null;
+            readingId?: string | null;
+            orderNo: string;
+          };
+        };
+        const order = data.order;
+        if (!order) throw new Error("order not found");
+        if (!["paid", "completed"].includes(order.status)) {
+          throw new Error("order not paid");
+        }
+        if (order.readingId && order.readingId !== input.readingId) {
+          throw new Error("order reading mismatch");
+        }
+        const sku = order.sku ?? "";
+        if (sku && !sku.startsWith("report-bazi")) {
+          throw new Error("not a bazi report order");
+        }
+        const planType = sku.includes("-basic")
+          ? "basic"
+          : sku.includes("-premium")
+            ? "premium"
+            : "advanced";
+        return runReportJob({
+          orderNo: order.orderNo,
+          userId: order.userId,
+          readingId: input.readingId,
+          planType,
+        });
       }),
   }),
 });

@@ -115,7 +115,9 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     const readingId = params.get("readingId");
     if (readingId) saveLastReadingId(readingId);
     const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder") ?? localStorage.getItem("bazi:lastShopOrder");
-    if (!orderNo) return;
+    if (orderNo) {
+      try { sessionStorage.setItem("bazi:lastShopOrder", orderNo); } catch { /* ignore */ }
+    }
     const storedPlan = sessionStorage.getItem(PLAN_KEY) as PlanType | null;
     setState((prev) => ({
       ...prev,
@@ -124,13 +126,8 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       purchasedPlan: prev.purchasedPlan ?? storedPlan ?? "advanced",
     }));
     sessionStorage.removeItem(PLAN_KEY);
-    sessionStorage.removeItem("bazi:lastShopOrder");
     toast.success(t('plan.paid_success', '支付成功，正在生成报告…'));
-    const url = new URL(window.location.href);
-    url.searchParams.delete("paid");
-    url.searchParams.delete("order");
-    url.searchParams.delete("restore");
-    window.history.replaceState({}, "", url.pathname + url.search);
+    // 不要从 URL 去掉 paid / readingId：回跳页要靠它们等 paid HTML，刷新也不能掉回付费墙。
   }, []);
 
   // Legacy WooCommerce postMessage

@@ -26,7 +26,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
-import { getStaticReportAbsoluteUrl, materializeStaticReport, openFixedReportPage, probeFixedReport, getStaticReportHref, reportPathForReadingId } from "@/lib/static-report";
+import { getStaticReportAbsoluteUrl, materializeStaticReport, openFixedReportPage, probeFixedReport, getStaticReportHref, reportPathForReadingId, waitForPaidReport } from "@/lib/static-report";
 import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
@@ -77,7 +77,7 @@ function syncPersonProfile(form: PersonForm, label?: string | null) {
   });
 }
 
-type ViewState = "form" | "loading" | "result";
+type ViewState = "form" | "loading" | "result" | "paid-waiting";
 type ResultData =
   | { type: "single"; data: SingleBaziResult }
   | { type: "double"; data: DoubleBaziResult };
@@ -102,6 +102,26 @@ function LoadingView() {
         </svg>
       </div>
       <p style={{ fontFamily: SERIF_F, fontSize: "0.9rem", color: GOLD, letterSpacing: "0.15em" }}>{t('loading.calculating')}</p>
+    </div>
+  );
+}
+
+function PaidWaitingView() {
+  const { t } = useT();
+  return (
+    <div className="flex flex-col items-center justify-center py-28 gap-8 animate-fade-in-up">
+      <div className="relative w-20 h-20">
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none"
+          className="animate-spin" style={{ animationDuration: "3s" }}>
+          <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
+          <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={GOLD_GHOST}/>
+          <circle cx="50" cy="27" r="4" fill={GOLD}/>
+          <circle cx="50" cy="73" r="4" fill={GOLD_FAINT}/>
+        </svg>
+      </div>
+      <p style={{ fontFamily: SERIF_F, fontSize: "0.9rem", color: GOLD, letterSpacing: "0.08em", textAlign: "center" }}>
+        {t('plan.paid_success', '支付成功，正在生成报告…')}
+      </p>
     </div>
   );
 }
@@ -349,6 +369,7 @@ export default function Home() {
     },
   });
   const materializeReport = trpc.bazi.materializeReport.useMutation();
+  const ensurePaidReport = trpc.bazi.ensurePaidReport.useMutation();
 
   useEffect(() => {
     loadLunarLib();
@@ -366,26 +387,49 @@ export default function Home() {
     }
     if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
 
-    const snapshot = loadCheckoutSnapshot();
-    const readingId = params.get('readingId');
+    const readingId = params.get('readingId') || getLastReadingId();
     if (readingId) saveLastReadingId(readingId);
 
-    if (params.get('paid') !== '1') {
-      const existingHref = getStaticReportHref() || (readingId ? reportPathForReadingId(readingId) : null);
-      void probeFixedReport(existingHref).then((path) => {
-        if (path) openFixedReportPage(path);
-      });
-    }
-    if (!snapshot) {
-      if (params.get('paid') === '1') {
-        const href = readingId ? reportPathForReadingId(readingId) : getStaticReportHref();
-        void probeFixedReport(href).then((path) => {
-          if (path) openFixedReportPage(path);
-          else toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
-        });
+    if (params.get('paid') === '1') {
+      const href = readingId ? reportPathForReadingId(readingId) : getStaticReportHref();
+      if (!href) {
+        toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+        return;
       }
-      return;
+      let orderNo: string | null = params.get('order');
+      try {
+        orderNo = orderNo
+          || sessionStorage.getItem('bazi:lastShopOrder')
+          || localStorage.getItem('bazi:lastShopOrder');
+      } catch {
+        /* ignore */
+      }
+      setView('paid-waiting');
+      const ac = new AbortController();
+      void (async () => {
+        if (orderNo && readingId) {
+          void ensurePaidReport.mutateAsync({ readingId, shopOrderNo: orderNo }).catch((err) => {
+            console.warn('[paid-return] ensurePaidReport', err);
+          });
+        }
+        const path = await waitForPaidReport(href, { signal: ac.signal });
+        if (ac.signal.aborted) return;
+        if (path) {
+          openFixedReportPage(path);
+          return;
+        }
+        toast.error(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
+        setView('form');
+      })();
+      return () => ac.abort();
     }
+
+    const snapshot = loadCheckoutSnapshot();
+    const existingHref = getStaticReportHref() || (readingId ? reportPathForReadingId(readingId) : null);
+    void probeFixedReport(existingHref).then((path) => {
+      if (path) openFixedReportPage(path);
+    });
+    if (!snapshot) return;
 
     setResult(snapshot.result);
     setMode(snapshot.mode);
@@ -614,6 +658,7 @@ export default function Home() {
         {view === "form" && <BaziEntryChrome active="classic" />}
 
         {view === "loading" && <LoadingView />}
+        {view === "paid-waiting" && <PaidWaitingView />}
 
         {view === "result" && result && (
           result.type === "single"

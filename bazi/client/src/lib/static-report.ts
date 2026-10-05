@@ -119,16 +119,51 @@ export function reportPathForReadingId(readingId: string): string {
   return `/reports/reading_${safe}.html`;
 }
 
-export async function probeFixedReport(href?: string | null): Promise<string | null> {
+export function parseReportTierFromHtml(html: string): "paid" | "free" | null {
+  const head = html.slice(0, 1600);
+  if (/data-report-tier=["']paid["']/.test(head)) return "paid";
+  if (/data-report-tier=["']free["']/.test(head)) return "free";
+  if (head.includes("paywall-section") || head.includes("解锁完整命局报告")) return "free";
+  return null;
+}
+
+export async function probeReportTier(href?: string | null): Promise<{ path: string; tier: "paid" | "free" } | null> {
   const candidate = href || getStaticReportHref();
   if (!candidate) return null;
   const path = reportPathFromHref(candidate);
   if (!path.startsWith("/reports/")) return null;
   try {
     const res = await fetch(path, { method: "GET", cache: "no-store" });
-    if (res.ok) return path;
+    if (!res.ok) return null;
+    const html = await res.text();
+    const tier = parseReportTierFromHtml(html);
+    if (tier === "paid") return { path, tier: "paid" };
+    return { path, tier: "free" };
   } catch {
-    /* ignore */
+    return null;
+  }
+}
+
+export async function probeFixedReport(href?: string | null): Promise<string | null> {
+  const hit = await probeReportTier(href);
+  return hit?.path ?? null;
+}
+
+/** 支付回跳：等到同一文件变成 paid 再打开。禁止把仍带付费墙的 free 页当成交结果。 */
+export async function waitForPaidReport(
+  href: string,
+  opts?: { timeoutMs?: number; intervalMs?: number; signal?: AbortSignal },
+): Promise<string | null> {
+  const path = reportPathFromHref(href);
+  if (!path) return null;
+  const timeoutMs = opts?.timeoutMs ?? 120_000;
+  const intervalMs = opts?.intervalMs ?? 2000;
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (opts?.signal?.aborted) return null;
+    const hit = await probeReportTier(path);
+    if (hit?.tier === "paid") return hit.path;
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
   return null;
 }

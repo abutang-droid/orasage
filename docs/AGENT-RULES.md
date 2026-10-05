@@ -74,6 +74,25 @@
 
 回归测试：`bazi/server/luopan-mobile-ticks.test.ts`。
 
+## 反复回归坑：付费后仍停在解锁页
+
+**症状**：mock/真付 `report-bazi-basic` 成功后回到 `/classic?paid=1`，看到的还是「付费解锁」简版页。
+
+**根因（已多次复现，含 2026-10-05）**：
+
+1. 游客排盘把 `user_readings.userId` 写成 `0`；结账必须登录。`runReportJob` 若 `reading.userId !== payerUserId` 直接抛 `reading user mismatch`，HTML 永不升级为 paid。
+2. 回跳用 `probeFixedReport` **文件在就打开**，不管 `data-report-tier`。shop 任务是 fire-and-forget，落地时文件几乎总是 free，于是整页换成解锁页。
+3. `usePaymentFlow` 立刻从 URL 删掉 `paid`，刷新后连「正在生成」都不走。
+
+**正确做法**：
+
+- 任务允许认领 `userId=0`；别人的盘仍拒绝。
+- `paid=1` 只 `waitForPaidReport` 等到 `data-report-tier="paid"`；超时提示刷新，禁止打开 free、禁止再露 SPA 付费墙。
+- 回跳再调 `bazi.ensurePaidReport`（与通道 A 同锁）。
+- 不要从回跳 URL 去掉 `paid` / `readingId`。
+
+回归测试：`bazi/server/reportUnlock.test.ts`、`bazi/server/paid-return.test.ts`。
+
 ## 八字排盘五条硬规则
 
 产品全文见 [`docs/BAZI-REPORT-PRODUCT.md`](BAZI-REPORT-PRODUCT.md)。改排盘 / 报告 / overlay `bazi/dist` 时必守：

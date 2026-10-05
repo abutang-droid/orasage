@@ -85,7 +85,21 @@ h1,h2,h3{color:#171717}
 export async function runReportJob(input: ReportJobInput) {
   const reading = await fetchReading(input.readingId);
   if (!reading) throw new Error('reading not found');
-  if (reading.userId !== input.userId) throw new Error('reading user mismatch');
+  if (reading.userId !== 0 && reading.userId !== input.userId) {
+    throw new Error('reading user mismatch');
+  }
+  if (reading.userId === 0 && input.userId > 0) {
+    await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: input.userId,
+        appSource: 'ziwei',
+        readingId: reading.readingId,
+        title: reading.title,
+      }),
+    });
+  }
   if (reading.reportUrl) {
     return { success: true, duplicate: true, reportUrl: reading.reportUrl };
   }

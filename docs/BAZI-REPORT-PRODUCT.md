@@ -101,11 +101,13 @@
 
 物化失败时留在当前页报错，**不要**用本地模板冒充第一步结果。
 
-支付回跳落在 `/classic?paid=1&restore=1&lang=&readingId=`：
+支付回跳落在 `/classic?paid=1&restore=1&lang=&readingId=&order=`：
 
-- 该 `readingId` 的文件已是 paid → 直接打开。
-- 文件还是 free、但本地有排盘快照 → SPA 走通道 B 写详版（见 §7）。
-- 都没有 → 提示重新排盘。**不允许**把用户丢回 `/`。
+- **禁止**在 `paid=1` 时打开仍是 `data-report-tier="free"` 的同一文件（那就是「付完还在解锁页」）。
+- 回跳页显示「正在生成完整报告」，轮询该 HTML 直到 `data-report-tier="paid"`，再 `location.replace`。
+- 同时用 `bazi.ensurePaidReport` 按订单再跑一次任务（与通道 A 同锁，已 paid 则幂等）。游客记录 `userId=0` 由任务认领给付款人。
+- 超时仍未 paid → 提示稍后刷新，**不要**把 SPA 付费墙再露出来。
+- 仅 `restore=1`（未付费）才允许打开已有 free 页。
 
 ---
 
@@ -151,15 +153,18 @@
 任务侧：
 
 1. 从 auth 取出这次排盘的 `payloadJson`（排盘数据）。
-2. 若文件已是 paid → 直接当成功（幂等）。
-3. 否则 LLM 生成七章（`kind: 'full'`）→ `writePaidReadingReport` 覆盖 HTML。
-4. 回写 `user_readings.report_url`，订单标 completed。
+2. **游客盘 `userId=0` 允许被付款人认领**（`POST /internal/readings` 把 0 升为订单 userId）。其它人的盘仍报 `reading user mismatch`。
+3. 若文件已是 paid → 直接当成功（幂等）。
+4. 否则 LLM 生成七章（`kind: 'full'`）→ `writePaidReadingReport` 覆盖 HTML。
+5. 回写 `user_readings.report_url`，订单标 completed。
 
-### 通道 B（回跳兜底）：浏览器还在 `/classic`
+商城 `void dispatchReportJob` 仍是 fire-and-forget（避免结账卡在处理中）。回跳页必须自己等到 paid，不能打开当时还在的 free 页。
 
-用户带着排盘快照回到经典页且 `paid=1`、文件尚未 paid 时，SPA 再调 `bazi.analyze`（同样七章 LLM），再 `bazi.buyPlan` 把正文写进同一文件。
+### 通道 B（回跳兜底）：`ensurePaidReport`
 
-通道 A 先完成时，用户打开的已经是详版，不必等 B。
+`/classic?paid=1` 带着 `order` + `readingId` 时，浏览器再调 `bazi.ensurePaidReport`。校验订单已付、SKU 是 `report-bazi*`，然后跑**同一份** `runReportJob`（有 in-flight 锁，不和通道 A 双写两套全文）。
+
+以前的 SPA `buyPlan` 通道不再作为回跳主路径：没有排盘快照时它根本跑不到，有快照时也会先被 `openFixedReportPage(freeHtml)` 整页换走。
 
 ---
 

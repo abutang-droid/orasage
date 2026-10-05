@@ -2,6 +2,7 @@ import { generateBaziReportContent } from './reportGenerator.ts';
 import { fetchReportProductRecommend } from './reportRecommend.ts';
 import { writePaidReadingReport } from './staticFreeReport.ts';
 import { readReportTier, resolveReadingReportPaths } from './readingReport.ts';
+import { assertPayerMayUnlock } from './reportUnlock.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
 
@@ -11,6 +12,8 @@ type ReportJobInput = {
   readingId: string;
   planType?: string;
 };
+
+const inflightJobs = new Map<string, Promise<{ success: true; duplicate?: boolean; reportUrl: string }>>();
 
 function isLocalIp(ip: string | undefined): boolean {
   if (!ip) return process.env.NODE_ENV !== 'production';
@@ -30,12 +33,30 @@ async function fetchReading(readingId: string) {
   };
 }
 
-async function patchReading(readingId: string, body: { reportUrl: string; title?: string }) {
+async function patchReading(readingId: string, body: { reportUrl?: string; title?: string; userId?: number }) {
   await fetch(`${AUTH_INTERNAL}/internal/readings/${encodeURIComponent(readingId)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+}
+
+async function claimGuestReading(reading: { readingId: string; title: string; userId: number }, payerUserId: number) {
+  if (reading.userId !== 0 || payerUserId <= 0) return;
+  const res = await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: payerUserId,
+      appSource: 'bazi',
+      readingId: reading.readingId,
+      title: reading.title,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`claim guest reading failed (${res.status}): ${text.slice(0, 200)}`);
+  }
 }
 
 async function patchOrderStatus(orderNo: string, status: string) {
@@ -46,10 +67,11 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
-export async function runReportJob(input: ReportJobInput) {
+async function runReportJobInner(input: ReportJobInput) {
   const reading = await fetchReading(input.readingId);
   if (!reading) throw new Error('reading not found');
-  if (reading.userId !== input.userId) throw new Error('reading user mismatch');
+  assertPayerMayUnlock(reading.userId, input.userId);
+  await claimGuestReading(reading, input.userId);
   if (!reading.payloadJson) throw new Error('reading payload missing');
 
   // 已有免费固定页时仍需升级为付费全文；仅 paid 才视为完成
@@ -108,6 +130,17 @@ export async function runReportJob(input: ReportJobInput) {
   await patchOrderStatus(input.orderNo, 'completed');
 
   return { success: true, reportUrl: written.reportUrl };
+}
+
+export async function runReportJob(input: ReportJobInput) {
+  const key = input.readingId.trim();
+  const existing = inflightJobs.get(key);
+  if (existing) return existing;
+  const pending = runReportJobInner(input).finally(() => {
+    inflightJobs.delete(key);
+  });
+  inflightJobs.set(key, pending);
+  return pending;
 }
 
 export function registerReportJobRoute(app: import('express').Express) {

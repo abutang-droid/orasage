@@ -33,6 +33,8 @@ import {
   openFixedReportPage,
   probeFixedReport,
   reportPathForReadingId,
+  waitForPaidReport,
+  getStaticReportHref,
 } from "@/lib/static-report";
 
 async function saveAsImage(el: HTMLElement, filename: string) {
@@ -1561,7 +1563,23 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
     if (urlReadingId) saveLastReadingId(urlReadingId);
 
     const go = async () => {
-      if (urlReadingId && !paidRestore) {
+      if (paidRestore) {
+        const href = urlReadingId
+          ? reportPathForReadingId(urlReadingId)
+          : getStaticReportHref();
+        if (href) {
+          const paidPath = await waitForPaidReport(href);
+          if (cancelled) return;
+          if (paidPath) {
+            openFixedReportPage(paidPath);
+            return;
+          }
+        }
+        toast.error(t("paywall.paid_report_pending", "支付已成功，完整报告仍在生成。请稍后刷新本页。"));
+        setOpeningLongform(false);
+        return;
+      }
+      if (urlReadingId) {
         const existing = await probeFixedReport(reportPathForReadingId(urlReadingId));
         if (cancelled) return;
         if (existing) {
@@ -1572,20 +1590,16 @@ export function DoubleBaziResultView({ result, onBack }: DoubleProps) {
       const res = await materializeStaticReport({
         result: result as unknown as Record<string, unknown>,
         lang: locale,
-        readingId: paidRestore ? urlReadingId : undefined,
+        readingId: urlReadingId,
         mutateAsync: materializeReport.mutateAsync,
       });
       if (cancelled) return;
-      if (res?.reportPath && (!paidRestore || res.tier === "paid")) {
+      if (res?.reportPath) {
         openFixedReportPage(res.reportPath);
         return;
       }
-      if (!paidRestore && !res?.reportPath) {
-        toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
-        onBack();
-        return;
-      }
-      setOpeningLongform(false);
+      toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+      onBack();
     };
 
     void go();

@@ -649,6 +649,8 @@ const readingUpdateSchema = z.object({
   title: z.string().max(200).optional(),
   summary: z.string().max(2000).optional(),
   payloadJson: z.string().max(50000).optional(),
+  /** 仅允许把游客记录（userId=0）认领给真实付款人 */
+  userId: z.number().int().positive().optional(),
 });
 
 const orderSchema = z.object({
@@ -765,6 +767,14 @@ internalRouter.patch("/readings/:readingId", async (req, res) => {
     if (body.title !== undefined) updates.title = body.title;
     if (body.summary !== undefined) updates.summary = body.summary;
     if (body.payloadJson !== undefined) updates.payloadJson = body.payloadJson;
+    if (body.userId !== undefined) {
+      if (existing.userId === 0) {
+        updates.userId = body.userId;
+      } else if (existing.userId !== body.userId) {
+        res.status(403).json({ error: "无权认领该记录" });
+        return;
+      }
+    }
     if (Object.keys(updates).length === 0) {
       res.status(400).json({ error: "没有需要更新的字段" });
       return;

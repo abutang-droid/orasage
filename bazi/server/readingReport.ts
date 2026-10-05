@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { buildReportPageHtml, type ReportChartMeta, type ReportProductRecommend } from "./reportHtml.ts";
 import { resolveReportsDir } from "./_core/reportsDir.ts";
+import { parseReportTierFromHtml } from "./reportUnlock.ts";
 
 const BAZI_PUBLIC_URL = (process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com").replace(/\/$/, "");
 const SHOP_PUBLIC_URL = (process.env.SHOP_PUBLIC_URL ?? "https://shop.orasage.com").replace(/\/$/, "");
@@ -55,12 +56,8 @@ export function resolveReadingReportPaths(readingId: string) {
 
 export function readReportTier(absolutePath: string): ReportTier | null {
   if (!fs.existsSync(absolutePath)) return null;
-  const head = fs.readFileSync(absolutePath, "utf8").slice(0, 1200);
-  if (/data-report-tier=["']paid["']/.test(head)) return "paid";
-  if (/data-report-tier=["']free["']/.test(head)) return "free";
-  // 旧文件无标记：按是否含升级区粗判
-  if (head.includes("paywall-section") || head.includes("解锁完整命局报告")) return "free";
-  return "paid";
+  const html = fs.readFileSync(absolutePath, "utf8");
+  return parseReportTierFromHtml(html) ?? "paid";
 }
 
 export type WriteReadingReportOpts = {
