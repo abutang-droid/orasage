@@ -16,7 +16,12 @@ export {
 } from './locales';
 
 export { normalizeLocale, clampToActiveLocale } from './normalize';
-export { detectLocale, detectLocaleFromBrowser, type DetectLocaleOptions } from './detect';
+export {
+  detectLocale,
+  detectLocaleFromBrowser,
+  localeFromReferrerUrl,
+  type DetectLocaleOptions,
+} from './detect';
 export { LOCALE_LABELS, localeLabel } from './labels';
 export { cookieDomain, setLocaleCookie } from './cookie';
 export {

@@ -46,7 +46,7 @@ export interface PushReportParams {
 }
 
 export function usePaymentFlow(mode: "single" | "couple" = "single") {
-  const { t } = useT();
+  const { t, locale } = useT();
   const shopPayments = useShopPayments();
 
   const planNameMap: Record<string, string> = mode === "couple"
@@ -142,7 +142,14 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
     if (shopPayments) {
       setState(prev => ({ ...prev, purchasedPlan: plan }));
       const readingId = sessionStorage.getItem(READING_ID_KEY) || undefined;
-      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1`;
+      const checkoutLocale = locale?.startsWith('zh')
+        ? 'zh-CN'
+        : locale === 'pt-BR'
+          ? 'pt-BR'
+          : locale
+            ? 'en'
+            : 'zh-CN';
+      const returnBase = `${window.location.origin}${window.location.pathname}?paid=1&restore=1&lang=${encodeURIComponent(checkoutLocale)}`;
       sessionStorage.setItem(PLAN_KEY, plan);
       const sku = baziSkusForMode(mode)[plan];
       sessionStorage.setItem('bazi:lastCheckoutSku', sku);
@@ -152,7 +159,10 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         readingId,
         planType: plan,
         mode,
-        context: `八字${planNameMap[plan] || plan}报告`,
+        locale: checkoutLocale,
+        context: checkoutLocale.startsWith('zh')
+          ? `八字${planNameMap[plan] || plan}报告`
+          : `Bazi ${planNameMap[plan] || plan} report`,
       });
       window.location.assign(checkoutUrl);
       return;
@@ -166,7 +176,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
         window.top.postMessage({ action: 'OPEN_WP_PAYMENT', productId: pid }, '*');
       }
     } catch { /* ignore */ }
-  }, [mode, shopPayments, planNameMap]);
+  }, [mode, shopPayments, planNameMap, locale]);
 
   const handlePaySelected = useCallback((plan?: PlanType) => {
     const target = plan ?? selectedPlanRef.current;

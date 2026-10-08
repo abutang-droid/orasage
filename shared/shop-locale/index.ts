@@ -22,6 +22,7 @@ export function detectShopLocale(options?: {
   cookieLocale?: string | null;
   acceptLanguage?: string | null;
   queryLocale?: string | null;
+  referrerLocale?: string | null;
 }): string {
   return detectLocaleBase(options);
 }
