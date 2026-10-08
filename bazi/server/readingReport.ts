@@ -27,6 +27,8 @@ export function buildUnlockCheckoutUrl(readingId: string, locale = "zh-CN"): str
     appSource: "bazi",
     planType: "basic",
     readingId,
+    locale: lang,
+    lang,
     context: locale.startsWith("zh") ? "八字深度解读" : "Bazi full reading",
   });
   return `${SHOP_PUBLIC_URL}/checkout?${qs.toString()}`;
@@ -186,13 +188,19 @@ export function briefifyStaleFreeReportHtml(html: string): string {
 }
 
 /** 旧免费页：详版正文裁成简版；CTA 曾指向罗盘首页时改写到 shop checkout。 */
-export function maybeRewriteServedReportHtml(fileName: string, html: string): string {
+export function maybeRewriteServedReportHtml(fileName: string, html: string, locale = "zh-CN"): string {
   const head = html.slice(0, 1600);
   if (/data-report-tier=["']paid["']/.test(head)) return html;
   let out = briefifyStaleFreeReportHtml(html);
-  if (out.includes("paywall-cta") && !/shop\.orasage\.com\/checkout/.test(out)) {
+  const needsUnlockRewrite =
+    out.includes("paywall-cta")
+    && (
+      !/shop\.orasage\.com\/checkout/.test(out)
+      || !/(?:[?&]|&amp;)(?:locale|lang)=/.test(out)
+    );
+  if (needsUnlockRewrite) {
     const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
-    if (stem) out = rewriteStalePaywallHref(out, stem);
+    if (stem) out = rewriteStalePaywallHref(out, stem, locale);
   }
   return relayoutFreeBriefHtml(out);
 }

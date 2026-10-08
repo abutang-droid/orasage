@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readingReportFileId, resolveReadingReportPaths, maybeRewriteServedReportHtml, rewriteStalePaywallHref, briefifyStaleFreeReportHtml } from "./readingReport.ts";
+import { readingReportFileId, resolveReadingReportPaths, maybeRewriteServedReportHtml, rewriteStalePaywallHref, briefifyStaleFreeReportHtml, buildUnlockCheckoutUrl } from "./readingReport.ts";
 
 describe("readingReport", () => {
   it("sanitizes readingId into stable file id", () => {
@@ -21,11 +21,15 @@ describe("readingReport", () => {
     expect(out).not.toContain('href="https://bazi.orasage.com/"');
   });
 
-  it("maybeRewriteServedReportHtml leaves paid pages and shop CTAs alone", () => {
+  it("maybeRewriteServedReportHtml leaves paid pages alone and upgrades shop CTAs missing locale", () => {
     const paid = `<html data-report-tier="paid"><a class="paywall-cta" href="https://bazi.orasage.com/"></a>`;
     expect(maybeRewriteServedReportHtml("reading_x.html", paid)).toBe(paid);
-    const ok = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic"></a>`;
-    expect(maybeRewriteServedReportHtml("reading_x.html", ok)).toBe(ok);
+    const missingLocale = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic"></a>`;
+    const upgraded = maybeRewriteServedReportHtml("reading_x.html", missingLocale);
+    expect(upgraded).toContain("locale=zh-CN");
+    expect(upgraded).toContain("lang=zh-CN");
+    const withLocale = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic&amp;locale=zh-CN&amp;lang=zh-CN"></a>`;
+    expect(maybeRewriteServedReportHtml("reading_x.html", withLocale)).toBe(withLocale);
   });
 
   it("briefifies stale detailed free html even when the CTA already points at shop", () => {
@@ -57,4 +61,19 @@ describe("readingReport", () => {
     expect(out).toContain("shop.orasage.com/checkout");
     expect(briefifyStaleFreeReportHtml(stale)).toContain("你的结构速览");
   });
+
+  it("unlock checkout URL carries locale for Chinese reports", () => {
+    const url = buildUnlockCheckoutUrl("bazi_abc", "zh-CN");
+    expect(url).toContain("locale=zh-CN");
+    expect(url).toContain("lang=zh-CN");
+    expect(url).toContain("sku=report-bazi-basic");
+  });
+
+  it("maybeRewriteServedReportHtml injects locale into shop CTAs that lack it", () => {
+    const stale = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic&amp;appSource=bazi">付费解锁</a>`;
+    const out = maybeRewriteServedReportHtml("reading_bazi_abc.html", stale, "zh-CN");
+    expect(out).toContain("locale=zh-CN");
+    expect(out).toContain("lang=zh-CN");
+  });
+
 });

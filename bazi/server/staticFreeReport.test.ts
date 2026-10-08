@@ -86,6 +86,8 @@ describe("staticFreeReport", () => {
     expect(url).toContain("sku=report-bazi-basic");
     expect(url).toContain("readingId=user-a-1");
     expect(url).toContain("planType=basic");
+    expect(url).toContain("locale=zh-CN");
+    expect(url).toContain("lang=zh-CN");
     expect(decodeURIComponent(url)).toContain("/classic?paid=1");
     expect(url).not.toMatch(/return=https%3A%2F%2Fbazi\.orasage\.com%2F(?!classic)/);
   });
