@@ -84,12 +84,23 @@ export function buildShopCheckoutUrl(params: {
   planType: PlanType;
   mode: 'single' | 'couple';
   context?: string;
+  /** 与八字当前语言一致；不传时 shop 默认 zh-CN，禁止靠浏览器语言猜。 */
+  locale?: string;
 }): string {
+  const locale = params.locale?.startsWith('zh')
+    ? 'zh-CN'
+    : params.locale === 'pt-BR'
+      ? 'pt-BR'
+      : params.locale
+        ? 'en'
+        : 'zh-CN';
   const qs = new URLSearchParams({
     sku: params.sku,
     return: params.returnUrl,
     appSource: 'bazi',
     planType: params.planType,
+    locale,
+    lang: locale,
   });
   if (params.readingId) qs.set('readingId', params.readingId);
   if (params.mode === 'couple') qs.set('shipping', 'couple');

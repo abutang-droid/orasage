@@ -92,13 +92,15 @@ export type StartCheckoutResult = {
 };
 
 export function localeFromCheckoutRequest(req: NextRequest, explicit?: string | null): string {
-  if (explicit) return detectShopLocale({ queryLocale: explicit });
+  const query =
+    explicit
+    ?? req.nextUrl.searchParams.get('locale')
+    ?? req.nextUrl.searchParams.get('lang');
+  if (query) return detectShopLocale({ queryLocale: query });
   const cookie = req.cookies.get(SHOP_LOCALE_OVERRIDE_COOKIE)?.value
     ?? req.cookies.get(SHOP_LOCALE_COOKIE)?.value;
-  return detectShopLocale({
-    cookieLocale: cookie,
-    acceptLanguage: req.headers.get('accept-language'),
-  });
+  // No Accept-Language: leftover English browsers must not flip Chinese report unlock.
+  return detectShopLocale({ cookieLocale: cookie });
 }
 
 function unitPrice(
