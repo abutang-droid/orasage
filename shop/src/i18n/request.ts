@@ -8,6 +8,8 @@ import {
 } from '../../../shared/shop-locale/index';
 
 function queryLocaleFromHeaders(hdrs: Headers): string | null {
+  const fromMw = hdrs.get('x-orasage-locale');
+  if (fromMw) return fromMw;
   for (const raw of [hdrs.get('x-url'), hdrs.get('x-invoke-path'), hdrs.get('next-url'), hdrs.get('referer')]) {
     if (!raw) continue;
     try {
