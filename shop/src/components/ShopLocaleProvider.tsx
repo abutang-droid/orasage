@@ -6,7 +6,6 @@ import { createContext, useContext, useEffect, useMemo, useState, useCallback } 
 import {
   currencyForLocale,
   detectShopLocale,
-  SHOP_LOCALE_COOKIE,
   SHOP_LOCALE_OVERRIDE_COOKIE,
   type ShopCurrency,
 } from '../../../shared/shop-locale/index';
@@ -19,15 +18,6 @@ type ShopLocaleContextValue = {
 };
 
 const ShopLocaleContext = createContext<ShopLocaleContextValue | null>(null);
-
-function readCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`));
-  return match ? decodeURIComponent(match.split('=').slice(1).join('=')) : null;
-}
 
 export function ShopLocaleProvider({ children }: { children: React.ReactNode }) {
   const intlLocale = useLocale();
