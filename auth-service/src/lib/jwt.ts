@@ -56,7 +56,7 @@ export function getCookieOptions() {
     secure: ENV.isProduction,
     sameSite: "lax" as const,
     path: "/",
-    domain: ENV.cookieDomain,
+    ...(ENV.cookieDomain ? { domain: ENV.cookieDomain } : {}),
     maxAge: 30 * 24 * 60 * 60, // 30 days
   };
 }
