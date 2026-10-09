@@ -378,21 +378,30 @@ export default function Home() {
 
   // 支付回跳 / 罗盘起盘：只恢复一次。t 每次 render 都是新函数，
   // 若依赖 [t] 会反复 setResult + scrollTo(0)，报告页就滚不动。
+  // 付费/restore 优先打开 reading 固定报告；失败时不要落到经典合盘表单。
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('couple') === '1') {
+    const wantsCouple = params.get('couple') === '1';
+    const isPaid = params.get('paid') === '1';
+    const isRestore = params.get('restore') === '1';
+
+    // 仅显式合盘入口切合盘；付费回跳 / 单人 restore 不得被历史 couple=1 污染
+    if (wantsCouple && !isPaid) {
       setMode('couple');
       setActivePerson(1);
     }
-    if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
+    if (!isPaid && !isRestore) return;
 
     const readingId = params.get('readingId') || getLastReadingId();
     if (readingId) saveLastReadingId(readingId);
 
-    if (params.get('paid') === '1') {
-      const href = readingId ? reportPathForReadingId(readingId) : getStaticReportHref();
-      if (!href) {
+    const reportHref = readingId
+      ? reportPathForReadingId(readingId)
+      : getStaticReportHref();
+
+    if (isPaid) {
+      if (!reportHref) {
         toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
         return;
       }
@@ -408,32 +417,63 @@ export default function Home() {
       const ac = new AbortController();
       void (async () => {
         if (orderNo && readingId) {
-          void ensurePaidReport.mutateAsync({ readingId, shopOrderNo: orderNo }).catch((err) => {
+          try {
+            await ensurePaidReport.mutateAsync({ readingId, shopOrderNo: orderNo });
+          } catch (err) {
             console.warn('[paid-return] ensurePaidReport', err);
-          });
+          }
         }
-        const path = await waitForPaidReport(href, { signal: ac.signal });
         if (ac.signal.aborted) return;
-        if (path) {
-          openFixedReportPage(path);
+        const paidPath = await waitForPaidReport(reportHref, { signal: ac.signal, timeoutMs: 25_000 });
+        if (ac.signal.aborted) return;
+        if (paidPath) {
+          openFixedReportPage(paidPath);
+          return;
+        }
+        // 详版仍在生成：打开已有简版/固定页，绝不退回经典合盘表单
+        const fallback = await probeFixedReport(reportHref);
+        if (ac.signal.aborted) return;
+        if (fallback) {
+          toast.message(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
+          openFixedReportPage(fallback);
           return;
         }
         toast.error(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
-        setView('form');
+        setView('paid-waiting');
       })();
       return () => ac.abort();
     }
 
-    const snapshot = loadCheckoutSnapshot();
-    const existingHref = getStaticReportHref() || (readingId ? reportPathForReadingId(readingId) : null);
-    void probeFixedReport(existingHref).then((path) => {
-      if (path) openFixedReportPage(path);
-    });
-    if (!snapshot) return;
-
-    setResult(snapshot.result);
-    setMode(snapshot.mode);
-    setView('result');
+    // restore：先探固定报告，再考虑 snapshot；避免误用历史合盘 snapshot
+    const ac = new AbortController();
+    void (async () => {
+      const existingHref = reportHref || getStaticReportHref();
+      const path = await probeFixedReport(existingHref);
+      if (ac.signal.aborted) return;
+      if (path) {
+        openFixedReportPage(path);
+        return;
+      }
+      const snapshot = loadCheckoutSnapshot();
+      if (!snapshot) return;
+      // 无显式 couple=1 时，拒绝用合盘 snapshot 覆盖单人详情入口
+      if (snapshot.mode === 'couple' && !wantsCouple) {
+        if (snapshot.result.type === 'single') {
+          setResult(snapshot.result);
+          setMode('single');
+          setView('result');
+          return;
+        }
+        toast.error(t('paywall.restore_failed', '请重新排盘后查看完整报告'));
+        setMode('single');
+        setView('form');
+        return;
+      }
+      setResult(snapshot.result);
+      setMode(snapshot.mode);
+      setView('result');
+    })();
+    return () => ac.abort();
   }, []);
 
   useEffect(() => {

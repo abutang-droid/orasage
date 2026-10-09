@@ -1,6 +1,7 @@
 /**
  * 回归：付完仍停在解锁页。
  * 禁止 paid=1 打开 free HTML；禁止从回跳 URL 剥掉 paid。
+ * 禁止付费/restore 失败落到经典合盘表单。
  */
 import { describe, expect, it } from "vitest";
 import fs from "fs";
@@ -15,19 +16,24 @@ function read(rel: string) {
 }
 
 describe("paid return never opens free paywall HTML", () => {
-  it("Home waits for paid HTML instead of probing any existing file", () => {
+  it("Home waits for paid HTML and never dumps to classic couple form", () => {
     const home = read("pages/Home.tsx");
     expect(home).toContain("waitForPaidReport");
     expect(home).toContain("ensurePaidReport");
     expect(home).toContain("paid-waiting");
-    expect(home).not.toMatch(/params\.get\(['"]paid['"]\) === ['"]1['"][\s\S]{0,500}probeFixedReport/);
+    expect(home).toMatch(/await ensurePaidReport\.mutateAsync/);
+    expect(home).toMatch(/paidPath[\s\S]{0,400}probeFixedReport/);
+    expect(home).not.toMatch(/waitForPaidReport[\s\S]{0,300}setView\(['"]form['"]\)/);
+    expect(home).toMatch(/snapshot\.mode === ['"]couple['"] && !wantsCouple/);
   });
 
-  it("Vibe and couple views wait for paid instead of opening reused free files", () => {
+  it("Vibe and couple views wait for paid; fall back to existing report not form", () => {
     const vibe = read("components/VibeBaziReport.tsx");
     const couple = read("components/BaziResult.tsx");
     expect(vibe).toContain("waitForPaidReport");
     expect(couple).toContain("waitForPaidReport");
+    expect(vibe).toMatch(/paidPath[\s\S]{0,300}probeFixedReport/);
+    expect(couple).toMatch(/paidPath[\s\S]{0,300}probeFixedReport/);
     expect(vibe).not.toMatch(/if \(!paidRestore \|\| res\.tier === "paid"\)/);
     expect(couple).not.toMatch(/!paidRestore \|\| res\.tier === "paid"/);
   });
