@@ -57,7 +57,9 @@ describe("readingReport", () => {
     expect(out).not.toContain("2026：机会变多");
     expect(out).toContain("核心洞察");
     expect(out).toContain("简版该留");
-    expect(out).toContain('data-brief-layout="v3"');
+    expect(out).toContain('data-brief-layout="v4"');
+    expect(out).toContain('data-brief-skin="ochre"');
+    expect(out).toContain("#c96442");
     expect(out).toContain("shop.orasage.com/checkout");
     expect(briefifyStaleFreeReportHtml(stale)).toContain("你的结构速览");
   });

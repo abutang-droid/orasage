@@ -424,7 +424,7 @@ export function buildBriefVibePageHtml(options: ReportPageOptions & { radarFallb
   const insightChips = chips.map((c) => `<span class="bv-chip insight">${escapeHtml(c)}</span>`).join("");
 
   return `<!doctype html>
-<html lang="${escapeAttr(locale)}" class="report-longform brief-vibe" data-report-tier="free" data-brief-layout="v3">
+<html lang="${escapeAttr(locale)}" class="report-longform brief-vibe" data-report-tier="free" data-brief-layout="v4" data-brief-skin="ochre">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -442,7 +442,7 @@ export function buildBriefVibePageHtml(options: ReportPageOptions & { radarFallb
 <meta name="twitter:image" content="${escapeAttr(ogImage)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,18..72,400;0,18..72,500;1,18..72,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Poppins:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>${BRIEF_VIBE_CSS}</style>
 </head>
 <body>
@@ -681,11 +681,20 @@ function extractList(html: string, re: RegExp): string[] {
   return m[1].split(/[、,，/\s]+/).map((s) => s.trim()).filter((s) => /[木火土金水]/.test(s));
 }
 
-/** 从旧免费杂志/v2 页抽出数据，重排成 v3 Vibe 卡片页。 */
+/**
+ * 从旧免费杂志 / v2 / 橙卡 v3 页抽出数据，重排成 v4 赭石卡片页。
+ * 已是 v4 + ochre 才跳过，避免 CSS 更新后旧 v3 永久卡在橙 token。
+ */
 export function relayoutFreeBriefToVibe(html: string): string {
   const head = html.slice(0, 1800);
   if (!/data-report-tier=["']free["']/.test(head)) return html;
-  if (/data-brief-layout=["']v3["']/.test(head) && /brief-vibe/.test(html.slice(0, 4000))) return html;
+  if (
+    /data-brief-layout=["']v4["']/.test(head)
+    && /data-brief-skin=["']ochre["']/.test(head)
+    && /brief-vibe/.test(html.slice(0, 4000))
+  ) {
+    return html;
+  }
   if (!/<main[\s\S]*<\/main>/i.test(html) && !/<section class="section/.test(html)) return html;
 
   const locale = (html.match(/<html[^>]*\slang="([^"]+)"/) || [])[1] || "zh-CN";

@@ -90,7 +90,9 @@ describe("renderMarkdown", () => {
     expect(html).toContain("你的结构速览");
     expect(html).not.toContain("你的命局解读");
     expect(html).toContain('data-report-tier="free"');
-    expect(html).toContain('data-brief-layout="v3"');
+    expect(html).toContain('data-brief-layout="v4"');
+    expect(html).toContain('data-brief-skin="ochre"');
+    expect(html).toContain("#c96442");
     expect(html).toContain('class="report-longform brief-vibe"');
     expect(html).not.toContain("算法依据");
     expect(html).not.toContain("2026：机会变多");
@@ -212,7 +214,7 @@ describe("renderMarkdown", () => {
     expect(html).toContain('class="elements-donut"');
     expect(html).not.toContain("解锁完整命局报告");
     expect(html).not.toContain('class="paywall-cta"');
-    expect(html).not.toContain('data-brief-layout="v3"');
+    expect(html).not.toContain('data-brief-layout="v4"');
     expect(html).not.toContain("brief-vibe");
   });
 
@@ -297,7 +299,9 @@ describe("relayoutFreeBriefHtml", () => {
 </main>
 </html>`;
     const out = relayoutFreeBriefHtml(old);
-    expect(out).toContain('data-brief-layout="v3"');
+    expect(out).toContain('data-brief-layout="v4"');
+    expect(out).toContain('data-brief-skin="ochre"');
+    expect(out).toContain("#c96442");
     expect(out).toContain("brief-vibe");
     const main = out.split("<main")[1]?.split("</main>")[0] ?? "";
     expect(main.indexOf("四柱命盘")).toBeLessThan(main.indexOf("五行分析"));
