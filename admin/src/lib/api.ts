@@ -952,3 +952,156 @@ export function adjustAdminWallet(
     { method: 'POST', body: JSON.stringify(body) },
   );
 }
+
+/* ── 渠道管理 ───────────────────────────────────────────── */
+
+export type ChannelMemberRole = 'bd' | 'ops' | 'designer' | 'salesperson' | 'store';
+
+export interface AdminChannelUserBrief {
+  id: number;
+  email: string;
+  nickname: string;
+  role: string;
+  staffLabel: string | null;
+}
+
+export interface AdminChannelRates {
+  bdBps: number;
+  opsBps: number;
+  designerBps: number;
+  salespersonBps: number;
+  storeBps: number;
+  bdPercent: number;
+  opsPercent: number;
+  designerPercent: number;
+  salespersonPercent: number;
+  storePercent: number;
+  sumBps: number;
+  sumPercent: number;
+  sumExceeds100: boolean;
+}
+
+export interface AdminChannel {
+  id: number;
+  code: string;
+  name: string;
+  status: 'active' | 'disabled';
+  statusLabel: string;
+  note: string | null;
+  ownerUserId: number | null;
+  owner: AdminChannelUserBrief | null;
+  rates: AdminChannelRates;
+  memberCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminChannelMember {
+  id: number;
+  channelId: number;
+  memberRole: ChannelMemberRole;
+  memberRoleLabel: string;
+  name: string;
+  userId: number | null;
+  user: AdminChannelUserBrief | null;
+  commissionBps: number | null;
+  commissionPercent: number | null;
+  effectiveCommissionBps: number;
+  effectiveCommissionPercent: number;
+  effectiveCommissionLabel: string;
+  usesChannelDefault: boolean;
+  contact: string | null;
+  address: string | null;
+  note: string | null;
+  disabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function listChannels() {
+  return adminFetch<{ channels: AdminChannel[] }>('/channels');
+}
+
+export function getChannelsMeta() {
+  return adminFetch<{
+    memberRoles: Array<{ value: ChannelMemberRole; label: string }>;
+    statuses: Array<{ value: string; label: string }>;
+  }>('/channels/meta');
+}
+
+export function getChannel(id: number) {
+  return adminFetch<{ channel: AdminChannel; members: AdminChannelMember[] }>(`/channels/${id}`);
+}
+
+export function createChannel(body: {
+  code: string;
+  name: string;
+  note?: string | null;
+  ownerEmail?: string | null;
+  rates?: Partial<Record<ChannelMemberRole, number>>;
+}) {
+  return adminFetch<{ channel: AdminChannel }>('/channels', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateChannel(
+  id: number,
+  body: {
+    name?: string;
+    note?: string | null;
+    status?: 'active' | 'disabled';
+    ownerEmail?: string | null;
+    rates?: Partial<Record<ChannelMemberRole, number>>;
+  },
+) {
+  return adminFetch<{ channel: AdminChannel }>(`/channels/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+export function createChannelMember(
+  channelId: number,
+  body: {
+    memberRole: ChannelMemberRole;
+    name: string;
+    userEmail?: string | null;
+    commissionBps?: number | null;
+    contact?: string | null;
+    address?: string | null;
+    note?: string | null;
+  },
+) {
+  return adminFetch<{ member: AdminChannelMember }>(`/channels/${channelId}/members`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateChannelMember(
+  channelId: number,
+  memberId: number,
+  body: {
+    name?: string;
+    memberRole?: ChannelMemberRole;
+    userEmail?: string | null;
+    commissionBps?: number | null;
+    contact?: string | null;
+    address?: string | null;
+    note?: string | null;
+    disabled?: boolean;
+  },
+) {
+  return adminFetch<{ member: AdminChannelMember }>(`/channels/${channelId}/members/${memberId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteChannelMember(channelId: number, memberId: number) {
+  return adminFetch<{ success: boolean }>(`/channels/${channelId}/members/${memberId}`, {
+    method: 'DELETE',
+  });
+}
