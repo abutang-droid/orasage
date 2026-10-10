@@ -8,7 +8,8 @@ User=ubuntu
 WorkingDirectory=/opt/orasage/main
 EnvironmentFile=/opt/orasage/.env
 Environment=NODE_ENV=production
-Environment=PORT=3100
+# Tunnel ingress stays on :3100 via deploy/nginx/orasage-main-tunnel-split.conf
+Environment=PORT=3105
 Environment=HOSTNAME=127.0.0.1
 ExecStart=/usr/local/bin/npm start
 Restart=always

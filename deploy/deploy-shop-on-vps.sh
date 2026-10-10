@@ -137,9 +137,17 @@ rm -rf .next
 
 log "配置 orasage-main 服务..."
 sudo cp "$DEPLOY_DIR/deploy/main/orasage-main.service" /etc/systemd/system/
+# Tunnel ingress :3100 → static /launch + proxy to Next :3105
+if [ -f "$DEPLOY_DIR/deploy/nginx/orasage-main-tunnel-split.conf" ]; then
+  sudo cp "$DEPLOY_DIR/deploy/nginx/orasage-main-tunnel-split.conf" \
+    /etc/nginx/sites-available/orasage-main-tunnel-split
+  sudo ln -sf /etc/nginx/sites-available/orasage-main-tunnel-split \
+    /etc/nginx/sites-enabled/orasage-main-tunnel-split
+fi
 sudo systemctl daemon-reload
 sudo systemctl enable orasage-main
 sudo systemctl restart orasage-main
+sudo nginx -t && sudo systemctl reload nginx || true
 
 # ── 6. 部署 admin ────────────────────────────────────────────
 log "安装 admin 依赖..."
