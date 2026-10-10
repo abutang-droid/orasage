@@ -1,19 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'wouter';
+import { toast } from 'sonner';
 import { loadCityCatalog, matchLocalCity, toCityCoords } from '@orasage/city';
 import { CityProvider, CitySearchInput } from '@orasage/city/react';
 import type { BirthplaceValue } from '@orasage/city';
-import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi';
+import { calcSingleBazi, loadLunarLib, recommendBracelet, type SingleBaziResult } from '@/lib/bazi';
 import { cityApi } from '@/lib/city-client';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { saveLastReadingId, getLastReadingId } from '@/_core/hooks/usePaymentFlow';
+import { saveCheckoutSnapshot, loadCheckoutSnapshot } from '@/lib/checkout-session';
+import { useT } from '@/lib/i18n';
+import { syncBaziSingleReading } from '@/lib/reading-sync';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
+import { luopanToPersonInput } from './luopan/luopanPerson';
 import { LuopanResult } from './luopan/LuopanResult';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
 
 export default function LuopanPage() {
   const [, setLocation] = useLocation();
+  const { t, locale } = useT();
+  const { isAuthenticated } = useAuth();
   const hostRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<{ destroy: () => void; applyTranscript: (text: string) => void } | null>(null);
   const [citySlot, setCitySlot] = useState<HTMLElement | null>(null);
@@ -53,21 +62,10 @@ export default function LuopanPage() {
           timezone = coords.timezone;
         }
       }
-      const isLunar = s.calendar === 'lunar';
-      const data = await calcSingleBazi({
-        name: '访客',
-        gender: s.sex === '女' ? 'female' : 'male',
-        year: isLunar ? s.lunarYear : s.y,
-        month: isLunar ? s.lunarMonth : s.m,
-        day: isLunar ? s.lunarDay : s.d,
-        hour: s.hh,
-        minute: s.mi,
-        calendar: isLunar ? 'lunar' : 'gregorian',
-        ...(isLunar && s.lunarLeap ? { isLeapMonth: true } : {}),
-        birthplace: city.city,
-        cityName: city.city,
+      const data = await calcSingleBazi(luopanToPersonInput(s, {
+        ...city,
         ...(lng != null ? { lng, lat: lat ?? 0, timezone } : {}),
-      });
+      }));
       setResult(data);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -77,6 +75,35 @@ export default function LuopanPage() {
       setBusy(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
+    const snapshot = loadCheckoutSnapshot();
+    if (!snapshot || snapshot.result.type !== 'single') {
+      if (params.get('paid') === '1') {
+        toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+      }
+      return;
+    }
+    setResult(snapshot.result.data);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [t]);
+
+  useEffect(() => {
+    if (!result) return;
+    saveCheckoutSnapshot({ type: 'single', data: result }, 'single');
+    const braceletRec = recommendBracelet(result.wuXing as unknown as Record<string, number>);
+    const readingId = syncBaziSingleReading(
+      result.name,
+      result,
+      braceletRec,
+      getLastReadingId() ?? undefined,
+      locale,
+    );
+    saveLastReadingId(readingId);
+  }, [result, isAuthenticated, locale]);
 
   const onTranscript = useCallback(async (text: string) => {
     try {

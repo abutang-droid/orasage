@@ -1749,7 +1749,7 @@ function FreeBaziInsight({ result }: { result: SingleBaziResult }) {
 //  付费后组件：解锁内容
 // ════════════════════════════════════════════════════════════════════
 
-function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onReportReady }: {
+export function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onReportReady }: {
   result: SingleBaziResult;
   purchasedPlan: PlanType | null;
   braceletRec: BraceletRecommendation | null;
@@ -1761,7 +1761,6 @@ function UnlockedContent({ result, purchasedPlan, braceletRec, captureRef, onRep
       <AIAnalysisPanel resultData={result as unknown as Record<string, unknown>} type="single" autoTrigger onReportReady={onReportReady} />
       {purchasedPlan === "basic" && braceletRec?.deficiencyWx && (
         <BaziConfiguredProductRecommend
-          element={braceletRec.deficiencyWx}
           chart={{
             birthStr: result.birthStr,
             gender: result.gender,
