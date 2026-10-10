@@ -39,9 +39,53 @@ sync_config_repo() {
   fi
 }
 
+# 只部署 bazi 时也必须重建 auth：游客排盘 userId=0 upsert 依赖 auth dist。
+# 曾因 git pull 更新了源码却未 rebuild auth，导致「完整报告反复丢失」。
+rebuild_auth_for_guest_readings() {
+  local AUTH_DIR="$DEPLOY_DIR/auth-service"
+  if [ ! -f "$AUTH_DIR/package.json" ]; then
+    log "跳过 auth 重建：未找到 $AUTH_DIR"
+    return 0
+  fi
+  log "重建 auth-service（保证 internal/readings 接受 userId=0）..."
+  (
+    cd "$AUTH_DIR"
+    if [ -f package-lock.json ]; then
+      npm ci --omit=dev 2>/dev/null || npm install --omit=dev
+    else
+      npm install --omit=dev
+    fi
+    npm run build
+  )
+  if systemctl list-unit-files | grep -q '^orasage-auth\.service'; then
+    systemctl restart orasage-auth
+    sleep 1
+    # 冒烟：userId=0 必须成功，否则付费任务永远 reading not found
+    local probe="bazi_deploy_guest_probe_$$"
+    local code
+    code=$(curl -s -o /tmp/auth-guest-probe.json -w '%{http_code}' \
+      -X POST http://127.0.0.1:3101/internal/readings \
+      -H 'Content-Type: application/json' \
+      -d "{\"userId\":0,\"appSource\":\"bazi\",\"readingId\":\"$probe\",\"title\":\"deploy probe\"}" || echo 000)
+    if [ "$code" != "200" ]; then
+      log "错误: auth 仍拒绝 userId=0（HTTP $code）。完整报告将无法生成。"
+      cat /tmp/auth-guest-probe.json 2>/dev/null || true
+      exit 1
+    fi
+    curl -s -X DELETE "http://127.0.0.1:3101/internal/readings/$probe" >/dev/null 2>&1 || true
+    # best-effort DB cleanup if DELETE unsupported
+    sudo -u postgres psql -d orasage_auth -c "DELETE FROM user_readings WHERE reading_id='$probe';" >/dev/null 2>&1 || true
+    log "auth guest upsert OK"
+  else
+    log "警告: 未找到 orasage-auth.service，请手动重建并重启 auth"
+  fi
+}
+
 deploy_native() {
   log "部署 native 模式（自托管，源码见 $APP_DIR）..."
   require_cmd node
+
+  rebuild_auth_for_guest_readings
 
   if [ ! -f "$APP_DIR/.env" ]; then
     log "警告: $APP_DIR/.env 不存在，从模板创建（请检查 DATABASE_URL / JWT_SECRET）"

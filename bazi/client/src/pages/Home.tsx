@@ -424,18 +424,11 @@ export default function Home() {
           }
         }
         if (ac.signal.aborted) return;
-        const paidPath = await waitForPaidReport(reportHref, { signal: ac.signal, timeoutMs: 25_000 });
+        // 禁止把仍是 free 的 HTML 当成交结果（完整报告丢失的反复根因）
+        const paidPath = await waitForPaidReport(reportHref, { signal: ac.signal, timeoutMs: 120_000 });
         if (ac.signal.aborted) return;
         if (paidPath) {
           openFixedReportPage(paidPath);
-          return;
-        }
-        // 详版仍在生成：打开已有简版/固定页，绝不退回经典合盘表单
-        const fallback = await probeFixedReport(reportHref);
-        if (ac.signal.aborted) return;
-        if (fallback) {
-          toast.message(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
-          openFixedReportPage(fallback);
           return;
         }
         toast.error(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));

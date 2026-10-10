@@ -52,9 +52,45 @@ export function resolveReadingReportPaths(readingId: string) {
   const fileName = `${reportId}.html`;
   const reportsDir = resolveReportsDir();
   const absolutePath = path.join(reportsDir, fileName);
+  const payloadPath = path.join(reportsDir, `${reportId}.payload.json`);
   const reportPath = `/reports/${fileName}`;
   const reportUrl = `${BAZI_PUBLIC_URL}${reportPath}`;
-  return { reportId, fileName, reportsDir, absolutePath, reportPath, reportUrl };
+  return { reportId, fileName, reportsDir, absolutePath, payloadPath, reportPath, reportUrl };
+}
+
+/** 旁路 payload：auth upsert 失败时 report-job 仍可从磁盘恢复生成 paid */
+export function writeReadingPayloadSidecar(
+  readingId: string,
+  payload: { type: "single" | "couple"; lang?: string; resultData: Record<string, unknown> },
+) {
+  const paths = resolveReadingReportPaths(readingId);
+  fs.mkdirSync(paths.reportsDir, { recursive: true });
+  fs.writeFileSync(
+    paths.payloadPath,
+    JSON.stringify({ readingId, ...payload, savedAt: new Date().toISOString() }),
+    "utf-8",
+  );
+  return paths.payloadPath;
+}
+
+export function readReadingPayloadSidecar(readingId: string): {
+  type: "single" | "couple";
+  lang?: string;
+  resultData: Record<string, unknown>;
+} | null {
+  const paths = resolveReadingReportPaths(readingId);
+  if (!fs.existsSync(paths.payloadPath)) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(paths.payloadPath, "utf8")) as {
+      type?: string;
+      lang?: string;
+      resultData?: Record<string, unknown>;
+    };
+    if ((raw.type !== "single" && raw.type !== "couple") || !raw.resultData) return null;
+    return { type: raw.type, lang: raw.lang, resultData: raw.resultData };
+  } catch {
+    return null;
+  }
 }
 
 export function readReportTier(absolutePath: string): ReportTier | null {

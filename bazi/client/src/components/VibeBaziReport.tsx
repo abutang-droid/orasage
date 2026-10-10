@@ -396,21 +396,14 @@ export function VibeBaziReport({
           ? reportPathForReadingId(urlReadingId)
           : getStaticReportHref();
         if (href) {
-          const paidPath = await waitForPaidReport(href, { timeoutMs: 25_000 });
+          const paidPath = await waitForPaidReport(href, { timeoutMs: 120_000 });
           if (cancelled) return;
           if (paidPath) {
             openFixedReportPage(paidPath);
             return;
           }
-          // 详版未就绪：打开已有简版，避免退回合盘/经典表单
-          const fallback = await probeFixedReport(href);
-          if (cancelled) return;
-          if (fallback) {
-            toast.message(t("paywall.paid_report_pending", "支付已成功，完整报告仍在生成。请稍后刷新本页。"));
-            openFixedReportPage(fallback);
-            return;
-          }
         }
+        // 禁止打开仍带付费墙的 free 页
         toast.error(t("paywall.paid_report_pending", "支付已成功，完整报告仍在生成。请稍后刷新本页。"));
         setOpeningLongform(false);
         return;
