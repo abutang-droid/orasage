@@ -28,6 +28,7 @@ export {
   originsUrl,
   readingsUrl,
   searchUrl,
+  withAppLocale,
   exploreItems,
   isCurrentAppHome,
   isAppSubpage,

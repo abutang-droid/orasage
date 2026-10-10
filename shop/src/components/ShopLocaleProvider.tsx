@@ -53,7 +53,6 @@ export function ShopLocaleProvider({ children }: { children: React.ReactNode }) 
     const portal = readCookie(SHOP_LOCALE_COOKIE);
     const detected = detectShopLocale({
       cookieLocale: override ?? portal,
-      acceptLanguage: navigator.language,
     });
     if (detected !== intlLocale) {
       setLocaleCookie(detected);

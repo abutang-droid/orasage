@@ -997,6 +997,74 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
   res.json({ orders, total: totalRow?.value ?? 0, limit, offset });
 });
 
+/** 测试 / 排盘报告列表（user_readings，含静态报告 URL） */
+adminApiRouter.get("/readings", P.overview, async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+  const appFilter = String(req.query.app ?? "");
+  const q = String(req.query.q ?? "").trim();
+  const hasReport = String(req.query.hasReport ?? "");
+
+  const conditions = [];
+  if (appFilter && (appFilter === "bazi" || appFilter === "ziwei" || appFilter === "tarot")) {
+    conditions.push(eq(userReadings.appSource, appFilter));
+  }
+  if (hasReport === "1" || hasReport === "true") {
+    conditions.push(ilike(userReadings.reportUrl, "http%"));
+  }
+  if (q) {
+    conditions.push(
+      or(
+        ilike(userReadings.title, `%${q}%`),
+        ilike(userReadings.summary, `%${q}%`),
+        ilike(userReadings.readingId, `%${q}%`),
+      ),
+    );
+  }
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [totalRow] = await db.select({ value: count() }).from(userReadings).where(where);
+  const rows = await db
+    .select({
+      id: userReadings.id,
+      userId: userReadings.userId,
+      appSource: userReadings.appSource,
+      readingId: userReadings.readingId,
+      title: userReadings.title,
+      summary: userReadings.summary,
+      reportUrl: userReadings.reportUrl,
+      crystalSku: userReadings.crystalSku,
+      createdAt: userReadings.createdAt,
+      userEmail: users.email,
+      userName: users.nickname,
+    })
+    .from(userReadings)
+    .leftJoin(users, eq(userReadings.userId, users.id))
+    .where(where)
+    .orderBy(desc(userReadings.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const readings = rows.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    userLabel: r.userId === 0
+      ? "游客"
+      : (r.userName || r.userEmail || `用户 #${r.userId}`),
+    userEmail: r.userEmail ?? null,
+    appSource: r.appSource,
+    appLabel: APP_LABELS[r.appSource] ?? r.appSource,
+    readingId: r.readingId,
+    title: r.title,
+    summary: r.summary,
+    reportUrl: r.reportUrl,
+    crystalSku: r.crystalSku,
+    createdAt: r.createdAt,
+  }));
+
+  res.json({ readings, total: totalRow?.value ?? 0, limit, offset });
+});
+
 const CONTACT_STATUS_LABELS: Record<string, string> = {
   new: "待处理",
   processing: "处理中",

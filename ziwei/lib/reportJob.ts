@@ -67,7 +67,7 @@ function writeReportHtml(planType: string, reportContent: string): string {
 <title>${planLabel} - OraSage 紫微</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-body{font-family:"Noto Serif SC",serif;background:#FAFAF8;color:#3D3852;line-height:1.8;margin:0}
+body{font-family:"Noto Serif SC",serif;background:#FAF9F5;color:#3D3929;line-height:1.8;margin:0}
 .container{max-width:720px;margin:2rem auto;padding:0 1rem}
 .card{background:#FFF;border-radius:16px;padding:2rem;box-shadow:0 4px 24px rgba(46,41,91,0.06)}
 h1,h2,h3{color:#171717}
@@ -85,7 +85,21 @@ h1,h2,h3{color:#171717}
 export async function runReportJob(input: ReportJobInput) {
   const reading = await fetchReading(input.readingId);
   if (!reading) throw new Error('reading not found');
-  if (reading.userId !== input.userId) throw new Error('reading user mismatch');
+  if (reading.userId !== 0 && reading.userId !== input.userId) {
+    throw new Error('reading user mismatch');
+  }
+  if (reading.userId === 0 && input.userId > 0) {
+    await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: input.userId,
+        appSource: 'ziwei',
+        readingId: reading.readingId,
+        title: reading.title,
+      }),
+    });
+  }
   if (reading.reportUrl) {
     return { success: true, duplicate: true, reportUrl: reading.reportUrl };
   }

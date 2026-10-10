@@ -43,6 +43,8 @@ export interface PushReportParams {
   readingId?: string;
   reportContent: string;
   name: string;
+  /** 命盘摘要，写入付费固定页 chart 区 */
+  inputSummary?: Record<string, unknown>;
 }
 
 export function usePaymentFlow(mode: "single" | "couple" = "single") {
@@ -87,19 +89,35 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
   const buyPlanMutation = trpc.bazi.buyPlan.useMutation({
     onSuccess: (data) => {
       console.log("[OraSage] buyPlan SUCCESS:", data);
+      if (data && typeof data === "object" && "report_url" in data && data.report_url) {
+        try {
+          sessionStorage.setItem("bazi:staticReportUrl", String(data.report_url));
+          const pathMatch = String(data.report_url).match(/\/reports\/[^?#]+/);
+          if (pathMatch) sessionStorage.setItem("bazi:staticReportPath", pathMatch[0]);
+        } catch { /* ignore */ }
+        window.dispatchEvent(
+          new CustomEvent("bazi:static-report-upgraded", {
+            detail: { reportUrl: data.report_url },
+          }),
+        );
+      }
     },
     onError: (err) => {
       console.error("[OraSage] buyPlan failed:", err.message);
     },
   });
 
-  // Shop 支付回跳 ?paid=1&order=OS-xxx
+  // Shop 支付回跳 ?paid=1&order=OS-xxx — 只处理一次，避免 t 引用变化时反复 toast。
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("paid") !== "1") return;
-    const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder");
-    if (!orderNo) return;
+    const readingId = params.get("readingId");
+    if (readingId) saveLastReadingId(readingId);
+    const orderNo = params.get("order") ?? sessionStorage.getItem("bazi:lastShopOrder") ?? localStorage.getItem("bazi:lastShopOrder");
+    if (orderNo) {
+      try { sessionStorage.setItem("bazi:lastShopOrder", orderNo); } catch { /* ignore */ }
+    }
     const storedPlan = sessionStorage.getItem(PLAN_KEY) as PlanType | null;
     setState((prev) => ({
       ...prev,
@@ -108,14 +126,9 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       purchasedPlan: prev.purchasedPlan ?? storedPlan ?? "advanced",
     }));
     sessionStorage.removeItem(PLAN_KEY);
-    sessionStorage.removeItem("bazi:lastShopOrder");
     toast.success(t('plan.paid_success', '支付成功，正在生成报告…'));
-    const url = new URL(window.location.href);
-    url.searchParams.delete("paid");
-    url.searchParams.delete("order");
-    url.searchParams.delete("restore");
-    window.history.replaceState({}, "", url.pathname + url.search);
-  }, [t]);
+    // 不要从 URL 去掉 paid / readingId：回跳页要靠它们等 paid HTML，刷新也不能掉回付费墙。
+  }, []);
 
   // Legacy WooCommerce postMessage
   useEffect(() => {
@@ -204,6 +217,7 @@ export function usePaymentFlow(mode: "single" | "couple" = "single") {
       reportContent: params.reportContent,
       email: state.buyerEmail,
       name: state.buyerName || params.name,
+      inputSummary: params.inputSummary,
     } as any);
   }, [buyPlanMutation, state.buyerEmail, state.buyerName, state.wooOrderId, state.shopOrderNo]);
 
@@ -245,11 +259,14 @@ export function saveLastReadingId(readingId: string) {
   try {
     sessionStorage.setItem(READING_ID_KEY, readingId);
   } catch { /* ignore */ }
+  try {
+    localStorage.setItem(READING_ID_KEY, readingId);
+  } catch { /* ignore */ }
 }
 
 export function getLastReadingId(): string | null {
   try {
-    return sessionStorage.getItem(READING_ID_KEY);
+    return sessionStorage.getItem(READING_ID_KEY) || localStorage.getItem(READING_ID_KEY);
   } catch {
     return null;
   }

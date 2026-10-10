@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { resolveReportsDir } from "./_core/reportsDir";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { saveBaziRecord, getUserBaziRecords, deleteBaziRecord, getDb } from "./db";
@@ -11,14 +10,28 @@ import { invokeLLM } from "./_core/llm";
 import { ENV } from "./_core/env";
 import { PLAN_OPTIONS } from "@shared/types";
 import fs from "fs";
-import path from "path";
 import { llmRateLimit, paymentRateLimit } from "./_core/rateLimitMiddleware";
 import { parseSections, buildSingleBaziPrompt, buildDoubleBaziPrompt, buildFreeInsightPrompt } from "./prompts";
 import { aiSystemLanguagePrefix } from "../../shared/ai-locale/index.ts";
-import { buildReportPageHtml } from "./reportHtml";
 import { fetchReportProductRecommend } from "./reportRecommend";
 import { sanitizeReportBrandText } from "../shared/report-brand.ts";
+import { sanitizeInsightJson, sanitizeVernacularText } from "../shared/vernacular-sanitize.ts";
+import { composeFreeReport } from "../shared/free-report.ts";
 import { getPriceMap, DEFAULT_PRICE_MAP } from "./priceFetcher";
+import {
+  ensureStaticFreeReport,
+  upsertReadingWithReport,
+  writePaidReadingReport,
+} from "./staticFreeReport";
+import { generateBaziReportContent } from "./reportGenerator";
+import { readReportTier, resolveReadingReportPaths } from "./readingReport";
+import { runReportJob } from "./reportJob";
+import {
+  chartInputFingerprint,
+  chartKindFromResult,
+  sanitizeDeviceId,
+  stableChartReadingId,
+} from "../shared/chart-identity";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com";
@@ -183,7 +196,7 @@ export const appRouter = router({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
+              content: langGuide + "你是八字结构顾问 OraSage。正文必须现象→机制→句尾「体系里叫」。身弱只写「支持你的力量少于消耗你的力量」或「偏耗」。禁止医疗、财务、法律建议，禁止有救、开运、神煞、疾病、投资失利。当前年份是 2026 年，年份写成「2026 年（丙午）」。",
             },
             { role: "user", content: prompt },
           ],
@@ -191,11 +204,11 @@ export const appRouter = router({
 
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error("LLM 返回内容为空");
-        const content = sanitizeReportBrandText(
+        const content = sanitizeVernacularText(sanitizeReportBrandText(
           typeof rawContent === "string"
             ? rawContent
             : (rawContent as Array<{ type: string; text?: string }>).map(c => c.text ?? "").join(""),
-        );
+        ));
 
         // 解析 Markdown 章节：按 ### 标题分割
         const sections = parseSections(content);
@@ -216,7 +229,7 @@ export const appRouter = router({
 
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: langGuide + "你是铁口直断派的专业东方命理顾问。根据用户的实际排盘数据，生成个性化的简短命理解读。当前年份是 2026 年，所有分析以 2026 年为基准，不要提及 2025 年或更早的年份。只返回 JSON，不要 markdown 代码块。" },
+            { role: "system", content: langGuide + "你是八字结构顾问。输出白话 JSON：现象→机制→体系里叫。身弱写偏耗。禁止疾病、投资、有救、开运。只返回 JSON。" },
             { role: "user", content: prompt },
           ],
         });
@@ -227,17 +240,129 @@ export const appRouter = router({
         try {
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (!jsonMatch) throw new Error("No JSON found");
-          return JSON.parse(jsonMatch[0]);
+          return sanitizeInsightJson(JSON.parse(jsonMatch[0]) as Record<string, unknown>);
         } catch {
+          const composed = composeFreeReport(input.resultData as Parameters<typeof composeFreeReport>[0], input.lang);
           return {
-            title: "命格不凡，自有天机",
-            traits: "您的八字蕴含独特能量，建议深入解读以了解完整命理格局。",
-            career: "适合发挥自身五行优势的行业方向。",
-            partner: "根据五行互补原则选择合作伙伴。",
-            risk: `2026年需关注自身五行平衡，注意身心调节。`,
-            lucky: "幸运色: 金色、紫色 ｜ 幸运方位: 东南",
+            title: composed.sections[0]?.title ?? "",
+            matrix: composed.sections[0]?.body ?? "",
+            pattern: composed.sections[1]?.body ?? "",
+            personality: composed.sections[2]?.body ?? "",
+            risk: composed.sections[3]?.body ?? "",
+            lucky: composed.luckyLine,
           };
         }
+      }),
+
+    /**
+     * 排盘完成后：网络 AI 生成简版，落成固定静态 HTML，并写入 readings。
+     * 同一账号（或设备）+ 同一输入 → 同一 readingId，已有文件则不再调模型。
+     */
+    materializeReport: publicProcedure
+      .use(llmRateLimit)
+      .input(z.object({
+        lang: z.enum(["zh-CN", "zh-TW", "en", "pt-BR"]).default("zh-CN"),
+        resultData: z.record(z.string(), z.unknown()),
+        readingId: z.string().min(1).max(128).optional(),
+        deviceId: z.string().min(8).max(80).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const fingerprint = chartInputFingerprint(input.resultData);
+        const deviceId = sanitizeDeviceId(input.deviceId);
+        const userId = ctx.user?.id ?? 0;
+        const computedId = stableChartReadingId({
+          userId,
+          deviceId: deviceId || "anon",
+          fingerprint,
+        });
+        // 支付回跳带来的已有 readingId：订单/文件绑的是那条，不能改成新指纹 ID。
+        const requestedId = input.readingId?.trim() || "";
+        const requestedExists = requestedId
+          ? Boolean(readReportTier(resolveReadingReportPaths(requestedId).absolutePath))
+          : false;
+        const readingId = requestedExists ? requestedId : computedId;
+        const kind = chartKindFromResult(input.resultData);
+        const paths = resolveReadingReportPaths(readingId);
+        const existingTier = readReportTier(paths.absolutePath);
+        const xf = ctx.req.headers["x-forwarded-for"];
+        const clientIp = (typeof xf === "string" ? xf.split(",")[0].trim() : "")
+          || ctx.req.ip
+          || "";
+
+        let result;
+        let calibratedChart: Awaited<ReturnType<typeof generateBaziReportContent>>["chart"] | undefined;
+        if (existingTier) {
+          result = {
+            ...paths,
+            reused: true as const,
+            skipped: true as const,
+            tier: existingTier,
+          };
+        } else {
+          const generated = await generateBaziReportContent(
+            kind,
+            input.resultData,
+            input.lang,
+            "brief",
+          );
+          calibratedChart = generated.chart;
+          result = ensureStaticFreeReport(input.resultData, input.lang, {
+            readingId,
+            reportContent: generated.report,
+            chartOverride: generated.chart,
+          });
+        }
+
+        const name = kind === "couple"
+          ? `${String((input.resultData.person1 as { name?: string } | undefined)?.name ?? "甲")} & ${String((input.resultData.person2 as { name?: string } | undefined)?.name ?? "乙")}`
+          : (String(input.resultData.name ?? "").trim() || "访客");
+        const riZhu = String(calibratedChart?.riZhu || input.resultData.riZhu || "");
+        const strength = String(input.resultData.strength ?? "");
+        const summary = [
+          kind === "couple" ? "合盘简版" : (riZhu ? `日主 ${riZhu}` : null),
+          strength || null,
+          result.reused ? "已有固定页" : "新生成固定页",
+        ].filter(Boolean).join(" · ");
+
+        const saved = await upsertReadingWithReport({
+          userId,
+          readingId,
+          title: kind === "couple" ? `八字合盘速览 · ${name}` : `八字结构速览 · ${name}`,
+          summary,
+          reportUrl: result.reportUrl,
+          payloadJson: JSON.stringify({
+            type: kind,
+            lang: input.lang,
+            resultData: input.resultData,
+            calibratedChart: calibratedChart ?? null,
+            reportId: result.reportId,
+            reportPath: result.reportPath,
+            tier: result.tier,
+            deviceId,
+            clientIp,
+            inputFingerprint: fingerprint,
+          }),
+        });
+
+        console.log(
+          "[StaticReport] materialize",
+          result.reused ? "keep" : "write",
+          result.fileName,
+          result.reportUrl,
+          `tier=${result.tier}`,
+          saved ? "saved-to-admin" : "admin-save-failed",
+        );
+        return {
+          success: true as const,
+          reportId: result.reportId,
+          fileName: result.fileName,
+          reportUrl: result.reportUrl,
+          reportPath: result.reportPath,
+          reused: result.reused,
+          readingId,
+          tier: result.tier,
+          savedToAdmin: saved,
+        };
       }),
 
     /** 保存排盘记录（需登录） */
@@ -345,16 +470,11 @@ export const appRouter = router({
         let email = ctx.user?.email || input.email || '';
         let buyerName = input.name || ctx.user?.name || '';
 
-        // ── ② 生成静态 HTML 报告（不依赖 email，有报告内容就执行） ──
+        // ── ② 付费全文覆盖同一 reading 固定页（与免费速览同 URL；无 readingId 时降级独立文件） ──
         let reportUrl = '';
 
         if (input.reportContent) {
           try {
-            const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-            const fileName = `${reportId}.html`;
-            const reportsDir = resolveReportsDir();
-            console.log('[StaticReport] reportsDir:', reportsDir, 'exists:', fs.existsSync(reportsDir));
-
             const planLabelMap: Record<string, string> = { basic: '深度解读', advanced: '水晶手串', premium: '终极能量礼盒' };
             const planLabel = planLabelMap[input.planType] || input.planType;
             const summary = input.inputSummary as Record<string, unknown> | undefined;
@@ -372,19 +492,29 @@ export const appRouter = router({
                 })
               : null;
 
-            const staticHtml = buildReportPageHtml({
-              planLabel,
+            const readingId =
+              (input.readingId && input.readingId.trim()) ||
+              `anon_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+            const written = writePaidReadingReport({
+              readingId,
               reportContent: brandedReport,
+              planLabel,
               subjectName: input.name || buyerName || undefined,
+              locale: "zh-CN",
+              resultData: summary,
               productRecommend,
             });
+            reportUrl = written.reportUrl;
+            console.log(
+              '[StaticReport] Paid overwrite',
+              written.fileName,
+              'size:',
+              fs.statSync(written.absolutePath).size,
+              'URL:',
+              reportUrl,
+            );
 
-            const filePath = path.join(reportsDir, fileName);
-            fs.writeFileSync(filePath, staticHtml, 'utf-8');
-            reportUrl = `${BAZI_PUBLIC_URL}/reports/${fileName}`;
-            console.log('[StaticReport] Saved to:', filePath, 'size:', fs.statSync(filePath).size, 'URL:', reportUrl);
-
-            // 更新 purchase 记录：设置 reportUrl，标记 push 状态初始为 pending
             if (purchaseId && db) {
               try {
                 await db.update(purchases)
@@ -526,6 +656,53 @@ export const appRouter = router({
           throw new Error("PDF not yet generated");
         }
         return { pdfUrl: report[0].pdfUrl };
+      }),
+
+    /**
+     * 支付回跳兜底：订单已付但 HTML 仍是 free 时，再跑一次同一份详版任务。
+     * 游客盘（userId=0）由任务认领给付款人；已是 paid 则幂等返回。
+     */
+    ensurePaidReport: publicProcedure
+      .use(paymentRateLimit)
+      .input(z.object({
+        readingId: z.string().min(1).max(128),
+        shopOrderNo: z.string().min(1).max(64),
+      }))
+      .mutation(async ({ input }) => {
+        const res = await fetch(`${AUTH_INTERNAL}/internal/orders/${encodeURIComponent(input.shopOrderNo)}`);
+        if (!res.ok) throw new Error("order not found");
+        const data = await res.json() as {
+          order?: {
+            userId: number;
+            status: string;
+            sku?: string | null;
+            readingId?: string | null;
+            orderNo: string;
+          };
+        };
+        const order = data.order;
+        if (!order) throw new Error("order not found");
+        if (!["paid", "completed"].includes(order.status)) {
+          throw new Error("order not paid");
+        }
+        if (order.readingId && order.readingId !== input.readingId) {
+          throw new Error("order reading mismatch");
+        }
+        const sku = order.sku ?? "";
+        if (sku && !sku.startsWith("report-bazi")) {
+          throw new Error("not a bazi report order");
+        }
+        const planType = sku.includes("-basic")
+          ? "basic"
+          : sku.includes("-premium")
+            ? "premium"
+            : "advanced";
+        return runReportJob({
+          orderNo: order.orderNo,
+          userId: order.userId,
+          readingId: input.readingId,
+          planType,
+        });
       }),
   }),
 });

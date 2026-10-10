@@ -9,7 +9,7 @@ export function Header() {
   const locale = useLocale();
 
   return (
-    <div className="border-b border-border/80 bg-background [&_.orasage-site-topnav]:border-0 [&_.orasage-site-topnav]:bg-background">
+    <div className="orasage-site-chrome border-b border-border/80 bg-background [&_.orasage-site-topnav]:border-0 [&_.orasage-site-topnav]:bg-background">
       <SiteTopNav
         locale={locale}
         context="portal"

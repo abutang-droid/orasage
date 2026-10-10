@@ -16,6 +16,7 @@ export function syncBaziSingleReading(
   braceletRec?: BraceletRecommendation | null,
   existingReadingId?: string,
   lang: CoreLocale = 'zh-CN',
+  reportUrl?: string | null,
 ) {
   const displayName = name.trim() || '访客';
   const crystalSku = braceletToCrystalSku(braceletRec ?? null);
@@ -28,9 +29,27 @@ export function syncBaziSingleReading(
     summary: `日主 ${data.riZhu} · ${data.strength} · 喜用 ${data.favorable?.join('、') || '—'}`,
     recommendationReason: braceletRec?.reason,
     crystalSku,
+    ...(reportUrl ? { reportUrl } : {}),
     payloadJson,
   });
   return readingId;
+}
+
+/** 物化静态报告后，把 reportUrl 补写到用户中心测试记录（含认领游客记录） */
+export function attachBaziReportUrl(
+  readingId: string,
+  reportUrl: string,
+  opts?: { name?: string; summary?: string },
+) {
+  if (!readingId?.trim() || !reportUrl?.trim()) return;
+  const displayName = opts?.name?.trim() || '访客';
+  void syncReading({
+    appSource: 'bazi',
+    readingId,
+    title: `八字结构速览 · ${displayName}`,
+    summary: opts?.summary,
+    reportUrl,
+  });
 }
 
 export const PLAN_REPORT_SKU: Record<string, string> = {
@@ -56,6 +75,7 @@ export function syncBaziDoubleReading(
   data: DoubleBaziResult,
   existingReadingId?: string,
   lang: CoreLocale = 'zh-CN',
+  reportUrl?: string | null,
 ) {
   const readingId = existingReadingId ?? newReadingId('bazi');
   const payloadJson = JSON.stringify({ type: 'couple', lang, resultData: data });
@@ -64,6 +84,7 @@ export function syncBaziDoubleReading(
     readingId,
     title: `八字合盘 · ${nameA.trim() || '甲'} & ${nameB.trim() || '乙'}`,
     summary: `契合度 ${data.score} 分 · ${data.rating}`,
+    ...(reportUrl ? { reportUrl } : {}),
     payloadJson,
   });
   return readingId;

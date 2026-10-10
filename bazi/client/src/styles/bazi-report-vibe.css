@@ -1,0 +1,435 @@
+/**
+ * Bazi report — OraSage Design Spec v1.0 (赭石编辑风格)
+ * Scoped under .bazi-report-vibe
+ */
+
+.bazi-report-vibe {
+  --vibe-brand: #c96442;
+  --vibe-brand-light: #e0a892;
+  --vibe-brand-faded: #f4e0d5;
+  --vibe-brand-deep: #934828;
+  --vibe-background: #faf9f5;
+  --vibe-surface: #ffffff;
+  --vibe-card: #f5f4ef;
+  --vibe-card-hover: #f0ede4;
+  --vibe-muted: #f5f4ef;
+  --vibe-foreground: #3d3929;
+  --vibe-muted-foreground: #6e6d68;
+  --vibe-text-light: #9b988c;
+  --vibe-primary: #c96442;
+  --vibe-primary-foreground: #ffffff;
+  --vibe-border: #dad9d4;
+  --vibe-border-light: #e3e0d4;
+  --vibe-success: #788c5d;
+  --vibe-error: #d64545;
+  --vibe-warn: #d4872c;
+  --vibe-purple: #9c87f5;
+  --vibe-chart-1: #c96442;
+  --vibe-chart-2: #9c87f5;
+  --vibe-chart-3: #788c5d;
+  --vibe-chart-4: #6e6d68;
+  --vibe-chart-5: #d4872c;
+  --vibe-radius: 1rem;
+  --vibe-radius-sm: 0.75rem;
+  --vibe-radius-md: 1rem;
+  --vibe-radius-lg: 1.5rem;
+  --vibe-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --vibe-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --vibe-shadow-brand: 0 4px 12px rgba(201, 100, 66, 0.3);
+  --vibe-font-display: "Newsreader", "Noto Serif SC", Georgia, ui-serif, serif;
+  --vibe-font-serif: "Lora", "Noto Serif SC", Georgia, ui-serif, serif;
+  --vibe-font-sans: "Poppins", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --vibe-font-mono: "Geist Mono", "Roboto Mono", ui-monospace, monospace;
+
+  background: var(--vibe-background);
+  color: var(--vibe-foreground);
+  font-family: var(--vibe-font-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  border-radius: 0;
+  margin: -0.5rem -1rem 0;
+  padding: 1.5rem 1rem 2.5rem;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (min-width: 640px) {
+  .bazi-report-vibe {
+    margin: -0.5rem auto 0;
+    max-width: 480px;
+    border-radius: var(--vibe-radius-lg);
+  }
+}
+
+.bazi-report-vibe .vr-display {
+  font-family: var(--vibe-font-display);
+}
+
+.bazi-report-vibe .vr-serif {
+  font-family: var(--vibe-font-serif);
+}
+
+.bazi-report-vibe .vr-sans {
+  font-family: var(--vibe-font-sans);
+}
+
+.bazi-report-vibe .vr-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-surface);
+  border-radius: var(--vibe-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--vibe-shadow);
+}
+
+.bazi-report-vibe .vr-card--soft {
+  background: var(--vibe-card);
+}
+
+.bazi-report-vibe .vr-muted-box {
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-card);
+  border-radius: var(--vibe-radius-sm);
+}
+
+.bazi-report-vibe .vr-eyebrow {
+  font-family: var(--vibe-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vibe-brand);
+}
+
+.bazi-report-vibe .vr-eyebrow-muted {
+  font-family: var(--vibe-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vibe-muted-foreground);
+}
+
+.bazi-report-vibe .vr-label {
+  font-family: var(--vibe-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vibe-text-light);
+}
+
+.bazi-report-vibe .vr-tabbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-card);
+  border-radius: 999px;
+}
+
+.bazi-report-vibe .vr-tab {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.55rem 0.75rem;
+  font-family: var(--vibe-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--vibe-muted-foreground);
+  transition: all 0.2s ease;
+}
+
+.bazi-report-vibe .vr-tab[aria-selected="true"],
+.bazi-report-vibe .vr-tab.is-active {
+  background: var(--vibe-brand);
+  color: #fff;
+  box-shadow: var(--vibe-shadow-brand);
+}
+
+.bazi-report-vibe .vr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--vibe-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-card);
+  color: var(--vibe-muted-foreground);
+}
+
+.bazi-report-vibe .vr-chip-primary {
+  border-color: transparent;
+  background: var(--vibe-brand);
+  color: #fff;
+}
+
+.bazi-report-vibe .vr-chip-soft {
+  border-color: transparent;
+  background: var(--vibe-brand-faded);
+  color: var(--vibe-brand-deep);
+}
+
+.bazi-report-vibe .vr-chip-success {
+  border-color: transparent;
+  background: rgba(120, 140, 93, 0.12);
+  color: #5a6d44;
+}
+
+.bazi-report-vibe .vr-chip-danger {
+  border-color: transparent;
+  background: rgba(214, 69, 69, 0.1);
+  color: #b84a4a;
+}
+
+.bazi-report-vibe .vr-chip-purple {
+  border-color: transparent;
+  background: rgba(156, 135, 245, 0.12);
+  color: #6d5ac8;
+}
+
+.bazi-report-vibe .vr-bar-track {
+  height: 0.5rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--vibe-card);
+}
+
+.bazi-report-vibe .vr-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.bazi-report-vibe .vr-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--vibe-brand);
+  color: #fff;
+  font-family: var(--vibe-font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: var(--vibe-shadow-brand);
+  transition: all 0.2s ease;
+}
+
+.bazi-report-vibe .vr-btn-primary:hover:not(:disabled) {
+  background: var(--vibe-brand-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(201, 100, 66, 0.35);
+}
+
+.bazi-report-vibe .vr-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(201, 100, 66, 0.3);
+}
+
+.bazi-report-vibe .vr-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bazi-report-vibe .vr-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vibe-brand-deep);
+  font-family: var(--vibe-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+  transition: background 0.2s ease;
+}
+
+.bazi-report-vibe .vr-btn-ghost:hover {
+  background: var(--vibe-brand-faded);
+}
+
+.bazi-report-vibe .vr-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vibe-border);
+  border-radius: 999px;
+  background: var(--vibe-surface);
+  color: var(--vibe-foreground);
+  font-family: var(--vibe-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.55rem 1.1rem;
+}
+
+.bazi-report-vibe .vr-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--vibe-brand-faded);
+  color: var(--vibe-brand-deep);
+}
+
+.bazi-report-vibe .vr-diamond {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bazi-report-vibe .vr-diamond::before,
+.bazi-report-vibe .vr-diamond::after {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--vibe-brand);
+  opacity: 0.3;
+}
+
+.bazi-report-vibe .vr-diamond-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--vibe-brand);
+  transform: rotate(45deg);
+  opacity: 0.5;
+}
+
+.bazi-report-vibe .vr-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+@media (min-width: 420px) {
+  .bazi-report-vibe .vr-hero {
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+  }
+}
+
+.bazi-report-vibe .vr-hero-glow {
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(201, 100, 66, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bazi-report-vibe .vr-hero-char {
+  font-family: var(--vibe-font-display);
+  font-size: 4.5rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--vibe-brand);
+  letter-spacing: -0.03em;
+}
+
+.bazi-report-vibe .vr-quote-line {
+  font-family: var(--vibe-font-serif);
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--vibe-muted-foreground);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--vibe-brand-faded);
+}
+
+.bazi-report-vibe .vr-paywall {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid var(--vibe-brand-faded);
+  background: linear-gradient(135deg, #f4e0d5 0%, #fbf2ed 50%, #f5f4ef 100%);
+  border-radius: var(--vibe-radius-lg);
+  padding: 1.75rem 1.25rem;
+  box-shadow: var(--vibe-shadow);
+}
+
+.bazi-report-vibe .vr-paywall-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(201, 100, 66, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bazi-report-vibe .vr-paywall-body {
+  position: relative;
+  z-index: 1;
+}
+
+.bazi-report-vibe .vr-price {
+  font-family: var(--vibe-font-display);
+  color: var(--vibe-brand);
+  line-height: 1;
+  font-size: 2.75rem;
+  font-weight: 500;
+}
+
+.bazi-report-vibe .vr-chapter {
+  border: 1px solid var(--vibe-border);
+  background: var(--vibe-surface);
+  border-radius: var(--vibe-radius);
+  overflow: hidden;
+  box-shadow: var(--vibe-shadow);
+}
+
+.bazi-report-vibe .vr-chapter-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+.bazi-report-vibe .vr-chapter-body {
+  border-top: 1px solid var(--vibe-border-light);
+  padding: 0 1.25rem 1.25rem;
+}
+
+.bazi-report-vibe .vr-drop-cap::first-letter {
+  font-family: var(--vibe-font-display);
+  font-size: 3rem;
+  float: left;
+  line-height: 1;
+  padding-right: 0.35rem;
+  color: var(--vibe-brand);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.bazi-report-vibe .vr-fade-in {
+  animation: vibe-fade-in 0.35s ease both;
+}
+
+@keyframes vibe-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

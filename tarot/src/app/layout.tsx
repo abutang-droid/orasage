@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={htmlLang}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#FAFAF8" />
+        <meta name="theme-color" content="#faf9f5" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

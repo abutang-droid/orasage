@@ -8,6 +8,7 @@ import {
   originsUrl,
   readingsUrl,
   searchUrl,
+  withAppLocale,
 } from './config';
 
 export type NavLink = {
@@ -54,25 +55,25 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
   const readingsChildren: NavLink[] = [
     {
       id: 'bazi',
-      href: ORASAGE_URLS.bazi,
+      href: withAppLocale(ORASAGE_URLS.bazi, locale),
       label: pickLabel(SHELL_LABELS.bazi, locale),
       external: true,
     },
     {
       id: 'ziwei',
-      href: ORASAGE_URLS.ziwei,
+      href: withAppLocale(ORASAGE_URLS.ziwei, locale),
       label: pickLabel(SHELL_LABELS.ziwei, locale),
       external: true,
     },
     {
       id: 'tarot',
-      href: ORASAGE_URLS.tarot,
+      href: withAppLocale(ORASAGE_URLS.tarot, locale),
       label: pickLabel(SHELL_LABELS.tarot, locale),
       external: true,
     },
     {
       id: 'wishing-well',
-      href: ORASAGE_URLS.temple,
+      href: withAppLocale(ORASAGE_URLS.temple, locale),
       label: pickLabel(SHELL_LABELS.blessing, locale),
       external: true,
     },
@@ -90,7 +91,7 @@ export function getPrimaryNavCategories(locale = 'zh-CN'): NavCategory[] {
 
   const shop: NavCategory = {
     id: 'shop',
-    href: ORASAGE_URLS.shop,
+    href: withAppLocale(ORASAGE_URLS.shop, locale, 'locale'),
     label: pickLabel(SHELL_LABELS.shop, locale),
     external: true,
   };
@@ -139,7 +140,7 @@ export function getUtilityNav(locale = 'zh-CN'): {
     },
     cart: {
       id: 'cart',
-      href: `${ORASAGE_URLS.shop}/cart`,
+      href: withAppLocale(`${ORASAGE_URLS.shop}/cart`, locale, 'locale'),
       label: pickLabel(SHELL_LABELS.cart, locale),
       external: true,
     },

@@ -4,7 +4,6 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Link } from "wouter";
 import { loadCityCatalog, matchLocalCity, toCityCoords } from "@orasage/city";
 import { CitySearchInput } from "@orasage/city/react";
 import { getLeapMonthOfYear, preloadDecade } from "@/lib/lunarData";
@@ -19,6 +18,7 @@ import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziRes
 import { DatePicker } from "@/components/WheelPicker";
 import { BaziHomeFeed } from "@/components/BaziHomeFeed";
 import { BaziHomeHero } from "@/components/BaziHomeHero";
+import { BaziEntryChrome } from "@/components/BaziEntryChrome";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -26,7 +26,8 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
-import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BORDER_CLR } from "@/theme";
+import { getStaticReportAbsoluteUrl, materializeStaticReport, openFixedReportPage, probeFixedReport, getStaticReportHref, reportPathForReadingId, waitForPaidReport } from "@/lib/static-report";
+import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -76,7 +77,7 @@ function syncPersonProfile(form: PersonForm, label?: string | null) {
   });
 }
 
-type ViewState = "form" | "loading" | "result";
+type ViewState = "form" | "loading" | "result" | "paid-waiting";
 type ResultData =
   | { type: "single"; data: SingleBaziResult }
   | { type: "double"; data: DoubleBaziResult };
@@ -101,6 +102,26 @@ function LoadingView() {
         </svg>
       </div>
       <p style={{ fontFamily: SERIF_F, fontSize: "0.9rem", color: GOLD, letterSpacing: "0.15em" }}>{t('loading.calculating')}</p>
+    </div>
+  );
+}
+
+function PaidWaitingView() {
+  const { t } = useT();
+  return (
+    <div className="flex flex-col items-center justify-center py-28 gap-8 animate-fade-in-up">
+      <div className="relative w-20 h-20">
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none"
+          className="animate-spin" style={{ animationDuration: "3s" }}>
+          <circle cx="50" cy="50" r="46" stroke={GOLD_FAINT} strokeWidth="1.5"/>
+          <path d="M50 4 A46 46 0 0 1 50 96 A23 23 0 0 1 50 50 A23 23 0 0 0 50 4Z" fill={GOLD_GHOST}/>
+          <circle cx="50" cy="27" r="4" fill={GOLD}/>
+          <circle cx="50" cy="73" r="4" fill={GOLD_FAINT}/>
+        </svg>
+      </div>
+      <p style={{ fontFamily: SERIF_F, fontSize: "0.9rem", color: GOLD, letterSpacing: "0.08em", textAlign: "center" }}>
+        {t('plan.paid_success', '支付成功，正在生成报告…')}
+      </p>
     </div>
   );
 }
@@ -347,31 +368,113 @@ export default function Home() {
       toast.error(t('toast.save_error'));
     },
   });
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
+  const ensurePaidReport = trpc.bazi.ensurePaidReport.useMutation();
 
   useEffect(() => {
     loadLunarLib();
     void loadCityCatalog();
   }, []);
 
-  // 支付回跳：恢复排盘结果页（避免回到首页空白）
+  // 支付回跳 / 罗盘起盘：只恢复一次。t 每次 render 都是新函数，
+  // 若依赖 [t] 会反复 setResult + scrollTo(0)，报告页就滚不动。
+  // 付费/restore 优先打开 reading 固定报告；失败时不要落到经典合盘表单。
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
+    const wantsCouple = params.get('couple') === '1';
+    const isPaid = params.get('paid') === '1';
+    const isRestore = params.get('restore') === '1';
 
-    const snapshot = loadCheckoutSnapshot();
-    if (!snapshot) {
-      if (params.get('paid') === '1') {
+    // 仅显式合盘入口切合盘；付费回跳 / 单人 restore 不得被历史 couple=1 污染
+    if (wantsCouple && !isPaid) {
+      setMode('couple');
+      setActivePerson(1);
+    }
+    if (!isPaid && !isRestore) return;
+
+    const readingId = params.get('readingId') || getLastReadingId();
+    if (readingId) saveLastReadingId(readingId);
+
+    const reportHref = readingId
+      ? reportPathForReadingId(readingId)
+      : getStaticReportHref();
+
+    if (isPaid) {
+      if (!reportHref) {
         toast.error(t('paywall.restore_failed', '支付成功，请重新排盘后查看完整报告'));
+        return;
       }
-      return;
+      let orderNo: string | null = params.get('order');
+      try {
+        orderNo = orderNo
+          || sessionStorage.getItem('bazi:lastShopOrder')
+          || localStorage.getItem('bazi:lastShopOrder');
+      } catch {
+        /* ignore */
+      }
+      setView('paid-waiting');
+      const ac = new AbortController();
+      void (async () => {
+        if (orderNo && readingId) {
+          try {
+            await ensurePaidReport.mutateAsync({ readingId, shopOrderNo: orderNo });
+          } catch (err) {
+            console.warn('[paid-return] ensurePaidReport', err);
+          }
+        }
+        if (ac.signal.aborted) return;
+        const paidPath = await waitForPaidReport(reportHref, { signal: ac.signal, timeoutMs: 25_000 });
+        if (ac.signal.aborted) return;
+        if (paidPath) {
+          openFixedReportPage(paidPath);
+          return;
+        }
+        // 详版仍在生成：打开已有简版/固定页，绝不退回经典合盘表单
+        const fallback = await probeFixedReport(reportHref);
+        if (ac.signal.aborted) return;
+        if (fallback) {
+          toast.message(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
+          openFixedReportPage(fallback);
+          return;
+        }
+        toast.error(t('paywall.paid_report_pending', '支付已成功，完整报告仍在生成。请稍后刷新本页。'));
+        setView('paid-waiting');
+      })();
+      return () => ac.abort();
     }
 
-    setResult(snapshot.result);
-    setMode(snapshot.mode);
-    setView('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [t]);
+    // restore：先探固定报告，再考虑 snapshot；避免误用历史合盘 snapshot
+    const ac = new AbortController();
+    void (async () => {
+      const existingHref = reportHref || getStaticReportHref();
+      const path = await probeFixedReport(existingHref);
+      if (ac.signal.aborted) return;
+      if (path) {
+        openFixedReportPage(path);
+        return;
+      }
+      const snapshot = loadCheckoutSnapshot();
+      if (!snapshot) return;
+      // 无显式 couple=1 时，拒绝用合盘 snapshot 覆盖单人详情入口
+      if (snapshot.mode === 'couple' && !wantsCouple) {
+        if (snapshot.result.type === 'single') {
+          setResult(snapshot.result);
+          setMode('single');
+          setView('result');
+          return;
+        }
+        toast.error(t('paywall.restore_failed', '请重新排盘后查看完整报告'));
+        setMode('single');
+        setView('form');
+        return;
+      }
+      setResult(snapshot.result);
+      setMode(snapshot.mode);
+      setView('result');
+    })();
+    return () => ac.abort();
+  }, []);
 
   useEffect(() => {
     if (result) {
@@ -379,13 +482,21 @@ export default function Home() {
     }
   }, [result, mode]);
 
-  // 登录后补同步占卜记录（未登录时排盘 sync 会 401 跳过，支付前需 payload 入库）
+  // 登录后补同步占卜记录（认领游客报告 + 关联静态 reportUrl）
   useEffect(() => {
     if (!isAuthenticated || !result) return;
     const existingId = getLastReadingId() ?? undefined;
+    const reportUrl = getStaticReportAbsoluteUrl();
     if (result.type === "single") {
       const braceletRec = recommendBracelet(result.data.wuXing as unknown as Record<string, number>);
-      const readingId = syncBaziSingleReading(result.data.name, result.data, braceletRec, existingId, locale);
+      const readingId = syncBaziSingleReading(
+        result.data.name,
+        result.data,
+        braceletRec,
+        existingId,
+        locale,
+        reportUrl,
+      );
       saveLastReadingId(readingId);
     } else {
       const readingId = syncBaziDoubleReading(
@@ -394,6 +505,7 @@ export default function Home() {
         result.data,
         existingId,
         locale,
+        reportUrl,
       );
       saveLastReadingId(readingId);
     }
@@ -488,16 +600,39 @@ export default function Home() {
           const input0 = await toInput(resolvedF0);
           const data = await calcSingleBazi(input0);
           setResult({ type: "single", data });
+          void syncPersonProfile(resolvedF0);
+          const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
+          const materialized = await materializeStaticReport({
+            result: data,
+            lang: locale,
+            mutateAsync: materializeReport.mutateAsync,
+          });
+          const readingId = materialized?.readingId;
+          if (readingId) {
+            syncBaziSingleReading(resolvedF0.name, data, braceletRec, readingId, locale, materialized.reportUrl);
+            saveLastReadingId(readingId);
+          }
           if (isAuthenticated) {
             saveRecord.mutate({
               type: "single", name1: resolvedF0.name, inputData: input0,
-              resultSummary: { riZhu: data.riZhu, strength: data.strength, wuXing: data.wuXing, favorable: data.favorable, unfavorable: data.unfavorable },
+              resultSummary: {
+                riZhu: data.riZhu,
+                strength: data.strength,
+                wuXing: data.wuXing,
+                favorable: data.favorable,
+                unfavorable: data.unfavorable,
+                ...(materialized?.reportUrl ? { reportUrl: materialized.reportUrl } : {}),
+                ...(materialized?.reportPath ? { reportPath: materialized.reportPath } : {}),
+              },
             });
           }
-          void syncPersonProfile(resolvedF0);
-          const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
-          const readingId = syncBaziSingleReading(resolvedF0.name, data, braceletRec, undefined, locale);
-          saveLastReadingId(readingId);
+          if (materialized?.reportPath) {
+            openFixedReportPage(materialized.reportPath);
+            return;
+          }
+          toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+          setView("form");
+          return;
         } else {
           const [input0, input1] = await Promise.all([toInput(resolvedF0), toInput(resolvedF1!)]);
           const data = await calcDoubleBazi(input0, input1);
@@ -511,11 +646,30 @@ export default function Home() {
           }
           void syncPersonProfile(resolvedF0, "A");
           void syncPersonProfile(resolvedF1!, "B");
-          const readingId = syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
+          const materialized = await materializeStaticReport({
+            result: data as unknown as Record<string, unknown>,
+            lang: locale,
+            mutateAsync: materializeReport.mutateAsync,
+          });
+          const readingId = materialized?.readingId
+            ?? syncBaziDoubleReading(resolvedF0.name, resolvedF1!.name, data, undefined, locale);
           saveLastReadingId(readingId);
+          syncBaziDoubleReading(
+            resolvedF0.name,
+            resolvedF1!.name,
+            data,
+            readingId,
+            locale,
+            materialized?.reportUrl,
+          );
+          if (materialized?.reportPath) {
+            openFixedReportPage(materialized.reportPath);
+            return;
+          }
+          toast.error(t("toast.report_error", "简版解读生成失败，请稍后重试"));
+          setView("form");
+          return;
         }
-        setView("result");
-        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         console.error(err);
         toast.error(t('toast.calc_error'));
@@ -541,8 +695,10 @@ export default function Home() {
   return (
     <div className="w-full">
       <div className="bazi-home-page px-4">
+        {view === "form" && <BaziEntryChrome active="classic" />}
 
         {view === "loading" && <LoadingView />}
+        {view === "paid-waiting" && <PaidWaitingView />}
 
         {view === "result" && result && (
           result.type === "single"
@@ -553,16 +709,6 @@ export default function Home() {
         {view === "form" && (
           <>
             <BaziHomeHero />
-
-            <p className="mb-4 text-center text-sm" style={{ color: MUTED_CLR }}>
-              <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 沈知微真人对话排盘（V3 场景原型）→
-              </Link>
-              <br />
-              <Link href="/luopan" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 八字罗盘 · 竹简命盘 →
-              </Link>
-            </p>
 
             <div className="bazi-calc-form bazi-calc-section animate-fade-in-up">
               <div className="bazi-calc-mode-bar">

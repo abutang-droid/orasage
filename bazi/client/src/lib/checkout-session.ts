@@ -7,17 +7,28 @@ export type CheckoutResultSnapshot =
 const RESULT_KEY = 'bazi:checkoutResult';
 const MODE_KEY = 'bazi:checkoutMode';
 
+function eachStore(fn: (store: Storage) => void) {
+  for (const store of [sessionStorage, localStorage]) {
+    try {
+      fn(store);
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }
+}
+
 export function saveCheckoutSnapshot(result: CheckoutResultSnapshot, mode: 'single' | 'couple') {
-  try {
-    sessionStorage.setItem(RESULT_KEY, JSON.stringify(result));
-    sessionStorage.setItem(MODE_KEY, mode);
-  } catch { /* ignore quota */ }
+  const raw = JSON.stringify(result);
+  eachStore((store) => {
+    store.setItem(RESULT_KEY, raw);
+    store.setItem(MODE_KEY, mode);
+  });
 }
 
 export function loadCheckoutSnapshot(): { result: CheckoutResultSnapshot; mode: 'single' | 'couple' } | null {
   try {
-    const raw = sessionStorage.getItem(RESULT_KEY);
-    const mode = sessionStorage.getItem(MODE_KEY);
+    const raw = sessionStorage.getItem(RESULT_KEY) || localStorage.getItem(RESULT_KEY);
+    const mode = sessionStorage.getItem(MODE_KEY) || localStorage.getItem(MODE_KEY);
     if (!raw || (mode !== 'single' && mode !== 'couple')) return null;
     return { result: JSON.parse(raw) as CheckoutResultSnapshot, mode };
   } catch {
@@ -26,8 +37,8 @@ export function loadCheckoutSnapshot(): { result: CheckoutResultSnapshot; mode: 
 }
 
 export function clearCheckoutSnapshot() {
-  try {
-    sessionStorage.removeItem(RESULT_KEY);
-    sessionStorage.removeItem(MODE_KEY);
-  } catch { /* ignore */ }
+  eachStore((store) => {
+    store.removeItem(RESULT_KEY);
+    store.removeItem(MODE_KEY);
+  });
 }

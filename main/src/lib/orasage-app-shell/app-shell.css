@@ -1,17 +1,40 @@
 :root {
   --shell-top-h: 52px;
   --shell-bottom-h: 56px;
+  /* Light defaults on :root so SiteTopNav works outside .orasage-app-shell
+     (main portal Header). Dark shells override these on .orasage-app-shell. */
+  --shell-bg: #faf9f5;
+  --shell-surface: #ffffff;
+  --shell-menu-bg: #ffffff;
+  --shell-border: #dad9d4;
+  --shell-border-subtle: #e3e0d4;
+  --shell-text: #3d3929;
+  --shell-muted: #6e6d68;
+  --shell-gold: #c96442;
+}
+
+/* Token host for portal Header: panel is a sibling of the bar, not inside
+   .orasage-site-topnav, so it would miss [&_.orasage-site-topnav]:bg-*. */
+.orasage-site-chrome {
+  --shell-bg: #faf9f5;
+  --shell-surface: #ffffff;
+  --shell-menu-bg: #ffffff;
+  --shell-border: #dad9d4;
+  --shell-border-subtle: #e3e0d4;
+  --shell-text: #3d3929;
+  --shell-muted: #6e6d68;
+  --shell-gold: #c96442;
 }
 
 .orasage-app-shell {
-  --shell-bg: #0f0e17;
-  --shell-surface: rgba(21, 18, 42, 0.96);
-  --shell-menu-bg: #15122a;
+  --shell-bg: #1e1a16;
+  --shell-surface: rgba(42, 37, 33, 0.96);
+  --shell-menu-bg: #2a2521;
   --shell-border: rgba(255, 255, 255, 0.08);
   --shell-border-subtle: rgba(255, 255, 255, 0.04);
-  --shell-text: #e8e4dc;
-  --shell-muted: #9a9588;
-  --shell-gold: #c9a05a;
+  --shell-text: #f2ede7;
+  --shell-muted: #b4aba2;
+  --shell-gold: #c96442;
   --shell-top-h: 52px;
   --shell-bottom-h: 56px;
   min-height: 100dvh;
@@ -23,14 +46,14 @@
 }
 
 .orasage-app-shell[data-theme='light'] {
-  --shell-bg: #fafaf8;
+  --shell-bg: #faf9f5;
   --shell-surface: rgba(255, 255, 255, 0.96);
   --shell-menu-bg: #ffffff;
-  --shell-border: #e7e5e4;
-  --shell-border-subtle: #fafaf8;
-  --shell-text: #171717;
-  --shell-muted: #6b7280;
-  --shell-gold: #171717;
+  --shell-border: #dad9d4;
+  --shell-border-subtle: #e3e0d4;
+  --shell-text: #3d3929;
+  --shell-muted: #6e6d68;
+  --shell-gold: #c96442;
 }
 
 .orasage-app-topbar-start {
@@ -287,8 +310,13 @@
   z-index: 46;
   overflow-y: auto;
   padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-  background: var(--shell-bg);
-  border-top: 1px solid var(--shell-border);
+  /* Literal first: if --shell-* is unset (portal Header outside .orasage-app-shell),
+     var() is invalid and the previous background/color still apply. */
+  background: #ffffff;
+  background: var(--shell-menu-bg, var(--shell-bg, #ffffff));
+  color: #3d3929;
+  color: var(--shell-text, #3d3929);
+  border-top: 1px solid var(--shell-border, #dad9d4);
 }
 
 .orasage-site-mobile-nav-section + .orasage-site-mobile-nav-section {
@@ -303,7 +331,8 @@
   min-height: 44px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--shell-text);
+  color: #3d3929;
+  color: var(--shell-text, #3d3929);
   text-decoration: none;
 }
 
@@ -313,7 +342,8 @@
   min-height: 44px;
   padding-inline-start: 12px;
   font-size: 14px;
-  color: var(--shell-muted);
+  color: #6e6d68;
+  color: var(--shell-muted, #6e6d68);
   text-decoration: none;
 }
 
@@ -412,7 +442,7 @@
 
 .orasage-site-nav-dd-item:hover {
   color: var(--shell-text);
-  background: var(--shell-border-subtle, #fafaf8);
+  background: var(--shell-border-subtle, #e3e0d4);
 }
 
 .orasage-site-nav-dd-chip {
@@ -755,7 +785,7 @@
 }
 
 .orasage-disclaimer-title {
-  color: var(--shell-text, #171717);
+  color: var(--shell-text, #3d3929);
   margin-bottom: 4px !important;
 }
 
@@ -767,7 +797,7 @@
 
 .orasage-disclaimer--compact strong {
   font-weight: 600;
-  color: var(--shell-text, #171717);
+  color: var(--shell-text, #3d3929);
 }
 
 .orasage-portal-footer .orasage-disclaimer {
@@ -786,7 +816,7 @@
   padding: 1rem 1.1rem;
   border: 1px solid var(--shell-border, #e7e5e4);
   border-radius: 10px;
-  background: var(--shell-surface, #fafaf8);
+  background: var(--shell-surface, #faf9f5);
 }
 
 .orasage-result-exit-title {
@@ -794,7 +824,7 @@
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--shell-text, #171717);
+  color: var(--shell-text, #3d3929);
 }
 
 .orasage-result-exit-list {
@@ -811,11 +841,11 @@
   min-height: 44px;
   align-items: center;
   font-size: 0.875rem;
-  color: var(--shell-text, #171717);
+  color: var(--shell-text, #3d3929);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .orasage-result-exit-list a:hover {
-  color: var(--shell-gold, #171717);
+  color: var(--shell-gold, #c96442);
 }

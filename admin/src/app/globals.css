@@ -15,8 +15,8 @@
 
 body {
   font-family: var(--orasage-font-sans, system-ui, -apple-system, sans-serif);
-  background: var(--orasage-background, #fafaf8);
-  color: var(--orasage-primary, #171717);
+  background: var(--orasage-background, #faf9f5);
+  color: var(--orasage-primary, #3d3929);
   min-height: 100vh;
 }
 
@@ -42,6 +42,59 @@ a {
 
 .admin-page h1 {
   font-size: 1.5rem;
+}
+
+.admin-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-end;
+}
+
+.admin-filter-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--orasage-secondary, #6e6d68);
+}
+
+.admin-filter-bar input[type="search"],
+.admin-filter-bar select {
+  min-width: 10rem;
+  min-height: 36px;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--orasage-border, #dad9d4);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--orasage-primary, #3d3929);
+}
+
+.admin-filter-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.4rem !important;
+  min-height: 36px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--orasage-border, #dad9d4);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  font-size: 0.75rem;
+  color: var(--orasage-secondary, #6e6d68);
+  font-weight: 600;
 }
 
 .btn-text {
@@ -117,7 +170,7 @@ a {
 .panel h2 {
   font-size: 1rem;
   margin-bottom: 1rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .quick-links {
@@ -142,20 +195,20 @@ a {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: var(--orasage-gold, #b8943f);
+  background: var(--orasage-gold, #c96442);
   color: #fff;
 }
 
 .btn-secondary {
   padding: 0.6rem 1rem;
   background: var(--orasage-card, #f5f5f4);
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   border: 1px solid var(--orasage-border, #e7e5e4);
 }
 
 .btn-small {
   padding: 0.35rem 0.75rem;
-  background: var(--orasage-gold, #b8943f);
+  background: var(--orasage-gold, #c96442);
   color: #fff;
   font-size: 0.8rem;
 }
@@ -183,7 +236,7 @@ a {
 }
 
 .entry-card:hover {
-  border-color: var(--orasage-gold, #b8943f);
+  border-color: var(--orasage-gold, #c96442);
 }
 
 .entry-card h2 {
@@ -199,14 +252,14 @@ a {
 
 .entry-cta {
   font-size: 0.85rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   font-weight: 600;
 }
 
 .login-card .btn-primary {
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background: var(--orasage-gold, #b8943f);
+  background: var(--orasage-gold, #c96442);
   color: #fff;
   border-radius: 8px;
   text-decoration: none;
@@ -232,10 +285,10 @@ a {
 .inline-form input,
 .inline-form select,
 .inline-form textarea {
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 8px;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   padding: 0.5rem 0.65rem;
   font: inherit;
 }
@@ -275,7 +328,7 @@ a {
 
 .data-table code {
   font-size: 0.8rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .product-image-cell {
@@ -322,13 +375,13 @@ a {
 
 .admin-cms-link {
   font-size: 0.75rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .admin-cms-link:hover {
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
 }
 
 .product-thumb--form {
@@ -428,7 +481,7 @@ a {
 
 details summary {
   cursor: pointer;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   font-size: 0.85rem;
 }
 
@@ -487,9 +540,9 @@ details summary {
 }
 
 .product-edit-tab.is-active {
-  border-color: var(--orasage-gold, #b8943f);
-  background: rgba(184, 148, 63, 0.12);
-  color: var(--orasage-primary, #171717);
+  border-color: var(--orasage-gold, #c96442);
+  background: rgba(201, 100, 66, 0.12);
+  color: var(--orasage-primary, #3d3929);
   font-weight: 600;
 }
 
@@ -536,7 +589,7 @@ details summary {
 }
 
 .admin-submit-btn--primary {
-  background: var(--orasage-gold, #b8943f) !important;
+  background: var(--orasage-gold, #c96442) !important;
   color: #fff !important;
 }
 
@@ -546,7 +599,7 @@ details summary {
 
 .admin-submit-btn--secondary {
   background: var(--orasage-surface, #fff) !important;
-  color: var(--orasage-primary, #171717) !important;
+  color: var(--orasage-primary, #3d3929) !important;
   border-color: var(--orasage-border, #e7e5e4) !important;
   min-width: 0;
 }
@@ -592,7 +645,7 @@ details summary {
 .product-attachments-fields legend {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   margin-bottom: 0.75rem;
 }
 
@@ -608,7 +661,7 @@ details summary {
   grid-column: 1 / -1;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   margin: 0;
 }
 
@@ -635,10 +688,10 @@ details summary {
 
 .product-list-filters input,
 .product-list-filters select {
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 8px;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   padding: 0.4rem 0.6rem;
   font-size: 0.85rem;
 }
@@ -696,7 +749,7 @@ details summary {
 .order-batch-rows input {
   flex: 1;
   min-width: 10rem;
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 8px;
   padding: 0.4rem 0.6rem;
@@ -757,7 +810,7 @@ details summary {
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .product-tag-options {
@@ -779,8 +832,8 @@ details summary {
 }
 
 .product-tag-option:has(input:checked) {
-  border-color: var(--orasage-gold, #b8943f);
-  background: rgba(184, 148, 63, 0.12);
+  border-color: var(--orasage-gold, #c96442);
+  background: rgba(201, 100, 66, 0.12);
 }
 
 .product-combo-inline {
@@ -793,7 +846,7 @@ details summary {
   margin: 0 0 0.75rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 /* ── 组合商品编辑器 ── */
@@ -826,7 +879,7 @@ details summary {
 }
 
 .product-combo-ship-yes {
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   font-weight: 600;
 }
 
@@ -867,10 +920,10 @@ details summary {
 
 .product-link-row input,
 .product-link-row select {
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 8px;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   padding: 0.4rem 0.55rem;
   font: inherit;
   font-size: 0.85rem;
@@ -929,7 +982,7 @@ details summary {
   font-size: 0.95rem;
   font-weight: 600;
   margin: 1.25rem 0 0.75rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .hero-image-grid {
@@ -957,7 +1010,7 @@ details summary {
 }
 
 .hero-image-card input {
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 6px;
   padding: 0.35rem 0.5rem;
@@ -1005,10 +1058,10 @@ details summary {
 
 .pdp-section-card input,
 .pdp-section-card textarea {
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 8px;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
   padding: 0.45rem 0.6rem;
   font: inherit;
   font-size: 0.85rem;
@@ -1092,13 +1145,13 @@ details summary {
 }
 
 .pdp-section-add-bar button {
-  border: 1px dashed var(--orasage-gold, #b8943f);
-  background: rgba(184, 148, 63, 0.06);
+  border: 1px dashed var(--orasage-gold, #c96442);
+  background: rgba(201, 100, 66, 0.06);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   font-size: 0.82rem;
   cursor: pointer;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
 }
 
 .testimonial-body-cell {
@@ -1153,7 +1206,7 @@ details summary {
   border: 1px solid var(--orasage-border, #e7e5e4);
   border-radius: 12px;
   padding: 1rem 1.1rem;
-  background: var(--orasage-background, #fafaf8);
+  background: var(--orasage-background, #faf9f5);
 }
 
 .product-media-card--wide {
@@ -1285,8 +1338,8 @@ details summary {
 }
 
 .hero-image-upload-slot--clickable:hover {
-  border-color: var(--orasage-gold, #b8943f);
-  background: rgba(184, 148, 63, 0.06);
+  border-color: var(--orasage-gold, #c96442);
+  background: rgba(201, 100, 66, 0.06);
 }
 
 .hero-image-thumb--in-slot {
@@ -1315,7 +1368,7 @@ details summary {
 }
 
 .product-catalog-image-preview--clickable:hover {
-  border-color: var(--orasage-gold, #b8943f);
+  border-color: var(--orasage-gold, #c96442);
 }
 
 .product-catalog-image-preview--clickable:disabled {
@@ -1343,7 +1396,7 @@ details summary {
 .product-media-progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--orasage-gold, #b8943f);
+  background: var(--orasage-gold, #c96442);
   transition: width 0.15s ease-out;
 }
 
@@ -1377,7 +1430,7 @@ details summary {
 .product-video-upload-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--orasage-primary, #171717);
+  color: var(--orasage-primary, #3d3929);
 }
 
 .product-video-preview {
@@ -1393,7 +1446,7 @@ details summary {
 }
 
 .product-video-preview:hover {
-  border-color: var(--orasage-gold, #b8943f);
+  border-color: var(--orasage-gold, #c96442);
 }
 
 .product-video-preview--empty {
@@ -1437,7 +1490,7 @@ details summary {
 .hero-image-upload-icon {
   font-size: 1.5rem;
   line-height: 1;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .hero-image-card--draggable {
@@ -1470,7 +1523,7 @@ details summary {
 
 .hero-image-order {
   font-size: 0.72rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
   font-weight: 600;
 }
 
@@ -1609,9 +1662,9 @@ details summary {
 }
 
 .dash-period-tab.is-active {
-  background: rgba(184, 148, 63, 0.12);
-  border-color: rgba(184, 148, 63, 0.35);
-  color: var(--orasage-primary, #171717);
+  background: rgba(201, 100, 66, 0.12);
+  border-color: rgba(201, 100, 66, 0.35);
+  color: var(--orasage-primary, #3d3929);
   font-weight: 600;
 }
 
@@ -1633,7 +1686,7 @@ details summary {
 .dash-chart-title {
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  color: var(--orasage-gold, #b8943f);
+  color: var(--orasage-gold, #c96442);
 }
 
 .dash-chart-empty {
@@ -1663,7 +1716,7 @@ details summary {
 .dash-chart-bar {
   width: 100%;
   max-width: 28px;
-  background: linear-gradient(180deg, rgba(184, 148, 63, 0.85), rgba(184, 148, 63, 0.45));
+  background: linear-gradient(180deg, rgba(201, 100, 66, 0.85), rgba(201, 100, 66, 0.45));
   border-radius: 4px 4px 0 0;
   min-height: 4px;
 }
@@ -1761,8 +1814,8 @@ details summary {
 }
 
 .im-conv-item.is-active {
-  background: rgba(184, 148, 63, 0.1);
-  border-color: rgba(184, 148, 63, 0.35);
+  background: rgba(201, 100, 66, 0.1);
+  border-color: rgba(201, 100, 66, 0.35);
 }
 
 .im-conv-label {
@@ -1807,7 +1860,7 @@ details summary {
 
 .im-bubble--ops {
   align-self: flex-end;
-  background: rgba(184, 148, 63, 0.12);
+  background: rgba(201, 100, 66, 0.12);
 }
 
 .im-bubble-meta {

@@ -14,22 +14,23 @@ const termData: Record<string, Record<string, string>> = {
   火: { "zh-CN": "火", "zh-TW": "火", en: "Fire", "pt-BR": "Fogo" },
   土: { "zh-CN": "土", "zh-TW": "土", en: "Earth", "pt-BR": "Terra" },
 
-  /* 身强/弱 */
-  身强: { "zh-CN": "身强", "zh-TW": "身強", en: "Strong", "pt-BR": "Forte" },
-  身弱: { "zh-CN": "身弱", "zh-TW": "身弱", en: "Weak", "pt-BR": "Fraco" },
-  身中和: { "zh-CN": "身中和", "zh-TW": "身中和", en: "Balanced", "pt-BR": "Equilibrado" },
+  /* 身强/弱 — 短版：偏补 / 偏耗（规范 7.1） */
+  身强: { "zh-CN": "偏补", "zh-TW": "偏補", en: "Support-heavy", "pt-BR": "Mais apoio" },
+  身弱: { "zh-CN": "偏耗", "zh-TW": "偏耗", en: "Drain-heavy", "pt-BR": "Mais drenagem" },
+  身中和: { "zh-CN": "均衡", "zh-TW": "均衡", en: "Balanced", "pt-BR": "Equilibrado" },
 
   /* 十神 */
   比肩: { "zh-CN": "比肩", "zh-TW": "比肩", en: "Friend", "pt-BR": "Amigo" },
   劫财: { "zh-CN": "劫财", "zh-TW": "劫財", en: "Rob Wealth", "pt-BR": "Rival" },
-  食神: { "zh-CN": "食神", "zh-TW": "食神", en: "Food God", "pt-BR": "Deus da Comida" },
-  伤官: { "zh-CN": "伤官", "zh-TW": "傷官", en: "Hurt Officer", "pt-BR": "Ferir Oficial" },
+  食神: { "zh-CN": "食神", "zh-TW": "食神", en: "Eating God", "pt-BR": "Eating God" },
+  伤官: { "zh-CN": "伤官", "zh-TW": "傷官", en: "Hurting Officer", "pt-BR": "Hurting Officer" },
   偏财: { "zh-CN": "偏财", "zh-TW": "偏財", en: "Indirect Wealth", "pt-BR": "Riqueza Indireta" },
   正财: { "zh-CN": "正财", "zh-TW": "正財", en: "Direct Wealth", "pt-BR": "Riqueza Direta" },
-  偏官: { "zh-CN": "偏官", "zh-TW": "偏官", en: "Seven Kill", "pt-BR": "Sete Matador" },
+  偏官: { "zh-CN": "七杀", "zh-TW": "七殺", en: "Seven Killings", "pt-BR": "Seven Killings" },
+  七杀: { "zh-CN": "七杀", "zh-TW": "七殺", en: "Seven Killings", "pt-BR": "Seven Killings" },
   正官: { "zh-CN": "正官", "zh-TW": "正官", en: "Direct Officer", "pt-BR": "Oficial Direto" },
-  偏印: { "zh-CN": "偏印", "zh-TW": "偏印", en: "Indirect Seal", "pt-BR": "Selo Indireto" },
-  正印: { "zh-CN": "正印", "zh-TW": "正印", en: "Direct Seal", "pt-BR": "Selo Direto" },
+  偏印: { "zh-CN": "偏印", "zh-TW": "偏印", en: "Indirect Resource", "pt-BR": "Indirect Resource" },
+  正印: { "zh-CN": "正印", "zh-TW": "正印", en: "Direct Resource", "pt-BR": "Direct Resource" },
 
   /* 天干 */
   甲: { "zh-CN": "甲", "zh-TW": "甲", en: "Jia", "pt-BR": "Jia" },

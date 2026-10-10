@@ -46,7 +46,11 @@ export async function dispatchBaziReportJob(order: {
   readingId?: string | null;
 }) {
   const sku = order.sku ?? '';
-  if (!sku.startsWith('report-bazi') || !order.readingId) return;
+  if (!sku.startsWith('report-bazi')) return;
+  if (!order.readingId) {
+    console.error('[report-job] skip bazi: missing readingId', order.orderNo, sku);
+    return;
+  }
   const res = await fetch(`${ENV.baziInternalUrl}/internal/report-job`, {
     method: 'POST',
     headers: {
@@ -73,7 +77,11 @@ export async function dispatchZiweiReportJob(order: {
   readingId?: string | null;
 }) {
   const sku = order.sku ?? '';
-  if (!sku.startsWith('report-ziwei') || !order.readingId) return;
+  if (!sku.startsWith('report-ziwei')) return;
+  if (!order.readingId) {
+    console.error('[report-job] skip ziwei: missing readingId', order.orderNo, sku);
+    return;
+  }
   const res = await fetch(`${ENV.ziweiInternalUrl}/api/internal/report-job`, {
     method: 'POST',
     headers: {
