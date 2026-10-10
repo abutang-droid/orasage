@@ -120,6 +120,18 @@ export function appHomeUrl(appId: AppId): string {
   return path === '/' ? base : `${base}${path}`;
 }
 
+/** Fortune/shop apps read locale from query; portal does not set NEXT_LOCALE on every hit. */
+export function withAppLocale(href: string, locale = 'zh-CN', param: 'lang' | 'locale' = 'lang'): string {
+  try {
+    const url = new URL(href);
+    url.searchParams.set(param, locale);
+    return url.toString();
+  } catch {
+    const join = href.includes('?') ? '&' : '?';
+    return `${href}${join}${param}=${encodeURIComponent(locale)}`;
+  }
+}
+
 export type ExploreItem = {
   id: string;
   href: string;
@@ -130,12 +142,12 @@ export function exploreItems(locale = 'zh-CN'): ExploreItem[] {
   const items: ExploreItem[] = [
     {
       id: 'bazi',
-      href: ORASAGE_URLS.bazi,
+      href: withAppLocale(ORASAGE_URLS.bazi, locale),
       labels: { 'zh-CN': '八字揭秘', en: 'BaZi Insights', 'zh-TW': '八字揭秘' },
     },
     {
       id: 'ziwei',
-      href: ORASAGE_URLS.ziwei,
+      href: withAppLocale(ORASAGE_URLS.ziwei, locale),
       labels: { 'zh-CN': '紫微斗数', en: 'ZiWei Dou Shu', 'zh-TW': '紫微斗數' },
     },
     {
@@ -203,11 +215,11 @@ export function rotationExploreLink(
     !isFamousNavVisible(locale) && id === 'famous' ? 'daozang' : id;
   switch (effectiveId) {
     case 'bazi':
-      return { href: ORASAGE_URLS.bazi, label: pickLabel(SHELL_LABELS.bazi, locale) };
+      return { href: withAppLocale(ORASAGE_URLS.bazi, locale), label: pickLabel(SHELL_LABELS.bazi, locale) };
     case 'tarot':
-      return { href: ORASAGE_URLS.tarot, label: pickLabel(SHELL_LABELS.tarot, locale) };
+      return { href: withAppLocale(ORASAGE_URLS.tarot, locale), label: pickLabel(SHELL_LABELS.tarot, locale) };
     case 'ziwei':
-      return { href: ORASAGE_URLS.ziwei, label: pickLabel(SHELL_LABELS.ziwei, locale) };
+      return { href: withAppLocale(ORASAGE_URLS.ziwei, locale), label: pickLabel(SHELL_LABELS.ziwei, locale) };
     case 'daozang':
       return { href: daozangUrl(locale), label: pickLabel(SHELL_LABELS.daozang, locale) };
     case 'famous':
@@ -243,7 +255,7 @@ export function resolveSecondNavSlot(
 
   const appId = context;
   return {
-    href: appHomeUrl(appId),
+    href: withAppLocale(appHomeUrl(appId), locale, appId === 'shop' ? 'locale' : 'lang'),
     label: appBrandLabel(appId, locale),
     active: isCurrentAppHome(appId, pathname),
     kind: 'app',

@@ -1,12 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-import { buildReportPageHtml } from './reportHtml.ts';
-import { resolveReportsDir } from './_core/reportsDir.ts';
 import { generateBaziReportContent } from './reportGenerator.ts';
 import { fetchReportProductRecommend } from './reportRecommend.ts';
+import { writePaidReadingReport } from './staticFreeReport.ts';
+import { readReportTier, resolveReadingReportPaths } from './readingReport.ts';
+import { assertPayerMayUnlock } from './reportUnlock.ts';
+import { applyCalibratedChart } from './chartCalibrate.ts';
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? 'http://127.0.0.1:3101';
-const BAZI_PUBLIC_URL = process.env.BAZI_PUBLIC_URL ?? 'https://bazi.orasage.com';
 
 type ReportJobInput = {
   orderNo: string;
@@ -14,6 +13,8 @@ type ReportJobInput = {
   readingId: string;
   planType?: string;
 };
+
+const inflightJobs = new Map<string, Promise<{ success: true; duplicate?: boolean; reportUrl: string }>>();
 
 function isLocalIp(ip: string | undefined): boolean {
   if (!ip) return process.env.NODE_ENV !== 'production';
@@ -33,12 +34,30 @@ async function fetchReading(readingId: string) {
   };
 }
 
-async function patchReading(readingId: string, body: { reportUrl: string; title?: string }) {
+async function patchReading(readingId: string, body: { reportUrl?: string; title?: string; userId?: number }) {
   await fetch(`${AUTH_INTERNAL}/internal/readings/${encodeURIComponent(readingId)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+}
+
+async function claimGuestReading(reading: { readingId: string; title: string; userId: number }, payerUserId: number) {
+  if (reading.userId !== 0 || payerUserId <= 0) return;
+  const res = await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: payerUserId,
+      appSource: 'bazi',
+      readingId: reading.readingId,
+      title: reading.title,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`claim guest reading failed (${res.status}): ${text.slice(0, 200)}`);
+  }
 }
 
 async function patchOrderStatus(orderNo: string, status: string) {
@@ -49,70 +68,90 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
-async function writeReportHtml(
-  planType: string,
-  reportContent: string,
-  resultData?: Record<string, unknown>,
-): Promise<string> {
-  const reportId = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const fileName = `${reportId}.html`;
-  const reportsDir = resolveReportsDir();
+async function runReportJobInner(input: ReportJobInput) {
+  const reading = await fetchReading(input.readingId);
+  if (!reading) throw new Error('reading not found');
+  assertPayerMayUnlock(reading.userId, input.userId);
+  await claimGuestReading(reading, input.userId);
+  if (!reading.payloadJson) throw new Error('reading payload missing');
 
+  // 已有免费固定页时仍需升级为付费全文；仅 paid 才视为完成
+  const paths = resolveReadingReportPaths(input.readingId);
+  const existingTier = readReportTier(paths.absolutePath);
+  if (existingTier === 'paid') {
+    return { success: true, duplicate: true, reportUrl: paths.reportUrl };
+  }
+
+  const payload = JSON.parse(reading.payloadJson) as {
+    type?: 'single' | 'couple';
+    lang?: 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
+    resultData?: Record<string, unknown>;
+    calibratedChart?: {
+      year: { gan: string; zhi: string };
+      month: { gan: string; zhi: string };
+      day: { gan: string; zhi: string };
+      hour: { gan: string; zhi: string };
+      wuXing: Record<string, number>;
+      riZhu: string;
+    } | null;
+  };
+  if (!payload.resultData || !payload.type) throw new Error('invalid reading payload');
+
+  const planType = input.planType || 'advanced';
   const planLabelMap: Record<string, string> = {
     basic: '深度解读',
     advanced: '水晶手串',
     premium: '终极能量礼盒',
   };
   const planLabel = planLabelMap[planType] || planType || '深度解读';
+  const resultData = applyCalibratedChart(payload.resultData, payload.calibratedChart);
 
-  const wuXing = resultData?.wuXing as Record<string, number> | undefined;
+  const { report } = await generateBaziReportContent(
+    payload.type,
+    resultData,
+    payload.lang ?? 'zh-CN',
+    'full',
+  );
+  const wuXing = resultData.wuXing as Record<string, number> | undefined;
   const productRecommend = planType === 'basic'
     ? await fetchReportProductRecommend(wuXing, {
-        chart: resultData
-          ? {
-              birthStr: String(resultData.birthStr ?? ''),
-              gender: String(resultData.gender ?? 'male'),
-              name: typeof resultData.name === 'string' ? resultData.name : undefined,
-            }
-          : undefined,
+        chart: {
+          birthStr: String(resultData.birthStr ?? ''),
+          gender: String(resultData.gender ?? 'male'),
+          name: typeof resultData.name === 'string' ? resultData.name : undefined,
+        },
       })
     : null;
 
-  const staticHtml = buildReportPageHtml({
+  const written = writePaidReadingReport({
+    readingId: input.readingId,
+    reportContent: report,
     planLabel,
-    reportContent,
-    generatedAt: new Date(),
+    subjectName: typeof resultData.name === 'string' ? resultData.name : undefined,
+    locale: payload.lang ?? 'zh-CN',
+    resultData,
+    chartOverride: payload.calibratedChart ?? undefined,
     productRecommend,
   });
 
-  fs.writeFileSync(path.join(reportsDir, fileName), staticHtml, 'utf-8');
-  return `${BAZI_PUBLIC_URL}/reports/${fileName}`;
+  await patchReading(input.readingId, {
+    reportUrl: written.reportUrl,
+    title: `${reading.title} · 报告`,
+  });
+  await patchOrderStatus(input.orderNo, 'completed');
+
+  return { success: true, reportUrl: written.reportUrl };
 }
 
 export async function runReportJob(input: ReportJobInput) {
-  const reading = await fetchReading(input.readingId);
-  if (!reading) throw new Error('reading not found');
-  if (reading.userId !== input.userId) throw new Error('reading user mismatch');
-  if (reading.reportUrl) {
-    return { success: true, duplicate: true, reportUrl: reading.reportUrl };
-  }
-  if (!reading.payloadJson) throw new Error('reading payload missing');
-
-  const payload = JSON.parse(reading.payloadJson) as {
-    type?: 'single' | 'couple';
-    lang?: 'zh-CN' | 'zh-TW' | 'en' | 'pt-BR';
-    resultData?: Record<string, unknown>;
-  };
-  if (!payload.resultData || !payload.type) throw new Error('invalid reading payload');
-
-  const planType = input.planType || 'advanced';
-  const { report } = await generateBaziReportContent(payload.type, payload.resultData, payload.lang ?? 'zh-CN');
-  const reportUrl = await writeReportHtml(planType, report, payload.resultData);
-
-  await patchReading(input.readingId, { reportUrl, title: `${reading.title} · 报告` });
-  await patchOrderStatus(input.orderNo, 'completed');
-
-  return { success: true, reportUrl };
+  const key = input.readingId.trim();
+  const existing = inflightJobs.get(key);
+  if (existing) return existing;
+  const pending = runReportJobInner(input).finally(() => {
+    inflightJobs.delete(key);
+  });
+  inflightJobs.set(key, pending);
+  return pending;
 }
 
 export function registerReportJobRoute(app: import('express').Express) {

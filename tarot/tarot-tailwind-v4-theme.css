@@ -3,24 +3,24 @@
  * Import after shared tailwind-v4-bridge.css.
  */
 :root {
-  --gold: var(--orasage-gold, #b8943f);
-  --gold-light: var(--orasage-gold-light, #d4b86a);
-  --gold-dark: #96752f;
-  --gold-glow: rgba(184, 148, 63, 0.25);
+  --gold: var(--orasage-gold, #c96442);
+  --gold-light: var(--orasage-gold-light, #e0a892);
+  --gold-dark: #934828;
+  --gold-glow: rgba(201, 100, 66, 0.25);
 
-  --bg-base: var(--orasage-background, #fafaf8);
+  --bg-base: var(--orasage-background, #faf9f5);
   --bg-card: var(--orasage-surface, #ffffff);
-  --bg-card-hover: var(--orasage-gold-pale, rgba(184, 148, 63, 0.08));
+  --bg-card-hover: var(--orasage-gold-pale, rgba(201, 100, 66, 0.08));
   --bg-input: #ffffff;
   --bg-surface: #ffffff;
 
-  --text-primary: var(--orasage-primary, #171717);
+  --text-primary: var(--orasage-primary, #3d3929);
   --text-secondary: var(--orasage-secondary, #6b7280);
   --text-muted: var(--orasage-muted, #9ca3af);
   --text-faint: #d1d5db;
 
   --border: var(--orasage-border, #e7e5e4);
-  --border-focus: var(--orasage-gold-border, rgba(184, 148, 63, 0.35));
+  --border-focus: var(--orasage-gold-border, rgba(201, 100, 66, 0.35));
   --border-card: var(--orasage-border-subtle, #f1f1ef);
 
   --rose: #c87b6e;
@@ -37,8 +37,8 @@
   --shadow-sm: 0 1px 3px rgba(23, 23, 23, 0.06);
   --shadow-md: 0 2px 12px rgba(23, 23, 23, 0.08);
   --shadow-lg: 0 8px 24px rgba(23, 23, 23, 0.1);
-  --shadow-gold: 0 4px 16px rgba(184, 148, 63, 0.15);
-  --shadow-button: 0 4px 12px rgba(184, 148, 63, 0.2);
+  --shadow-gold: 0 4px 16px rgba(201, 100, 66, 0.15);
+  --shadow-button: 0 4px 12px rgba(201, 100, 66, 0.2);
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -61,7 +61,7 @@
 
   --tarot-accent-rgb: 184 148 63;
   --tarot-accent-alt-rgb: 201 149 74;
-  --tarot-accent-muted: var(--gold-dark, #96752f);
+  --tarot-accent-muted: var(--gold-dark, #934828);
   --tarot-ivory-warm: #faf8f4;
   --tarot-ivory-map: #ebe4d8;
   --tarot-ivory-sand: #f7f3ec;

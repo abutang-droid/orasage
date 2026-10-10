@@ -4,7 +4,8 @@
  * Unified React i18n binding — the single dictionary mechanism for all
  * OraSage apps (design system §10 / platform roadmap §3).
  *
- * - Startup: detects locale from ?lang / shared NEXT_LOCALE cookie / navigator.
+ * - Startup: detects locale from ?lang / portal referrer / shared NEXT_LOCALE cookie
+ *   (not navigator / Accept-Language).
  * - Switch: updates state in place (no reload), persists the cross-subdomain
  *   cookie and keeps the ?lang query param in sync.
  * - Dictionaries: static maps or lazy loaders per locale.
@@ -55,7 +56,7 @@ export interface I18nProviderProps {
   /** Per-locale dictionaries: static object or lazy `() => import(...)` loader. */
   dictionaries?: Dictionaries;
   initialLocale?: string;
-  /** Detect from ?lang / shared cookie / navigator after mount (default true). */
+  /** Detect from ?lang / portal referrer / shared cookie after mount (default true). */
   detectOnMount?: boolean;
   /**
    * Map any incoming locale to the set this app supports.
@@ -105,6 +106,7 @@ export function I18nProvider({
   useEffect(() => {
     if (!detectOnMount) return;
     const detected = mapLocaleRef.current(detectLocaleFromBrowser());
+    setLocaleCookie(detected);
     setLocaleState((current) => (detected === current ? current : detected));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

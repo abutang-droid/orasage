@@ -6,6 +6,7 @@ import { Disclaimer } from '@/lib/orasage-app-shell/Disclaimer';
 import { BreadcrumbJsonLd, FaqJsonLd } from '@/components/SeoJsonLd';
 import { buildPortalPageMeta } from '@/lib/seo';
 import { externalUrls } from '@/lib/urls';
+import { withAppLocale } from '@/lib/orasage-app-shell';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -118,7 +119,7 @@ export default async function ReadingsPage({ params }: Props) {
               {t('Output: Day Master + element balance.', '输出：日主与五行分布。')}
             </p>
             <a
-              href={externalUrls.bazi}
+              href={withAppLocale(externalUrls.bazi, locale)}
               className="mt-4 inline-flex min-h-11 items-center justify-center rounded-[var(--os-radius-btn)] bg-primary px-4 text-sm font-semibold text-primary-foreground"
             >
               {t('Get my chart', '开始排盘')}
@@ -132,7 +133,7 @@ export default async function ReadingsPage({ params }: Props) {
             <p className="mt-2 text-xs text-muted-foreground">
               {t('Explore at your pace — no primary CTA yet.', '按自己的节奏探索。')}
             </p>
-            <a href={externalUrls.ziwei} className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline">
+            <a href={withAppLocale(externalUrls.ziwei, locale)} className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline">
               {t('Open Zi Wei →', '进入紫微 →')}
             </a>
           </article>
@@ -144,7 +145,7 @@ export default async function ReadingsPage({ params }: Props) {
             <p className="mt-2 text-xs text-muted-foreground">
               {t('Explore at your pace — no primary CTA yet.', '按自己的节奏探索。')}
             </p>
-            <a href={externalUrls.tarot} className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline">
+            <a href={withAppLocale(externalUrls.tarot, locale)} className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline">
               {t('Open Tarot →', '进入塔罗 →')}
             </a>
           </article>
@@ -159,7 +160,7 @@ export default async function ReadingsPage({ params }: Props) {
           <h3 className="text-lg font-medium">{t('Wishing Well 祈愿池', '祈愿池 Wishing Well')}</h3>
           <p className="mt-2 text-sm text-muted-foreground">{t('Support the project', '支持本项目')}</p>
           <a
-            href={externalUrls.temple}
+            href={withAppLocale(externalUrls.temple, locale)}
             className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline"
           >
             {t('Visit the Wishing Well →', '前往祈愿池 →')}

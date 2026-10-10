@@ -63,18 +63,27 @@ function redirectZhAlias(request: NextRequest): NextResponse | null {
   return null;
 }
 
+function isLocaleHome(pathname: string): boolean {
+  const p = pathname.replace(/\/$/, '') || '/';
+  if (p === '/') return true;
+  return p === '/zh-CN' || p === '/en' || p === '/pt-BR';
+}
+
 function applyHtmlCacheHeaders(request: NextRequest, response: NextResponse) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return;
 
   const { pathname } = request.nextUrl;
   const isPrivate =
-    pathname === '/' ||
+    isLocaleHome(pathname) ||
     pathname.includes('/profile') ||
     pathname.startsWith('/api') ||
     pathname.includes('/login');
 
   if (isPrivate) {
+    // Locale homes include cross-subdomain 八字/紫微/塔罗 ?lang= links.
+    // Caching /zh-CN for an hour made nav deploys look unchanged.
     response.headers.set('Cache-Control', 'private, no-store');
+    response.headers.set('CDN-Cache-Control', 'private, no-store');
     return;
   }
 

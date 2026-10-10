@@ -45,6 +45,7 @@
 | **移动（<1024px）** | 顶部统一样式：**品牌 + 搜索/语言/登录 + 折叠菜单按钮**；展开全站主导航面板（无底部固定栏） |
 
 - 移动端与 PC 端通过 CSS 媒体查询切换主导航呈现；同一页面不重复显示两套主导航。
+- **移动折叠菜单面板必须不透明**：`.orasage-site-mobile-nav-panel` 用字面色 + `var(--shell-menu-bg, …)` 双写；`--shell-*` 只定义在 `.orasage-app-shell` 时，门户 `Header` 里的面板会变成透明文字叠在首页上（2026-10-04）。`:root` / `.orasage-site-chrome` 也要带 light token。
 - 全站页脚：上行 **功效/娱乐免责声明**，下行 **版权 + 隐私政策 + 服务条款**（与 main 一致）。
 - 子页「返回」放在内容区工具条，不占顶栏主导航位。
 
@@ -52,6 +53,55 @@
 
 - **未经明确批准**，不要改动全局布局或增删产品功能。
 - 大规模 UI 变更前先与任务方确认范围与例外。
+
+## 反复回归坑：八字罗盘手机刻度数字
+
+**症状（手机浏览器）**：罗盘环上的年/月/日/时/分数字不在环上、飞出盘外或叠层错乱。
+
+**根因（已多次复现，含 2026-10-04 再次复发）**：
+
+1. 窄屏把 `.dial` 写死 `height:340px`（或任何固定高）→ SVG viewBox 被拉成长方形，刻度与色块错位。
+2. 用 **CSS** `transform: rotate(...)` 转整环（`.ring-g`）或刻度字，再叠 SVG 子级 `rotate` → 手机缩放后 CSS 盒坐标与 SVG 用户坐标对不上，数字甩出环。
+3. **分支未合入**：修复在 `cursor/bazi-luopan-mobile-ticks-cdf4`，后续工作从 `bazi-luopan-home` 分支出去时没带上该补丁；再 overlay `bazi/dist` 就会把生产盖回坏版本。
+
+**正确做法（改 `bazi/client/src/pages/luopan/` 时必守）**：
+
+- `.dial` 始终用 `aspect-ratio: 1/1` + `height: auto`；`@media (max-width:400px)` 只收 `max-width`，**禁止**再写死高度。
+- 整环旋转：`spinRing()` → SVG `transform="rotate(th Cx Cy)"`，并清空 `style.transform`。
+- 刻度正向：`uprightLabel()` → SVG `rotate(angle x y)`，**不要**给 `.tick-t` / `.hour-t` / `.min-t` / `.ring-g` 写 CSS rotate / `transform-origin: 210px`。
+- 合并其它分支 / overlay `bazi/dist` 前，跑 `pnpm exec vitest run server/luopan-mobile-ticks.test.ts`（源码 + **已构建 dist** 都扫）；测试失败则禁止 scp/tar 覆盖生产。`deploy/bazi/deploy-bazi.sh` 在 `pnpm run build` 后也会跑同一套测试。
+- 验收：线上 CSS 不得含 `height:340px` / `transform-origin:210px`；JS 不得含 `.style.transform=\`rotate(${…}deg)\``。当前复发就是 overlay 了报告样式分支的旧 dist（`index-r4bqeKPv.js` + `.dial{width:340px;height:340px}`）。
+
+回归测试：`bazi/server/luopan-mobile-ticks.test.ts`。
+
+## 反复回归坑：付费后仍停在解锁页
+
+**症状**：mock/真付 `report-bazi-basic` 成功后回到 `/classic?paid=1`，看到的还是「付费解锁」简版页。
+
+**根因（已多次复现，含 2026-10-05）**：
+
+1. 游客排盘把 `user_readings.userId` 写成 `0`；结账必须登录。`runReportJob` 若 `reading.userId !== payerUserId` 直接抛 `reading user mismatch`，HTML 永不升级为 paid。
+2. 回跳用 `probeFixedReport` **文件在就打开**，不管 `data-report-tier`。shop 任务是 fire-and-forget，落地时文件几乎总是 free，于是整页换成解锁页。
+3. `usePaymentFlow` 立刻从 URL 删掉 `paid`，刷新后连「正在生成」都不走。
+
+**正确做法**：
+
+- 任务允许认领 `userId=0`；别人的盘仍拒绝。
+- `paid=1` 只 `waitForPaidReport` 等到 `data-report-tier="paid"`；超时提示刷新，禁止打开 free、禁止再露 SPA 付费墙。
+- 回跳再调 `bazi.ensurePaidReport`（与通道 A 同锁）。
+- 不要从回跳 URL 去掉 `paid` / `readingId`。
+
+回归测试：`bazi/server/reportUnlock.test.ts`、`bazi/server/paid-return.test.ts`。
+
+## 八字排盘五条硬规则
+
+产品全文见 [`docs/BAZI-REPORT-PRODUCT.md`](BAZI-REPORT-PRODUCT.md)。改排盘 / 报告 / overlay `bazi/dist` 时必守：
+
+1. `/` 经典模式与 `/classic` 计算器模式共用 `calcSingleBazi`，禁止两套算法。
+2. 用户第一步看到的正文必须走 `generateBaziReportContent(..., 'brief')`（网络 AI）。禁止把本地 `composeFreeReport` 当作用户可见简版。四柱与雷达先本地 `calcSingleBazi`，再由同一网络 AI 校准，页面以校准结果为准。
+3. 先简版，再付费解锁详版；SKU `report-bazi-basic`，同一 `reading_*.html`。
+4. 排过即 upsert `user_readings` 并落静态 HTML。身份 = 输入指纹 + 账号或 `orasage:device-id`。已有文件禁止重生成。
+5. 付费回跳、语言、分享契约不变。
 
 ## 生产环境与 SSH（Cloudflare Tunnel）
 

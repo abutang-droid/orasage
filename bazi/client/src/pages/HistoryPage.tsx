@@ -249,10 +249,32 @@ export default function HistoryPage() {
                       </div>
                     )}
 
-                    {/* 时间 */}
-                    <p style={{ fontFamily: SERIF, fontSize: "0.6rem", color: MUTED_CLR, marginTop: "0.6rem", letterSpacing: "0.05em", opacity: 0.7 }}>
-                      {createdAt}
-                    </p>
+                    {/* 时间 + 关联测试报告 */}
+                    <div className="flex items-center justify-between gap-2 mt-2.5">
+                      <p style={{ fontFamily: SERIF, fontSize: "0.6rem", color: MUTED_CLR, letterSpacing: "0.05em", opacity: 0.7 }}>
+                        {createdAt}
+                      </p>
+                      {typeof summary?.reportUrl === "string" && summary.reportUrl ? (
+                        <a
+                          href={
+                            typeof summary.reportPath === "string" && summary.reportPath
+                              ? summary.reportPath
+                              : summary.reportUrl
+                          }
+                          style={{
+                            fontFamily: SERIF,
+                            fontSize: "0.65rem",
+                            letterSpacing: "0.1em",
+                            color: GOLD,
+                            textDecoration: "none",
+                            borderBottom: `1px solid ${GOLD_FAINT}`,
+                            paddingBottom: "1px",
+                          }}
+                        >
+                          查看报告
+                        </a>
+                      ) : null}
+                    </div>
                   </div>
                 );
               })}

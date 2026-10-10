@@ -4,9 +4,10 @@ import { badgeVariants, buttonVariants, cardVariants } from '@orasage/ui';
 import { Moon, Sparkles, SunMoon, type LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { externalUrls } from '@/lib/urls';
+import { withAppLocale } from '@/lib/orasage-app-shell';
 import type { HomeHeroContent } from '@/lib/cms-home-hero';
 import type { HomepageCatalog, ProductCategory } from '@/lib/shop-products';
 import { HomeHeroVideo } from '@/components/HomeHeroVideo';
@@ -14,7 +15,6 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const toolKeys = ['bazi', 'ziwei', 'tarot'] as const;
-const toolUrls = { bazi: externalUrls.bazi, ziwei: externalUrls.ziwei, tarot: externalUrls.tarot };
 const toolIcons: Record<(typeof toolKeys)[number], LucideIcon> = {
   bazi: SunMoon,
   ziwei: Sparkles,
@@ -144,6 +144,12 @@ export function Hero({ hero }: { hero: HomeHeroContent }) {
 
 export function ToolCards() {
   const t = useTranslations('tools');
+  const locale = useLocale();
+  const toolUrls = {
+    bazi: withAppLocale(externalUrls.bazi, locale),
+    ziwei: withAppLocale(externalUrls.ziwei, locale),
+    tarot: withAppLocale(externalUrls.tarot, locale),
+  };
 
   return (
     <section id="tools" className="home-section">
@@ -196,6 +202,8 @@ export function ToolCards() {
 
 export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
   const t = useTranslations('shop');
+  const locale = useLocale();
+  const shopHome = withAppLocale(externalUrls.shop, locale, 'locale');
   const categories = catalog.categories;
   const [activeCategory, setActiveCategory] = useState<ProductCategory | null>(null);
 
@@ -232,7 +240,7 @@ export function ShopSection({ catalog }: { catalog: HomepageCatalog }) {
           })}
         </div>
         <a
-          href={externalUrls.shop}
+          href={shopHome}
           className={cn(
             buttonVariants({ variant: 'outline', size: 'sm' }),
             'home-shop-more shrink-0 whitespace-nowrap',

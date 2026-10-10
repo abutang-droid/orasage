@@ -1,29 +1,64 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { loadCityCatalog, matchLocalCity, toCityCoords } from '@orasage/city';
 import { CityProvider, CitySearchInput } from '@orasage/city/react';
 import type { BirthplaceValue } from '@orasage/city';
-import { calcSingleBazi, loadLunarLib, type SingleBaziResult } from '@/lib/bazi';
+import { calcSingleBazi, loadLunarLib, recommendBracelet } from '@/lib/bazi';
 import { cityApi } from '@/lib/city-client';
+import { saveCheckoutSnapshot } from '@/lib/checkout-session';
+import { BaziEntryChrome } from '@/components/BaziEntryChrome';
 import { initLuopan, type LuopanDialState } from './luopan/engine.js';
 import { pickCityFromSpeech } from './luopan/speechPlace';
-import { LuopanResult } from './luopan/LuopanResult';
+import { syncBaziSingleReading } from '@/lib/reading-sync';
+import { saveLastReadingId } from '@/_core/hooks/usePaymentFlow';
+import {
+  getStaticReportHref,
+  materializeStaticReport,
+  openFixedReportPage,
+  probeFixedReport,
+} from '@/lib/static-report';
+import { trpc } from '@/lib/trpc';
 import markup from './luopan/markup.html?raw';
 import './luopan/luopan.css';
+
+function classicRestorePath(): string {
+  const params = new URLSearchParams(window.location.search);
+  params.set('restore', '1');
+  const q = params.toString();
+  return q ? `/classic?${q}` : '/classic?restore=1';
+}
 
 export default function LuopanPage() {
   const [, setLocation] = useLocation();
   const hostRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<{ destroy: () => void; applyTranscript: (text: string) => void } | null>(null);
   const [citySlot, setCitySlot] = useState<HTMLElement | null>(null);
+  const [nameSlot, setNameSlot] = useState<HTMLElement | null>(null);
   const [errSlot, setErrSlot] = useState<HTMLElement | null>(null);
   const [place, setPlace] = useState<BirthplaceValue>({ city: '', country: '' });
   const placeRef = useRef(place);
   placeRef.current = place;
+  const [personName, setPersonName] = useState('');
+  const nameRef = useRef(personName);
+  nameRef.current = personName;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<SingleBaziResult | null>(null);
+  const [lastReport, setLastReport] = useState<string | null>(null);
+  const materializeReport = trpc.bazi.materializeReport.useMutation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1' || params.get('restore') === '1') {
+      setLocation(classicRestorePath());
+    }
+  }, [setLocation]);
+
+  useEffect(() => {
+    void probeFixedReport(getStaticReportHref()).then((path) => {
+      if (path) setLastReport(path);
+    });
+  }, []);
 
   const onGo = useCallback(async (s: LuopanDialState) => {
     const city = placeRef.current;
@@ -55,7 +90,7 @@ export default function LuopanPage() {
       }
       const isLunar = s.calendar === 'lunar';
       const data = await calcSingleBazi({
-        name: '访客',
+        name: nameRef.current.trim() || '访客',
         gender: s.sex === '女' ? 'female' : 'male',
         year: isLunar ? s.lunarYear : s.y,
         month: isLunar ? s.lunarMonth : s.m,
@@ -68,15 +103,30 @@ export default function LuopanPage() {
         cityName: city.city,
         ...(lng != null ? { lng, lat: lat ?? 0, timezone } : {}),
       });
-      setResult(data);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      saveCheckoutSnapshot({ type: 'single', data }, 'single');
+      const braceletRec = recommendBracelet(data.wuXing as unknown as Record<string, number>);
+      const materialized = await materializeStaticReport({
+        result: data,
+        lang: 'zh-CN',
+        mutateAsync: materializeReport.mutateAsync,
+      });
+      const readingId = materialized?.readingId;
+      if (readingId) {
+        syncBaziSingleReading(nameRef.current, data, braceletRec, readingId, 'zh-CN', materialized.reportUrl);
+        saveLastReadingId(readingId);
+      }
+      if (materialized?.reportPath) {
+        openFixedReportPage(materialized.reportPath);
+        return;
+      }
+      setError('简版解读生成失败，请稍后重试。');
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : '排盘失败，请核对日期后再试。');
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [setLocation, materializeReport.mutateAsync]);
 
   const onTranscript = useCallback(async (text: string) => {
     try {
@@ -101,24 +151,19 @@ export default function LuopanPage() {
     const host = hostRef.current;
     if (!host) return;
     host.innerHTML = markup;
-    const back = host.querySelector('[data-luopan-back]');
-    const onBackClick = (e: Event) => {
-      e.preventDefault();
-      setLocation('/');
-    };
-    back?.addEventListener('click', onBackClick);
     const api = initLuopan(host, { onGo, onTranscript });
     apiRef.current = api;
+    setNameSlot(host.querySelector('#luopan-name-slot') as HTMLElement | null);
     setCitySlot(host.querySelector('#luopan-city-slot') as HTMLElement | null);
     setErrSlot(host.querySelector('#luopan-err-slot') as HTMLElement | null);
     return () => {
-      back?.removeEventListener('click', onBackClick);
       api.destroy();
       apiRef.current = null;
+      setNameSlot(null);
       setCitySlot(null);
       setErrSlot(null);
     };
-  }, [onGo, onTranscript, setLocation]);
+  }, [onGo, onTranscript]);
 
   const messages = (
     <>
@@ -129,12 +174,33 @@ export default function LuopanPage() {
 
   return (
     <div className={`luopan-root${busy ? ' luopan-busy' : ''}`}>
+      <BaziEntryChrome active="luopan" />
+      {lastReport ? (
+        <a className="luopan-last-report" href={lastReport}>
+          查看上次报告
+        </a>
+      ) : null}
       <div
         ref={hostRef}
         className="luopan-host"
-        hidden={!!result}
-        style={{ width: '100%', display: result ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center' }}
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
       />
+      {nameSlot
+        ? createPortal(
+            <input
+              id="luopan-name"
+              type="text"
+              className="luopan-name-field"
+              value={personName}
+              onChange={(e) => setPersonName(e.target.value)}
+              placeholder="请输入姓名"
+              autoComplete="name"
+              maxLength={32}
+              aria-label="姓名"
+            />,
+            nameSlot,
+          )
+        : null}
       {citySlot
         ? createPortal(
             <CityProvider api={cityApi} locale="zh-CN">
@@ -153,15 +219,6 @@ export default function LuopanPage() {
           )
         : null}
       {errSlot ? createPortal(messages, errSlot) : messages}
-      {result ? (
-        <LuopanResult result={result} onBack={() => setResult(null)} />
-      ) : (
-        <p className="stage-foot">
-          <Link href="/">返回经典填写页</Link>
-          {'　·　'}
-          八字罗盘 · 竹简命盘
-        </p>
-      )}
     </div>
   );
 }
