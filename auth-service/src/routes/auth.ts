@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema.ts";
 import { eq } from "drizzle-orm";
-import { extractToken, verifyToken, getCookieOptions } from "../lib/jwt.ts";
+import { extractToken, verifyToken, getCookieOptions, clearAuthCookies } from "../lib/jwt.ts";
 import { signTokenForUser } from "../lib/sign-token.ts";
 import { isStaffRole } from "../../../shared/staff-roles/index.ts";
 import { userIsActiveStaff } from "../lib/staff-permissions.ts";
@@ -214,11 +214,7 @@ authRouter.post("/checkout-bind", async (req: Request, res: Response) => {
 
 // ── POST /auth/logout ──
 authRouter.post("/logout", (_req: Request, res: Response) => {
-  const cookieOpts = getCookieOptions();
-  res.clearCookie(cookieOpts.name, {
-    ...cookieOpts,
-    maxAge: -1,
-  });
+  clearAuthCookies(res);
   res.json({ success: true });
 });
 

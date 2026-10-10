@@ -108,7 +108,7 @@ export async function getChannelManager(): Promise<StaffUser | null> {
 }
 
 export function loginUrl() {
-  return `${ENV.authUrl}/login?redirect=${encodeURIComponent(ENV.adminUrl)}`;
+  return `${ENV.authUrl}/login?redirect=${encodeURIComponent(ENV.adminUrl)}&from=admin`;
 }
 
 /** 读取当前员工 JWT，用于服务端代理 CMS 写接口 */

@@ -243,6 +243,22 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 0 2px #fafaf8, 0 0 0 4px #171717;
 }
 
+a.auth-submit {
+  box-sizing: border-box;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-switch a.auth-submit {
+  margin-left: 0;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-switch a.auth-submit:hover {
+  opacity: 1;
+}
+
 .auth-card-footer {
   margin-top: 1.5rem;
   padding-top: 1.25rem;

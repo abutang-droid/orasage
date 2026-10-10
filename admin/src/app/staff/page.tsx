@@ -1,12 +1,14 @@
-import { getStaffManager, loginUrl } from '@/lib/auth';
+import { getAdminUser, getStaffManager, loginUrl } from '@/lib/auth';
 import { listStaffAccounts, getStaffMeta } from '@/lib/api';
 import { createStaffAction, updateStaffAction } from '@/app/staff-actions';
 import { redirect } from 'next/navigation';
 import { AdminSubmitButton } from '@/components/AdminButton';
 
 export default async function StaffPage() {
+  const user = await getAdminUser();
+  if (!user) redirect(loginUrl());
   const manager = await getStaffManager();
-  if (!manager) redirect(loginUrl());
+  if (!manager) redirect('/');
 
   let staff: Awaited<ReturnType<typeof listStaffAccounts>>['staff'] = [];
   let meta: Awaited<ReturnType<typeof getStaffMeta>> | null = null;
