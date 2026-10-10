@@ -4,7 +4,6 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Link } from "wouter";
 import { loadCityCatalog, matchLocalCity, toCityCoords } from "@orasage/city";
 import { CitySearchInput } from "@orasage/city/react";
 import { getLeapMonthOfYear, preloadDecade } from "@/lib/lunarData";
@@ -19,6 +18,7 @@ import { SingleBaziResultView, DoubleBaziResultView } from "@/components/BaziRes
 import { DatePicker } from "@/components/WheelPicker";
 import { BaziHomeFeed } from "@/components/BaziHomeFeed";
 import { BaziHomeHero } from "@/components/BaziHomeHero";
+import { BaziEntryChrome } from "@/components/BaziEntryChrome";
 import { trpc } from "@/lib/trpc";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -26,7 +26,7 @@ import { syncSavedProfile, fetchSavedProfiles, profileDisplayLabel, type SavedPr
 import { syncBaziSingleReading, syncBaziDoubleReading } from "@/lib/reading-sync";
 import { saveLastReadingId, getLastReadingId } from "@/_core/hooks/usePaymentFlow";
 import { saveCheckoutSnapshot, loadCheckoutSnapshot } from "@/lib/checkout-session";
-import { GOLD, GOLD_FAINT, GOLD_GHOST, HEADING, BODY_CLR, BORDER_CLR } from "@/theme";
+import { GOLD, GOLD_FAINT, GOLD_GHOST, BODY_CLR, BORDER_CLR } from "@/theme";
 
 const YEARS = Array.from({ length: 201 }, (_, i) => String(2100 - i)); // 1900-2100
 const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -353,10 +353,15 @@ export default function Home() {
     void loadCityCatalog();
   }, []);
 
-  // 支付回跳：恢复排盘结果页（避免回到首页空白）
+  // 支付回跳 / 罗盘起盘：只恢复一次。t 每次 render 都是新函数，
+  // 若依赖 [t] 会反复 setResult + scrollTo(0)，报告页就滚不动。
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
+    if (params.get('couple') === '1') {
+      setMode('couple');
+      setActivePerson(1);
+    }
     if (params.get('paid') !== '1' && params.get('restore') !== '1') return;
 
     const snapshot = loadCheckoutSnapshot();
@@ -370,8 +375,7 @@ export default function Home() {
     setResult(snapshot.result);
     setMode(snapshot.mode);
     setView('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     if (result) {
@@ -541,6 +545,7 @@ export default function Home() {
   return (
     <div className="w-full">
       <div className="bazi-home-page px-4">
+        {view === "form" && <BaziEntryChrome active="classic" />}
 
         {view === "loading" && <LoadingView />}
 
@@ -553,16 +558,6 @@ export default function Home() {
         {view === "form" && (
           <>
             <BaziHomeHero />
-
-            <p className="mb-4 text-center text-sm" style={{ color: MUTED_CLR }}>
-              <Link href="/scene" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 沈知微真人对话排盘（V3 场景原型）→
-              </Link>
-              <br />
-              <Link href="/luopan" style={{ color: GOLD, letterSpacing: '0.04em' }}>
-                试一试 · 八字罗盘 · 竹简命盘 →
-              </Link>
-            </p>
 
             <div className="bazi-calc-form bazi-calc-section animate-fade-in-up">
               <div className="bazi-calc-mode-bar">

@@ -183,7 +183,7 @@ export const appRouter = router({
           messages: [
             {
               role: "system",
-              content: langGuide + "你是铁口直断派命理顾问 OraSage，严格遵循《铁口直断》手册的四层过滤+裁决引擎进行分析。每句结论须注明 OraSage 依据（正文中写「OraSage」或「[OraSage：…]」，不要使用「算法依据」），语言犀利、一针见血。避免感性修饰词，使用「OraSage」自称。当前年份是 2026 年，所有流年分析以 2026 年为基准，不要提及 2025 年或更早的年份。",
+              content: langGuide + "你是铁口直断派八字命理顾问 OraSage。必须严格按照《铁口直断》4 层过滤 + 裁决引擎（用户消息中的引擎裁决）写报告，不得另起炉灶改判喜忌/格局。每句结论注明 [OraSage：…]。当前年份是 2026 年。",
             },
             { role: "user", content: prompt },
           ],
@@ -191,6 +191,7 @@ export const appRouter = router({
 
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error("LLM 返回内容为空");
+        // 铁口正文保留术语；只做品牌清洗，不做白话降级替换
         const content = sanitizeReportBrandText(
           typeof rawContent === "string"
             ? rawContent
@@ -216,7 +217,7 @@ export const appRouter = router({
 
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: langGuide + "你是铁口直断派的专业东方命理顾问。根据用户的实际排盘数据，生成个性化的简短命理解读。当前年份是 2026 年，所有分析以 2026 年为基准，不要提及 2025 年或更早的年份。只返回 JSON，不要 markdown 代码块。" },
+            { role: "system", content: langGuide + "你是铁口直断派八字命理顾问。根据排盘与四层引擎裁决输出 JSON。不得改判引擎喜忌/格局。只返回 JSON。" },
             { role: "user", content: prompt },
           ],
         });
@@ -227,15 +228,22 @@ export const appRouter = router({
         try {
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (!jsonMatch) throw new Error("No JSON found");
-          return JSON.parse(jsonMatch[0]);
+          // 铁口 JSON 不做白话降级
+          return JSON.parse(jsonMatch[0]) as Record<string, unknown>;
         } catch {
+          const d = input.resultData;
+          const pattern = d.pattern as { primary?: string; description?: string } | undefined;
+          const hit = d.oneLineHit as { headline?: string; subline?: string } | undefined;
+          const climate = d.climate as { active?: boolean; description?: string } | undefined;
+          const fav = Array.isArray(d.favorable) ? (d.favorable as string[]).join("、") : "";
+          const unfav = Array.isArray(d.unfavorable) ? (d.unfavorable as string[]).join("、") : "";
           return {
-            title: "命格不凡，自有天机",
-            traits: "您的八字蕴含独特能量，建议深入解读以了解完整命理格局。",
-            career: "适合发挥自身五行优势的行业方向。",
-            partner: "根据五行互补原则选择合作伙伴。",
-            risk: `2026年需关注自身五行平衡，注意身心调节。`,
-            lucky: "幸运色: 金色、紫色 ｜ 幸运方位: 东南",
+            title: pattern?.primary || hit?.headline || String(d.strength ?? "排盘"),
+            matrix: `日主${d.riZhu}，${d.strength}；喜用${fav || "—"}，忌神${unfav || "—"}。`,
+            pattern: pattern?.description || pattern?.primary || "",
+            personality: hit?.headline || "",
+            risk: climate?.active ? (climate.description || "") : (hit?.subline || ""),
+            lucky: fav ? `喜用方向：${fav}` : "",
           };
         }
       }),

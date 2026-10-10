@@ -250,7 +250,6 @@ export type BaziResult = SingleBaziResult;
 
 // ==================== 本地农历数据模块（替换 lunar-javascript CDN）====================
 import { getLunarData, getShiZhu, preloadCommonDecades } from './lunarData';
-
 // 兼容旧接口：首次调用时预加载常用年代数据
 let _lunarReady = false;
 let _lunarReadyPromise: Promise<boolean> | null = null;
@@ -488,7 +487,7 @@ function calcDaYunNew(
 
 // ==================== 命理小结生成 ====================
 /**
- * 根据日主天干、身强弱、喜忌神生成段落式命理小结
+ * 根据日主天干、身强弱、喜忌神 + 四层引擎裁决生成段落式命理小结
  */
 function generateMingLiSummary(
   riZhu: string,
@@ -497,11 +496,25 @@ function generateMingLiSummary(
   unfavorable: string[],
   wuXing: WuXingCount,
   gender: 'male' | 'female',
-  shiShen: Record<string, string>
+  shiShen: Record<string, string>,
+  engine?: {
+    pattern?: PatternResult;
+    climate?: ClimateAlert;
+    deadPoint?: DeadPoint;
+    oneLineHit?: OneLineHit;
+  },
 ): MingLiSummary {
   const wx = WU_XING_MAP[riZhu] ?? '未知';
   const favStr = favorable.join('、') || '未确定';
   const unfavStr = unfavorable.join('、') || '未确定';
+  const patternLabel = engine?.pattern?.fullLabel || engine?.pattern?.primary || '';
+  const hitLine = engine?.oneLineHit?.headline
+    ? `${engine.oneLineHit.headline}${engine.oneLineHit.subline ? `（${engine.oneLineHit.subline}）` : ''}`
+    : '';
+  const climateLine = engine?.climate?.active && engine.climate.description
+    ? engine.climate.description
+    : '';
+  const deadLine = engine?.deadPoint?.insight || engine?.deadPoint?.mechanism || '';
 
   // 日主五行性格库
   const personalityBase: Record<string, string> = {
@@ -512,11 +525,11 @@ function generateMingLiSummary(
     '水': '水日主聪慧机智，适应力极强，善于审时度势。内心丰富、想象力层次丰富，具有天生的直觉与感知力。不足之处在于有时过于多虑，小心优犹豫豫而失去主动性。',
   };
 
-  // 身强弱修正语
+  // 身强弱修正语（喜忌写在 overview 统一句，避免重复）
   const strengthMod: Record<string, string> = {
-    '身强': `命局身强，日主气势旺盛，具备独当一面的能力与信心。喜用神为${favStr}，宜多与${favStr}行相关的领域发展。`,
-    '身中': `命局阴阳较为均衡，日主气势平和，适应能力强。喜用神为${favStr}，运势平稳中将逐步上升。`,
-    '身弱': `命局身弱，日主气势较薄，需要喜用神${favStr}来扶助。建议多借助他人力量，合作共赢方为上策。`,
+    '身强': '命局身强，日主气势旺盛，具备独当一面的能力与信心。',
+    '身中': '命局阴阳较为均衡，日主气势平和，适应能力强。',
+    '身弱': '命局身弱，日主气势较薄，宜借力喜用扶助，合作共赢方为上策。',
   };
 
   // 事业方向库（日主五行 + 身强弱）
@@ -584,9 +597,15 @@ function generateMingLiSummary(
   const fortune = `就目前命局而言，${maxWxEntry[0]}行最旺，${minWxEntry[0]}行最弱。喜用神为${favStr}，忌神为${unfavStr}，建议在日常生活中多接触${favStr}行相关的事物与环境，避免${unfavStr}行的负面影响，方能将运势小宇宙持续向好。`;
 
   const strengthKey = strength as '身强' | '身中' | '身弱';
+  const engineBits = [
+    patternLabel ? `格局定型为${patternLabel}` : '',
+    hitLine ? `一句击中：${hitLine}` : '',
+    climateLine ? `调候：${climateLine}` : '',
+    deadLine ? `死锁点：${deadLine}` : '',
+  ].filter(Boolean).join('；');
 
   return {
-    overview: `命主${gender === 'male' ? '为男' : '为女'}，日主天干为${riZhu}（${wx}行），${strengthMod[strengthKey] ?? ''}喜用神为${favStr}，忌神为${unfavStr}。`,
+    overview: `命主${gender === 'male' ? '为男' : '为女'}，日主天干为${riZhu}（${wx}行），${strengthMod[strengthKey] ?? ''}喜用神为${favStr}，忌神为${unfavStr}。${engineBits ? engineBits + '。' : ''}`,
     personality: personalityBase[wx] ?? `${wx}日主天干，性格内外兼备，具有天生的平衡感。`,
     career: careerMap[wx]?.[strengthKey] ?? `${wx}日主注重平衡发展，建议建立稳定的事业基础。`,
     relationship: relationshipMap[wx]?.[strengthKey] ?? `${wx}日主感情中充满责任心，对伴侣忠诚且包容。`,
@@ -1267,7 +1286,7 @@ export async function calcSingleBazi(person: PersonInput): Promise<SingleBaziRes
     const eot = getEquationOfTime(month, day, year);
     trueSolarOffset = Math.round((lng - stdLng) * 4 + eot); // 经度偏移 + 均时差
     if (tst.hour !== hour || tst.minute !== minute) {
-      trueSolarNote = `（真太阳时 ${String(tst.hour).padStart(2,'0')}:${String(tst.minute).padStart(2,'0')}）`;
+      trueSolarNote = `（已按出生地经度校正为 ${String(tst.hour).padStart(2,'0')}:${String(tst.minute).padStart(2,'0')}）`;
     }
     hour = tst.hour;
     minute = tst.minute;
@@ -1347,7 +1366,8 @@ export async function calcSingleBazi(person: PersonInput): Promise<SingleBaziRes
     unfavorable,
     wuXing,
     gender,
-    shiShen
+    shiShen,
+    { pattern, climate, deadPoint, oneLineHit },
   );
 
   return {

@@ -40,6 +40,50 @@ function pick<K extends string>(map: Record<K, string>, lang: string, fallback: 
   return (map as Record<string, string>)[lang] || map[fallback];
 }
 
+/** 把客户端四层过滤引擎的裁决写入 prompt，供铁口直断报告引用（不可忽略） */
+export function formatEngineVerdict(data: Record<string, unknown>): string {
+  const lines: string[] = [];
+  const pattern = data.pattern as { primary?: string; secondary?: string[]; description?: string; fullLabel?: string } | undefined;
+  if (pattern?.primary || pattern?.fullLabel) {
+    const sec = Array.isArray(pattern.secondary) && pattern.secondary.length
+      ? `；相神/次要：${pattern.secondary.join("、")}`
+      : "";
+    lines.push(`- **格局定型**：${pattern.fullLabel || pattern.primary}${sec}`);
+    if (pattern.description) lines.push(`  ${pattern.description}`);
+  }
+  const climate = data.climate as { active?: boolean; type?: string; description?: string; overrideFavorable?: string[]; overrideUnfavorable?: string[] } | undefined;
+  if (climate?.active) {
+    lines.push(`- **调候（L2）**：${climate.type || "触发"} — ${climate.description || ""}`);
+    if (climate.overrideFavorable?.length) {
+      lines.push(`  调候覆盖喜用：${climate.overrideFavorable.join("、")}；忌神：${(climate.overrideUnfavorable || []).join("、")}`);
+    }
+  } else {
+    lines.push("- **调候（L2）**：未触发极端气候覆盖");
+  }
+  const flowIssues = data.flowIssues as Array<{ label?: string; description?: string; severity?: string }> | undefined;
+  if (Array.isArray(flowIssues) && flowIssues.length) {
+    lines.push("- **气机（L3）**：");
+    for (const issue of flowIssues.slice(0, 6)) {
+      lines.push(`  · [${issue.severity || issue.label || "注意"}] ${issue.description || issue.label || ""}`);
+    }
+  } else {
+    lines.push("- **气机（L3）**：未检出明显阻滞");
+  }
+  const deadPoint = data.deadPoint as {
+    target?: string; attacker?: string; mechanism?: string; insight?: string;
+  } | undefined;
+  if (deadPoint?.insight || deadPoint?.mechanism) {
+    const head = [deadPoint.target, deadPoint.attacker].filter(Boolean).join("←");
+    lines.push(`- **死锁点（L4）**：${head ? `${head} — ` : ""}${deadPoint.insight || deadPoint.mechanism}`);
+  }
+  const oneLineHit = data.oneLineHit as { headline?: string; subline?: string } | undefined;
+  if (oneLineHit?.headline) {
+    lines.push(`- **一句击中**：${oneLineHit.headline}${oneLineHit.subline ? ` · ${oneLineHit.subline}` : ""}`);
+  }
+  if (!lines.length) return "";
+  return "## OraSage 四层过滤引擎裁决（必须据此写报告，不得另起炉灶）\n\n" + lines.join("\n") + "\n\n";
+}
+
 // ─── 单人八字解读 Prompt ────────────────────────────────────────────────────
 
 export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-CN"): string {
@@ -108,6 +152,7 @@ export function buildSingleBaziPrompt(data: Record<string, unknown>, lang = "zh-
   r += "- **" + pick(labels.shiShen, lang, "zh-CN") + "**：" + stStr + "\n";
   r += "- **" + pick(labels.shenSha, lang, "zh-CN") + "**：" + ssStr + "\n";
   r += "- **" + pick(labels.daYun, lang, "zh-CN") + "**：" + dyStr + "\n\n";
+  r += formatEngineVerdict(data);
   r += sections[lang] || sections["zh-CN"];
   return r;
 }
@@ -278,7 +323,8 @@ export function buildFreeInsightPrompt(data: Record<string, unknown>, lang = "zh
     + `- ${wx}：${wxStr}\n`
     + `- 喜用神：${favStr}，忌神：${unfavStr}\n`
     + `- 十神：${stStr}\n\n`
-    + `## 分析层级\n\n### Layer A — 静态矩阵\n根据日主强弱和五行分布，判断基础能量状态。\n\n### Layer B — 格局定型\n根据月令和透干情况，判断格局类型（财格/官格/印格/食伤格等）及成败。\n\n`
+    + formatEngineVerdict(data as Record<string, unknown>)
+    + `## 分析层级\n\n### Layer A — 静态矩阵\n根据日主强弱和五行分布，判断基础能量状态（与引擎裁决一致）。\n\n### Layer B — 格局定型\n根据月令和透干情况，判断格局类型及成败（引用上方引擎格局/调候/死锁点）。\n\n`
     + `## 输出 JSON\n\n{\n`
     + `  "title": "${desc.title}",\n`
     + `  "matrix": "${desc.matrix}",\n`
