@@ -106,7 +106,8 @@ export const config = {
   matcher: [
     '/',
     '/(zh-CN|en|pt-BR|zh-TW|es|fr|de|ja|ko|vi|th|ar)/:path*',
-    // 排除静态资源：Next 内部、API、品牌图标（VI v1.0 §6.1）与 public 下的分享图
-    '/((?!_next|api|favicon.ico|icon.svg|apple-icon.png|og.png|robots.txt|sitemap.xml).*)',
+    // 排除静态资源：Next 内部、API、品牌图标（VI v1.0 §6.1）、分享图、
+    // 以及物理落盘的商城 CMS 媒体（/cms-media/*，否则会被 locale 前缀重定向成 404）
+    '/((?!_next|api|favicon.ico|icon.svg|apple-icon.png|og.png|robots.txt|sitemap.xml|cms-media).*)',
   ],
 };
