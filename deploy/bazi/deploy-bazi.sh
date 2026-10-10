@@ -50,10 +50,11 @@ rebuild_auth_for_guest_readings() {
   log "重建 auth-service（保证 internal/readings 接受 userId=0）..."
   (
     cd "$AUTH_DIR"
+    # esbuild 在 devDependencies；构建必须装齐，不能 --omit=dev
     if [ -f package-lock.json ]; then
-      npm ci --omit=dev 2>/dev/null || npm install --omit=dev
+      npm ci 2>/dev/null || npm install
     else
-      npm install --omit=dev
+      npm install
     fi
     npm run build
   )
