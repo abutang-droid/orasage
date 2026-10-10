@@ -92,6 +92,8 @@ deploy_native() {
   chown -R "$RUN_USER:$RUN_USER" "$REPORTS_PERSIST_DIR"
 
   cp "$DEPLOY_DIR/deploy/bazi/orasage-bazi.service" /etc/systemd/system/
+  rm -f /etc/systemd/system/orasage-bazi.service.d/cms-env.conf
+  rmdir /etc/systemd/system/orasage-bazi.service.d 2>/dev/null || true
   systemctl daemon-reload
   systemctl enable orasage-bazi
   systemctl restart orasage-bazi
