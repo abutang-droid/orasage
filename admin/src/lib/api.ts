@@ -10,15 +10,23 @@ export async function adminFetch<T>(path: string, init?: RequestInit): Promise<T
   }
   headers.set('Content-Type', 'application/json');
 
-  const res = await fetch(`${ENV.authUrl}/api/admin${path}`, {
+  const base = ENV.authInternalUrl || ENV.authUrl;
+  const res = await fetch(`${base}/api/admin${path}`, {
     ...init,
     headers,
     cache: 'no-store',
   });
 
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => ({})) as {
+    error?: string;
+    details?: Array<{ path?: Array<string | number>; message?: string }>;
+  };
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error || `请求失败 (${res.status})`);
+    const detail = data.details?.[0];
+    const detailHint = detail?.path?.length
+      ? `（${detail.path.join('.')}${detail.message ? `: ${detail.message}` : ''}）`
+      : '';
+    throw new Error((data.error || `请求失败 (${res.status})`) + detailHint);
   }
   return data as T;
 }

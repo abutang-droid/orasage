@@ -29,6 +29,22 @@ function requireRatesFromForm(formData: FormData) {
   return rates;
 }
 
+/** 空串视为未填；非空则做基本格式校验，避免落到 API 只返回含糊的「参数错误」 */
+function optionalBoundEmail(raw: string, label = '绑定账号邮箱'): string | undefined {
+  const email = raw.trim();
+  if (!email) return undefined;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error(`${label}格式无效；不绑定请留空`);
+  }
+  return email;
+}
+
+function assertChannelCode(code: string) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(code)) {
+    throw new Error('渠道编码仅允许字母、数字、下划线、连字符（不要用中文）');
+  }
+}
+
 export async function createChannelAction(formData: FormData) {
   const manager = await getChannelManager();
   if (!manager) throw new Error('无权限');
@@ -36,14 +52,15 @@ export async function createChannelAction(formData: FormData) {
   const code = String(formData.get('code') ?? '').trim();
   const name = String(formData.get('name') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
-  const ownerEmail = String(formData.get('ownerEmail') ?? '').trim();
+  const ownerEmail = optionalBoundEmail(String(formData.get('ownerEmail') ?? ''), '渠道主账号邮箱');
   if (!code || !name) throw new Error('请填写渠道编码与名称');
+  assertChannelCode(code);
 
   const channel = await createChannel({
     code,
     name,
     note: note || null,
-    ownerEmail: ownerEmail || null,
+    ownerEmail: ownerEmail ?? null,
     rates: requireRatesFromForm(formData),
   });
   revalidatePath('/channels');
@@ -60,14 +77,16 @@ export async function updateChannelAction(formData: FormData) {
   const name = String(formData.get('name') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
   const status = String(formData.get('status') ?? 'active') as 'active' | 'disabled';
-  const ownerEmail = String(formData.get('ownerEmail') ?? '').trim();
   const clearOwner = formData.get('clearOwner') === '1';
+  const ownerEmail = clearOwner
+    ? null
+    : optionalBoundEmail(String(formData.get('ownerEmail') ?? ''), '渠道主账号邮箱');
 
   await updateChannel(id, {
     name,
     note: note || null,
     status,
-    ownerEmail: clearOwner ? null : (ownerEmail || undefined),
+    ownerEmail,
     rates: requireRatesFromForm(formData),
   });
   revalidatePath('/channels');
@@ -83,7 +102,7 @@ export async function createChannelMemberAction(formData: FormData) {
 
   const memberRole = String(formData.get('memberRole') ?? '') as ChannelMemberRole;
   const name = String(formData.get('name') ?? '').trim();
-  const userEmail = String(formData.get('userEmail') ?? '').trim();
+  const userEmail = optionalBoundEmail(String(formData.get('userEmail') ?? ''));
   const contact = String(formData.get('contact') ?? '').trim();
   const address = String(formData.get('address') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
@@ -100,7 +119,7 @@ export async function createChannelMemberAction(formData: FormData) {
   await createChannelMember(channelId, {
     memberRole,
     name,
-    userEmail: userEmail || null,
+    userEmail: userEmail ?? null,
     commissionBps,
     contact: contact || null,
     address: address || null,
@@ -122,8 +141,10 @@ export async function updateChannelMemberAction(formData: FormData) {
 
   const name = String(formData.get('name') ?? '').trim();
   const memberRole = String(formData.get('memberRole') ?? '') as ChannelMemberRole;
-  const userEmail = String(formData.get('userEmail') ?? '').trim();
   const clearUser = formData.get('clearUser') === '1';
+  const userEmail = clearUser
+    ? null
+    : optionalBoundEmail(String(formData.get('userEmail') ?? ''));
   const contact = String(formData.get('contact') ?? '').trim();
   const address = String(formData.get('address') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
@@ -142,7 +163,7 @@ export async function updateChannelMemberAction(formData: FormData) {
   await updateChannelMember(channelId, memberId, {
     name,
     memberRole,
-    userEmail: clearUser ? null : (userEmail || undefined),
+    userEmail,
     commissionBps,
     contact: contact || null,
     address: address || null,
