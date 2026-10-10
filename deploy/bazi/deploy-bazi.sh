@@ -44,9 +44,13 @@ deploy_native() {
   require_cmd node
 
   if [ ! -f "$APP_DIR/.env" ]; then
-    log "警告: $APP_DIR/.env 不存在，从模板创建（请检查 DATABASE_URL / JWT_SECRET）"
+    log "警告: $APP_DIR/.env 不存在，从模板创建（请检查 DATABASE_URL / JWT_SECRET / DEEPSEEK_API_KEY）"
     cp "$APP_DIR/.env.example" "$APP_DIR/.env" 2>/dev/null || true
   fi
+
+  # shellcheck disable=SC1091
+  source "$DEPLOY_DIR/deploy/lib/ensure-llm-env.sh"
+  ensure_llm_api_key "$APP_DIR" || exit 1
 
   cd "$APP_DIR"
   export CI=true
