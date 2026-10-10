@@ -13,6 +13,7 @@ export const STAFF_PERMISSIONS = [
   'billing.slots',
   'content.cms',
   'staff.manage',
+  'channels.manage',
 ] as const;
 
 export type StaffPermission = (typeof STAFF_PERMISSIONS)[number];
@@ -43,6 +44,7 @@ export const STAFF_PERMISSION_LABELS: Record<StaffPermission, string> = {
   'billing.slots': '应用计费槽位',
   'content.cms': 'CMS 全部内容',
   'staff.manage': '子账号管理',
+  'channels.manage': '渠道管理',
 };
 
 export const CMS_PERMISSION_LABELS: Record<CmsCollectionPermission, string> = {
@@ -124,6 +126,7 @@ export function permissionsToArray(set: ReadonlySet<AnyStaffPermission>): AnySta
 export const ASSIGNABLE_EXTRA_PERMISSIONS: StaffPermission[] = [
   'billing.slots',
   'staff.manage',
+  'channels.manage',
 ];
 
 export const CREATABLE_STAFF_ROLES: StaffRole[] = ['shop_ops', 'content_ops'];

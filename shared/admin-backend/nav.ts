@@ -49,6 +49,12 @@ export const OPS_NAV_ITEMS: AdminNavItem[] = [
     isActive: (p) => p.startsWith('/staff'),
   },
   {
+    label: '渠道管理',
+    href: '/channels',
+    permission: 'channels.manage',
+    isActive: (p) => p.startsWith('/channels'),
+  },
+  {
     label: '用户钱包',
     href: '/wallets',
     roles: ['admin'],

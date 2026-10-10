@@ -17,7 +17,8 @@ export const ENV = {
   jwtSecret: envOrThrow("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "30d",
   corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
-  cookieDomain: process.env.COOKIE_DOMAIN || ".orasage.com",
+  // 空字符串表示 host-only cookie（本地 127.0.0.1 跨端口联调）；未设置时默认 .orasage.com
+  cookieDomain: process.env.COOKIE_DOMAIN ?? ".orasage.com",
   isProduction: process.env.NODE_ENV === "production",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",

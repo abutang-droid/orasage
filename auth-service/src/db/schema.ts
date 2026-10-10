@@ -587,7 +587,57 @@ export const walletLedgerEntries = pgTable("wallet_ledger_entries", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+/** 销售渠道成员角色 */
+export const channelMemberRoleEnum = pgEnum("channel_member_role", [
+  "bd",
+  "ops",
+  "designer",
+  "salesperson",
+  "store",
+]);
+
+export const channelStatusEnum = pgEnum("channel_status", ["active", "disabled"]);
+
+/** 销售渠道：含各级默认分成（万分比）与可选绑定账号 */
+export const salesChannels = pgTable("sales_channels", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 64 }).notNull().unique(),
+  name: varchar("name", { length: 120 }).notNull(),
+  status: channelStatusEnum("status").notNull().default("active"),
+  note: text("note"),
+  /** 渠道主账号（users.id），拥有该渠道的运营入口权限关联 */
+  ownerUserId: integer("owner_user_id"),
+  /** 默认分成万分比：10000 = 100% */
+  rateBdBps: integer("rate_bd_bps").notNull().default(0),
+  rateOpsBps: integer("rate_ops_bps").notNull().default(0),
+  rateDesignerBps: integer("rate_designer_bps").notNull().default(0),
+  rateSalespersonBps: integer("rate_salesperson_bps").notNull().default(0),
+  rateStoreBps: integer("rate_store_bps").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/** 渠道成员：BD / 运营 / 设计师 / 业务员 / 店面 */
+export const salesChannelMembers = pgTable("sales_channel_members", {
+  id: serial("id").primaryKey(),
+  channelId: integer("channel_id").notNull(),
+  memberRole: channelMemberRoleEnum("member_role").notNull(),
+  name: varchar("name", { length: 120 }).notNull(),
+  /** 绑定账号（users.id）；店面等可为空 */
+  userId: integer("user_id"),
+  /** 成员个人分成；null 表示沿用渠道该角色默认比例 */
+  commissionBps: integer("commission_bps"),
+  contact: varchar("contact", { length: 200 }),
+  address: varchar("address", { length: 500 }),
+  note: text("note"),
+  disabled: boolean("disabled").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
+export type SalesChannel = typeof salesChannels.$inferSelect;
+export type SalesChannelMember = typeof salesChannelMembers.$inferSelect;
 
 export {
   cityRecordSourceEnum,

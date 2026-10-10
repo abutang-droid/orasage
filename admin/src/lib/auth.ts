@@ -100,6 +100,13 @@ export async function getStaffManager(): Promise<StaffUser | null> {
   return user;
 }
 
+/** 渠道管理 */
+export async function getChannelManager(): Promise<StaffUser | null> {
+  const user = await getAdminUser();
+  if (!user || !staffCan(user, 'channels.manage')) return null;
+  return user;
+}
+
 export function loginUrl() {
   return `${ENV.authUrl}/login?redirect=${encodeURIComponent(ENV.adminUrl)}`;
 }

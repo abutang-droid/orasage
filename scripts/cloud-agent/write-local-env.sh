@@ -11,6 +11,7 @@ NODE_ENV=development
 DATABASE_URL=${AUTH_DATABASE_URL}
 JWT_SECRET=${JWT_SECRET}
 JWT_EXPIRES_IN=30d
+COOKIE_DOMAIN=
 CORS_ORIGINS=http://127.0.0.1:3100,http://127.0.0.1:3102,http://127.0.0.1:3103,http://127.0.0.1:3110,http://127.0.0.1:3111,http://127.0.0.1:3112,http://localhost:3100,http://localhost:3102,http://localhost:3103,http://localhost:3110,http://localhost:3111,http://localhost:3112
 "
 
@@ -41,6 +42,7 @@ write_if_missing "$ROOT/admin/.env.local" "\
 JWT_SECRET=${JWT_SECRET}
 AUTH_URL=http://127.0.0.1:3101
 AUTH_INTERNAL_URL=http://127.0.0.1:3101
+ADMIN_URL=http://127.0.0.1:3103
 "
 
 write_if_missing "$ROOT/cms/.env" "\
