@@ -1,7 +1,7 @@
 import { generateBaziReportContent } from './reportGenerator.ts';
 import { fetchReportProductRecommend } from './reportRecommend.ts';
 import { writePaidReadingReport } from './staticFreeReport.ts';
-import { readReportTier, resolveReadingReportPaths } from './readingReport.ts';
+import { readReportTier, resolveReadingReportPaths, readReadingPayloadSidecar } from './readingReport.ts';
 import { assertPayerMayUnlock } from './reportUnlock.ts';
 import { applyCalibratedChart } from './chartCalibrate.ts';
 
@@ -68,12 +68,53 @@ async function patchOrderStatus(orderNo: string, status: string) {
   });
 }
 
+async function ensureReadingRow(input: ReportJobInput) {
+  let reading = await fetchReading(input.readingId);
+  if (reading) return reading;
+
+  // auth upsert 曾失败（如旧 dist 拒 userId=0）时：从旁路 payload 补建记录
+  const sidecar = readReadingPayloadSidecar(input.readingId);
+  if (!sidecar) throw new Error('reading not found');
+  const title = `八字结构速览 · ${String((sidecar.resultData as { name?: string }).name || '访客')}`;
+  const paths = resolveReadingReportPaths(input.readingId);
+  const createRes = await fetch(`${AUTH_INTERNAL}/internal/readings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: input.userId,
+      appSource: 'bazi',
+      readingId: input.readingId,
+      title,
+      reportUrl: paths.reportUrl,
+      payloadJson: JSON.stringify({
+        type: sidecar.type,
+        lang: sidecar.lang ?? 'zh-CN',
+        resultData: sidecar.resultData,
+      }),
+    }),
+  });
+  if (!createRes.ok) {
+    const text = await createRes.text();
+    throw new Error(`reading recreate failed (${createRes.status}): ${text.slice(0, 200)}`);
+  }
+  reading = await fetchReading(input.readingId);
+  if (!reading) throw new Error('reading not found after recreate');
+  return reading;
+}
+
 async function runReportJobInner(input: ReportJobInput) {
-  const reading = await fetchReading(input.readingId);
-  if (!reading) throw new Error('reading not found');
+  const reading = await ensureReadingRow(input);
   assertPayerMayUnlock(reading.userId, input.userId);
   await claimGuestReading(reading, input.userId);
-  if (!reading.payloadJson) throw new Error('reading payload missing');
+  if (!reading.payloadJson) {
+    const sidecar = readReadingPayloadSidecar(input.readingId);
+    if (!sidecar) throw new Error('reading payload missing');
+    reading.payloadJson = JSON.stringify({
+      type: sidecar.type,
+      lang: sidecar.lang ?? 'zh-CN',
+      resultData: sidecar.resultData,
+    });
+  }
 
   // 已有免费固定页时仍需升级为付费全文；仅 paid 才视为完成
   const paths = resolveReadingReportPaths(input.readingId);

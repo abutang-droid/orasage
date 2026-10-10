@@ -74,15 +74,17 @@
 
 回归测试：`bazi/server/luopan-mobile-ticks.test.ts`。
 
-## 反复回归坑：付费后仍停在解锁页
+## 反复回归坑：付费后仍停在解锁页 / 完整报告又没了
 
-**症状**：mock/真付 `report-bazi-basic` 成功后回到 `/classic?paid=1`，看到的还是「付费解锁」简版页。
+**症状**：mock/真付 `report-bazi-basic` 成功后回到 `/classic?paid=1`，看到的还是「付费解锁」简版页；或「完整报告」反复消失。
 
-**根因（已多次复现，含 2026-10-05）**：
+**根因（已多次复现，含 2026-10-05、2026-10-10）**：
 
 1. 游客排盘把 `user_readings.userId` 写成 `0`；结账必须登录。`runReportJob` 若 `reading.userId !== payerUserId` 直接抛 `reading user mismatch`，HTML 永不升级为 paid。
 2. 回跳用 `probeFixedReport` **文件在就打开**，不管 `data-report-tier`。shop 任务是 fire-and-forget，落地时文件几乎总是 free，于是整页换成解锁页。
 3. `usePaymentFlow` 立刻从 URL 删掉 `paid`，刷新后连「正在生成」都不走。
+4. **只部署 bazi、不重建 auth dist**：源码已允许 `userId=0`，但运行中的 auth 仍是旧 `.positive()`，游客 `upsert reading` 400 → 磁盘有 free HTML、库无行 → `report-job` 报 `reading not found` → 永远不写 paid。
+5. 付费超时后打开 free「兜底」——看起来像完整报告又丢了。**禁止**。
 
 **正确做法**：
 
@@ -90,6 +92,8 @@
 - `paid=1` 只 `waitForPaidReport` 等到 `data-report-tier="paid"`；超时提示刷新，禁止打开 free、禁止再露 SPA 付费墙。
 - 回跳再调 `bazi.ensurePaidReport`（与通道 A 同锁）。
 - 不要从回跳 URL 去掉 `paid` / `readingId`。
+- `deploy/bazi/deploy-bazi.sh` 必须重建并重启 `orasage-auth`，并用 `userId=0` 冒烟。
+- 物化时写 `reading_*.payload.json` 旁路；auth upsert 失败时 `report-job` 可从旁路补建记录。
 
 回归测试：`bazi/server/reportUnlock.test.ts`、`bazi/server/paid-return.test.ts`。
 

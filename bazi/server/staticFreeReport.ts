@@ -15,7 +15,7 @@ import {
   type FreeReport,
   type FreeReportInput,
 } from "../shared/free-report.ts";
-import { writeReadingReportHtml, resolveReadingReportPaths } from "./readingReport.ts";
+import { writeReadingReportHtml, resolveReadingReportPaths, writeReadingPayloadSidecar } from "./readingReport.ts";
 
 const AUTH_INTERNAL = process.env.AUTH_INTERNAL_URL ?? "http://127.0.0.1:3101";
 
@@ -179,6 +179,18 @@ export function ensureStaticFreeReport(
       unfavorable: input.unfavorable,
     },
   });
+
+  // auth upsert 失败时仍能凭旁路 JSON 生成 paid（完整报告反复丢失的主因之一）
+  const isCouple = Boolean(resultData.person1 && resultData.person2);
+  try {
+    writeReadingPayloadSidecar(readingId, {
+      type: isCouple ? "couple" : "single",
+      lang,
+      resultData,
+    });
+  } catch (err) {
+    console.warn("[staticFreeReport] payload sidecar write failed", err);
+  }
 
   return {
     reportId: written.reportId,
