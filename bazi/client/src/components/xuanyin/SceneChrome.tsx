@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 /** 淡紫雾感浮尘（无山景贴图，角色透明底叠在氛围上） */
 export function SceneAtmosphere() {
   const [dots] = useState(() =>
-    Array.from({ length: 18 }, (_, i) => ({
+    Array.from({ length: 8 }, (_, i) => ({
       id: i,
       left: `${(i * 17 + 7) % 100}%`,
       top: `${(i * 23 + 11) % 90}%`,

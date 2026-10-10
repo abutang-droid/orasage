@@ -72,12 +72,10 @@ export function XuanYinCharacter({ mood, lipPulse = 0, className = '' }: Props) 
         {speaking ? <span className="xy-speak-glow" aria-hidden /> : null}
       </div>
 
-      {listening ? (
-        <p className="xy-mood-label">聆听中</p>
-      ) : thinking ? (
-        <p className="xy-mood-label">思考中</p>
-      ) : speaking ? (
-        <p className="xy-mood-label">讲述中</p>
+      {listening || thinking || speaking ? (
+        <p className="xy-mood-label">
+          {listening ? '正在听您说话' : thinking ? '请稍等' : '正在说话'}
+        </p>
       ) : null}
     </div>
   );
