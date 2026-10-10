@@ -28,9 +28,9 @@ export default async function ChannelsPage() {
       <section className="panel" style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>新建渠道</h2>
         <form action={createChannelAction} className="inline-status-form" style={{ display: 'grid', gap: '0.5rem', maxWidth: '36rem' }}>
-          <input type="text" name="code" placeholder="渠道编码（字母数字_-）" required pattern="[a-zA-Z0-9_-]+" className="shipment-input" />
+          <input type="text" name="code" placeholder="渠道编码（仅英文/数字/_/-，如 br-sao）" required pattern="[a-zA-Z0-9_-]+" title="仅允许字母、数字、下划线、连字符" className="shipment-input" />
           <input type="text" name="name" placeholder="渠道名称" required className="shipment-input" />
-          <input type="email" name="ownerEmail" placeholder="绑定主账号邮箱（可选，须已注册）" className="shipment-input" />
+          <input type="email" name="ownerEmail" placeholder="绑定主账号邮箱（可选；不绑定请留空）" className="shipment-input" />
           <input type="text" name="note" placeholder="备注（可选）" className="shipment-input" />
 
           <div style={{ display: 'grid', gap: '0.35rem', marginTop: '0.25rem' }}>

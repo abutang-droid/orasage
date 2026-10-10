@@ -24,7 +24,23 @@ export const channelsAdminRouter = Router();
 channelsAdminRouter.use(requireStaff);
 channelsAdminRouter.use(assertPermission("channels.manage"));
 
-const bpsSchema = z.number().int().min(0).max(COMMISSION_BPS_MAX);
+/** 表单/JSON 常把空邮箱传成 ""，分成比例偶发 float — 统一预处理 */
+const emptyToNull = (value: unknown) =>
+  value === "" || value === undefined ? null : value;
+
+const bpsSchema = z.preprocess((value) => {
+  if (typeof value === "number" && Number.isFinite(value)) return Math.round(value);
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return Math.round(n);
+  }
+  return value;
+}, z.number().int().min(0).max(COMMISSION_BPS_MAX));
+
+const optionalEmailSchema = z.preprocess(
+  emptyToNull,
+  z.string().email("邮箱格式无效").max(320).nullable(),
+);
 
 const ratesSchema = z.object({
   bd: bpsSchema.optional(),
@@ -33,6 +49,22 @@ const ratesSchema = z.object({
   salesperson: bpsSchema.optional(),
   store: bpsSchema.optional(),
 });
+
+function zodErrorMessage(err: z.ZodError): string {
+  const first = err.errors[0];
+  if (!first) return "参数错误";
+  const path = first.path.join(".");
+  if (path === "ownerEmail" || path === "userEmail") {
+    return "邮箱格式无效（不绑定账号请留空）";
+  }
+  if (path.startsWith("rates")) {
+    return "分成比例须为 0–100 的数字";
+  }
+  if (path === "code") {
+    return "渠道编码仅允许字母、数字、_、-";
+  }
+  return first.message || "参数错误";
+}
 
 function defaultRatesFromRow(row: typeof salesChannels.$inferSelect): ChannelDefaultRatesBps {
   return {
@@ -176,9 +208,9 @@ channelsAdminRouter.get("/", async (_req, res) => {
 const createChannelSchema = z.object({
   code: z.string().trim().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/, "渠道编码仅允许字母数字_-"),
   name: z.string().trim().min(1).max(120),
-  note: z.string().max(2000).optional().nullable(),
+  note: z.preprocess(emptyToNull, z.string().max(2000).nullable()).optional(),
   ownerUserId: z.number().int().positive().optional().nullable(),
-  ownerEmail: z.string().email().max(320).optional().nullable(),
+  ownerEmail: optionalEmailSchema.optional(),
   rates: ratesSchema.optional(),
 });
 
@@ -234,7 +266,7 @@ channelsAdminRouter.post("/", async (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
+      res.status(400).json({ error: zodErrorMessage(err), details: err.errors });
       return;
     }
     console.error("[admin] create channel:", err);
@@ -271,10 +303,10 @@ channelsAdminRouter.get("/:id", async (req, res) => {
 
 const patchChannelSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
-  note: z.string().max(2000).nullable().optional(),
+  note: z.preprocess(emptyToNull, z.string().max(2000).nullable()).optional(),
   status: z.enum(["active", "disabled"]).optional(),
   ownerUserId: z.number().int().positive().nullable().optional(),
-  ownerEmail: z.string().email().max(320).nullable().optional(),
+  ownerEmail: optionalEmailSchema.optional(),
   rates: ratesSchema.optional(),
 }).refine((b) => Object.keys(b).length > 0, { message: "至少提供一个更新字段" });
 
@@ -334,7 +366,7 @@ channelsAdminRouter.patch("/:id", async (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
+      res.status(400).json({ error: zodErrorMessage(err), details: err.errors });
       return;
     }
     console.error("[admin] patch channel:", err);
@@ -346,13 +378,12 @@ const createMemberSchema = z.object({
   memberRole: z.enum(CHANNEL_MEMBER_ROLES),
   name: z.string().trim().min(1).max(120),
   userId: z.number().int().positive().optional().nullable(),
-  userEmail: z.string().email().max(320).optional().nullable(),
+  userEmail: optionalEmailSchema.optional(),
   commissionBps: bpsSchema.optional().nullable(),
-  contact: z.string().max(200).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
-  note: z.string().max(2000).optional().nullable(),
+  contact: z.preprocess(emptyToNull, z.string().max(200).nullable()).optional(),
+  address: z.preprocess(emptyToNull, z.string().max(500).nullable()).optional(),
+  note: z.preprocess(emptyToNull, z.string().max(2000).nullable()).optional(),
 });
-
 channelsAdminRouter.post("/:id/members", async (req, res) => {
   try {
     const channelId = Number(req.params.id);
@@ -400,7 +431,7 @@ channelsAdminRouter.post("/:id/members", async (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
+      res.status(400).json({ error: zodErrorMessage(err), details: err.errors });
       return;
     }
     console.error("[admin] create channel member:", err);
@@ -412,11 +443,11 @@ const patchMemberSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   memberRole: z.enum(CHANNEL_MEMBER_ROLES).optional(),
   userId: z.number().int().positive().nullable().optional(),
-  userEmail: z.string().email().max(320).nullable().optional(),
+  userEmail: optionalEmailSchema.optional(),
   commissionBps: bpsSchema.nullable().optional(),
-  contact: z.string().max(200).nullable().optional(),
-  address: z.string().max(500).nullable().optional(),
-  note: z.string().max(2000).nullable().optional(),
+  contact: z.preprocess(emptyToNull, z.string().max(200).nullable()).optional(),
+  address: z.preprocess(emptyToNull, z.string().max(500).nullable()).optional(),
+  note: z.preprocess(emptyToNull, z.string().max(2000).nullable()).optional(),
   disabled: z.boolean().optional(),
 }).refine((b) => Object.keys(b).length > 0, { message: "至少提供一个更新字段" });
 
@@ -485,7 +516,7 @@ channelsAdminRouter.patch("/:id/members/:memberId", async (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: "参数错误", details: err.errors });
+      res.status(400).json({ error: zodErrorMessage(err), details: err.errors });
       return;
     }
     console.error("[admin] patch channel member:", err);
