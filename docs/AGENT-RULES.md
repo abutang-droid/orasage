@@ -20,18 +20,20 @@
 
 ## 「全站」范围
 
-**「全站」指 `orasage.com` 域名下的所有页面**，包括但不限于：
+**「全站」指当前公网根域名下的所有页面**（默认 `orasage.com`；临时域 `orcos.win`，见 [`deploy/ORCOS-WIN.md`](../deploy/ORCOS-WIN.md)），包括但不限于：
 
 | 子域 / 应用 | 说明 |
 |-------------|------|
-| `orasage.com` | main 门户 |
-| `shop.orasage.com` | 商城 |
-| `auth.orasage.com` | 登录 / 用户中心 |
-| `admin.orasage.com` | 运营后台 |
-| `cms.orasage.com` | 内容管理后台（Payload） |
-| `bazi.orasage.com` | 八字 |
-| `ziwei.orasage.com` | 紫微 |
-| `tarot.orasage.com` | 塔罗 |
+| `{root}` / `www.{root}` | main 门户 |
+| `shop.{root}` | 商城 |
+| `auth.{root}` | 登录 / 用户中心 |
+| `admin.{root}` | 运营后台 |
+| `admin.{root}/cms` | 内容管理后台（Payload） |
+| `bazi.{root}` | 八字 |
+| `ziwei.{root}` | 紫微 |
+| `tarot.{root}` | 塔罗 |
+
+（`{root}` = `SITE_ROOT_DOMAIN`，如 `orasage.com` 或 `orcos.win`。）
 
 - 除非任务中**单独列出例外**，否则不对 main / 子应用 / 后台（admin、cms）做区分或特殊豁免。
 - 后台页面（admin、cms）同样遵循全站视觉与导航规范。
@@ -113,8 +115,10 @@
 
 | 环境 | 角色 | Agent 策略 |
 |------|------|------------|
-| 家用服务器（`orasage.com` 源站） | 当前生产 | 部署 / 验证 / SSH 的目标 |
+| 家用服务器（源站；公网域可为 `orasage.com` 或临时 `orcos.win`） | 当前生产 | 部署 / 验证 / SSH 的目标 |
 | GCP `34.75.40.67` | 历史 VPS / 其它分支 | **除非任务明确要求，否则不 SSH、不部署、不修改** |
+
+临时公网域切换：`SITE_ROOT_DOMAIN=orcos.win bash deploy/switch-public-domain.sh`（须先在 CF Tunnel 加 Public Hostname）。
 
 ### SSH 连接规则
 

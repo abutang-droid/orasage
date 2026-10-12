@@ -186,7 +186,7 @@ export function formatProduct(p: ProductRow, options?: ProductFormatOptions) {
     }),
     active: p.active,
     sortOrder: p.sortOrder,
-    shopUrl: `https://shop.orasage.com/product/${encodeURIComponent(p.sku)}`,
+    shopUrl: `${(process.env.SHOP_URL || `https://shop.${process.env.SITE_ROOT_DOMAIN || 'orasage.com'}`).replace(/\/$/, '')}/product/${encodeURIComponent(p.sku)}`,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
