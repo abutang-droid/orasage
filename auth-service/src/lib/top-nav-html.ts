@@ -1,6 +1,7 @@
 import { pickLabel, SHELL_LABELS } from '../../../shared/app-shell/labels.ts';
 import { getPrimaryNavCategories } from '../../../shared/app-shell/primary-nav.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
+import { urls } from './site-urls.ts';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -8,7 +9,8 @@ function esc(s: string): string {
 
 /** 静态页顶栏 HTML — PC 水平菜单 + 移动折叠按钮 */
 export function topNavHtml(locale = 'zh-CN'): string {
-  const main = `https://orasage.com/${locale}`;
+  const site = urls();
+  const main = `${site.main}/${locale}`;
   const categories = getPrimaryNavCategories(locale);
   const desktopLinks = categories
     .map((item) => `<a href="${esc(item.href)}" class="orasage-site-topnav-link">${esc(item.label)}</a>`)
@@ -28,7 +30,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     })
     .join('\n        ');
   const login = authLoginLabel(locale);
-  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
+  const loginHref = `${site.authLogin}?redirect=${encodeURIComponent(main)}`;
   const profile = `${main}/profile`;
   const search = pickLabel(SHELL_LABELS.search, locale);
   const cart = pickLabel(SHELL_LABELS.cart, locale);
@@ -43,7 +45,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <nav class="orasage-site-topnav-menu orasage-site-topnav-menu--desktop" aria-label="Site navigation">
           ${desktopLinks}
       <a href="${main}/search" class="orasage-site-topnav-link">${esc(search)}</a>
-      <a href="https://shop.orasage.com/cart" class="orasage-site-topnav-link">${esc(cart)}</a>
+      <a href="${site.shop}/cart" class="orasage-site-topnav-link">${esc(cart)}</a>
       <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${esc(login)}</a>
     </nav>
     <div class="orasage-site-topnav-mobile-actions">
@@ -65,7 +67,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}/search" class="orasage-site-mobile-nav-link">${esc(search)}</a>
     <a href="${profile}" class="orasage-site-mobile-nav-link">${esc(mine)}</a>
     <a href="${main}/profile/readings" class="orasage-site-mobile-nav-link">${esc(myReadings)}</a>
-    <a href="https://shop.orasage.com/cart" class="orasage-site-mobile-nav-link">${esc(cart)}</a>
+    <a href="${site.shop}/cart" class="orasage-site-mobile-nav-link">${esc(cart)}</a>
   </div>
 </nav>`;
 }

@@ -67,10 +67,16 @@ for pkg in packages/ui packages/tokens; do
   fi
 done
 
+SITE_ROOT_DOMAIN="${SITE_ROOT_DOMAIN:-orasage.com}"
+export SITE_ROOT_DOMAIN
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN:-$SITE_ROOT_DOMAIN}"
 export JWT_SECRET
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL="${AUTH_URL:-https://auth.${SITE_ROOT_DOMAIN}}"
+export ADMIN_URL="${ADMIN_URL:-https://admin.${SITE_ROOT_DOMAIN}}"
+export APP_URL="${APP_URL:-https://${SITE_ROOT_DOMAIN}}"
+export SHOP_URL="${SHOP_URL:-https://shop.${SITE_ROOT_DOMAIN}}"
+export COOKIE_DOMAIN="${COOKIE_DOMAIN:-.${SITE_ROOT_DOMAIN}}"
 
 # shop report-job 分发依赖各 App 内网 URL
 ensure_root_env_kv() {
@@ -82,7 +88,14 @@ ensure_root_env_kv() {
   fi
 }
 ensure_root_env_kv CMS_INTERNAL_URL "${CMS_INTERNAL_URL:-http://127.0.0.1:3120/cms}"
-ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.orasage.com/cms}"
+ensure_root_env_kv SITE_ROOT_DOMAIN "$SITE_ROOT_DOMAIN"
+ensure_root_env_kv NEXT_PUBLIC_ROOT_DOMAIN "$NEXT_PUBLIC_ROOT_DOMAIN"
+ensure_root_env_kv COOKIE_DOMAIN "$COOKIE_DOMAIN"
+ensure_root_env_kv AUTH_URL "$AUTH_URL"
+ensure_root_env_kv ADMIN_URL "$ADMIN_URL"
+ensure_root_env_kv APP_URL "$APP_URL"
+ensure_root_env_kv SHOP_URL "$SHOP_URL"
+ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.${SITE_ROOT_DOMAIN}/cms}"
 ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
 ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
@@ -131,7 +144,8 @@ cd "$DEPLOY_DIR/main"
 NODE_ENV=development "$NPM_BIN" install
 
 log "构建 main..."
-export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+export NEXT_PUBLIC_APP_URL="${APP_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 rm -rf .next
 "$NPM_BIN" run build
 
@@ -149,8 +163,9 @@ NODE_ENV=development "$NPM_BIN" install
 log "构建 admin..."
 export JWT_SECRET="${JWT_SECRET}"
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL="${AUTH_URL}"
+export ADMIN_URL="${ADMIN_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 "$NPM_BIN" run build
 
 log "配置 orasage-admin 服务..."
@@ -167,7 +182,8 @@ NODE_ENV=development "$NPM_BIN" install
 log "构建 shop..."
 export JWT_SECRET="${JWT_SECRET:-}"
 export AUTH_INTERNAL_URL="${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
-export SHOP_URL="${SHOP_URL:-https://shop.orasage.com}"
+export SHOP_URL="${SHOP_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 "$NPM_BIN" run build
 
 # ── 8. systemd 服务 ──────────────────────────────────────────
@@ -193,12 +209,12 @@ curl -sf http://127.0.0.1:3101/health | head -c 200 && echo ""
 curl -sf http://127.0.0.1:3102/api/health && echo ""
 curl -sf http://127.0.0.1:3103 -o /dev/null -w "admin  → HTTP %{http_code}\n" || true
 
-for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com; do
+for domain in "${SITE_ROOT_DOMAIN}" "auth.${SITE_ROOT_DOMAIN}" "shop.${SITE_ROOT_DOMAIN}" "admin.${SITE_ROOT_DOMAIN}"; do
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" || echo "000")
   if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
     log "✅ ${domain} → HTTP $code"
   else
-    log "⚠️  ${domain} → HTTP $code，检查 nginx 与 systemd 日志"
+    log "⚠️  ${domain} → HTTP $code，检查 nginx / Tunnel / systemd 日志"
   fi
 done
 sudo journalctl -u orasage-main -n 10 --no-pager 2>/dev/null || true

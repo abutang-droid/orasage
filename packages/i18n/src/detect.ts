@@ -32,13 +32,25 @@ export function detectLocale(options?: DetectLocaleOptions): string {
 
 const PORTAL_PATH_LOCALES = new Set(['zh-CN', 'en', 'pt-BR', 'zh-TW']);
 
-/** Read /zh-CN or ?lang= from an orasage.com referrer. */
+function isPortalReferrerHost(host: string): boolean {
+  const roots = [
+    (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_ROOT_DOMAIN) || '',
+    (typeof process !== 'undefined' && process.env?.SITE_ROOT_DOMAIN) || '',
+    'orasage.com',
+    'orcos.win',
+  ]
+    .map((r) => r.trim().toLowerCase())
+    .filter(Boolean);
+  return roots.some((root) => host === root || host.endsWith(`.${root}`));
+}
+
+/** Read /zh-CN or ?lang= from portal referrer (orasage.com / orcos.win / …). */
 export function localeFromReferrerUrl(referrer?: string | null): string | null {
   if (!referrer) return null;
   try {
     const url = new URL(referrer);
     const host = url.hostname;
-    if (host !== 'orasage.com' && !host.endsWith('.orasage.com')) return null;
+    if (!isPortalReferrerHost(host)) return null;
     const seg = url.pathname.split('/').filter(Boolean)[0];
     if (seg && PORTAL_PATH_LOCALES.has(seg)) return seg;
     return url.searchParams.get('lang') ?? url.searchParams.get('locale');

@@ -2,6 +2,7 @@ import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index
 import { getDisclaimerCopy } from '../../../shared/app-shell/disclaimer-copy.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
+import { urls } from './site-urls.ts';
 
 const LOCALES = EXTENDED_LOCALES;
 
@@ -33,7 +34,7 @@ export function localeFromRedirect(url?: string): string {
 }
 
 function mainPortalUrl(locale: string): string {
-  return `https://orasage.com/${locale}`;
+  return `${urls().main}/${locale}`;
 }
 
 function authStrings(locale: string): FooterStrings {

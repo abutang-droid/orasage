@@ -3,25 +3,25 @@ import { getAuthUser } from "../lib/auth-user.ts";
 import { authPageCopy } from "../lib/auth-page-copy.ts";
 import { authPageLayout } from "../lib/site-chrome-html.ts";
 import { resolveAuthPageLocale } from "../lib/resolve-page-locale.ts";
+import { allowedRedirectHosts, urls } from "../lib/site-urls.ts";
 
 export const pagesRouter = Router();
 
-const ALLOWED_HOSTS = [
-  "orasage.com",
-  "auth.orasage.com",
-  "admin.orasage.com",
-  "shop.orasage.com",
-  "bazi.orasage.com",
-  "ziwei.orasage.com",
-  "tarot.orasage.com",
-];
-
 function safeRedirect(url: string | undefined, locale: string): string {
-  const fallback = `https://orasage.com/${locale}/profile`;
+  const site = urls();
+  const fallback = `${site.main}/${locale}/profile`;
   if (!url) return fallback;
   try {
     const u = new URL(url);
-    if (ALLOWED_HOSTS.includes(u.hostname) || u.hostname.endsWith(".orasage.com")) return url;
+    const allowed = allowedRedirectHosts();
+    if (
+      allowed.includes(u.hostname)
+      || allowed.some((h) => u.hostname === h || u.hostname.endsWith(`.${h.replace(/^[^.]+\./, "")}`))
+      || u.hostname.endsWith(".orasage.com")
+      || u.hostname.endsWith(".orcos.win")
+    ) {
+      return url;
+    }
   } catch {
     if (url.startsWith("/")) return url;
   }
@@ -126,7 +126,7 @@ pagesRouter.get("/register", (req, res) => {
 pagesRouter.get("/center", async (req, res) => {
   const user = await getAuthUser(req);
   const locale = resolveAuthPageLocale(req);
-  const target = `https://orasage.com/${locale}/profile`;
+  const target = `${urls().main}/${locale}/profile`;
   if (!user) {
     res.redirect(`/login?redirect=${encodeURIComponent(target)}`);
     return;
