@@ -168,12 +168,28 @@ if contains main; then
   log "构建 main..."
   (
     cd "$DEPLOY_DIR/main"
+    # tunnel-split nginx listens on :3100 and proxies to Next on :3105
+    set_kv "$DEPLOY_DIR/main/.env" PORT "3105"
+    # HOSTNAME=127.0.0.1 会让 Next 自代理失败（EADDRNOTAVAIL）
+    if [ -f "$DEPLOY_DIR/main/.env" ]; then
+      sed -i '/^HOSTNAME=/d' "$DEPLOY_DIR/main/.env" || true
+    fi
     export NEXT_PUBLIC_ROOT_DOMAIN="$SITE_ROOT_DOMAIN"
     export NEXT_PUBLIC_APP_URL="$MAIN_URL"
     export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
+    export PORT=3105
     rm -rf .next
     "$NPM_BIN" run build
   )
+  # Ensure systemd unit uses 3105 when tunnel-split is present
+  if [ -f /etc/nginx/sites-enabled/orasage-main-tunnel-split ] || ss -lntp 2>/dev/null | grep -q '127.0.0.1:3100'; then
+    if [ -f /etc/systemd/system/orasage-main.service ]; then
+      sed -i 's/Environment=PORT=3100/Environment=PORT=3105/' /etc/systemd/system/orasage-main.service || true
+      sed -i 's/next start -p 3100/next start -p 3105/g' /etc/systemd/system/orasage-main.service || true
+      sed -i '/Environment=HOSTNAME=/d' /etc/systemd/system/orasage-main.service || true
+      systemctl daemon-reload || true
+    fi
+  fi
   systemctl restart orasage-main
 fi
 
