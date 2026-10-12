@@ -7,10 +7,13 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/opt/orasage/main
 EnvironmentFile=/opt/orasage/.env
+EnvironmentFile=-/opt/orasage/main/.env
+EnvironmentFile=-/opt/orasage/main/.env.local
 Environment=NODE_ENV=production
-Environment=PORT=3100
-Environment=HOSTNAME=127.0.0.1
-ExecStart=/usr/local/bin/npm start
+# Cloudflare Tunnel → nginx tunnel-split (:3100) → Next (:3105)
+Environment=PORT=3105
+# Do not set HOSTNAME=127.0.0.1 — Next self-proxy then fails with EADDRNOTAVAIL
+ExecStart=/usr/local/bin/npx next start -p 3105
 Restart=always
 RestartSec=5
 

@@ -41,7 +41,7 @@ cd /opt/orasage && git pull --ff-only origin main
 SITE_ROOT_DOMAIN=orcos.win bash deploy/switch-public-domain.sh
 ```
 
-Cloudflare Tunnel Public Hostnames + DNS for `*.orcos.win` must be added in Zero Trust (token-only agents cannot). Details: [`deploy/ORCOS-WIN.md`](deploy/ORCOS-WIN.md).
+Cloudflare Tunnel Public Hostnames + DNS for `*.orcos.win` must be added in Zero Trust (token-only agents cannot). On the home server, main listens on **`:3105`** behind nginx tunnel-split on **`:3100`**. Details: [`deploy/ORCOS-WIN.md`](deploy/ORCOS-WIN.md).
 
 ### What is runnable in this repo
 
