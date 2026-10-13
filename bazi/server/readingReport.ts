@@ -7,10 +7,15 @@
 
 import fs from "fs";
 import path from "path";
-import { buildReportPageHtml, type ReportChartMeta, type ReportProductRecommend } from "./reportHtml.ts";
+import {
+  buildReportPageHtml,
+  refreshEmbeddedReportCss,
+  relayoutFreeBriefHtml,
+  type ReportChartMeta,
+  type ReportProductRecommend,
+} from "./reportHtml.ts";
 import { resolveReportsDir } from "./_core/reportsDir.ts";
 import { parseReportTierFromHtml } from "./reportUnlock.ts";
-import { relayoutFreeBriefHtml } from "./reportHtml.ts";
 
 const BAZI_PUBLIC_URL = (process.env.BAZI_PUBLIC_URL ?? "https://bazi.orasage.com").replace(/\/$/, "");
 const SHOP_PUBLIC_URL = (process.env.SHOP_PUBLIC_URL ?? "https://shop.orasage.com").replace(/\/$/, "");
@@ -223,10 +228,12 @@ export function briefifyStaleFreeReportHtml(html: string): string {
   return out;
 }
 
-/** 旧免费页：详版正文裁成简版；CTA 曾指向罗盘首页时改写到 shop checkout。 */
+/** 旧免费页：详版正文裁成简版；CTA 曾指向罗盘首页时改写到 shop checkout；始终刷新内嵌 CSS。 */
 export function maybeRewriteServedReportHtml(fileName: string, html: string, locale = "zh-CN"): string {
   const head = html.slice(0, 1600);
-  if (/data-report-tier=["']paid["']/.test(head)) return html;
+  if (/data-report-tier=["']paid["']/.test(head)) {
+    return refreshEmbeddedReportCss(html);
+  }
   let out = briefifyStaleFreeReportHtml(html);
   const needsUnlockRewrite =
     out.includes("paywall-cta")
@@ -238,7 +245,7 @@ export function maybeRewriteServedReportHtml(fileName: string, html: string, loc
     const stem = fileName.replace(/^reading_/, "").replace(/\.html$/i, "");
     if (stem) out = rewriteStalePaywallHref(out, stem, locale);
   }
-  return relayoutFreeBriefHtml(out);
+  return refreshEmbeddedReportCss(relayoutFreeBriefHtml(out));
 }
 
 export function writeReadingReportHtml(opts: WriteReadingReportOpts) {

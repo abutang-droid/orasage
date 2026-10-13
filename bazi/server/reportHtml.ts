@@ -13,7 +13,21 @@ import {
   siteSignature,
 } from "../shared/site-brand.ts";
 import { REPORT_PAGE_CSS } from "./reportHtmlStyles.ts";
+import { BRIEF_VIBE_CSS } from "./reportBriefVibeStyles.ts";
 import { buildBriefVibePageHtml, relayoutFreeBriefToVibe } from "./reportBriefVibe.ts";
+
+/** 打开已落盘报告时刷新内嵌 CSS，使布局修复对旧 HTML 立即生效。 */
+export function refreshEmbeddedReportCss(html: string): string {
+  if (!html || !/<style[\s>]/i.test(html)) return html;
+  const head = html.slice(0, 2500);
+  const isBrief =
+    /brief-vibe/.test(head)
+    || /data-brief-layout=/.test(head)
+    || (/data-report-tier=["']free["']/.test(head) && /bv-main/.test(html.slice(0, 8000)));
+  const css = isBrief ? BRIEF_VIBE_CSS : REPORT_PAGE_CSS;
+  // 只替换第一个 <style>…</style>（报告页正文样式；字体走 <link>）
+  return html.replace(/<style(?:\s[^>]*)?>[\s\S]*?<\/style>/i, `<style>${css}</style>`);
+}
 
 const WX_ORDER = ["木", "火", "土", "金", "水"] as const;
 const WX_EN: Record<string, string> = { 木: "Wood", 火: "Fire", 土: "Earth", 金: "Metal", 水: "Water" };
