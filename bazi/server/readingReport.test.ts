@@ -21,15 +21,28 @@ describe("readingReport", () => {
     expect(out).not.toContain('href="https://bazi.orasage.com/"');
   });
 
-  it("maybeRewriteServedReportHtml leaves paid pages alone and upgrades shop CTAs missing locale", () => {
+  it("maybeRewriteServedReportHtml leaves paid CTAs alone, refreshes CSS, and upgrades shop CTAs missing locale", () => {
     const paid = `<html data-report-tier="paid"><a class="paywall-cta" href="https://bazi.orasage.com/"></a>`;
     expect(maybeRewriteServedReportHtml("reading_x.html", paid)).toBe(paid);
+    const paidStyled = `<html data-report-tier="paid"><head><style>.old{padding:0}</style></head><body></body></html>`;
+    const paidRefreshed = maybeRewriteServedReportHtml("reading_x.html", paidStyled);
+    expect(paidRefreshed).toContain("@media (max-width: 768px)");
+    expect(paidRefreshed).not.toContain(".old{padding:0}");
     const missingLocale = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic"></a>`;
     const upgraded = maybeRewriteServedReportHtml("reading_x.html", missingLocale);
     expect(upgraded).toContain("locale=zh-CN");
     expect(upgraded).toContain("lang=zh-CN");
     const withLocale = `<html data-report-tier="free"><a class="paywall-cta" href="https://shop.orasage.com/checkout?sku=report-bazi-basic&amp;locale=zh-CN&amp;lang=zh-CN"></a>`;
     expect(maybeRewriteServedReportHtml("reading_x.html", withLocale)).toBe(withLocale);
+  });
+
+  it("maybeRewriteServedReportHtml refreshes free brief-vibe CSS for mobile/tablet density", () => {
+    const stale = `<!doctype html><html class="report-longform brief-vibe" data-report-tier="free" data-brief-layout="v4" data-brief-skin="ochre"><head><style>.bv-main{max-width:480px;padding:24px 16px 40px}</style></head><body><main class="bv-main"></main></body></html>`;
+    const out = maybeRewriteServedReportHtml("reading_x.html", stale);
+    expect(out).toContain("@media(min-width:640px)");
+    expect(out).toContain("max-width:640px");
+    expect(out).toContain(".bv-pillars{display:grid");
+    expect(out).not.toContain(".bv-main{max-width:480px;padding:24px 16px 40px}");
   });
 
   it("briefifies stale detailed free html even when the CTA already points at shop", () => {

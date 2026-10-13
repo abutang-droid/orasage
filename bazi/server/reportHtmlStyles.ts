@@ -2165,8 +2165,8 @@ export const REPORT_PAGE_CSS = `
             }
         }
 
-/* ===== Share sheet (design-spec) ===== */
-.fab-share{position:fixed;right:16px;bottom:20px;z-index:90;display:inline-flex;align-items:center;gap:8px;padding:12px 18px;background:var(--terracotta);color:#fff;font-family:var(--font-ui);font-size:13px;font-weight:600;letter-spacing:.06em;box-shadow:0 8px 24px rgba(201,100,66,.35);border-radius:999px;border:none;cursor:pointer}
+/* ===== Share sheet + utility (mobile-safe base; desktop paddings below) ===== */
+.fab-share{position:fixed;right:14px;bottom:18px;z-index:90;display:inline-flex;align-items:center;justify-content:center;gap:0;width:48px;height:48px;padding:0;background:var(--terracotta);color:#fff;font-family:var(--font-ui);font-size:12px;font-weight:600;letter-spacing:0;box-shadow:0 6px 18px rgba(201,100,66,.28);border-radius:999px;border:none;cursor:pointer}
 .fab-share:hover{background:var(--terracotta-dark,#934828)}
 .share-overlay{position:fixed;inset:0;z-index:200;background:rgba(40,38,27,.45);display:none;align-items:flex-end;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
 .share-overlay.open{display:flex}
@@ -2192,9 +2192,9 @@ export const REPORT_PAGE_CSS = `
 .share-platform-icon span{transform:rotate(-45deg);font-size:11px;font-weight:700;color:var(--terracotta)}
 .share-toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:var(--ink-black);color:#fff;font-family:var(--font-ui);font-size:12px;padding:10px 16px;opacity:0;pointer-events:none;transition:all .25s;z-index:220}
 .share-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.kw-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 40px 1.25rem;max-width:var(--max-width)}
+.kw-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 20px 1.25rem;max-width:var(--max-width)}
 .kw{font-family:var(--font-ui);font-size:.65rem;color:var(--terracotta-dark,#934828);padding:.15rem .55rem;border-radius:999px;background:#F4E0D5;border:1px solid var(--border-medium)}
-.section-body{max-width:var(--max-width);margin:0 auto;padding:0 40px;color:var(--ink-soft)}
+.section-body{max-width:var(--max-width);margin:0 auto;padding:0 20px;color:var(--ink-soft)}
 .section-body p{margin-bottom:1rem;line-height:1.8}
 .section-body ul{padding-left:1.25rem;margin:.5rem 0 1rem}
 .product-rec{max-width:var(--max-width);margin:0 auto 2rem;padding:1.25rem 1.5rem;border:1px solid var(--border-medium);background:linear-gradient(135deg,rgba(201,100,66,.08),rgba(201,100,66,.02))}
@@ -2221,6 +2221,42 @@ html[data-report-tier="free"] .section-radar-only .wx-radar-wrap{margin:0 auto;m
 html[data-report-tier="free"] .section-brief-note .section-body{max-width:40rem}
 @media(max-width:480px){html[data-report-tier="free"] .mingpan-board.is-single-row .mp-meta{display:none}html[data-report-tier="free"] .mingpan-board.is-single-row .mp-dm{position:static;display:block;margin:0 auto 6px;width:fit-content}}
 @media(min-width:721px){.share-overlay{align-items:center}}
+/* Desktop: restore magazine gutters + pill FAB (must not override mobile) */
+@media (min-width: 769px) {
+    .section-body { padding-left: 40px; padding-right: 40px; }
+    .kw-row { margin-left: 40px; margin-right: 40px; }
+    .fab-share {
+        width: auto;
+        height: auto;
+        padding: 12px 18px;
+        gap: 8px;
+        font-size: 13px;
+        letter-spacing: .06em;
+        right: 16px;
+        bottom: 20px;
+        box-shadow: 0 8px 24px rgba(201,100,66,.35);
+    }
+}
+/* Tablet: keep 4-pillar board, moderate gutters (after desktop so 28px wins) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .section-body,
+    .mingpan-board,
+    .section-header,
+    .elements-grid,
+    .hero-content,
+    .footer-content {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+    .kw-row { margin-left: 28px; margin-right: 28px; }
+    .section { padding: 72px 0; }
+    .mingpan-board {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+    .mp-gan { font-size: 40px; }
+    .mp-zhi { font-size: 28px; }
+}
 button{font:inherit}
 
 `.trim();
