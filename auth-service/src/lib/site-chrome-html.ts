@@ -1,5 +1,6 @@
 import { EXTENDED_LOCALES, toCoreLocale } from '../../../packages/i18n/src/index.ts';
 import { getDisclaimerCopy } from '../../../shared/app-shell/disclaimer-copy.ts';
+import { installHeadTags } from '../../../shared/pwa/install-manifest.ts';
 import { topNavHtml } from './top-nav-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
 
@@ -72,6 +73,7 @@ export function authPageLayout(title: string, body: string, locale: string): str
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="theme-color" content="#faf9f5">
+  ${installHeadTags('auth')}
   <title>${title} — OraSage</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" type="image/svg+xml" href="/assets/brand/icon.svg">

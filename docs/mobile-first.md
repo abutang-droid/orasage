@@ -36,6 +36,21 @@
 | bazi / ziwei / tarot | 接入时遵循本规范 |
 | shop | 结账浮层必须手机友好 |
 
+## 可安装（Android / Chrome）
+
+每个子域单独一份 Web App Manifest（`display: standalone`），安装后留在该来源内。字段定义在 `shared/pwa/install-manifest.ts`。图标用 `shared/brand/favicon/icon-192.png` 与 `icon-512.png`，复制到各应用的 `public/`（bazi 为 `client/public/`，auth 为 `auth-service/public/`）。
+
+| 应用 | 打开地址 |
+|------|----------|
+| main | `/` |
+| shop | `/` |
+| auth | `/login` |
+| admin | `/` |
+| cms | `/admin` |
+| bazi | `/` |
+| ziwei | `/chart` |
+| tarot | `/` |
+
 ## 参考实现
 
 - `shared/app-shell/SiteTopNav.tsx` — PC 顶栏主导航

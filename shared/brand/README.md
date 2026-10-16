@@ -12,7 +12,7 @@
 | `favicon/icon.svg` | 墨底圆角方 + 反白玄璧（现代浏览器 favicon 首选） |
 | `favicon/favicon.ico` | 16 + 32 双尺寸（PNG 内嵌式） |
 | `favicon/icon-180.png` | apple-touch-icon（方形无圆角，系统裁切） |
-| `favicon/icon-192.png` / `icon-512.png` | PWA / manifest |
+| `favicon/icon-192.png` / `icon-512.png` | 各子域可安装应用图标（见 `shared/pwa/install-manifest.ts`） |
 | `og/og-{main,bazi,ziwei,tarot,shop}.png` | 1200×630 静态分享图（VI §6.2 模板） |
 
 ## 同步方式
@@ -20,6 +20,7 @@
 favicon / OG 为**复制接入**（非 import）：改动本目录后须重新复制到各应用——
 
 - Next.js 应用：`{app}/src/app/`（或 ziwei 的 `app/`）下的 `icon.svg`、`favicon.ico`、`apple-icon.png`；OG 图在各应用 `public/og.png`
+- 可安装图标：把 `favicon/icon-192.png` 与 `icon-512.png` 复制到各应用 `public/`（bazi 为 `client/public/`，auth 为 `public/`）
 - bazi（Vite）：`bazi/client/public/` + `bazi/client/index.html` 内 `<link>` 标签
 - auth-service（静态页）：`auth-service/public/assets/brand/` + `site-chrome-html.ts` 内 `<link>` 标签
 

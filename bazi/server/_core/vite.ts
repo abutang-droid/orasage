@@ -6,9 +6,19 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 import { resolveReportsDir } from "./reportsDir";
+import { installManifest } from "../../../shared/pwa/install-manifest";
 import { maybeRewriteServedReportHtml } from "../readingReport";
 
+function mountInstallManifest(app: Express) {
+  app.get("/manifest.webmanifest", (_req, res) => {
+    res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(JSON.stringify(installManifest("bazi")));
+  });
+}
+
 export async function setupVite(app: Express, server: Server) {
+  mountInstallManifest(app);
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -65,6 +75,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
+  mountInstallManifest(app);
   const distPath =
     process.env.NODE_ENV === "development"
       ? path.resolve(import.meta.dirname, "../..", "dist", "public")
