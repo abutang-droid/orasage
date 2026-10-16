@@ -200,7 +200,6 @@
   /* Beside the nav rail, three tool cards are tight until the window is wide.
      Same window classes as the rail: touch tablets, and medium windows under 1024. */
   @media (min-width: 600px) and (max-width: 1099.98px) and (min-height: 600px) and (pointer: coarse),
-         (min-width: 600px) and (max-width: 1099.98px) and (min-height: 600px) and (hover: none),
          (min-width: 600px) and (max-width: 1023.98px) and (min-height: 600px) {
     .home-tool-grid {
       display: grid;
