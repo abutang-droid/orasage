@@ -428,6 +428,10 @@ export function buildBriefVibePageHtml(options: ReportPageOptions & { radarFallb
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="八字">
 <title>${escapeHtml(pageTitle)}</title>
 <meta name="description" content="${escapeAttr(share.description)}">
 <meta property="og:site_name" content="${escapeAttr(brandSignature)}">

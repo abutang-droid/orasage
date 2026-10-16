@@ -22,7 +22,7 @@
 
 ## 布局模式
 
-- **导航**：PC（≥1024px）顶栏 `SiteTopNav`；移动（<1024px）固定 5 键底栏 `FixedBottomNav`（全站统一，无首页例外）
+- **导航**：PC（≥1024px 且精细指针）顶栏水平菜单；Android / 触控平板（短边 ≥600px）左侧导航轨；手机（短边 &lt;600px）顶栏折叠菜单。同一页面只显示一套。详见 [`AGENT-RULES.md`](AGENT-RULES.md)「全站响应式导航」。
 - **卡片列表**：手机单列纵向；`md:` 以上多列网格
 - **CTA 按钮**：手机全宽（`max-w-xs`）；桌面自适应宽度
 - **内容页**：`PageShell` 组件统一 `px-5 py-10` 移动内边距
@@ -35,6 +35,21 @@
 | auth | 登录/注册页需独立适配 |
 | bazi / ziwei / tarot | 接入时遵循本规范 |
 | shop | 结账浮层必须手机友好 |
+
+## 可安装（Android / Chrome）
+
+每个子域单独一份 Web App Manifest（`display: standalone`），安装后留在该来源内。字段定义在 `shared/pwa/install-manifest.ts`。图标用 `shared/brand/favicon/icon-192.png` 与 `icon-512.png`，复制到各应用的 `public/`（bazi 为 `client/public/`，auth 为 `auth-service/public/`）。
+
+| 应用 | 打开地址 |
+|------|----------|
+| main | `/` |
+| shop | `/` |
+| auth | `/login` |
+| admin | `/` |
+| cms | `/admin` |
+| bazi | `/` |
+| ziwei | `/chart` |
+| tarot | `/` |
 
 ## 参考实现
 

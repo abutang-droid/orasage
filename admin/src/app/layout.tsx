@@ -4,11 +4,15 @@ import { AdminPlatformShell } from '@/components/AdminPlatformShell';
 import { buildOrasageMetadata } from '@/lib/orasage-seo';
 import { getAdminUser } from '@/lib/auth';
 
-export const metadata: Metadata = buildOrasageMetadata({
-  title: '管理后台',
-  description: 'OraSage 运营管理后台',
-  robots: { index: false, follow: false },
-});
+export const metadata: Metadata = {
+  ...buildOrasageMetadata({
+    title: '管理后台',
+    description: 'OraSage 运营管理后台',
+    robots: { index: false, follow: false },
+  }),
+  applicationName: 'OraSage 后台',
+  appleWebApp: { capable: true, title: '后台', statusBarStyle: 'default' },
+};
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const admin = await getAdminUser();

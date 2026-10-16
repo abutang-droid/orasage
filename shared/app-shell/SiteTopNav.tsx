@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Menu, Search, ShoppingCart, X } from 'lucide-react';
 import { appBrandLabel, appHomeUrl, mainPortalUrl, type NavContext } from './config';
 import { getPrimaryNavCategories, getUtilityNav, type NavCategory, type NavLink } from './primary-nav';
@@ -83,6 +83,65 @@ function MeMenu({ locale }: { locale: string }) {
   );
 }
 
+function CartIconLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a href={href} className="orasage-site-topnav-icon" aria-label={label} title={label}>
+      <ShoppingCart size={18} strokeWidth={1.6} aria-hidden />
+    </a>
+  );
+}
+
+/** One React element cannot sit in two slots. Clone so desktop and the tablet bar each mount a copy. */
+function renderHeaderTrailing(trailing: ReactNode, fallback: ReactNode): ReactNode {
+  if (trailing == null) return fallback;
+  if (isValidElement(trailing)) return cloneElement(trailing);
+  return trailing;
+}
+
+function TabletRail({
+  locale,
+  brandHref,
+  brandLabel,
+  categories,
+}: {
+  locale: string;
+  brandHref: string;
+  brandLabel: string;
+  categories: NavCategory[];
+}) {
+  const util = getUtilityNav(locale);
+
+  return (
+    <nav className="orasage-tablet-rail" aria-label={pickLabel(SHELL_LABELS.menu, locale)}>
+      <a href={brandHref} className="orasage-tablet-rail-brand">
+        {brandLabel}
+      </a>
+      <div className="orasage-tablet-rail-scroll">
+        {categories.map((cat) => (
+          <div key={cat.id} className="orasage-tablet-rail-section">
+            <a href={cat.href} className="orasage-tablet-rail-heading">
+              {cat.label}
+            </a>
+            {(cat.children ?? []).map((child) => (
+              <a key={child.id} href={child.href} className="orasage-tablet-rail-link">
+                {child.label}
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="orasage-tablet-rail-utilities">
+        <a href={util.profile.href} className="orasage-tablet-rail-link">
+          {util.profile.label}
+        </a>
+        <a href={util.myReadings.href} className="orasage-tablet-rail-link">
+          {util.myReadings.label}
+        </a>
+      </div>
+    </nav>
+  );
+}
+
 function MobileNavPanel({
   locale,
   onClose,
@@ -141,7 +200,7 @@ export type SiteTopNavProps = {
   onLocaleChange?: (locale: string) => void;
 };
 
-/** 全站顶栏 — PC 水平菜单；移动折叠菜单按钮 */
+/** 全站顶栏 — PC 水平菜单；手机折叠菜单；Android 平板左侧导航轨 */
 export function SiteTopNav({
   locale = 'zh-CN',
   context = 'portal',
@@ -173,8 +232,18 @@ export function SiteTopNav({
       <LocaleSwitcher locale={locale} context={context} onLocaleChange={onLocaleChange} />
     ) : null);
 
+  const cartControl = (key: string) => (
+    <CartIconLink key={key} href={util.cart.href} label={util.cart.label} />
+  );
+
   return (
     <>
+      <TabletRail
+        locale={locale}
+        brandHref={brandHref}
+        brandLabel={brandLabel}
+        categories={categories}
+      />
       <header className="orasage-site-topnav">
         <div className="orasage-site-topnav-inner">
           <a href={brandHref} className="orasage-site-topnav-brand">
@@ -194,16 +263,7 @@ export function SiteTopNav({
               <Search size={18} strokeWidth={1.6} aria-hidden />
             </a>
             <MeMenu locale={locale} />
-            {trailing ?? (
-              <a
-                href={util.cart.href}
-                className="orasage-site-topnav-icon"
-                aria-label={util.cart.label}
-                title={util.cart.label}
-              >
-                <ShoppingCart size={18} strokeWidth={1.6} aria-hidden />
-              </a>
-            )}
+            {renderHeaderTrailing(trailing, cartControl('desktop'))}
             {localeControl}
           </nav>
 
@@ -216,6 +276,7 @@ export function SiteTopNav({
             >
               <Search size={18} strokeWidth={1.6} aria-hidden />
             </a>
+            <div className="orasage-tablet-only">{renderHeaderTrailing(trailing, cartControl('tablet'))}</div>
             {localeControl}
             <OrasageAuthChip locale={locale} />
             <button

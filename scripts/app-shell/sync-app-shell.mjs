@@ -33,6 +33,7 @@ const TS_FILES = [
   'labels.ts',
   'primary-nav.ts',
   'top-nav-html.ts',
+  'tablet-rail-html.ts',
   'index.ts',
 ];
 
@@ -97,6 +98,38 @@ function assertMobileNavPanelOpaque() {
       '[app-shell] mobile nav panel must declare opaque #ffffff then var(--shell-menu-bg) — otherwise the portal Header menu is transparent text',
     );
     process.exit(1);
+  }
+
+  if (!css.includes('.orasage-tablet-rail') || !css.includes('pointer: coarse') || !css.includes('min-height: 600px')) {
+    console.error('[app-shell] tablet rail media query missing — Android tablets would fall back to the phone menu');
+    process.exit(1);
+  }
+  if (!css.includes('@media (min-width: 1024px)')) {
+    console.error('[app-shell] desktop top nav breakpoint missing');
+    process.exit(1);
+  }
+  const railBlock = stripped.match(/\.orasage-tablet-rail\s*\{[^}]*\}/);
+  if (!railBlock || !/background:\s*#ffffff/.test(railBlock[0]) || !/var\(--shell-menu-bg/.test(railBlock[0])) {
+    console.error('[app-shell] tablet rail must declare opaque #ffffff then var(--shell-menu-bg)');
+    process.exit(1);
+  }
+
+  const nav = read(path.join(SOURCE_DIR, 'SiteTopNav.tsx')) || '';
+  const html = read(path.join(SOURCE_DIR, 'top-nav-html.ts')) || '';
+  const railHtml = read(path.join(SOURCE_DIR, 'tablet-rail-html.ts')) || '';
+  const authHtml = read(path.join(ROOT, 'auth-service/src/lib/top-nav-html.ts')) || '';
+  if (!nav.includes('orasage-tablet-rail') || !railHtml.includes('orasage-tablet-rail')) {
+    console.error('[app-shell] SiteTopNav or tablet-rail-html is missing the tablet rail markup');
+    process.exit(1);
+  }
+  for (const [name, source] of [
+    ['top-nav-html.ts', html],
+    ['auth-service/src/lib/top-nav-html.ts', authHtml],
+  ]) {
+    if (!source.includes('tabletRailHtml')) {
+      console.error(`[app-shell] ${name} does not render the tablet rail`);
+      process.exit(1);
+    }
   }
 }
 
