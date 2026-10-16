@@ -471,8 +471,8 @@
 
 /* —— Android 平板导航轨 ——
    短边 ≥600px（min-width 与 min-height 都 ≥600），所以手机横屏仍走折叠菜单。
-   触控主指针 / 无法 hover：含横屏平板。
-   宽度 600–1023 且高度 ≥600：中等窗口（平板竖屏、分屏）即使是鼠标也用导航轨。
+   触控主指针：含横屏平板。
+   宽度 600–1023 且高度 ≥600：中等窗口（平板竖屏、分屏）即使用精细指针也用导航轨。
    ≥1024 且精细指针的 PC 顶栏规则在上面，不被这条覆盖。 */
 .orasage-tablet-rail,
 .orasage-tablet-only {
@@ -548,7 +548,6 @@
 }
 
 @media (min-width: 600px) and (min-height: 600px) and (pointer: coarse),
-       (min-width: 600px) and (min-height: 600px) and (hover: none),
        (min-width: 600px) and (max-width: 1023.98px) and (min-height: 600px) {
   :root {
     --shell-rail-w: clamp(11.5rem, 22vw, 16rem);
