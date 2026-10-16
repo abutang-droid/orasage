@@ -8,19 +8,23 @@ import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 const PAGE_TITLE = 'OraSage Crystal Shop';
 const PAGE_DESCRIPTION = 'Crystal bracelets, digital divination reports, and energy consultations — curated by OraSage.';
 
-export const metadata: Metadata = buildOrasageMetadata({
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  keywords: ['OraSage', 'crystal shop', 'crystal bracelet', 'divination report', '水晶商城', '水晶手串'],
-  metadataBase: new URL(ORASAGE_URLS.shop),
-  openGraph: {
+export const metadata: Metadata = {
+  ...buildOrasageMetadata({
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    url: ORASAGE_URLS.shop,
-    locale: 'zh_CN',
-  },
-  ogImage: `${ORASAGE_URLS.shop}/og.png`,
-});
+    keywords: ['OraSage', 'crystal shop', 'crystal bracelet', 'divination report', '水晶商城', '水晶手串'],
+    metadataBase: new URL(ORASAGE_URLS.shop),
+    openGraph: {
+      title: PAGE_TITLE,
+      description: PAGE_DESCRIPTION,
+      url: ORASAGE_URLS.shop,
+      locale: 'zh_CN',
+    },
+    ogImage: `${ORASAGE_URLS.shop}/og.png`,
+  }),
+  applicationName: 'OraSage 商城',
+  appleWebApp: { capable: true, title: '商城', statusBarStyle: 'default' },
+};
 
 export const viewport: Viewport = {
   width: 'device-width',
