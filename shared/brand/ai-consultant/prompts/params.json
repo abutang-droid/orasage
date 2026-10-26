@@ -1,0 +1,27 @@
+{
+  "id": "orasage-ai-consultant-talking-head-v1",
+  "characterId": "orasage-ai-consultant",
+  "spec": "docs/design-system/ai-consultant-talking-head.md",
+  "identityLock": "shared/brand/ai-consultant/identity-lock.png",
+  "identityLockSize": { "width": 1024, "height": 1536, "aspect": "3:4" },
+  "durationSec": { "min": 6, "max": 8, "preferred": 8 },
+  "silentIdlePreview": {
+    "file": "shared/brand/ai-consultant/silent-idle-3s.mp4",
+    "durationSec": 3,
+    "fps": 24,
+    "audio": false,
+    "size": { "width": 1024, "height": 1536, "aspect": "3:4" }
+  },
+  "fps": { "min": 24, "max": 30, "preferred": 24 },
+  "motionStrength": "low",
+  "cameraMovement": "none",
+  "expressionStrength": "low",
+  "lipSync": "natural-accurate",
+  "defaultVoiceoverZh": "你好，我是 OraSage 的命理顾问。今晚，我们慢慢把这件事看清楚。",
+  "prompts": {
+    "zh": "talking-head.zh.txt",
+    "en": "talking-head.en.txt",
+    "negative": "negative.en.txt",
+    "silentIdle": "silent-idle.en.txt"
+  }
+}
