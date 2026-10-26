@@ -13,6 +13,35 @@ function warnOnce(key: string, message: string) {
   console.warn(`[message-hub] ${message}`);
 }
 
+/** 清洗 .env 粘贴时常见的弯引号 / Bot 前缀 / 空白，避免 Telegram API 404。 */
+export function sanitizeTelegramBotToken(raw: string | undefined | null): string {
+  if (!raw) return "";
+  let s = raw.trim();
+  const quotes = "\"'`“”‘’«»";
+  while (s.length >= 2 && quotes.includes(s[0]!) && quotes.includes(s[s.length - 1]!)) {
+    s = s.slice(1, -1).trim();
+  }
+  for (const ch of ["“", "”", "‘", "’", "\ufeff", "\u200b", "\u200c", "\u200d"]) {
+    s = s.split(ch).join("");
+  }
+  s = s.trim();
+  if (/^bot/i.test(s) && s.includes(":", 3)) {
+    s = s.replace(/^bot/i, "");
+  }
+  return s.trim();
+}
+
+function telegramBotToken(): string {
+  return sanitizeTelegramBotToken(process.env.TELEGRAM_BOT_TOKEN);
+}
+
+function telegramChatIds(): string[] {
+  return (process.env.TELEGRAM_CHAT_ID ?? "")
+    .split(",")
+    .map((s) => s.trim().replace(/^[“”‘’"']+|[“”‘’"']+$/g, ""))
+    .filter(Boolean);
+}
+
 async function timedFetch(url: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -30,11 +59,11 @@ export type HubChannelStatus = {
 
 /** 运营后台可读：通道是否已配置（不暴露密钥）。 */
 export function getHubChannelStatus(): HubChannelStatus {
-  const chatIds = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const chatIds = telegramChatIds();
   const recipients = (process.env.ORDER_NOTIFY_EMAIL_TO ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   return {
     telegram: {
-      configured: Boolean(process.env.TELEGRAM_BOT_TOKEN && chatIds.length > 0),
+      configured: Boolean(telegramBotToken() && chatIds.length > 0),
       chatCount: chatIds.length,
     },
     email: {
@@ -46,8 +75,8 @@ export function getHubChannelStatus(): HubChannelStatus {
 
 /** 向运营 Telegram 群推送文本。 */
 export async function sendHubTelegram(text: string): Promise<boolean> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatIds = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const token = telegramBotToken();
+  const chatIds = telegramChatIds();
   if (!token || chatIds.length === 0) {
     warnOnce("tg", "Telegram 通道未配置（TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID），跳过");
     return false;
@@ -124,8 +153,8 @@ export function pushHubOpsNotification(subject: string, text: string): void {
 
 /** 发送 Telegram 并返回 message_id（IM 桥接用）。 */
 export async function sendHubTelegramReturningId(text: string): Promise<number | null> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatIds = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const token = telegramBotToken();
+  const chatIds = telegramChatIds();
   if (!token || chatIds.length === 0) {
     warnOnce("tg", "Telegram 通道未配置（TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID），跳过");
     return null;
