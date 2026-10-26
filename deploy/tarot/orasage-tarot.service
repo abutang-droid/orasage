@@ -10,6 +10,9 @@ EnvironmentFile=-/opt/orasage/tarot/.env
 Environment=NODE_ENV=production
 Environment=PORT=3112
 Environment=HOSTNAME=127.0.0.1
+# CMS 变量内联，避免加载根目录 .env 覆盖 tarot/.env 中的 DATABASE_URL
+Environment=CMS_INTERNAL_URL=http://127.0.0.1:3120/cms
+Environment=CMS_PUBLIC_URL=https://cms.orasage.com/cms
 ExecStart=/usr/local/bin/npm start
 Restart=always
 RestartSec=5
