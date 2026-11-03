@@ -1,5 +1,7 @@
 # OraSage Product Plan v3
 
+> **历史草案（2026-07-01）。** 现行产品以 [`docs/PRODUCT.md`](docs/PRODUCT.md) 为准。下文里的 12 语言、后台骨架、命理应用迁移状态已不再描述现状。
+
 > 2026-07-01 · 8 Independent Apps · 方案 B：子域名架构
 > GitHub: `abutang-droid/orasage`
 

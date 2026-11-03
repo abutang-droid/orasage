@@ -154,7 +154,7 @@ export function ToolCards() {
   return (
     <section id="tools" className="home-section">
       <ModuleTitle>{t('title')}</ModuleTitle>
-      <div className="flex flex-col gap-3 sm:gap-4 md:grid md:grid-cols-3 md:gap-4">
+      <div className="home-tool-grid flex flex-col gap-3 sm:gap-4 md:grid md:grid-cols-3 md:gap-4">
         {toolKeys.map((key, index) => {
           const Icon = toolIcons[key];
           return (

@@ -469,6 +469,142 @@
   }
 }
 
+/* —— Android 平板导航轨 ——
+   短边 ≥600px（min-width 与 min-height 都 ≥600），所以手机横屏仍走折叠菜单。
+   触控主指针：含横屏平板。
+   宽度 600–1023 且高度 ≥600：中等窗口（平板竖屏、分屏）即使用精细指针也用导航轨。
+   ≥1024 且精细指针的 PC 顶栏规则在上面，不被这条覆盖。 */
+.orasage-tablet-rail,
+.orasage-tablet-only {
+  display: none;
+}
+
+.orasage-tablet-rail-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 64px;
+  padding: 0 16px;
+  font-family: var(--orasage-font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem;
+  letter-spacing: 0.1em;
+  color: var(--shell-gold, #c96442);
+  text-decoration: none;
+  border-bottom: 1px solid var(--shell-border, #dad9d4);
+}
+
+.orasage-tablet-rail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+}
+
+.orasage-tablet-rail-section + .orasage-tablet-rail-section {
+  margin-top: 4px;
+}
+
+.orasage-tablet-rail-heading,
+.orasage-tablet-rail-link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding-inline: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.orasage-tablet-rail-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3d3929;
+  color: var(--shell-text, #3d3929);
+}
+
+.orasage-tablet-rail-link {
+  padding-inline-start: 24px;
+  font-size: 14px;
+  color: #6e6d68;
+  color: var(--shell-muted, #6e6d68);
+}
+
+.orasage-tablet-rail-heading:hover,
+.orasage-tablet-rail-link:hover,
+.orasage-tablet-rail-heading:active,
+.orasage-tablet-rail-link:active {
+  background: rgba(201, 100, 66, 0.12);
+  color: var(--shell-gold, #c96442);
+}
+
+.orasage-tablet-rail-utilities {
+  flex-shrink: 0;
+  border-top: 1px solid var(--shell-border, #dad9d4);
+  padding: 8px;
+}
+
+.orasage-tablet-rail-utilities .orasage-tablet-rail-link {
+  padding-inline-start: 12px;
+}
+
+@media (min-width: 600px) and (min-height: 600px) and (pointer: coarse),
+       (min-width: 600px) and (max-width: 1023.98px) and (min-height: 600px) {
+  :root {
+    --shell-rail-w: clamp(11.5rem, 22vw, 16rem);
+  }
+
+  .orasage-tablet-rail {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: 35;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: calc(var(--shell-rail-w) + env(safe-area-inset-left, 0px));
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-inline-start: env(safe-area-inset-left, 0px);
+    overflow: hidden;
+    background: #ffffff;
+    background: var(--shell-menu-bg, #ffffff);
+    color: #3d3929;
+    color: var(--shell-text, #3d3929);
+    border-inline-end: 1px solid var(--shell-border, #dad9d4);
+  }
+
+  body:has(.orasage-tablet-rail) {
+    padding-inline-start: calc(var(--shell-rail-w) + env(safe-area-inset-left, 0px));
+  }
+
+  .orasage-site-topnav-menu--desktop {
+    display: none !important;
+  }
+
+  .orasage-site-topnav-mobile-actions {
+    display: flex !important;
+  }
+
+  .orasage-site-mobile-nav-toggle,
+  .orasage-site-mobile-nav-backdrop,
+  .orasage-site-mobile-nav-panel {
+    display: none !important;
+  }
+
+  .orasage-site-topnav-brand {
+    display: none;
+  }
+
+  .orasage-site-topnav-inner {
+    justify-content: flex-end;
+  }
+
+  .orasage-tablet-only {
+    display: flex;
+    align-items: center;
+  }
+}
+
 /* —— 全站页脚 — 上行免责声明 + 下行版权/隐私/条款 —— */
 .orasage-portal-footer {
   display: block;

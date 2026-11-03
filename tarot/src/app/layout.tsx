@@ -36,6 +36,8 @@ export async function generateMetadata(): Promise<Metadata> {
       description: meta.description,
       images: [`${ORASAGE_URLS.tarot}/og.png`],
     },
+    applicationName: 'OraSage 塔罗',
+    appleWebApp: { capable: true, title: '塔罗', statusBarStyle: 'default' },
   }
 }
 

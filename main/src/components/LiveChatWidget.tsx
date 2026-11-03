@@ -73,14 +73,16 @@ export function LiveChatWidget() {
 
   if (!loggedIn && !open) {
     return (
-      <button
-        type="button"
-        className="live-chat-fab"
-        aria-label="在线客服"
-        onClick={() => setOpen(true)}
-      >
-        💬
-      </button>
+      <div className="live-chat-root">
+        <button
+          type="button"
+          className="live-chat-fab"
+          aria-label="在线客服"
+          onClick={() => setOpen(true)}
+        >
+          💬
+        </button>
+      </div>
     );
   }
 

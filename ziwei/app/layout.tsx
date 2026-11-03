@@ -32,6 +32,8 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
     images: [`${ORASAGE_URLS.ziwei}/og.png`],
   },
+  applicationName: 'OraSage 紫微',
+  appleWebApp: { capable: true, title: '紫微', statusBarStyle: 'default' },
 };
 
 async function resolveInitialLocale(): Promise<Locale> {
