@@ -4,7 +4,7 @@
 
 GitHub: `abutang-droid/orasage`
 
-> 完整产品方案见 [`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md)
+> 现行产品说明见 [`docs/PRODUCT.md`](docs/PRODUCT.md)（2026-11-03）。[`PRODUCT_PLAN_v3.md`](PRODUCT_PLAN_v3.md) 是 2026-07 的架构草案。
 
 ## 域名架构（方案 B）
 
@@ -24,11 +24,11 @@ cms.orasage.com       → cms     :3120   Payload CMS
 | `orasage.com` | main | 3100 | Next.js 15 + next-intl | — | ✅ 已开发，部署至 VPS |
 | `auth.orasage.com` | auth | 3101 | Express + Drizzle + Jose | PostgreSQL | ✅ 已搭建，部署至 VPS |
 | `shop.orasage.com` | shop | 3102 | Next.js + Stripe + BullMQ | PostgreSQL | ✅ 已开发，部署至 VPS |
-| `admin.orasage.com` | admin | 3103 | Next.js SPA | PostgreSQL | 🚧 骨架已建，部署至 VPS |
+| `admin.orasage.com` | admin | 3103 | Next.js SPA | PostgreSQL | ✅ 运营后台（订单、商品、渠道、钱包等） |
 | `bazi.orasage.com` | bazi | 3110 | Vite + Express + tRPC + Drizzle | PostgreSQL (`orasage_bazi`) | ✅ 源码已接入，本地构建/运行验证通过 |
 | `ziwei.orasage.com` | ziwei | 3111 | Next.js 15 + iztro | 无（纯计算+AI） | ✅ 源码已接入，本地构建/运行验证通过 |
 | `tarot.orasage.com` | tarot | 3112 | Next.js 15 + Prisma | PostgreSQL (`orasage_tarot`) | ✅ 源码已接入，本地构建/运行验证通过 |
-| `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | 🚧 骨架已建，部署至 VPS |
+| `cms.orasage.com` | cms | 3120 | Payload CMS | PostgreSQL | ✅ 内容管理（商品页、媒体、证言） |
 
 ## 方案 B 要点
 
