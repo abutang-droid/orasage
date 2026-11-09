@@ -17,6 +17,21 @@ export const CHANNEL_MEMBER_ROLE_LABELS: Record<ChannelMemberRole, string> = {
   store: '店面',
 };
 
+/** 结账归因：URL `?channel=` 与商城 Cookie 使用同一编码规则 */
+export const CHANNEL_QUERY_PARAM = 'channel';
+export const CHANNEL_COOKIE = 'orasage_channel';
+export const CHANNEL_COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30;
+
+const CHANNEL_CODE_RE = /^[a-z0-9_-]{1,64}$/;
+
+/** 渠道编码归一化。非法返回 null，调用方应忽略而不是拒绝下单。 */
+export function normalizeChannelCode(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const code = raw.trim().toLowerCase();
+  if (!CHANNEL_CODE_RE.test(code)) return null;
+  return code;
+}
+
 export const CHANNEL_STATUSES = ['active', 'disabled'] as const;
 export type ChannelStatus = (typeof CHANNEL_STATUSES)[number];
 

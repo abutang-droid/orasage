@@ -7,6 +7,7 @@ import {
   createCheckoutOrder,
   startCheckoutSchema,
 } from '@/lib/checkout-flow';
+import { channelCodeFromCheckout } from '@/lib/channel-attribution';
 
 /** 已登录用户创建待支付订单（单 SKU 或购物车合并） */
 export async function POST(req: NextRequest) {
@@ -19,12 +20,20 @@ export async function POST(req: NextRequest) {
     const raw = await req.json();
     if (Array.isArray(raw.items) && raw.items.length > 0) {
       const body = cartStartCheckoutSchema.parse(raw);
-      const result = await createCartCheckoutOrder(req, { ...body, userId: user.id });
+      const result = await createCartCheckoutOrder(req, {
+        ...body,
+        userId: user.id,
+        channelCode: channelCodeFromCheckout(req, body.channelCode),
+      });
       return NextResponse.json(result);
     }
 
     const body = startCheckoutSchema.parse(raw);
-    const result = await createCheckoutOrder(req, { ...body, userId: user.id });
+    const result = await createCheckoutOrder(req, {
+      ...body,
+      userId: user.id,
+      channelCode: channelCodeFromCheckout(req, body.channelCode),
+    });
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof z.ZodError) {

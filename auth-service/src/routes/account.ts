@@ -13,6 +13,7 @@ import {
 } from "../lib/order-coupon.ts";
 import { notifyOrderEvent } from "../lib/order-notify.ts";
 import { notifyNewTicket } from "../lib/ticket-notify.ts";
+import { loadChannelsByIds, resolveActiveChannelId } from "../lib/sales-channel-attribution.ts";
 import {
   listLedgerForUser,
   listWalletsForUser,
@@ -184,6 +185,7 @@ accountRouter.get("/orders", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
   const rows = await db.select().from(userOrders).where(eq(userOrders.userId, user.id)).orderBy(desc(userOrders.createdAt)).limit(50);
+  const channels = await loadChannelsByIds(rows.map((o) => o.salesChannelId));
   res.json({
     orders: rows.map((o) => ({
       id: o.id,
@@ -200,6 +202,9 @@ accountRouter.get("/orders", async (req, res) => {
       shippingAddress: o.shippingAddress,
       recommendationContext: o.recommendationContext,
       readingId: o.readingId,
+      salesChannelId: o.salesChannelId,
+      salesChannelCode: o.salesChannelId ? channels.get(o.salesChannelId)?.code ?? null : null,
+      salesChannelName: o.salesChannelId ? channels.get(o.salesChannelId)?.name ?? null : null,
       createdAt: o.createdAt,
     })),
   });
@@ -665,6 +670,8 @@ const orderSchema = z.object({
   shippingAddress: z.string().max(2000).optional(),
   recommendationContext: z.string().max(2000).optional(),
   readingId: z.string().max(100).optional(),
+  /** 销售渠道编码。未知或停用时订单照常创建，只是不归因。 */
+  channelCode: z.string().max(64).optional(),
 });
 
 const orderUpdateSchema = z.object({
@@ -805,6 +812,7 @@ internalRouter.post("/orders", async (req, res) => {
       res.json({ success: true, id: dup[0].id, duplicate: true, updated: Boolean(body.status) });
       return;
     }
+    const salesChannelId = await resolveActiveChannelId(body.channelCode);
     const [row] = await db.insert(userOrders).values({
       userId: body.userId,
       orderNo: body.orderNo,
@@ -817,6 +825,7 @@ internalRouter.post("/orders", async (req, res) => {
       shippingAddress: body.shippingAddress,
       recommendationContext: body.recommendationContext,
       readingId: body.readingId,
+      salesChannelId,
     }).returning();
     notifyOrderEvent("created", row);
     if (row.status === "paid") notifyOrderEvent("paid", row);

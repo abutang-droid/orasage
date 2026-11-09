@@ -67,6 +67,7 @@ function CheckoutContent() {
   const readingId = searchParams.get('readingId') ?? undefined;
   const planType = searchParams.get('planType') ?? undefined;
   const appSource = searchParams.get('appSource') ?? 'shop';
+  const channelCode = searchParams.get('channel') ?? undefined;
   const priceCentsParam = searchParams.get('priceCents');
   const priceCentsUsdParam = searchParams.get('priceCentsUsd');
   const priceCents = priceCentsParam ? Number(priceCentsParam) : undefined;
@@ -295,6 +296,7 @@ function CheckoutContent() {
           shippingMode: coupleShipping ? 'couple' : 'single',
           successUrl: returnUrl ?? undefined,
           recommendationContext: searchParams.get('context') ?? undefined,
+          channelCode,
           priceCents: priceCents && Number.isFinite(priceCents) ? priceCents : undefined,
           priceCentsUsd: priceCentsUsd && Number.isFinite(priceCentsUsd) ? priceCentsUsd : undefined,
         }),
@@ -311,6 +313,7 @@ function CheckoutContent() {
       if (appSource) params.set('appSource', appSource);
       if (planType) params.set('planType', planType);
       if (readingId) params.set('readingId', readingId);
+      if (channelCode) params.set('channel', channelCode);
       if (coupleShipping) params.set('shipping', 'couple');
       router.replace(`/checkout?${params.toString()}`);
       return true;

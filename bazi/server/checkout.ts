@@ -11,6 +11,7 @@ const bodySchema = z.object({
   shippingMode: z.enum(['single', 'couple']).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
+  channelCode: z.string().max(64).optional(),
 });
 
 export function registerCheckoutRoute(app: Express) {
@@ -33,6 +34,7 @@ export function registerCheckoutRoute(app: Express) {
         shippingMode: body.shippingMode,
         successUrl: body.successUrl,
         cancelUrl: body.cancelUrl,
+        channelCode: body.channelCode,
         cookieHeader: req.headers.cookie ?? null,
       });
       res.json(result);
