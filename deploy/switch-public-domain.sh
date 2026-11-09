@@ -89,6 +89,8 @@ set_kv "$MAIN_ENV" AUTH_URL "$AUTH_URL"
 set_kv "$MAIN_ENV" AUTH_INTERNAL_URL "http://127.0.0.1:3101"
 set_kv "$MAIN_ENV" SHOP_URL "$SHOP_URL"
 set_kv "$MAIN_ENV" JWT_COOKIE_NAME "orasage_token"
+# systemd 在 .env.local 之前加载 main/.env，这里的 AUTH_URL 不能留在旧域名上。
+set_kv "$DEPLOY_DIR/main/.env" AUTH_URL "$AUTH_URL"
 
 # admin
 ADMIN_ENV="$DEPLOY_DIR/admin/.env"
