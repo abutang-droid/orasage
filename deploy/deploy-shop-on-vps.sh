@@ -110,11 +110,19 @@ if command -v psql >/dev/null 2>&1; then
   for mig in 0000_illegal_master_chief.sql 0001_user_center.sql 0002_add_shop_source.sql 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql 0037_destiny_slice_unlock.sql 0038_user_address_tax_id.sql 0039_usd_only_list_prices.sql 0040_soften_crystal_efficacy_copy.sql 0041_r3_efficacy_sync.sql 0042_crystal_price_168.sql 0043_gift_price_599.sql 0044_gift_price_588.sql 0045_wood_drop_career_expansion.sql 0046_disable_temple_donation.sql 0047_report_price_099.sql 0048_restore_core_auth_tables.sql 0049_r3_naming_layer.sql 0050_tarot_billing_price_099.sql 0051_sales_channels.sql 0052_order_sales_channel.sql; do
     if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
       log "  应用 $mig ..."
-      psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
-        sudo -u postgres psql orasage_auth -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
-        log "  警告: $mig 可能已应用或需手动执行"
+      # user_orders 等表属主是 postgres。应用账号 ALTER 会失败，且旧脚本把错误丢掉。
+      sudo -u postgres psql orasage_auth -v ON_ERROR_STOP=1 -f "$DEPLOY_DIR/auth-service/drizzle/$mig" \
+        || log "  警告: $mig 未完整应用"
     fi
   done
+  if [ -f "$DEPLOY_DIR/auth-service/drizzle/0052_order_sales_channel.sql" ]; then
+    channel_col="$(sudo -u postgres psql orasage_auth -tAc "SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='user_orders' AND column_name='sales_channel_id'")"
+    if [ "$channel_col" != "1" ]; then
+      log "错误: user_orders.sales_channel_id 不存在，停止部署"
+      exit 1
+    fi
+    log "  已确认 user_orders.sales_channel_id"
+  fi
 else
   log "psql 未找到，跳过迁移（请手动执行 auth-service/drizzle/*.sql）"
 fi
