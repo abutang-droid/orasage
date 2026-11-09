@@ -11,6 +11,7 @@ const bodySchema = z.object({
   readingId: z.string().max(100).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
+  channelCode: z.string().max(64).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
       readingId: body.readingId,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,
+      channelCode: body.channelCode,
       cookieHeader: req.headers.get('cookie'),
     });
     return NextResponse.json(result);
