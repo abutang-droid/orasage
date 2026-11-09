@@ -245,6 +245,19 @@ if contains ziwei; then
   systemctl restart orasage-ziwei || true
 fi
 
+if contains cms || [ -f "$DEPLOY_DIR/cms/.env" ]; then
+  log "构建 cms（serverURL 在构建时写入）..."
+  (
+    cd "$DEPLOY_DIR/cms"
+    export NEXT_PUBLIC_SERVER_URL="$CMS_PUBLIC_URL"
+    export NEXT_PUBLIC_AUTH_URL="$AUTH_URL"
+    export NEXT_PUBLIC_ADMIN_URL="$ADMIN_URL"
+    "$NPM_BIN" run build
+  )
+  systemctl restart orasage-cms || true
+  systemctl restart orasage-shop || true
+fi
+
 if contains tarot; then
   log "构建 tarot..."
   (
