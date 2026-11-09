@@ -1,3 +1,5 @@
+import { CHANNEL_QUERY_PARAM, normalizeChannelCode } from '../sales-channels/index';
+
 export type AppCheckoutRequest = {
   sku: string;
   /** 乐捐等可变价 SKU：quantity = 金额（分），单价 0.01 */
@@ -8,7 +10,14 @@ export type AppCheckoutRequest = {
   shippingMode?: 'single' | 'couple';
   successUrl?: string;
   cancelUrl?: string;
+  /** 缺省时读取当前页 `?channel=` */
+  channelCode?: string;
 };
+
+function channelFromPage(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  return normalizeChannelCode(new URLSearchParams(window.location.search).get(CHANNEL_QUERY_PARAM)) ?? undefined;
+}
 
 export type AppCheckoutResponse = {
   orderNo: string;
@@ -20,11 +29,12 @@ export type AppCheckoutResponse = {
 
 /** 各命理 App 前端调用本 App 的 /api/checkout 代理 */
 export async function startAppCheckout(body: AppCheckoutRequest): Promise<AppCheckoutResponse> {
+  const channelCode = body.channelCode ?? channelFromPage();
   const res = await fetch('/api/checkout', {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ ...body, channelCode }),
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) {

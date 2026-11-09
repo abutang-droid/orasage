@@ -11,6 +11,7 @@ import {
   startCheckoutBodySchema,
   validateCheckoutQuantity,
 } from '@/lib/checkout-flow';
+import { channelCodeFromCheckout } from '@/lib/channel-attribution';
 import {
   currencyForLocale,
   resolvePriceCents,
@@ -112,6 +113,7 @@ export async function PUT(req: NextRequest) {
         sku,
         quantity,
         appSource: 'shop',
+        channelCode: channelCodeFromCheckout(req),
       });
       return NextResponse.json({
         orderNo: result.orderNo,
