@@ -21,6 +21,7 @@ import { couponsPublicRouter } from "./routes/coupons-public.ts";
 import { diyRouter, diyInternalRouter } from "./routes/diy.ts";
 import { eventsRouter } from "./routes/events.ts";
 import { telegramWebhookRouter } from "./routes/telegram-webhook.ts";
+import { installManifest } from "../../shared/pwa/install-manifest.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +31,11 @@ app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: ENV.isProduction ? ENV.corsOrigins : true, credentials: true }));
+app.get("/manifest.webmanifest", (_req, res) => {
+  res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.send(JSON.stringify(installManifest("auth")));
+});
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(pagesRouter);
 app.use("/auth", authRouter);

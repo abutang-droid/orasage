@@ -25,15 +25,53 @@ export function appBrandLabel(appId: AppId, locale: string): string {
   return pickLabel(SHELL_LABELS[appId], locale, APP_BRANDS[appId]);
 }
 
-export const ORASAGE_URLS = {
-  main: 'https://orasage.com',
-  bazi: 'https://bazi.orasage.com',
-  ziwei: 'https://ziwei.orasage.com',
-  tarot: 'https://tarot.orasage.com',
-  shop: 'https://shop.orasage.com',
-  authLogin: 'https://auth.orasage.com/login',
-  temple: 'https://tarot.orasage.com/temple',
-} as const;
+/** 公网根域名：构建期 env，或浏览器从 hostname 推导 */
+function siteRootDomain(): string {
+  if (typeof process !== 'undefined' && process.env) {
+    const fromEnv = (
+      process.env.NEXT_PUBLIC_ROOT_DOMAIN
+      || process.env.VITE_ROOT_DOMAIN
+      || process.env.SITE_ROOT_DOMAIN
+      || ''
+    ).trim().toLowerCase().replace(/^\.+/, '');
+    if (fromEnv) return fromEnv;
+  }
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const host = window.location.hostname.toLowerCase();
+    if (host && host !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+      const parts = host.split('.');
+      if (parts.length >= 2) return parts.slice(-2).join('.');
+    }
+  }
+  return 'orasage.com';
+}
+
+function siteUrls(root = siteRootDomain()) {
+  return {
+    main: `https://${root}`,
+    bazi: `https://bazi.${root}`,
+    ziwei: `https://ziwei.${root}`,
+    tarot: `https://tarot.${root}`,
+    shop: `https://shop.${root}`,
+    authLogin: `https://auth.${root}/login`,
+    temple: `https://tarot.${root}/temple`,
+    admin: `https://admin.${root}`,
+  } as const;
+}
+
+/**
+ * 站点 URL。优先构建期 NEXT_PUBLIC_ROOT_DOMAIN / VITE_ROOT_DOMAIN；
+ * 未设置时浏览器端按当前 hostname 推导（便于临时换域）。
+ */
+export const ORASAGE_URLS: ReturnType<typeof siteUrls> = new Proxy({} as ReturnType<typeof siteUrls>, {
+  get(_target, prop: string | symbol) {
+    const urls = siteUrls();
+    if (typeof prop === 'string' && prop in urls) {
+      return urls[prop as keyof typeof urls];
+    }
+    return undefined;
+  },
+});
 
 export function mainPortalUrl(locale = 'zh-CN'): string {
   return `${ORASAGE_URLS.main}/${locale}`;

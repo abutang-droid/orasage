@@ -32,6 +32,17 @@ Home production uses **Cloudflare Tunnel**; do **not** SSH to `orasage.com:22` o
 
 `deploy/lib/ssh-setup.sh` uses `cloudflared access ssh` when `SSH_HOST` matches `ssh.*`. Verify: `source deploy/lib/ssh-setup.sh && setup_ssh_key && test_ssh_connection`.
 
+### Temporary public domain `orcos.win`
+
+When `orasage.com` is unreachable, use **`orcos.win`** as the same origin stack’s public entry. Apps read `SITE_ROOT_DOMAIN` / `NEXT_PUBLIC_ROOT_DOMAIN` / `VITE_ROOT_DOMAIN` (see `shared/site-domain.ts`). On the home server:
+
+```bash
+cd /opt/orasage && git pull --ff-only origin main
+SITE_ROOT_DOMAIN=orcos.win bash deploy/switch-public-domain.sh
+```
+
+Cloudflare Tunnel Public Hostnames + DNS for `*.orcos.win` must be added in Zero Trust (token-only agents cannot). On the home server, main listens on **`:3105`** behind nginx tunnel-split on **`:3100`**. Details: [`deploy/ORCOS-WIN.md`](deploy/ORCOS-WIN.md).
+
 ### What is runnable in this repo
 
 All 8 apps now have source in this repo: `main/` (Next.js 15 portal),

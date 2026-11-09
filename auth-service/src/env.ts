@@ -1,10 +1,15 @@
 import "dotenv/config";
+import { getSiteRootDomain, siteCorsOrigins } from "../../shared/site-domain.ts";
 
 function envOrThrow(key: string): string {
   const value = process.env[key];
   if (!value) throw new Error(`Missing required env var: ${key}`);
   return value;
 }
+
+const rootDomain = getSiteRootDomain();
+const defaultCors = siteCorsOrigins(rootDomain).join(",");
+const defaultCookieDomain = rootDomain ? `.${rootDomain}` : ".orasage.com";
 
 export const ENV = {
   port: parseInt(process.env.PORT || "3101", 10),
@@ -16,9 +21,10 @@ export const ENV = {
   databaseUrl: envOrThrow("DATABASE_URL"),
   jwtSecret: envOrThrow("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "30d",
-  corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
-  // 空字符串表示 host-only cookie（本地 127.0.0.1 跨端口联调）；未设置时默认 .orasage.com
-  cookieDomain: process.env.COOKIE_DOMAIN ?? ".orasage.com",
+  corsOrigins: (process.env.CORS_ORIGINS || defaultCors).split(",").filter(Boolean),
+  // 空字符串表示 host-only cookie（本地 127.0.0.1 跨端口联调）；未设置时跟 SITE_ROOT_DOMAIN
+  cookieDomain: process.env.COOKIE_DOMAIN ?? defaultCookieDomain,
+  siteRootDomain: rootDomain,
   isProduction: process.env.NODE_ENV === "production",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? process.env.VITE_AI_API_URL ?? "",

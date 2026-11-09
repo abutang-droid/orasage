@@ -11,6 +11,7 @@ import {
   startCheckoutBodySchema,
   validateCheckoutQuantity,
 } from '@/lib/checkout-flow';
+import { channelCodeFromCheckout } from '@/lib/channel-attribution';
 import {
   currencyForLocale,
   resolvePriceCents,
@@ -75,6 +76,7 @@ export async function POST(req: NextRequest) {
       locale: body.locale,
       priceCentsUsd: body.priceCentsUsd,
       priceCents: body.priceCents,
+      channelCode: body.channelCode,
     });
     return NextResponse.json(result);
   } catch (err) {
@@ -111,6 +113,7 @@ export async function PUT(req: NextRequest) {
         sku,
         quantity,
         appSource: 'shop',
+        channelCode: channelCodeFromCheckout(req),
       });
       return NextResponse.json({
         orderNo: result.orderNo,

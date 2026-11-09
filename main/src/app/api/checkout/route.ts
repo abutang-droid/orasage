@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       readingId?: string;
       successUrl?: string;
       cancelUrl?: string;
+      channelCode?: string;
     };
     if (!body.sku?.trim()) {
       return NextResponse.json({ error: '缺少商品 SKU' }, { status: 400 });
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       readingId: body.readingId,
       successUrl: body.successUrl,
       cancelUrl: body.cancelUrl,
+      channelCode: body.channelCode,
       cookieHeader: req.headers.get('cookie'),
     });
     return NextResponse.json(result);

@@ -39,7 +39,7 @@ function buildNewTicketText(ticket: TicketLike): string {
   if (ticket.subject) lines.push(`主题：${ticket.subject}`);
   lines.push("", ticket.body.slice(0, 1500));
   if (ticket.locale) lines.push("", `locale: ${ticket.locale}`);
-  lines.push("", "后台：https://admin.orasage.com/messages");
+  lines.push("", `后台：${process.env.ADMIN_URL || `https://admin.${process.env.SITE_ROOT_DOMAIN || "orasage.com"}`}/messages`);
   return lines.join("\n");
 }
 
@@ -66,7 +66,7 @@ export function notifyTicketReply(ticket: TicketLike & { adminReply: string }): 
     ticket.body.slice(0, 800),
     "",
     "如需继续沟通，请登录 OraSage 在「我的 → 我的工单」查看，或再次联系我们。",
-    "https://orasage.com/profile/tickets",
+    `${process.env.APP_URL || `https://${process.env.SITE_ROOT_DOMAIN || "orasage.com"}`}/profile/tickets`,
   ];
   void sendHubUserEmail(ticket.email, subject, lines.join("\n")).catch(() => undefined);
 }

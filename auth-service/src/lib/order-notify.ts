@@ -75,7 +75,7 @@ function buildText(event: OrderNotifyEvent, order: OrderLike): string {
     `时间：${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC`,
   );
   if (order.recommendationContext) lines.push(`推荐上下文：${order.recommendationContext.slice(0, 200)}`);
-  lines.push("", "后台：https://admin.orasage.com/shop/orders");
+  lines.push("", `后台：${process.env.ADMIN_URL || `https://admin.${process.env.SITE_ROOT_DOMAIN || "orasage.com"}`}/shop/orders`);
   return lines.join("\n");
 }
 

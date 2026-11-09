@@ -58,6 +58,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image: `${ORASAGE_URLS.main}/og.png`,
     }),
     twitter: orasageTwitter(title, description, `${ORASAGE_URLS.main}/og.png`),
+    applicationName: 'OraSage',
+    appleWebApp: {
+      capable: true,
+      title: 'OraSage',
+      statusBarStyle: 'default',
+    },
+    formatDetection: { telephone: false },
   };
 }
 

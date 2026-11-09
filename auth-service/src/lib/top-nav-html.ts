@@ -1,14 +1,17 @@
 import { pickLabel, SHELL_LABELS } from '../../../shared/app-shell/labels.ts';
 import { getPrimaryNavCategories } from '../../../shared/app-shell/primary-nav.ts';
+import { tabletRailHtml } from '../../../shared/app-shell/tablet-rail-html.ts';
 import { authLoginLabel } from './auth-page-copy.ts';
+import { urls } from './site-urls.ts';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-/** 静态页顶栏 HTML — PC 水平菜单 + 移动折叠按钮 */
+/** 静态页顶栏 HTML — PC 水平菜单 + 手机折叠按钮 + 平板导航轨 */
 export function topNavHtml(locale = 'zh-CN'): string {
-  const main = `https://orasage.com/${locale}`;
+  const site = urls();
+  const main = `${site.main}/${locale}`;
   const categories = getPrimaryNavCategories(locale);
   const desktopLinks = categories
     .map((item) => `<a href="${esc(item.href)}" class="orasage-site-topnav-link">${esc(item.label)}</a>`)
@@ -28,28 +31,40 @@ export function topNavHtml(locale = 'zh-CN'): string {
     })
     .join('\n        ');
   const login = authLoginLabel(locale);
-  const loginHref = `https://auth.orasage.com/login?redirect=${encodeURIComponent(main)}`;
+  const loginHref = `${site.authLogin}?redirect=${encodeURIComponent(main)}`;
   const profile = `${main}/profile`;
   const search = pickLabel(SHELL_LABELS.search, locale);
   const cart = pickLabel(SHELL_LABELS.cart, locale);
   const menu = pickLabel(SHELL_LABELS.menu, locale);
   const mine = pickLabel(SHELL_LABELS.mine, locale);
   const myReadings = pickLabel(SHELL_LABELS.myReadings, locale);
+  const rail = tabletRailHtml({
+    locale,
+    brandHref: main,
+    brandLabel: 'OraSage',
+    categories,
+    profileHref: profile,
+    profileLabel: mine,
+    readingsHref: `${main}/profile/readings`,
+    readingsLabel: myReadings,
+  });
 
   return `
+${rail}
 <header class="orasage-site-topnav">
   <div class="orasage-site-topnav-inner">
     <a href="${main}" class="orasage-site-topnav-brand">OraSage</a>
     <nav class="orasage-site-topnav-menu orasage-site-topnav-menu--desktop" aria-label="Site navigation">
           ${desktopLinks}
       <a href="${main}/search" class="orasage-site-topnav-link">${esc(search)}</a>
-      <a href="https://shop.orasage.com/cart" class="orasage-site-topnav-link">${esc(cart)}</a>
+      <a href="${site.shop}/cart" class="orasage-site-topnav-link">${esc(cart)}</a>
       <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${esc(login)}</a>
     </nav>
     <div class="orasage-site-topnav-mobile-actions">
       <a href="${main}/search" class="orasage-site-topnav-icon" aria-label="${esc(search)}" title="${esc(search)}">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </a>
+      <a href="https://shop.orasage.com/cart" class="orasage-site-topnav-link orasage-tablet-only">${esc(cart)}</a>
       <a href="${loginHref}" class="orasage-auth-chip orasage-auth-chip--loading" data-hydrate-auth data-login-url="${loginHref}" data-profile-url="${profile}">${esc(login)}</a>
       <button type="button" class="orasage-site-mobile-nav-toggle" aria-expanded="false" aria-controls="orasage-mobile-nav-panel" aria-label="${esc(menu)}">
         <svg class="orasage-site-mobile-nav-icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -65,7 +80,7 @@ export function topNavHtml(locale = 'zh-CN'): string {
     <a href="${main}/search" class="orasage-site-mobile-nav-link">${esc(search)}</a>
     <a href="${profile}" class="orasage-site-mobile-nav-link">${esc(mine)}</a>
     <a href="${main}/profile/readings" class="orasage-site-mobile-nav-link">${esc(myReadings)}</a>
-    <a href="https://shop.orasage.com/cart" class="orasage-site-mobile-nav-link">${esc(cart)}</a>
+    <a href="${site.shop}/cart" class="orasage-site-mobile-nav-link">${esc(cart)}</a>
   </div>
 </nav>`;
 }

@@ -109,6 +109,9 @@ export interface AdminOrder {
   statusLabel: string;
   appSource?: string | null;
   appLabel?: string | null;
+  salesChannelId?: number | null;
+  salesChannelCode?: string | null;
+  salesChannelName?: string | null;
   shippingAddress?: string | null;
   recommendationContext?: string | null;
   createdAt: string;

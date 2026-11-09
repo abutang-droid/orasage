@@ -67,10 +67,16 @@ for pkg in packages/ui packages/tokens; do
   fi
 done
 
+SITE_ROOT_DOMAIN="${SITE_ROOT_DOMAIN:-orasage.com}"
+export SITE_ROOT_DOMAIN
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN:-$SITE_ROOT_DOMAIN}"
 export JWT_SECRET
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL="${AUTH_URL:-https://auth.${SITE_ROOT_DOMAIN}}"
+export ADMIN_URL="${ADMIN_URL:-https://admin.${SITE_ROOT_DOMAIN}}"
+export APP_URL="${APP_URL:-https://${SITE_ROOT_DOMAIN}}"
+export SHOP_URL="${SHOP_URL:-https://shop.${SITE_ROOT_DOMAIN}}"
+export COOKIE_DOMAIN="${COOKIE_DOMAIN:-.${SITE_ROOT_DOMAIN}}"
 
 # shop report-job 分发依赖各 App 内网 URL
 ensure_root_env_kv() {
@@ -82,7 +88,14 @@ ensure_root_env_kv() {
   fi
 }
 ensure_root_env_kv CMS_INTERNAL_URL "${CMS_INTERNAL_URL:-http://127.0.0.1:3120/cms}"
-ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.orasage.com/cms}"
+ensure_root_env_kv SITE_ROOT_DOMAIN "$SITE_ROOT_DOMAIN"
+ensure_root_env_kv NEXT_PUBLIC_ROOT_DOMAIN "$NEXT_PUBLIC_ROOT_DOMAIN"
+ensure_root_env_kv COOKIE_DOMAIN "$COOKIE_DOMAIN"
+ensure_root_env_kv AUTH_URL "$AUTH_URL"
+ensure_root_env_kv ADMIN_URL "$ADMIN_URL"
+ensure_root_env_kv APP_URL "$APP_URL"
+ensure_root_env_kv SHOP_URL "$SHOP_URL"
+ensure_root_env_kv CMS_PUBLIC_URL "${CMS_PUBLIC_URL:-https://admin.${SITE_ROOT_DOMAIN}/cms}"
 ensure_root_env_kv AUTH_INTERNAL_URL "${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
 ensure_root_env_kv BAZI_INTERNAL_URL "${BAZI_INTERNAL_URL:-http://127.0.0.1:3110}"
 ensure_root_env_kv ZIWEI_INTERNAL_URL "${ZIWEI_INTERNAL_URL:-http://127.0.0.1:3111}"
@@ -94,14 +107,22 @@ AUTH_DB_URL="${DATABASE_URL:-postgresql://orasage:orasage_prod_2026@127.0.0.1:54
 if command -v psql >/dev/null 2>&1; then
   sudo -u postgres psql orasage_auth \
     -c "ALTER TYPE app_source ADD VALUE IF NOT EXISTS 'shop';" 2>/dev/null || true
-  for mig in 0000_illegal_master_chief.sql 0001_user_center.sql 0002_add_shop_source.sql 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql 0037_destiny_slice_unlock.sql 0038_user_address_tax_id.sql 0039_usd_only_list_prices.sql 0040_soften_crystal_efficacy_copy.sql 0041_r3_efficacy_sync.sql 0042_crystal_price_168.sql 0043_gift_price_599.sql 0044_gift_price_588.sql 0045_wood_drop_career_expansion.sql 0046_disable_temple_donation.sql 0047_report_price_099.sql 0048_restore_core_auth_tables.sql 0049_r3_naming_layer.sql 0050_tarot_billing_price_099.sql 0051_sales_channels.sql; do
+  for mig in 0000_illegal_master_chief.sql 0001_user_center.sql 0002_add_shop_source.sql 0003_profile_center.sql 0004_backfill_display_id.sql 0005_order_context.sql 0006_reading_report.sql 0007_report_plan_skus.sql 0008_homepage_featured.sql 0009_product_usd_price.sql 0010_product_requires_shipping.sql 0011_city_records.sql 0012_bazi_couple_skus.sql 0013_bazi_element_recommendations.sql 0014_bazi_recommend_prices.sql 0015_ziwei_chat.sql 0016_tarot_billing.sql 0017_temple_donation.sql 0018_shop_phase2.sql 0019_crystal_metal_satya_name.sql 0020_crystal_satya_names.sql 0021_diy_bracelet.sql 0022_product_i18n.sql 0023_contact_messages.sql 0024_product_attributes.sql 0025_shop_admin_phase_a.sql 0026_product_combos.sql 0027_shipping_zones.sql 0028_phase_d_growth.sql 0029_order_coupon.sql 0030_analytics_events.sql 0031_stripe_mirror.sql 0032_contact_tickets.sql 0033_live_chat.sql 0034_staff_permissions.sql 0035_user_wallets.sql 0036_crystal_gift_skus_shop_layout.sql 0037_destiny_slice_unlock.sql 0038_user_address_tax_id.sql 0039_usd_only_list_prices.sql 0040_soften_crystal_efficacy_copy.sql 0041_r3_efficacy_sync.sql 0042_crystal_price_168.sql 0043_gift_price_599.sql 0044_gift_price_588.sql 0045_wood_drop_career_expansion.sql 0046_disable_temple_donation.sql 0047_report_price_099.sql 0048_restore_core_auth_tables.sql 0049_r3_naming_layer.sql 0050_tarot_billing_price_099.sql 0051_sales_channels.sql 0052_order_sales_channel.sql; do
     if [ -f "$DEPLOY_DIR/auth-service/drizzle/$mig" ]; then
       log "  应用 $mig ..."
-      psql "$AUTH_DB_URL" -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
-        sudo -u postgres psql orasage_auth -f "$DEPLOY_DIR/auth-service/drizzle/$mig" 2>/dev/null || \
-        log "  警告: $mig 可能已应用或需手动执行"
+      # user_orders 等表属主是 postgres。应用账号 ALTER 会失败，且旧脚本把错误丢掉。
+      sudo -u postgres psql orasage_auth -v ON_ERROR_STOP=1 -f "$DEPLOY_DIR/auth-service/drizzle/$mig" \
+        || log "  警告: $mig 未完整应用"
     fi
   done
+  if [ -f "$DEPLOY_DIR/auth-service/drizzle/0052_order_sales_channel.sql" ]; then
+    channel_col="$(sudo -u postgres psql orasage_auth -tAc "SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='user_orders' AND column_name='sales_channel_id'")"
+    if [ "$channel_col" != "1" ]; then
+      log "错误: user_orders.sales_channel_id 不存在，停止部署"
+      exit 1
+    fi
+    log "  已确认 user_orders.sales_channel_id"
+  fi
 else
   log "psql 未找到，跳过迁移（请手动执行 auth-service/drizzle/*.sql）"
 fi
@@ -131,7 +152,8 @@ cd "$DEPLOY_DIR/main"
 NODE_ENV=development "$NPM_BIN" install
 
 log "构建 main..."
-export NEXT_PUBLIC_APP_URL="${APP_URL:-https://orasage.com}"
+export NEXT_PUBLIC_APP_URL="${APP_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 rm -rf .next
 "$NPM_BIN" run build
 
@@ -149,8 +171,9 @@ NODE_ENV=development "$NPM_BIN" install
 log "构建 admin..."
 export JWT_SECRET="${JWT_SECRET}"
 export JWT_COOKIE_NAME="${JWT_COOKIE_NAME:-orasage_token}"
-export AUTH_URL="${AUTH_URL:-https://auth.orasage.com}"
-export ADMIN_URL="${ADMIN_URL:-https://admin.orasage.com}"
+export AUTH_URL="${AUTH_URL}"
+export ADMIN_URL="${ADMIN_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 "$NPM_BIN" run build
 
 log "配置 orasage-admin 服务..."
@@ -167,7 +190,8 @@ NODE_ENV=development "$NPM_BIN" install
 log "构建 shop..."
 export JWT_SECRET="${JWT_SECRET:-}"
 export AUTH_INTERNAL_URL="${AUTH_INTERNAL_URL:-http://127.0.0.1:3101}"
-export SHOP_URL="${SHOP_URL:-https://shop.orasage.com}"
+export SHOP_URL="${SHOP_URL}"
+export NEXT_PUBLIC_ROOT_DOMAIN="${NEXT_PUBLIC_ROOT_DOMAIN}"
 "$NPM_BIN" run build
 
 # ── 8. systemd 服务 ──────────────────────────────────────────
@@ -193,12 +217,12 @@ curl -sf http://127.0.0.1:3101/health | head -c 200 && echo ""
 curl -sf http://127.0.0.1:3102/api/health && echo ""
 curl -sf http://127.0.0.1:3103 -o /dev/null -w "admin  → HTTP %{http_code}\n" || true
 
-for domain in orasage.com auth.orasage.com shop.orasage.com admin.orasage.com; do
+for domain in "${SITE_ROOT_DOMAIN}" "auth.${SITE_ROOT_DOMAIN}" "shop.${SITE_ROOT_DOMAIN}" "admin.${SITE_ROOT_DOMAIN}"; do
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${domain}" || echo "000")
   if [ "$code" = "200" ] || [ "$code" = "307" ] || [ "$code" = "308" ]; then
     log "✅ ${domain} → HTTP $code"
   else
-    log "⚠️  ${domain} → HTTP $code，检查 nginx 与 systemd 日志"
+    log "⚠️  ${domain} → HTTP $code，检查 nginx / Tunnel / systemd 日志"
   fi
 done
 sudo journalctl -u orasage-main -n 10 --no-pager 2>/dev/null || true

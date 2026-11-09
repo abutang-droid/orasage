@@ -20,18 +20,20 @@
 
 ## 「全站」范围
 
-**「全站」指 `orasage.com` 域名下的所有页面**，包括但不限于：
+**「全站」指当前公网根域名下的所有页面**（默认 `orasage.com`；临时域 `orcos.win`，见 [`deploy/ORCOS-WIN.md`](../deploy/ORCOS-WIN.md)），包括但不限于：
 
 | 子域 / 应用 | 说明 |
 |-------------|------|
-| `orasage.com` | main 门户 |
-| `shop.orasage.com` | 商城 |
-| `auth.orasage.com` | 登录 / 用户中心 |
-| `admin.orasage.com` | 运营后台 |
-| `cms.orasage.com` | 内容管理后台（Payload） |
-| `bazi.orasage.com` | 八字 |
-| `ziwei.orasage.com` | 紫微 |
-| `tarot.orasage.com` | 塔罗 |
+| `{root}` / `www.{root}` | main 门户 |
+| `shop.{root}` | 商城 |
+| `auth.{root}` | 登录 / 用户中心 |
+| `admin.{root}` | 运营后台 |
+| `admin.{root}/cms` | 内容管理后台（Payload） |
+| `bazi.{root}` | 八字 |
+| `ziwei.{root}` | 紫微 |
+| `tarot.{root}` | 塔罗 |
+
+（`{root}` = `SITE_ROOT_DOMAIN`，如 `orasage.com` 或 `orcos.win`。）
 
 - 除非任务中**单独列出例外**，否则不对 main / 子应用 / 后台（admin、cms）做区分或特殊豁免。
 - 后台页面（admin、cms）同样遵循全站视觉与导航规范。
@@ -41,10 +43,12 @@
 
 | 终端 | 导航形态 |
 |------|----------|
-| **PC（≥1024px）** | 顶部水平菜单：英文 **Shop → Insights → Origins → Readings**；中文 **首页 / 商城 / 玄析 / 造物 / 测算** + Search · Me · Cart + 语言切换（商城、玄析无二级；道藏与名人案例在测算二级） |
-| **移动（<1024px）** | 顶部统一样式：**品牌 + 搜索/语言/登录 + 折叠菜单按钮**；展开全站主导航面板（无底部固定栏） |
+| **PC（≥1024px，精细指针）** | 顶部水平菜单：英文 **Shop → Insights → Origins → Readings**；中文 **首页 / 商城 / 玄析 / 造物 / 测算** + Search · Me · Cart + 语言切换（商城、玄析无二级；道藏与名人案例在测算二级） |
+| **Android / 触控平板（短边 ≥600px）** | 左侧常驻导航轨（分类 + 子链接 + 我的 / 我的解读）。顶栏只留搜索、购物车、语言、登录。不显示折叠菜单，不用悬停下拉。触发条件：`min-width` 与 `min-height` 都 ≥600px，并且（主指针为 `coarse`，或宽度 &lt;1024px） |
+| **手机（短边 &lt;600px）** | 顶部统一样式：**品牌 + 搜索/语言/登录 + 折叠菜单按钮**；展开全站主导航面板（无底部固定栏）。横屏手机高度 &lt;600px，仍用这一套，不进导航轨 |
 
-- 移动端与 PC 端通过 CSS 媒体查询切换主导航呈现；同一页面不重复显示两套主导航。
+- 手机、平板、PC 通过 CSS 媒体查询切换主导航；同一页面只呈现一套主导航（导航轨显示时，水平菜单与折叠面板均为 `display: none`）。
+- 平板导航轨用字面色 `#ffffff` + `var(--shell-menu-bg, …)` 双写，避免脱离 `.orasage-app-shell` 时透底。
 - **移动折叠菜单面板必须不透明**：`.orasage-site-mobile-nav-panel` 用字面色 + `var(--shell-menu-bg, …)` 双写；`--shell-*` 只定义在 `.orasage-app-shell` 时，门户 `Header` 里的面板会变成透明文字叠在首页上（2026-10-04）。`:root` / `.orasage-site-chrome` 也要带 light token。
 - 全站页脚：上行 **功效/娱乐免责声明**，下行 **版权 + 隐私政策 + 服务条款**（与 main 一致）。
 - 子页「返回」放在内容区工具条，不占顶栏主导航位。
@@ -113,8 +117,10 @@
 
 | 环境 | 角色 | Agent 策略 |
 |------|------|------------|
-| 家用服务器（`orasage.com` 源站） | 当前生产 | 部署 / 验证 / SSH 的目标 |
+| 家用服务器（源站；公网域可为 `orasage.com` 或临时 `orcos.win`） | 当前生产 | 部署 / 验证 / SSH 的目标 |
 | GCP `34.75.40.67` | 历史 VPS / 其它分支 | **除非任务明确要求，否则不 SSH、不部署、不修改** |
+
+临时公网域切换：`SITE_ROOT_DOMAIN=orcos.win bash deploy/switch-public-domain.sh`（须先在 CF Tunnel 加 Public Hostname）。
 
 ### SSH 连接规则
 
