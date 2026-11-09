@@ -36,6 +36,7 @@ export const cartStartCheckoutSchema = z.object({
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
   locale: z.string().max(16).optional(),
+  channelCode: z.string().max(64).optional(),
 });
 
 export const startCheckoutBodySchema = z.object({
@@ -51,6 +52,7 @@ export const startCheckoutBodySchema = z.object({
   priceCents: z.number().int().positive().optional(),
   priceCentsUsd: z.number().int().positive().optional(),
   locale: z.string().max(16).optional(),
+  channelCode: z.string().max(64).optional(),
 });
 
 export function validateCheckoutQuantity(sku: string, quantity: number, ctx: z.RefinementCtx): void {
@@ -167,6 +169,7 @@ export async function createCheckoutOrder(
     appSource: input.appSource ?? 'shop',
     recommendationContext: input.recommendationContext,
     readingId: input.readingId,
+    channelCode: input.channelCode,
   });
 
   const successUrl = input.successUrl
@@ -296,6 +299,7 @@ export async function createCartCheckoutOrder(
     status: 'pending',
     appSource: input.appSource ?? 'shop',
     recommendationContext: lines.length === 1 ? undefined : cartContext,
+    channelCode: input.channelCode,
   });
 
   const successUrl = input.successUrl

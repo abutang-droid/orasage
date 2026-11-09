@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
       locale: body.locale,
       priceCentsUsd: body.priceCentsUsd,
       priceCents: body.priceCents,
+      channelCode: body.channelCode,
     });
     return NextResponse.json(result);
   } catch (err) {

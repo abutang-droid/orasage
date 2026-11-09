@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { count, desc, eq, gt, and, or, ilike, asc } from "drizzle-orm";
+import { count, desc, eq, gt, and, or, ilike, asc, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.ts";
 import {
@@ -10,6 +10,7 @@ import {
   productLinks,
   productTagLinks,
   products,
+  salesChannels,
   userOrders,
   userReadings,
   users,
@@ -971,6 +972,15 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
     .limit(limit)
     .offset(offset);
 
+  const channelIds = [...new Set(rows.map((o) => o.salesChannelId).filter((id): id is number => Number.isInteger(id)))];
+  const channelRows = channelIds.length
+    ? await db
+      .select({ id: salesChannels.id, code: salesChannels.code, name: salesChannels.name })
+      .from(salesChannels)
+      .where(inArray(salesChannels.id, channelIds))
+    : [];
+  const channels = new Map(channelRows.map((row) => [row.id, row]));
+
   const orders = await Promise.all(rows.map(async (o) => {
     const shipmentRows = await listShipmentsForOrder(o.orderNo);
     return {
@@ -988,6 +998,9 @@ adminApiRouter.get("/orders", P.orders, async (req, res) => {
       statusLabel: STATUS_LABELS[o.status] ?? o.status,
       appSource: o.appSource,
       appLabel: o.appSource ? APP_LABELS[o.appSource] : null,
+      salesChannelId: o.salesChannelId,
+      salesChannelCode: o.salesChannelId ? channels.get(o.salesChannelId)?.code ?? null : null,
+      salesChannelName: o.salesChannelId ? channels.get(o.salesChannelId)?.name ?? null : null,
       shippingAddress: o.shippingAddress,
       recommendationContext: o.recommendationContext,
       createdAt: o.createdAt,

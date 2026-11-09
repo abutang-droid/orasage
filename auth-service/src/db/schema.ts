@@ -108,6 +108,8 @@ export const userOrders = pgTable("user_orders", {
   readingId: varchar("reading_id", { length: 100 }),
   couponCode: varchar("coupon_code", { length: 50 }),
   subtotalCents: integer("subtotal_cents"),
+  /** 结账时匹配到的启用销售渠道；未知或停用编码保持空 */
+  salesChannelId: integer("sales_channel_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
