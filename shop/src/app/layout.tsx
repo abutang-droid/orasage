@@ -1,8 +1,10 @@
+import { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { ShopShell } from '@/components/ShopShell';
+import { ChannelAttribution } from '@/components/ChannelAttribution';
 import { buildOrasageMetadata, ORASAGE_URLS } from '@/lib/orasage-seo';
 
 const PAGE_TITLE = 'OraSage Crystal Shop';
@@ -41,6 +43,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale}>
       <body className="min-h-dvh bg-sage-bg text-sage-primary antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <Suspense fallback={null}>
+            <ChannelAttribution />
+          </Suspense>
           <ShopShell>{children}</ShopShell>
         </NextIntlClientProvider>
       </body>

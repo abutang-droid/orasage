@@ -28,7 +28,7 @@ function escapeCsv(value: string | number | null | undefined): string {
 }
 
 function downloadOrdersCsv(orders: AdminOrder[]) {
-  const header = ['orderNo', 'userId', 'title', 'sku', 'amount', 'status', 'app', 'createdAt'];
+  const header = ['orderNo', 'userId', 'title', 'sku', 'amount', 'status', 'app', 'channel', 'createdAt'];
   const lines = orders.map((o) => [
     o.orderNo,
     o.userId,
@@ -37,6 +37,7 @@ function downloadOrdersCsv(orders: AdminOrder[]) {
     o.amountDisplay,
     o.status,
     o.appSource ?? '',
+    o.salesChannelCode ?? '',
     o.createdAt,
   ].map(escapeCsv).join(','));
   const blob = new Blob(['\ufeff' + [header.join(','), ...lines].join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -186,6 +187,7 @@ export function OrderListTable({ orders, total, limit, offset, filters }: OrderL
               <th>SKU</th>
               <th>金额</th>
               <th>来源</th>
+              <th>渠道</th>
               <th>收货信息</th>
               <th>物流</th>
               <th>状态</th>
@@ -195,7 +197,7 @@ export function OrderListTable({ orders, total, limit, offset, filters }: OrderL
           </thead>
           <tbody>
             {orders.length === 0 ? (
-              <tr><td colSpan={12} className="muted">暂无订单</td></tr>
+              <tr><td colSpan={13} className="muted">暂无订单</td></tr>
             ) : orders.map((o) => {
               const diy = parseDiyOrderContext(o.recommendationContext);
               return (
@@ -238,6 +240,7 @@ export function OrderListTable({ orders, total, limit, offset, filters }: OrderL
                   <td>{o.sku ? <code>{o.sku}</code> : '—'}</td>
                   <td>{o.amountDisplay}</td>
                   <td>{o.appLabel ?? '—'}</td>
+                  <td>{o.salesChannelCode ? <code title={o.salesChannelName ?? undefined}>{o.salesChannelCode}</code> : '—'}</td>
                   <td className="shipping-cell">
                     {o.shippingAddress ? formatShippingDisplay(o.shippingAddress) : '—'}
                   </td>

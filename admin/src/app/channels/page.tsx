@@ -22,6 +22,7 @@ export default async function ChannelsPage() {
         <h1>渠道管理</h1>
         <p className="muted">
           管理销售渠道及其绑定账号；可配置 BD / 运营 / 设计师 / 业务员 / 店面各级默认分成比例，并为成员单独覆盖。
+          把渠道编码放进商城链接的 channel 参数，例如 shop.orasage.com/?channel=编码。启用中的渠道会记到之后 30 天内创建的订单上；未知或停用的编码不会拦住下单。
         </p>
       </header>
 
