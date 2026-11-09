@@ -201,8 +201,8 @@ if contains admin; then
     export AUTH_URL="$AUTH_URL"
     export ADMIN_URL="$ADMIN_URL"
     export AUTH_INTERNAL_URL="http://127.0.0.1:3101"
-    # 避开历史残留未跟踪页
-    rm -rf src/app/readings src/app/shop/channels
+    # shop/channels 是历史未跟踪残留；readings 是仓库里的页面，不能删。
+    rm -rf src/app/shop/channels
     "$NPM_BIN" run build
   )
   systemctl restart orasage-admin
