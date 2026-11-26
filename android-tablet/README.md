@@ -4,14 +4,14 @@
 
 ## 在线下载 / 直接安装
 
-平板浏览器打开（外网可访问，Content-Type 为 APK）：
+平板浏览器打开（外网可访问，文件名无 `-`）：
 
-https://orasage.com/get-tablet.apk
+https://orasage.com/orasagetablet.apk
 
 备用：
 
-- https://orasage.com/downloads/orasage-tablet.apk
-- https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasage-tablet-4x3-portrait-debug.apk
+- https://orasage.com/downloads/orasagetablet.apk
+- https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasagetablet.apk
 
 包名：`com.orasage.tablet.debug`。需允许「未知来源」安装。
 

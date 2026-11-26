@@ -37,6 +37,6 @@ chmod +x ./gradlew
 
 apk="$APP_DIR/app/build/outputs/apk/debug/app-debug.apk"
 mkdir -p "$ARTIFACT_DIR"
-cp -f "$apk" "$ARTIFACT_DIR/orasage-tablet-4x3-portrait-debug.apk"
-ls -lh "$apk" "$ARTIFACT_DIR/orasage-tablet-4x3-portrait-debug.apk"
-echo "APK_READY=$ARTIFACT_DIR/orasage-tablet-4x3-portrait-debug.apk"
+cp -f "$apk" "$ARTIFACT_DIR/orasagetablet.apk"
+ls -lh "$apk" "$ARTIFACT_DIR/orasagetablet.apk"
+echo "APK_READY=$ARTIFACT_DIR/orasagetablet.apk"
