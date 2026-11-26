@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="orasage_paper">#FAFAF8</color>
+    <color name="orasage_rail">#FFFFFF</color>
     <color name="orasage_ink">#1A1A1A</color>
+    <color name="orasage_muted">#6B6B6B</color>
     <color name="ic_launcher_background">#FAFAF8</color>
 </resources>

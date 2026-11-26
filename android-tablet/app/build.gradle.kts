@@ -11,10 +11,10 @@ android {
         applicationId = "com.orasage.tablet"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "2.0.0"
 
-        // 4:3 portrait tablet shell pointing at the live portal.
+        // Complete 4:3 portrait tablet shell (portal + BaZi + Ziwei + Tarot + Shop).
         buildConfigField("String", "START_URL", "\"https://orasage.com/zh-CN\"")
         buildConfigField("String", "ALLOWED_HOST_SUFFIX", "\".orasage.com\"")
         buildConfigField("String", "ALLOWED_ROOT_HOST", "\"orasage.com\"")

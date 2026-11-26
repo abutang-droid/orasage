@@ -1,6 +1,11 @@
-# OraSage Android 平板壳（4:3 竖屏）
+# OraSage Android 平板壳（4:3 竖屏 · 完整版）
 
-把线上门户 [`https://orasage.com/zh-CN`](https://orasage.com/zh-CN) 包成可安装的 APK，面向 **短边 ≥600dp 的 4:3 竖屏平板**。
+面向 **Android 11+ / 短边 ≥480dp 的 4:3 竖屏平板** 的完整壳：
+
+- 左侧原生导航：**首页 / 八字 / 紫微 / 塔罗 / 商城 / 我的**（不依赖网页链接）
+- 八字等子域留在同一个 WebView；支持 `window.open` / `target=_blank`
+- 锁定竖屏；包名 `com.orasage.tablet.debug`（调试包）
+
 
 ## 在线下载 / 直接安装
 

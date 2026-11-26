@@ -5,8 +5,11 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -14,21 +17,27 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.orasage.tablet.databinding.ActivityMainBinding
 
 /**
- * 4:3 portrait tablet shell for the live OraSage portal.
+ * Complete 4:3 portrait tablet shell.
  *
- * The product UI (tablet rail, PWA manifests) already lives on the web apps.
- * This activity locks portrait, prefers large screens, and keeps *.orasage.com
- * navigations inside one WebView so the shared login cookie stays available.
+ * Native left rail opens each product surface directly (BaZi / Ziwei / Tarot / Shop),
+ * so Android 11 does not depend on portal HTML links or target=_blank popups.
  */
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var lastFailedUrl: String = BuildConfig.START_URL
+    private var lastFailedUrl: String = TabletApp.HOME.url
+    private var currentApp: TabletApp = TabletApp.HOME
+    private var popupWebView: WebView? = null
+    private val railButtons = linkedMapOf<TabletApp, TextView>()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        buildRail()
         configureWebView(binding.webView)
         binding.retryButton.setOnClickListener {
             showOffline(false)
@@ -47,8 +57,19 @@ class MainActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    val popup = popupWebView
+                    if (popup != null) {
+                        if (popup.canGoBack()) {
+                            popup.goBack()
+                        } else {
+                            dismissPopup()
+                        }
+                        return
+                    }
                     if (binding.webView.canGoBack()) {
                         binding.webView.goBack()
+                    } else if (currentApp != TabletApp.HOME) {
+                        openApp(TabletApp.HOME)
                     } else {
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
@@ -57,10 +78,13 @@ class MainActivity : AppCompatActivity() {
             },
         )
 
-        val startUrl = resolveStartUrl(intent) ?: BuildConfig.START_URL
+        val start = resolveStart(intent)
         if (savedInstanceState == null) {
-            binding.webView.loadUrl(startUrl)
+            openApp(start.app, start.url)
         } else {
+            currentApp = TabletApp.entries.getOrNull(savedInstanceState.getInt(STATE_APP, 0))
+                ?: TabletApp.HOME
+            selectRail(currentApp)
             binding.webView.restoreState(savedInstanceState)
         }
     }
@@ -68,17 +92,58 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        resolveStartUrl(intent)?.let { binding.webView.loadUrl(it) }
+        val start = resolveStart(intent)
+        openApp(start.app, start.url)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putInt(STATE_APP, currentApp.ordinal)
         binding.webView.saveState(outState)
     }
 
     override fun onResume() {
         super.onResume()
         CookieManager.getInstance().flush()
+    }
+
+    override fun onDestroy() {
+        dismissPopup()
+        binding.webView.apply {
+            stopLoading()
+            loadUrl("about:blank")
+            removeAllViews()
+            destroy()
+        }
+        super.onDestroy()
+    }
+
+    private fun buildRail() {
+        val inflater = LayoutInflater.from(this)
+        binding.railLinks.removeAllViews()
+        railButtons.clear()
+        TabletApp.entries.forEach { app ->
+            val item = inflater.inflate(R.layout.rail_link, binding.railLinks, false) as TextView
+            item.text = app.labelZh
+            item.setOnClickListener { openApp(app) }
+            binding.railLinks.addView(item)
+            railButtons[app] = item
+        }
+    }
+
+    private fun openApp(app: TabletApp, url: String = app.url) {
+        dismissPopup()
+        currentApp = app
+        selectRail(app)
+        lastFailedUrl = url
+        showOffline(false)
+        binding.webView.loadUrl(url)
+    }
+
+    private fun selectRail(app: TabletApp) {
+        railButtons.forEach { (key, view) ->
+            view.isSelected = key == app
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -94,9 +159,28 @@ class MainActivity : AppCompatActivity() {
             useWideViewPort = true
             builtInZoomControls = false
             displayZoomControls = false
+            setSupportZoom(false)
             mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
             mediaPlaybackRequiresUserGesture = false
-            userAgentString = "$userAgentString OraSageTablet/1.0 (Android; portrait; tablet)"
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
+            cacheMode = WebSettings.LOAD_DEFAULT
+            // Desktop-ish UA helps some fortune UIs pick the tablet rail, while keeping Android WebView.
+            userAgentString =
+                "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; OraSageTablet) " +
+                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 " +
+                    "OraSageTablet/2.0 (Android; portrait; tablet; sw600)"
+            // Android 11 WebView: allow file access for blob/report downloads when same-origin.
+            allowFileAccess = true
+            allowContentAccess = true
+        }
+
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+            @Suppress("DEPRECATION")
+            WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_OFF)
+        }
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+            WebSettingsCompat.setAlgorithmicDarkeningAllowed(webView.settings, false)
         }
 
         webView.webChromeClient =
@@ -104,6 +188,36 @@ class MainActivity : AppCompatActivity() {
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                     binding.progress.visibility = if (newProgress in 1..99) View.VISIBLE else View.GONE
                     binding.progress.progress = newProgress
+                }
+
+                override fun onCreateWindow(
+                    view: WebView?,
+                    isDialog: Boolean,
+                    isUserGesture: Boolean,
+                    resultMsg: android.os.Message?,
+                ): Boolean {
+                    // Keep window.open / target=_blank inside the shell (critical for BaZi checkout links).
+                    val popup = WebView(this@MainActivity).apply {
+                        layoutParams =
+                            FrameLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                            )
+                    }
+                    configurePopupWebView(popup)
+                    val parent = binding.webView.parent as ViewGroup
+                    parent.addView(popup)
+                    popupWebView = popup
+                    val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                    transport.webView = popup
+                    resultMsg.sendToTarget()
+                    return true
+                }
+
+                override fun onCloseWindow(window: WebView?) {
+                    if (window == popupWebView) {
+                        dismissPopup()
+                    }
                 }
             }
 
@@ -120,6 +234,10 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                     showOffline(false)
+                    TabletApp.fromHost(Uri.parse(url ?: return).host)?.let {
+                        currentApp = it
+                        selectRail(it)
+                    }
                 }
 
                 override fun onReceivedError(
@@ -127,18 +245,60 @@ class MainActivity : AppCompatActivity() {
                     request: WebResourceRequest,
                     error: WebResourceError,
                 ) {
-                    if (request.isForMainFrame) {
-                        lastFailedUrl = request.url.toString()
-                        showOffline(true)
-                    }
+                    if (!request.isForMainFrame) return
+                    lastFailedUrl = request.url.toString()
+                    val detail =
+                        getString(
+                            R.string.offline_detail_format,
+                            request.url.host ?: "",
+                            error.errorCode,
+                            error.description ?: "",
+                        )
+                    binding.offlineDetail.text = detail
+                    showOffline(true)
                 }
             }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun configurePopupWebView(webView: WebView) {
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        webView.settings.setSupportMultipleWindows(true)
+        webView.webViewClient =
+            object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(
+                    view: WebView,
+                    request: WebResourceRequest,
+                ): Boolean = handleUrl(request.url)
+            }
+    }
+
+    private fun dismissPopup() {
+        val popup = popupWebView ?: return
+        val parent = popup.parent as? ViewGroup
+        parent?.removeView(popup)
+        popup.stopLoading()
+        popup.destroy()
+        popupWebView = null
     }
 
     private fun handleUrl(uri: Uri): Boolean {
         val host = uri.host?.lowercase() ?: return true
         if (isAllowedHost(host)) {
+            // Stay in-app for every OraSage subdomain, including BaZi.
             return false
+        }
+        // tel:/mailto: leave the shell.
+        if (uri.scheme == "tel" || uri.scheme == "mailto") {
+            return try {
+                startActivity(Intent(Intent.ACTION_VIEW, uri))
+                true
+            } catch (_: ActivityNotFoundException) {
+                true
+            }
         }
         return try {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -151,19 +311,30 @@ class MainActivity : AppCompatActivity() {
     private fun isAllowedHost(host: String): Boolean =
         host == BuildConfig.ALLOWED_ROOT_HOST ||
             host == "www.${BuildConfig.ALLOWED_ROOT_HOST}" ||
-            host.endsWith(BuildConfig.ALLOWED_HOST_SUFFIX)
+            host.endsWith(BuildConfig.ALLOWED_HOST_SUFFIX) ||
+            host == "admin.orasage.com"
 
-    private fun resolveStartUrl(intent: Intent?): String? {
-        val data = intent?.data ?: return null
-        return if (data.scheme == "https" && data.host != null && isAllowedHost(data.host!!.lowercase())) {
-            data.toString()
-        } else {
-            null
+    private data class Start(val app: TabletApp, val url: String)
+
+    private fun resolveStart(intent: Intent?): Start {
+        val data = intent?.data
+        if (data?.scheme == "https" && data.host != null && isAllowedHost(data.host!!.lowercase())) {
+            val app = TabletApp.fromHost(data.host) ?: TabletApp.HOME
+            return Start(app, data.toString())
         }
+        // Launcher shortcut extras: orasage://open?app=bazi
+        val appId = intent?.getStringExtra(EXTRA_APP)
+        val app = TabletApp.entries.find { it.id == appId } ?: TabletApp.HOME
+        return Start(app, app.url)
     }
 
     private fun showOffline(show: Boolean) {
         binding.offlinePanel.visibility = if (show) View.VISIBLE else View.GONE
         binding.webView.visibility = if (show) View.INVISIBLE else View.VISIBLE
+    }
+
+    companion object {
+        const val EXTRA_APP = "app"
+        private const val STATE_APP = "state_app"
     }
 }
