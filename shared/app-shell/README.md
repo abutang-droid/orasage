@@ -25,7 +25,7 @@ cp shared/app-shell/app-shell.css auth-service/public/assets/app-shell.css
 见 [`docs/AGENT-RULES.md`](../../docs/AGENT-RULES.md)：
 
 - **PC（≥1024px，精细指针）**：`SiteTopNav` 顶栏水平菜单
-- **Android / 触控平板（短边 ≥600px）**：`.orasage-tablet-rail` 左侧导航轨；顶栏保留搜索 / 购物车 / 语言 / 登录
+- **Android / 触控平板（短边 ≥600px 且 `pointer: coarse`）**：`.orasage-tablet-rail` 左侧导航轨；顶栏保留搜索 / 购物车 / 语言 / 登录。鼠标桌面窗口即使窄于 1024 也走原顶栏。
 - **手机（短边 &lt;600px）**：顶栏折叠菜单（无底部固定栏）
 
 CSS 在 `app-shell.css` 内用媒体查询切换，无需各应用单独判断首页/子页。手机横屏（高度 &lt;600px）保持折叠菜单。
