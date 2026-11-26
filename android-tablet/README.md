@@ -2,6 +2,15 @@
 
 把线上门户 [`https://orasage.com/zh-CN`](https://orasage.com/zh-CN) 包成可安装的 APK，面向 **短边 ≥600dp 的 4:3 竖屏平板**。
 
+## 在线下载
+
+调试 APK（约 5.5MB）：
+
+- GitHub：https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasage-tablet-4x3-portrait-debug.apk
+- 备用（Gofile）：https://gofile.io/d/sS3NQscA
+
+包名：`com.orasage.tablet.debug`。
+
 ## 行为
 
 - 启动进入中文门户；`*.orasage.com` 内跳转（登录、商城、八字、紫微、塔罗）留在同一个 WebView。
