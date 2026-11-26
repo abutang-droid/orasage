@@ -470,10 +470,9 @@
 }
 
 /* —— Android 平板导航轨 ——
-   短边 ≥600px（min-width 与 min-height 都 ≥600），所以手机横屏仍走折叠菜单。
-   触控主指针：含横屏平板。
-   宽度 600–1023 且高度 ≥600：中等窗口（平板竖屏、分屏）即使用精细指针也用导航轨。
-   ≥1024 且精细指针的 PC 顶栏规则在上面，不被这条覆盖。 */
+   只在触控平板上替换原顶栏：短边 ≥600px 且主指针为 coarse。
+   精细指针（鼠标/触控板）一律保留原 PC 水平菜单或手机折叠菜单，
+   避免 600–1023 宽的桌面窗口把原站导航藏掉、页面像“进不去”。 */
 .orasage-tablet-rail,
 .orasage-tablet-only {
   display: none;
@@ -547,8 +546,7 @@
   padding-inline-start: 12px;
 }
 
-@media (min-width: 600px) and (min-height: 600px) and (pointer: coarse),
-       (min-width: 600px) and (max-width: 1023.98px) and (min-height: 600px) {
+@media (min-width: 600px) and (min-height: 600px) and (pointer: coarse) {
   :root {
     --shell-rail-w: clamp(11.5rem, 22vw, 16rem);
   }
