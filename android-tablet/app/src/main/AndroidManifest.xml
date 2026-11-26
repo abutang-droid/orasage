@@ -4,14 +4,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- 4:3 tablets; keep installable on Android 11 mid-size devices. -->
+    <!-- Target panel 1280×1024 → portrait 1024×1280. -->
     <supports-screens
         android:smallScreens="false"
         android:normalScreens="true"
         android:largeScreens="true"
         android:xlargeScreens="true"
         android:anyDensity="true"
-        android:requiresSmallestWidthDp="480" />
+        android:requiresSmallestWidthDp="600" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -35,6 +35,8 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
+            android:maxAspectRatio="1.86"
+            android:minAspectRatio="0.7"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

@@ -6,7 +6,7 @@
     <string name="offline_detail_format">%1$s（错误 %2$d）\n%3$s</string>
     <string name="retry">重试</string>
     <string name="loading">正在加载…</string>
-    <string name="rail_hint">4:3 竖屏平板版 · 左侧直达八字</string>
+    <string name="rail_hint">1024×1280 竖屏 · 左侧直达八字</string>
     <string name="shortcut_bazi_short">八字</string>
     <string name="shortcut_bazi_long">打开八字排盘</string>
 </resources>

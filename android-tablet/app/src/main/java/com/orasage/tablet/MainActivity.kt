@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 
         buildRail()
         configureWebView(binding.webView)
+        // 1280×1024 panels report ~1024×1280 in portrait; keep content unscaled.
+        binding.webView.setInitialScale(100)
         binding.retryButton.setOnClickListener {
             showOffline(false)
             binding.webView.loadUrl(lastFailedUrl)
@@ -167,9 +169,9 @@ class MainActivity : AppCompatActivity() {
             cacheMode = WebSettings.LOAD_DEFAULT
             // Desktop-ish UA helps some fortune UIs pick the tablet rail, while keeping Android WebView.
             userAgentString =
-                "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; OraSageTablet) " +
+                "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; OraSageTablet 1024x1280) " +
                     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 " +
-                    "OraSageTablet/2.0 (Android; portrait; tablet; sw600)"
+                    "OraSageTablet/2.1 (Android; portrait; 1024x1280; panel=1280x1024)"
             // Android 11 WebView: allow file access for blob/report downloads when same-origin.
             allowFileAccess = true
             allowContentAccess = true
@@ -240,6 +242,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    injectTabletChrome(view)
+                }
+
                 override fun onReceivedError(
                     view: WebView,
                     request: WebResourceRequest,
@@ -258,6 +264,35 @@ class MainActivity : AppCompatActivity() {
                     showOffline(true)
                 }
             }
+    }
+
+    /**
+     * Target panel is 1280×1024 (portrait 1024×1280). Hide the site's own tablet rail /
+     * desktop top menu so only the native left rail remains — avoids a double sidebar.
+     */
+    private fun injectTabletChrome(view: WebView?) {
+        if (view == null) return
+        val js =
+            """
+            (function(){
+              if (window.__orasageTabletShell) return;
+              window.__orasageTabletShell = true;
+              var css = document.createElement('style');
+              css.id = 'orasage-tablet-shell-css';
+              css.textContent = `
+                .orasage-tablet-rail { display: none !important; }
+                .orasage-site-topnav-desktop, .orasage-desktop-only { display: none !important; }
+                .orasage-site-mobile-nav-toggle, .orasage-site-mobile-nav-panel { display: none !important; }
+                body { min-width: 0 !important; }
+                @media (min-width: 600px) {
+                  .orasage-app-shell, .orasage-site-chrome { padding-left: 0 !important; margin-left: 0 !important; }
+                }
+              `;
+              (document.head || document.documentElement).appendChild(css);
+              document.documentElement.setAttribute('data-orasage-tablet-shell', '1024x1280');
+            })();
+            """.trimIndent()
+        view.evaluateJavascript(js, null)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
