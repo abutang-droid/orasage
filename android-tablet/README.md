@@ -2,14 +2,19 @@
 
 把线上门户 [`https://orasage.com/zh-CN`](https://orasage.com/zh-CN) 包成可安装的 APK，面向 **短边 ≥600dp 的 4:3 竖屏平板**。
 
-## 在线下载
+## 在线下载 / 直接安装
 
-调试 APK（约 5.5MB）：
+平板浏览器打开（外网可访问，Content-Type 为 APK）：
 
-- GitHub：https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasage-tablet-4x3-portrait-debug.apk
-- 备用（Gofile）：https://gofile.io/d/sS3NQscA
+https://orasage.com/get-tablet.apk
 
-包名：`com.orasage.tablet.debug`。
+备用：
+
+- https://orasage.com/downloads/orasage-tablet.apk
+- https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasage-tablet-4x3-portrait-debug.apk
+
+包名：`com.orasage.tablet.debug`。需允许「未知来源」安装。
+
 
 ## 行为
 
