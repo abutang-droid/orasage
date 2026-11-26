@@ -4,16 +4,18 @@
 
 ## 在线下载 / 直接安装
 
-平板浏览器打开（外网可访问，文件名无 `-`）：
+平板浏览器打开（文件名无 `-`）：
 
-https://orasage.com/orasagetablet.apk
+https://cdn.jsdelivr.net/gh/abutang-droid/orasage@cursor/android-tablet-apk-46a9/android-tablet/releases/orasagetablet.apk
 
 备用：
 
-- https://orasage.com/downloads/orasagetablet.apk
-- https://github.com/abutang-droid/orasage/raw/cursor/android-tablet-apk-46a9/android-tablet/releases/orasagetablet.apk
+- https://raw.githubusercontent.com/abutang-droid/orasage/cursor/android-tablet-apk-46a9/android-tablet/releases/orasagetablet.apk
+- https://orasage.com/orasagetablet.apk（需源站 nginx / 门户静态路由就绪）
 
 包名：`com.orasage.tablet.debug`。需允许「未知来源」安装。
+
+源站发布：`bash deploy/publish-tablet-apk.sh`
 
 
 ## 行为
